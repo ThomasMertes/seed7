@@ -19,8 +19,8 @@ INSTALLATION
 
     The Seed7 package consists of a lot of files. There are two
   ways to install them. In a simple installation just use the seed7
-  directorys 'src', 'prg' and 'doc' from the tar file. To compile
-  the interpreter just go to the 'src' directory and type:
+  directorys 'src', 'prg', 'lib'  and 'doc' from the tar file.
+  To compile the interpreter just go to the 'src' directory and type:
 
     gmake depend
     gmake
@@ -30,9 +30,16 @@ INSTALLATION
 
     hi hello
 
-  The programs find their include files in the local directory.
-  No path (except . ) must be set. This installation can be used for
-  playing a little bit with the example programs.
+  The programs find their include files in the 'lib' directory.
+  It is not necessary to add a directory to the PATH variable.
+  It is just necessary that the PATH variable contains '.' .
+  When the PATH variable does not contain '.' a program can be
+  started with:
+
+    ./hi hello
+
+  This installation can be used for playing a little bit with
+  the example programs.
 
     In a professional installation Seed7 programs can be executed
   direct with their name from any directory and from any user.
@@ -42,35 +49,68 @@ INSTALLATION
     To do a professional installation the following things must
   be done:
 
-    1. Put the interpreter (hi) in a directory with public
-       access which is in the search path. In our example we
-       chose /usr/local/bin. The advantage of being in the
-       search path is that direct calls of hi (Like: hi myprog)
-       can be done from any directory (Provided that myprog is
-       there).
+    1. Put the seed7 directory at some place. For example:
+       /usr/local/src (or /usr/src or your home directory):
 
-    2. Put the include files (Extension .s7i) in a directory
-       with public access. In our example we chose
-       /usr/seed7/include. The directory and the files must
-       have read access for any user.
+         cd /usr/local/src
+         su ...
+         tar -xvzf seed7_05_yyyymmdd.tgz
+         chown -R ... seed7
+         exit
+
+    2. Compile the interpreter at this place:
+
+         cd /usr/local/src/seed7/src
+         gmake depend
+         gmake
+
+       The hi interpreter has now the path to the 'lib' directory
+       hardcoded as /usr/local/src/seed7/lib. If the 'hi'
+       interpreter was compiled at a different place it is
+       possible to use the SEED7_LIBRARY environment variable
+       as path to a library directory.
+
+    3. Put a link to the interpreter (seed7/src/hi) in a directory
+       with public access which is in the search path. In our
+       example we chose /usr/local/bin:
+
+         cd /usr/local/bin
+         su
+         ln -s /usr/local/src/seed7/src/hi .
+         exit
+
+       The advantage of being in the search path is that direct
+       calls of hi (Like: hi myprog) can be done from any
+       directory (Provided that myprog is there).
 
     To generate a Seed7 program which can be called from any
   directory and from any user the following things must be done:
 
-    1. The first three lines in the program must be:
+    1. The first line in the program must be:
 
-         #! /usr/local/bin/hi
-         $ info off
-         $ library "/usr/seed7/include"
+         #! /usr/bin/env hi
 
-       The first line informs the operating system where
-       to find the interpreter to execute the program.
-       The second line informs the interpreter to suppress the
-       compiling information. (This is not necessary but we
-       assume the program is tested and the compiling
-       information is not wanted in a production program)
-       The third line of the program informs the interpreter
-       where to find the include files.
+       The first line informs the (unix like) operating system
+       to start the 'env' program which itself searches for 'hi'
+       in the directorys of the PATH variable. Then the 'hi'
+       interpreter is started to execute the desired program.
+       To avoid a search in the PATH variable the path to the
+       'hi' interpreter can also be hardcoded as first line:
+
+         #! /usr/local/src/seed7/src/hi
+
+       To suppress the compiling information it is possible to
+       add as second line:
+
+         $ info off;
+
+       This is not necessary but we can assume that the program
+       is tested and the compiling information is not wanted in
+       a production program. If the program wants to search for
+       include files at additional directorys it is possible to
+       add lines like the following one:
+
+         $ library "../mylib";
 
     2. Rename the file to the name you want and put it in a
        directory which is member of the path (For example:

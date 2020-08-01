@@ -10,3 +10,4 @@
 #undef  CHMOD_MISSING
 #define _FILE_OFFSET_BITS 64
 #define LINKER_LIBS "-lX11 -lncurses -lm"
+#define SEED7_LIBRARY "/home/tm/seed7_5/lib"

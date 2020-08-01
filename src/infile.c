@@ -272,7 +272,7 @@ errinfotype *err_info;
           fclose(in_file.fil);
           *err_info = MEMORY_ERROR;
         } else {
-          in_name = cp_to_cstri(source_file_name);
+          in_name = (ustritype) cp_to_cstri(source_file_name);
           if (in_name == NULL) {
             fclose(in_file.fil);
             *err_info = MEMORY_ERROR;
@@ -393,7 +393,7 @@ errinfotype *err_info;
 #endif
 
   {
-    ustritype source_file_name = "STRING";
+    cstritype source_file_name = "STRING";
     infiltype new_file;
     unsigned int name_length;
     ustritype in_name;
@@ -407,12 +407,12 @@ errinfotype *err_info;
       if (!ALLOC_FILE(new_file)) {
         *err_info = MEMORY_ERROR;
       } else {
-       name_length = strlen((cstritype) source_file_name);
+       name_length = strlen(source_file_name);
         if (!ALLOC_USTRI(in_name, name_length)) {
           *err_info = MEMORY_ERROR;
         } else {
           COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-          strcpy((cstritype) in_name, (cstritype) source_file_name);
+          strcpy((cstritype) in_name, source_file_name);
           if (in_file.curr_infile != NULL) {
             memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
           } /* if */
@@ -541,6 +541,9 @@ errinfotype *err_info;
 #endif
 
   {
+    booltype found;
+    memsizetype position;
+    stritype curr_path;
     unsigned int length;
     stritype stri;
 
@@ -548,23 +551,39 @@ errinfotype *err_info;
 #ifdef TRACE_INFILE
     printf("BEGIN find_include_file\n");
 #endif
-    open_infile(include_file_name, err_info);
-    if (*err_info == FILE_ERROR) {
-      if (file_path != NULL) {
-        *err_info = OKAY_NO_ERROR;
-        length = file_path->size + include_file_name->size + 1;
-        if (!ALLOC_STRI(stri, length)) {
-          *err_info = MEMORY_ERROR;
-        } else {
-          COUNT_STRI(length);
-          stri->size = length;
-          memcpy(stri->mem, file_path->mem,
-              (SIZE_TYPE) file_path->size * sizeof(strelemtype));
-          stri->mem[file_path->size] = '/';
-          memcpy(&stri->mem[file_path->size + 1], include_file_name->mem,
-              (SIZE_TYPE) include_file_name->size * sizeof(strelemtype));
-          open_infile(stri, err_info);
-          FREE_STRI(stri, length);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (include_file_name->size >= 1 && include_file_name->mem[0] == '/') {
+        open_infile(include_file_name, err_info);
+      } else {
+        found = FALSE;
+        for (position = 0; !found && *err_info == OKAY_NO_ERROR &&
+            position <= lib_path->max_position - lib_path->min_position; position++) {
+          curr_path = lib_path->arr[position].value.strivalue;
+          if (curr_path->size == 0) {
+            open_infile(include_file_name, err_info);
+          } else {
+            length = curr_path->size + include_file_name->size;
+            if (!ALLOC_STRI(stri, length)) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              COUNT_STRI(length);
+              stri->size = length;
+              memcpy(stri->mem, curr_path->mem,
+                  (SIZE_TYPE) curr_path->size * sizeof(strelemtype));
+              memcpy(&stri->mem[curr_path->size], include_file_name->mem,
+                  (SIZE_TYPE) include_file_name->size * sizeof(strelemtype));
+              open_infile(stri, err_info);
+              FREE_STRI(stri, length);
+            } /* if */
+          } /* if */
+          if (*err_info == OKAY_NO_ERROR) {
+            found = TRUE;
+          } else if (*err_info == FILE_ERROR) {
+            *err_info = OKAY_NO_ERROR;
+          } /* if */
+        } /* for */
+        if (!found && *err_info == OKAY_NO_ERROR) {
+          *err_info = FILE_ERROR;
         } /* if */
       } /* if */
     } /* if */
@@ -577,58 +596,129 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void set_search_path (stritype new_path)
+void append_to_lib_path (stritype path, errinfotype *err_info)
 #else
 
-void set_search_path (new_path)
-stritype new_path;
+void append_to_lib_path (path, err_info)
+stritype path;
+errinfotype *err_info;
 #endif
 
-  { /* set_search_path */
+  {
+    memsizetype stri_len;
+    stritype stri;
+    memsizetype position;
+
+  /* append_to_lib_path */
 #ifdef TRACE_INFILE
-    printf("BEGIN set_search_path\n");
+    printf("BEGIN append_to_lib_path\n");
 #endif
-    if (file_path != NULL) {
-      FREE_STRI(file_path, file_path->size);
+    stri_len = path->size;
+    if (stri_len >= 1 &&
+        path->mem[stri_len - 1] != '/' && path->mem[stri_len - 1] != '\\') {
+      stri_len++;
     } /* if */
-    if (!ALLOC_STRI(file_path, new_path->size)) {
-      fatal_memory_error(SOURCE_POSITION(2025));
+    if (!ALLOC_STRI(stri, stri_len)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      COUNT_STRI(stri_len);
+      if (!RESIZE_ARRAY(lib_path, lib_path->max_position, lib_path->max_position + 1)) {
+        FREE_STRI(stri, stri_len);
+        *err_info = MEMORY_ERROR;
+      } else {
+        COUNT3_ARRAY(lib_path->max_position, lib_path->max_position + 1);
+        stri->size = stri_len;
+        for (position = 0; position < path->size; position++) {
+          if (path->mem[position] == '\\') {
+            stri->mem[position] = '/';
+          } else {
+            stri->mem[position] = path->mem[position];
+          } /* if */
+        } /* for */
+        if (stri_len != path->size) {
+          stri->mem[stri_len - 1] = '/';
+        } /* if */
+        lib_path->arr[lib_path->max_position].value.strivalue = stri;
+        lib_path->max_position++;
+      } /* if */
     } /* if */
-    COUNT_STRI(new_path->size);
-    file_path->size = new_path->size;
-    memcpy(file_path->mem, new_path->mem,
-        (SIZE_TYPE) new_path->size * sizeof(strelemtype));
 #ifdef TRACE_INFILE
-    printf("END set_search_path\n");
+    printf("END append_to_lib_path\n");
 #endif
-  } /* set_search_path */
+  } /* append_to_lib_path */
 
 
 
 #ifdef ANSI_C
 
-void set_search_path2 (ustritype new_path, memsizetype length)
+void init_lib_path (void)
 #else
 
-void set_search_path2 (new_path, length)
-ustritype new_path;
-memsizetype length;
+void init_lib_path ()
 #endif
 
-  { /* set_search_path2 */
+  {
+    stritype path;
+    memsizetype position;
+    memsizetype dir_path_size;
+    cstritype library_environment_variable;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* init_lib_path */
 #ifdef TRACE_INFILE
-    printf("BEGIN set_search_path\n");
+    printf("BEGIN init_lib_path\n");
 #endif
-    if (file_path != NULL) {
-      FREE_STRI(file_path, file_path->size);
+    if (!ALLOC_ARRAY(lib_path, 0)) {
+      fatal_memory_error(SOURCE_POSITION(2021));
+    } else {
+      COUNT_ARRAY(0);
+      lib_path->min_position = 1;
+      lib_path->max_position = 0;
     } /* if */
-    if (!ALLOC_STRI(file_path, length)) {
+
+    /* Add directory of source file to the lib_path */
+    path = cstri_to_stri(option.source_file_name);
+    if (path == 0) {
+      fatal_memory_error(SOURCE_POSITION(2022));
+    } else {
+      dir_path_size = 0;
+      for (position = 0; position < path->size; position++) {
+        if (path->mem[position] == '/' || path->mem[position] == '\\') {
+          dir_path_size = position + 1;
+        } /* if */
+      } /* for */
+      position = path->size;
+      path->size = dir_path_size;
+      append_to_lib_path(path, &err_info);
+      path->size = position;
+      FREE_STRI(path, path->size);
+    } /* if */
+
+    /* Add the hardcoded library of the interpreter to the lib_path */
+    path = cstri_to_stri(SEED7_LIBRARY);
+    if (path == 0) {
+      fatal_memory_error(SOURCE_POSITION(2023));
+    } else {
+      append_to_lib_path(path, &err_info);
+      FREE_STRI(path, path->size);
+    } /* if */
+
+    /* Add the SEED7_LIBRARY environment variable to the lib_path */
+    library_environment_variable = getenv("SEED7_LIBRARY");
+    if (library_environment_variable != NULL) {
+      path = cstri_to_stri(library_environment_variable);
+      if (path == 0) {
+        fatal_memory_error(SOURCE_POSITION(2024));
+      } else {
+        append_to_lib_path(path, &err_info);
+        FREE_STRI(path, path->size);
+      } /* if */
+    } /* if */
+
+    if (err_info != OKAY_NO_ERROR) {
       fatal_memory_error(SOURCE_POSITION(2025));
     } /* if */
-    COUNT_STRI(length);
-    file_path->size = length;
-    stri_expand(file_path->mem, new_path, length);
 #ifdef TRACE_INFILE
-    printf("END set_search_path\n");
+    printf("END init_lib_path\n");
 #endif
-  } /* set_search_path2 */
+  } /* init_lib_path */

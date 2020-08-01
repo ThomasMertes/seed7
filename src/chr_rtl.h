@@ -34,13 +34,17 @@
 inttype chrCmp (chartype, chartype);
 void chrCpy (chartype *, chartype);
 chartype chrCreate (chartype);
+chartype chrLow (chartype);
 stritype chrStr (chartype);
+chartype chrUp (chartype);
 
 #else
 
 inttype chrCmp ();
 void chrCpy ();
 chartype chrCreate ();
+chartype chrLow ();
 stritype chrStr ();
+chartype chrUp ();
 
 #endif

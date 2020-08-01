@@ -62,35 +62,4 @@ wrinum.sd7   Write numbers as english text
 wumpus.sd7   Hunt the Wumpus game                              
 
   Seed7 include files:
-bigfile.s7i  bigInteger versions of seek, tell and length      
-bigint.s7i   bigInteger point support library                  
-bigrat.s7i   Big rational number support library               
-complex.s7i  Complex support library                           
-dir.s7i      Read directorys as files                          
 dna_base.s7i Bacterial dna fight programming game interface    
-draw.s7i     Graphic library                                   
-echo.s7i     Filter file which generates an echo of the input  
-field.s7i    Filter file which reads the input fieldwise       
-float.s7i    Floating point support library                    
-getf.s7i     Read and write whole files into and from strings  
-graph.s7i    Graphic library                                   
-keybd.s7i    Keyboard driver                                   
-line.s7i     Filter file which reads the input linewise        
-lower.s7i    Filter file which turns characters to lower case  
-more.s7i     Filter file which shows another file screenwise   
-multiscr.s7i Demonstration for several file filters            
-pic16.s7i    Pictures in the size 16 x 16                      
-pic32.s7i    Pictures in the size 32 x 32                      
-progs.s7i    Program handling support library                  
-rational.s7i Rational number support library                   
-reverse.s7i  Filter file which writes right to left on output  
-scanner.s7i  Scanner functions                                 
-screen.s7i   General text screen with random access            
-seed7_05.s7i Standard Seed7 library                            
-syntax.s7i   Syntax definition of the standard Seed7 library   
-tee.s7i      Filter file which emulates the tee functionality  
-time.s7i     Time library                                      
-upper.s7i    Filter file which turns characters to upper case  
-utf8.s7i     Read and write utf-8 files                        
-window.s7i   Filter file for text windows with random access   
-wrinum.s7i   Functions to write numbers                        

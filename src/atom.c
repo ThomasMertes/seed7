@@ -73,12 +73,12 @@ static objecttype gen_object ()
     printf("BEGIN gen_object\n");
 #endif
     if (!ALLOC_OBJECT(atomic_object)) {
-      fatal_memory_error(SOURCE_POSITION(2050));
+      fatal_memory_error(SOURCE_POSITION(2051));
     } else {
       if (!ALLOC_RECORD(atomic_entity, entityrecord)) {
         FREE_OBJECT(atomic_object);
         atomic_object = NULL;
-        fatal_memory_error(SOURCE_POSITION(2051));
+        fatal_memory_error(SOURCE_POSITION(2052));
       } else {
         COUNT_RECORD(entityrecord, count.entity);
         atomic_entity->ident = current_ident;
@@ -121,7 +121,7 @@ objectclass class;
     printf("BEGIN gen_literal_object\n");
 #endif
     if (!ALLOC_OBJECT(literal_object)) {
-      fatal_memory_error(SOURCE_POSITION(2052));
+      fatal_memory_error(SOURCE_POSITION(2053));
     } else {
       if (typeof_object == NULL) {
         err_warning(LITERAL_TYPE_UNDEFINED);
@@ -168,12 +168,12 @@ static INLINE stritype new_string ()
     } /* if */
     COUNT3_STRI(symbol.stri_max, stri_created->size);
     if (!ALLOC_STRI(symbol.strivalue, symbol.stri_max)) {
-      fatal_memory_error(SOURCE_POSITION(2054));
+      fatal_memory_error(SOURCE_POSITION(2055));
     } /* if */
     COUNT_STRI(symbol.stri_max);
 #else
     if (!ALLOC_STRI(stri_created, symbol.strivalue->size)) {
-      fatal_memory_error(SOURCE_POSITION(2054));
+      fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
     COUNT_STRI(symbol.strivalue->size);
     stri_created->size = symbol.strivalue->size;

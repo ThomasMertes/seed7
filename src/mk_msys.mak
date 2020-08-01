@@ -1,26 +1,23 @@
-# Makefile for linux/bsd/unix and gcc.
-# To compile use a command shell and call:
-#   nmake depend
-#   nmake
-# If you are under windows you should use MinGW with mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
+# Makefile for gmake and gcc from MSYS (with MinGW).
+# To compile use a MSYS console and call:
+#   gmake -f mk_msys.mak depend
+#   gmake -f mk_msys.mak
+# If you do not have a MSYS console you could use a windows console together with mk_mingw.mak or mk_nmake.mak.
 
-# CFLAGS =
-#CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-#CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
+CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-#LFLAGS =
 LFLAGS = -O2
-#LFLAGS = -O2 -pg -lc_p
-# LIBS = /usr/Xlib/libX11.so -lncurses -lm
-LIBS = -lX11 -lncurses -lm
+# LFLAGS = -O2 -pg
+LIBS = -lm -lgdi32
 CC = gcc
 
 # SCREEN_OBJ = scr_x11.o
 # SCREEN_SRC = scr_x11.c
-SCREEN_OBJ = scr_infi.o kbd_infi.o trm_inf.o
-SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
+# SCREEN_OBJ = scr_infi.o kbd_infi.o trm_inf.o
+# SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
 # SCREEN_OBJ = scr_infp.o kbd_infp.o trm_cap.o
 # SCREEN_SRC = scr_inf.c kbd_inf.c trm_cap.c
 # SCREEN_OBJ = scr_cur.o
@@ -29,6 +26,8 @@ SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
 # SCREEN_SRC = scr_cap.c
 # SCREEN_OBJ = scr_tcp.o
 # SCREEN_SRC = scr_tcp.c
+SCREEN_OBJ = scr_win.o
+SCREEN_SRC = scr_win.c
 
 MOBJ1 = hi.o option.o primitiv.o
 LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o chrlib.o clslib.o cmdlib.o dcllib.o drwlib.o
@@ -42,7 +41,7 @@ GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
 ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
 ROBJ2 = int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
-DOBJ1 = $(SCREEN_OBJ) tim_unx.o drw_x11.o
+DOBJ1 = $(SCREEN_OBJ) tim_win.o drw_win.o
 OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 A_OBJ = $(ROBJ1) $(ROBJ2) $(DOBJ1)
 
@@ -58,22 +57,19 @@ GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c arrutl.c executl.c blockutl.c
 GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
 RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c chr_rtl.c cmd_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
 RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c str_rtl.c ut8_rtl.c heaputl.c striutl.c
-DSRC1 = $(SCREEN_SRC) tim_unx.c drw_x11.c
+DSRC1 = $(SCREEN_SRC) tim_win.c drw_win.c
 SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
 
 hi: $(OBJ) seed7_05.a
 	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
-	$(MAKE) ../prg/hi
-	./hi level
+	cp hi.exe ../prg
+	./hi.exe level
 #	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
-
-../prg/hi:
-	ln -s ../src/hi ../prg
 
 scr_x11.o: scr_x11.c version.h scr_drv.h trm_drv.h
 	$(CC) $(CFLAGS) -c scr_x11.c
@@ -123,15 +119,15 @@ version.h:
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define PATH_DELIMITER '/'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
-	echo "#define USE_MMAP" >> version.h
+	echo "#undef  USE_MMAP" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
-	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
-	echo "#undef  CHOWN_MISSING" >> version.h
+	echo "#define MKDIR_WITH_ONE_PARAMETER" >> version.h
+	echo "#define CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
-	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define USE_FSEEKO64" >> version.h
 	echo "#define LINKER_LIBS \"$(LIBS)\"" >> version.h
-	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd`\" >> ../src/version.h; cd ../src
+	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd -W`\" >> ../src/version.h; cd ../src
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c

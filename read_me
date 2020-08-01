@@ -28,7 +28,8 @@ WHAT CONTAINS THIS PACKAGE?
   following subdirectorys exist:
 
     src    The source of the interpreter
-    prg    Program examples and include files
+    prg    Program examples
+    lib    Include files
     doc    Documentation files
 
   Using the extension several files can be destinguished:
@@ -74,7 +75,7 @@ HOW TO COMPILE UNDER WINDOWS?
   change the PATH variable to contain the MinGW tools. Then
   go to the 'src' directory and type:
 
-    copy makefile.win makefile
+    copy mk_mingw.mak makefile
     del version.h
     gmake depend
     gmake
@@ -82,7 +83,7 @@ HOW TO COMPILE UNDER WINDOWS?
   To compile under MSYS (from the MinGW tools) go to the 'src'
   directory and type:
 
-    cp makefile.msy makefile
+    cp mk_msys.mak makefile
     rm version.h
     gmake depend
     gmake

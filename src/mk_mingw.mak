@@ -1,3 +1,9 @@
+# Makefile for gmake (for older gmake versions) and gcc from MinGW.
+# To compile use a windows console and call:
+#   gmake -f mk_mingw.mak depend
+#   gmake -f mk_mingw.mak
+# If your version of gmake does not support dos commands use MSYS with mk_msys.mak or mk_nmake.mak.
+
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -57,9 +63,8 @@ A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
 
 hi: $(OBJ) seed7_05.a
 	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
-	cp hi.exe ../prg
-	./hi.exe level
-#	cp hi /usr/local/bin/hi
+	copy hi.exe ..\prg /Y
+	.\hi level
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
@@ -99,9 +104,9 @@ scr_cur.o: scr_cur.c version.h scr_drv.h
 
 
 clear:
-	rm *.o
-	rm *.a
-	rm version.h
+	del *.o
+	del *.a
+	del version.h
 
 dep: depend
 
@@ -109,18 +114,39 @@ strip:
 	strip /usr/local/bin/hi
 
 version.h:
-	echo "#define ANSI_C" > version.h
-	echo "#define USE_DIRENT" >> version.h
-	echo "#define PATH_DELIMITER '/'" >> version.h
-	echo "#define CATCH_SIGNALS" >> version.h
-	echo "#undef  USE_MMAP" >> version.h
-	echo "#undef  INCL_NCURSES_TERM" >> version.h
-	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
-	echo "#define MKDIR_WITH_ONE_PARAMETER" >> version.h
-	echo "#define CHOWN_MISSING" >> version.h
-	echo "#undef  CHMOD_MISSING" >> version.h
-	echo "#define USE_FSEEKO64" >> version.h
-	echo "#define LINKER_LIBS \"$(LIBS)\"" >> version.h
+	echo #define ANSI_C > version.h
+	echo #define USE_DIRENT >> version.h
+	echo #define PATH_DELIMITER '/' >> version.h
+	echo #define CATCH_SIGNALS >> version.h
+	echo #undef  USE_MMAP >> version.h
+	echo #undef  INCL_NCURSES_TERM >> version.h
+	echo #undef  INCL_CURSES_BEFORE_TERM >> version.h
+	echo #define MKDIR_WITH_ONE_PARAMETER >> version.h
+	echo #define CHOWN_MISSING >> version.h
+	echo #undef  CHMOD_MISSING >> version.h
+	echo #define USE_FSEEKO64 >> version.h
+	echo #define LINKER_LIBS "$(LIBS)" >> version.h
+	echo #include "stdio.h" > libpath.c
+	echo #include "stddef.h" >> libpath.c
+	echo int chdir(char *path); >> libpath.c
+	echo char *getcwd(char *buf, size_t size); >> libpath.c
+	echo int main (int argc, char **argv) >> libpath.c
+	echo { >> libpath.c
+	echo char buffer[4096]; >> libpath.c
+	echo int position; >> libpath.c
+	echo chdir("../lib"); >> libpath.c
+	echo getcwd(buffer, sizeof(buffer)); >> libpath.c
+	echo printf("\043define SEED7_LIBRARY \042"); >> libpath.c
+	echo for (position = 0; buffer[position] != '\0'; position++) { >> libpath.c
+	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> libpath.c
+	echo } >> libpath.c
+	echo printf("\042\n"); >> libpath.c
+	echo return 0; >> libpath.c
+	echo } >> libpath.c
+	$(CC) libpath.c -o libpath
+	libpath >> ..\src\version.h
+	del libpath.c
+	del libpath.exe
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c

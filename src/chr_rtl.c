@@ -101,6 +101,25 @@ chartype source;
 
 #ifdef ANSI_C
 
+chartype chrLow (chartype ch)
+#else
+
+chartype chrLow (ch)
+chartype ch;
+#endif
+
+  { /* chrLow */
+    if (((int) ch) >= 'A' && ((int) ch) <= 'Z') {
+      return((strelemtype) (((int) ch) - 'A' + 'a'));
+    } else {
+      return(ch);
+    } /* if */
+  } /* chrLow */
+
+
+
+#ifdef ANSI_C
+
 stritype chrStr (chartype ch)
 #else
 
@@ -131,3 +150,22 @@ chartype ch;
     } /* if */
 #endif
   } /* chrStr */
+
+
+
+#ifdef ANSI_C
+
+chartype chrUp (chartype ch)
+#else
+
+chartype chrUp (ch)
+chartype ch;
+#endif
+
+  { /* chrUp */
+    if (((int) ch) >= 'a' && ((int) ch) <= 'z') {
+      return((strelemtype) (((int) ch) - 'a' + 'A'));
+    } else {
+      return(ch);
+    } /* if */
+  } /* chrUp */

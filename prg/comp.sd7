@@ -2536,7 +2536,7 @@ const proc: process_chr_le (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_chr_low (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "tolower(";
+    c_expr.expr &:= "chrLow(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -2632,7 +2632,7 @@ const proc: process_chr_succ (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_chr_up (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "toupper(";
+    c_expr.expr &:= "chrUp(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -5828,7 +5828,7 @@ const proc: process_set_conv (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     c_expr.expr &:= "(";
-    process_arg(params[3], c_expr);
+    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -10528,7 +10528,9 @@ const proc: write_file_head is func
     c_prog << "inttype    chrCmp (chartype, chartype);\n";
     c_prog << "void       chrCpy (chartype *, chartype);\n";
     c_prog << "chartype   chrCreate (chartype);\n";
+    c_prog << "chartype   chrLow (chartype);\n";
     c_prog << "stritype   chrStr (chartype);\n";
+    c_prog << "chartype   chrUp (chartype);\n";
     c_prog << "void       cmdCopy (stritype, stritype);\n";
     c_prog << "stritype   cmdGetcwd (void);\n";
     c_prog << "inttype    cmdLng (stritype);\n";

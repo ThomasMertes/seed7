@@ -74,7 +74,7 @@ EXTERN infilrecord in_file;
 #endif
 
 
-EXTERN stritype file_path;
+EXTERN arraytype lib_path;
 
 
 #ifdef ANSI_C
@@ -87,8 +87,8 @@ void next_file (void);
 int next_line (void);
 ustritype file_name (filenumtype);
 void find_include_file (stritype, errinfotype *);
-void set_search_path (stritype);
-void set_search_path2 (ustritype, memsizetype);
+void append_to_lib_path (stritype, errinfotype *);
+void init_lib_path (void);
 
 #else
 
@@ -100,7 +100,7 @@ void next_file ();
 int next_line ();
 ustritype file_name ();
 void find_include_file ();
-void set_search_path ();
-void set_search_path2 ();
+void append_to_lib_path ();
+void init_lib_path ()
 
 #endif

@@ -34,6 +34,7 @@
 #include "common.h"
 #include "sigutl.h"
 #include "data.h"
+#include "infile.h"
 #include "chclsutl.h"
 #include "syvarutl.h"
 #include "identutl.h"
@@ -87,6 +88,7 @@ char **argv;
           activate_signal_handlers();
         } /* if */
 #endif
+        init_lib_path();
         init_chclass();
         init_primitiv();
         init_do_any();

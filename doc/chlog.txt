@@ -235,3 +235,11 @@
 - The compiler was changed to mark its temporary *.c files with a temp_marker.
 - Several performance improvements for uBigMultSub, uBigAddTo, uBigDiv, uBigMult,
   uBigMultIntoHelp, bigGrow, bigMult and bigShrink were done.
+
+20070507:
+- As suggested by several users the include files were moved to the 'lib' directory.
+- The search for include files was improved to work with an internal search path array.
+- The 'hi' interpreter now contains a hardcoded include directory path defined in version.h.
+- The makefiles mk_mingw.mak, mk_msys.mak and mk_nmake.mak were added for compilation under MinGW.
+- The bigInteger multiplication was changed to use Karatsuba multiplication for bigger integers.
+- Several constant types were defined in common.h.

@@ -129,6 +129,7 @@ typedef FILE *             filetype;
 typedef size_t SIZE_TYPE;
 #else
 typedef unsigned int SIZE_TYPE;
+#define const
 #endif
 
 #ifdef C_PLUS_PLUS
@@ -158,6 +159,12 @@ typedef struct stristruct    *stritype;
 typedef struct bstristruct   *bstritype;
 typedef struct winstruct     *wintype;
 typedef struct bigintstruct  *biginttype;
+
+typedef const struct setstruct     *const_settype;
+typedef const struct stristruct    *const_stritype;
+typedef const struct bstristruct   *const_bstritype;
+typedef const struct winstruct     *const_wintype;
+typedef const struct bigintstruct  *const_biginttype;
 
 typedef struct setstruct {
     inttype min_position;

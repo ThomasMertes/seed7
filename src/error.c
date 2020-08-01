@@ -1136,6 +1136,11 @@ stritype stri;
         prot_stri(stri);
         printf(" not found\n");
         break;
+      case WRONG_PATH_DELIMITER:
+        printf("Use / instead of \\ as path delimiter in ");
+        prot_stri(stri);
+        printf("\n");
+        break;
       default:
         undef_err();
         break;

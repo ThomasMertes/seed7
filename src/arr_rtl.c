@@ -57,11 +57,11 @@
 
 #ifdef ANSI_C
 
-static void qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
+static void rtl_qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
     inttype cmp_func (rtlGenerictype, rtlGenerictype))
 #else
 
-static void qsort_array (begin_sort, end_sort, cmp_func)
+static void rtl_qsort_array (begin_sort, end_sort, cmp_func)
 rtlObjecttype *begin_sort;
 rtlObjecttype *end_sort;
 inttype cmp_func (rtlGenerictype, rtlGenerictype);
@@ -75,7 +75,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
     rtlObjecttype *greater_elem;
     int cmp;
 
-  /* qsort_array */
+  /* rtl_qsort_array */
     if (end_sort - begin_sort < 8) {
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
         compare_elem = middle_elem->value.genericvalue;
@@ -88,7 +88,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
         less_elem->value.genericvalue = compare_elem;
       } /* for */
     } else {
-      middle_elem = &begin_sort[(end_sort - begin_sort) >> 1];
+      middle_elem = &begin_sort[((memsizetype)(end_sort - begin_sort)) >> 1];
       compare_elem = middle_elem->value.genericvalue;
       middle_elem->value.genericvalue = end_sort->value.genericvalue;
       end_sort->value.genericvalue = compare_elem;
@@ -110,10 +110,10 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
       greater_elem->value.genericvalue = less_elem->value.genericvalue;
       less_elem->value.genericvalue = compare_elem;
       end_sort->value.genericvalue = help_element;
-      qsort_array(begin_sort, less_elem - 1, cmp_func);
-      qsort_array(less_elem + 1, end_sort, cmp_func);
+      rtl_qsort_array(begin_sort, less_elem - 1, cmp_func);
+      rtl_qsort_array(less_elem + 1, end_sort, cmp_func);
     } /* if */
-  } /* qsort_array */
+  } /* rtl_qsort_array */
 
 
 
@@ -420,6 +420,6 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
   { /* arrSort */
     /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
-    qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position - 1], cmp_func);
+    rtl_qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position - 1], cmp_func);
     return(arr1);
   } /* arrSort */

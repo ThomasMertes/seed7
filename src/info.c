@@ -104,8 +104,8 @@ void open_compilation_info ()
 #endif
 
   {
-    unsigned int name_length;
-    unsigned int next_name_length;
+    unsigned int new_name_length;
+    unsigned int curr_name_length;
     unsigned int number;
 
   /* open_compilation_info */
@@ -114,10 +114,10 @@ void open_compilation_info ()
 #endif
     if (option.compilation_info) {
       printf("     1 %s", in_file.name);
-      if (in_file.next != NULL) {
-        name_length = strlen((cstritype) in_file.name);
-        next_name_length = strlen((cstritype) in_file.next->name);
-        for (number = name_length; number < next_name_length;
+      if (in_file.curr_infile != NULL) {
+        new_name_length = strlen((cstritype) in_file.name);
+        curr_name_length = strlen((cstritype) in_file.curr_infile->name);
+        for (number = new_name_length; number < curr_name_length;
             number++) {
           fputc(' ', stdout);
         } /* for */

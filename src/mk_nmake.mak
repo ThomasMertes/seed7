@@ -1,3 +1,9 @@
+# Makefile for nmake from windows and gcc from MinGW.
+# To compile use a windows console and call:
+#   nmake /f mk_nmake.mak depend
+#   nmake /f mk_nmake.mak
+# If you use MSYS with MinGW you should use mk_msys.mak instead.
+
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -58,8 +64,7 @@ A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
 hi: $(OBJ) seed7_05.a
 	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
 	copy hi.exe ..\prg /Y
-	./hi level
-#	cp hi /usr/local/bin/hi
+	.\hi level
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
@@ -121,9 +126,33 @@ version.h:
 	echo #undef  CHMOD_MISSING >> version.h
 	echo #define USE_FSEEKO64 >> version.h
 	echo #define LINKER_LIBS "$(LIBS)" >> version.h
+	echo #include "stdio.h" > libpath.c
+	echo #include "stddef.h" >> libpath.c
+	echo int chdir(char *path); >> libpath.c
+	echo char *getcwd(char *buf, size_t size); >> libpath.c
+	echo int main (int argc, char **argv) >> libpath.c
+	echo { >> libpath.c
+	echo char buffer[4096]; >> libpath.c
+	echo int position; >> libpath.c
+	echo chdir("../lib"); >> libpath.c
+	echo getcwd(buffer, sizeof(buffer)); >> libpath.c
+	echo printf("\043define SEED7_LIBRARY \042"); >> libpath.c
+	echo for (position = 0; buffer[position] != '\0'; position++) { >> libpath.c
+	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> libpath.c
+	echo } >> libpath.c
+	echo printf("\042\n"); >> libpath.c
+	echo return 0; >> libpath.c
+	echo } >> libpath.c
+	$(CC) libpath.c -o libpath
+	libpath >> ..\src\version.h
+	del libpath.c
+	del libpath.exe
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
 
 depend: version.h
 	$(CC) -M $(SRC) > depend
@@ -150,8 +179,3 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(LIBS)
-
-ifeq (depend,$(wildcard depend))
-include depend
-include a_depend
-endif

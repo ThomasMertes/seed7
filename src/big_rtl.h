@@ -37,44 +37,44 @@
 
 #ifdef ANSI_C
 
-biginttype bigAbs (biginttype);
-biginttype bigAdd (biginttype, biginttype);
-inttype bigBitLength (biginttype);
-stritype bigCLit (biginttype);
-inttype bigCmp (biginttype, biginttype);
-void bigCpy (biginttype *, biginttype);
-biginttype bigCreate (biginttype);
-void bigDecr (biginttype *);
-void bigDestr (biginttype);
-biginttype bigDiv (biginttype, biginttype);
-booltype bigEq (biginttype, biginttype);
-void bigGrow (biginttype *, biginttype);
-inttype bigHashCode (biginttype);
+biginttype bigAbs (const const_biginttype);
+biginttype bigAdd (const_biginttype, const_biginttype);
+inttype bigBitLength (const const_biginttype);
+stritype bigCLit (const const_biginttype);
+inttype bigCmp (const const_biginttype, const const_biginttype);
+void bigCpy (biginttype *const, const const_biginttype);
+biginttype bigCreate (const const_biginttype);
+void bigDecr (biginttype *const);
+void bigDestr (const const_biginttype);
+biginttype bigDiv (const const_biginttype, const const_biginttype);
+booltype bigEq (const const_biginttype, const const_biginttype);
+void bigGrow (biginttype *const, const const_biginttype);
+inttype bigHashCode (const const_biginttype);
 biginttype bigIConv (inttype);
-void bigIncr (biginttype *);
-biginttype bigIPow (biginttype, inttype);
+void bigIncr (biginttype *const);
+biginttype bigIPow (const const_biginttype, inttype);
 #ifdef HAS_LONGTYPE_64
   biginttype bigLConv (longtype);
 #endif
-biginttype bigLog2 (biginttype);
+biginttype bigLog2 (const const_biginttype);
 #ifdef HAS_LONGTYPE_64
-  longtype bigLOrd (biginttype);
+  longtype bigLOrd (const const_biginttype);
 #endif
-void bigMCpy (biginttype *, biginttype);
-biginttype bigMDiv (biginttype, biginttype);
-biginttype bigMinus (biginttype);
-biginttype bigMod (biginttype, biginttype);
-biginttype bigMult (biginttype, biginttype);
-booltype bigNe (biginttype, biginttype);
-inttype bigOrd (biginttype);
-biginttype bigParse (stritype);
-biginttype bigPred (biginttype);
-biginttype bigRand (biginttype, biginttype);
-biginttype bigRem (biginttype, biginttype);
-biginttype bigSbtr (biginttype, biginttype);
-void bigShrink (biginttype *, biginttype);
-stritype bigStr (biginttype);
-biginttype bigSucc (biginttype);
+void bigMCpy (biginttype *const, const_biginttype);
+biginttype bigMDiv (const const_biginttype, const const_biginttype);
+biginttype bigMinus (const const_biginttype);
+biginttype bigMod (const const_biginttype, const const_biginttype);
+biginttype bigMult (const_biginttype, const_biginttype);
+booltype bigNe (const const_biginttype, const const_biginttype);
+inttype bigOrd (const const_biginttype);
+biginttype bigParse (const const_stritype);
+biginttype bigPred (const const_biginttype);
+biginttype bigRand (const const_biginttype, const const_biginttype);
+biginttype bigRem (const const_biginttype, const const_biginttype);
+biginttype bigSbtr (const const_biginttype, const const_biginttype);
+void bigShrink (biginttype *const, const const_biginttype);
+stritype bigStr (const const_biginttype);
+biginttype bigSucc (const const_biginttype);
 biginttype bigUIConv (uinttype);
 #ifdef HAS_LONGTYPE_64
   biginttype bigULConv (ulongtype);

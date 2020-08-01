@@ -187,6 +187,7 @@ static void process_pragma ()
 
   {
     cstritype str1;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* process_pragma */
 #ifdef TRACE_SCANNER
@@ -198,7 +199,15 @@ static void process_pragma ()
       if (strcmp((cstritype) symbol.name, "library") == 0) {
         scan_symbol();
         if (symbol.syclass == STRILITERAL) {
-          set_search_path(symbol.strivalue);
+          if (stri_charpos(symbol.strivalue, '\\') != NULL) {
+            err_warning(WRONG_PATH_DELIMITER);
+            scan_symbol();
+          } else {
+            append_to_lib_path(symbol.strivalue, &err_info);
+            if (err_info != OKAY_NO_ERROR) {
+              fatal_memory_error(SOURCE_POSITION(2111));
+            } /* if */
+          } /* if */
         } else {
           err_warning(STRI_EXPECTED);
         } /* if */
@@ -471,7 +480,6 @@ ustritype source_file_name;
     unsigned int name_len;
     booltype add_extension;
     progtype resultProg;
-    ustritype library_environment_variable;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* analyze */
@@ -485,14 +493,6 @@ ustritype source_file_name;
         source_file_name[pos] != '\\') {
       pos--;
     } /* while */
-    file_path = NULL;
-    library_environment_variable = (ustritype) getenv("SEED7_LIBRARY");
-    if (library_environment_variable != NULL) {
-      set_search_path2(library_environment_variable,
-          (memsizetype) strlen(library_environment_variable));
-    } else if (source_file_name[pos] == '/' || source_file_name[pos] == '\\') {
-      set_search_path2(source_file_name, (memsizetype) pos);
-    } /* if */
     if (len > 4 && strcmp(&source_file_name[len - 4], ".sd7") == 0) {
       name_len = len;
       add_extension = FALSE;
@@ -511,18 +511,20 @@ ustritype source_file_name;
         stri_expand(&source_name->mem[len], ".sd7", 4);
       } /* if */
       open_infile(source_name, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
-        resultProg = analyze_prog(source_file_name, &err_info);
+      if (err_info == FILE_ERROR && add_extension) {
+        err_info = OKAY_NO_ERROR;
+        source_name->size = name_len - 4;
+        open_infile(source_name, &err_info);
       } /* if */
       if (err_info == FILE_ERROR) {
         err_message(NO_SOURCEFILE, source_name);
         resultProg = NULL;
-      } else if (err_info == MEMORY_ERROR) {
+      } else if (err_info == OKAY_NO_ERROR) {
+        resultProg = analyze_prog(source_file_name, &err_info);
+      } /* if */
+      if (err_info == MEMORY_ERROR) {
         err_warning(OUT_OF_HEAP_SPACE);
         resultProg = NULL;
-      } /* if */
-      if (file_path != NULL) {
-        FREE_STRI(file_path, file_path->size);
       } /* if */
       FREE_STRI(source_name, name_len);
     } /* if */
@@ -553,7 +555,6 @@ stritype input_string;
     printf("BEGIN analyze_string\n");
 #endif
     resultProg = NULL;
-    file_path = NULL;
     input_bstri = cp_to_bstri(input_string);
     if (input_bstri != NULL) {
       open_string(input_bstri, &err_info);

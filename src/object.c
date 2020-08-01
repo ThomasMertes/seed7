@@ -67,7 +67,7 @@ objecttype typeof_object;
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
-      fatal_memory_error(SOURCE_POSITION(2053));
+      fatal_memory_error(SOURCE_POSITION(2031));
     } /* if */
     created_list->type_of = take_type(typeof_object);
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
@@ -109,13 +109,13 @@ objecttype typeof_object;
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
-      fatal_memory_error(SOURCE_POSITION(2054));
+      fatal_memory_error(SOURCE_POSITION(2032));
     } /* if */
     created_list->type_of = take_type(typeof_object);
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
     INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
     if (!ALLOC_L_ELEM(*list)) {
-      fatal_memory_error(SOURCE_POSITION(2055));
+      fatal_memory_error(SOURCE_POSITION(2033));
     } /* if */
     (*list)->next = NULL;
     (*list)->obj = first_element;
@@ -156,13 +156,13 @@ typetype type_of;
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
-      fatal_memory_error(SOURCE_POSITION(2054));
+      fatal_memory_error(SOURCE_POSITION(2034));
     } /* if */
     created_list->type_of = type_of;
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
     INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
     if (!ALLOC_L_ELEM(*list)) {
-      fatal_memory_error(SOURCE_POSITION(2055));
+      fatal_memory_error(SOURCE_POSITION(2035));
     } /* if */
     (*list)->next = NULL;
     (*list)->obj = first_element;
@@ -204,7 +204,7 @@ objecttype object;
       list->next = help_element;
       return(help_element);
     } else {
-      fatal_memory_error(SOURCE_POSITION(2056));
+      fatal_memory_error(SOURCE_POSITION(2036));
       return(NULL);
     } /* if */
 #ifdef TRACE_OBJECT
