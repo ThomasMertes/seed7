@@ -15,6 +15,9 @@ But Java and C# are also free?
 <li><a href="#os"><b>
 On which operating systems does Seed7 run?
 </b></a></li>
+<li><a href="#errors"><b>
+I got errors when compiling Seed7. What should I do?
+</b></a></li>
 <li><a href="#bytecode"><b>
 Does the interpreter use bytecode?
 </b></a></li>
@@ -176,6 +179,51 @@ Linux). For other operating systems it might be necessary to write driver
 modules for screen (=text console), graphics, time or other aspects of Seed7.
 The package contains various older driver modules which are not up to date,
 but can be used as base to write such driver modules.
+</p>
+
+<a name="errors"><b>I got errors when compiling Seed7. What should I do?
+</b></a><hr><!-- ==================================================== -->
+<p>
+In most cases errors indicate that some development package of your
+distribution is missing. If your operating system is linux, bsd or unix
+not all development packages with header files might be installed. In
+this case you get some errors after typing 'make depend'. Errors such as
+</p><pre>
+  scr_inf.c:57:18: error: term.h: No such file or directory
+  kbd_inf.c:55:18: error: term.h: No such file or directory
+  trm_inf.c:47:18: error: term.h: No such file or directory
+</pre><p>
+indicate that the curses or ncurses development package is missing.
+I don't know the name of this package in your distribution
+(under Ubuntu it has the name libncurses5-dev), but you
+can search in your package manager for a curses/ncurses
+package which mentions that it contains the header files.
+To execute programs you need also to install the non-developer
+package of curses/ncurses (in most cases it will already
+be installed because it is needed by other packages).
+</p><p>
+Errors such as
+</p><pre>
+  drw_x11.c:38:19: error: X11/X.h: No such file or directory
+  drw_x11.c:39:22: error: X11/Xlib.h: No such file or directory
+  drw_x11.c:40:23: error: X11/Xutil.h: No such file or directory
+  drw_x11.c:45:24: error: X11/keysym.h: No such file or directory
+</pre><p>
+indicate that the X11 development package is missing.
+Under Ubuntu this package has the name libx11-dev and is
+described as: X11 client-side library (development headers)
+Note that under X11 'client' means: The program which wants to
+draw. A X11 'server' is the place where the drawings are displayed.
+So you have to search for a X11 client developer package with
+headers. If you use X11 in some way (you don't do everything
+from the text console) the non-developer package of X11 will
+already be installed.
+</p><p>
+When you got other errors I would like to know about. Please send
+a mail with detailed information (name and version) of your
+operating system, distribution, compiler, the version of Seed7
+you wanted to compile and the complete log of error messages to
+seed7-users@lists.sourceforge.net .
 </p>
 
 <a name="bytecode"><b>Does the interpreter use bytecode?

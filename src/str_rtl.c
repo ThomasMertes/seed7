@@ -216,7 +216,7 @@ stritype stri_from;
     if (stri_from->size != 0) {
       stri_dest = *stri_to;
       new_size = stri_dest->size + stri_from->size;
-      stri_dest = REALLOC_STRI(stri_dest, stri_dest->size, new_size);
+      REALLOC_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
       if (stri_dest == NULL) {
         raise_error(MEMORY_ERROR);
         return;
@@ -504,7 +504,7 @@ stritype str1;
     } /* for */
     result->mem[pos] = (strelemtype) '"';
     result->size = pos + 1;
-    resized_result = REALLOC_STRI(result,
+    REALLOC_STRI(resized_result, result,
         (memsizetype) (4 * length + 2), (memsizetype) (pos + 1));
     if (resized_result == NULL) {
       FREE_STRI(result, (memsizetype) (4 * length + 2));
@@ -614,7 +614,7 @@ stritype stri2;
 
   /* strConcatTemp */
     result_size = stri1->size + stri2->size;
-    resized_stri1 = REALLOC_STRI(stri1, stri1->size, result_size);
+    REALLOC_STRI(resized_stri1, stri1, stri1->size, result_size);
     if (resized_stri1 == NULL) {
       FREE_STRI(stri1, stri1->size);
       raise_error(MEMORY_ERROR);
@@ -994,45 +994,45 @@ stritype stri;
     length = stri->size;
     if (!ALLOC_STRI(result, (memsizetype) (12 * length + 2))) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
-    } /* if */
-    result->mem[0] = (strelemtype) '"';
-    pos = 1;
-    for (position = 0; position < length; position++) {
-      character = (strelemtype) stri->mem[position];
-      if (character < ' ') {
-        len = strlen(stri_escape_sequence[character]);
-        cstri_expand(&result->mem[pos],
-            stri_escape_sequence[character], len);
-        pos = pos + len;
-      } else if ((character >= 128 && character < 159) ||
-          character >= 255) {
-        sprintf(buffer, "\\%lu\\", character);
-        len = strlen(buffer);
-        cstri_expand(&result->mem[pos], buffer, len);
-        pos = pos + len;
-      } else if (character == '\\' || character == '\"') {
-        result->mem[pos] = (strelemtype) '\\';
-        result->mem[pos + 1] = (strelemtype) character;
-        pos = pos + 2;
-      } else {
-        result->mem[pos] = (strelemtype) character;
-        pos++;
-      } /* if */
-    } /* for */
-    result->mem[pos] = (strelemtype) '"';
-    result->size = pos + 1;
-    resized_result = REALLOC_STRI(result,
-        (memsizetype) (12 * length + 2), (memsizetype) (pos + 1));
-    if (resized_result == NULL) {
-      FREE_STRI(result, (memsizetype) (12 * length + 2));
-      raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
-      result = resized_result;
-      COUNT3_STRI(5 * length + 2, pos + 1);
-      return(result);
+      result->mem[0] = (strelemtype) '"';
+      pos = 1;
+      for (position = 0; position < length; position++) {
+        character = (strelemtype) stri->mem[position];
+        if (character < ' ') {
+          len = strlen(stri_escape_sequence[character]);
+          cstri_expand(&result->mem[pos],
+              stri_escape_sequence[character], len);
+          pos = pos + len;
+        } else if ((character >= 128 && character < 159) ||
+            character >= 255) {
+          sprintf(buffer, "\\%lu\\", character);
+          len = strlen(buffer);
+          cstri_expand(&result->mem[pos], buffer, len);
+          pos = pos + len;
+        } else if (character == '\\' || character == '\"') {
+          result->mem[pos] = (strelemtype) '\\';
+          result->mem[pos + 1] = (strelemtype) character;
+          pos = pos + 2;
+        } else {
+          result->mem[pos] = (strelemtype) character;
+          pos++;
+        } /* if */
+      } /* for */
+      result->mem[pos] = (strelemtype) '"';
+      result->size = pos + 1;
+      REALLOC_STRI(resized_result, result,
+          (memsizetype) (12 * length + 2), (memsizetype) (pos + 1));
+      if (resized_result == NULL) {
+        FREE_STRI(result, (memsizetype) (12 * length + 2));
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(5 * length + 2, pos + 1);
+      } /* if */
     } /* if */
+    return(result);
   } /* strLit */
 
 
@@ -1387,6 +1387,7 @@ stritype replace;
     const strelemtype *search_end;
     const strelemtype *copy_start;
     strelemtype *result_end;
+    stritype resized_result;
     stritype result;
 
   /* strRepl */
@@ -1401,48 +1402,50 @@ stritype replace;
     } /* if */
     if (!ALLOC_STRI(result, guessed_result_size)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
-    } /* if */
-    copy_start = main_stri->mem;
-    result_end = result->mem;
-    if (searched_size != 0 && searched_size <= main_size) {
-      searched_mem = searched->mem;
-      ch_1 = searched_mem[0];
-      main_mem = main_stri->mem;
-      search_start = main_mem;
-      search_end = &main_mem[main_size - searched_size + 1];
-      while (search_start < search_end &&
-          (search_start = search_strelem(search_start,
-          ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
-        if (memcmp(search_start, searched_mem,
-            (SIZE_TYPE) searched_size * sizeof(strelemtype)) == 0) {
-          memcpy(result_end, copy_start,
-              (SIZE_TYPE) (search_start - copy_start) * sizeof(strelemtype));
-          result_end += search_start - copy_start;
-          memcpy(result_end, replace->mem,
-              (SIZE_TYPE) replace->size * sizeof(strelemtype));
-          result_end += replace->size;
-          search_start += searched_size;
-          copy_start = search_start;
-        } else {
-          search_start++;
+    } else {
+      copy_start = main_stri->mem;
+      result_end = result->mem;
+      if (searched_size != 0 && searched_size <= main_size) {
+        searched_mem = searched->mem;
+        ch_1 = searched_mem[0];
+        main_mem = main_stri->mem;
+        search_start = main_mem;
+        search_end = &main_mem[main_size - searched_size + 1];
+        while (search_start < search_end &&
+            (search_start = search_strelem(search_start,
+            ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
+          if (memcmp(search_start, searched_mem,
+              (SIZE_TYPE) searched_size * sizeof(strelemtype)) == 0) {
+            memcpy(result_end, copy_start,
+                (SIZE_TYPE) (search_start - copy_start) * sizeof(strelemtype));
+            result_end += search_start - copy_start;
+            memcpy(result_end, replace->mem,
+                (SIZE_TYPE) replace->size * sizeof(strelemtype));
+            result_end += replace->size;
+            search_start += searched_size;
+            copy_start = search_start;
+          } else {
+            search_start++;
+          } /* if */
         } /* if */
       } /* if */
+      memcpy(result_end, copy_start,
+          (SIZE_TYPE) (&main_stri->mem[main_size] - copy_start) * sizeof(strelemtype));
+      result_end += &main_stri->mem[main_size] - copy_start;
+      result->size = result_end - result->mem;
+      /* printf("result=%lu, guessed_result_size=%ld, result->size=%ld\n",
+         result, guessed_result_size, result->size); */
+      REALLOC_STRI(resized_result, result, guessed_result_size, result->size);
+      if (resized_result == NULL) {
+        FREE_STRI(result, guessed_result_size);
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(guessed_result_size, result->size);
+      } /* if */
     } /* if */
-    memcpy(result_end, copy_start,
-        (SIZE_TYPE) (&main_stri->mem[main_size] - copy_start) * sizeof(strelemtype));
-    result_end += &main_stri->mem[main_size] - copy_start;
-    result->size = result_end - result->mem;
-    /* printf("result=%lu, guessed_result_size=%ld, result->size=%ld\n",
-       result, guessed_result_size, result->size); */
-    if (!RESIZE_STRI(result, guessed_result_size, result->size)) {
-      FREE_STRI(result, guessed_result_size);
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      COUNT3_STRI(guessed_result_size, result->size);
-      return(result);
-    } /* if */
+    return(result);
   } /* strRepl */
 
 

@@ -38,7 +38,6 @@
 #include "blnlib.h"
 #include "bstlib.h"
 #include "chrlib.h"
-#include "clslib.h"
 #include "cmdlib.h"
 #include "dcllib.h"
 #include "drwlib.h"
@@ -47,6 +46,7 @@
 #include "fltlib.h"
 #include "hshlib.h"
 #include "intlib.h"
+#include "itflib.h"
 #include "kbdlib.h"
 #include "lstlib.h"
 #include "prclib.h"
@@ -177,15 +177,6 @@ static primactrecord prim_act_table[] = {
     { "CHR_SUCC",            chr_succ,            },
     { "CHR_UP",              chr_up,              },
     { "CHR_VALUE",           chr_value,           },
-
-    { "CLS_CONV2",           cls_conv2,           },
-    { "CLS_CPY",             cls_cpy,             },
-    { "CLS_CPY2",            cls_cpy2,            },
-    { "CLS_CREATE",          cls_create,          },
-    { "CLS_CREATE2",         cls_create2,         },
-    { "CLS_EQ",              cls_eq,              },
-    { "CLS_NE",              cls_ne,              },
-    { "CLS_SELECT",          cls_select,          },
 
     { "CMD_CHDIR",           cmd_chdir,           },
     { "CMD_CONFIG_VALUE",    cmd_config_value,    },
@@ -426,6 +417,15 @@ static primactrecord prim_act_table[] = {
     { "INT_SUCC",            int_succ,            },
     { "INT_VALUE",           int_value,           },
 
+    { "ITF_CONV2",           itf_conv2,           },
+    { "ITF_CPY",             itf_cpy,             },
+    { "ITF_CPY2",            itf_cpy2,            },
+    { "ITF_CREATE",          itf_create,          },
+    { "ITF_CREATE2",         itf_create2,         },
+    { "ITF_EQ",              itf_eq,              },
+    { "ITF_NE",              itf_ne,              },
+    { "ITF_SELECT",          itf_select,          },
+
     { "KBD_BUSY_GETC",       kbd_busy_getc,       },
     { "KBD_GETC",            kbd_getc,            },
     { "KBD_GETS",            kbd_gets,            },
@@ -527,7 +527,6 @@ static primactrecord prim_act_table[] = {
     { "REF_LINE",            ref_line,            },
     { "REF_LOCAL_CONSTS",    ref_local_consts,    },
     { "REF_LOCAL_VARS",      ref_local_vars,      },
-    { "REF_LOCINI",          ref_locini,          },
     { "REF_MKREF",           ref_mkref,           },
     { "REF_NAME",            ref_name,            },
     { "REF_NE",              ref_ne,              },

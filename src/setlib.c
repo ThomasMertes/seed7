@@ -625,7 +625,8 @@ listtype arguments;
     if (position > set_dest->max_position) {
       old_size = set_dest->max_position - set_dest->min_position + 1;
       new_size = position - set_dest->min_position + 1;
-      if (!RESIZE_SET(set_dest, old_size, new_size)) {
+      set_dest = REALLOC_SET(set_dest, old_size, new_size);
+      if (set_dest == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
         COUNT3_SET(old_size, new_size);

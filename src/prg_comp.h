@@ -35,7 +35,7 @@ inttype prgErrorCount (progtype aProg);
 objecttype prgEval (progtype currentProg, objecttype object);
 void prgExec (progtype currentProg);
 objecttype prgMatch (progtype currentProg, listtype curr_expr);
-objecttype prgStrAnalyze (stritype stri);
+progtype prgStrAnalyze (stritype stri);
 objecttype prgSyobject (progtype currentProg, stritype stri1);
 objecttype prgSysvar (progtype aProg, stritype sysvarName);
 
@@ -49,7 +49,7 @@ inttype prgErrorCount ();
 objecttype prgEval ();
 void prgExec ();
 objecttype prgMatch ();
-objecttype prgStrAnalyze ();
+progtype prgStrAnalyze ();
 objecttype prgSyobject ();
 objecttype prgSysvar ();
 

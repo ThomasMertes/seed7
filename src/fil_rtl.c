@@ -35,6 +35,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "sys/types.h"
+#include "sys/stat.h"
 #ifdef USE_LSEEKI64
 #include "io.h"
 #endif
@@ -43,6 +44,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "big_rtl.h"
+#include "cmd_rtl.h"
 #include "rtl_err.h"
 
 #ifdef USE_MYUNISTD_H
@@ -90,6 +92,7 @@ typedef long               offsettype;
 
 
 #define BUFFER_SIZE 4096
+#define READ_BLOCK_SIZE 4096
 
 
 
@@ -310,25 +313,33 @@ inttype length;
 
   {
     long current_file_position;
-    memsizetype bytes_there;
     memsizetype bytes_requested;
+    memsizetype bytes_there;
+    memsizetype read_size_requested;
+    memsizetype block_size_read;
+    memsizetype allocated_size;
     memsizetype result_size;
+    ustritype memory;
+    stritype resized_result;
     stritype result;
 
   /* filGets */
     if (length < 0) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       bytes_requested = (memsizetype) length;
-      if (!ALLOC_STRI(result, bytes_requested)) {
+      allocated_size = bytes_requested;
+      if (!ALLOC_STRI(result, allocated_size)) {
+        /* Determine how many bytes are available in aFile */
         if ((current_file_position = ftell(aFile)) != -1) {
           fseek(aFile, 0, SEEK_END);
           bytes_there = (memsizetype) (ftell(aFile) - current_file_position);
           fseek(aFile, current_file_position, SEEK_SET);
+          /* Now we know that bytes_there bytes are available in aFile */
           if (bytes_there < bytes_requested) {
-            bytes_requested = bytes_there;
-            if (!ALLOC_STRI(result, bytes_requested)) {
+            allocated_size = bytes_there;
+            if (!ALLOC_STRI(result, allocated_size)) {
               raise_error(MEMORY_ERROR);
               return(NULL);
             } /* if */
@@ -336,13 +347,50 @@ inttype length;
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
-        } else {
-          raise_error(MEMORY_ERROR);
-          return(NULL);
         } /* if */
       } /* if */
-      result_size = (memsizetype) fread(result->mem, 1,
-          (SIZE_TYPE) bytes_requested, aFile);
+      if (result != NULL) {
+        /* We have allocated a buffer for the requested number of bytes
+           or for the number of bytes which are available in the file */
+        result_size = (memsizetype) fread(result->mem, 1,
+            (SIZE_TYPE) allocated_size, aFile);
+      } else {
+        /* We do not know how many bytes are avaliable therefore
+           we read blocks of READ_BLOCK_SIZE until we have read
+           enough or we reach EOF */
+        allocated_size = READ_BLOCK_SIZE;
+        if (!ALLOC_STRI(result, allocated_size)) {
+          raise_error(MEMORY_ERROR);
+          return(NULL);
+        } else {
+          read_size_requested = READ_BLOCK_SIZE;
+          if (read_size_requested > bytes_requested) {
+            read_size_requested = bytes_requested;
+          } /* if */
+          block_size_read = fread(result->mem, 1, read_size_requested, aFile);
+          result_size = block_size_read;
+          while (block_size_read == READ_BLOCK_SIZE && result_size < bytes_requested) {
+            allocated_size = result_size + READ_BLOCK_SIZE;
+            REALLOC_STRI(resized_result, result, result_size, allocated_size);
+            if (resized_result == NULL) {
+              FREE_STRI(result, result_size);
+              raise_error(MEMORY_ERROR);
+              return(NULL);
+            } else {
+              result = resized_result;
+              COUNT3_STRI(result_size, allocated_size);
+              memory = (ustritype) result->mem;
+              read_size_requested = READ_BLOCK_SIZE;
+              if (result_size + read_size_requested > bytes_requested) {
+                read_size_requested = bytes_requested - result_size;
+              } /* if */
+              block_size_read = fread(&memory[result_size], 1,
+                  read_size_requested, aFile);
+              result_size += block_size_read;
+            } /* if */
+          } /* while */
+        } /* if */
+      } /* if */
 #ifdef WIDE_CHAR_STRINGS
       if (result_size > 0) {
         uchartype *from = &((uchartype *) result->mem)[result_size - 1];
@@ -355,12 +403,16 @@ inttype length;
       } /* if */
 #endif
       result->size = result_size;
-      if (result_size < bytes_requested) {
-        if (!RESIZE_STRI(result, bytes_requested, result_size)) {
+      if (result_size < allocated_size) {
+        REALLOC_STRI(resized_result, result, allocated_size, result_size);
+        if (resized_result == NULL) {
+          FREE_STRI(result, allocated_size);
           raise_error(MEMORY_ERROR);
           return(NULL);
+        } else {
+          result = resized_result;
+          COUNT3_STRI(allocated_size, result_size);
         } /* if */
-        COUNT3_STRI(bytes_requested, result_size);
       } /* if */
     } /* if */
     return(result);
@@ -419,23 +471,26 @@ chartype *termination_char;
     strelemtype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    stritype resized_result;
     stritype result;
 
   /* filLineRead */
     memlength = 256;
     if (!ALLOC_STRI(result, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       memory = result->mem;
       position = 0;
       while ((ch = getc(aFile)) != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_STRI(result, memlength, newmemlength)) {
+          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          if (resized_result == NULL) {
+            FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
@@ -445,15 +500,19 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (!RESIZE_STRI(result, memlength, position)) {
+      REALLOC_STRI(resized_result, result, memlength, position);
+      if (resized_result == NULL) {
+        FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(memlength, position);
+        result->size = position;
+        *termination_char = (chartype) ch;
       } /* if */
-      COUNT3_STRI(memlength, position);
-      result->size = position;
-      *termination_char = (chartype) ch;
-      return(result);
     } /* if */
+    return(result);
   } /* filLineRead */
 
 
@@ -634,12 +693,20 @@ stritype file_mode;
     filetype result;
 
   /* filPopen */
-    cmd = cp_to_cstri(command);
+    cmd = cp_to_command(command);
     if (cmd == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      get_mode(mode, file_mode);
+      mode[0] = '\0';
+      if (file_mode->size == 1 &&
+          (file_mode->mem[0] == 'r' ||
+           file_mode->mem[0] == 'w')) {
+        mode[0] = file_mode->mem[0];
+        mode[1] = '\0';
+      } /* if */
+      /* The mode "rb" is not allowed under unix/linux */
+      /* therefore get_mode(mode, file_mode); cannot be called */
       if (mode[0] == '\0') {
         raise_error(RANGE_ERROR);
         result = NULL;
@@ -741,13 +808,13 @@ chartype *termination_char;
     strelemtype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    stritype resized_result;
     stritype result;
 
   /* filWordRead */
     memlength = 256;
     if (!ALLOC_STRI(result, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       memory = result->mem;
       position = 0;
@@ -758,10 +825,13 @@ chartype *termination_char;
           ch != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_STRI(result, memlength, newmemlength)) {
+          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          if (resized_result == NULL) {
+            FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
@@ -772,15 +842,19 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (!RESIZE_STRI(result, memlength, position)) {
+      REALLOC_STRI(resized_result, result, memlength, position);
+      if (resized_result == NULL) {
+        FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(memlength, position);
+        result->size = position;
+        *termination_char = (chartype) ch;
       } /* if */
-      COUNT3_STRI(memlength, position);
-      result->size = position;
-      *termination_char = (chartype) ch;
-      return(result);
     } /* if */
+    return(result);
   } /* filWordRead */
 
 

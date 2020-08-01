@@ -35,8 +35,8 @@ SCREEN_SRC = scr_win.c
 
 MOBJ1 = hi.obj
 POBJ1 = runerr.obj option.obj primitiv.obj
-LOBJ1 = actlib.obj arrlib.obj biglib.obj blnlib.obj bstlib.obj chrlib.obj clslib.obj cmdlib.obj dcllib.obj drwlib.obj
-LOBJ2 = enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj kbdlib.obj lstlib.obj prclib.obj prglib.obj reflib.obj
+LOBJ1 = actlib.obj arrlib.obj biglib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj dcllib.obj drwlib.obj enulib.obj
+LOBJ2 = fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj prclib.obj prglib.obj reflib.obj
 LOBJ3 = rfllib.obj scrlib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj ut8lib.obj
 EOBJ1 = exec.obj doany.obj memory.obj
 AOBJ1 = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj
@@ -55,8 +55,8 @@ COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2
 
 MSRC1 = hi.c
 PSRC1 = runerr.c option.c primitiv.c
-LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c clslib.c cmdlib.c dcllib.c drwlib.c
-LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c kbdlib.c lstlib.c prclib.c prglib.c reflib.c
+LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c dcllib.c drwlib.c enulib.c
+LSRC2 = fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c prclib.c prglib.c reflib.c
 LSRC3 = rfllib.c scrlib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
 ESRC1 = exec.c doany.c memory.c
 ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
@@ -132,7 +132,7 @@ strip:
 version.h:
 	echo #define ANSI_C > version.h
 	echo #define USE_DIRWIN >> version.h
-	echo #define PATH_DELIMITER '/' >> version.h
+	echo #define PATH_DELIMITER '\\' >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #undef  USE_MMAP >> version.h
 	echo #undef  INCL_NCURSES_TERM >> version.h
@@ -149,6 +149,20 @@ version.h:
 	echo #define USE_FSEEKI64 >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define popen _popen >> version.h
+	echo #include "stdio.h" > chkftell.c
+	echo int main (int argc, char **argv) >> chkftell.c
+	echo { >> chkftell.c
+	echo FILE *aFile; >> chkftell.c
+	echo aFile = popen("dir","r"); >> chkftell.c
+	echo if (ftell(aFile) != -1) { >> chkftell.c
+	echo printf("\043define FTELL_WRONG_FOR_PIPE\n"); >> chkftell.c
+	echo } >> chkftell.c
+	echo return 0; >> chkftell.c
+	echo } >> chkftell.c
+	$(CC) chkftell.c -o chkftell
+	chkftell >> version.h
+	del chkftell.c
+	del chkftell.exe
 	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h

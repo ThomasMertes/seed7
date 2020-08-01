@@ -259,10 +259,10 @@ listtype curr_expr;
 
 #ifdef ANSI_C
 
-objecttype prgStrAnalyze (stritype stri)
+progtype prgStrAnalyze (stritype stri)
 #else
 
-objecttype prgStrAnalyze (stri)
+progtype prgStrAnalyze (stri)
 stritype stri;
 #endif
 

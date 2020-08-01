@@ -38,6 +38,7 @@
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "cmd_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -232,12 +233,13 @@ inttype length;
     memsizetype chars_read;
     memsizetype chars_there;
     strelemtype *stri_dest;
+    stritype resized_result;
     stritype result;
 
   /* ut8Gets */
     if (length < 0) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       chars_requested = (memsizetype) length;
       if (!ALLOC_STRI(result, chars_requested)) {
@@ -260,25 +262,6 @@ inttype length;
           return(NULL);
         } /* if */
       } /* if */
-#ifdef OUT_OF_ORDER
-      {
-        chartype curr_ch; 
-
-        for (stri_dest = result->mem, chars_missing = chars_requested, curr_ch = '\0';
-            chars_missing > 0 && (curr_ch = ut8Getc(fil1)) != EOF;
-            stri_dest++, chars_missing--) {
-          *stri_dest = curr_ch;
-        } /* for */
-      }
-      result->size = stri_dest - result->mem;
-      if (!RESIZE_STRI(result, chars_requested, result->size)) {
-        FREE_STRI(result, chars_requested);
-        raise_error(MEMORY_ERROR);
-        return(NULL);
-      } /* if */
-      COUNT3_STRI(chars_requested, result->size);
-      return(result);
-#endif
       /* printf("#0-A#\n"); */
       bytes_remaining = 0;
       bytes_missing = 0;
@@ -357,14 +340,17 @@ inttype length;
         /* printf("#1-B# chars_read=%d\n", chars_read); */
       } /* for */
       result->size = stri_dest - result->mem;
-      if (!RESIZE_STRI(result, chars_requested, result->size)) {
+      REALLOC_STRI(resized_result, result, chars_requested, result->size);
+      if (resized_result == NULL) {
         FREE_STRI(result, chars_requested);
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(chars_requested, result->size);
       } /* if */
-      COUNT3_STRI(chars_requested, result->size);
-      return(result);
     } /* if */
+    return(result);
   } /* ut8Gets */
 
 
@@ -385,25 +371,29 @@ chartype *termination_char;
     uchartype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    bstritype resized_buffer;
     bstritype buffer;
+    stritype resized_result;
     stritype result;
 
   /* ut8LineRead */
     memlength = 256;
     if (!ALLOC_BSTRI(buffer, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       memory = buffer->mem;
       position = 0;
       while ((ch = getc(fil1)) != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_BSTRI(buffer, memlength, newmemlength)) {
+          resized_buffer = REALLOC_BSTRI(buffer, memlength, newmemlength);
+          if (resized_buffer == NULL) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          buffer = resized_buffer;
           COUNT3_BSTRI(memlength, newmemlength);
           memory = buffer->mem;
           memlength = newmemlength;
@@ -416,25 +406,28 @@ chartype *termination_char;
       if (!ALLOC_STRI(result, position)) {
         FREE_BSTRI(buffer, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
       } else {
         if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
           FREE_BSTRI(buffer, memlength);
           FREE_STRI(result, position);
           raise_error(RANGE_ERROR);
-          return(NULL);
+          result = NULL;
+        } else {
+          FREE_BSTRI(buffer, memlength);
+          REALLOC_STRI(resized_result, result, position, result->size);
+          if (resized_result == NULL) {
+            FREE_STRI(result, position);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(position, result->size);
+            *termination_char = (chartype) ch;
+          } /* if */
         } /* if */
-        FREE_BSTRI(buffer, memlength);
-        if (!RESIZE_STRI(result, position, result->size)) {
-          FREE_STRI(result, position);
-          raise_error(MEMORY_ERROR);
-          return(NULL);
-        } /* if */
-        COUNT3_STRI(position, result->size);
-        *termination_char = (chartype) ch;
-        return(result);
       } /* if */
     } /* if */
+    return(result);
   } /* ut8LineRead */
 
 
@@ -485,14 +478,16 @@ chartype *termination_char;
     uchartype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    bstritype resized_buffer;
     bstritype buffer;
+    stritype resized_result;
     stritype result;
 
   /* ut8WordRead */
     memlength = 256;
     if (!ALLOC_BSTRI(buffer, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       memory = buffer->mem;
       position = 0;
@@ -503,11 +498,13 @@ chartype *termination_char;
           ch != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_BSTRI(buffer, memlength, newmemlength)) {
+          resized_buffer = REALLOC_BSTRI(buffer, memlength, newmemlength);
+          if (resized_buffer == NULL) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          buffer = resized_buffer;
           COUNT3_BSTRI(memlength, newmemlength);
           memory = buffer->mem;
           memlength = newmemlength;
@@ -521,25 +518,28 @@ chartype *termination_char;
       if (!ALLOC_STRI(result, position)) {
         FREE_BSTRI(buffer, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
       } else {
         if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
           FREE_BSTRI(buffer, memlength);
           FREE_STRI(result, position);
           raise_error(RANGE_ERROR);
-          return(NULL);
+          result = NULL;
+        } else {
+          FREE_BSTRI(buffer, memlength);
+          REALLOC_STRI(resized_result, result, position, result->size);
+          if (resized_result == NULL) {
+            FREE_STRI(result, position);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(position, result->size);
+            *termination_char = (chartype) ch;
+          } /* if */
         } /* if */
-        FREE_BSTRI(buffer, memlength);
-        if (!RESIZE_STRI(result, position, result->size)) {
-          FREE_STRI(result, position);
-          raise_error(MEMORY_ERROR);
-          return(NULL);
-        } /* if */
-        COUNT3_STRI(position, result->size);
-        *termination_char = (chartype) ch;
-        return(result);
       } /* if */
     } /* if */
+    return(result);
   } /* ut8WordRead */
 
 

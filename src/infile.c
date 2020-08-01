@@ -116,7 +116,7 @@ errinfotype *err_info;
 #endif
 
   /* Copies the source_file_name to os_file_name and replaces all    */
-  /* occurances of '/' and '\' in os_file_name by PATH_DELIMITER.    */
+  /* occurances of '\' in os_file_name by '/'.                       */
 
   {
     unsigned int position;
@@ -133,9 +133,8 @@ errinfotype *err_info;
       COUNT_USTRI(len, count.fnam, count.fnam_bytes);
       for (position = 0; position < len; position++) {
         (*os_file_name)[position] = source_file_name->mem[position];
-        if (source_file_name->mem[position] == '/' ||
-            source_file_name->mem[position] == '\\') {
-          (*os_file_name)[position] = PATH_DELIMITER;
+        if (source_file_name->mem[position] == '\\') {
+          (*os_file_name)[position] = '/';
         } /* if */
       } /* for */
       (*os_file_name)[len] = '\0';

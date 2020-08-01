@@ -45,6 +45,7 @@ bstritype stri_to_bstri8 (const_stritype);
 stritype cstri_to_stri (const_cstritype);
 stritype cstri8_to_stri (const_cstritype);
 strelemtype *stri_charpos (stritype, strelemtype);
+cstritype cp_to_command (stritype);
 
 #else
 
@@ -58,6 +59,7 @@ bstritype stri_to_bstri8 ();
 stritype cstri_to_stri ();
 stritype cstri8_to_stri ();
 strelemtype *stri_charpos ();
+cstritype cp_to_command ();
 
 #endif
 

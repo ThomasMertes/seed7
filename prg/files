@@ -7,6 +7,7 @@ calc.sd7     Calculator
 carddemo.sd7 Demonstate the playing cards of the french deck   
 castle.sd7   Castle Adventure                                  
 celsius.sd7  Print a Fahrenheit-Celsius table                  
+chk_all.sd7  Runs interpreted and compiled checks.             
 chkbig.sd7   Checks bigInteger literals and operations         
 chkbool.sd7  Checks boolean operations                         
 chkexc.sd7   Checks exceptions                                 

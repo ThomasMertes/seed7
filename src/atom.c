@@ -173,8 +173,9 @@ static INLINE stritype new_string ()
     printf("BEGIN new_string\n");
 #endif
 #ifdef ALTERNATE_STRI_LITERALS
-    stri_created = symbol.strivalue;
-    if (!RESIZE_STRI(stri_created, symbol.stri_max, stri_created->size)) {
+    REALLOC_STRI(stri_created, symbol.strivalue,
+        symbol.stri_max, stri_created->size);
+    if (stri_created == NULL) {
       fatal_memory_error(SOURCE_POSITION(2055));
     } /* if */
     COUNT3_STRI(symbol.stri_max, stri_created->size);

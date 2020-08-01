@@ -717,7 +717,8 @@ inttype number;
     if (position > set_dest->max_position) {
       old_size = set_dest->max_position - set_dest->min_position + 1;
       new_size = position - set_dest->min_position + 1;
-      if (!RESIZE_SET(set_dest, old_size, new_size)) {
+      set_dest = REALLOC_SET(set_dest, old_size, new_size);
+      if (set_dest == NULL) {
         raise_error(MEMORY_ERROR);
         return;
       } else {

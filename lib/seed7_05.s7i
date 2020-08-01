@@ -2261,11 +2261,11 @@ const func type: new interface is func
   begin
     interfaceType := newtype;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "CLS_CREATE";
+    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "ITF_CREATE";
     const proc: destroy (ref interfaceType param) is                            noop;
-    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "CLS_CPY";
-    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "CLS_EQ";
-    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "CLS_NE";
+    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "ITF_CPY";
+    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "ITF_EQ";
+    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
   end func;
 
 const func type: sub (in type: baseType) interface is func
@@ -2274,11 +2274,11 @@ const func type: sub (in type: baseType) interface is func
   begin
     interfaceType := subtype baseType;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "CLS_CREATE";
+    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "ITF_CREATE";
     const proc: destroy (ref interfaceType param) is                            noop;
-    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "CLS_CPY";
-    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "CLS_EQ";
-    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "CLS_NE";
+    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "ITF_CPY";
+    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "ITF_EQ";
+    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
   end func;
 
 
@@ -2396,9 +2396,9 @@ const type: linkedList is new struct
 
 const proc: type_implements_interface (in type: aType, in type: interfaceType) is func
   begin
-    const proc: (ref interfaceType param) ::= (ref aType param) is           action "CLS_CREATE2";
-    const proc: (inout interfaceType param) := (ref aType param) is          action "CLS_CPY2";
-    const func interfaceType: (attr interfaceType) conv (ref aType param) is action "CLS_CONV2";
+    const proc: (ref interfaceType param) ::= (ref aType param) is           action "ITF_CREATE2";
+    const proc: (inout interfaceType param) := (ref aType param) is          action "ITF_CPY2";
+    const func interfaceType: (attr interfaceType) conv (ref aType param) is action "ITF_CONV2";
     addInterface(aType, interfaceType);
   end func;
 
@@ -2966,11 +2966,6 @@ const type: external_file is sub null_file struct
   end struct;
 
 type_implements_interface(external_file, file);
-
-(*
-const proc: (ref file param) ::= (ref external_file param) is          action "CLS_CREATE2";
-const proc: (inout file param) := (ref external_file param) is       action "CLS_CPY2";
-*)
 
 const func external_file: malloc (ref external_file: ext_file) is func
   result

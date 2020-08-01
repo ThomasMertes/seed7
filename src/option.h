@@ -32,6 +32,7 @@ typedef struct {
     booltype execute_always;
     booltype show_ident_table;
     booltype get_infile_buffer;
+    booltype version_info;
     booltype compilation_info;
     booltype linecount_info;
     booltype catch_signals;
@@ -43,7 +44,7 @@ typedef struct {
   } opttype;
 
 #ifdef DO_INIT
-opttype option = {NULL, NULL, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE,
+opttype option = {NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE,
     727, NULL, NULL, 0, NULL};
 #else
 EXTERN opttype option;

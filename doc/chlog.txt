@@ -1,3 +1,21 @@
+20080302:
+- A new chapter about compile errors was added to faq and to the read_me.
+- The functions skipComment, getComment, skipLineComment, getLineComment and getNumber were
+  added to the scanstri.s7i library.
+- A new example program (chk_all.sd7), which runs interpreted and compiled checks, was added.
+- Support for the primitive action CMD_CHDIR was added to the compiler (comp.sd7). 
+- Several memory leaks, which happen in the handling of MEMORY_ERROR exceptions, were removed.
+- All primitive actions which start with CLS_ were renamed such that the name starts with ITF_ .
+- The files clslib.c and clslib.h were replaced by itflib.c and itflib.h .
+- The objectcategory CLASSOBJECT was replaced with the objectcategory INTERFACEOBJECT.
+- The functions popen and cmd_sh were improved to be consistent on all platforms. Now they
+  use always '/' as path delimiter and '\\ ' to describe spaces in the command path.
+- The gets function for external_files was improved to work correctly when pipe files are
+  read as a whole.
+- A workaround was added for a wrong behaviour of the ftell() function under MinGW for pipes.
+- The -q option of the 'hi' interpreter was improved to suppress all interpreter messages.
+- Several changes to remove C compiler warnings were done.
+
 20080217:
 - A new chapter about object orientation was added to the manual
   (Many thanks for the feedback to Leonardo Cecchi, Malcolm McLean and Reinder Verlinde).

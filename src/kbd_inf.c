@@ -148,7 +148,7 @@ int ustri_len;
     if (ustri[0] <= 0x7F) {
       if (ustri_len == 1) {
         return(ustri[0]);
-      } else if (ustri_len == 2) {
+      } else { /* ustri_len == 2 */
         last_key = ustri[1];
         key_buffer_filled = TRUE;
         return(ustri[0]);
@@ -166,7 +166,7 @@ int ustri_len;
     } else {
       if (ustri_len == 1) {
         return(ustri[0]);
-      } else if (ustri_len == 2) {
+      } else { /* ustri_len == 2 */
         last_key = ustri[1];
         key_buffer_filled = TRUE;
         return(ustri[0]);

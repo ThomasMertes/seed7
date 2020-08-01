@@ -33,7 +33,7 @@ typedef struct {
 typedef primactrecord *primacttype;
 
 typedef struct {
-    int size;
+    unsigned int size;
     primacttype primitive;
   } acttabletype;
 

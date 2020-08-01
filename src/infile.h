@@ -28,8 +28,8 @@
 /*  on next_character. All other macros and functions read from     */
 /*  the source files(s) only via next_character. Note the two       */
 /*  versions of the next_character macro for conventional and for   */
-/*  mmap use. If sometimes wide characters shoud be used this is    */
-/*  the right place to substitute a new wide-getc function here.    */
+/*  mmap use. If wide characters should be used this is the right   */
+/*  place to substitute a new wide-getc function.                   */
 /*                                                                  */
 /********************************************************************/
 

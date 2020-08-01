@@ -1348,7 +1348,7 @@ objecttype traceobject;
       prot_cstri("> ");
       switch (CATEGORY_OF_OBJ(traceobject)) {
         case REFOBJECT:
-        case CLASSOBJECT:
+        case INTERFACEOBJECT:
         case ENUMLITERALOBJECT:
         case CONSTENUMOBJECT:
         case VARENUMOBJECT:

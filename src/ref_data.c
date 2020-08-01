@@ -380,7 +380,7 @@ objecttype obj_arg;
     objecttype result;
 
   /* refItftosct */
-    if (CATEGORY_OF_OBJ(obj_arg) != CLASSOBJECT ||
+    if (CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
         take_reference(obj_arg) == NULL) {
       raise_error(RANGE_ERROR);
       result = NULL;

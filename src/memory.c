@@ -282,27 +282,27 @@ chartype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_class_temp (objecttype temp_value)
+objecttype bld_interface_temp (objecttype temp_value)
 #else
 
-objecttype bld_class_temp (temp_value)
+objecttype bld_interface_temp (temp_value)
 objecttype temp_value;
 #endif
 
   {
     register objecttype result;
 
-  /* bld_class_temp */
+  /* bld_interface_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
-      INIT_CATEGORY_OF_TEMP(result, CLASSOBJECT);
+      INIT_CATEGORY_OF_TEMP(result, INTERFACEOBJECT);
       result->value.objvalue = temp_value;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
-  } /* bld_class_temp */
+  } /* bld_interface_temp */
 
 
 
@@ -840,7 +840,7 @@ objecttype object;
         } /* if */
         FREE_OBJECT(object);
         break;
-      case CLASSOBJECT:
+      case INTERFACEOBJECT:
         break;
       default:
         if (trace.heapsize) {

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2002  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -19,32 +19,32 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
-/*  File: seed7/src/arrlib.h                                        */
-/*  Changes: 1993, 1994, 2002  Thomas Mertes                        */
-/*  Content: All primitive actions for structure types.             */
+/*  File: seed7/src/itflib.h                                        */
+/*  Changes: 1993, 1994, 2002, 2008  Thomas Mertes                  */
+/*  Content: All primitive actions for interface types.             */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-objecttype cls_conv2 (listtype);
-objecttype cls_cpy (listtype);
-objecttype cls_cpy2 (listtype);
-objecttype cls_create (listtype);
-objecttype cls_create2 (listtype);
-objecttype cls_eq (listtype);
-objecttype cls_ne (listtype);
-objecttype cls_select (listtype);
+objecttype itf_conv2 (listtype);
+objecttype itf_cpy (listtype);
+objecttype itf_cpy2 (listtype);
+objecttype itf_create (listtype);
+objecttype itf_create2 (listtype);
+objecttype itf_eq (listtype);
+objecttype itf_ne (listtype);
+objecttype itf_select (listtype);
 
 #else
 
-objecttype cls_conv2 ();
-objecttype cls_cpy ();
-objecttype cls_cpy2 ();
-objecttype cls_create ();
-objecttype cls_create2 ();
-objecttype cls_eq ();
-objecttype cls_ne ();
-objecttype cls_select ();
+objecttype itf_conv2 ();
+objecttype itf_cpy ();
+objecttype itf_cpy2 ();
+objecttype itf_create ();
+objecttype itf_create2 ();
+objecttype itf_eq ();
+objecttype itf_ne ();
+objecttype itf_select ();
 
 #endif

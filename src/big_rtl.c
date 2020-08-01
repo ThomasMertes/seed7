@@ -3876,6 +3876,7 @@ biginttype big1;
     int digit_pos;
     strelemtype digit_ch;
     memsizetype result_size;
+    stritype resized_result;
     stritype result;
 
   /* bigStr */
@@ -3901,12 +3902,14 @@ biginttype big1;
         } /* if */
         do {
           if (pos + DECIMAL_DIGITS_IN_BIGDIGIT > result_size) {
-            if (!RESIZE_STRI(result, result_size, result_size + 256)) {
+            REALLOC_STRI(resized_result, result, result_size, result_size + 256);
+            if (resized_result == NULL) {
               FREE_STRI(result, result_size);
               FREE_BIG(help_big, big1->size + 1);
               raise_error(MEMORY_ERROR);
               return(NULL);
             } else {
+              result = resized_result;
               COUNT3_STRI(result_size, result_size + 256);
               result_size += 256;
             } /* if */
@@ -3932,11 +3935,13 @@ biginttype big1;
         } while (help_big->size > 1 || help_big->bigdigits[0] != 0);
         FREE_BIG(help_big, big1->size + 1);
         result->size = pos;
-        if (!RESIZE_STRI(result, result_size, pos)) {
+        REALLOC_STRI(resized_result, result, result_size, pos);
+        if (resized_result == NULL) {
           FREE_STRI(result, result_size);
           raise_error(MEMORY_ERROR);
           return(NULL);
         } else {
+          result = resized_result;
           COUNT3_STRI(result_size, pos);
           if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
             for (pos = 1; pos <= result->size >> 1; pos++) {

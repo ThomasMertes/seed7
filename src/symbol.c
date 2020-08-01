@@ -80,8 +80,9 @@ void extend_symb_length ()
       fatal_memory_error(SOURCE_POSITION(2011));
     } /* if */
     symbol.name_length += INCR_SYMB_LENGTH;
-    if (!RESIZE_USTRI(symbol.name, symbol.name_length - INCR_SYMB_LENGTH,
-        symbol.name_length)) {
+    symbol.name = REALLOC_USTRI(symbol.name,
+        symbol.name_length - INCR_SYMB_LENGTH, symbol.name_length);
+    if (symbol.name == NULL) {
       fatal_memory_error(SOURCE_POSITION(2012));
     } /* if */
     COUNT3_USTRI(symbol.name_length - INCR_SYMB_LENGTH, symbol.name_length,
@@ -103,8 +104,9 @@ void extend_stri_length ()
       fatal_memory_error(SOURCE_POSITION(2013));
     } /* if */
     symbol.stri_max += INCR_SYMB_LENGTH;
-    if (!RESIZE_STRI(symbol.strivalue, symbol.stri_max - INCR_SYMB_LENGTH,
-        symbol.stri_max)) {
+    REALLOC_STRI(symbol.strivalue, symbol.strivalue,
+        symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
+    if (symbol.strivalue == NULL) {
       fatal_memory_error(SOURCE_POSITION(2014));
     } /* if */
     COUNT3_STRI(symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);

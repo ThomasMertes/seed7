@@ -424,9 +424,11 @@ errinfotype *err_info;
           position = 1;
         } /* if */
       } /* if */
-      if (*err_info == OKAY_NO_ERROR) {
-        while (position < arr_from_size && *err_info == OKAY_NO_ERROR) {
+      if (list_to != NULL) {
+        while (position < arr_from_size && list_to != NULL) {
           if (!HEAP_L_E(help_element->next, listrecord)) {
+            emptylist(list_to);
+            list_to = NULL;
             *err_info = MEMORY_ERROR;
           } else {
             help_element = help_element->next;
@@ -435,10 +437,6 @@ errinfotype *err_info;
           } /* if */
         } /* while */
         help_element->next = NULL;
-      } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
-        emptylist(list_to);
-        list_to = NULL;
       } /* if */
     } else {
       list_to = NULL;
@@ -492,9 +490,11 @@ errinfotype *err_info;
           position = 1;
         } /* if */
       } /* if */
-      if (*err_info == OKAY_NO_ERROR) {
-        while (position < stru_from->size && *err_info == OKAY_NO_ERROR) {
+      if (list_to != NULL) {
+        while (position < stru_from->size && list_to != NULL) {
           if (!HEAP_L_E(help_element->next, listrecord)) {
+            emptylist(list_to);
+            list_to = NULL;
             *err_info = MEMORY_ERROR;
           } else {
             help_element = help_element->next;
@@ -503,10 +503,6 @@ errinfotype *err_info;
           } /* if */
         } /* while */
         help_element->next = NULL;
-      } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
-        emptylist(list_to);
-        list_to = NULL;
       } /* if */
     } else {
       list_to = NULL;

@@ -97,23 +97,26 @@ chartype *termination_char;
     strelemtype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    stritype resized_result;
     stritype result;
 
   /* gkbLineRead */
     memlength = 256;
     if (!ALLOC_STRI(result, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       memory = result->mem;
       position = 0;
       while ((ch = gkbGetc()) != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_STRI(result, memlength, newmemlength)) {
+          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          if (resized_result == NULL) {
+            FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
@@ -123,15 +126,19 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (!RESIZE_STRI(result, memlength, position)) {
+      REALLOC_STRI(resized_result, result, memlength, position);
+      if (resized_result == NULL) {
+        FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(memlength, position);
+        result->size = position;
+        *termination_char = (chartype) ch;
       } /* if */
-      COUNT3_STRI(memlength, position);
-      result->size = position;
-      *termination_char = (chartype) ch;
-      return(result);
     } /* if */
+    return(result);
   } /* gkbLineRead */
 
 
@@ -151,13 +158,13 @@ chartype *termination_char;
     strelemtype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    stritype resized_result;
     stritype result;
 
   /* gkbWordRead */
     memlength = 256;
     if (!ALLOC_STRI(result, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       memory = result->mem;
       position = 0;
@@ -168,10 +175,13 @@ chartype *termination_char;
           ch != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_STRI(result, memlength, newmemlength)) {
+          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          if (resized_result == NULL) {
+            FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
@@ -182,15 +192,19 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (!RESIZE_STRI(result, memlength, position)) {
+      REALLOC_STRI(resized_result, result, memlength, position);
+      if (resized_result == NULL) {
+        FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(memlength, position);
+        result->size = position;
+        *termination_char = (chartype) ch;
       } /* if */
-      COUNT3_STRI(memlength, position);
-      result->size = position;
-      *termination_char = (chartype) ch;
-      return(result);
     } /* if */
+    return(result);
   } /* gkbWordRead */
 
 
@@ -245,23 +259,26 @@ chartype *termination_char;
     strelemtype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    stritype resized_result;
     stritype result;
 
   /* kbdLineRead */
     memlength = 256;
     if (!ALLOC_STRI(result, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       memory = result->mem;
       position = 0;
       while ((ch = kbdGetc()) != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_STRI(result, memlength, newmemlength)) {
+          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          if (resized_result == NULL) {
+            FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
@@ -271,15 +288,19 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (!RESIZE_STRI(result, memlength, position)) {
+      REALLOC_STRI(resized_result, result, memlength, position);
+      if (resized_result == NULL) {
+        FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(memlength, position);
+        result->size = position;
+        *termination_char = (chartype) ch;
       } /* if */
-      COUNT3_STRI(memlength, position);
-      result->size = position;
-      *termination_char = (chartype) ch;
-      return(result);
     } /* if */
+    return(result);
   } /* kbdLineRead */
 
 
@@ -299,13 +320,13 @@ chartype *termination_char;
     strelemtype *memory;
     memsizetype memlength;
     memsizetype newmemlength;
+    stritype resized_result;
     stritype result;
 
   /* kbdWordRead */
     memlength = 256;
     if (!ALLOC_STRI(result, memlength)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       memory = result->mem;
       position = 0;
@@ -316,10 +337,13 @@ chartype *termination_char;
           ch != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          if (!RESIZE_STRI(result, memlength, newmemlength)) {
+          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          if (resized_result == NULL) {
+            FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
+          result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
@@ -330,13 +354,17 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (!RESIZE_STRI(result, memlength, position)) {
+      REALLOC_STRI(resized_result, result, memlength, position);
+      if (resized_result == NULL) {
+        FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
         return(NULL);
+      } else {
+        result = resized_result;
+        COUNT3_STRI(memlength, position);
+        result->size = position;
+        *termination_char = (chartype) ch;
       } /* if */
-      COUNT3_STRI(memlength, position);
-      result->size = position;
-      *termination_char = (chartype) ch;
-      return(result);
     } /* if */
+    return(result);
   } /* kbdWordRead */

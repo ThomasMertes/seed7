@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2002  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -19,9 +19,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
-/*  File: seed7/src/clslib.c                                        */
-/*  Changes: 1993, 1994, 2002  Thomas Mertes                        */
-/*  Content: All primitive actions for structure types.             */
+/*  File: seed7/src/itflib.c                                        */
+/*  Changes: 1993, 1994, 2002, 2008  Thomas Mertes                  */
+/*  Content: All primitive actions for interface types.             */
 /*                                                                  */
 /********************************************************************/
 
@@ -47,38 +47,38 @@
 
 #undef EXTERN
 #define EXTERN
-#include "clslib.h"
+#include "itflib.h"
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_conv2 (listtype arguments)
+objecttype itf_conv2 (listtype arguments)
 #else
 
-objecttype cls_conv2 (arguments)
+objecttype itf_conv2 (arguments)
 listtype arguments;
 #endif
 
   {
     objecttype result;
 
-  /* cls_conv2 */
+  /* itf_conv2 */
     result = arg_3(arguments);
- /* printf("cls_conv: ");
+ /* printf("itf_conv2: ");
     trace1(result);
     printf("\n"); */
-    return(bld_class_temp(result));
-  } /* cls_conv2 */
+    return(bld_interface_temp(result));
+  } /* itf_conv2 */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_cpy (listtype arguments)
+objecttype itf_cpy (listtype arguments)
 #else
 
-objecttype cls_cpy (arguments)
+objecttype itf_cpy (arguments)
 listtype arguments;
 #endif
 
@@ -86,29 +86,29 @@ listtype arguments;
     objecttype modu_to;
     objecttype modu_from;
 
-  /* cls_cpy */
+  /* itf_cpy */
     modu_to = arg_1(arguments);
     modu_from = arg_3(arguments);
-    isit_class(modu_to);
-    isit_class(modu_from);
- /* printf("cls_cpy from: ");
+    isit_interface(modu_to);
+    isit_interface(modu_from);
+ /* printf("itf_cpy from: ");
     trace1(modu_from);
     printf("\n"); */
-    modu_to->value.objvalue = take_reference(modu_from);
- /* printf("cls_cpy to: ");
+    modu_to->value.objvalue = take_interface(modu_from);
+ /* printf("itf_cpy to: ");
     trace1(modu_to);
     printf("\n"); */
     return(SYS_EMPTY_OBJECT);
-  } /* cls_cpy */
+  } /* itf_cpy */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_cpy2 (listtype arguments)
+objecttype itf_cpy2 (listtype arguments)
 #else
 
-objecttype cls_cpy2 (arguments)
+objecttype itf_cpy2 (arguments)
 listtype arguments;
 #endif
 
@@ -116,26 +116,26 @@ listtype arguments;
     objecttype modu_to;
     objecttype modu_from;
 
-  /* cls_cpy2 */
+  /* itf_cpy2 */
     modu_to = arg_1(arguments);
     modu_from = arg_3(arguments);
-    if (CATEGORY_OF_OBJ(modu_from) == CLASSOBJECT) {
+    if (CATEGORY_OF_OBJ(modu_from) == INTERFACEOBJECT) {
       modu_to->value.objvalue = take_reference(modu_from);
     } else {
       modu_to->value.objvalue = modu_from;
       CLEAR_TEMP_FLAG(modu_from);
     } /* if */
     return(SYS_EMPTY_OBJECT);
-  } /* cls_cpy2 */
+  } /* itf_cpy2 */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_create (listtype arguments)
+objecttype itf_create (listtype arguments)
 #else
 
-objecttype cls_create (arguments)
+objecttype itf_create (arguments)
 listtype arguments;
 #endif
 
@@ -143,23 +143,23 @@ listtype arguments;
     objecttype modu_to;
     objecttype modu_from;
 
-  /* cls_create */
+  /* itf_create */
     modu_to = arg_1(arguments);
     modu_from = arg_3(arguments);
-    SET_CATEGORY_OF_OBJ(modu_to, CLASSOBJECT);
-    isit_class(modu_from);
-    modu_to->value.objvalue = take_reference(modu_from);
+    SET_CATEGORY_OF_OBJ(modu_to, INTERFACEOBJECT);
+    isit_interface(modu_from);
+    modu_to->value.objvalue = take_interface(modu_from);
     return(SYS_EMPTY_OBJECT);
-  } /* cls_create */
+  } /* itf_create */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_create2 (listtype arguments)
+objecttype itf_create2 (listtype arguments)
 #else
 
-objecttype cls_create2 (arguments)
+objecttype itf_create2 (arguments)
 listtype arguments;
 #endif
 
@@ -167,71 +167,71 @@ listtype arguments;
     objecttype modu_to;
     objecttype modu_from;
 
-  /* cls_create2 */
+  /* itf_create2 */
     modu_to = arg_1(arguments);
     modu_from = arg_3(arguments);
-    SET_CATEGORY_OF_OBJ(modu_to, CLASSOBJECT);
-    if (CATEGORY_OF_OBJ(modu_from) == CLASSOBJECT) {
+    SET_CATEGORY_OF_OBJ(modu_to, INTERFACEOBJECT);
+    if (CATEGORY_OF_OBJ(modu_from) == INTERFACEOBJECT) {
       modu_to->value.objvalue = take_reference(modu_from);
     } else {
       modu_to->value.objvalue = modu_from;
       CLEAR_TEMP_FLAG(modu_from);
     } /* if */
     return(SYS_EMPTY_OBJECT);
-  } /* cls_create2 */
+  } /* itf_create2 */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_eq (listtype arguments)
+objecttype itf_eq (listtype arguments)
 #else
 
-objecttype cls_eq (arguments)
+objecttype itf_eq (arguments)
 listtype arguments;
 #endif
 
-  { /* cls_eq */
-    isit_class(arg_1(arguments));
-    isit_class(arg_3(arguments));
-    if (take_reference(arg_1(arguments)) ==
-        take_reference(arg_3(arguments))) {
+  { /* itf_eq */
+    isit_interface(arg_1(arguments));
+    isit_interface(arg_3(arguments));
+    if (take_interface(arg_1(arguments)) ==
+        take_interface(arg_3(arguments))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
     } /* if */
-  } /* cls_eq */
+  } /* itf_eq */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_ne (listtype arguments)
+objecttype itf_ne (listtype arguments)
 #else
 
-objecttype cls_ne (arguments)
+objecttype itf_ne (arguments)
 listtype arguments;
 #endif
 
-  { /* cls_ne */
-    isit_class(arg_1(arguments));
-    isit_class(arg_3(arguments));
-    if (take_reference(arg_1(arguments)) !=
-        take_reference(arg_3(arguments))) {
+  { /* itf_ne */
+    isit_interface(arg_1(arguments));
+    isit_interface(arg_3(arguments));
+    if (take_interface(arg_1(arguments)) !=
+        take_interface(arg_3(arguments))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
     } /* if */
-  } /* cls_ne */
+  } /* itf_ne */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_new (listtype arguments)
+objecttype itf_new (listtype arguments)
 #else
 
-objecttype cls_new (arguments)
+objecttype itf_new (arguments)
 listtype arguments;
 #endif
 
@@ -241,7 +241,7 @@ listtype arguments;
     structtype result_struct;
     objecttype result;
 
-  /* cls_new */
+  /* itf_new */
     stru_arg = arg_1(arguments);
     isit_struct(stru_arg);
     if (TEMP_OBJECT(stru_arg)) {
@@ -261,16 +261,16 @@ listtype arguments;
       result = bld_struct_temp(result_struct);
     } /* if */
     return(result);
-  } /* cls_new */
+  } /* itf_new */
 
 
 
 #ifdef ANSI_C
 
-objecttype cls_select (listtype arguments)
+objecttype itf_select (listtype arguments)
 #else
 
-objecttype cls_select (arguments)
+objecttype itf_select (arguments)
 listtype arguments;
 #endif
 
@@ -281,7 +281,7 @@ listtype arguments;
     inttype position;
     objecttype struct_pointer;
 
-  /* cls_select */
+  /* itf_select */
     isit_struct(arg_1(arguments));
     stru1 = take_struct(arg_1(arguments));
     selector = arg_3(arguments);
@@ -316,4 +316,4 @@ printf("\n");
       } /* while */
     } /* if */
     return(raise_exception(SYS_RNG_EXCEPTION));
-  } /* cls_select */
+  } /* itf_select */

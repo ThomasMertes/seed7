@@ -455,6 +455,7 @@ stritype stri;
     register strelemtype *str;
     register uchartype *ustri;
     register memsizetype len;
+    bstritype resized_bstri;
     bstritype bstri;
 
   /* stri_to_bstri */
@@ -465,9 +466,12 @@ stritype stri;
           len > 0; str++, ustri++, len--) {
         if (*str >= 256) {
           bstri->size -= len;
-          if (!RESIZE_BSTRI(bstri, stri->size, bstri->size)) {
+          resized_bstri = REALLOC_BSTRI(bstri, stri->size, bstri->size);
+          if (resized_bstri == NULL) {
+            FREE_BSTRI(bstri, stri->size);
             bstri = NULL;
           } else {
+            bstri = resized_bstri;
             COUNT3_BSTRI(stri->size, bstri->size);
           } /* if */
           return(bstri);
@@ -493,6 +497,7 @@ stritype stri;
 #endif
 
   {
+    bstritype resized_bstri;
     bstritype bstri;
 
   /* stri_to_bstri8 */
@@ -503,9 +508,12 @@ stritype stri;
       memcpy(bstri->mem, stri->mem, stri->size);
       bstri->size = stri->size;
 #endif
-      if (!RESIZE_BSTRI(bstri, compr_size(stri), bstri->size)) {
+      resized_bstri = REALLOC_BSTRI(bstri, compr_size(stri), bstri->size);
+      if (resized_bstri == NULL) {
+        FREE_BSTRI(bstri, compr_size(stri));
         bstri = NULL;
       } else {
+        bstri = resized_bstri;
         COUNT3_BSTRI(compr_size(stri), bstri->size);
       } /* if */
     } /* if */
@@ -549,15 +557,19 @@ cstritype cstri;
 
   {
     memsizetype length;
+    stritype resized_stri;
     stritype stri;
 
   /* cstri8_to_stri */
     length = strlen(cstri);
     if (ALLOC_STRI(stri, length)) {
       if (utf8_to_stri(stri->mem, &stri->size, (const_ustritype) cstri, length) == 0) {
-        if (!RESIZE_STRI(stri, length, stri->size)) {
+        REALLOC_STRI(resized_stri, stri, length, stri->size);
+        if (resized_stri == NULL) {
           FREE_STRI(stri, length);
           stri = NULL;
+        } else {
+          stri = resized_stri;
         } /* if */
       } else {
         FREE_STRI(stri, length);
@@ -593,3 +605,66 @@ strelemtype ch;
     } /* for */
     return(NULL);
   } /* stri_charpos */
+
+
+
+#ifdef ANSI_C
+
+cstritype cp_to_command (stritype stri)
+#else
+
+cstritype cp_to_command (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype inPos;
+    memsizetype outPos;
+    booltype quote_path;
+    cstritype cmd;
+
+  /* cp_to_command */
+    if (ALLOC_CSTRI(cmd, compr_size(stri))) {
+      stri_export((ustritype) cmd, stri);
+      quote_path = FALSE;
+      /* replace "/" by PATH_DELIMITER in cmd */
+      for (inPos = 0, outPos = 0; cmd[inPos] != ' ' && cmd[inPos] != '\0'; inPos++, outPos++) {
+        if (cmd[inPos] == '/') {
+          cmd[outPos] = PATH_DELIMITER;
+        } else if (cmd[inPos] == '\\') {
+          inPos++;
+          if (cmd[inPos] == ' ') {
+#ifdef ESCAPE_SPACES_IN_COMMANDS
+              cmd[outPos] = '\\';
+              outPos++;
+#else
+              quote_path = TRUE;
+#endif
+            cmd[outPos] = ' ';
+          } else {
+            cmd[outPos] = '\\';
+            if (cmd[inPos] != '\0') {
+              outPos++;
+              cmd[outPos] = cmd[inPos];
+            } /* if */
+          } /* if */
+        } else {
+          cmd[outPos] = cmd[inPos];
+        } /* if */
+      } /* for */
+      if (quote_path) {
+        memmove(&cmd[outPos + 2], &cmd[inPos], strlen(&cmd[inPos]) + 1);
+        memmove(&cmd[1], cmd, outPos);
+        cmd[0] = '"';
+	cmd[outPos + 1] = '"';
+      } /* if */
+      /* for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
+           printf("%c", cmd[inPos]);
+         }
+         printf("\n"); */
+    } /* if */
+    return(cmd);
+  } /* cp_to_command */
+
+
+

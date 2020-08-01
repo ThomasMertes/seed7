@@ -65,7 +65,7 @@ typedef union {
                              /* VARENUMOBJECT, VALUEPARAMOBJECT */
                              /* REFPARAMOBJECT, RESULTOBJECT */
                              /* LOCALVOBJECT, FORMPARAMOBJECT */
-                             /* CLASSOBJECT */
+                             /* INTERFACEOBJECT */
 /*    blocktype  blockvalue;   ** BLOCKOBJECT */
 /*    acttype    actvalue;     ** ACTOBJECT */
 /*    progtype   progvalue;    ** PROGOBJECT */

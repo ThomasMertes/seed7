@@ -887,7 +887,7 @@ objecttype object;
       case REFOBJECT:
       case REFLISTOBJECT:
       case TYPEOBJECT:
-      case CLASSOBJECT:
+      case INTERFACEOBJECT:
       case PROGOBJECT:
 /*        printf("int/char/stri/array/file/type ");
         trace1(subroutine_object);
@@ -1103,7 +1103,7 @@ printf("\n"); */
           case LOCALVOBJECT:
           case CONSTENUMOBJECT:
           case VARENUMOBJECT:
-          case CLASSOBJECT:
+          case INTERFACEOBJECT:
             element_value = actual_element->obj->value.objvalue;
             value_dereferenced = TRUE;
             break;

@@ -1,0 +1,205 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chk_all.sd7   Runs interpreted and compiled checks.             *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "bigint.s7i";
+  include "progs.s7i";
+
+
+const string: chkint_output is "\n\
+  \Integer literals with exponent work correct.\n\
+  \Based integer literals work correct.\n\
+  \-i is correct computed in the range -10 to 10\n\
+  \Addition works correct for selected values\n\
+  \a div b is integer division and a rem b is integer remainder:\n\
+  \for positive and negative a and b\n\
+  \(a div b) * b + (a rem b) = a  holds for positive and negative a and b\n\
+  \Div and rem work correct for selected values\n\
+  \Mdiv and mod work correct for selected values\n\
+  \odd(i) works correct in the range -20 to 20\n\
+  \!i works correct for i in the range 0 to 12\n\
+  \n ! k is correct for n <= 30\n\
+  \i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4\n\
+  \Integer sqrt is correct for values between 0 and 1000\n\
+  \Integer sqrt is correct for 11000 random values\n\
+  \log2 is correct for results between 0 and 30\n\
+  \Integer str does work correct\n\
+  \Integer parse does work correct\n\
+  \Integer lpad0 does work correct\n";
+
+
+const string: chkstr_output is "\n\
+  \String literals work correct.\n\
+  \String comparisons work correct\n\
+  \String indices work correct\n\
+  \String operations work correct\n\
+  \String functions work correct\n\
+  \String append works correct\n\
+  \split(string) works correct\n\
+  \join(string) works correct\n";
+
+
+const string: chkprc_output is "\n\
+  \If statements work correct.\n\
+  \While statements work correct.\n\
+  \Repeat statements work correct.\n\
+  \For to statements work correct.\n\
+  \For downto statements work correct.\n\
+  \Case integer statements work correct.\n\
+  \Case char statements work correct.\n";
+
+
+const string: chkbig_output is "\n\
+  \Decimal conversion of bigInteger works correct.\n\
+  \The bigInteger negation works correct.\n\
+  \Successor of bigInteger works correct.\n\
+  \Predecessor of bigInteger works correct.\n\
+  \Increment of bigInteger works correct.\n\
+  \Decrement of bigInteger works correct.\n\
+  \Addition of bigInteger works correct.\n\
+  \Grow of bigInteger works correct.\n\
+  \Subtraction of bigInteger works correct.\n\
+  \Shrink of bigInteger works correct.\n\
+  \Multiplication of bigInteger works correct.\n\
+  \Multiplicating copy for bigInteger works correct.\n\
+  \Division of bigInteger works correct.\n\
+  \Remainder of bigInteger division works correct.\n\
+  \Modulo division of bigInteger works correct.\n\
+  \Modulo of bigInteger division works correct.\n\
+  \Power of bigInteger works correct.\n\
+  \The bigInteger compare works correct.\n\
+  \The bigInteger log2 function works correct.\n";
+
+
+const string: chkbool_output is "\n\
+  \Boolean not works correct.\n\
+  \Boolean and works correct.\n\
+  \Boolean or works correct.\n\
+  \Boolean = works correct.\n\
+  \Boolean <> works correct.\n\
+  \Boolean > works correct.\n\
+  \Boolean >= works correct.\n\
+  \Boolean < works correct.\n\
+  \Boolean <= works correct.\n\
+  \Boolean ord() works correct.\n\
+  \Boolean str() works correct.\n";
+
+
+const string: chkset_output is "\n\
+  \card(bitset) works correct.\n\
+  \incl(bitset, integer) works correct.\n\
+  \set union works correct.\n\
+  \set intersection works correct.\n\
+  \min(bitset) works correct.\n\
+  \max(bitset) works correct.\n";
+
+
+const string: chkexc_output is "\n\
+  \Integer exceptions work correct.\n\
+  \Floating point exceptions work correct.\n\
+  \String exceptions work correct.\n\
+  \Array exceptions work correct.\n\
+  \seek(STD_IN, 0) raises RANGE_ERROR\n\
+  \gets(STD_IN, -1) raises RANGE_ERROR\n\
+  \test_func(1 div 0) raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 and TRUE raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 and FALSE raises NUMERIC_ERROR\n\
+  \TRUE and 1 div 0 = 0 raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 or TRUE raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 or FALSE raises NUMERIC_ERROR\n\
+  \FALSE or 1 div 0 = 0 raises NUMERIC_ERROR\n\
+  \if 1 div 0 raises NUMERIC_ERROR\n\
+  \1 div 0 in if then raises NUMERIC_ERROR\n\
+  \1 div 0 in if else raises NUMERIC_ERROR\n\
+  \while 1 div 0 raises NUMERIC_ERROR\n\
+  \1 div 0 in while raises NUMERIC_ERROR\n\
+  \repeat until 1 div 0 raises NUMERIC_ERROR\n\
+  \1 div 0 in repeat raises NUMERIC_ERROR\n";
+
+
+const func string: cmdOutput (in string: command) is func
+  result
+    var string: result is "";
+  local
+    var file: outFile is STD_NULL;
+  begin
+    outFile := popen(command, "r");
+    if outFile <> STD_NULL then
+      result := gets(outFile, 999999999);
+    end if;
+  end func;
+
+
+const proc: check (in string: progName, in string: referenceOutput) is func
+  local
+    var string: interpretedOutput is "";
+    var string: compilerOutput is "";
+    var string: compiledOutput1 is "";
+    var string: compiledOutput2 is "";
+    var boolean: okay is TRUE;
+  begin
+    write(progName);
+    flush(OUT);
+    interpretedOutput := cmdOutput("./hi -q "   & progName);
+    compilerOutput    := cmdOutput("./hi comp " & progName);
+    compiledOutput1   := cmdOutput("./"         & progName);
+    compilerOutput    := cmdOutput("./comp "    & progName);
+    compiledOutput2   := cmdOutput("./"         & progName);
+    if interpretedOutput <> referenceOutput then
+      writeln;
+      writeln(" *** The interpreted " <& progName <& " does not work okay:");
+      writeln(interpretedOutput);
+      okay := FALSE;
+    end if;
+    if compiledOutput1 <> referenceOutput then
+      writeln;
+      writeln(" *** The compiled " <& progName <& " with the interpreted compiler does not work okay:");
+      writeln(compiledOutput1);
+      okay := FALSE;
+    end if;
+    if compiledOutput2 <> referenceOutput then
+      writeln;
+      writeln(" *** The compiled " <& progName <& " with the compiled compiler does not work okay:");
+      writeln(compiledOutput2);
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln(" - okay");
+    end if;
+  end func;
+
+    
+const proc: main is func
+  begin
+    writeln("compiling the compiler");
+    ignore(cmdOutput("./hi comp comp"));
+    check("chkint",  chkint_output);
+    check("chkstr",  chkstr_output);
+    check("chkprc",  chkprc_output);
+    check("chkbig",  chkbig_output);
+    check("chkbool", chkbool_output);
+    check("chkset",  chkset_output);
+    check("chkexc",  chkexc_output);
+  end func;

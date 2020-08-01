@@ -363,7 +363,8 @@ listtype arguments;
 */
     if (str_from->size != 0) {
       new_size = str_to->size + str_from->size;
-      if (!RESIZE_STRI(str_to, str_to->size, new_size)) {
+      REALLOC_STRI(str_to, str_to, str_to->size, new_size);
+      if (str_to == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       COUNT3_STRI(str_to->size, new_size);
@@ -409,8 +410,8 @@ listtype arguments;
     str1_size = str1->size;
     result_size = str1_size + str2->size;
     if (TEMP_OBJECT(arg_1(arguments))) {
-      result = str1;
-      if (!RESIZE_STRI(result, str1_size, result_size)) {
+      REALLOC_STRI(result, str1, str1_size, result_size);
+      if (result == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       COUNT3_STRI(str1_size, result_size);
@@ -872,8 +873,8 @@ listtype arguments;
         result_size = (memsizetype) stop;
       } /* if */
       if (TEMP_OBJECT(arg_1(arguments))) {
-        result = str1;
-        if (!RESIZE_STRI(result, length, result_size)) {
+        REALLOC_STRI(result, str1, length, result_size);
+        if (result == NULL) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
         COUNT3_STRI(length, result_size);

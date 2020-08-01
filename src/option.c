@@ -108,6 +108,7 @@ int start;
               } /* if */
               break;
             case 'q':
+              option.version_info = FALSE;
               option.compilation_info = FALSE;
               option.linecount_info = FALSE;
               break;
@@ -142,7 +143,8 @@ int start;
         } /* if */
       } /* if */
     } /* for */
-    /* printf("%d %d\n",
+    /* printf("%d %d %d\n",
+        option.version_info,
         option.compilation_info,
         option.linecount_info); */
 #ifdef TRACE_OPTION

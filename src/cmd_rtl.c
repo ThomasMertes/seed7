@@ -720,6 +720,12 @@ stritype stri;
         opt = COMP_DATA_LIB;
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
         opt = COMPILER_LIB;
+      } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
+#ifdef WITH_STRI_CAPACITY
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else {
         opt = "";
       } /* if */
@@ -1098,7 +1104,7 @@ stritype command_stri;
     cstritype os_command_stri;
 
   /* cmdSh */
-    os_command_stri = cp_to_cstri(command_stri);
+    os_command_stri = cp_to_command(command_stri);
     if (os_command_stri == NULL) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -1146,3 +1152,36 @@ stritype dest_name;
       raise_error(err_info);
     } /* if */
   } /* cmdSymlink */
+
+
+
+#ifdef FTELL_WRONG_FOR_PIPE
+#undef ftell
+
+
+
+#ifdef ANSI_C
+
+long improved_ftell (FILE *stream)
+#else
+
+long improved_ftell (stream)
+FILE *stream;
+#endif
+
+  {
+    int file_no;
+    struct stat stat_buf;
+    int result;
+
+  /* improved_ftell */
+    file_no = fileno(stream);
+    if (file_no != -1 && fstat(file_no, &stat_buf) == 0 &&
+        S_ISREG(stat_buf.st_mode)) {
+      result = ftell(stream);
+    } else {
+      result = -1;
+    } /* if */
+    return(result);
+  } /* improved_ftell */
+#endif

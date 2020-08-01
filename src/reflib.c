@@ -679,7 +679,7 @@ listtype arguments;
   /* ref_itftosct */
     isit_reference(arg_1(arguments));
     obj_arg1 = take_reference(arg_1(arguments));
-    isit_class(obj_arg1);
+    isit_interface(obj_arg1);
     result = take_reference(obj_arg1);
     return(bld_reference_temp(result));
   } /* ref_itftosct */
@@ -749,39 +749,6 @@ listtype arguments;
     return(bld_reflist_temp(refLocalVars(
 	take_reference(arg_1(arguments)))));
   } /* ref_local_vars */
-
-
-
-#ifdef ANSI_C
-
-objecttype ref_locini (listtype arguments)
-#else
-
-objecttype ref_locini (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype obj_arg1;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
-
-  /* ref_locini */
-    obj_arg1 = arg_1(arguments);
-    isit_reference(obj_arg1);
-    if (CATEGORY_OF_OBJ(take_reference(obj_arg1)) == BLOCKOBJECT) {
-#ifdef NEW_LOCALTYPE
-      result = copy_list(take_reference(obj_arg1)->value.blockvalue->loc_init,
-          &err_info);
-#endif
-      if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } /* if */
-    } else {
-      result = (listtype) NULL;
-    } /* if */
-    return(bld_reflist_temp(result));
-  } /* ref_locini */
 
 
 

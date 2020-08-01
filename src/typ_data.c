@@ -309,8 +309,9 @@ typetype actual_type;
         if (type_table == NULL) {
           ALLOC_TABLE(type_table, typetype, table_used + TYPE_TABLE_INCREMENT);
         } else {
-          if (RESIZE_TABLE(type_table, typetype,
-              table_size, table_used + TYPE_TABLE_INCREMENT)) {
+          type_table = REALLOC_TABLE(type_table, typetype,
+              table_size, table_used + TYPE_TABLE_INCREMENT);
+          if (type_table != NULL) {
             COUNT3_TABLE(typetype, table_size, table_used + TYPE_TABLE_INCREMENT);
           } /* if */
         } /* if */

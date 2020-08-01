@@ -67,13 +67,16 @@ char **argv;
 #ifdef TRACE_HI
     printf("BEGIN HI\n");
 #endif
-    printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2008 Thomas Mertes\n", LEVEL);
     set_trace(NULL, -1, NULL);
+    options(argc, argv, 1);
+    if (option.version_info) {
+      printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2008 Thomas Mertes\n", LEVEL);
+    } /* if */
     if (argc == 1) {
       printf("usage: hi [options] sourcefile [parameters]\n");
     } else {
-      options(argc, argv, 1);
-/*    printf("prot_file_name: \"%s\"\n", option.prot_file_name); */
+/*    printf("source_file_name: \"%s\"\n", option.source_file_name);
+      printf("prot_file_name: \"%s\"\n", option.prot_file_name); */
       if (option.source_file_name == NULL) {
         printf("*** Sourcefile missing\n");
       } else {

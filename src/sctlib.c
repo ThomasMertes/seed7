@@ -125,8 +125,8 @@ listtype arguments;
     stru1_size = stru1->size;
     result_size = stru1_size + stru2->size;
     if (TEMP_OBJECT(arg_1(arguments))) {
-      result = stru1;
-      if (!RESIZE_STRUCT(result, stru1_size, result_size)) {
+      result = REALLOC_STRUCT(stru1, stru1_size, result_size);
+      if (result == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       COUNT3_STRUCT(stru1_size, result_size);
@@ -467,7 +467,8 @@ listtype arguments;
     isit_reference(arg_2(arguments));
     elem = take_reference(arg_2(arguments));
     stru_size = stru_to->size;
-    if (!RESIZE_STRUCT(stru_to, stru_size, stru_size + 1)) {
+    stru_to = REALLOC_STRUCT(stru_to, stru_size, stru_size + 1);
+    if (stru_to == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
     COUNT3_STRUCT(stru_size, stru_size + 1);

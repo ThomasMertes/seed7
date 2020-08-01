@@ -61,7 +61,7 @@ typedef int booltype;
 #undef  DO_HEAP_LOG
 #undef  DO_HEAP_CHECK
 #define WIDE_CHAR_STRINGS
-#undef  WITH_STRI_CAPACITY
+#define WITH_STRI_CAPACITY
 #define BIGDIGIT_SIZE 16
 
 

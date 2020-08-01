@@ -49,6 +49,7 @@
 #define take_float(arg)     (arg)->value.floatvalue
 #define take_hash(arg)      (arg)->value.hashvalue
 #define take_int(arg)       (arg)->value.intvalue
+#define take_interface(arg) (CATEGORY_OF_OBJ(arg) == INTERFACEOBJECT ? (arg)->value.objvalue : (arg))
 #define take_bigint(arg)    (arg)->value.bigintvalue
 #define take_list(arg)      (arg)->value.listvalue
 #define take_prog(arg)      (arg)->value.progvalue
@@ -73,8 +74,9 @@
                             if (take_bstri(arg) == NULL)               { empty_value(arg); return(NULL); }
 #define isit_call(arg)      if (CATEGORY_OF_OBJ(arg) != CALLOBJECT)    run_exception(CALLOBJECT, arg)
 #define isit_char(arg)      if (CATEGORY_OF_OBJ(arg) != CHAROBJECT)    run_exception(CHAROBJECT, arg)
-#define isit_class(arg)     if (CATEGORY_OF_OBJ(arg) != CLASSOBJECT)   run_exception(CLASSOBJECT, arg); \
-                            if (take_reference(arg) == NULL)           { empty_value(arg); return(NULL); }
+#define isit_interface(arg) if (CATEGORY_OF_OBJ(arg) != INTERFACEOBJECT && \
+                                CATEGORY_OF_OBJ(arg) != STRUCTOBJECT)  run_exception(INTERFACEOBJECT, arg); \
+                            if (take_interface(arg) == NULL)           { empty_value(arg); return(NULL); }
 /*      isit_enum(arg)      */
 #define isit_file(arg)      if (CATEGORY_OF_OBJ(arg) != FILEOBJECT)    run_exception(FILEOBJECT, arg)
 #define isit_float(arg)     if (CATEGORY_OF_OBJ(arg) != FLOATOBJECT)   run_exception(FLOATOBJECT, arg)
@@ -108,7 +110,7 @@
 #define isit_bstri(arg)
 #define isit_call(arg)
 #define isit_char(arg)
-#define isit_class(arg)
+#define isit_interface(arg)
 #define isit_enum(arg)
 #define isit_file(arg)
 #define isit_float(arg)
@@ -140,7 +142,7 @@ void isit_bool (objecttype);
 /* void isit_bstri (objecttype); */
 /* void isit_call (objecttype); */
 /* void isit_char (objecttype); */
-/* void isit_class (objecttype); */
+/* void isit_interface (objecttype); */
 void isit_enum (objecttype);
 /* void isit_file (objecttype); */
 #ifdef WITH_FLOAT
@@ -166,7 +168,7 @@ objecttype bld_bigint_temp (biginttype);
 objecttype bld_block_temp (blocktype);
 objecttype bld_bstri_temp (bstritype);
 objecttype bld_char_temp (chartype);
-objecttype bld_class_temp (objecttype);
+objecttype bld_interface_temp (objecttype);
 objecttype bld_file_temp (filetype);
 objecttype bld_float_temp (double);
 objecttype bld_hash_temp (hashtype);
@@ -194,7 +196,7 @@ void isit_bool ();
 /* void isit_bstri (); */
 /* void isit_call (); */
 /* void isit_char (); */
-/* void isit_class (); */
+/* void isit_interface (); */
 void isit_enum ();
 /* void isit_file (); */
 #ifdef WITH_FLOAT
@@ -220,7 +222,7 @@ objecttype bld_bigint_temp ();
 objecttype bld_block_temp ();
 objecttype bld_bstri_temp ();
 objecttype bld_char_temp ();
-objecttype bld_class_temp ();
+objecttype bld_interface_temp ();
 objecttype bld_file_temp ();
 objecttype bld_float_temp ();
 objecttype bld_hash_temp ();

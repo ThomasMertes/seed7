@@ -984,6 +984,7 @@ listtype arguments;
         result = copy_list(take_reflist(obj_arg), &err_info);
       } else {
         run_error(REFLISTOBJECT, obj_arg);
+        result = NULL;
       } /* if */
     } else {
       return(raise_exception(SYS_RNG_EXCEPTION));

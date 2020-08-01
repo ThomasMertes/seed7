@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef FTELL_WRONG_FOR_PIPE
+#define ftell improved_ftell
+#endif
+
 #ifdef ANSI_C
 
 void cmdChdir (stritype);
@@ -43,6 +47,9 @@ stritype cmdReadlink (stritype);
 void cmdRemove (stritype);
 void cmdSh (stritype);
 void cmdSymlink (stritype, stritype);
+#ifdef FTELL_WRONG_FOR_PIPE
+long improved_ftell (FILE *stream);
+#endif
 
 #else
 
@@ -58,5 +65,8 @@ stritype cmdReadlink ();
 void cmdRemove ();
 void cmdSh ();
 void cmdSymlink ();
+#ifdef FTELL_WRONG_FOR_PIPE
+long improved_ftell ();
+#endif
 
 #endif
