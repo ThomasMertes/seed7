@@ -76,7 +76,7 @@ static void qsort_array (objectType begin_sort, objectType end_sort,
         memcpy(less_elem, &compare_elem, sizeof(objectRecord));
       } /* for */
     } else {
-      middle_elem = &begin_sort[(end_sort - begin_sort) >> 1];
+      middle_elem = &begin_sort[(memSizeType) (end_sort - begin_sort) >> 1];
       memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
       memcpy(middle_elem, end_sort, sizeof(objectRecord));
       memcpy(end_sort, &compare_elem, sizeof(objectRecord));

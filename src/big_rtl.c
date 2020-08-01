@@ -75,6 +75,12 @@ typedef uint16Type               doubleBigDigitType;
 #define DECIMAL_DIGITS_IN_BIGDIGIT          2
 #define POWER_OF_5_IN_BIGDIGIT            125
 #define QUINARY_DIGITS_IN_BIGDIGIT          3
+#define F_D_DIG(width) F_D8(width)
+#define F_U_DIG(width) F_U8(width)
+#define F_X_DIG(width) F_X8(width)
+#define FMT_D_DIG FMT_D8
+#define FMT_U_DIG FMT_U8
+#define FMT_X_DIG FMT_X8
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 128, 243,  64, 125, 216,
     /*  7 */  49,  64,  81, 100, 121,
@@ -106,6 +112,12 @@ typedef uint32Type               doubleBigDigitType;
 #define DECIMAL_DIGITS_IN_BIGDIGIT          4
 #define POWER_OF_5_IN_BIGDIGIT          15625
 #define QUINARY_DIGITS_IN_BIGDIGIT          6
+#define F_D_DIG(width) F_D16(width)
+#define F_U_DIG(width) F_U16(width)
+#define F_X_DIG(width) F_X16(width)
+#define FMT_D_DIG FMT_D16
+#define FMT_U_DIG FMT_U16
+#define FMT_X_DIG FMT_X16
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 32768, 59049, 16384, 15625, 46656,
     /*  7 */ 16807, 32768, 59049, 10000, 14641,
@@ -137,6 +149,12 @@ typedef uint64Type               doubleBigDigitType;
 #define DECIMAL_DIGITS_IN_BIGDIGIT          9
 #define POWER_OF_5_IN_BIGDIGIT     1220703125
 #define QUINARY_DIGITS_IN_BIGDIGIT         13
+#define F_D_DIG(width) F_D32(width)
+#define F_U_DIG(width) F_U32(width)
+#define F_X_DIG(width) F_X32(width)
+#define FMT_D_DIG FMT_D32
+#define FMT_U_DIG FMT_U32
+#define FMT_X_DIG FMT_X32
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 2147483648u, 3486784401u, 1073741824u, 1220703125u, 2176782336u,
     /*  7 */ 1977326743u, 1073741824u, 3486784401u, 1000000000u, 2357947691u,
@@ -276,15 +294,11 @@ cstriType bigHexCStri (const const_bigIntType big1)
         buffer += 3;
         pos = big1->size - 1;
 #if BIGDIGIT_SIZE == 8
-        sprintf(buffer, "%02hhx", big1->bigdigits[pos]);
+        sprintf(buffer, F_X_DIG(02), big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 16
-        sprintf(buffer, "%04hx", big1->bigdigits[pos]);
+        sprintf(buffer, F_X_DIG(04), big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 32
-#ifdef INT32TYPE_FORMAT_L
-        sprintf(buffer, "%08lx", big1->bigdigits[pos]);
-#else
-        sprintf(buffer, "%08x", big1->bigdigits[pos]);
-#endif
+        sprintf(buffer, F_X_DIG(08), big1->bigdigits[pos]);
 #endif
         if (IS_NEGATIVE(big1->bigdigits[pos])) {
           byteCount = BIGDIGIT_SIZE >> 3;
@@ -306,15 +320,11 @@ cstriType bigHexCStri (const const_bigIntType big1)
         while (pos > 0) {
           pos--;
 #if BIGDIGIT_SIZE == 8
-          sprintf(buffer, "%02hhx", big1->bigdigits[pos]);
+          sprintf(buffer, F_X_DIG(02), big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 16
-          sprintf(buffer, "%04hx", big1->bigdigits[pos]);
+          sprintf(buffer, F_X_DIG(04), big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 32
-#ifdef INT32TYPE_FORMAT_L
-          sprintf(buffer, "%08lx", big1->bigdigits[pos]);
-#else
-          sprintf(buffer, "%08x", big1->bigdigits[pos]);
-#endif
+          sprintf(buffer, F_X_DIG(08), big1->bigdigits[pos]);
 #endif
           buffer += (BIGDIGIT_SIZE >> 3) * 2;
         } /* while */
@@ -719,7 +729,8 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
           bigDigit |= (doubleBigDigitType) digitval << bigDigitShift;
           bigDigitShift += shift;
           if (bigDigitShift >= BIGDIGIT_SIZE) {
-	    /* printf("result->bigdigits[%lu] = %08lx\n", bigDigitPos, bigDigit & BIGDIGIT_MASK); */
+	    /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
+               bigDigitPos, (bigDigitType) (bigDigit & BIGDIGIT_MASK)); */
             result->bigdigits[bigDigitPos] = (bigDigitType) (bigDigit & BIGDIGIT_MASK);
             bigDigitPos++;
             bigDigit >>= BIGDIGIT_SIZE;
@@ -733,7 +744,8 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         } else {
           result->size = result_size;
           while (bigDigitPos < result_size) {
-	    /* printf("result->bigdigits[%lu] = %08lx\n", bigDigitPos, bigDigit & BIGDIGIT_MASK); */
+	    /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
+               bigDigitPos, (bigDigitType) (bigDigit & BIGDIGIT_MASK)); */
             result->bigdigits[bigDigitPos] = (bigDigitType) (bigDigit & BIGDIGIT_MASK);
             bigDigitPos++;
             bigDigit >>= BIGDIGIT_SIZE;
@@ -784,7 +796,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
   /* bigParseBased2To36 */
     /* printf("bigParseBased2To36(");
        prot_stri(stri);
-       printf(", %d)\n", base); */
+       printf(", " FMT_D ")\n", base); */
     if (unlikely(stri->size == 0)) {
       raise_error(RANGE_ERROR);
       return NULL;
@@ -894,7 +906,8 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
     striType result;
 
   /* bigRadixPow2 */
-    /* printf("bigRadixPow2(%s, %u, %x, %d)\n", bigHexCStri(big1), shift, mask, upperCase); */
+    /* printf("bigRadixPow2(%s, %u, " FMT_X_DIG ", %d)\n",
+       bigHexCStri(big1), shift, mask, upperCase); */
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     if (negative) {
       unsigned_big = alloc_positive_copy_of_negative_big(big1);
@@ -1071,13 +1084,14 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
         } else {
           digits = digitTable[upperCase];
           divisor_digit = powerOfRadixInBigdigit[base - 2];
-          /* printf("divisor_digit: %u\n", divisor_digit); */
+          /* printf("divisor_digit: " FMT_U_DIG "\n", divisor_digit); */
           digits_in_bigdigit = radixDigitsInBigdigit[base - 2];
           /* printf("digits_in_bigdigit: %hd\n", digits_in_bigdigit); */
           pos = result_size - 1;
           do {
             digit = uBigDivideByDigit(unsigned_big, divisor_digit);
-            /* printf("unsigned_big->size=%lu, digit=%u\n", unsigned_big->size, digit); */
+            /* printf("unsigned_big->size=%lu, digit=" FMT_U_DIG "\n",
+               unsigned_big->size, digit); */
             if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
               unsigned_big->size--;
             } /* if */
@@ -2802,7 +2816,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
     bigIntType power;
 
   /* bigIPowN */
-    /* printf("bigIPowN(%lu, %lu, %u)\n", base, exponent, bit_size); */
+    /* printf("bigIPowN(" FMT_U_DIG ", " FMT_D ", %u)\n", base, exponent, bit_size); */
     /* help_size = (bit_size * ((uintType) exponent) - 1) / BIGDIGIT_SIZE + 2; */
     /* printf("help_sizeA=%ld\n", help_size); */
     if (unlikely((uintType) exponent + 1 > MAX_BIG_LEN)) {
@@ -2870,7 +2884,7 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
     bigIntType power;
 
   /* bigIPow1 */
-    /* printf("bigIPow1(%ld, %lu)\n", base, exponent); */
+    /* printf("bigIPow1(" FMT_D_DIG ", " FMT_D ")\n", base, exponent); */
     if (base == 0) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
         raise_error(MEMORY_ERROR);
@@ -4415,16 +4429,17 @@ bigIntType bigLog10 (const const_bigIntType big1)
           } /* if */
           largeDecimalBlockCount++;
         } /* while */
-        do {
-          digit = uBigDivideByPowerOf10(unsigned_big);
-          /* printf("unsigned_big->size=%lu, digit=%lu\n", unsigned_big->size, digit); */
+        while (unsigned_big->size > 1 ||
+               unsigned_big->bigdigits[0] >= POWER_OF_10_IN_BIGDIGIT) {
+          uBigDivideByPowerOf10(unsigned_big);
+          /* printf("unsigned_big->size=%lu, digit=" FMT_U_DIG "\n",
+             unsigned_big->size, digit); */
           if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
             unsigned_big->size--;
           } /* if */
-          if (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0) {
-            decimalBlockCount++;
-          } /* if */
-        } while (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0);
+          decimalBlockCount++;
+        } /* while */
+        digit = unsigned_big->bigdigits[0];
         FREE_BIG(unsigned_big, big1->size + 1);
 #if POINTER_SIZE == 32
         logarithm = bigFromUInt32(decimalBlockCount);
@@ -4433,9 +4448,18 @@ bigIntType bigLog10 (const const_bigIntType big1)
 #endif
         if (logarithm != NULL) {
           bigMultAssign1(&logarithm, DECIMAL_DIGITS_IN_BIGDIGIT);
+#if BIGDIGIT_SIZE < 32
+          {
+            bigIntType numDigits = bigFromUInt32(
+                largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT);
+            bigGrow(&logarithm, numDigits);
+            bigDestr(numDigits);
+          }
+#else
           bigGrowSignedDigit(&logarithm,
               (intType) (largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT));
-	  /* printf("digit: %lu\n", digit); */
+#endif
+	  /* printf("digit: " FMT_U_DIG "\n", digit); */
           digit /= 10;
           while (digit != 0) {
             bigIncr(&logarithm);
@@ -4524,7 +4548,7 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
     bigIntType result;
 
   /* bigLowerBits */
-    /* printf("bigLowerBits(%s, %ld)", bigHexCStri(big1), bits); */
+    /* printf("bigLowerBits(%s, " FMT_D ")", bigHexCStri(big1), bits); */
     if (unlikely(bits <= 0)) {
       if (bits == 0) {
         if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, 1))) {
@@ -4578,7 +4602,7 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
             result->bigdigits[idx] = BIGDIGIT_MASK;
           } /* while */
         } else {
-          /* printf("mask = %08x\n", digit_mask); */
+          /* printf("mask = " F_X_DIG(08) "\n", digit_mask); */
           result->bigdigits[idx] = big1->bigdigits[idx] & digit_mask;
         } /* if */
         memcpy(result->bigdigits, big1->bigdigits,
@@ -4613,7 +4637,7 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
     bigIntType result;
 
   /* bigLowerBitsTemp */
-    /* printf("bigLowerBits(%s, %ld)", bigHexCStri(big1), bits); */
+    /* printf("bigLowerBits(%s, " FMT_D ")", bigHexCStri(big1), bits); */
     big1_size = big1->size;
     if (unlikely(bits <= 0)) {
       FREE_BIG(big1, big1_size);
@@ -4675,7 +4699,7 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
             result->bigdigits[idx] = BIGDIGIT_MASK;
           } /* while */
         } else {
-          /* printf("mask = %08x\n", digit_mask); */
+          /* printf("mask = " F_X_DIG(08) "\n", digit_mask); */
           result->bigdigits[idx] = result->bigdigits[idx] & digit_mask;
         } /* if */
       } /* if */
@@ -5263,7 +5287,7 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
         return NULL;
       } /* if */
     } /* if */
-    /* printf("bigMult(%u, %u)\n", factor1->size, factor2->size); */
+    /* printf("bigMult(%lu, %lu)\n", factor1->size, factor2->size); */
 #if 0
     if (unlikely(!ALLOC_BIG(product, factor1->size + factor2->size))) {
       raise_error(MEMORY_ERROR);
@@ -5386,7 +5410,7 @@ bigIntType bigMultSignedDigit (const_bigIntType factor1, intType factor2)
     bigIntType product;
 
   /* bigMultSignedDigit */
-    /* printf("bigMultSignedDigit(factor1->size=%lu, %ld)\n", factor1->size, factor2); */
+    /* printf("bigMultSignedDigit(factor1->size=%lu, " FMT_D ")\n", factor1->size, factor2); */
     if (unlikely(!ALLOC_BIG_CHECK_SIZE(product, factor1->size + 1))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -5675,7 +5699,7 @@ bigIntType bigParseBased (const const_striType stri, intType base)
   /* bigParseBased */
     /* printf("bigParseBased(");
        prot_stri(stri);
-       printf(", %d)\n", base); */
+       printf(", " FMT_D ")\n", base); */
     switch (base) {  /* Cases sorted by probability. */
       case 16: result = bigParseBasedPow2(stri, 4); break;
       case  8: result = bigParseBasedPow2(stri, 3); break;
@@ -5847,7 +5871,7 @@ striType bigRadix (const const_bigIntType big1, intType base,
     striType result;
 
   /* bigRadix */
-    /* printf("bigRadix(%s, %ld, %d)\n", bigHexCStri(big1), base, upperCase); */
+    /* printf("bigRadix(%s, " FMT_D ", %d)\n", bigHexCStri(big1), base, upperCase); */
     switch (base) {  /* Cases sorted by probability. */
       case 16: result = bigRadixPow2(big1, 4,  0xf, upperCase); break;
       case  8: result = bigRadixPow2(big1, 3,  0x7, upperCase); break;
@@ -6464,7 +6488,7 @@ bigIntType bigSquare (const_bigIntType big1)
         return NULL;
       } /* if */
     } /* if */
-    /* printf("bigSquare(%u)\n", big1->size); */
+    /* printf("bigSquare(%lu)\n", big1->size); */
     result = uBigSquareK(big1);
     if (big1_help != NULL) {
       FREE_BIG(big1_help, big1_help->size);
@@ -6522,7 +6546,8 @@ striType bigStr (const const_bigIntType big1)
           pos = result_size - 1;
           do {
             digit = uBigDivideByPowerOf10(unsigned_big);
-            /* printf("unsigned_big->size=%lu, digit=%lu\n", unsigned_big->size, digit); */
+            /* printf("unsigned_big->size=%lu, digit=" FMT_U_DIG "\n",
+               unsigned_big->size, digit); */
             if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
               unsigned_big->size--;
             } /* if */
@@ -6891,6 +6916,41 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 
 
 
+int16Type bigToInt16 (const const_bigIntType big1)
+
+  {
+    memSizeType pos;
+    int32Type result;
+
+  /* bigToInt16 */
+#if BIGDIGIT_SIZE > 16
+    if (unlikely(big1->size > 1)) {
+#else
+    if (unlikely(big1->size > sizeof(int16Type) / (BIGDIGIT_SIZE >> 3))) {
+#endif
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else {
+      pos = big1->size - 1;
+      result = (int32Type) (signedBigDigitType) big1->bigdigits[pos];
+#if BIGDIGIT_SIZE > 16
+      if (result < INT16TYPE_MIN || result > INT16TYPE_MAX) {
+        raise_error(RANGE_ERROR);
+        result = 0;
+      } /* if */
+#elif BIGDIGIT_SIZE < 16
+      while (pos > 0) {
+        pos--;
+        result <<= BIGDIGIT_SIZE;
+        result |= (int16Type) big1->bigdigits[pos];
+      } /* while */
+#endif
+      return (int16Type) result;
+    } /* if */
+  } /* bigToInt16 */
+
+
+
 int32Type bigToInt32 (const const_bigIntType big1)
 
   {
@@ -6898,6 +6958,7 @@ int32Type bigToInt32 (const const_bigIntType big1)
     int32Type result;
 
   /* bigToInt32 */
+    /* Assume that BIGDIGIT_SIZE <= 32 holds. */
     if (unlikely(big1->size > sizeof(int32Type) / (BIGDIGIT_SIZE >> 3))) {
       raise_error(RANGE_ERROR);
       return 0;
@@ -6925,6 +6986,7 @@ int64Type bigToInt64 (const const_bigIntType big1)
     int64Type result;
 
   /* bigToInt64 */
+    /* Assume that BIGDIGIT_SIZE <= 32 holds. */
     if (unlikely(big1->size > sizeof(int64Type) / (BIGDIGIT_SIZE >> 3))) {
       raise_error(RANGE_ERROR);
       return 0;

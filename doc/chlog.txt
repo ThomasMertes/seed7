@@ -1,3 +1,28 @@
+20140518:
+- Errors in con_wat.c and drw-dos.c have been fixed (thanks to
+  "Rugxulo" for the help to fix them). 
+- The function str in duration.s7i has been improved to work for
+  negative durations.
+- The library tar.s7i has been improved to work with the old file
+  format that does not use the magic value "ustar".
+- The function bigToInt16 has been added to big_rtl.c and big_gmp.c.
+- The macros with format strings in common.h have been renamed.
+  Now the macros have shorter names (starting with FMT_ and F_).
+  The macros define formats for various integer sizes. This formats
+  are independend from the actual C compiler and C runtime library.
+- The function bigLog10 in big_rtl.c has been improved to work
+  correctly when BIGDIGIT_SIZE is small.
+- The program chkccomp.c has been improved to define
+  LOCALTIME_WORKS_SIGNED, when localtime can process negative times.
+- The program chkccomp.c has been improved to write the define
+  directives to the file specified with the first parameter.
+- The function intParse in int_rtl.c has been improved to accept the
+  most negative number.
+- The function timSetLocalTZ in tim_rtl.c has been changed to avoid
+  raising an exception when LOCALTIME_WORKS_SIGNED is not defined and
+  the time is before 1970-01-01. In this case the daylight saving
+  time flag is set to FALSE.  
+
 20140504:
 - The answer concerning Unicode support in the FAQ has been improved.
 - The chapters in the manual that describe the types integer,

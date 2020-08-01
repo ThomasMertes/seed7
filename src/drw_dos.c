@@ -36,6 +36,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "heaputl.h"
 #include "rtl_err.h"
 
 #undef EXTERN

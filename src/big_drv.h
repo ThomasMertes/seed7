@@ -115,6 +115,7 @@ bigIntType bigSucc (const const_bigIntType big1);
 bigIntType bigSuccTemp (bigIntType big1);
 bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned);
 bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned);
+int16Type bigToInt16 (const const_bigIntType big1);
 int32Type bigToInt32 (const const_bigIntType big1);
 #ifdef INT64TYPE
   int64Type bigToInt64 (const const_bigIntType big1);

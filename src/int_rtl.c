@@ -1195,16 +1195,14 @@ striType intLpad0 (intType number, const intType pad_size)
 intType intParse (const const_striType stri)
 
   {
-    boolType okay;
-    boolType negative;
-    memSizeType position;
-    intType digitval;
-    intType integer_value;
+    boolType okay = TRUE;
+    boolType negative = FALSE;
+    memSizeType position = 0;
+    uintType digitval;
+    uintType uint_value = 0;
+    intType int_value = 0;
 
   /* intParse */
-    okay = TRUE;
-    position = 0;
-    integer_value = 0;
     if (stri->size != 0) {
       if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
@@ -1213,16 +1211,13 @@ intType intParse (const const_striType stri)
         if (stri->mem[0] == ((strElemType) '+')) {
           position++;
         } /* if */
-        negative = FALSE;
       } /* if */
       while (position < stri->size &&
           stri->mem[position] >= ((strElemType) '0') &&
           stri->mem[position] <= ((strElemType) '9')) {
-        digitval = ((intType) stri->mem[position]) - ((intType) '0');
-        if (integer_value < MAX_DIV_10 ||
-            (integer_value == MAX_DIV_10 &&
-            digitval <= MAX_REM_10)) {
-          integer_value = ((intType) 10) * integer_value + digitval;
+        digitval = ((uintType) stri->mem[position]) - ((uintType) '0');
+        if (uint_value <= MAX_DIV_10) {
+          uint_value = ((uintType) 10) * uint_value + digitval;
         } else {
           okay = FALSE;
         } /* if */
@@ -1234,14 +1229,21 @@ intType intParse (const const_striType stri)
     } /* if */
     if (likely(okay)) {
       if (negative) {
-        return -integer_value;
+        if (uint_value > (uintType) INT64TYPE_MAX + 1) {
+          okay = FALSE;
+        } else {
+          int_value = (intType) -uint_value;
+        } /* if */
+      } else if (uint_value > (uintType) INT64TYPE_MAX) {
+        okay = FALSE;
       } else {
-        return integer_value;
+        int_value = (intType) uint_value;
       } /* if */
-    } else {
-      raise_error(RANGE_ERROR);
-      return 0;
     } /* if */
+    if (unlikely(!okay)) {
+      raise_error(RANGE_ERROR);
+    } /* if */
+    return int_value;
   } /* intParse */
 
 

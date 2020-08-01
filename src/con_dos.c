@@ -299,7 +299,7 @@ void conCursor (boolType on)
 
 
 
-void conSetCursor (intType lin, intType col)
+void conSetCursor (intType line, intType column)
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -310,8 +310,8 @@ void conSetCursor (intType lin, intType col)
 
   /* conSetCursor */
     r.h.ah = (unsigned char) 2; /* cursor addressing function */
-    r.h.dh = (unsigned char) (lin - 1);
-    r.h.dl = (unsigned char) (col - 1);
+    r.h.dh = (unsigned char) (line - 1);
+    r.h.dl = (unsigned char) (column - 1);
     r.h.bh = (unsigned char) 0; /* video page */
     int86(0x10, &r, &r);
   } /* conSetCursor */

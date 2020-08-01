@@ -379,7 +379,13 @@ const func boolean: checkCompiler (in string: progName, in string: option,
             removeFile("tmp_" & progName & ".c");
             removeFile("tmp1_" & progName & ".c");
             removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION);
-            removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
+            if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+              block
+                removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
+              exception
+                catch FILE_ERROR: noop;
+              end block;
+            end if;
             write(".");
             flush(OUT);
           end if;

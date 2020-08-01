@@ -152,7 +152,7 @@ void prot_int (intType ivalue)
     char buffer[51];
 
   /* prot_int */
-    sprintf(buffer, INTTYPE_FORMAT, ivalue);
+    sprintf(buffer, FMT_D, ivalue);
     prot_cstri(buffer);
   } /* prot_int */
 

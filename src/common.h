@@ -59,6 +59,12 @@ typedef unsigned char      uint8Type;
 #define INT8TYPE_MAX        127
 #define INT8TYPE_MIN      (-128)
 #define UINT8TYPE_MAX      0xff
+#define F_D8(width) "%" #width "hhd"
+#define F_U8(width) "%" #width "hhu"
+#define F_X8(width) "%" #width "hhx"
+#define FMT_D8  "%hhd"
+#define FMT_U8  "%hhu"
+#define FMT_X8  "%hhx"
 
 
 typedef short int          int16Type;
@@ -67,6 +73,12 @@ typedef unsigned short int uint16Type;
 #define INT16TYPE_MAX     32767
 #define INT16TYPE_MIN   (-32768)
 #define UINT16TYPE_MAX   0xffff
+#define F_D16(width) "%" #width "hd"
+#define F_U16(width) "%" #width "hu"
+#define F_X16(width) "%" #width "hx"
+#define FMT_D16  "%hd"
+#define FMT_U16  "%hu"
+#define FMT_X16  "%hx"
 
 
 typedef INT32TYPE          int32Type;
@@ -97,11 +109,19 @@ typedef UINT32TYPE         uint32Type;
 #endif
 
 #if   defined INT32TYPE_FORMAT_L
-#define INT32TYPE_FORMAT  "%ld"
-#define UINT32TYPE_FORMAT "%lu"
+#define F_D32(width) "%" #width "ld"
+#define F_U32(width) "%" #width "lu"
+#define F_X32(width) "%" #width "lx"
+#define FMT_D32  "%ld"
+#define FMT_U32  "%lu"
+#define FMT_X32  "%lx"
 #else
-#define INT32TYPE_FORMAT  "%d"
-#define UINT32TYPE_FORMAT "%u"
+#define F_D32(width) "%" #width "d"
+#define F_U32(width) "%" #width "u"
+#define F_X32(width) "%" #width "x"
+#define FMT_D32  "%d"
+#define FMT_U32  "%u"
+#define FMT_X32  "%x"
 #endif
 
 
@@ -145,20 +165,40 @@ typedef UINT64TYPE         uint64Type;
 #endif
 
 #if   defined INT64TYPE_FORMAT_L
-#define INT64TYPE_FORMAT  "%ld"
-#define UINT64TYPE_FORMAT "%lu"
+#define F_D64(width) "%" #width "ld"
+#define F_U64(width) "%" #width "lu"
+#define F_X64(width) "%" #width "lx"
+#define FMT_D64  "%ld"
+#define FMT_U64  "%lu"
+#define FMT_X64  "%lx"
 #elif defined INT64TYPE_FORMAT_LL
-#define INT64TYPE_FORMAT  "%lld"
-#define UINT64TYPE_FORMAT "%llu"
+#define F_D64(width) "%" #width "lld"
+#define F_U64(width) "%" #width "llu"
+#define F_X64(width) "%" #width "llx"
+#define FMT_D64  "%lld"
+#define FMT_U64  "%llu"
+#define FMT_X64  "%llx"
 #elif defined INT64TYPE_FORMAT_CAPITAL_L
-#define INT64TYPE_FORMAT  "%Ld"
-#define UINT64TYPE_FORMAT "%Lu"
+#define F_D64(width) "%" #width "Ld"
+#define F_U64(width) "%" #width "Lu"
+#define F_X64(width) "%" #width "Lx"
+#define FMT_D64  "%Ld"
+#define FMT_U64  "%Lu"
+#define FMT_X64  "%Lx"
 #elif defined INT64TYPE_FORMAT_I64
-#define INT64TYPE_FORMAT  "%I64d"
-#define UINT64TYPE_FORMAT "%I64u"
+#define F_D64(width) "%" #width "I64d"
+#define F_U64(width) "%" #width "I64u"
+#define F_X64(width) "%" #width "I64x"
+#define FMT_D64  "%I64d"
+#define FMT_U64  "%I64u"
+#define FMT_X64  "%I64x"
 #else
-#define INT64TYPE_FORMAT  "%d"
-#define UINT64TYPE_FORMAT "%u"
+#define F_D64(width) "%" #width "d"
+#define F_U64(width) "%" #width "u"
+#define F_X64(width) "%" #width "x"
+#define FMT_D64  "%d"
+#define FMT_U64  "%u"
+#define FMT_X64  "%x"
 #endif
 #endif
 
@@ -172,8 +212,12 @@ typedef uint32Type                uintType;
 #define INTTYPE_MIN               INT32TYPE_MIN
 #define INTTYPE_MAX               INT32TYPE_MAX
 #define UINTTYPE_MAX              UINT32TYPE_MAX
-#define INTTYPE_FORMAT            INT32TYPE_FORMAT
-#define UINTTYPE_FORMAT           UINT32TYPE_FORMAT
+#define F_D(width)                F_D32(width)
+#define F_U(width)                F_U32(width)
+#define F_X(width)                F_X32(width)
+#define FMT_D                     FMT_D32
+#define FMT_U                     FMT_U32
+#define FMT_X                     FMT_X32
 #define INTTYPE_DECIMAL_SIZE      11
 #define DECIMAL_DIGITS_IN_INTTYPE 9
 #define uintMostSignificantBit    uint32MostSignificantBit
@@ -187,13 +231,25 @@ typedef uint64Type                uintType;
 #define INTTYPE_MIN               INT64TYPE_MIN
 #define INTTYPE_MAX               INT64TYPE_MAX
 #define UINTTYPE_MAX              UINT64TYPE_MAX
-#define INTTYPE_FORMAT            INT64TYPE_FORMAT
-#define UINTTYPE_FORMAT           UINT64TYPE_FORMAT
+#define F_D(width)                F_D64(width)
+#define F_U(width)                F_U64(width)
+#define F_X(width)                F_X64(width)
+#define FMT_D                     FMT_D64
+#define FMT_U                     FMT_U64
+#define FMT_X                     FMT_X64
 #define INTTYPE_DECIMAL_SIZE      20
 #define DECIMAL_DIGITS_IN_INTTYPE 18
 #define uintMostSignificantBit    uint64MostSignificantBit
 #define uintLeastSignificantBit   uint64LeastSignificantBit
 #endif
+
+
+#if TIME_T_SIZE == 32
+#define TIME_T_MAX INT32TYPE_MAX
+#elif TIME_T_SIZE == 64
+#define TIME_T_MAX INT64TYPE_MAX
+#endif
+
 
 #if SHORT_SIZE < INTTYPE_SIZE
 #define inShortRange(num) ((num) >= SHRT_MIN && (num) <= SHRT_MAX)

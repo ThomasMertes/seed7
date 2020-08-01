@@ -260,8 +260,10 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
 
   /* timSetLocalTZ */
 #ifdef TRACE_TIM_RTL
-    printf("BEGIN timSetLocalTZ(%04ld-%02ld-%02ld %02ld:%02ld:%02ld)\n",
-        year, month, day, hour, min, sec);
+    printf("BEGIN timSetLocalTZ(" F_D(04) "-" F_D(02) "-" F_D(02),
+           year, month, day);
+    printf(" " F_D(02) ":" F_D(02) ":" F_D(02) ")\n",
+           hour, min, sec);
 #endif
     timestamp = 0;
 #if defined USE_LOCALTIME_R
@@ -289,32 +291,44 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
       tm_time.tm_isdst = 0;
       timestamp = mkutc(&tm_time);
       if (unlikely(timestamp == (time_t) -1)) {
-        raise_error(RANGE_ERROR);
+        *time_zone = time_zone_reference;
+        *is_dst    = 0;
       } else {
         /* printf("timestamp: %ld\n", timestamp); */
         timestamp -= time_zone_reference * 60;
-#if defined USE_LOCALTIME_R
-        local_time = localtime_r(&timestamp, &tm_result);
-#elif defined USE_LOCALTIME_S
-        if (localtime_s(&tm_result, &timestamp) != 0) {
-          local_time = NULL;
+#ifndef LOCALTIME_WORKS_SIGNED
+        if (timestamp < 0) {
+          *time_zone = time_zone_reference;
+          *is_dst    = 0;
         } else {
-          local_time = &tm_result;
-        } /* if */
-#else
-        local_time = localtime(&timestamp);
 #endif
-        if (unlikely(local_time == NULL)) {
-          raise_error(RANGE_ERROR);
-        } else {
-          *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
-          *is_dst    = local_time->tm_isdst > 0;
+#if defined USE_LOCALTIME_R
+          local_time = localtime_r(&timestamp, &tm_result);
+#elif defined USE_LOCALTIME_S
+          if (localtime_s(&tm_result, &timestamp) != 0) {
+            local_time = NULL;
+          } else {
+            local_time = &tm_result;
+          } /* if */
+#else
+          local_time = localtime(&timestamp);
+#endif
+          if (unlikely(local_time == NULL)) {
+            raise_error(RANGE_ERROR);
+          } else {
+            *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
+            *is_dst    = local_time->tm_isdst > 0;
+          } /* if */
+#ifndef LOCALTIME_WORKS_SIGNED
         } /* if */
+#endif
       } /* if */
     } /* if */
 #ifdef TRACE_TIM_RTL
-    printf("END timSetLocalTZ (%04ld-%02ld-%02ld %02ld:%02ld:%02ld %ld %d)\n",
-        year, month, day, hour, min, sec, *time_zone, *is_dst);
+    printf("END timSetLocalTZ(" F_D(04) "-" F_D(02) "-" F_D(02),
+           year, month, day);
+    printf(" " F_D(02) ":" F_D(02) ":" F_D(02) " " FMT_D " %d)\n",
+           hour, min, sec, *time_zone, *is_dst);
 #endif
   } /* timSetLocalTZ */
 

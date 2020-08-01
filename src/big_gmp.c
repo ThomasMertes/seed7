@@ -1745,6 +1745,29 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 
 
 
+int16Type bigToInt16 (const const_bigIntType big1)
+
+  {
+    long int result;
+
+  /* bigToInt16 */
+    if (!mpz_fits_slong_p(big1)) {
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else {
+      result = mpz_get_si(big1);
+#if LONG_SIZE > 16
+      if (result < INT16TYPE_MIN || result > INT16TYPE_MAX) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+#endif
+      return (int16Type) result;
+    } /* if */
+  } /* bigToInt16 */
+
+
+
 int32Type bigToInt32 (const const_bigIntType big1)
 
   {

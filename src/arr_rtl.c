@@ -61,7 +61,7 @@
 
 
 static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
-    intType cmp_func (genericType, genericType))
+    compareType cmp_func)
 
   {
     genericType compare_elem;
@@ -165,6 +165,7 @@ static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
     striType stri;
 
   /* copyArgv */
+    /* printf("copyArgv(%d)\n", argc); */
     if (unlikely(argc < 0)) {
       raise_error(RANGE_ERROR);
       arg_v = NULL;
@@ -1023,7 +1024,7 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
 
 
 
-rtlArrayType arrSort (rtlArrayType arr1, intType cmp_func (genericType, genericType))
+rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
 
   { /* arrSort */
     /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */

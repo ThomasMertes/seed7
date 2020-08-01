@@ -188,7 +188,7 @@ version.h: chkccomp.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) chkccomp.c
-	.\chkccomp.exe >> version.h
+	.\chkccomp.exe version.h
 	del chkccomp.obj
 	del chkccomp.exe
 	del cc_vers.txt

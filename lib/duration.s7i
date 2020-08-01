@@ -133,15 +133,27 @@ const func integer: getMicroSeconds (in duration: aDuration) is
 const func string: str (in duration: aDuration) is func
   result
     var string: stri is "";
+  local
+    var integer: years is 0;
+    var integer: months is 0;
+    var integer: days is 0;
   begin
-    stri := str(getYears(aDuration))     <& "-" <&
-            getMonths(aDuration) lpad0 2 <& "-" <&
-            getDays(  aDuration) lpad0 2 <& " " <&
-            aDuration.hour       lpad0 2 <& ":" <&
-            aDuration.minute     lpad0 2 <& ":" <&
-            aDuration.second     lpad0 2;
+    years  := getYears(aDuration);
+    months := getMonths(aDuration);
+    days   := getDays(aDuration);
+    if years < 0 or months < 0 or days < 0 or aDuration.hour < 0 or
+        aDuration.minute < 0 or aDuration.second < 0 or
+        aDuration.micro_second < 0 then
+      stri := "-";
+    end if;
+    stri &:= abs(years)                    <& "-" <&
+             abs(months)           lpad0 2 <& "-" <&
+             abs(days)             lpad0 2 <& " " <&
+             abs(aDuration.hour)   lpad0 2 <& ":" <&
+             abs(aDuration.minute) lpad0 2 <& ":" <&
+             abs(aDuration.second) lpad0 2;
     if aDuration.micro_second <> 0 then
-      stri &:= "." <& aDuration.micro_second lpad0 6;
+      stri &:= "." <& abs(aDuration.micro_second) lpad0 6;
     end if;
   end func;
 

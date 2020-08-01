@@ -503,14 +503,14 @@ void conCursor (boolType on)
 
 
 
-void conSetCursor (intType lin, intType col)
+void conSetCursor (intType line, intType column)
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
   { /* conSetCursor */
-    putctl(tgoto(cursor_address, col - 1, lin - 1)); /* cursor motion */
+    putctl(tgoto(cursor_address, column - 1, line - 1)); /* cursor motion */
     changes = TRUE;
   } /* conSetCursor */
 

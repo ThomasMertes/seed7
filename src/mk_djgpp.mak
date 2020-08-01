@@ -157,7 +157,7 @@ version.h: chkccomp.h
 	$(ECHO) "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(CC) chkccomp.c -lm -o chkccomp.exe
 	$(ECHO) "The following C compiler errors can be safely ignored"
-	.\chkccomp.exe >> version.h
+	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
 	$(ECHO) "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h

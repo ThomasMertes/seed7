@@ -1419,7 +1419,7 @@ static void screenlineclear (int xpos, int ypos, intType len)
 
 
 
-void conSetCursor (intType lin, intType col)
+void conSetCursor (intType line, intType column)
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -1431,12 +1431,12 @@ void conSetCursor (intType lin, intType col)
 
   /* conSetCursor */
 #ifdef OUT_OF_ORDER
-    printf("BEGIN conSetCursor(%d, %d)\n", lin, col);
-    charxpos = col - 1;
-    charypos = actual_scaledfont->yDiff * (lin - 1) + actual_scaledfont->yMax;
+    printf("BEGIN conSetCursor(%d, %d)\n", line, column);
+    charxpos = column - 1;
+    charypos = actual_scaledfont->yDiff * (line - 1) + actual_scaledfont->yMax;
     XDrawLine(mydisplay, mywindow, mygc, charxpos, charypos,
         charxpos, charypos + actual_scaledfont->yDiff);
-    printf("END conSetCursor(%d, %d)\n", lin, col);
+    printf("END conSetCursor(%d, %d)\n", line, column);
 #endif
   } /* conSetCursor */
 

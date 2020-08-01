@@ -54,7 +54,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
 rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop);
 rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newSize);
 genericType arrRemove (rtlArrayType *arr_to, intType position);
-rtlArrayType arrSort (rtlArrayType arr1, intType cmp_func (genericType, genericType));
+rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func);
 rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType len);
 rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len);
 rtlArrayType arrTail (const const_rtlArrayType arr1, intType start);

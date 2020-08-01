@@ -341,7 +341,7 @@ void conCursor (boolType on)
  *  When no system cursor exists this procedure can be replaced by
  *  a dummy procedure.
  */
-void conSetCursor (intType lin, intType col)
+void conSetCursor (intType line, intType column)
 
   {
     union REGS r;
@@ -351,8 +351,8 @@ void conSetCursor (intType lin, intType col)
       raise_error(RANGE_ERROR);
     } else if (line <= UINT8TYPE_MAX && column <= UINT8TYPE_MAX) {
       r.h.ah = (unsigned char) 2; /* cursor addressing function */
-      r.h.dh = (unsigned char) (lin - 1);
-      r.h.dl = (unsigned char) (col - 1);
+      r.h.dh = (unsigned char) (line - 1);
+      r.h.dl = (unsigned char) (column - 1);
       r.h.bh = (unsigned char) 0; /* video page */
       int86(0x10, &r, &r);
     } /* if */

@@ -191,7 +191,7 @@ version.h: chkccomp.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) chkccomp.c -lm -o chkccomp
-	.\chkccomp.exe >> version.h
+	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h

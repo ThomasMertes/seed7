@@ -324,7 +324,7 @@ int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
     int result;
 
   /* offsetSeek */
-    /* printf("offsetSeek(%d, " INT64TYPE_FORMAT ", %d)\n",
+    /* printf("offsetSeek(%d, " FMT_D64 ", %d)\n",
        fileno(aFile), (INT64TYPE) anOffset, origin); */
 #ifdef OS_FSEEK_OFFSET_BITS
 #if OS_FSEEK_OFFSET_BITS == 32

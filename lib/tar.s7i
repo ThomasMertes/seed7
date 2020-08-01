@@ -34,6 +34,7 @@ include "gzip.s7i";
 
 
 const string: TMAGIC is "ustar";
+const string: NOMAGIC is "";
 
 const char: REGTYPE      is '0';   # Regular file (preferred code)
 const char: AREGTYPE     is '\0;'; # Regular file (alternate code)
@@ -89,7 +90,7 @@ const proc: check (ref file: outFile, ref header: head) is func
     write("linkname: ");
     writeln(head.linkname);
     write("magic: ");
-    writeln(head.magic);
+    writeln(literal(head.magic));
     write("version: ");
     writeln(literal(head.version));
     write("uname: ");
@@ -332,7 +333,7 @@ const func array string: readDir (inout file: inFile, in var string: dirPath) is
       dirPath := "";
     end if;
     readHead(inFile, head);
-    while head.name <> "" and head.magic = TMAGIC do
+    while head.name <> "" and (head.magic = TMAGIC or head.magic = NOMAGIC) do
       if startsWith(head.name, dirPath) then
         fileName := head.name[succ(length(dirPath)) ..];
         if startsWith(fileName, "/") then
@@ -362,7 +363,7 @@ const proc: tarTell (inout file: inFile, in array string: arg_list,
     var time: modTime is time.value;
   begin
     readHead(inFile, head);
-    while head.name <> "" and head.magic = TMAGIC do
+    while head.name <> "" and (head.magic = TMAGIC or head.magic = NOMAGIC) do
       if do_view then
         if head.typeflag = DIRTYPE then
           write("d");
@@ -439,7 +440,7 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
     var boolean: okay is TRUE;
   begin
     readHead(inFile, head);
-    while head.name <> "" and head.magic = TMAGIC and okay do
+    while head.name <> "" and (head.magic = TMAGIC or head.magic = NOMAGIC) and okay do
       if do_view then
         write("x ");
         writeln(head.name);

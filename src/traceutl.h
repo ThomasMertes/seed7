@@ -51,6 +51,7 @@ void prot_bigint (const const_bigIntType bintvalue);
 /* void prot_os_stri (const const_os_striType os_stri); */
 void prot_stri_unquoted (const const_striType stri);
 void prot_stri (const const_striType stri);
+void prot_bstri (bstriType bstri);
 void prot_set (const_setType setValue);
 void prot_heapsize (void);
 void printcategory (objectCategory category);
