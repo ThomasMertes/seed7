@@ -21,8 +21,8 @@ CFLAGS = -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-p
 LDFLAGS = -Wl,--gc-sections -L%%LOCALBASE%%/lib
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm -ldl
-# SYSTEM_LIBS = -lm -ldl -lgmp
+SYSTEM_LIBS = -lm
+# SYSTEM_LIBS = -lm -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
 SYSTEM_CONSOLE_LIBS = -lncurses
 SYSTEM_DRAW_LIBS = -lX11
@@ -149,13 +149,19 @@ chkccomp.h:
 	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#include \"unistd.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
+	echo "#define MYSQL_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include/mysql\"" >> chkccomp.h
+	echo "#define MYSQL_LIBRARY_PATH \"-L%%LOCALBASE%%/lib/mysql\"" >> chkccomp.h
 	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
-	echo "#define SQLITE3_LIBS \"-lsqlite3\"" >> chkccomp.h
+	echo "#define SQLITE_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
+	echo "#define SQLITE_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
+	echo "#define SQLITE_LIBS \"-lsqlite3\"" >> chkccomp.h
+	echo "#define POSTGRESQL_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include/postgresql\"" >> chkccomp.h
+	echo "#define POSTGRESQL_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
+	echo "#define ODBC_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
+	echo "#define ODBC_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
 	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
-	echo "/* #define MYSQL_DLL \"libmysqlclient.so\" */" >> chkccomp.h
 	echo "#define OCI_DLL \"libclntsh.so\"" >> chkccomp.h
-	echo "/* #define ODBC_DLL \"libodbc.so\" */" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h

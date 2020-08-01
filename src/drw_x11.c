@@ -151,10 +151,9 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
 
   /* redraw */
 #ifdef TRACE_X11
-    printf("begin redraw\n");
+    printf("begin redraw(" FMT_U_MEM ", %d, %d, %d, %d)\n",
+           (memSizeType) redraw_window, xPos, yPos, width, height);
 #endif
-    /* printf("redraw(%lx, %d, %d, %d, %d)\n",
-        redraw_window, xPos, yPos, width, height); */
     expose_window = (x11_winType) redraw_window;
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
@@ -1982,6 +1981,10 @@ void drwColor (intType col)
 void drwSetContent (const_winType actual_window, const_winType pixmap)
 
   { /* drwSetContent */
+#ifdef TRACE_X11
+    printf("drwSetContent(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+           (memSizeType) actual_window, (memSizeType) pixmap);
+#endif
     /* printf("begin drwSetContent(%lu, %lu)\n",
         to_window(actual_window), to_window(pixmap)); */
     if (pixmap != NULL) {

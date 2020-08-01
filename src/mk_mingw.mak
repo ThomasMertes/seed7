@@ -153,8 +153,9 @@ chkccomp.h:
 	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define ODBC_LIBS "-lodbc32" >> chkccomp.h
-	echo #define MYSQL_DLL "libmariadb.dll" >> chkccomp.h
-	echo #define POSTGRESQL_DLL "libpq.dll" >> chkccomp.h
+	echo #define MYSQL_DLL "X" >> chkccomp.h
+	echo #define SQLITE_DLL "X" >> chkccomp.h
+	echo #define POSTGRESQL_DLL "X" >> chkccomp.h
 	echo /* #define ODBC_DLL "odbc32.dll" */ >> chkccomp.h
 	echo #define OCI_DLL "oci.dll" >> chkccomp.h
 

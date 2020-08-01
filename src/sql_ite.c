@@ -50,6 +50,7 @@
 #include "sql_util.h"
 #include "big_drv.h"
 #include "rtl_err.h"
+#include "dll_drv.h"
 #include "sql_drv.h"
 
 #undef VERBOSE_EXCEPTIONS
@@ -80,6 +81,118 @@ static sqlFuncType sqlFunc = NULL;
 #else
 #define logError(logStatements)
 #endif
+
+
+#ifdef SQLITE_DLL
+int (*ptr_sqlite3_bind_blob) (sqlite3_stmt *pStmt,
+                              int index,
+                              const void *value,
+                              int n,
+                              void (*destruct) (void*));
+int (*ptr_sqlite3_bind_double) (sqlite3_stmt *pStmt, int index, double value);
+int (*ptr_sqlite3_bind_int) (sqlite3_stmt *pStmt, int index, int value);
+int (*ptr_sqlite3_bind_int64) (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
+int (*ptr_sqlite3_bind_null) (sqlite3_stmt *pStmt, int index);
+int (*ptr_sqlite3_bind_text) (sqlite3_stmt *pStmt,
+                              int index,
+                              const char *value,
+                              int n,
+                              void (*destruct) (void*));
+int (*ptr_sqlite3_close) (sqlite3 *db);
+const void *(*ptr_sqlite3_column_blob) (sqlite3_stmt *pStmt, int iCol);
+int (*ptr_sqlite3_column_bytes) (sqlite3_stmt *pStmt, int iCol);
+int (*ptr_sqlite3_column_count) (sqlite3_stmt *pStmt);
+double (*ptr_sqlite3_column_double) (sqlite3_stmt *pStmt, int iCol);
+int (*ptr_sqlite3_column_int) (sqlite3_stmt *pStmt, int iCol);
+sqlite3_int64 (*ptr_sqlite3_column_int64) (sqlite3_stmt *pStmt, int iCol);
+const char *(*ptr_sqlite3_column_name) (sqlite3_stmt *pStmt, int N);
+const unsigned char *(*ptr_sqlite3_column_text) (sqlite3_stmt *pStmt, int iCol);
+int (*ptr_sqlite3_column_type) (sqlite3_stmt *pStmt, int iCol);
+int (*ptr_sqlite3_finalize) (sqlite3_stmt *pStmt);
+int (*ptr_sqlite3_open) (const char *filename, sqlite3 **ppDb);
+int (*ptr_sqlite3_prepare) (sqlite3 *db,
+                            const char *zSql,
+                            int nByte,
+                            sqlite3_stmt **ppStmt,
+                            const char **pzTail);
+int (*ptr_sqlite3_reset) (sqlite3_stmt *pStmt);
+int (*ptr_sqlite3_step) (sqlite3_stmt *pStmt);
+
+#define sqlite3_bind_blob     ptr_sqlite3_bind_blob
+#define sqlite3_bind_double   ptr_sqlite3_bind_double
+#define sqlite3_bind_int      ptr_sqlite3_bind_int
+#define sqlite3_bind_int64    ptr_sqlite3_bind_int64
+#define sqlite3_bind_null     ptr_sqlite3_bind_null
+#define sqlite3_bind_text     ptr_sqlite3_bind_text
+#define sqlite3_close         ptr_sqlite3_close
+#define sqlite3_column_blob   ptr_sqlite3_column_blob
+#define sqlite3_column_bytes  ptr_sqlite3_column_bytes
+#define sqlite3_column_count  ptr_sqlite3_column_count
+#define sqlite3_column_double ptr_sqlite3_column_double
+#define sqlite3_column_int    ptr_sqlite3_column_int
+#define sqlite3_column_int64  ptr_sqlite3_column_int64
+#define sqlite3_column_name   ptr_sqlite3_column_name
+#define sqlite3_column_text   ptr_sqlite3_column_text
+#define sqlite3_column_type   ptr_sqlite3_column_type
+#define sqlite3_finalize      ptr_sqlite3_finalize
+#define sqlite3_open          ptr_sqlite3_open
+#define sqlite3_prepare       ptr_sqlite3_prepare
+#define sqlite3_reset         ptr_sqlite3_reset
+#define sqlite3_step          ptr_sqlite3_step
+
+
+
+static boolType setupDll (const char *dllName)
+
+  {
+    static void *dbDll = NULL;
+
+  /* setupDll */
+    /* printf("setupDll(\"%s\")\n", dllName); */
+    if (dbDll == NULL) {
+      dbDll = dllOpen(dllName);
+      if (dbDll != NULL) {
+        if ((ptr_sqlite3_bind_blob     = dllSym(dbDll, "sqlite3_bind_blob"))     == NULL ||
+            (ptr_sqlite3_bind_double   = dllSym(dbDll, "sqlite3_bind_double"))   == NULL ||
+            (ptr_sqlite3_bind_int      = dllSym(dbDll, "sqlite3_bind_int"))      == NULL ||
+            (ptr_sqlite3_bind_int64    = dllSym(dbDll, "sqlite3_bind_int64"))    == NULL ||
+            (ptr_sqlite3_bind_null     = dllSym(dbDll, "sqlite3_bind_null"))     == NULL ||
+            (ptr_sqlite3_bind_text     = dllSym(dbDll, "sqlite3_bind_text"))     == NULL ||
+            (ptr_sqlite3_close         = dllSym(dbDll, "sqlite3_close"))         == NULL ||
+            (ptr_sqlite3_column_blob   = dllSym(dbDll, "sqlite3_column_blob"))   == NULL ||
+            (ptr_sqlite3_column_bytes  = dllSym(dbDll, "sqlite3_column_bytes"))  == NULL ||
+            (ptr_sqlite3_column_count  = dllSym(dbDll, "sqlite3_column_count"))  == NULL ||
+            (ptr_sqlite3_column_double = dllSym(dbDll, "sqlite3_column_double")) == NULL ||
+            (ptr_sqlite3_column_int    = dllSym(dbDll, "sqlite3_column_int"))    == NULL ||
+            (ptr_sqlite3_column_int64  = dllSym(dbDll, "sqlite3_column_int64"))  == NULL ||
+            (ptr_sqlite3_column_name   = dllSym(dbDll, "sqlite3_column_name"))   == NULL ||
+            (ptr_sqlite3_column_text   = dllSym(dbDll, "sqlite3_column_text"))   == NULL ||
+            (ptr_sqlite3_column_type   = dllSym(dbDll, "sqlite3_column_type"))   == NULL ||
+            (ptr_sqlite3_finalize      = dllSym(dbDll, "sqlite3_finalize"))      == NULL ||
+            (ptr_sqlite3_open          = dllSym(dbDll, "sqlite3_open"))          == NULL ||
+            (ptr_sqlite3_prepare       = dllSym(dbDll, "sqlite3_prepare"))       == NULL ||
+            (ptr_sqlite3_reset         = dllSym(dbDll, "sqlite3_reset"))         == NULL ||
+            (ptr_sqlite3_step          = dllSym(dbDll, "sqlite3_step"))          == NULL) {
+          dbDll = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    /* printf("setupDll --> %d\n", dbDll != NULL); */
+    return dbDll != NULL;
+  } /* setupDll */
+
+#else
+
+#define setupDll(dllName) TRUE
+#define SQLITE_DLL ""
+
+#endif
+
+#ifndef SQLITE_DLL_PATH
+#define SQLITE_DLL_PATH ""
+#endif
+
+
 
 static void sqlClose (databaseType database);
 
@@ -1636,76 +1749,82 @@ databaseType sqlOpenLite (const const_striType dbName,
        printf(", ");
        prot_stri(password);
        printf(")\n"); */
-    if (dbName->size == 0) {
-      /* Use in memory database: */
-      fileName = NULL;
-      fileName8 = fileNameMemory;
-    } else {
-      if (cmdFileType(dbName) == 2) {
-        fileName = cmdToOsPath(dbName);
-      } else if (dbName->size < 3 ||
-                 memcmp(&dbName->mem[dbName->size - 3],
-                        dbExtension, 3 * sizeof(strElemType)) != 0) {
-        if (unlikely(dbName->size > MAX_STRI_LEN - 3 ||
-                     !ALLOC_STRI_SIZE_OK(dbNameWithExtension, dbName->size + 3))) {
-          err_info = MEMORY_ERROR;
-          fileName = NULL;
-        } else {
-          dbNameWithExtension->size = dbName->size + 3;
-          memcpy(dbNameWithExtension->mem, dbName->mem,
-                 dbName->size * sizeof(strElemType));
-          memcpy(&dbNameWithExtension->mem[dbName->size], dbExtension,
-                 3 * sizeof(strElemType));
-          fileName = cmdToOsPath(dbNameWithExtension);
-          FREE_STRI(dbNameWithExtension, dbNameWithExtension->size);
-        } /* if */
-      } else {
-        err_info = FILE_ERROR;
-        fileName = NULL;
-      } /* if */
-      /* printf("fileName: ");
-         prot_stri(fileName);
-         printf("\n"); */
-      if (fileName == NULL) {
-        /* err_info was set before. */
-        fileName8 = NULL;
-      } else {
-        fileName8 = stri_to_cstri8(fileName, &err_info);
-        if (fileName8 == NULL) {
-          strDestr(fileName);
-        } /* if */
-      } /* if */
-    } /* if */
-    if (fileName8 == NULL) {
-      /* err_info was set before. */
+    if (!setupDll(SQLITE_DLL_PATH) && !setupDll(SQLITE_DLL)) {
+      logError(printf("sqlOpenLite: setupDll(\"%s\") failed\n", SQLITE_DLL););
+      err_info = FILE_ERROR;
       database = NULL;
     } else {
-      open_result = sqlite3_open(fileName8, &connection);
-      if (open_result != SQLITE_OK) {
-        if (connection != NULL) {
-          logError(printf("sqlOpenLite: sqlite3_open error %d: %s\n",
-                          open_result, sqlite3_errmsg(connection)););
-          sqlite3_close(connection);
+      if (dbName->size == 0) {
+        /* Use in memory database: */
+        fileName = NULL;
+        fileName8 = fileNameMemory;
+      } else {
+        if (cmdFileType(dbName) == 2) {
+          fileName = cmdToOsPath(dbName);
+        } else if (dbName->size < 3 ||
+                   memcmp(&dbName->mem[dbName->size - 3],
+                          dbExtension, 3 * sizeof(strElemType)) != 0) {
+          if (unlikely(dbName->size > MAX_STRI_LEN - 3 ||
+                       !ALLOC_STRI_SIZE_OK(dbNameWithExtension, dbName->size + 3))) {
+            err_info = MEMORY_ERROR;
+            fileName = NULL;
+          } else {
+            dbNameWithExtension->size = dbName->size + 3;
+            memcpy(dbNameWithExtension->mem, dbName->mem,
+                   dbName->size * sizeof(strElemType));
+            memcpy(&dbNameWithExtension->mem[dbName->size], dbExtension,
+                   3 * sizeof(strElemType));
+            fileName = cmdToOsPath(dbNameWithExtension);
+            FREE_STRI(dbNameWithExtension, dbNameWithExtension->size);
+          } /* if */
+        } else {
+          err_info = FILE_ERROR;
+          fileName = NULL;
         } /* if */
-        err_info = FILE_ERROR;
-        database = NULL;
-      } else if (unlikely(!setupFuncTable() ||
-                          !ALLOC_RECORD(database, dbRecord, count.database))) {
-        err_info = MEMORY_ERROR;
-        sqlite3_close(connection);
+        /* printf("fileName: ");
+           prot_stri(fileName);
+           printf("\n"); */
+        if (fileName == NULL) {
+          /* err_info was set before. */
+          fileName8 = NULL;
+        } else {
+          fileName8 = stri_to_cstri8(fileName, &err_info);
+          if (fileName8 == NULL) {
+            strDestr(fileName);
+          } /* if */
+        } /* if */
+      } /* if */
+      if (fileName8 == NULL) {
+        /* err_info was set before. */
         database = NULL;
       } else {
-        memset(database, 0, sizeof(dbRecord));
-        database->usage_count = 1;
-        database->sqlFunc = sqlFunc;
-        database->connection = connection;
+        open_result = sqlite3_open(fileName8, &connection);
+        if (open_result != SQLITE_OK) {
+          if (connection != NULL) {
+            logError(printf("sqlOpenLite: sqlite3_open error %d: %s\n",
+                            open_result, sqlite3_errmsg(connection)););
+            sqlite3_close(connection);
+          } /* if */
+          err_info = FILE_ERROR;
+          database = NULL;
+        } else if (unlikely(!setupFuncTable() ||
+                            !ALLOC_RECORD(database, dbRecord, count.database))) {
+          err_info = MEMORY_ERROR;
+          sqlite3_close(connection);
+          database = NULL;
+        } else {
+          memset(database, 0, sizeof(dbRecord));
+          database->usage_count = 1;
+          database->sqlFunc = sqlFunc;
+          database->connection = connection;
+        } /* if */
       } /* if */
-    } /* if */
-    if (fileName8 != NULL && fileName8 != fileNameMemory) {
-      free_cstri8(fileName8, fileName);
-    } /* if */
-    if (fileName != NULL) {
-      strDestr(fileName);
+      if (fileName8 != NULL && fileName8 != fileNameMemory) {
+        free_cstri8(fileName8, fileName);
+      } /* if */
+      if (fileName != NULL) {
+        strDestr(fileName);
+      } /* if */
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);

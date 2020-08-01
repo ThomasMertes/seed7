@@ -1,3 +1,19 @@
+20141005:
+- The example program sql7.sd7 has been improved to write help
+  information, when it is called with the option -? .
+- The configuration program chkccomp.c has been improved to accept
+  the #define macros MYSQL_INCLUDE_OPTIONS, SQLITE_INCLUDE_OPTIONS,
+  POSTGRESQL_INCLUDE_OPTIONS, ODBC_INCLUDE_OPTIONS,
+  OCI_INCLUDE_OPTIONS, MYSQL_LIBRARY_PATH, SQLITE_LIBRARY_PATH,
+  POSTGRESQL_LIBRARY_PATH, ODBC_LIBRARY_PATH and OCI_LIBRARY_PATH.
+- The makefile mk_freebsd.mk has been improved to allow database
+  connections under FreeBSD.
+- The makefils mk_mingw.mak, mk_msvc.mak, mk_bcc32.mak and
+  mk_bccv5.mak have been improved to support the SQLite database.
+- The database driver sql_ite.c has been improved such that it can
+  also work with a DLL that is loaded at runtime.
+- Tracing statements have been added to drw_x11.c.
+
 20140921:
 - Access to MySql/MariaDb, SQLLite, PostgreSQL, Oracle and ODBC
   databases has been added.

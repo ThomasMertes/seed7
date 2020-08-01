@@ -167,7 +167,7 @@ chkccomp.h:
 	echo "#include \"unistd.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
-	echo "#define SQLITE3_LIBS \"-lsqlite3\"" >> chkccomp.h
+	echo "#define SQLITE_LIBS \"-lsqlite3\"" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
 	echo "#define ODBC_LIBS \"-lodbc32\"" >> chkccomp.h
 	echo "/* #define MYSQL_DLL \"libmysqlclient.so\" */" >> chkccomp.h

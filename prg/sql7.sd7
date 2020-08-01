@@ -29,6 +29,29 @@ $ include "seed7_05.s7i";
   include "sql_base.s7i";
 
 
+const proc: writeHelp is func
+  begin
+    writeln("usage: sql7 driver dbName user password");
+    writeln;
+    writeln("The following drivers are supported: ");
+    writeln("  Driver     Shortcut  Database");
+    writeln("  MYSQL      MY        MySql/MariaDb");
+    writeln("  SQLITE     LITE      SQLLite");
+    writeln("  POSTGRESQL POST      PostgreSQL");
+    writeln("  ORACLE     OCI       Oracle");
+    writeln("  ODBC                 Odbc");
+    writeln;
+    writeln("The database name (dbName) can be specified with or without host name:");
+    writeln("  myDb");
+    writeln("  www.example.org/myDb");
+    writeln("  192.0.1.250/myDb");
+    writeln;
+    writeln("Sql7 accepts SQL commands of the connected database.");
+    writeln("Commands to exit sql7: exit, quit");
+    writeln;
+  end func;
+
+
 const func string: noCtrlChars (in string: stri) is func
   result
     var string: noCtrlChars is "";
@@ -122,7 +145,12 @@ const proc: main is func
     writeln("Sql7 is written in the Seed7 programming language");
     writeln("Homepage: http://seed7.sourceforge.net");
     writeln;
-    if length(argv(PROGRAM)) <> 4 then
+    if length(argv(PROGRAM)) = 0 then
+      writeln("Use  sql7 -?  to get more information about sql7.");
+      writeln;
+    elsif length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "-?" then
+      writeHelp;
+    elsif length(argv(PROGRAM)) <> 4 then
       writeln("usage: sql7 driver dbName user password");
     else
       driverName := argv(PROGRAM)[1];
@@ -141,19 +169,23 @@ const proc: main is func
       elsif upper(driverName) = "ODBC" then
         driver := DB_ODBC;
       end if;
-      currDb := openDatabase(driver, argv(PROGRAM)[2], argv(PROGRAM)[3], argv(PROGRAM)[4]);
-      if FALSE then   # currDb = database.value then
-        writeln(" *** Cannot open " <& argv(PROGRAM)[2]);
+      if driver = NO_DB then
+        writeln("*** " <& driverName <& " is not a valid database driver.");
       else
-        write("Sql7? ");
-        readln(command);
-        while lower(command) <> "exit" and lower(command) <> "quit" do
-          if command <> "" then
-            doExecute(currDb, command);
-          end if;
+        currDb := openDatabase(driver, argv(PROGRAM)[2], argv(PROGRAM)[3], argv(PROGRAM)[4]);
+        if FALSE then   # currDb = database.value then
+          writeln(" *** Cannot open " <& argv(PROGRAM)[2]);
+        else
           write("Sql7? ");
           readln(command);
-        end while;
+          while lower(command) <> "exit" and lower(command) <> "quit" do
+            if command <> "" then
+              doExecute(currDb, command);
+            end if;
+            write("Sql7? ");
+            readln(command);
+          end while;
+        end if;
       end if;
     end if;
   end func;
