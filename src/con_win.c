@@ -59,7 +59,6 @@ static HANDLE hKeyboard = INVALID_HANDLE_VALUE;
 
 static char currentattribute;
 static boolType console_initialized = FALSE;
-static boolType cursor_on = FALSE;
 
 static const charType map_1252_to_unicode[] = {
 /* 128 */ 0x20AC,    '?', 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
@@ -87,9 +86,9 @@ static void kbd_init (void)
     logFunction(printf("kbd_init\n"););
     hKeyboard = GetStdHandle(STD_INPUT_HANDLE);
     if (hKeyboard != INVALID_HANDLE_VALUE) {
-      if (!GetConsoleMode(hKeyboard, &savedKeybdMode)) {
+      if (unlikely(GetConsoleMode(hKeyboard, &savedKeybdMode) == 0)) {
         logError(printf("kbd_init: GetConsoleMode(hKeyboard, *) failed:\n"
-                        "Error=%d\n", GetLastError());
+                        "Error=" FMT_U32 "\n", (uint32Type) GetLastError());
                  fflush(stdout););
       } else {
 #ifdef OUT_OF_ORDER
@@ -504,13 +503,13 @@ int conHeight (void)
       if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
         return con_info.dwSize.Y;
       } else {
-        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error %d\n",
-            hConsole, GetLastError()); */
+        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error " FMT_U32 "\n",
+            hConsole, (uint32Type) GetLastError()); */
         return SCRHEIGHT;
       } /* if */
     } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
-          hConsole, GetLastError()); */
+      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+          hConsole, (uint32Type) GetLastError()); */
       return SCRHEIGHT;
     } /* if */
   } /* conHeight */
@@ -529,13 +528,13 @@ int conWidth (void)
       if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
         return con_info.dwSize.X;
       } else {
-        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error %d\n",
-            hConsole, GetLastError()); */
+        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error " FMT_U32 "\n",
+            hConsole, (uint32Type) GetLastError()); */
         return SCRWIDTH;
       } /* if */
     } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
-          hConsole, GetLastError()); */
+      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+          hConsole, (uint32Type) GetLastError()); */
       return SCRWIDTH;
     } /* if */
   } /* conWidth */
@@ -551,15 +550,29 @@ void conFlush (void)
 
 void conCursor (boolType on)
 
-  { /* conCursor */
-    cursor_on = on;
-#ifdef OUT_OF_ORDER
-    if (on) {
-      _setcursortype(_SOLIDCURSOR);
-    } else {
-      _setcursortype(_NOCURSOR);
+  {
+    HANDLE hConsole;
+    CONSOLE_CURSOR_INFO info;
+
+  /* conCursor */
+    if (console_initialized) {
+      hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+      if (hConsole != INVALID_HANDLE_VALUE) {
+        if (likely(GetConsoleCursorInfo(hConsole, &info) != 0)) {
+          info.bVisible = on;
+          if (unlikely(SetConsoleCursorInfo(hConsole, &info) == 0)) {
+            /* printf("SetConsoleCursorInfo(%d, (visible=%d)) --> Error " FMT_U32 "\n",
+                hConsole, on, (uint32Type) GetLastError()); */
+          } /* if */
+        } else {
+          /* printf("GetConsoleCursorInfo(%d, *) --> Error " FMT_U32 "\n",
+              hConsole, (uint32Type) GetLastError()); */
+        } /* if */
+      } else {
+        /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+            hConsole, (uint32Type) GetLastError()); */
+      } /* if */
     } /* if */
-#endif
   } /* conCursor */
 
 
@@ -584,17 +597,67 @@ void conSetCursor (intType line, intType column)
         if (hConsole != INVALID_HANDLE_VALUE) {
           position.X = (int16Type) (column - 1);
           position.Y = (int16Type) (line - 1);
-          if (!SetConsoleCursorPosition(hConsole, position)) {
-            /* printf("SetConsoleCursorPosition(%d, (%d, %d)) --> Error %d\n",
-                hConsole, column - 1, line - 1, GetLastError()); */
+          if (SetConsoleCursorPosition(hConsole, position) == 0) {
+            /* printf("SetConsoleCursorPosition(%d, (%d, %d)) --> Error " FMT_U32 "\n",
+                hConsole, column - 1, line - 1, (uint32Type) GetLastError()); */
           } /* if */
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
-              hConsole, GetLastError()); */
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+              hConsole, (uint32Type) GetLastError()); */
         } /* if */
       } /* if */
     } /* if */
   } /* conSetCursor */
+
+
+
+intType conColumn (void)
+
+  {
+    HANDLE hConsole;
+    CONSOLE_SCREEN_BUFFER_INFO con_info;
+
+  /* conColumn */
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hConsole != INVALID_HANDLE_VALUE) {
+      if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
+        return (intType) con_info.dwCursorPosition.X + 1;
+      } else {
+        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error " FMT_U32 "\n",
+            hConsole, (uint32Type) GetLastError()); */
+        return 1;
+      } /* if */
+    } else {
+      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+          hConsole, (uint32Type) GetLastError()); */
+      return 1;
+    } /* if */
+  } /* conColumn */
+
+
+
+intType conLine (void)
+
+  {
+    HANDLE hConsole;
+    CONSOLE_SCREEN_BUFFER_INFO con_info;
+
+  /* conLine */
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hConsole != INVALID_HANDLE_VALUE) {
+      if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
+        return (intType) con_info.dwCursorPosition.Y + 1;
+      } else {
+        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error " FMT_U32 "\n",
+            hConsole, (uint32Type) GetLastError()); */
+        return 1;
+      } /* if */
+    } else {
+      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+          hConsole, (uint32Type) GetLastError()); */
+      return 1;
+    } /* if */
+  } /* conLine */
 
 
 
@@ -646,7 +709,13 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 
 
 /**
- *  Writes the string stri to the console at the current position.
+ *  Write a string to the current position of the console.
+ *  Unicode characters are written with the encoding of the
+ *  operating system. The cursor position is changed, when
+ *  one of the characters '\n', '\r' and '\b' is written.
+ *  When the standard output file of the operating system has
+ *  been redirected UTF-8 encoded characters are written to
+ *  the redirected file.
  */
 void conWrite (const const_striType stri)
 
@@ -655,6 +724,7 @@ void conWrite (const const_striType stri)
     DWORD mode;
 
   /* conWrite */
+    logFunction(printf("conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE &&
         GetFileType(hConsole) == FILE_TYPE_CHAR &&
@@ -665,6 +735,7 @@ void conWrite (const const_striType stri)
       /* The output has been redirected */
       ut8Write(stdout, stri);
     } /* if */
+    logFunction(printf("conWrite -->\n"););
   } /* conWrite */
 
 
@@ -748,8 +819,8 @@ void conUpScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
-              hConsole, GetLastError()); */
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+              hConsole, (uint32Type) GetLastError()); */
         } /* if */
       } /* if */
     } /* if */
@@ -799,8 +870,8 @@ void conDownScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
-              hConsole, GetLastError()); */
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+              hConsole, (uint32Type) GetLastError()); */
         } /* if */
       } /* if */
     } /* if */
@@ -850,8 +921,8 @@ void conLeftScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
-              hConsole, GetLastError()); */
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+              hConsole, (uint32Type) GetLastError()); */
         } /* if */
       } /* if */
     } /* if */
@@ -901,8 +972,8 @@ void conRightScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
-              hConsole, GetLastError()); */
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error " FMT_U32 "\n",
+              hConsole, (uint32Type) GetLastError()); */
         } /* if */
       } /* if */
     } /* if */
@@ -935,8 +1006,9 @@ int conOpen (void)
     logFunction(printf("conOpen\n"););
     con_normalcolour();
     conClear(1, 1, conHeight(), conWidth());
-    conCursor(FALSE);
     console_initialized = TRUE;
+    conCursor(FALSE);
+    conSetCursor(1, 1);
     atexit(conShut);
     logFunction(printf("conOpen -->\n"););
     return 1;

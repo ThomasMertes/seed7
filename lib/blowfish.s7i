@@ -1,0 +1,383 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  blowfish.s7i  Blowfish cipher support.                          *)
+(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bin32.s7i";
+include "bytedata.s7i";
+include "cipher.s7i";
+
+
+(**
+ *  [[cipher|cipherState]] implementation type describing the state of a Blowfish cipher.
+ *  The data is encrypted / decrypted with the Blowfish block cipher.
+ *)
+const type: blowfishState is new struct
+    var array bin32: pBox is 0 times bin32.value;
+    var array array integer: sBox is 0 times 0 times 0;
+  end struct;
+
+
+type_implements_interface(blowfishState, cipherState);
+
+
+(**
+ *  Block size used by the Blowfish block cipher.
+ *  @return the block size used by the Blowfish cipher.
+ *)
+const func integer: blockSize (BLOWFISH) is 8;
+
+
+const array bin32: pBoxInit is [0] (
+    bin32(16#243f6a88), bin32(16#85a308d3), bin32(16#13198a2e), bin32(16#03707344),
+    bin32(16#a4093822), bin32(16#299f31d0), bin32(16#082efa98), bin32(16#ec4e6c89),
+    bin32(16#452821e6), bin32(16#38d01377), bin32(16#be5466cf), bin32(16#34e90c6c),
+    bin32(16#c0ac29b7), bin32(16#c97c50dd), bin32(16#3f84d5b5), bin32(16#b5470917),
+    bin32(16#9216d5d9), bin32(16#8979fb1b));
+
+const array array integer: sBoxInit is [] (
+  [0] (16#d1310ba6, 16#98dfb5ac, 16#2ffd72db, 16#d01adfb7, 16#b8e1afed, 16#6a267e96,
+       16#ba7c9045, 16#f12c7f99, 16#24a19947, 16#b3916cf7, 16#0801f2e2, 16#858efc16,
+       16#636920d8, 16#71574e69, 16#a458fea3, 16#f4933d7e, 16#0d95748f, 16#728eb658,
+       16#718bcd58, 16#82154aee, 16#7b54a41d, 16#c25a59b5, 16#9c30d539, 16#2af26013,
+       16#c5d1b023, 16#286085f0, 16#ca417918, 16#b8db38ef, 16#8e79dcb0, 16#603a180e,
+       16#6c9e0e8b, 16#b01e8a3e, 16#d71577c1, 16#bd314b27, 16#78af2fda, 16#55605c60,
+       16#e65525f3, 16#aa55ab94, 16#57489862, 16#63e81440, 16#55ca396a, 16#2aab10b6,
+       16#b4cc5c34, 16#1141e8ce, 16#a15486af, 16#7c72e993, 16#b3ee1411, 16#636fbc2a,
+       16#2ba9c55d, 16#741831f6, 16#ce5c3e16, 16#9b87931e, 16#afd6ba33, 16#6c24cf5c,
+       16#7a325381, 16#28958677, 16#3b8f4898, 16#6b4bb9af, 16#c4bfe81b, 16#66282193,
+       16#61d809cc, 16#fb21a991, 16#487cac60, 16#5dec8032, 16#ef845d5d, 16#e98575b1,
+       16#dc262302, 16#eb651b88, 16#23893e81, 16#d396acc5, 16#0f6d6ff3, 16#83f44239,
+       16#2e0b4482, 16#a4842004, 16#69c8f04a, 16#9e1f9b5e, 16#21c66842, 16#f6e96c9a,
+       16#670c9c61, 16#abd388f0, 16#6a51a0d2, 16#d8542f68, 16#960fa728, 16#ab5133a3,
+       16#6eef0b6c, 16#137a3be4, 16#ba3bf050, 16#7efb2a98, 16#a1f1651d, 16#39af0176,
+       16#66ca593e, 16#82430e88, 16#8cee8619, 16#456f9fb4, 16#7d84a5c3, 16#3b8b5ebe,
+       16#e06f75d8, 16#85c12073, 16#401a449f, 16#56c16aa6, 16#4ed3aa62, 16#363f7706,
+       16#1bfedf72, 16#429b023d, 16#37d0d724, 16#d00a1248, 16#db0fead3, 16#49f1c09b,
+       16#075372c9, 16#80991b7b, 16#25d479d8, 16#f6e8def7, 16#e3fe501a, 16#b6794c3b,
+       16#976ce0bd, 16#04c006ba, 16#c1a94fb6, 16#409f60c4, 16#5e5c9ec2, 16#196a2463,
+       16#68fb6faf, 16#3e6c53b5, 16#1339b2eb, 16#3b52ec6f, 16#6dfc511f, 16#9b30952c,
+       16#cc814544, 16#af5ebd09, 16#bee3d004, 16#de334afd, 16#660f2807, 16#192e4bb3,
+       16#c0cba857, 16#45c8740f, 16#d20b5f39, 16#b9d3fbdb, 16#5579c0bd, 16#1a60320a,
+       16#d6a100c6, 16#402c7279, 16#679f25fe, 16#fb1fa3cc, 16#8ea5e9f8, 16#db3222f8,
+       16#3c7516df, 16#fd616b15, 16#2f501ec8, 16#ad0552ab, 16#323db5fa, 16#fd238760,
+       16#53317b48, 16#3e00df82, 16#9e5c57bb, 16#ca6f8ca0, 16#1a87562e, 16#df1769db,
+       16#d542a8f6, 16#287effc3, 16#ac6732c6, 16#8c4f5573, 16#695b27b0, 16#bbca58c8,
+       16#e1ffa35d, 16#b8f011a0, 16#10fa3d98, 16#fd2183b8, 16#4afcb56c, 16#2dd1d35b,
+       16#9a53e479, 16#b6f84565, 16#d28e49bc, 16#4bfb9790, 16#e1ddf2da, 16#a4cb7e33,
+       16#62fb1341, 16#cee4c6e8, 16#ef20cada, 16#36774c01, 16#d07e9efe, 16#2bf11fb4,
+       16#95dbda4d, 16#ae909198, 16#eaad8e71, 16#6b93d5a0, 16#d08ed1d0, 16#afc725e0,
+       16#8e3c5b2f, 16#8e7594b7, 16#8ff6e2fb, 16#f2122b64, 16#8888b812, 16#900df01c,
+       16#4fad5ea0, 16#688fc31c, 16#d1cff191, 16#b3a8c1ad, 16#2f2f2218, 16#be0e1777,
+       16#ea752dfe, 16#8b021fa1, 16#e5a0cc0f, 16#b56f74e8, 16#18acf3d6, 16#ce89e299,
+       16#b4a84fe0, 16#fd13e0b7, 16#7cc43b81, 16#d2ada8d9, 16#165fa266, 16#80957705,
+       16#93cc7314, 16#211a1477, 16#e6ad2065, 16#77b5fa86, 16#c75442f5, 16#fb9d35cf,
+       16#ebcdaf0c, 16#7b3e89a0, 16#d6411bd3, 16#ae1e7e49, 16#00250e2d, 16#2071b35e,
+       16#226800bb, 16#57b8e0af, 16#2464369b, 16#f009b91e, 16#5563911d, 16#59dfa6aa,
+       16#78c14389, 16#d95a537f, 16#207d5ba2, 16#02e5b9c5, 16#83260376, 16#6295cfa9,
+       16#11c81968, 16#4e734a41, 16#b3472dca, 16#7b14a94a, 16#1b510052, 16#9a532915,
+       16#d60f573f, 16#bc9bc6e4, 16#2b60a476, 16#81e67400, 16#08ba6fb5, 16#571be91f,
+       16#f296ec6b, 16#2a0dd915, 16#b6636521, 16#e7b9f9b6, 16#ff34052e, 16#c5855664,
+       16#53b02d5d, 16#a99f8fa1, 16#08ba4799, 16#6e85076a),
+  [0] (16#4b7a70e9, 16#b5b32944, 16#db75092e, 16#c4192623, 16#ad6ea6b0, 16#49a7df7d,
+       16#9cee60b8, 16#8fedb266, 16#ecaa8c71, 16#699a17ff, 16#5664526c, 16#c2b19ee1,
+       16#193602a5, 16#75094c29, 16#a0591340, 16#e4183a3e, 16#3f54989a, 16#5b429d65,
+       16#6b8fe4d6, 16#99f73fd6, 16#a1d29c07, 16#efe830f5, 16#4d2d38e6, 16#f0255dc1,
+       16#4cdd2086, 16#8470eb26, 16#6382e9c6, 16#021ecc5e, 16#09686b3f, 16#3ebaefc9,
+       16#3c971814, 16#6b6a70a1, 16#687f3584, 16#52a0e286, 16#b79c5305, 16#aa500737,
+       16#3e07841c, 16#7fdeae5c, 16#8e7d44ec, 16#5716f2b8, 16#b03ada37, 16#f0500c0d,
+       16#f01c1f04, 16#0200b3ff, 16#ae0cf51a, 16#3cb574b2, 16#25837a58, 16#dc0921bd,
+       16#d19113f9, 16#7ca92ff6, 16#94324773, 16#22f54701, 16#3ae5e581, 16#37c2dadc,
+       16#c8b57634, 16#9af3dda7, 16#a9446146, 16#0fd0030e, 16#ecc8c73e, 16#a4751e41,
+       16#e238cd99, 16#3bea0e2f, 16#3280bba1, 16#183eb331, 16#4e548b38, 16#4f6db908,
+       16#6f420d03, 16#f60a04bf, 16#2cb81290, 16#24977c79, 16#5679b072, 16#bcaf89af,
+       16#de9a771f, 16#d9930810, 16#b38bae12, 16#dccf3f2e, 16#5512721f, 16#2e6b7124,
+       16#501adde6, 16#9f84cd87, 16#7a584718, 16#7408da17, 16#bc9f9abc, 16#e94b7d8c,
+       16#ec7aec3a, 16#db851dfa, 16#63094366, 16#c464c3d2, 16#ef1c1847, 16#3215d908,
+       16#dd433b37, 16#24c2ba16, 16#12a14d43, 16#2a65c451, 16#50940002, 16#133ae4dd,
+       16#71dff89e, 16#10314e55, 16#81ac77d6, 16#5f11199b, 16#043556f1, 16#d7a3c76b,
+       16#3c11183b, 16#5924a509, 16#f28fe6ed, 16#97f1fbfa, 16#9ebabf2c, 16#1e153c6e,
+       16#86e34570, 16#eae96fb1, 16#860e5e0a, 16#5a3e2ab3, 16#771fe71c, 16#4e3d06fa,
+       16#2965dcb9, 16#99e71d0f, 16#803e89d6, 16#5266c825, 16#2e4cc978, 16#9c10b36a,
+       16#c6150eba, 16#94e2ea78, 16#a5fc3c53, 16#1e0a2df4, 16#f2f74ea7, 16#361d2b3d,
+       16#1939260f, 16#19c27960, 16#5223a708, 16#f71312b6, 16#ebadfe6e, 16#eac31f66,
+       16#e3bc4595, 16#a67bc883, 16#b17f37d1, 16#018cff28, 16#c332ddef, 16#be6c5aa5,
+       16#65582185, 16#68ab9802, 16#eecea50f, 16#db2f953b, 16#2aef7dad, 16#5b6e2f84,
+       16#1521b628, 16#29076170, 16#ecdd4775, 16#619f1510, 16#13cca830, 16#eb61bd96,
+       16#0334fe1e, 16#aa0363cf, 16#b5735c90, 16#4c70a239, 16#d59e9e0b, 16#cbaade14,
+       16#eecc86bc, 16#60622ca7, 16#9cab5cab, 16#b2f3846e, 16#648b1eaf, 16#19bdf0ca,
+       16#a02369b9, 16#655abb50, 16#40685a32, 16#3c2ab4b3, 16#319ee9d5, 16#c021b8f7,
+       16#9b540b19, 16#875fa099, 16#95f7997e, 16#623d7da8, 16#f837889a, 16#97e32d77,
+       16#11ed935f, 16#16681281, 16#0e358829, 16#c7e61fd6, 16#96dedfa1, 16#7858ba99,
+       16#57f584a5, 16#1b227263, 16#9b83c3ff, 16#1ac24696, 16#cdb30aeb, 16#532e3054,
+       16#8fd948e4, 16#6dbc3128, 16#58ebf2ef, 16#34c6ffea, 16#fe28ed61, 16#ee7c3c73,
+       16#5d4a14d9, 16#e864b7e3, 16#42105d14, 16#203e13e0, 16#45eee2b6, 16#a3aaabea,
+       16#db6c4f15, 16#facb4fd0, 16#c742f442, 16#ef6abbb5, 16#654f3b1d, 16#41cd2105,
+       16#d81e799e, 16#86854dc7, 16#e44b476a, 16#3d816250, 16#cf62a1f2, 16#5b8d2646,
+       16#fc8883a0, 16#c1c7b6a3, 16#7f1524c3, 16#69cb7492, 16#47848a0b, 16#5692b285,
+       16#095bbf00, 16#ad19489d, 16#1462b174, 16#23820e00, 16#58428d2a, 16#0c55f5ea,
+       16#1dadf43e, 16#233f7061, 16#3372f092, 16#8d937e41, 16#d65fecf1, 16#6c223bdb,
+       16#7cde3759, 16#cbee7460, 16#4085f2a7, 16#ce77326e, 16#a6078084, 16#19f8509e,
+       16#e8efd855, 16#61d99735, 16#a969a7aa, 16#c50c06c2, 16#5a04abfc, 16#800bcadc,
+       16#9e447a2e, 16#c3453484, 16#fdd56705, 16#0e1e9ec9, 16#db73dbd3, 16#105588cd,
+       16#675fda79, 16#e3674340, 16#c5c43465, 16#713e38d8, 16#3d28f89e, 16#f16dff20,
+       16#153e21e7, 16#8fb03d4a, 16#e6e39f2b, 16#db83adf7),
+  [0] (16#e93d5a68, 16#948140f7, 16#f64c261c, 16#94692934, 16#411520f7, 16#7602d4f7,
+       16#bcf46b2e, 16#d4a20068, 16#d4082471, 16#3320f46a, 16#43b7d4b7, 16#500061af,
+       16#1e39f62e, 16#97244546, 16#14214f74, 16#bf8b8840, 16#4d95fc1d, 16#96b591af,
+       16#70f4ddd3, 16#66a02f45, 16#bfbc09ec, 16#03bd9785, 16#7fac6dd0, 16#31cb8504,
+       16#96eb27b3, 16#55fd3941, 16#da2547e6, 16#abca0a9a, 16#28507825, 16#530429f4,
+       16#0a2c86da, 16#e9b66dfb, 16#68dc1462, 16#d7486900, 16#680ec0a4, 16#27a18dee,
+       16#4f3ffea2, 16#e887ad8c, 16#b58ce006, 16#7af4d6b6, 16#aace1e7c, 16#d3375fec,
+       16#ce78a399, 16#406b2a42, 16#20fe9e35, 16#d9f385b9, 16#ee39d7ab, 16#3b124e8b,
+       16#1dc9faf7, 16#4b6d1856, 16#26a36631, 16#eae397b2, 16#3a6efa74, 16#dd5b4332,
+       16#6841e7f7, 16#ca7820fb, 16#fb0af54e, 16#d8feb397, 16#454056ac, 16#ba489527,
+       16#55533a3a, 16#20838d87, 16#fe6ba9b7, 16#d096954b, 16#55a867bc, 16#a1159a58,
+       16#cca92963, 16#99e1db33, 16#a62a4a56, 16#3f3125f9, 16#5ef47e1c, 16#9029317c,
+       16#fdf8e802, 16#04272f70, 16#80bb155c, 16#05282ce3, 16#95c11548, 16#e4c66d22,
+       16#48c1133f, 16#c70f86dc, 16#07f9c9ee, 16#41041f0f, 16#404779a4, 16#5d886e17,
+       16#325f51eb, 16#d59bc0d1, 16#f2bcc18f, 16#41113564, 16#257b7834, 16#602a9c60,
+       16#dff8e8a3, 16#1f636c1b, 16#0e12b4c2, 16#02e1329e, 16#af664fd1, 16#cad18115,
+       16#6b2395e0, 16#333e92e1, 16#3b240b62, 16#eebeb922, 16#85b2a20e, 16#e6ba0d99,
+       16#de720c8c, 16#2da2f728, 16#d0127845, 16#95b794fd, 16#647d0862, 16#e7ccf5f0,
+       16#5449a36f, 16#877d48fa, 16#c39dfd27, 16#f33e8d1e, 16#0a476341, 16#992eff74,
+       16#3a6f6eab, 16#f4f8fd37, 16#a812dc60, 16#a1ebddf8, 16#991be14c, 16#db6e6b0d,
+       16#c67b5510, 16#6d672c37, 16#2765d43b, 16#dcd0e804, 16#f1290dc7, 16#cc00ffa3,
+       16#b5390f92, 16#690fed0b, 16#667b9ffb, 16#cedb7d9c, 16#a091cf0b, 16#d9155ea3,
+       16#bb132f88, 16#515bad24, 16#7b9479bf, 16#763bd6eb, 16#37392eb3, 16#cc115979,
+       16#8026e297, 16#f42e312d, 16#6842ada7, 16#c66a2b3b, 16#12754ccc, 16#782ef11c,
+       16#6a124237, 16#b79251e7, 16#06a1bbe6, 16#4bfb6350, 16#1a6b1018, 16#11caedfa,
+       16#3d25bdd8, 16#e2e1c3c9, 16#44421659, 16#0a121386, 16#d90cec6e, 16#d5abea2a,
+       16#64af674e, 16#da86a85f, 16#bebfe988, 16#64e4c3fe, 16#9dbc8057, 16#f0f7c086,
+       16#60787bf8, 16#6003604d, 16#d1fd8346, 16#f6381fb0, 16#7745ae04, 16#d736fccc,
+       16#83426b33, 16#f01eab71, 16#b0804187, 16#3c005e5f, 16#77a057be, 16#bde8ae24,
+       16#55464299, 16#bf582e61, 16#4e58f48f, 16#f2ddfda2, 16#f474ef38, 16#8789bdc2,
+       16#5366f9c3, 16#c8b38e74, 16#b475f255, 16#46fcd9b9, 16#7aeb2661, 16#8b1ddf84,
+       16#846a0e79, 16#915f95e2, 16#466e598e, 16#20b45770, 16#8cd55591, 16#c902de4c,
+       16#b90bace1, 16#bb8205d0, 16#11a86248, 16#7574a99e, 16#b77f19b6, 16#e0a9dc09,
+       16#662d09a1, 16#c4324633, 16#e85a1f02, 16#09f0be8c, 16#4a99a025, 16#1d6efe10,
+       16#1ab93d1d, 16#0ba5a4df, 16#a186f20f, 16#2868f169, 16#dcb7da83, 16#573906fe,
+       16#a1e2ce9b, 16#4fcd7f52, 16#50115e01, 16#a70683fa, 16#a002b5c4, 16#0de6d027,
+       16#9af88c27, 16#773f8641, 16#c3604c06, 16#61a806b5, 16#f0177a28, 16#c0f586e0,
+       16#006058aa, 16#30dc7d62, 16#11e69ed7, 16#2338ea63, 16#53c2dd94, 16#c2c21634,
+       16#bbcbee56, 16#90bcb6de, 16#ebfc7da1, 16#ce591d76, 16#6f05e409, 16#4b7c0188,
+       16#39720a3d, 16#7c927c24, 16#86e3725f, 16#724d9db9, 16#1ac15bb4, 16#d39eb8fc,
+       16#ed545578, 16#08fca5b5, 16#d83d7cd3, 16#4dad0fc4, 16#1e50ef5e, 16#b161e6f8,
+       16#a28514d9, 16#6c51133c, 16#6fd5c7e7, 16#56e14ec4, 16#362abfce, 16#ddc6c837,
+       16#d79a3234, 16#92638212, 16#670efa8e, 16#406000e0),
+  [0] (16#3a39ce37, 16#d3faf5cf, 16#abc27737, 16#5ac52d1b, 16#5cb0679e, 16#4fa33742,
+       16#d3822740, 16#99bc9bbe, 16#d5118e9d, 16#bf0f7315, 16#d62d1c7e, 16#c700c47b,
+       16#b78c1b6b, 16#21a19045, 16#b26eb1be, 16#6a366eb4, 16#5748ab2f, 16#bc946e79,
+       16#c6a376d2, 16#6549c2c8, 16#530ff8ee, 16#468dde7d, 16#d5730a1d, 16#4cd04dc6,
+       16#2939bbdb, 16#a9ba4650, 16#ac9526e8, 16#be5ee304, 16#a1fad5f0, 16#6a2d519a,
+       16#63ef8ce2, 16#9a86ee22, 16#c089c2b8, 16#43242ef6, 16#a51e03aa, 16#9cf2d0a4,
+       16#83c061ba, 16#9be96a4d, 16#8fe51550, 16#ba645bd6, 16#2826a2f9, 16#a73a3ae1,
+       16#4ba99586, 16#ef5562e9, 16#c72fefd3, 16#f752f7da, 16#3f046f69, 16#77fa0a59,
+       16#80e4a915, 16#87b08601, 16#9b09e6ad, 16#3b3ee593, 16#e990fd5a, 16#9e34d797,
+       16#2cf0b7d9, 16#022b8b51, 16#96d5ac3a, 16#017da67d, 16#d1cf3ed6, 16#7c7d2d28,
+       16#1f9f25cf, 16#adf2b89b, 16#5ad6b472, 16#5a88f54c, 16#e029ac71, 16#e019a5e6,
+       16#47b0acfd, 16#ed93fa9b, 16#e8d3c48d, 16#283b57cc, 16#f8d56629, 16#79132e28,
+       16#785f0191, 16#ed756055, 16#f7960e44, 16#e3d35e8c, 16#15056dd4, 16#88f46dba,
+       16#03a16125, 16#0564f0bd, 16#c3eb9e15, 16#3c9057a2, 16#97271aec, 16#a93a072a,
+       16#1b3f6d9b, 16#1e6321f5, 16#f59c66fb, 16#26dcf319, 16#7533d928, 16#b155fdf5,
+       16#03563482, 16#8aba3cbb, 16#28517711, 16#c20ad9f8, 16#abcc5167, 16#ccad925f,
+       16#4de81751, 16#3830dc8e, 16#379d5862, 16#9320f991, 16#ea7a90c2, 16#fb3e7bce,
+       16#5121ce64, 16#774fbe32, 16#a8b6e37e, 16#c3293d46, 16#48de5369, 16#6413e680,
+       16#a2ae0810, 16#dd6db224, 16#69852dfd, 16#09072166, 16#b39a460a, 16#6445c0dd,
+       16#586cdecf, 16#1c20c8ae, 16#5bbef7dd, 16#1b588d40, 16#ccd2017f, 16#6bb4e3bb,
+       16#dda26a7e, 16#3a59ff45, 16#3e350a44, 16#bcb4cdd5, 16#72eacea8, 16#fa6484bb,
+       16#8d6612ae, 16#bf3c6f47, 16#d29be463, 16#542f5d9e, 16#aec2771b, 16#f64e6370,
+       16#740e0d8d, 16#e75b1357, 16#f8721671, 16#af537d5d, 16#4040cb08, 16#4eb4e2cc,
+       16#34d2466a, 16#0115af84, 16#e1b00428, 16#95983a1d, 16#06b89fb4, 16#ce6ea048,
+       16#6f3f3b82, 16#3520ab82, 16#011a1d4b, 16#277227f8, 16#611560b1, 16#e7933fdc,
+       16#bb3a792b, 16#344525bd, 16#a08839e1, 16#51ce794b, 16#2f32c9b7, 16#a01fbac9,
+       16#e01cc87e, 16#bcc7d1f6, 16#cf0111c3, 16#a1e8aac7, 16#1a908749, 16#d44fbd9a,
+       16#d0dadecb, 16#d50ada38, 16#0339c32a, 16#c6913667, 16#8df9317c, 16#e0b12b4f,
+       16#f79e59b7, 16#43f5bb3a, 16#f2d519ff, 16#27d9459c, 16#bf97222c, 16#15e6fc2a,
+       16#0f91fc71, 16#9b941525, 16#fae59361, 16#ceb69ceb, 16#c2a86459, 16#12baa8d1,
+       16#b6c1075e, 16#e3056a0c, 16#10d25065, 16#cb03a442, 16#e0ec6e0e, 16#1698db3b,
+       16#4c98a0be, 16#3278e964, 16#9f1f9532, 16#e0d392df, 16#d3a0342b, 16#8971f21e,
+       16#1b0a7441, 16#4ba3348c, 16#c5be7120, 16#c37632d8, 16#df359f8d, 16#9b992f2e,
+       16#e60b6f47, 16#0fe3f11d, 16#e54cda54, 16#1edad891, 16#ce6279cf, 16#cd3e7e6f,
+       16#1618b166, 16#fd2c1d05, 16#848fd2c5, 16#f6fb2299, 16#f523f357, 16#a6327623,
+       16#93a83531, 16#56cccd02, 16#acf08162, 16#5a75ebb5, 16#6e163697, 16#88d273cc,
+       16#de966292, 16#81b949d0, 16#4c50901b, 16#71c65614, 16#e6c6c7bd, 16#327a140a,
+       16#45e1d006, 16#c3f27b9a, 16#c9aa53fd, 16#62a80f00, 16#bb25bfe2, 16#35bdd2f6,
+       16#71126905, 16#b2040222, 16#b6cbcf7c, 16#cd769c2b, 16#53113ec0, 16#1640e3d3,
+       16#38abbd60, 16#2547adf0, 16#ba38209c, 16#f746ce76, 16#77afa1c5, 16#20756060,
+       16#85cbfe4e, 16#8ae88dd8, 16#7aaaf9b0, 16#4cf9aa7e, 16#1948c25c, 16#02fb8a8c,
+       16#01c36ae4, 16#d6ebe1f9, 16#90d4f869, 16#a65cdea0, 16#3f09252d, 16#c208e69f,
+       16#b74e6132, 16#ce77e25b, 16#578fdfe3, 16#3ac372e6));
+
+
+const func bin32: f (inout blowfishState: state, in integer: x) is
+  return bin32((ord(bin32((state.sBox[1][ x >> 24         ] +
+                           state.sBox[2][(x >> 16) mod 256]) mod 16#100000000) ><
+                    bin32( state.sBox[3][(x >>  8) mod 256])) +
+                           state.sBox[4][ x        mod 256]) mod 16#100000000);
+
+
+const proc: encrypt (inout blowfishState: state, inout integer: leftParam,
+    inout integer: rightParam) is func
+  local
+    var bin32: left is bin32.value;
+    var bin32: right is bin32.value;
+    var integer: idx is 0;
+  begin
+    left := bin32(leftParam);
+    right := bin32(rightParam);
+    for idx range 0 to 14 step 2 do
+      left ><:= state.pBox[idx];
+      right ><:= f(state, ord(left));
+      right ><:= state.pBox[idx + 1];
+      left ><:= f(state, ord(right));
+    end for;
+    left ><:= state.pBox[16];
+    right ><:= state.pBox[17];
+    leftParam := ord(right);
+    rightParam := ord(left);
+  end func;
+
+
+const proc: decrypt (inout blowfishState: state, inout integer: leftParam,
+    inout integer: rightParam) is func
+  local
+    var bin32: left is bin32.value;
+    var bin32: right is bin32.value;
+    var integer: idx is 0;
+  begin
+    left := bin32(leftParam);
+    right := bin32(rightParam);
+    for idx range 16 downto 2 step 2 do
+      left ><:= state.pBox[idx + 1];
+      right ><:= f(state, ord(left));
+      right ><:= state.pBox[idx];
+      left ><:= f(state, ord(right));
+    end for;
+    left ><:= state.pBox[1];
+    right ><:= state.pBox[0];
+    leftParam := ord(right);
+    rightParam := ord(left);
+  end func;
+
+
+(**
+ *  Set key and initialization vector for the Blowfish block cipher.
+ *  @param blowfishKey The key to be used for Blowfish.
+ *  @return the Blowfish cipher state.
+ *)
+const func blowfishState: setBlowfishKey (in string: blowfishKey) is func
+  result
+    var blowfishState: state is blowfishState.value;
+  local
+    var integer: idx is 0;
+    var integer: byteNum is 0;
+    var integer: keyIdx is 1;
+    var bin32: data is bin32(0);
+    var integer: boxNum is 0;
+    var integer: left is 0;
+    var integer: right is 0;
+  begin
+    state.pBox := pBoxInit;
+    state.sBox := sBoxInit;
+    if blowfishKey <> "" then
+      for key idx range state.pBox do
+        data := bin32(0);
+        for byteNum range 1 to 4 do
+          data := data << 8 | bin32(blowfishKey[keyIdx]) & bin32(16#ff);
+          keyIdx := succ(keyIdx rem length(blowfishKey));
+        end for;
+        state.pBox[idx] ><:= data;
+      end for;
+      for idx range 0 to 16 step 2 do
+        encrypt(state, left, right);
+        state.pBox[idx] := bin32(left);
+        state.pBox[idx + 1] := bin32(right);
+      end for;
+      for boxNum range 1 to 4 do
+        for idx range 0 to 254 step 2 do
+           encrypt(state, left, right);
+           state.sBox[boxNum][idx] := left;
+           state.sBox[boxNum][idx + 1] := right;
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+(**
+ *  Set key and initialization vector for the Blowfish block cipher.
+ *  @param cipherKey The key to be used for Blowfish.
+ *  @param initializationVector The initialisation vector (IV) for Blowfish.
+ *  @return the initial ''cipherState'' of a Blowfish cipher.
+ *)
+const func cipherState: setCipherKey (BLOWFISH, in string: cipherKey,
+    in string: initializationVector) is
+  return toInterface(setBlowfishKey(cipherKey));
+
+
+(**
+ *  Encode a string with the Blowfish block cipher.
+ *  @return the encoded string.
+ *)
+const func string: encode (inout blowfishState: state, in string: plaintext) is func
+  result
+    var string: encoded is "";
+  local
+    var integer: index is 0;
+    var integer: left is 0;
+    var integer: right is 0;
+  begin
+    for index range 1 to length(plaintext) step blockSize(BLOWFISH) do
+      left := bytes2Int(plaintext[index len 4], UNSIGNED, BE);
+      right := bytes2Int(plaintext[index + 4 len 4], UNSIGNED, BE);
+      encrypt(state, left, right);
+      encoded &:= int32AsFourBytesBe(left);
+      encoded &:= int32AsFourBytesBe(right);
+    end for;
+  end func;
+
+
+(**
+ *  Decode a string with the Blowfish block cipher.
+ *  @return the decoded string.
+ *)
+const func string: decode (inout blowfishState: state, in string: encoded) is func
+  result
+    var string: plaintext is "";
+  local
+    var integer: index is 0;
+    var integer: left is 0;
+    var integer: right is 0;
+  begin
+    for index range 1 to length(encoded) step blockSize(BLOWFISH) do
+      left := bytes2Int(encoded[index len 4], UNSIGNED, BE);
+      right := bytes2Int(encoded[index + 4 len 4], UNSIGNED, BE);
+      decrypt(state, left, right);
+      plaintext &:= int32AsFourBytesBe(left);
+      plaintext &:= int32AsFourBytesBe(right);
+    end for;
+  end func;

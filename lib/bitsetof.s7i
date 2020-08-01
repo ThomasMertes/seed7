@@ -166,9 +166,10 @@ const func type: bitset (in type: baseType) is func
        *)
       const func integer: hashCode (in setType: aSet)                    is action "SET_HASHCODE";
 
-      const func bitset: (attr bitset) conv (in setType: aSet)           is action "SET_CONV";
+      const func bitset: bitset (in setType: aSet)                       is action "SET_CONV1";
+      const func bitset: (attr bitset) conv (in setType: aSet)           is action "SET_CONV3";
       const varfunc bitset: (attr bitset) varConv (inout setType: aSet)  is action "TYP_VARCONV";
-      const func setType: (attr setType) conv (in bitset: aSet)          is action "SET_CONV";
+      const func setType: (attr setType) conv (in bitset: aSet)          is action "SET_CONV3";
       const setType: (attr setType) . EMPTY_SET                          is setType conv EMPTY_SET;
       const setType: (attr setType) . value                              is setType conv EMPTY_SET;
 
@@ -179,7 +180,7 @@ const func type: bitset (in type: baseType) is func
        *          FALSE otherwise.
        *)
       const func boolean: (in baseType: aValue) in (in setType: aSet) is
-        return ord(aValue) in bitset conv aSet;
+        return ord(aValue) in bitset(aSet);
 
       (**
        *  Negated set membership test.
@@ -188,7 +189,7 @@ const func type: bitset (in type: baseType) is func
        *          TRUE otherwise.
        *)
       const func boolean: (in baseType: aValue) not in (in setType: aSet) is
-        return ord(aValue) not in bitset conv aSet;
+        return ord(aValue) not in bitset(aSet);
 
       (**
        *  Add ''aValue'' to the set ''aSet''.
@@ -237,7 +238,7 @@ const func type: bitset (in type: baseType) is func
        *  @exception RANGE_ERROR When ''aSet'' is empty.
        *)
       const func baseType: rand (in setType: aSet) is
-        return baseType conv rand(bitset conv aSet);
+        return baseType conv rand(bitset(aSet));
 
       (**
        *  Minimal element of a set.
@@ -248,7 +249,7 @@ const func type: bitset (in type: baseType) is func
        *  @exception RANGE_ERROR When ''aSet'' is the empty set.
        *)
       const func baseType: min (in setType: aSet) is
-        return baseType conv min(bitset conv aSet);
+        return baseType conv min(bitset(aSet));
 
       (**
        *  Maximal element of a set.
@@ -259,10 +260,10 @@ const func type: bitset (in type: baseType) is func
        *  @exception RANGE_ERROR When ''aSet'' is the empty set.
        *)
       const func baseType: max (in setType: aSet) is
-        return baseType conv max(bitset conv aSet);
+        return baseType conv max(bitset(aSet));
 
       const func baseType: next (in setType: aSet, in baseType: oldValue) is
-        return baseType conv next(bitset conv aSet, ord(oldValue));
+        return baseType conv next(bitset(aSet), ord(oldValue));
 
       const func setType: { (in baseType: value) } is
         return setType conv ( { ord(value) } );

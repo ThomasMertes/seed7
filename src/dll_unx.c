@@ -57,8 +57,8 @@ void *dllOpen (const char *dllName)
     aDll = dlopen(dllName, RTLD_LAZY);
     logError(if (unlikely(aDll == NULL)) {
                printf("dllOpen: dlopen(\"%s\", RTLD_LAZY) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      dllName, errno, strerror(errno));
+                      "errno=%d\nerror: %s\n%s\n",
+                      dllName, errno, strerror(errno), dlerror());
              });
     return aDll;
   } /* dllOpen */

@@ -178,6 +178,7 @@ static void strelem_fwrite (const strElemType *stri, memSizeType length,
     ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* strelem_fwrite */
+    /* printf("strelem_fwrite length: " FMT_U_MEM "\n", length); */
     for (; length >= WRITE_STRI_BLOCK_SIZE;
         stri += WRITE_STRI_BLOCK_SIZE, length -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, stri, WRITE_STRI_BLOCK_SIZE);
@@ -507,86 +508,165 @@ void conSetCursor (intType line, intType column)
 
 
 
-/**
- *  Writes the string stri to the console at the current position.
- */
-void conWrite (const const_striType stri)
+intType conColumn (void)
+
+  { /* conColumn */
+    return (intType) cursor_column;
+  } /* conColumn */
+
+
+
+intType conLine (void)
+
+  { /* conLine */
+    return (intType) cursor_line;
+  } /* conLine */
+
+
+
+static void doWrite (const strElemType *stri, memSizeType length)
 
   {
     int start_pos;
     int end_pos;
+    int new_cursor_column;
     int position;
     strElemType *new_line;
     unsigned char *new_attr;
 
+  /* doWrite */
+    if (cursor_line <= con->height && length != 0) {
+      new_line = &con->chars[cursor_line - 1][cursor_column - 1];
+      new_attr = &con->attributes[cursor_line - 1][cursor_column - 1];
+      if (cursor_column <= con->width) {
+        if (length - 1 > con->width - cursor_column) {
+          end_pos = con->width - cursor_column;
+          new_cursor_column = con->width + 1;
+        } else {
+          end_pos = (int) (length - 1);
+          new_cursor_column = cursor_column + (int) length;
+        } /* if */
+        while (end_pos >= 0 &&
+            new_line[end_pos] == stri[end_pos] &&
+            new_attr[end_pos] == curr_attr) {
+          end_pos--;
+        } /* while */
+        if (end_pos >= 0) {
+          start_pos = 0;
+          while (start_pos <= end_pos &&
+              new_line[start_pos] == stri[start_pos] &&
+              new_attr[start_pos] == curr_attr) {
+            start_pos++;
+          } /* while */
+          if (start_pos <= end_pos) {
+            memcpy(&new_line[start_pos], &stri[start_pos],
+                   sizeof(strElemType) * (unsigned int) (end_pos - start_pos + 1));
+            if (cursor_position_okay) {
+              start_pos = 0;
+            } else {
+              /* cursor motion */
+              putgoto(cursor_address, cursor_column + start_pos - 1, cursor_line - 1);
+            } /* if */
+            if (ceol_standout_glitch) {
+              for (position = 0; position <= end_pos - start_pos; position++) {
+                if (new_attr[start_pos + position] != curr_attr) {
+                  setattr(curr_attr);
+                } /* if */
+                strelem_fwrite(&new_line[start_pos + position], 1, stdout);
+              } /* for */
+              if (cursor_column + end_pos < con->width &&
+                  new_attr[end_pos + 1] != curr_attr) {
+                setattr(new_attr[end_pos + 1]);
+              } /* if */
+            } else {
+              if (curr_attr != TEXT_NORMAL) {
+                setattr(curr_attr);
+              } /* if */
+              strelem_fwrite(&new_line[start_pos],
+                  (unsigned int) (end_pos - start_pos + 1), stdout);
+              if (curr_attr != TEXT_NORMAL) {
+                setattr(TEXT_NORMAL);
+              } /* if */
+            } /* if */
+            memset(&new_attr[start_pos], curr_attr,
+                (unsigned int) (end_pos - start_pos + 1));
+          } /* if */
+        } /* if */
+        cursor_position_okay = new_cursor_column == cursor_column + end_pos + 1;
+        cursor_column = new_cursor_column;
+        changes = TRUE;
+      } /* if */
+    } /* if */
+  } /* doWrite */
+
+
+
+/**
+ *  Write a string to the current position of the console.
+ *  Unicode characters are written with the encoding of the
+ *  operating system. The cursor position is changed, when
+ *  one of the characters '\n', '\r' and '\b' is written.
+ *  When the standard output file of the operating system has
+ *  been redirected UTF-8 encoded characters are written to
+ *  the redirected file.
+ */
+void conWrite (const const_striType stri)
+
+  {
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *found_pos;
+
   /* conWrite */
+    logFunction(printf("conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
     if (console_initialized) {
       if (con->size_changed) {
         resize_console();
       } /* if */
-      if (cursor_line <= con->height && stri->size != 0) {
-        new_line = &con->chars[cursor_line - 1][cursor_column - 1];
-        new_attr = &con->attributes[cursor_line - 1][cursor_column - 1];
-        if (cursor_column <= con->width) {
-          if (stri->size - 1 > con->width - cursor_column) {
-            end_pos = con->width - cursor_column;
-          } else {
-            end_pos = (int) (stri->size - 1);
-          } /* if */
-          while (end_pos >= 0 &&
-              new_line[end_pos] == stri->mem[end_pos] &&
-              new_attr[end_pos] == curr_attr) {
-            end_pos--;
-          } /* while */
-          if (end_pos >= 0) {
-            start_pos = 0;
-            while (start_pos <= end_pos &&
-                new_line[start_pos] == stri->mem[start_pos] &&
-                new_attr[start_pos] == curr_attr) {
-              start_pos++;
-            } /* while */
-            if (start_pos <= end_pos) {
-              memcpy(&new_line[start_pos], &stri->mem[start_pos],
-                     sizeof(strElemType) * (unsigned int) (end_pos - start_pos + 1));
-              if (cursor_position_okay) {
-                start_pos = 0;
-              } else {
-                /* cursor motion */
-                putgoto(cursor_address, cursor_column + start_pos - 1, cursor_line - 1);
-              } /* if */
-              if (ceol_standout_glitch) {
-                for (position = 0; position <= end_pos - start_pos; position++) {
-                  if (new_attr[start_pos + position] != curr_attr) {
-                    setattr(curr_attr);
-                  } /* if */
-                  strelem_fwrite(&new_line[start_pos + position], 1, stdout);
-                } /* for */
-                if (cursor_column + end_pos < con->width &&
-                    new_attr[end_pos + 1] != curr_attr) {
-                  setattr(new_attr[end_pos + 1]);
-                } /* if */
-              } else {
-                if (curr_attr != TEXT_NORMAL) {
-                  setattr(curr_attr);
-                } /* if */
-                strelem_fwrite(&new_line[start_pos],
-                    (unsigned int) (end_pos - start_pos + 1), stdout);
-                if (curr_attr != TEXT_NORMAL) {
-                  setattr(TEXT_NORMAL);
-                } /* if */
-              } /* if */
-              memset(&new_attr[start_pos], curr_attr,
-                  (unsigned int) (end_pos - start_pos + 1));
-              cursor_position_okay = TRUE;
-              cursor_column += end_pos + 1;
+      search_start = stri->mem;
+      search_end = &stri->mem[stri->size];
+      for (found_pos = search_start; found_pos != search_end; found_pos++) {
+        switch (*found_pos) {
+          case '\n':
+            if (found_pos != search_start) {
+              doWrite(search_start, (memSizeType) (found_pos - search_start));
             } /* if */
-          } /* if */
-          changes = TRUE;
-        } /* if */
+            search_start = found_pos + 1;
+            if (cursor_line == con->height) {
+              conUpScroll(1, 1, con->height, con->width, 1);
+            } else {
+              cursor_line++;
+            } /* if */
+            cursor_column = 1;
+            cursor_position_okay = FALSE;
+            break;
+          case '\b':
+            if (found_pos != search_start) {
+              doWrite(search_start, (memSizeType) (found_pos - search_start));
+            } /* if */
+            search_start = found_pos + 1;
+            if (cursor_column > 1) {
+              cursor_column--;
+              cursor_position_okay = FALSE;
+            } /* if */
+            break;
+          case '\r':
+            if (found_pos != search_start) {
+              doWrite(search_start, (memSizeType) (found_pos - search_start));
+            } /* if */
+            search_start = found_pos + 1;
+            cursor_column = 1;
+            cursor_position_okay = FALSE;
+            break;
+        } /* switch */
+      } /* for */
+      if (search_end != search_start) {
+        doWrite(search_start, (memSizeType) (search_end - search_start));
       } /* if */
     } else {
       strelem_fwrite(stri->mem, stri->size, stdout);
     } /* if */
+    logFunction(printf("conWrite -->\n"););
   } /* conWrite */
 
 

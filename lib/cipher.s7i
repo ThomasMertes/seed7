@@ -28,17 +28,18 @@
 
 (**
  *  Enumeration of cipher algorithms.
- *  Currently the ciphers NO_CIPHER, RC4, DES, TDES and AES are supported.
+ *  Currently the ciphers NO_CIPHER, RC4, DES, TDES, BLOWFISH and
+ *  AES are supported.
  *)
 const type: cipherAlgorithm is new enum
-    NO_CIPHER, RC4, DES, TDES, AES
+    NO_CIPHER, RC4, DES, TDES, BLOWFISH, AES
   end enum;
 
 
 (**
  *  Interface type for the internal state of a cipher.
  *  The cipherState interface is implemented with [[arc4]], [[des]],
- *  [[tdes]], [[aes]] and [[#noCipherState|noCipher]] (no encryption).
+ *  [[tdes]], [[blowfish]], [[aes]] and [[#noCipherState|noCipher]] (no encryption).
  *)
 const type: cipherState is sub object interface;
 

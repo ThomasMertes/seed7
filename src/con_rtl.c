@@ -47,8 +47,20 @@
 #define WRITE_STRI_BLOCK_SIZE    256
 
 
+#ifdef CONSOLE_USES_CON_TEXT
 static intType cursor_line = 1;
 static intType cursor_column = 1;
+#endif
+
+
+
+#ifdef CONSOLE_USES_CON_TEXT
+intType conColumn (void)
+
+  { /* conColumn */
+    return cursor_column;
+  } /* conColumn */
+#endif
 
 
 
@@ -65,11 +77,23 @@ void conHScroll (intType startlin, intType startcol,
 
 
 
+#ifdef CONSOLE_USES_CON_TEXT
+intType conLine (void)
+
+  { /* conLine */
+    return cursor_line;
+  } /* conLine */
+#endif
+
+
+
 void conSetpos (intType lin, intType col)
 
   { /* conSetpos */
+#ifdef CONSOLE_USES_CON_TEXT
     cursor_line = lin;
     cursor_column = col;
+#endif
     conSetCursor(lin, col);
   } /* conSetpos */
 

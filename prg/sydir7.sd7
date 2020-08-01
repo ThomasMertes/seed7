@@ -273,7 +273,7 @@ const proc: main is func
           if parameter = "-c" then
             flags.removeFilesAtDest := TRUE;
             flags.overwriteNewerDestFiles := TRUE;
-	  elsif parameter = "-n" then
+          elsif parameter = "-n" then
             flags.doChanges := FALSE;
           else
             writeln(" *** Unknown option: " <& parameter);

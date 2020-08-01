@@ -55,7 +55,9 @@
 #define EXTERN
 #include "dcllib.h"
 
-#undef TRACE_DCL
+#define TRACE_DCL 0
+#define TRACE_DCL_CONST 0
+#define TRACE_DCL_VAR 0
 
 
 
@@ -91,8 +93,9 @@ objectType dcl_const (listType arguments)
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     value_expr = arg_6(arguments);
-#ifdef TRACE_DCL
-    printf("\ndecl const object_type = ");
+    logFunction(printf("dcl_const\n"););
+#if TRACE_DCL_CONST
+    printf("decl const object_type = ");
     trace1(object_type->match_obj);
     printf("\ndecl const name_expr = ");
     trace1(name_expr);
@@ -107,7 +110,7 @@ objectType dcl_const (listType arguments)
           value_expr->value.listValue->next == NULL) {
         value_expr = value_expr->value.listValue->obj;
       } /* if */
-#ifdef TRACE_DCL
+#if TRACE_DCL_CONST
       printf("decl const value_expr = ");
       trace1(value_expr);
       printf("\n");
@@ -117,7 +120,7 @@ objectType dcl_const (listType arguments)
       value = copy_expression(value_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
-#ifdef TRACE_DCL
+#if TRACE_DCL_CONST
         printf("decl const current_object = ");
         trace1(current_object);
         printf("\n");
@@ -130,13 +133,13 @@ objectType dcl_const (listType arguments)
             if (err_info == CREATE_ERROR) {
               err_object(DECL_FAILED, current_object);
               err_info = OKAY_NO_ERROR;
-#ifdef TRACE_DCL
+#if TRACE_DCL_CONST
               printf("*** do_create failed ");
               prot_list(arguments);
               printf("\n");
 #endif
             } /* if */
-#ifdef TRACE_DCL
+#if TRACE_DCL_CONST
           } else {
             printf("match value failed: ");
             trace1(value);
@@ -157,7 +160,7 @@ objectType dcl_const (listType arguments)
           if (err_info == CREATE_ERROR) {
             err_object(DECL_FAILED, current_object);
             err_info = OKAY_NO_ERROR;
-#ifdef TRACE_DCL
+#if TRACE_DCL_CONST
             printf("*** do_create failed ");
             prot_list(arguments);
             printf("\n");
@@ -172,13 +175,14 @@ objectType dcl_const (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-#ifdef TRACE_DCL
+#if TRACE_DCL_CONST
     printf("entity=%lu ", (unsigned long) GET_ENTITY(current_object));
     printf("%lu ", (unsigned long) current_object);
     printf("decl const current_object = ");
     trace1(current_object);
     printf("\n");
 #endif
+    logFunction(printf("dcl_const --> err_info=%d\n", err_info););
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
@@ -235,7 +239,7 @@ objectType dcl_fwd (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("\ndecl const object_type = ");
     trace1(object_type->match_obj);
     printf("\ndecl const name_expr = ");
@@ -251,7 +255,7 @@ objectType dcl_fwd (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("entity=%lu ", (unsigned long) GET_ENTITY(current_object));
     printf("%lu ", (unsigned long) current_object);
     printf("forward decl const current_object = ");
@@ -279,7 +283,7 @@ objectType dcl_fwdvar (listType arguments)
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("\ndecl var object_type = ");
     trace1(object_type->match_obj);
     printf("\ndecl var name_expr = ");
@@ -295,7 +299,7 @@ objectType dcl_fwdvar (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("entity=%lu ", (unsigned long) GET_ENTITY(current_object));
     printf("%lu ", (unsigned long) current_object);
     printf("forward decl var current_object = ");
@@ -320,7 +324,7 @@ objectType dcl_getfunc (listType arguments)
 
   /* dcl_getfunc */
     name_expr = arg_2(arguments);
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("decl const name_expr = ");
     trace1(name_expr);
     printf("\n");
@@ -330,7 +334,7 @@ objectType dcl_getfunc (listType arguments)
       object_found = search_name(prog->declaration_root, name_expr, &err_info);
       shrink_stack();
     } /* if */
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("entity=%lu ", (unsigned long) GET_ENTITY(object_found));
     printf("%lu ", (unsigned long) object_found);
     printf("getfunc object_found = ");
@@ -355,13 +359,13 @@ objectType dcl_getobj (listType arguments)
 
   /* dcl_getobj */
     name_expr = arg_2(arguments);
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("decl const name_expr = ");
     trace1(name_expr);
     printf("\n");
 #endif
     object_found = find_name(prog->declaration_root, name_expr, &err_info);
-#ifdef TRACE_DCL
+#if TRACE_DCL
     printf("entity=%lu ", (unsigned long) GET_ENTITY(object_found));
     printf("%lu ", (unsigned long) object_found);
     printf("getobj object_found = ");
@@ -753,8 +757,9 @@ objectType dcl_var (listType arguments)
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     value_expr = arg_6(arguments);
-#ifdef TRACE_DCL
-    printf("\ndecl var object_type = ");
+    logFunction(printf("dcl_var\n"););
+#if TRACE_DCL_VAR
+    printf("decl var object_type = ");
     trace1(object_type->match_obj);
     printf("\ndecl var name_expr = ");
     trace1(name_expr);
@@ -769,7 +774,7 @@ objectType dcl_var (listType arguments)
           value_expr->value.listValue->next == NULL) {
         value_expr = value_expr->value.listValue->obj;
       } /* if */
-#ifdef TRACE_DCL
+#if TRACE_DCL_VAR
       printf("decl var value_expr = ");
       trace1(value_expr);
       printf("\n");
@@ -779,7 +784,7 @@ objectType dcl_var (listType arguments)
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         SET_VAR_FLAG(current_object);
-#ifdef TRACE_DCL
+#if TRACE_DCL_VAR
         printf("decl var current_object = ");
         trace1(current_object);
         printf("\n");
@@ -792,7 +797,7 @@ objectType dcl_var (listType arguments)
             if (err_info == CREATE_ERROR) {
               err_object(DECL_FAILED, current_object);
               err_info = OKAY_NO_ERROR;
-#ifdef TRACE_DCL
+#if TRACE_DCL_VAR
               printf("*** do_create failed ");
               prot_list(arguments);
               printf("\n");
@@ -808,7 +813,7 @@ objectType dcl_var (listType arguments)
           if (err_info == CREATE_ERROR) {
             err_object(DECL_FAILED, current_object);
             err_info = OKAY_NO_ERROR;
-#ifdef TRACE_DCL
+#if TRACE_DCL_VAR
             printf("*** do_create failed ");
             prot_list(arguments);
             printf("\n");
@@ -819,6 +824,7 @@ objectType dcl_var (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
+    logFunction(printf("dcl_var --> err_info=%d\n", err_info););
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {

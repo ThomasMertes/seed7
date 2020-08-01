@@ -35,5 +35,7 @@ void conSetpos (intType lin, intType col);
 void conVScroll (intType startlin, intType startcol,
                  intType stoplin, intType stopcol, intType count);
 #ifdef CONSOLE_USES_CON_TEXT
+intType conColumn (void);
+intType conLine (void);
 void conWrite (const_striType stri);
 #endif

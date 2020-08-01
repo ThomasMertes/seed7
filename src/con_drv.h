@@ -53,6 +53,8 @@ void conSetCursor (intType lin, intType col);
 void conText (intType lin, intType col, console_striType stri,
     memSizeType length);
 #else
+intType conColumn (void);
+intType conLine (void);
 void conWrite (const const_striType stri);
 #endif
 void conClear (intType startlin, intType startcol,

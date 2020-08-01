@@ -53,6 +53,8 @@
 #define EXTERN
 #include "match.h"
 
+#define TRACE_SUBSTITUTE_PARAMS 0
+
 
 
 static objectType match_subexpr (objectType, const_nodeType, listType,
@@ -186,7 +188,7 @@ void substitute_params (const_objectType expr_object)
       } else if (CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
           CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT) {
         if (current_element->value.objValue != NULL) {
-#ifdef TRACE_MATCH_extended
+#if TRACE_SUBSTITUTE_PARAMS
           if (HAS_POSINFO(expr_object)) {
             prot_string(get_file_name(GET_FILE_NUM(expr_object)));
             prot_cstri("(");
@@ -200,7 +202,16 @@ void substitute_params (const_objectType expr_object)
           printf("\n");
 #endif
           current_element = current_element->value.objValue;
-          if (/* ALLOC_L_ELEM(list_elem) && */ ALLOC_OBJECT(created_object)) {
+          if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT ||
+              CATEGORY_OF_OBJ(current_element) == CALLOBJECT ||
+              CATEGORY_OF_OBJ(current_element) == MATCHOBJECT ||
+              CATEGORY_OF_OBJ(current_element) == LISTOBJECT) {
+            created_object = copy_expression(current_element, &err_info);
+            if (err_info == CREATE_ERROR) {
+              printf("*** copy_expression failed ");
+              printf("\n");
+            } /* if */
+          } else if (/* ALLOC_L_ELEM(list_elem) && */ ALLOC_OBJECT(created_object)) {
             created_object->type_of = current_element->type_of;
             created_object->descriptor.property = NULL;
             INIT_CATEGORY_OF_OBJ(created_object, DECLAREDOBJECT);
@@ -215,7 +226,7 @@ void substitute_params (const_objectType expr_object)
             substituted_objects = list_elem; */
           } /* if */
           expr_list->obj = created_object;
-#ifdef TRACE_MATCH_extended
+#if TRACE_SUBSTITUTE_PARAMS
           printf("Value is now: ");
           prot_int((intType) expr_list->obj);
           prot_cstri(" ");
@@ -225,7 +236,7 @@ void substitute_params (const_objectType expr_object)
           if (CATEGORY_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
               CATEGORY_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
             if (expr_list->obj->value.objValue != NULL) {
-              printf("Parameter aggain has value: ");
+              printf("Parameter again has value: ");
               trace1(expr_list->obj);
               printf("\n");
             } /* if */

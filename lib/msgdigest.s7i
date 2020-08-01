@@ -301,7 +301,7 @@ const func string: ripemd160 (in var string: message) is func
         x[index] := bytes2Int(message[wordIndex len 4], UNSIGNED, LE);
         wordIndex +:= 4;
       end for;
- 
+
       a1 := bin32(h0);
       b1 := bin32(h1);
       c1 := bin32(h2);
@@ -312,7 +312,7 @@ const func string: ripemd160 (in var string: message) is func
       c2 := bin32(h2);
       d2 := bin32(h3);
       e2 := bin32(h4);
- 
+
       for index range 1 to 80 do
         case index of
           when {1 .. 16}:

@@ -157,13 +157,33 @@ objectType set_cmp (listType arguments)
 
 
 
-objectType set_conv (listType arguments)
+objectType set_conv1 (listType arguments)
 
   {
     objectType set_arg;
     setType result;
 
-  /* set_conv */
+  /* set_conv1 */
+    set_arg = arg_1(arguments);
+    isit_set(set_arg);
+    if (TEMP_OBJECT(set_arg)) {
+      result = take_set(set_arg);
+      set_arg->value.setValue = NULL;
+      return bld_set_temp(result);
+    } else {
+      return set_arg;
+    } /* if */
+  } /* set_conv1 */
+
+
+
+objectType set_conv3 (listType arguments)
+
+  {
+    objectType set_arg;
+    setType result;
+
+  /* set_conv3 */
     set_arg = arg_3(arguments);
     isit_set(set_arg);
     if (TEMP_OBJECT(set_arg)) {
@@ -173,7 +193,7 @@ objectType set_conv (listType arguments)
     } else {
       return set_arg;
     } /* if */
-  } /* set_conv */
+  } /* set_conv3 */
 
 
 
@@ -490,6 +510,7 @@ objectType set_hashcode (listType arguments)
 /**
  *  Convert an integer number to a bitset.
  *  @return a bitset which corresponds to the given integer.
+ *  @exception RANGE_ERROR Number is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType set_iconv1 (listType arguments)
@@ -505,6 +526,7 @@ objectType set_iconv1 (listType arguments)
 /**
  *  Convert an integer number to a bitset.
  *  @return a bitset which corresponds to the given integer.
+ *  @exception RANGE_ERROR Number is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType set_iconv3 (listType arguments)
@@ -831,15 +853,31 @@ objectType set_rangelit (listType arguments)
  *  Convert a bitset to integer.
  *  @return an integer which corresponds to the given bitset.
  *  @exception RANGE_ERROR When 'aSet' contains negative values or
- *             when it does not fit into an integer.
+ *             when it does not fit into a non-negative integer.
  */
-objectType set_sconv (listType arguments)
+objectType set_sconv1 (listType arguments)
 
-  { /* set_sconv */
+  { /* set_sconv1 */
+    isit_set(arg_1(arguments));
+    return bld_int_temp(
+        setSConv(take_set(arg_1(arguments))));
+  } /* set_sconv1 */
+
+
+
+/**
+ *  Convert a bitset to integer.
+ *  @return an integer which corresponds to the given bitset.
+ *  @exception RANGE_ERROR When 'aSet' contains negative values or
+ *             when it does not fit into a non-negative integer.
+ */
+objectType set_sconv3 (listType arguments)
+
+  { /* set_sconv3 */
     isit_set(arg_3(arguments));
     return bld_int_temp(
         setSConv(take_set(arg_3(arguments))));
-  } /* set_sconv */
+  } /* set_sconv3 */
 
 
 

@@ -75,7 +75,7 @@
 #define EXTERN
 #include "analyze.h"
 
-#undef TRACE_DECL_ANY
+#define TRACE_DECL_ANY 0
 
 
 /* when the analyzer is used from a compiled program this */
@@ -331,11 +331,11 @@ static inline void declAny (nodeType objects)
           fatal_memory_error(SOURCE_POSITION(2112));
         } /* if */
       } else {
-#ifdef TRACE_DECL_ANY
+#if TRACE_DECL_ANY
         printf("before parse expression ");
 #endif
         declExpression = pars_infix_expression(SCOL_PRIORITY, FALSE);
-#ifdef TRACE_DECL_ANY
+#if TRACE_DECL_ANY
         printf("declExpression ");
         trace1(declExpression);
         printf("<<<\n");

@@ -471,6 +471,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"CON_CLEAR"}:
         consoleLibraryUsed := TRUE;
         process(CON_CLEAR, function, params, c_expr);
+      when {"CON_COLUMN"}:
+        consoleLibraryUsed := TRUE;
+        process(CON_COLUMN, function, params, c_expr);
       when {"CON_CURSOR"}:
         consoleLibraryUsed := TRUE;
         process(CON_CURSOR, function, params, c_expr);
@@ -483,6 +486,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"CON_H_SCL"}:
         consoleLibraryUsed := TRUE;
         process(CON_H_SCL, function, params, c_expr);
+      when {"CON_LINE"}:
+        consoleLibraryUsed := TRUE;
+        process(CON_LINE, function, params, c_expr);
       when {"CON_OPEN"}:
         consoleLibraryUsed := TRUE;
         process(CON_OPEN, function, params, c_expr);
@@ -1369,8 +1375,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_CARD, function, params, c_expr);
       when {"SET_CMP"}:
         process(SET_CMP, function, params, c_expr);
-      when {"SET_CONV"}:
-        process(SET_CONV, function, params, c_expr);
+      when {"SET_CONV1"}:
+        process(SET_CONV1, function, params, c_expr);
+      when {"SET_CONV3"}:
+        process(SET_CONV3, function, params, c_expr);
       when {"SET_CPY"}:
         process(SET_CPY, function, params, c_expr);
       when {"SET_DIFF"}:
@@ -1415,8 +1423,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_RAND, function, params, c_expr);
       when {"SET_RANGELIT"}:
         process(SET_RANGELIT, function, params, c_expr);
-      when {"SET_SCONV"}:
-        process(SET_SCONV, function, params, c_expr);
+      when {"SET_SCONV1"}:
+        process(SET_SCONV1, function, params, c_expr);
+      when {"SET_SCONV3"}:
+        process(SET_SCONV3, function, params, c_expr);
       when {"SET_SYMDIFF"}:
         process(SET_SYMDIFF, function, params, c_expr);
       when {"SET_UNION"}:

@@ -410,10 +410,10 @@ const func string: replace (in string: mainStri, in string: target,
  *  ''target'' by ''replacement''. If a replacement creates new occurances
  *  of ''target'' they are replaced also.  This can be used to replace
  *  multiple occurances of a character by one occurance
- *   replace("//path///file", "//", "/")      returns "/path/file"
- *   replace("it   is very  low", "  ", " ")  returns "it is very low"
- *   replace("balll", "all", "al")            returns "bal"
- *   replace("faaaaceeees", "aacee", "ace")   returns "faces"
+ *   replaceN("//path///file", "//", "/")      returns "/path/file"
+ *   replaceN("it   is very  low", "  ", " ")  returns "it is very low"
+ *   replaceN("balll", "all", "al")            returns "bal"
+ *   replaceN("faaaaceeees", "aacee", "ace")   returns "faces"
  *  @return the result of the replacement.
  *  @exception MEMORY_ERROR When ''target'' is a substring of ''replacement''.
  *)

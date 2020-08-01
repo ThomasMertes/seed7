@@ -4972,7 +4972,7 @@ static void determineOciDefines (FILE *versionFile,
 #endif
     oracle_home = getenv("ORACLE_HOME");
     if (oracle_home != NULL) {
-      /* fprintf(logFile, "ORACLE_HOME=%s\n", oracle_home); */
+      fprintf(logFile, "\rOracle: ORACLE_HOME=%s\n", oracle_home);
       for (incl_dir_idx = 0;
            ociInclude == NULL && incl_dir_idx < sizeof(oci_incl_dir) / sizeof(char *);
            incl_dir_idx++) {
@@ -5031,6 +5031,8 @@ static void determineOciDefines (FILE *versionFile,
           for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
             sprintf(buffer, "%s%s/%s", oracle_home, oci_dll_dir[dll_dir_idx], dllNameList[idx]);
             if (fileIsRegular(buffer)) {
+              fprintf(logFile, "\rOracle: %s found in %s%s\n", dllNameList[idx],
+                      oracle_home, oci_dll_dir[dll_dir_idx]);
               sprintf(buffer, "-Wl,-rpath=%s%s", oracle_home, oci_dll_dir[dll_dir_idx]);
               appendOption(additional_system_libs, buffer);
               found = 1;

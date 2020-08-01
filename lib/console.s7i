@@ -102,6 +102,20 @@ const proc: setPos (in console_file: aConsoleFile,
     in integer: line, in integer: column)                        is action "CON_SETPOS";
 
 
+(**
+ *  Get the cursor column of 'aConsoleFile'.
+ *  @return the cursor column of 'aConsoleFile'.
+ *)
+const func integer: column (in console_file: aConsoleFile)       is action "CON_COLUMN";
+
+
+(**
+ *  Get the cursor line of 'aConsoleFile'.
+ *  @return the cursor line of 'aConsoleFile'.
+ *)
+const func integer: line (in console_file: aConsoleFile)         is action "CON_LINE";
+
+
 const proc: cursor (in console_file: aConsoleFile, in boolean: on)  is action "CON_CURSOR";
 const proc: clearArea (in console_file: aConsoleFile, in integer: upper,
     in integer: left, in integer: lower, in integer: right)      is action "CON_CLEAR";
@@ -144,24 +158,13 @@ const proc: color (in console_file: aConsoleFile, in color: foreground, in color
 (**
  *  Write a string to the current position of 'aConsoleFile'.
  *  Unicode characters are written with the encoding of the
- *  operating system. When the standard output file of the
- *  operating system has been redirected UTF-8 encoded
- *  characters are written to the redirected file.
+ *  operating system. The cursor position is changed, when
+ *  one of the characters '\n', '\r' and '\b' is written.
+ *  When the standard output file of the operating system has
+ *  been redirected UTF-8 encoded characters are written to
+ *  the redirected file.
  *)
 const proc: write (in console_file: aConsoleFile, in string: stri) is action "CON_WRITE";
-
-
-(*
-const proc: writeln (in console_file: aConsoleFile) is func
-  begin
-    if LINE(aConsoleFile) = height(aConsoleFile) then
-      SCROLL_UP(aConsoleFile, 1, 1, height(aConsoleFile), width(aConsoleFile), 1);
-      setPos(aConsoleFile, LINE(aConsoleFile), 1);
-    else
-      setPos(aConsoleFile, succ(LINE(aConsoleFile)), 1);
-    end if;
-  end func;
-*)
 
 
 const proc: moveLeft (in console_file: aConsoleFile, in string: stri) is func

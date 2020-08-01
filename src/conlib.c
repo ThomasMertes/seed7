@@ -71,6 +71,18 @@ objectType con_clear (listType arguments)
 
 
 
+/**
+ *  Get the cursor column of the console.
+ *  @return the cursor column of the console.
+ */
+objectType con_column (listType arguments)
+
+  { /* con_column */
+    return bld_int_temp(conColumn());
+  } /* con_column */
+
+
+
 objectType con_cursor (listType arguments)
 
   { /* con_cursor */
@@ -146,6 +158,18 @@ objectType con_h_scl (listType arguments)
 
 
 /**
+ *  Get the cursor line of the console.
+ *  @return the cursor line of the console.
+ */
+objectType con_line (listType arguments)
+
+  { /* con_line */
+    return bld_int_temp(conLine());
+  } /* con_line */
+
+
+
+/**
  *  Initializes the console/window.
  */
 objectType con_open (listType arguments)
@@ -216,9 +240,11 @@ objectType con_width (listType arguments)
 /**
  *  Write a string to the current position of the console.
  *  Unicode characters are written with the encoding of the
- *  operating system. When the standard output file of the
- *  operating system has been redirected UTF-8 encoded
- *  characters are written to the redirected file.
+ *  operating system. The cursor position is changed, when
+ *  one of the characters '\n', '\r' and '\b' is written.
+ *  When the standard output file of the operating system has
+ *  been redirected UTF-8 encoded characters are written to
+ *  the redirected file.
  */
 objectType con_write (listType arguments)
 

@@ -26,10 +26,12 @@
 /********************************************************************/
 
 objectType con_clear  (listType arguments);
+objectType con_column (listType arguments);
 objectType con_cursor (listType arguments);
 objectType con_flush  (listType arguments);
 objectType con_height (listType arguments);
 objectType con_h_scl  (listType arguments);
+objectType con_line   (listType arguments);
 objectType con_open   (listType arguments);
 objectType con_setpos (listType arguments);
 objectType con_v_scl  (listType arguments);

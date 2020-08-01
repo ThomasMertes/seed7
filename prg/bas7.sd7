@@ -28,23 +28,24 @@
 (*  CONST, COS, CSNG, CSRLIN, CVD, CVDMBF, CVI, CVL, CVS, CVSMBF,   *)
 (*  DATA, DATE$, **DECLARE, DECR, DEF FN, **DEF SEG, DEFDBL,        *)
 (*  DEFINT, DEFLNG, DEFSNG, DEFSTR, DELAY, DIM, DISPLAY, DO,        *)
-(*  DO UNTIL, DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE,    *)
-(*  ERR, ERROR, EXIT DO, EXIT FOR, EXP, FIELD, FIX, **FLASH, FOR,   *)
-(*  FRE, FREEFILE, **FUNCTION, GET, GET#, GOSUB, GOSUB OF, GOTO,    *)
-(*  GOTO OF, GR, HEX$, HGR, HOME, HPLOT, HTAB, IF THEN, IF GOSUB,   *)
-(*  IF GOTO, INCR, INKEY$, **INP, INPUT, INPUT#, INPUT$, INSTR,     *)
-(*  INT, **INVERSE, **KEY, LBOUND, LCASE$, LEFT$, LEN, LET,         *)
-(*  LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP, LOOP UNTIL,    *)
-(*  LOOP WHILE, LSET, LTRIM$, MID$, MKD$, MKDMBF$, MKI$, MKL$,      *)
-(*  MKS$, MKSMBF$, NEXT, **NORMAL, OCT$, ON ERROR, ON GOSUB,        *)
-(*  ON GOTO, **ON KEY, **ON TIMER, OPEN, OPTION BASE, **OUT,        *)
-(*  **PAINT, **PALETTE, **PEEK, **PLAY, PLOT, **POINT, **POKE, POS, *)
-(*  PRESET, PRINT, PRINT#, PRINT USING, **PR#, PSET, PUT, PUT#,     *)
-(*  RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, RETURN,    *)
-(*  RIGHT$, RND, RSET, RTRIM$, **RUN, SCREEN, SEEK#, SELECT, SGN,   *)
-(*  SIN, SLEEP, **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG,     *)
-(*  STRING$, **SUB, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$, TIMER,     *)
-(*  **TYPE, UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE, WRITE#   *)
+(*  DO UNTIL, DO WHILE, **DRAW, ELSE, ELSEIF, END, ENDIF, EOF,      *)
+(*  **ERASE, ERR, ERROR, EXIT DO, EXIT FOR, EXP, FIELD, FIX,        *)
+(*  **FLASH, FOR, FRE, FREEFILE, **FUNCTION, GET, GET#, GOSUB,      *)
+(*  GOSUB OF, GOTO, GOTO OF, GR, HEX$, HGR, HOME, HPLOT, HTAB,      *)
+(*  IF THEN, IF GOSUB, IF GOTO, INCR, INKEY$, **INP, INPUT, INPUT#, *)
+(*  INPUT$, INSTR, INT, **INVERSE, **KEY, LBOUND, LCASE$, LEFT$,    *)
+(*  LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP,      *)
+(*  LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKD$, MKDMBF$,      *)
+(*  MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, OCT$, ON ERROR,      *)
+(*  ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN, OPTION BASE,     *)
+(*  **OUT, **PAINT, **PALETTE, **PEEK, **PLAY, PLOT, **POINT,       *)
+(*  **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING, **PR#, PSET,   *)
+(*  PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, *)
+(*  RETURN, RIGHT$, RND, RSET, RTRIM$, **RUN, SCREEN, SEEK#,        *)
+(*  SELECT, SGN, SIN, SLEEP, **SOUND, SPACE$, SPC, SQR, STOP, STR$, *)
+(*  **STRIG, STRING$, **SUB, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$,   *)
+(*  TIMER, **TYPE, UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE,   *)
+(*  WRITE#                                                          *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -3582,7 +3583,7 @@ const func string: find_end_if (inout string: line) is func
     var string: symbol is "";
   begin
     symbol := next_symbol(line);
-    while symbol <> "END" and symbol <> "" do
+    while symbol <> "END" and symbol <> "ENDIF" and symbol <> "" do
       if symbol = "IF" then
         repeat
           symbol := find_then(line);
@@ -3625,7 +3626,7 @@ const func string: find_else_elseif_or_end_if (inout string: line) is func
   begin
     symbol := next_symbol(line);
     while symbol <> "ELSE" and symbol <> "ELSEIF" and
-        symbol <> "END" and symbol <> "" do
+        symbol <> "END" and symbol <> "ENDIF" and symbol <> "" do
       if symbol = "IF" then
         repeat
           symbol := find_then(line);
@@ -3738,7 +3739,7 @@ const proc: exec_elseif_else_chain (inout string: symbol, inout string: line,
           writeln(log, "ELSEIF " <& num1 <& " THEN - SKIP STATEMENT BLOCK");
           leaveChain := FALSE;
         end if;
-      elsif symbol = "IF" then
+      elsif symbol = "IF" or symbol = "ENDIF" then
         symbol := get_symbol(line);
         line_marker;
         writeln(log, "END IF - NO \"THEN\" BLOCK WAS EXECUTED");
@@ -8061,6 +8062,10 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             error_marker;
             writeln(err, "ELSEIF - MISSING \"END IF\".");
           end if;
+        when {"ENDIF"}:
+          symbol := get_symbol(line);
+          line_marker;
+          writeln(log, "END IF - THE \"THEN\" OR \"ELSE\" BLOCK BEFORE WAS EXECUTED");
         when {"END"}:
           symbol := get_symbol(line);
           if symbol = "IF" then

@@ -235,7 +235,7 @@ striType growStri (striType stri, memSizeType len)
  *  Reduce the capacity of a string.
  *  This function is called from the macro SHRINK_STRI, when the
  *  capacity of a string is much too large. ShrinkStri reduces the
- *  capacity, but it leaves room, such that it can grow aggain.
+ *  capacity, but it leaves room, such that it can grow again.
  *  @param stri String for which the capacity is reduced.
  *  @param len Length of the string that will be assigned.
  *  @return the reduced string.

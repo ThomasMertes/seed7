@@ -35,8 +35,8 @@ const set of string: specialActions is
      "BLN_ICONV3", "BLN_ORD", "BST_PARSE1", "CHR_ICONV1", "CHR_ICONV3",
      "CHR_ORD", "ENU_ICONV2", "ENU_ORD2", "FLT_PARSE1", "HSH_CONTAINS",
      "HSH_EXCL", "HSH_INCL", "HSH_KEYS", "INT_ICONV1", "INT_ICONV3",
-     "INT_ODD", "INT_PARSE1", "SET_BASELIT", "SET_CONV", "SET_ELEM",
-     "SET_EXCL", "SET_INCL", "SET_NOT_ELEM", "SET_RAND"};
+     "INT_ODD", "INT_PARSE1", "SET_BASELIT", "SET_CONV1", "SET_CONV3",
+     "SET_ELEM", "SET_EXCL", "SET_INCL", "SET_NOT_ELEM", "SET_RAND"};
 
 
 const func boolean: isPureFunction (in reference: function) is forward;
@@ -230,11 +230,12 @@ const func boolean: isPureFunction (in reference: function) is func
          "RFL_IPOS", "RFL_LNG", "RFL_NE", "RFL_NOT_ELEM", "RFL_POS", "RFL_RANGE",
          "RFL_TAIL", "RFL_VALUE",
          "SCT_LNG", "SCT_SELECT",
-         "SET_ARRLIT", "SET_BASELIT", "SET_CARD", "SET_CMP", "SET_CONV",
-         "SET_DIFF", "SET_ELEM", "SET_EMPTY", "SET_EQ", "SET_GE", "SET_GT",
-         "SET_HASHCODE", "SET_ICONV1", "SET_ICONV3", "SET_INTERSECT", "SET_LE",
-         "SET_LT", "SET_MAX", "SET_MIN", "SET_NE", "SET_NEXT", "SET_NOT_ELEM",
-         "SET_SCONV", "SET_SYMDIFF", "SET_UNION", "SET_VALUE",
+         "SET_ARRLIT", "SET_BASELIT", "SET_CARD", "SET_CMP", "SET_CONV1",
+         "SET_CONV3", "SET_DIFF", "SET_ELEM", "SET_EMPTY", "SET_EQ", "SET_GE",
+         "SET_GT", "SET_HASHCODE", "SET_ICONV1", "SET_ICONV3", "SET_INTERSECT",
+         "SET_LE", "SET_LT", "SET_MAX", "SET_MIN", "SET_NE", "SET_NEXT",
+         "SET_NOT_ELEM", "SET_SCONV1", "SET_SCONV3", "SET_SYMDIFF", "SET_UNION",
+         "SET_VALUE",
          "SOC_EQ", "SOC_NE",
          "STR_CAT", "STR_CHIPOS", "STR_CHPOS", "STR_CHSPLIT", "STR_CLIT",
          "STR_CMP", "STR_EQ", "STR_GE", "STR_GT", "STR_HASHCODE", "STR_HEAD",

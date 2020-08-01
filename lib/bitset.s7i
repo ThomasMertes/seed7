@@ -266,22 +266,29 @@ const func bitset: { (in integer: lowerValue) ..
 
 (**
  *  Convert a ''bitset'' to [[integer]].
- *  E.g.:
- *   integer conv {2, 3, 5, 7, 11}
- *  returns 2220
+ *   integer({2, 3, 5, 7, 11})    returns 2220
  *  @return an [[integer]] which corresponds to the given ''bitset''.
  *  @exception RANGE_ERROR When ''aSet'' contains negative values or
- *             when it does not fit into an [[integer]].
+ *             when it does not fit into a non-negative [[integer]].
  *)
-const func integer: (attr integer) conv (in bitset: aSet)       is action "SET_SCONV";
+const func integer: integer (in bitset: aSet)                   is action "SET_SCONV1";
+
+
+(**
+ *  Convert a ''bitset'' to [[integer]].
+ *   integer conv {2, 3, 5, 7, 11}    returns 2220
+ *  @return an [[integer]] which corresponds to the given ''bitset''.
+ *  @exception RANGE_ERROR When ''aSet'' contains negative values or
+ *             when it does not fit into a non-negative [[integer]].
+ *)
+const func integer: (attr integer) conv (in bitset: aSet)       is action "SET_SCONV3";
 
 
 (**
  *  Convert an [[integer]] number to a ''bitset''.
- *  E.g.:
- *   bitset(2220)
- *  returns {2, 3, 5, 7, 11}
+ *   bitset(2220)    returns {2, 3, 5, 7, 11}
  *  @return a ''bitset'' which corresponds to the given [[integer]].
+ *  @exception RANGE_ERROR Number is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bitset: bitset (in integer: number)                  is action "SET_ICONV1";
@@ -289,10 +296,9 @@ const func bitset: bitset (in integer: number)                  is action "SET_I
 
 (**
  *  Convert an [[integer]] number to a ''bitset''.
- *  E.g.:
- *   bitset conv 2220
- *  returns {2, 3, 5, 7, 11}
+ *   bitset conv 2220    returns {2, 3, 5, 7, 11}
  *  @return a ''bitset'' which corresponds to the given [[integer]].
+ *  @exception RANGE_ERROR Number is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bitset: (attr bitset) conv (in integer: number)      is action "SET_ICONV3";

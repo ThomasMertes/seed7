@@ -75,11 +75,14 @@ const type: filePermission is new enum
  *)
 const type: fileMode is set of filePermission;
 
+const func integer: integer (in fileMode: mode) is
+  return integer(bitset(mode));
+
 const func integer: (attr integer) conv (in fileMode: mode) is
-  return integer conv (bitset conv mode);
+  return integer(bitset(mode));
 
 const func fileMode: (attr fileMode) conv (in integer: int_mode) is
-  return fileMode conv (bitset conv int_mode);
+  return fileMode conv (bitset(int_mode));
 
 const func string: str (in fileMode: aFileMode) is func
   result

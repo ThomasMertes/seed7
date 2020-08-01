@@ -581,6 +581,61 @@ const func string: fromAscii85 (in string: ascii85) is func
 
 
 (**
+ *  Encode a number with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  @param number BigInteger number to be encoded.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the encoded string.
+ *)
+const func string: toBase (in bigInteger: number, in string: digits) is func
+  result
+    var string: encoded is "";
+  local
+    var bigInteger: base is 0_;
+    var quotRem: quotientAndRemainder is quotRem.value;
+  begin
+    base := bigInteger(length(digits));
+    quotientAndRemainder.quotient := number;
+    while quotientAndRemainder.quotient <> 0_ do
+      quotientAndRemainder := quotientAndRemainder.quotient divRem base;
+      encoded &:= digits[succ(ord(quotientAndRemainder.remainder))];
+    end while;
+    encoded := reverse(encoded);
+  end func;
+
+
+(**
+ *  Decode a string that has been encoded with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  @param encoded String containing the encoded data.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the decoded bigInteger Number.
+ *  @exception RANGE_ERROR When characters are present, that are not found
+ *                         in ''digits''.
+ *)
+const func bigInteger: fromBaseToBigInt (in string: encoded, in string: digits) is func
+  result
+    var bigInteger: number is 0_;
+  local
+    var bigInteger: base is 0_;
+    var bigInteger: factor is 1_;
+    var integer: index is 0;
+    var integer: digit is 0;
+  begin
+    base := bigInteger(length(digits));
+    for index range length(encoded) downto 1 do
+      digit := pred(pos(digits, encoded[index]));
+      if digit = -1 then
+        raise RANGE_ERROR;
+      else
+        number +:= factor * bigInteger(digit);
+        factor *:= base;
+      end if;
+    end for;
+  end func;
+
+
+(**
  *  Encode a string of bytes with a positional numeric system.
  *  The encoded string starts with the most significant digit.
  *  Leading zero bytes in ''byteStri'' are converted into leading
@@ -594,23 +649,15 @@ const func string: toBase (in string: byteStri, in string: digits) is func
   result
     var string: encoded is "";
   local
-    var bigInteger: base is 0_;
-    var quotRem: quotientAndRemainder is quotRem.value;
     var integer: index is 1;
   begin
-    base := bigInteger(length(digits));
-    quotientAndRemainder.quotient := bytes2BigInt(byteStri, UNSIGNED, BE);
-    while quotientAndRemainder.quotient <> 0_ do
-      quotientAndRemainder := quotientAndRemainder.quotient divRem base;
-      encoded &:= digits[succ(ord(quotientAndRemainder.remainder))];
-    end while;
+    encoded := toBase(bytes2BigInt(byteStri, UNSIGNED, BE), digits);
     while index <= length(byteStri) and byteStri[index] = '\0;' do
       incr(index);
     end while;
     if index >= 1 then
-      encoded &:= "1" mult pred(index);
+      encoded := "1" mult pred(index) & encoded;
     end if;
-    encoded := reverse(encoded);
   end func;
 
 
@@ -629,26 +676,13 @@ const func string: fromBase (in string: encoded, in string: digits) is func
   result
     var string: decoded is "";
   local
-    var bigInteger: base is 0_;
     var bigInteger: number is 0_;
-    var bigInteger: factor is 1_;
-    var integer: index is 0;
-    var integer: digit is 0;
+    var integer: index is 1;
   begin
-    base := bigInteger(length(digits));
-    for index range length(encoded) downto 1 do
-      digit := pred(pos(digits, encoded[index]));
-      if digit = -1 then
-        raise RANGE_ERROR;
-      else
-        number +:= factor * bigInteger(digit);
-        factor *:= base;
-      end if;
-    end for;
+    number := fromBaseToBigInt(encoded, digits);
     if number <> 0_ then
       decoded := bytes(number, UNSIGNED, BE);
     end if;
-    index := 1;
     while index <= length(encoded) and encoded[index] = '1' do
       incr(index);
     end while;
@@ -674,7 +708,7 @@ const func string: toBase58 (in string: byteStri) is
 
 
 (**
- *  Decode a Base58 enncoded string.
+ *  Decode a Base58 encoded string.
  *  Leading '1' characters in ''base58'' are converted into
  *  leading zero bytes ('\0;') in the decoded string.
  *  @param base58 String containing Base58 encoded data.

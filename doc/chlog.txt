@@ -1,3 +1,47 @@
+20190523:
+- In match.c the function substitute_params() has been fixed to copy
+  parameters with expressions instead of calling do_create(). For
+  expressions do_create() just creates a reference to the expression
+  and this leads later to a double free of the expression. Many thanks
+  go to Anton Lobach, for reporting this error and for providing a test
+  program.
+- The library blowfish.s7i, with Blowfish cipher support, has been
+  added.
+- The functions column() and line() have been added to the library
+  console.s7i.
+- The bas7.sd7 (basic interpreter) example program has been improved.
+  Support for the keyword ENDIF has been added.
+- The compiler (s7c.sd7) has been improved (in set_act.s7i) to optimize
+  the expression card(bitset(number)).
+- The functions toBase and fromBaseToBigInt have been added to
+  encoding.s7i. This functions encode and decode bigInteger numbers
+  with a positional numeric system.
+- Conversion functions have been added to bitsetof.s7i and bitset.s7i.
+- Checks for the function card() have been added to chkset.sd7.
+- Interpreter and compiler have been improved to support the actions
+  CON_COLUMN, CON_LINE, SET_CONV1, SET_CONV3, SET_SCONV1 and
+  SET_SCONV3. The support for the actions SET_CONV and SET_SCONV has
+  been removed.
+- The libraries bitsetof.s7i and bitset.s7i have been adjusted, to use
+  the new actions.
+- In con_inf.c the function conWrite() has been improved to change the
+  cursor position, when the characters '\n', '\r' and '\b' are written.
+- In con_win.c the function conCursor() has been improved, to hide the
+  cursor, when it is called with FALSE. The function conOpen() has been
+  changed, to set the cursor position to (1, 1) and to hide the cursor.
+- The functions conColumn() and conLine() have been added to con_rtl.c,
+  con_inf.c, con_win.c, con_wat.c and con_emc.c.
+- In set_rtl.c the functions setIConv() and setSConv() have been
+  improved. Now setIConv() raises RANGE_ERROR for negative numbers and
+  setSConv() raises RANGE_ERROR, when a negative integer would be
+  returned.
+- Documentation has been improved in console.s7i, string.s7i,
+  con_inf.c, con_win.c
+- The debug trace mechanism in analyze.c and dcllib.c has been
+  improved.
+- A call of dlerror() has been added in dll_unx.c.
+- In traceutl.c the function prot_list_limited() has been introduced.
+
 20190506:
 - The utility program bigfiles.sd7 has been added. Bigfiles is an
   utility program to search for big files. This is useful, when the
@@ -31,7 +75,7 @@
   converts a string with hexadecimal digits to a string of bytes.
 - The function reverse has been added to string.s7i and seed7_05.s7i.
 - The function tableNamesCommand has been added to sql_base.s7i.
-- Conversion functions have been added to char.s7i
+- Conversion functions have been added to char.s7i.
 - In big_rtl.c the function uBigMult has been changed to be faster,
   when the size of factor2 is 1.
 - In con_inf.c code to copy the environment for Emscripten and node.js

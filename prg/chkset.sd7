@@ -41,6 +41,36 @@ const set of char: name_char is letter_char | digit_char | {'_'};
 const type: bool_arr is array boolean;
 
 
+const func boolean: raisesRangeError (ref func bitset: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var bitset: exprResult is bitset.value;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func integer: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var integer: exprResult is 0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
 const proc: check_card is func
   local
     var boolean: okay is TRUE;
@@ -50,6 +80,7 @@ const proc: check_card is func
     var bitset: test_set is EMPTY_SET;
     var string: random_stri is "";
     var set of string: test_set2 is (set of string).EMPTY_SET;
+    var integer: count is 0;
   begin
     okay := TRUE;
     for size_of_set range 0 to 128 do
@@ -61,11 +92,8 @@ const proc: check_card is func
         incl(test_set, random_num);
       end for;
       if card(test_set) <> size_of_set then
-        write("card(bitset) returns ");
-        write(card(test_set));
-        write(" instead of ");
-        write(size_of_set);
-        writeln(".");
+        writeln("card(bitset) returns " <& card(test_set) <&
+                " instead of " <& size_of_set <& ".");
         okay := FALSE;
       end if;
     end for;
@@ -79,14 +107,33 @@ const proc: check_card is func
         incl(test_set2, random_stri);
       end for;
       if card(test_set2) <> size_of_set then
-        write("card(hashset) returns ");
-        write(card(test_set2));
-        write(" instead of ");
-        write(size_of_set);
-        writeln(".");
+        writeln("card(hashset) returns " <& card(test_set2) <&
+                " instead of " <& size_of_set <& ".");
         okay := FALSE;
       end if;
     end for;
+
+    for count range 1 to 10000 do
+      number := rand(0, integer.last);
+      if card(bitset(number)) <> length(replace(number radix 2, "0", "")) then
+        writeln("card(bitset(" <& number <& ")) returns " <& card(bitset(number)) <&
+                " instead of " <& length(replace(number radix 2, "0", "")) <& ".");
+        okay := FALSE;
+      end if;
+    end for;
+
+    number := -1;
+    if  not raisesRangeError(bitset(-1)) or
+        not raisesRangeError(bitset(number)) then
+      writeln("bitset(-1) does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(card(bitset(-1))) or
+        not raisesRangeError(card(bitset(number))) then
+      writeln("card(bitset(-1)) does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("card(set) works correct.");

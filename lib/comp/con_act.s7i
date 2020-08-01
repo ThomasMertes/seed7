@@ -25,10 +25,12 @@
 
 
 const ACTION: CON_CLEAR   is action "CON_CLEAR";
+const ACTION: CON_COLUMN  is action "CON_COLUMN";
 const ACTION: CON_CURSOR  is action "CON_CURSOR";
 const ACTION: CON_FLUSH   is action "CON_FLUSH";
 const ACTION: CON_HEIGHT  is action "CON_HEIGHT";
 const ACTION: CON_H_SCL   is action "CON_H_SCL";
+const ACTION: CON_LINE    is action "CON_LINE";
 const ACTION: CON_OPEN    is action "CON_OPEN";
 const ACTION: CON_SETPOS  is action "CON_SETPOS";
 const ACTION: CON_V_SCL   is action "CON_V_SCL";
@@ -40,10 +42,12 @@ const proc: con_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "void        conClear (intType, intType, intType, intType);");
+    declareExtern(c_prog, "intType     conColumn (void);");
     declareExtern(c_prog, "void        conCursor (boolType);");
     declareExtern(c_prog, "void        conFlush (void);");
     declareExtern(c_prog, "int         conHeight (void);");
     declareExtern(c_prog, "void        conHScroll (intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "intType     conLine (void);");
     declareExtern(c_prog, "int         conOpen (void);");
     declareExtern(c_prog, "void        conSetpos (intType, intType);");
     declareExtern(c_prog, "void        conShut (void);");
@@ -67,6 +71,14 @@ const proc: process (CON_CLEAR, in reference: function,
     c_expr.expr &:= ", ";
     process_expr(params[5], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CON_COLUMN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conColumn()";
   end func;
 
 
@@ -113,6 +125,14 @@ const proc: process (CON_H_SCL, in reference: function,
     c_expr.expr &:= ", ";
     process_expr(params[6], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CON_LINE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conLine()";
   end func;
 
 

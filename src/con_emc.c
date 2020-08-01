@@ -342,6 +342,22 @@ void conSetCursor (intType line, intType column)
 
 
 
+intType conColumn (void)
+
+  { /* conColumn */
+    return 1;
+  } /* conColumn */
+
+
+
+intType conLine (void)
+
+  { /* conLine */
+    return 1;
+  } /* conLine */
+
+
+
 /**
  *  Writes the string stri to the console at the current position.
  */

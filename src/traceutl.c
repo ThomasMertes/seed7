@@ -823,13 +823,13 @@ static void printparam (const_objectType aParam)
 
 
 
-void prot_list (const_listType list)
+void prot_list_limited (const_listType list, int limit)
 
   {
     int number;
 
-  /* prot_list */
-    logFunction(printf("prot_list\n"););
+  /* prot_list_limited */
+    logFunction(printf("prot_list_limited\n"););
     prot_cstri("{");
     number = 0;
     while (list != NULL && number <= 50) {
@@ -840,7 +840,11 @@ void prot_list (const_listType list)
         switch (CATEGORY_OF_OBJ(list->obj)) {
           case LISTOBJECT:
           case EXPROBJECT:
-            prot_list(list->obj->value.listValue);
+            if (limit != 0) {
+              prot_list_limited(list->obj->value.listValue, limit - 1);
+            } else {
+              prot_cstri(" *** Limit reached *** ");
+            } /* if */
             break;
           case CALLOBJECT:
           case MATCHOBJECT:
@@ -856,7 +860,11 @@ void prot_list (const_listType list)
               prot_cstri("> ");
             } /* if */
             prot_cstri("(");
-            prot_list(list->obj->value.listValue->next);
+            if (limit != 0) {
+              prot_list_limited(list->obj->value.listValue->next, limit - 1);
+            } else {
+              prot_cstri(" *** Limit reached *** ");
+            } /* if */
             prot_cstri(")");
             break;
 #ifdef OUT_OF_ORDER
@@ -961,7 +969,15 @@ void prot_list (const_listType list)
       prot_cstri("*AND_SO_ON*");
     } /* if */
     prot_cstri("}");
-    logFunction(printf("prot_list -->\n"););
+    logFunction(printf("prot_list_limited -->\n"););
+  } /* prot_list_limited */
+
+
+
+void prot_list (const_listType list)
+
+  { /* prot_list */
+    prot_list_limited(list, -1);
   } /* prot_list */
 
 

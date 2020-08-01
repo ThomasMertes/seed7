@@ -753,6 +753,7 @@ intType setHashCode (const const_setType set1)
 /**
  *  Convert an integer number to a bitset.
  *  @return a bitset which corresponds to the given integer.
+ *  @exception RANGE_ERROR Number is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 setType setIConv (intType number)
@@ -762,23 +763,29 @@ setType setIConv (intType number)
     setType result;
 
   /* setIConv */
-    result_size = sizeof(intType) / sizeof(bitSetType);
-    if (unlikely(!ALLOC_SET(result, result_size))) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(number < 0)) {
+      logError(printf("setIConv(): Number is negative.\n"););
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-      result->min_position = 0;
-      result->max_position = (intType) (result_size - 1);
-      result->bitset[0] = (bitSetType) number;
+      result_size = sizeof(intType) / sizeof(bitSetType);
+      if (unlikely(!ALLOC_SET(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->min_position = 0;
+        result->max_position = (intType) (result_size - 1);
+        result->bitset[0] = (bitSetType) number;
 #if BITSETTYPE_SIZE < INTTYPE_SIZE
-      {
-        memSizeType pos;
+        {
+          memSizeType pos;
 
-        for (pos = 1; pos < result_size; pos++) {
-          number >>= CHAR_BIT * sizeof(bitSetType);
-          result->bitset[pos] = (bitSetType) number;
-        } /* for */
-      }
+          for (pos = 1; pos < result_size; pos++) {
+            number >>= CHAR_BIT * sizeof(bitSetType);
+            result->bitset[pos] = (bitSetType) number;
+          } /* for */
+        }
 #endif
+      } /* if */
     } /* if */
     return result;
   } /* setIConv */
@@ -1440,19 +1447,39 @@ setType setRangelit (const intType lowerValue, const intType upperValue)
  *  Convert a bitset to integer.
  *  @return an integer which corresponds to the given bitset.
  *  @exception RANGE_ERROR When 'aSet' contains negative values or
- *             when it does not fit into an integer.
+ *             when it does not fit into a non-negative integer.
  */
 intType setSConv (const const_setType aSet)
 
-  { /* setSConv */
+  {
+    intType number;
+
+  /* setSConv */
     if (likely(aSet->min_position == 0 && aSet->max_position == 0)) {
-      return (intType) aSet->bitset[0];
+#if BITSETTYPE_SIZE > INTTYPE_SIZE
+      if (unlikely(aSet->bitset[0] >> INTTYPE_SIZE != 0)) {
+        logError(printf("setSConv(): "
+                        "Set does not fit into an integer.\n"););
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+#endif
+      number = (intType) aSet->bitset[0];
+#if BITSETTYPE_SIZE >= INTTYPE_SIZE
+      if (unlikely(number < 0)) {
+        logError(printf("setSConv(): "
+                        "Set does not fit into a non-negative integer.\n"););
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+#endif
     } else {
       logError(printf("setSConv(): "
                       "Set contains negative values or does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } /* if */
+    return number;
   } /* setSConv */
 
 
