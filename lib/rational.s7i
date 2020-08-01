@@ -71,7 +71,7 @@ const proc: reduce (inout rational: number) is func
 
 const func integer: gcd1 (in var integer: a, in var integer: b) is func
   result
-    var integer: result is 0;
+    var integer: gcd is 0;
   local
     var integer: help is 0;
   begin
@@ -80,7 +80,7 @@ const func integer: gcd1 (in var integer: a, in var integer: b) is func
       b := a;
       a := help;
     end while;
-    result := b;
+    gcd := b;
   end func;
 
 
@@ -410,12 +410,8 @@ const func rational: abs (in rational: number) is func
  *  were numerator and denominator are separated with a slash (/).
  *  @return the string result of the conversion.
  *)
-const func string: str (in rational: number) is func
-  result
-    var string: result is "";
-  begin
-    result := str(number.numerator) & "/" & str(number.denominator);
-  end func;
+const func string: str (in rational: number) is
+  return str(number.numerator) & "/" & str(number.denominator);
 
 
 (**
@@ -427,14 +423,14 @@ const func string: str (in rational: number) is func
  *)
 const func string: (in rational: number) digits (in integer: precision) is func
   result
-    var string: result is "";
+    var string: stri is "";
   begin
-    result := str((number.numerator * 10 ** precision) div number.denominator);
-    if precision + 1 - length(result) > 0 then
-      result := "0" mult (precision + 1 - length(result)) & result;
+    stri := str((number.numerator * 10 ** precision) div number.denominator);
+    if precision + 1 - length(stri) > 0 then
+      stri := "0" mult (precision + 1 - length(stri)) & stri;
     end if;
-    result := result[ .. length(result) - precision] & "." &
-        result[length(result) - precision + 1 .. ];
+    stri := stri[ .. length(stri) - precision] & "." &
+        stri[length(stri) - precision + 1 .. ];
   end func;
 
 

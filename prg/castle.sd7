@@ -1854,7 +1854,7 @@ const proc: saveGame is func
 
 const func monsterType: searchMonster (in integer: xPos, in integer: yPos) is func
   result
-    var monsterType: result is NO_MONSTER;
+    var monsterType: monsterFound is NO_MONSTER;
   local
     var monsterType: monster_ident is NO_MONSTER;
   begin
@@ -1864,7 +1864,7 @@ const func monsterType: searchMonster (in integer: xPos, in integer: yPos) is fu
           xPos < monster[monster_ident].xPos + PIXMAP_SIZE and
           yPos >= monster[monster_ident].yPos and
           yPos < monster[monster_ident].yPos + PIXMAP_SIZE then
-        result := monster_ident;
+        monsterFound := monster_ident;
       end if;
     end for;
   end func;
@@ -1872,7 +1872,7 @@ const func monsterType: searchMonster (in integer: xPos, in integer: yPos) is fu
 
 const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, in integer: invSize) is func
   result
-    var itemType: result is NO_ITEM;
+    var itemType: itemSelected is NO_ITEM;
   local
     var char: command is ' ';
     var integer: startLine is 0;
@@ -1953,7 +1953,7 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
           if item_ident in player.inventory then
             incr(count);
             if count = position then
-              result := item_ident;
+              itemSelected := item_ident;
             end if;
           end if;
         end for;
@@ -2639,7 +2639,7 @@ const func boolean: hitPlayer (in graphObj: obj1, in graphObj: obj2) is func
 
 const func monsterType: hitMonster (in integer: xPos, in integer: yPos) is func
   result
-    var monsterType: result is NO_MONSTER;
+    var monsterType: monsterMet is NO_MONSTER;
   local
     var monsterType: monster_ident is NO_MONSTER;
   begin
@@ -2647,7 +2647,7 @@ const func monsterType: hitMonster (in integer: xPos, in integer: yPos) is func
       if monster[monster_ident].room_num = player.room and monster[monster_ident].living then
         if abs(xPos - monster[monster_ident].xPos) < PIXMAP_SIZE and
             abs(yPos - monster[monster_ident].yPos) < PIXMAP_SIZE then
-          result := monster_ident;
+          monsterMet := monster_ident;
         end if;
       end if;
     end for;

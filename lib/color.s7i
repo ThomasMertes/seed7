@@ -76,11 +76,11 @@ const func color: (in color: col1) + (in color: col2) is func
  *)
 const func color: color (in integer: red, in integer: green, in integer: blue) is func
   result
-    var color: result is color.value;
+    var color: aColor is color.value;
   begin
-    result.red_part := red;
-    result.green_part := green;
-    result.blue_part := blue;
+    aColor.red_part := red;
+    aColor.green_part := green;
+    aColor.blue_part := blue;
   end func;
 
 
@@ -90,11 +90,11 @@ const func color: color (in integer: red, in integer: green, in integer: blue) i
  *)
 const func color: gray (in integer: brightness) is func
   result
-    var color: result is color.value;
+    var color: aColor is color.value;
   begin
-    result.red_part := brightness;
-    result.green_part := brightness;
-    result.blue_part := brightness;
+    aColor.red_part := brightness;
+    aColor.green_part := brightness;
+    aColor.blue_part := brightness;
   end func;
 
 

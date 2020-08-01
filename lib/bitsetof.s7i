@@ -221,12 +221,12 @@ const func type: BITSET_OF (in type: baseType) is func
 
       const func setType: { (in tupleType: value) } is func
         result
-          var setType: result is setType.EMPTY_SET;
+          var setType: aSet is setType.EMPTY_SET;
         local
           var integer: number is 0;
         begin
           for number range 1 to length([] value) do
-            incl(result, ([] value)[number]);
+            incl(aSet, ([] value)[number]);
           end for;
         end func;
 
@@ -286,17 +286,17 @@ const func type: BITSET_OF (in type: baseType) is func
          *)
         const func string: str (in setType: aSet) is func
           result
-            var string: result is "{";
+            var string: stri is "{";
           local
             var baseType: setElement is baseType.value;
           begin
             for setElement range aSet do
-              if result <> "{" then
-                result &:= ", ";
+              if stri <> "{" then
+                stri &:= ", ";
               end if;
-              result &:= str(setElement);
+              stri &:= str(setElement);
             end for;
-            result &:= "}";
+            stri &:= "}";
           end func;
 
       end if;

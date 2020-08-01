@@ -34,6 +34,7 @@ $ include "seed7_05.s7i";
   include "stdfont18.s7i";
   include "stdfont20.s7i";
   include "stdfont24.s7i";
+  include "vecfont10.s7i";
   include "vecfont18.s7i";
   include "cronos16.s7i";
   include "cronos27.s7i";

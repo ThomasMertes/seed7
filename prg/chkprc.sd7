@@ -31,12 +31,8 @@ var boolean: global_loop_control is TRUE;
 var boolean: true_var is TRUE;
 var boolean: false_var is FALSE;
 
-const func boolean: bool_func (ref boolean: value) is func
-  result
-    var boolean: result is FALSE;
-  begin
-    result := value;
-  end func;
+const func boolean: bool_func (ref boolean: value) is
+  return value;
 
 const proc: check_if is func
   local

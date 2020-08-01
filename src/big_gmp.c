@@ -134,7 +134,7 @@ biginttype big1;
             charIndex = 3;
             if (sign < 0) {
               if (buffer[0] <= 127) {
-                sprintf(&result[charIndex], "FF");
+                sprintf(&result[charIndex], "ff");
                 charIndex += 2;
               } /* if */
             } else {
@@ -144,7 +144,7 @@ biginttype big1;
               } /* if */
             } /* for */
             for (pos = 0; pos < export_count; pos++) {
-              sprintf(&result[charIndex], "%02X", buffer[pos]);
+              sprintf(&result[charIndex], "%02x", buffer[pos]);
               charIndex += 2;
             } /* for */
           } /* if */
@@ -237,6 +237,28 @@ biginttype big2;
 
 #ifdef ANSI_C
 
+biginttype bigAnd (const_biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigAnd (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    biginttype result;
+
+  /* bigAnd */
+    ALLOC_BIG(result);
+    mpz_init(result);
+    mpz_and(result, big1, big2);
+    return result;
+  } /* bigAnd */
+
+
+
+#ifdef ANSI_C
+
 inttype bigBitLength (const const_biginttype big1)
 #else
 
@@ -319,7 +341,7 @@ biginttype big1;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
-        sprintf(byteBuffer, "{0x%02X,0x%02X,0x%02X,0x%02X,",
+        sprintf(byteBuffer, "{0x%02x,0x%02x,0x%02x,0x%02x,",
             (unsigned int) (count >> 24 & 0xFF),
             (unsigned int) (count >> 16 & 0xFF),
             (unsigned int) (count >>  8 & 0xFF),
@@ -331,7 +353,7 @@ biginttype big1;
         } else {
           if (sign < 0) {
             if (buffer[0] <= 127) {
-              cstri_expand(&result->mem[charIndex], "0xFF,", 5);
+              cstri_expand(&result->mem[charIndex], "0xff,", 5);
               charIndex += 5;
             } /* if */
           } else {
@@ -341,7 +363,7 @@ biginttype big1;
             } /* if */
           } /* for */
           for (pos = 0; pos < export_count; pos++) {
-            sprintf(byteBuffer, "0x%02X,", buffer[pos]);
+            sprintf(byteBuffer, "0x%02x,", buffer[pos]);
             cstri_expand(&result->mem[charIndex], byteBuffer, 5);
             charIndex += 5;
           } /* for */
@@ -1147,6 +1169,28 @@ biginttype big1;
 
 #ifdef ANSI_C
 
+biginttype bigOr (const_biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigOr (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    biginttype result;
+
+  /* bigOr */
+    ALLOC_BIG(result);
+    mpz_init(result);
+    mpz_ior(result, big1, big2);
+    return result;
+  } /* bigOr */
+
+
+
+#ifdef ANSI_C
+
 biginttype bigParse (const const_stritype stri)
 #else
 
@@ -1663,6 +1707,28 @@ biginttype big1;
     } /* if */
   } /* bigToInt64 */
 #endif
+
+
+
+#ifdef ANSI_C
+
+biginttype bigXor (const_biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigXor (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    biginttype result;
+
+  /* bigXor */
+    ALLOC_BIG(result);
+    mpz_init(result);
+    mpz_xor(result, big1, big2);
+    return result;
+  } /* bigXor */
 
 
 

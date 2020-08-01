@@ -56,11 +56,11 @@ inttype intLowestSetBit (inttype number);
 stritype intLpad0 (inttype number, const inttype pad_size);
 inttype intParse (const const_stritype stri);
 inttype intPow (inttype base, inttype exponent);
+stritype intRadix (inttype number, inttype base, booltype upperCase);
+stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase);
 inttype intRand (inttype lower_limit, inttype upper_limit);
 inttype intSqrt (inttype number);
 stritype intStr (inttype number);
-stritype intStrBased (inttype number, inttype base);
-stritype intStrPow2Base (inttype number, int shift, int mask);
 
 #else
 
@@ -87,10 +87,10 @@ inttype intLowestSetBit ();
 stritype intLpad0 ();
 inttype intParse ();
 inttype intPow ();
+stritype intRadix ();
+stritype intRadixPow2 ();
 inttype intRand ();
 inttype intSqrt ();
 stritype intStr ();
-stritype intStrBased ();
-stritype intStrPow2Base ();
 
 #endif

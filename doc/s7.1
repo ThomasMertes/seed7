@@ -1,0 +1,119 @@
+.\" -*- nroff -*-
+.TH S7 1 "January 27, 2013" "Version 5.0" "SEED7 INTERPRETER"
+.SH NAME
+s7 \- interpreter for the Seed7 programming language
+.SH SYNOPSIS
+.B s7
+[
+.RI options
+]
+sourcefile
+[
+.RI parameters
+]
+.SH DESCRIPTION
+.B s7
+invokes the
+.I Seed7
+interpreter.
+.I Seed7
+is an extensible general purpose programming language. It is
+a higher level language compared to Ada, C/C++ and Java. Its major
+features include: user defined statements and operators, abstract
+data types, templates without special syntax, OO with interfaces and
+multiple dispatch, statically typed, interpreted or compiled, and
+portability. The documentation of
+.I Seed7
+and many examples can be found in
+.I /usr/share/doc/seed7
+.SH OPTIONS
+.PD 0
+.TP
+.B \-?
+Write Seed7 interpreter usage.
+.TP
+.B \-a
+Analyze only and suppress the execution phase.
+.TP
+.B \-dx
+Set compile time trace level to x.
+.TP
+.B \-d
+Equivalent to \-da
+.TP
+.B \-i
+Show the identifier table after the analyzing phase.
+.TP
+.B \-l
+Add a directory to the include library search path (e.g.:
+.B \-l
+.I ../lib
+).
+.TP
+.B \-q
+Compile quiet. Line and file information and compilation
+statistics are suppressed.
+.TP
+.B \-tx
+Set runtime trace level to x.
+.TP
+.B \-t
+Equivalent to \-ta
+.TP
+.B \-vn
+Set verbosity level of analyse phase to n. Where n is between 0 and 3.
+.TP
+.B \-v
+Equivalent to \-t2
+.TP
+.B \-x
+Execute even when the program contains errors.
+.PD 1
+.SH TRACE LEVEL
+.PD 0
+The following trace levels are defined:
+.TP
+.I  a
+Trace primitive actions
+.TP
+.I  c
+Do action check
+.TP
+.I  d
+Trace dynamic calls
+.TP
+.I  e
+Trace exceptions and handlers
+.TP
+.I  h
+Trace heap size (in combination with 'a')
+.PD 1
+.SH FILES
+.PD 0
+.TP
+.I /usr/share/doc/seed7/manual.txt
+Manual for the Seed7 programming language.
+.TP
+.I /usr/share/doc/seed7/manual.htm
+HTML version of the Seed7 manual.
+.TP
+.I /usr/bin/s7
+The Seed7 interpreter.
+.TP
+.I /usr/lib/seed7/lib
+Directory of the include libraries.
+.PD 1
+.SH HOMEPAGE
+.PD 0
+.I http://seed7.sourceforge.net
+.PD 1
+.SH AUTHOR
+.PD 0
+.I Seed7
+was written by Thomas Mertes <thomas.mertes@gmx.at>.
+.PP
+This manual page was written by Thomas Mertes <thomas.mertes@gmx.at>.
+.PD 1
+.SH SEE ALSO
+.PD 0
+s7c(1)

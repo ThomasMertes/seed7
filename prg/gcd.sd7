@@ -28,7 +28,7 @@ $ include "seed7_05.s7i";
 
 const func integer: gcd (in var integer: a, in var integer: b) is func
   result
-    var integer: result is 0;
+    var integer: gcd is 0;
   local
     var integer: help is 0;
   begin
@@ -37,21 +37,21 @@ const func integer: gcd (in var integer: a, in var integer: b) is func
       b := a;
       a := help;
     end while;
-    result := b;
+    gcd := b;
   end func;
 
 
 const func integer: binaryGcd (in var integer: a, in var integer: b) is func
   result
-    var integer: result is 0;
+    var integer: gcd is 0;
   local
     var integer: shift is 0;
     var integer: diff is 0;
   begin
     if a = 0 then
-      result := b;
+      gcd := b;
     elsif b = 0 then
-      result := a;
+      gcd := a;
     else
       (* Let shift := log2(K), where K is the greatest power of 2
          dividing both a and b. *)
@@ -83,7 +83,7 @@ const func integer: binaryGcd (in var integer: a, in var integer: b) is func
         b >>:= 1;
       until b = 0;
 
-      result := a << shift;
+      gcd := a << shift;
     end if;
   end func;
 

@@ -276,9 +276,11 @@ void determineEnvironDefines (void)
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
-    if (compilationOkay("#include<stdlib.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;return 0;}\n")) {
+    if (compilationOkay("#include<stdlib.h>\n#include\"version.h\"\nint main(int argc,char *argv[])"
+                        "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include<stdlib.h>\n");
-    } else if (compilationOkay("#include<unistd.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;return 0;}\n")) {
+    } else if (compilationOkay("#include<unistd.h>\n#include\"version.h\"\nint main(int argc,char *argv[])"
+                               "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include<unistd.h>\n");
     } else {
       printf("#define DEFINE_OS_ENVIRON\n");
@@ -326,6 +328,7 @@ int main (int argc, char **argv)
     float nanValue2;
     float plusInf;
     float minusInf;
+    int testResult;
     char *define_read_buffer_empty;
 
   /* main */
@@ -387,7 +390,8 @@ int main (int argc, char **argv)
     } /* if */
     mkdir("tmp_empty_dir",0x755);
     if (compilationOkay(
-        "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\nint main(int argc,char *argv[]){struct utimbuf utime_buf;\n"
+        "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
+        "{struct utimbuf utime_buf;\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
         "printf(\"%d\\n\",utime(\"tmp_empty_dir\",&utime_buf)!=0&&errno==EACCES);return 0;}\n") &&
         doTest() == 1) {
@@ -400,7 +404,8 @@ int main (int argc, char **argv)
 #endif
       puts("#define os_utime alternate_utime");
     } else if (compilationOkay(
-        "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\nint main(int argc,char *argv[]){struct utimbuf utime_buf;\n"
+        "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
+        "{struct utimbuf utime_buf;\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
         "printf(\"%d\\n\",utime(\"tmp_empty_dir\",&utime_buf)!=0&&errno==EACCES);return 0;}\n") &&
         doTest() == 1) {
@@ -455,8 +460,8 @@ int main (int argc, char **argv)
       puts("#define UINT64TYPE_STRI \"unsigned long\"");
       puts("#define INT64TYPE_SUFFIX_L");
       puts("#define INT64TYPE_FORMAT_L");
-    } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                               "printf(\"%d\\n\",sizeof(long long));return 0;}\n") && doTest() == 8) {
+    } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
+                               "{printf(\"%d\\n\",sizeof(long long));return 0;}\n") && doTest() == 8) {
       /* The type long long is defined and it is a 64-bit type */
       puts("#define INT64TYPE long long");
       puts("#define INT64TYPE_STRI \"long long\"");
@@ -465,21 +470,21 @@ int main (int argc, char **argv)
       if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){long long n=12345678LL;return 0;}\n")) {
         puts("#define INT64TYPE_SUFFIX_LL");
       } /* if */
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                          "char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
+      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                          "{char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_LL");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                                 "char b[99]; sprintf(b, \"A%LdB\", (long long) 1 << 32);\n"
+      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                 "{char b[99]; sprintf(b, \"A%LdB\", (long long) 1 << 32);\n"
                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_CAPITAL_L");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                                 "char b[99]; sprintf(b, \"A%I64dB\", (long long) 1 << 32);\n"
+      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                 "{char b[99]; sprintf(b, \"A%I64dB\", (long long) 1 << 32);\n"
                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_I64");
       } /* if */
-    } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                               "printf(\"%d\\n\",sizeof(__int64));return 0;}\n") && doTest() == 8) {
+    } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                               "{printf(\"%d\\n\",sizeof(__int64));return 0;}\n") && doTest() == 8) {
       /* The type __int64 is defined and it is a 64-bit type */
       puts("#define INT64TYPE __int64");
       puts("#define INT64TYPE_STRI \"__int64\"");
@@ -488,16 +493,16 @@ int main (int argc, char **argv)
       if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){__int64 n=12345678LL;return 0;}\n")) {
         puts("#define INT64TYPE_SUFFIX_LL");
       } /* if */
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                          "char b[99]; sprintf(b, \"A%lldB\", (__int64) 1 << 32);\n"
+      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                          "{char b[99]; sprintf(b, \"A%lldB\", (__int64) 1 << 32);\n"
                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_LL");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                                 "char b[99]; sprintf(b, \"A%LdB\", (__int64) 1 << 32);\n"
+      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                 "{char b[99]; sprintf(b, \"A%LdB\", (__int64) 1 << 32);\n"
                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_CAPITAL_L");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){\n"
-                                 "char b[99]; sprintf(b, \"A%I64dB\", (__int64) 1 << 32);\n"
+      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                 "{char b[99]; sprintf(b, \"A%I64dB\", (__int64) 1 << 32);\n"
                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_I64");
       } /* if */
@@ -600,19 +605,40 @@ int main (int argc, char **argv)
     if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {
       puts("#define POWER_OF_ZERO_WRONG");
     } /* if */
-    if (!compilationOkay("#include<float.h>\n#include<math.h>\nint main(int c,char*v[])"
+    if (!compilationOkay("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
                          "{float f=0.0; isnan(f); return 0;}\n") &&
-        compilationOkay("#include<float.h>\n#include<math.h>\nint main(int c,char*v[])"
+        compilationOkay("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
                         "{float f=0.0; _isnan(f); return 0;}\n")) {
       puts("#define ISNAN_WITH_UNDERLINE");
+    } /* if */
+    if (compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
+                        "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                        "int main(int argc,char *argv[]){\n"
+                        "float zero=1.0E37;\n"
+#ifdef TURN_OFF_FP_EXCEPTIONS
+                        "_control87(MCW_EM, MCW_EM);\n"
+#endif
+                        "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
+			"printf(\"%d\\n\",(int) 1.0E37);return 0;}\n")) {
+      testResult = doTest();
+      if ((sizeof(int) == 4 && (long) testResult == 2147483647L) ||
+          (sizeof(int) == 2 && testResult == 32767)) {
+        puts("#define FLOAT_TO_INT_OVERFLOW_SATURATES");
+      } else if (testResult == 2) {
+        puts("#define FLOAT_TO_INT_OVERFLOW_SIGNALS");
+      } else if (testResult == 0) {
+        puts("#define FLOAT_TO_INT_OVERFLOW_ZERO");
+      } else {
+        printf("#define FLOAT_TO_INT_OVERFLOW_GARBAGE %d\n", testResult);
+      } /* if */
     } /* if */
 #ifdef USE_ALTERNATE_LOCALTIME_R
     puts("#define USE_LOCALTIME_R");
 #else
-    if (compilationOkay("#include<time.h>\nint main(int c,char*v[])"
+    if (compilationOkay("#include<time.h>\nint main(int argc,char *argv[])"
                         "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
       puts("#define USE_LOCALTIME_R");
-    } else if (compilationOkay("#include<time.h>\nint main(int c,char*v[])"
+    } else if (compilationOkay("#include<time.h>\nint main(int argc,char *argv[])"
                                "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
       puts("#define USE_LOCALTIME_S");
     } /* if */
@@ -628,6 +654,10 @@ int main (int argc, char **argv)
       puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
       puts("#define DEFAULT_HOME_DIR {'C', ':', '\\\\', 0}");
 #endif
+    } /* if */
+    if (compilationOkay("#include<poll.h>\nint main(int argc,char *argv[])"
+                        "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
+      puts("#define HAS_POLL");
     } /* if */
     if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
@@ -645,7 +675,8 @@ int main (int argc, char **argv)
     if (define_read_buffer_empty != NULL) {
       strcpy(buffer, "#include<stdio.h>\n");
       strcat(buffer, define_read_buffer_empty);
-      strcat(buffer, "\nint main(int argc,char *argv[]){FILE*fp;fp=fopen(\"version.h\",\"r\");"
+      strcat(buffer, "\nint main(int argc,char *argv[])\n"
+                     "{FILE*fp;fp=fopen(\"version.h\",\"r\");"
                      "if(fp==NULL||!read_buffer_empty(fp))puts(0);else{"
                      "getc(fp);printf(\"%d\\n\",read_buffer_empty(fp)?0:1);}return 0;}\n");
       if (!compilationOkay(buffer) || doTest() != 1) {

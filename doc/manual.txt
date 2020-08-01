@@ -631,10 +631,10 @@ CONTENTS
 
     const func integer: fib (in integer: num1) is func
       result
-        var integer: result is 1;
+        var integer: fib is 1;
       begin
         if num1 <> 1 and num1 <> 2 then
-          result := fib(pred(num1)) + fib(num1 - 2);
+          fib := fib(pred(num1)) + fib(num1 - 2);
         end if;
       end func;
 
@@ -681,12 +681,14 @@ CONTENTS
 
     const func string: oct_str (in var integer: number) is func
       result
-        var string: result is "";
+        var string: stri is "";
       begin
-        while number >= 0 do
-          result := str(number rem 8) & result;
-          number := number div 8;
-        end while;
+        if number >= 0 then
+          repeat;
+            stri := str(number mod 8) & stri;
+            number := number mdiv 8;
+          until number = 0;
+        end if;
       end func;
 
   As you can see this works like a combination of an 'in'
@@ -1138,8 +1140,8 @@ CONTENTS
 
   Semantics:
     First the condition between 'while' and 'do' is evaluated.
-    When this evaluation yields 'FALSE', the while-statement is
-    finished. When the evaluation yields 'TRUE', the statement
+    When this evaluation yields FALSE, the while-statement is
+    finished. When the evaluation yields TRUE, the statement
     between 'do' and 'end' is executed and the whole while-statement
     is executed again.
 
@@ -1186,8 +1188,8 @@ CONTENTS
   Semantics:
     The statement between 'repeat' and 'until' is executed.
     Then the condition after 'until' is evaluated. When this
-    evaluation yields 'TRUE', the repeat-statement is finished.
-    When the evaluation yields 'FALSE' the repeat-statement is
+    evaluation yields TRUE, the repeat-statement is finished.
+    When the evaluation yields FALSE the repeat-statement is
     executed again.
 
 
@@ -1458,12 +1460,12 @@ CONTENTS
 
   Semantics:
     The expressions before 'then' are evaluated in row.
-    When such an expression evaluates to 'TRUE' the statements
+    When such an expression evaluates to TRUE the statements
     behind 'then' are executed and the if-statement is finished.
-    If all expressions before 'then' evaluate to 'FALSE' and an
+    If all expressions before 'then' evaluate to FALSE and an
     else-part is present the statements behind 'else' are executed
     and the if-statement is finished.
-    If all expressions before 'then' evaluate to 'FALSE' and no
+    If all expressions before 'then' evaluate to FALSE and no
     else-part is present the if-statement is finished.
 
 
@@ -1809,6 +1811,16 @@ CONTENTS
                     0 >> B => 0 )
       !         Binomial coefficient
                   ( A ! B => !A div (!B * !(A - B)) )
+      A radix B  Convert the integer A to a string. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: string,
+                    48879 radix 16 => "beef",
+                    -48879 radix 16 => "-beef" )
+      A RADIX B  Convert the integer A to a string. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: string,
+                    48879 RADIX 16 => "BEEF",
+                    -48879 RADIX 16 => "-BEEF" )
       lpad      Left padding with spaces
                   ( 123 lpad  8 => "     123",
                     123 lpad  4 => " 123",
@@ -1860,10 +1872,6 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(12345) => "12345" )
-      str(A, B) Convert the integer A to a string. The conversion
-                uses the numeral system with the base B.
-                  ( Type of result: string,
-                    str(48879, 16) => "beef" )
       literal(A) Conversion to a literal
                   ( Type of result: string,
                     literal(A) => str(A) )
@@ -1875,6 +1883,7 @@ CONTENTS
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
                     log2(2 ** A) = A for A >= 0,
+                    log2(pred(2 ** A)) = pred(A) for A >= 0,
                     log2(2) => 1,
                     log2(1) => 0,
                     log2(0) => -1,
@@ -2055,6 +2064,16 @@ CONTENTS
                     A >> B => 0_ for A >= 0_ and B > ord(log2(A)),
                     A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
                     0_ >> B => 0_ for every B )
+      A radix B  Convert the bigInteger A to a string. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: string,
+                    3735928559_ radix 16 => "deadbeef",
+                    -3735928559_ radix 16 ) => "-deadbeef" )
+      A RADIX B  Convert the integer A to a string. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: string,
+                    3735928559_ RADIX 16 => "DEADBEEF",
+                    -3735928559_ RADIX 16 ) => "-DEADBEEF" )
       bigInteger conv A   Conversion of integer to bigInteger
                   ( Type of argument A: integer,
                     bigInteger conv 1 => 1_ )
@@ -2082,10 +2101,6 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(9876543210_) => "9876543210" )
-      str(A, B) Convert the bigInteger A to a string. The conversion
-                uses the numeral system with the base B.
-                  ( Type of result: string,
-                    str(3735928559_, 16) => "deadbeef" )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) => trunc(sqrt(flt(A))),
@@ -2095,6 +2110,7 @@ CONTENTS
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
                     log2(2_ ** A) = A for A >= 0,
+                    log2(pred(2_ ** A)) = pred(A) for A >= 0,
                     log2(2_) => 1_,
                     log2(1_) => 0_,
                     log2(0_) => -1_,
@@ -2223,9 +2239,13 @@ CONTENTS
   represented with an 'integer' numerator and an 'integer'
   denominator. The values of the type 'rational' are
   finite and periodical decimal numbers. Rational literals
-  do not exist. The result of a 'rational' operation
-  is undefined when it overflows. The 'rational' functions
-  are defined in the library "rational.s7i".
+  do not exist. The result of a 'rational' operation is
+  undefined when it overflows. In 'integer' computations an
+  overflow can only happen with very huge positive or negative
+  numbers. In 'rational' computations an overflow can
+  happen with small numbers. Because of widening big denominators
+  can be produced easily. E.g.: 1/1777 + 1/1999 = 3776/3552223 .
+  The 'rational' functions are defined in the library "rational.s7i".
 
     Elements:
       var integer: numerator is 0;
@@ -2246,6 +2266,9 @@ CONTENTS
       rational conv A   Conversion of integer to rational
                   ( Type of argument A: integer,
                     rational conv 1 => 1 / 1 )
+      digits    Conversion to string with specified precision
+                  ( Type of right operand: integer,
+                    Type of result: string )
       rational parse A   Conversion of string to rational
                   ( Type of argument A: string )
     Relations:
@@ -2329,6 +2352,9 @@ CONTENTS
       bigRational conv A   Conversion of bigInteger to bigRational
                   ( Type of argument A: bigInteger,
                     bigRational conv 1_ => 1_ / 1_ )
+      digits    Conversion to string with specified precision
+                  ( Type of right operand: integer,
+                    Type of result: string )
       bigRational parse A   Conversion of string to bigRational
                   ( Type of argument A: string )
     Relations:
@@ -3017,6 +3043,9 @@ CONTENTS
     Statements:
       A &:= B   Append B to A
                   ( A &:= B => A := A & B )
+      A &:= B   Append element B to A
+                  ( Type of argument B: baseType,
+                    A &:= B => A := A & [] (B) )
       for A range B do
         C
       end for   Loop over all elements of an array
@@ -4032,14 +4061,14 @@ CONTENTS
 
     const func integer: tak (in integer: x, in integer: y, in integer: z) is func
       result
-        var integer: result is 0;
+        var integer: tak is 0;
       begin
         if y >= x then
-          result := z;
+          tak := z;
         else
-          result := tak(tak(pred(x), y, z),
-                        tak(pred(y), z, x),
-                        tak(pred(z), x, y));
+          tak := tak(tak(pred(x), y, z),
+                     tak(pred(y), z, x),
+                     tak(pred(z), x, y));
         end if;
       end func
 
@@ -4070,7 +4099,7 @@ CONTENTS
       end func;
 
   Here the second parameter is only evaluated when the first
-  parameter is 'TRUE'.
+  parameter is TRUE.
 
 
 5.26 varfunc
@@ -4341,12 +4370,12 @@ CONTENTS
 
     const func integer: total_length (in array string: arr) is func
       result
-        var integer: result is 0;
+        var integer: lengthSum is 0;
       local
         var integer: index is 0;
       begin
         for index range 1 to length(arr) do
-          result +:= length(arr[index]);
+          lengthSum +:= length(arr[index]);
         end for;
       end func;
 
@@ -4393,17 +4422,17 @@ CONTENTS
 
     const func boolean: is_prime (in integer: number) is func
       result
-        var boolean: result is FALSE;
+        var boolean: prime is FALSE;
       local
         var integer: count is 2;
       begin
         if number = 2 then
-          result := TRUE;
+          prime := TRUE;
         elsif number >= 3 then
           while number rem count <> 0 and count * count <= number do
             incr(count);
           end while;
-          result := number rem count <> 0;
+          prime := number rem count <> 0;
         end if;
       end func;
 
@@ -4411,15 +4440,15 @@ CONTENTS
 
     const func array array integer:
         (in array integer: a) ex (in array integer: b) is func
-      return
-        var array array integer: result is 0 times 0 times 0;
+      result
+        var array array integer: product is 0 times 0 times 0;
       local
         var integer: index1 is 1;
       begin
-        result := length(a) times length(b) times 0;
+        product := length(a) times length(b) times 0;
         for index1 range 1 to length(a) do
           for index2 range 1 to length(b) do
-            result[index1][index2] := a[index1] * b[index2];
+            product[index1][index2] := a[index1] * b[index2];
           end for;
         end for;
       end func;
@@ -4470,7 +4499,7 @@ CONTENTS
 
     const func integer: gcd (in var integer: a, in var integer: b) is func
       result
-        var integer: result is 0;
+        var integer: gcd is 0;
       local
         var integer: help is 0;
       begin
@@ -4479,7 +4508,7 @@ CONTENTS
           b := a;
           a := help;
         end while;
-        result := b;
+        gcd := b;
       end func;
 
   Semantics:
@@ -4605,16 +4634,8 @@ CONTENTS
 
   An 'attr' parameter can be used in a function also:
 
-    const func char: (attr char) parse (in string: stri) is func
-      result
-        var char: result is ' ';
-      begin
-        if length(stri) >= 1 then
-          result := stri[1];
-        else
-          raise RANGE_ERROR;
-        end if;
-      end func;
+    const func char: (attr char) parse (in string: stri) is
+      return stri[1];
 
   Semantics:
     The actual parameter which corresponds to an 'attr' parameter
@@ -4740,9 +4761,9 @@ CONTENTS
 
     const func circle: circle (in integer: radius) is func
       result
-        var circle: result is circle.value;
+        var circle: aCircle is circle.value;
       begin
-        result.radius := radius;
+        aCircle.radius := radius;
       end func;
 
   Now we can draw a 'circle' object with:
@@ -4790,10 +4811,10 @@ CONTENTS
 
     const func line: line (in integer: xLen, in integer: yLen) is func
       result
-        var line: result is line.value;
+        var line: aLine is line.value;
       begin
-        result.xLen := xLen;
-        result.yLen := yLen;
+        aLine.xLen := xLen;
+        aLine.yLen := yLen;
       end func;
 
   In addition we define a normal (not DYNAMIC) function
@@ -5270,23 +5291,23 @@ CONTENTS
 
     const func string: str (in boolean: aBool) is func
       result
-        var string: result is "";
+        var string: stri is "";
       begin
         if aBool then
-          result := "TRUE";
+          stri := "TRUE";
         else
-          result := "FALSE";
+          stri := "FALSE";
         end if;
       end func;
 
     const func boolean: (attr boolean) parse (in string: stri) is func
       result
-        var boolean: result is FALSE;
+        var boolean: aBoolean is FALSE;
       begin
         if stri = "TRUE" then
-          result := TRUE;
+          aBoolean := TRUE;
         elsif stri = "FALSE" then
-          result := FALSE;
+          aBoolean := FALSE;
         else
           raise RANGE_ERROR;
         end if;
@@ -5332,46 +5353,51 @@ CONTENTS
 
     const func string: (ref string: stri) lpad (in integer: leng) is func
       result
-        var string: result is "";
+        var string: padded is "";
       begin
         if leng > length(stri) then
-          result := " " mult leng - length(stri) & stri;
+          padded := " " mult leng - length(stri) & stri;
         else
-          result := stri;
+          padded := stri;
         end if;
       end func;
 
     const func string: (ref string: stri) rpad (in integer: leng) is func
       result
-        var string: result is "";
+        var string: padded is "";
       begin
         if leng > length(stri) then
-          result := stri & " " mult leng - length(stri);
+          padded := stri & " " mult leng - length(stri);
         else
-          result := stri;
+          padded := stri;
         end if;
       end func;
 
   The 'enable_io' template contains definitions of 'lpad' and 'rpad'
   to work on the type specified with 'enable_io':
 
-    const func string: (in aType: aValue) lpad (in integer: leng) is func
-      result
-        var string: stri is "";
-      begin
-        stri := str(aValue) lpad leng;
-      end func;
+    const func string: (in aType: aValue) lpad (in integer: leng) is
+      return str(aValue) lpad leng;
 
-    const func string: (in aType: aValue) rpad (in integer: leng) is func
-      result
-        var string: stri is "";
-      begin
-        stri := str(aValue) rpad leng;
-      end func;
+    const func string: (in aType: aValue) rpad (in integer: leng) is
+      return str(aValue) rpad leng;
+
+  Values of type 'integer' and 'bigInteger' can be written in
+  a numeral system with a radix (base) other than 10. The
+  operators 'radix' and 'RADIX' can be used for this purpose.
+  E.g. the statements
+
+    writeln(48879 radix 16);
+    writeln(3735928559_ RADIX 16);
+
+  produce the following output:
+
+    beef
+    DEADBEEF
 
   For 'float' values exist additional ways to convert them to
   strings. The 'digits' operator allows the specification of a
-  precision. For example the statements
+  precision. E.g. the statements
 
     writeln(3.1415 digits 2);
     writeln(4.0 digits 2);
@@ -9477,6 +9503,7 @@ CONTENTS
     INT_PLUS            int_plus            (noop)
     INT_POW             int_pow             intPow
     INT_PRED            int_pred            --
+    INT_RADIX           int_RADIX           intRadix
     INT_RAND            int_rand            intRand
     INT_REM             int_rem             %
     INT_RSHIFT          int_rshift          a>>b /* C with arithmetic shift */
@@ -9487,9 +9514,9 @@ CONTENTS
     INT_SHRINK          int_shrink          -=
     INT_SQRT            int_sqrt            intSqrt
     INT_STR             int_str             intStr
-    INT_STR_BASED       int_str_based       intStrBased
     INT_SUCC            int_succ            +1
     INT_VALUE           int_value           intValue
+    INT_radix           int_radix           intRadix
 
 
 13.17 Actions for interface types
@@ -10019,27 +10046,27 @@ CONTENTS
   suplib and sup_rtl must be added to lists of source
   and object files. Adding the suplib object file results in:
 
-    LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o drwlib.o
-    LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o prclib.o
-    LOBJ3 = prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o strlib.o suplib.o timlib.o typlib.o ut8lib.o
+    LOBJ = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o drwlib.o \
+           enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o prclib.o \
+           prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o strlib.o suplib.o timlib.o typlib.o ut8lib.o
 
   Adding the "suplib" source file results in:
 
-    LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
-    LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c
-    LSRC3 = prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c suplib.c timlib.c typlib.c ut8lib.c
+    LSRC = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c \
+           enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c \
+           prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c suplib.c timlib.c typlib.c ut8lib.c
 
   and object files. Adding the sup_rtl object file results in:
 
-    ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
-    ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o set_rtl.o soc_rtl.o str_rtl.o sup_rtl.o tim_rtl.o ut8_rtl.o
-    ROBJ3 = heaputl.o striutl.o
+    ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
+           flt_rtl.o hsh_rtl.o int_rtl.o set_rtl.o soc_rtl.o str_rtl.o sup_rtl.o tim_rtl.o ut8_rtl.o \
+           heaputl.o striutl.o
 
   Adding the "sup_rtl" source file results in:
 
-    RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
-    RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c set_rtl.c soc_rtl.c str_rtl.c sup_rtl.c tim_rtl.c ut8_rtl.c
-    RSRC3 = heaputl.c striutl.c
+    RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
+           flt_rtl.c hsh_rtl.c int_rtl.c set_rtl.c soc_rtl.c str_rtl.c sup_rtl.c tim_rtl.c ut8_rtl.c \
+           heaputl.c striutl.c
 
   The external library "superlib" itself is added with:
 

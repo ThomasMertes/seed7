@@ -38,8 +38,20 @@ const proc: (ref boolean param) ::= (in boolean param)     is action "BLN_CREATE
 const proc: destroy (ref boolean param)                    is noop;
 const proc: (inout boolean: dest) := (in boolean: source)  is action "BLN_CPY";
 
+
+(**
+ *  ''FALSE'' is one of the two ''Boolean'' truth values.
+ *  The negation of ''FALSE'' is ''TRUE''.
+ *)
 const boolean: FALSE is enumlit;
+
+
+(**
+ *  ''TRUE'' is one of the two ''Boolean'' truth values.
+ *  The negation of ''TRUE'' is ''FALSE''.
+ *)
 const boolean: TRUE is enumlit;
+
 
 $ system "true" is TRUE;
 $ system "false" is FALSE;

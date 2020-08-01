@@ -123,18 +123,18 @@ const func array string: findMatchingFiles (in string: pattern) is func
 
 const func string: replaceSuffixes (in var string: stri, in string: suffix, in string: replacement) is func
   result
-    var string: result is ""
+    var string: replaced is ""
   local
     var string: symbol is "";
   begin
     repeat
-      result &:= getWhiteSpace(stri);
+      replaced &:= getWhiteSpace(stri);
       symbol := getWord(stri);
       if symbol <> "" then
         if endsWith(symbol, suffix) then
           symbol := symbol[.. length(symbol) - length(suffix)] & replacement;
         end if;
-        result &:= symbol;
+        replaced &:= symbol;
       end if;
     until symbol = "";
   end func;
@@ -142,36 +142,36 @@ const func string: replaceSuffixes (in var string: stri, in string: suffix, in s
 
 const func string: applyMacros (in stringHash: macros, in string: stri, in boolean: leaveUndefMacros) is func
   result
-    var string: result is "";
+    var string: applied is "";
   local
     var integer: dollarPos is 0;
     var integer: closeParenPos is 0;
     var string: name is "";
   begin
-    result := stri;
-    dollarPos := pos(result, '$');
+    applied := stri;
+    dollarPos := pos(applied, '$');
     while dollarPos <> 0 do
-      if dollarPos < length(result) then
-        if result[succ(dollarPos)] in {'(', '{'} then
-          if result[succ(dollarPos)] = '(' then
-            closeParenPos := pos(result, ')', dollarPos + 2);
+      if dollarPos < length(applied) then
+        if applied[succ(dollarPos)] in {'(', '{'} then
+          if applied[succ(dollarPos)] = '(' then
+            closeParenPos := pos(applied, ')', dollarPos + 2);
           else
-            closeParenPos := pos(result, '}', dollarPos + 2);
+            closeParenPos := pos(applied, '}', dollarPos + 2);
           end if;
           if closeParenPos <> 0 then
-            name := result[dollarPos + 2 .. pred(closeParenPos)];
+            name := applied[dollarPos + 2 .. pred(closeParenPos)];
             if name in macros then
-              result := result[.. pred(dollarPos)] &
-                  applyMacros(macros, macros[name], leaveUndefMacros) & result[succ(closeParenPos) ..];
+              applied := applied[.. pred(dollarPos)] &
+                  applyMacros(macros, macros[name], leaveUndefMacros) & applied[succ(closeParenPos) ..];
             elsif not leaveUndefMacros then
-              result := result[.. pred(dollarPos)] & result[succ(closeParenPos) ..];
+              applied := applied[.. pred(dollarPos)] & applied[succ(closeParenPos) ..];
             end if;
           end if;
-        elsif result[succ(dollarPos)] = '$' then
+        elsif applied[succ(dollarPos)] = '$' then
           incr(dollarPos);
         end if;
       end if;
-      dollarPos := pos(result, '$', succ(dollarPos));
+      dollarPos := pos(applied, '$', succ(dollarPos));
     end while;
   end func;
 
@@ -288,11 +288,19 @@ const func string: getLineWithMacrosApplied (inout makeDataType: makeData) is fu
           makefile.bufferChar := getc(makefile);
           if makefile.bufferChar = '\n' then
             makefile.bufferChar := getc(makefile);
+            skipSpaceOrTab(makefile);
+            if data <> "" and data[length(data)] not in space_or_tab then
+              data &:= ' ';
+            end if;
           else
             data &:= "\\\r";
           end if;
         elsif makefile.bufferChar = '\n' then
           makefile.bufferChar := getc(makefile);
+          skipSpaceOrTab(makefile);
+          if data <> "" and data[length(data)] not in space_or_tab then
+            data &:= ' ';
+          end if;
         else
           data &:= '\\';
         end if;

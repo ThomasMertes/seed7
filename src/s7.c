@@ -53,7 +53,6 @@
 #include "flt_rtl.h"
 #include "arr_rtl.h"
 #include "cmd_rtl.h"
-#include "fil_rtl.h"
 #include "con_drv.h"
 
 #ifdef USE_WINMAIN
@@ -221,7 +220,8 @@ rtlArraytype arg_v;
                 error = TRUE;
               } /* if */
               printf("*** Ignore unsupported option: ");
-              filPrint(opt);
+              prot_stri_unquoted(opt);
+              printf("\n");
               break;
           } /* switch */
         } else if (opt->size >= 3 && opt->mem[0] == '-') {
@@ -259,7 +259,8 @@ rtlArraytype arg_v;
                 error = TRUE;
               } /* if */
               printf("*** Ignore unsupported option: ");
-              filPrint(opt);
+              prot_stri_unquoted(opt);
+              printf("\n");
               break;
           } /* switch */
         } else {

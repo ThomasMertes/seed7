@@ -1,0 +1,123 @@
+.\" -*- nroff -*-
+.TH S7 1 "January 27, 2013" "Version 2.1" "SEED7 COMPILER"
+.SH NAME
+s7c \- compiler for the Seed7 programming language
+.SH SYNOPSIS
+.B s7c
+[
+.RI options
+]
+source
+.SH DESCRIPTION
+.B s7c
+invokes the
+.I Seed7
+compiler.
+.I Seed7
+is an extensible general purpose programming language. It is
+a higher level language compared to Ada, C/C++ and Java. Its major
+features include: user defined statements and operators, abstract
+data types, templates without special syntax, OO with interfaces and
+multiple dispatch, statically typed, interpreted or compiled, and
+portability. The documentation of
+.I Seed7
+and many examples can be found in
+.I /usr/share/doc/seed7
+.SH OPTIONS
+.PD 0
+.TP
+.B \-?
+Write Seed7 compiler usage.
+.TP
+.B \-O and \-O2
+Tell the C compiler to optimize.
+.TP
+.B \-b
+Specify the directory of the Seed7 runtime libraries (e.g.:
+.B \-b
+.I ../bin
+).
+.TP
+.B \-e
+Generate code which sends a signal, when an uncaught exception occurs.
+This option allows debuggers to handle uncaught Seed7 exceptions.
+.TP
+.B \-g
+Tell the C compiler to generate an executable with debug information.
+This way the debugger will refer to Seed7 source files and line numbers.
+To generate debug information which refers to the temporary C program
+the option
+.B \-g\-debug_c
+can be used.
+.TP
+.B \-l
+Add a directory to the include library search path (e.g.:
+.B \-l
+.I ../lib
+).
+.TP
+.B \-ocn
+Optimize constants with level n. E.g.:
+.B \-oc3
+Where n is a digit between 0 and 3
+.TP
+.B \-r
+Suppress the generation of range checks for strings and arrays.
+.TP
+.B \-te
+Generate code to trace exceptions. This option works in the same way
+as the interpreter option
+.B \-te
+: Every exception will write a message to stdout and the user will
+be asked to continue (with enter) or to terminate (with * ).
+.PD 1
+.SH CONSTANT OPTIMIZATION LEVEL
+.PD 0
+The following optimization levels for constants are supported:
+.TP
+.I  0
+Do no optimizations with constants.
+.TP
+.I  1
+Use literals and named constants to simplify expressions (default).
+.TP
+.I  2
+Evaluate constant expressions to simplify expressions.
+.TP
+.I  3
+Like
+.B \-oc2
+and additionally evaluate all constant expressions.
+.PD 1
+.SH FILES
+.PD 0
+.TP
+.I /usr/share/doc/seed7/manual.txt
+Manual for the Seed7 programming language.
+.TP
+.I /usr/share/doc/seed7/manual.htm
+HTML version of the Seed7 manual.
+.TP
+.I /usr/bin/s7c
+The Seed7 compiler.
+.TP
+.I /usr/lib/seed7/lib
+Directory of the include libraries.
+.TP
+.I /usr/lib/seed7/bin
+Directory of the object libraries.
+.PD 1
+.SH HOMEPAGE
+.PD 0
+.I http://seed7.sourceforge.net
+.PD 1
+.SH AUTHOR
+.PD 0
+.I Seed7
+was written by Thomas Mertes <thomas.mertes@gmx.at>.
+.PP
+This manual page was written by Thomas Mertes <thomas.mertes@gmx.at>.
+.PD 1
+.SH SEE ALSO
+.PD 0
+s7(1)

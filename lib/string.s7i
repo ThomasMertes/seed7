@@ -239,27 +239,27 @@ const func integer: length (in string: stri)                     is action "STR_
 
 
 (**
- *  Determine leftmost position of string ''searched'' in ''main_stri''.
+ *  Determine leftmost position of string ''searched'' in ''mainStri''.
  *  When the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''main_stri''
+ *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched''.
  *)
-const func integer: pos (in string: main_stri, in string: searched)  is action "STR_POS";
+const func integer: pos (in string: mainStri, in string: searched)  is action "STR_POS";
 
 
 (**
- *  Determine leftmost position of char ''searched'' in ''main_stri''.
+ *  Determine leftmost position of char ''searched'' in ''mainStri''.
  *  The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''main_stri''
+ *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched''.
  *)
-const func integer: pos (in string: main_stri, in char: searched)    is action "STR_CHPOS";
+const func integer: pos (in string: mainStri, in char: searched)    is action "STR_CHPOS";
 
 
 (**
- *  Search string ''searched'' in ''main_stri'' at or after ''from_index''.
- *  The search starts at position ''from_index'' and proceeds to the
+ *  Search string ''searched'' in ''mainStri'' at or after ''start''.
+ *  The search starts at position ''start'' and proceeds to the
  *  right. When the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
  *  The pos function is designed to allow loops like:
@@ -270,48 +270,48 @@ const func integer: pos (in string: main_stri, in char: searched)    is action "
  *     index := pos(stri, searched_stri, succ(index));
  *   end while;
  *
- *  @return the position of ''searched'' or 0 when ''main_stri''
- *          does not contain ''searched'' at or after ''from_index''.
- *  @exception RANGE_ERROR ''from_index'' <= 0 holds.
+ *  @return the position of ''searched'' or 0 when ''mainStri''
+ *          does not contain ''searched'' at or after ''start''.
+ *  @exception RANGE_ERROR ''start'' <= 0 holds.
  *)
-const func integer: pos (in string: main_stri, in string: searched,
-                         in integer: from_index)                     is action "STR_IPOS";
+const func integer: pos (in string: mainStri, in string: searched,
+                         in integer: start)                         is action "STR_IPOS";
 
 
 (**
- *  Search char ''searched'' in ''main_stri'' at or after ''from_index''.
- *  The search starts at position ''from_index'' and proceeds to the
+ *  Search char ''searched'' in ''mainStri'' at or after ''start''.
+ *  The search starts at position ''start'' and proceeds to the
  *  right. The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''main_stri''
- *          does not contain ''searched'' at or after ''from_index''.
- *  @exception RANGE_ERROR 'from_index' <= 0 holds.
+ *  @return the position of ''searched'' or 0 when ''mainStri''
+ *          does not contain ''searched'' at or after ''start''.
+ *  @exception RANGE_ERROR 'start' <= 0 holds.
  *)
-const func integer: pos (in string: main_stri, in char: searched,
-                         in integer: from_index)                     is action "STR_CHIPOS";
+const func integer: pos (in string: mainStri, in char: searched,
+                         in integer: start)                         is action "STR_CHIPOS";
 
 
 (**
- *  Determine rightmost position of string ''searched'' in ''main_stri''.
+ *  Determine rightmost position of string ''searched'' in ''mainStri''.
  *  When the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''main_stri''
+ *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched''.
  *)
-const func integer: rpos (in string: main_stri, in string: searched) is action "STR_RPOS";
+const func integer: rpos (in string: mainStri, in string: searched) is action "STR_RPOS";
 
 
 (**
- *  Determine rightmost position of char ''searched'' in ''main_stri''.
+ *  Determine rightmost position of char ''searched'' in ''mainStri''.
  *  The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''main_stri''
+ *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched''.
  *)
-const func integer: rpos (in string: main_stri, in char: searched)   is action "STR_RCHPOS";
+const func integer: rpos (in string: mainStri, in char: searched)   is action "STR_RCHPOS";
 
 
 (**
- *  Search string ''searched'' in ''main_stri'' at or before ''from_index''.
- *  The search starts at position ''from_index'' and proceeds to the
+ *  Search string ''searched'' in ''mainStri'' at or before ''start''.
+ *  The search starts at position ''start'' and proceeds to the
  *  left. The first character in a string has the position 1.
  *  The rpos function is designed to allow loops like:
  *
@@ -321,66 +321,66 @@ const func integer: rpos (in string: main_stri, in char: searched)   is action "
  *     index := rpos(stri, searched_stri, pred(index));
  *   end while;
  *
- *  @return the position of ''searched'' or 0 when ''main_stri''
- *          does not contain ''searched'' at or before ''from_index''.
- *  @exception RANGE_ERROR ''from_index'' > length(stri) holds.
+ *  @return the position of ''searched'' or 0 when ''mainStri''
+ *          does not contain ''searched'' at or before ''start''.
+ *  @exception RANGE_ERROR ''start'' > length(stri) holds.
  *)
-const func integer: rpos (in string: main_stri, in string: searched,
-                          in integer: from_index)                    is action "STR_RIPOS";
+const func integer: rpos (in string: mainStri, in string: searched,
+                          in integer: start)                        is action "STR_RIPOS";
 
 
 (**
- *  Search char ''searched'' in ''main_stri'' at or before ''from_index''.
- *  The search starts at position ''from_index'' and proceeds to the
+ *  Search char ''searched'' in ''mainStri'' at or before ''start''.
+ *  The search starts at position ''start'' and proceeds to the
  *  left. The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''main_stri''
- *          does not contain ''searched'' at or before ''from_index''.
- *  @exception RANGE_ERROR ''from_index'' > length(stri) holds.
+ *  @return the position of ''searched'' or 0 when ''mainStri''
+ *          does not contain ''searched'' at or before ''start''.
+ *  @exception RANGE_ERROR ''start'' > length(stri) holds.
  *)
-const func integer: rpos (in string: main_stri, in char: searched,
-                          in integer: from_index)                    is action "STR_RCHIPOS";
+const func integer: rpos (in string: mainStri, in char: searched,
+                          in integer: start)                        is action "STR_RCHIPOS";
 
 
 (* const proc: count (in string param, in string param)        is action "STR_CNT"; *)
 
 
 (**
- *  Replace all occurrences of ''target'' in ''main_stri'' by ''replacement''.
+ *  Replace all occurrences of ''target'' in ''mainStri'' by ''replacement''.
  *  @return the result of the replacement.
  *)
-const func string: replace (in string: main_stri, in string: target,
-                            in string: replacement)                  is action "STR_REPL";
+const func string: replace (in string: mainStri, in string: target,
+                            in string: replacement)                 is action "STR_REPL";
 
 
 (**
  *  Replace all occurrences of ''search1'' followed by ''search2''.
- *  Searches ''main_stri'' for ''search1'' followed by ''search2''. The
+ *  Searches ''mainStri'' for ''search1'' followed by ''search2''. The
  *  characters from the beginning of ''search1'' to the end of ''search2''
  *  are replaced by ''replacement''. Between ''search1'' and ''search2''
  *  can be zero or more characters. With ''replace2'' unnested comments
  *  can be removed: replace2(stri, "(*", "*)", "")
  *  @return the result of the replacement.
  *)
-const func string: replace2 (in string: main_stri, in string: search1,
-    in string: search2, in string: repl_stri) is func
+const func string: replace2 (in string: mainStri, in string: search1,
+    in string: search2, in string: replacement) is func
   result
-    var string: result is "";
+    var string: resultStri is "";
   local
-    var integer: start_pos is 0;
-    var integer: end_pos is 0;
+    var integer: startPos is 0;
+    var integer: endPos is 0;
   begin
-    result := main_stri;
-    start_pos := pos(result, search1);
-    while start_pos <> 0 do
-      end_pos := pos(result, search2, start_pos + length(search1));
-      if end_pos <> 0 then
-        end_pos +:= length(search2);
-        result := result[ .. pred(start_pos)] &
-            repl_stri & result[end_pos .. ];
-        end_pos := start_pos + length(repl_stri);
-        start_pos := pos(result, search1, end_pos);
+    resultStri := mainStri;
+    startPos := pos(resultStri, search1);
+    while startPos <> 0 do
+      endPos := pos(resultStri, search2, startPos + length(search1));
+      if endPos <> 0 then
+        endPos +:= length(search2);
+        resultStri := resultStri[ .. pred(startPos)] &
+            replacement & resultStri[endPos .. ];
+        endPos := startPos + length(replacement);
+        startPos := pos(resultStri, search1, endPos);
       else
-        start_pos := 0;
+        startPos := 0;
       end if;
     end while;
   end func;

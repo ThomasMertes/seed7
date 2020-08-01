@@ -34,52 +34,54 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
-MOBJ1 = s7.obj
-POBJ1 = runerr.obj option.obj primitiv.obj
-LOBJ1 = actlib.obj arrlib.obj biglib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj conlib.obj dcllib.obj drwlib.obj
-LOBJ2 = enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj pollib.obj prclib.obj
-LOBJ3 = prglib.obj reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj ut8lib.obj
-EOBJ1 = exec.obj doany.obj objutl.obj
-AOBJ1 = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj
-AOBJ2 = expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj
-AOBJ3 = error.obj infile.obj libpath.obj  symbol.obj info.obj stat.obj fatal.obj match.obj
-GOBJ1 = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj
-GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj arrutl.obj
-ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj
-ROBJ2 = flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
-ROBJ3 = heaputl.obj striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj cmd_win.obj fil_win.obj pol_sel.obj tim_win.obj
-OBJ = $(MOBJ1)
-SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
+MOBJ = s7.obj
+POBJ = runerr.obj option.obj primitiv.obj
+LOBJ = actlib.obj arrlib.obj biglib.obj binlib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj conlib.obj dcllib.obj \
+       drwlib.obj enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj pollib.obj \
+       prclib.obj prglib.obj reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj \
+       ut8lib.obj
+EOBJ = exec.obj doany.obj objutl.obj
+AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj \
+       expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj \
+       error.obj infile.obj libpath.obj  symbol.obj info.obj stat.obj fatal.obj match.obj
+GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
+       entutl.obj identutl.obj chclsutl.obj sigutl.obj arrutl.obj
+ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
+       flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj \
+       heaputl.obj striutl.obj
+DOBJ = $(BIGINT_LIB).obj cmd_win.obj fil_win.obj pol_sel.obj tim_win.obj
+OBJ = $(MOBJ)
+SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj
 CONSOLE_LIB_OBJ = kbd_rtl.obj con_win.obj
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
-COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
+COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
-MSRC1 = s7.c
-PSRC1 = runerr.c option.c primitiv.c
-LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
-LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c
-LSRC3 = prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
-ESRC1 = exec.c doany.c objutl.c
-ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
-ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
-ASRC3 = error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
-GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
-GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
-RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
-RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
-RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c cmd_win.c fil_win.c pol_sel.c tim_win.c
-SRC = $(MSRC1)
-SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
+MSRC = s7.c
+PSRC = runerr.c option.c primitiv.c
+LSRC = actlib.c arrlib.c biglib.c binlib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c \
+       drwlib.c enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c \
+       prclib.c prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c \
+       ut8lib.c
+ESRC = exec.c doany.c objutl.c
+ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
+       expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
+       error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
+GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
+       entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
+RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
+       flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c \
+       heaputl.c striutl.c
+DSRC = $(BIGINT_LIB).c cmd_win.c fil_win.c pol_sel.c tim_win.c
+SRC = $(MSRC)
+SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
-COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
+COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ..\bin\s7.exe ..\prg\s7.exe
-	..\bin\s7 level
+	..\bin\s7 -l ..\lib level
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
@@ -98,18 +100,24 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 clear: clean
 
 clean:
-	del chkccomp.h
-	del version.h
-	del calltlib.exe
-	del depend
 	del *.obj
 	del ..\bin\*.lib
 	del ..\bin\s7.exe
 	del ..\bin\s7c.exe
 	del ..\prg\s7.exe
 	del ..\prg\s7c.exe
+	del depend
+	del chkccomp.h
+	del version.h
+	del calltlib.exe
 	del *.tds
 	del *.d
+
+distclean: clean
+	copy level_bk.h level.h /Y
+
+test:
+	..\bin\s7 -l ..\lib ..\prg\chk_all build
 
 dep: depend
 
@@ -265,7 +273,7 @@ depend: version.h
 	del a_depend
 
 level.h:
-	..\bin\s7 level
+	..\bin\s7 -l ..\lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	calltlib ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)

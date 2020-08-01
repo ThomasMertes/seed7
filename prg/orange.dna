@@ -47,7 +47,7 @@ const proc: dna (ORANGE) is func
 
     const func direction: optimalDir (in directSet: dirs) is func
       result
-        var direction: result is HERE;
+        var direction: optimalDir is HERE;
 
       local
         var direction: direct is HERE;
@@ -57,7 +57,7 @@ const proc: dna (ORANGE) is func
 
       begin (* optimalDir *)
         if dirs = {HERE} then
-          result := HERE;
+          optimalDir := HERE;
         else
           pow := 0;
           directs := directSet.EMPTY_SET;
@@ -74,7 +74,7 @@ const proc: dna (ORANGE) is func
               end if;
             end if;
           end for;
-          result := ranDir(directs);
+          optimalDir := ranDir(directs);
         end if;
       end func;
 

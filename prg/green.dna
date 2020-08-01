@@ -69,61 +69,61 @@ var power: strH is 0;
 var power: shrH is 0;
 
 
-const func boolean: NOENEMY is func
+const func boolean: noEnemy is func
   result
-    var boolean: result is FALSE;
+    var boolean: noEnemy is FALSE;
   local
     const colorSet: ACTSET is {CLEAR, EDGE, GREEN};
 
-  begin (* NOENEMY *)
-    result := (view(NORTH) in ACTSET) and (view(SOUTH) in ACTSET) and
-              (view(WEST)  in ACTSET) and (view(EAST)  in ACTSET) and
-              (view(NW)    in ACTSET) and (view(SW)    in ACTSET) and
-              (view(NE)    in ACTSET) and (view(SE)    in ACTSET);
-  end func; (* NOENEMY *)
+  begin (* noEnemy *)
+    noEnemy := (view(NORTH) in ACTSET) and (view(SOUTH) in ACTSET) and
+               (view(WEST)  in ACTSET) and (view(EAST)  in ACTSET) and
+               (view(NW)    in ACTSET) and (view(SW)    in ACTSET) and
+               (view(NE)    in ACTSET) and (view(SE)    in ACTSET);
+  end func; (* noEnemy *)
 
 
 const func power: newStrength (in power: currStr, in direction: actdir) is func
   result
-    var power: result is 0;
+    var power: strength is 0;
 
   begin (* newStrength *)
     if view(actdir) in {EDGE,CLEAR} or actdir = HERE then
-      result := currStr + min(food(actdir), currStr) -
-                    shrinkSize(currStr);
+      strength := currStr + min(food(actdir), currStr) -
+                  shrinkSize(currStr);
     else
-      result := currStr + strength(actdir) - shrinkSize(currStr);
+      strength := currStr + strength(actdir) - shrinkSize(currStr);
     end if;
   end func; (* newStrength *)
 
 
 const func float: MAXR (in float: x, in float: y) is func
   result
-    var float: result is 0.0;
+    var float: maximum is 0.0;
 
   begin (* MAXR *)
     if x < y then
-      result := y;
+      maximum := y;
     else
-      result := x;
+      maximum := x;
     end if;
   end func; (* MAXR *)
 
 
 const func float: neighbourVal (in direction: actdir) is func
   result
-    var float: result is 0.0;
+    var float: neighbourVal is 0.0;
 
   begin (* neighbourVal *)
     case view(actdir) of
       when {EDGE}:
-        result := 0.0;
+        neighbourVal := 0.0;
       when {CLEAR}:
-        result := flt(food(actdir)) * NEIGHBFOOD;
+        neighbourVal := flt(food(actdir)) * NEIGHBFOOD;
       when {GREEN}:
-        result := flt(food(actdir) + strength(actdir)) * NEIGHBOWN;
+        neighbourVal := flt(food(actdir) + strength(actdir)) * NEIGHBOWN;
       otherwise:
-        result := flt(food(actdir) + strength(actdir)) * NEIGHBENEMY;
+        neighbourVal := flt(food(actdir) + strength(actdir)) * NEIGHBENEMY;
     end case;
   end func; (* neighbourVal *)
 
@@ -151,17 +151,17 @@ const func integer: locMenace (in power: newstr, in direction: actdir) is func
 
 const func integer: menace (in power: str, in direction: actdir) is func
   result
-    var integer: result is 0;
+    var integer: menace is 0;
   local
     var power: newstr is 0;
 
   begin (* menace *)
     newstr := newStrength(str, actdir);
     if actdir = HERE then
-      result := min(min(locMenace(newstr, NORTH), locMenace(newstr, SOUTH)),
+      menace := min(min(locMenace(newstr, NORTH), locMenace(newstr, SOUTH)),
                     min(locMenace(newstr, WEST),  locMenace(newstr, EAST)));
     else
-      result := min(locMenace(newstr, left[actdir]),
+      menace := min(locMenace(newstr, left[actdir]),
                     locMenace(newstr, right[actdir]));
     end if;
   end func; (* menace *)
@@ -240,7 +240,7 @@ const proc: eater (in direction: actdir) is func
         end if;
       end if;
     end if;
-    if NOENEMY and flt(food(actdir)) < 0.33 * flt(foodReserve) then
+    if noEnemy and flt(food(actdir)) < 0.33 * flt(foodReserve) then
       data[actdir][SINGLEACT].quantity := shrH;
     else
       data[actdir][SINGLEACT].quantity := min(strH, food(actdir));
@@ -267,7 +267,7 @@ const proc: splitter (in direction: actdir) is func
                                      nextVal[HERE] + nextVal[actdir];
 
     data[actdir][SPLITACT].priority := SPLITBASEPRI;
-    if NOENEMY and (food(actdir) = foodReserve and
+    if noEnemy and (food(actdir) = foodReserve and
         flt(strH) >= initSplitSize or strH > 5 and strH = initSize) then
       data[actdir][SPLITACT].priority +:= INITSPLITMOD;
     end if;
@@ -294,13 +294,13 @@ const proc: splitter (in direction: actdir) is func
 
 const func bactAction: anyAct is func
   result
-    var bactAction: result is SINGLEACT;
+    var bactAction: anAction is SINGLEACT;
 
   begin (* anyAct *)
     if rand(FALSE, TRUE) then
-      result := SINGLEACT
+      anAction := SINGLEACT
     else
-      result := SPLITACT;
+      anAction := SPLITACT;
     end if;
   end func; (* anyAct *)
 

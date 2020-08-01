@@ -105,7 +105,7 @@ const func string: toHttpAscii (in string: stri) is func
       if ord(ch) >= 127 or ch < ' ' or
           ch in {'%', '/', '?', '&', '=', '+'} then
         encoded &:= stri8[start .. pred(pos)];
-        encoded &:= "%" <& upper(str(ord(ch), 16)) lpad0 2;
+        encoded &:= "%" <& ord(ch) RADIX 16 lpad0 2;
         start := succ(pos);
       elsif ch = ' ' then
         encoded &:= stri8[start .. pred(pos)];

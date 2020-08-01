@@ -4867,6 +4867,24 @@ const proc: check_log2 is func
     end if;
     power_of_two := 1;
     for number range 0 to 30 do
+      if log2(power_of_two) <> number then
+        write("log2(");
+        write(power_of_two);
+        write(") = ");
+        write(log2(power_of_two));
+        write(" instead of ");
+        writeln(number);
+        okay := FALSE;
+      end if;
+      if log2(pred(power_of_two)) <> pred(number) then
+        write("log2(");
+        write(pred(power_of_two));
+        write(") = ");
+        write(log2(pred(power_of_two)));
+        write(" instead of ");
+        writeln(pred(number));
+        okay := FALSE;
+      end if;
       for counter range 1 to 200 do
         log2_arg := power_of_two + rand(0, power_of_two div 2);
         log2_num := log2(log2_arg);
@@ -5246,156 +5264,308 @@ const proc: check_str is func
       writeln(" ***** Integer str with expressions does not work correct.");
       okay := FALSE;
     end if;
-    if  str(1000000,  2) <> "11110100001001000000" or
-        str(1000000,  3) <> "1212210202001" or
-        str(1000000,  4) <> "3310021000" or
-        str(1000000,  5) <> "224000000" or
-        str(1000000,  6) <> "33233344" or
-        str(1000000,  7) <> "11333311" or
-        str(1000000,  8) <> "3641100" or
-        str(1000000,  9) <> "1783661" or
-        str(1000000, 10) <> "1000000" or
-        str(1000000, 11) <> "623351" or
-        str(1000000, 12) <> "402854" or
-        str(1000000, 13) <> "290221" or
-        str(1000000, 14) <> "1c0608" or
-        str(1000000, 15) <> "14b46a" or
-        str(1000000, 16) <> "f4240" or
-        str(1000000, 17) <> "bg939" or
-        str(1000000, 18) <> "9987a" or
-        str(1000000, 19) <> "7cf1b" or
-        str(1000000, 20) <> "65000" or
-        str(1000000, 21) <> "52kc1" or
-        str(1000000, 22) <> "45k2c" or
-        str(1000000, 23) <> "3d486" or
-        str(1000000, 24) <> "3082g" or
-        str(1000000, 25) <> "2e000" or
-        str(1000000, 26) <> "24n7e" or
-        str(1000000, 27) <> "1nlk1" or
-        str(1000000, 28) <> "1hfe8" or
-        str(1000000, 29) <> "1c01m" or
-        str(1000000, 30) <> "1713a" or
-        str(1000000, 31) <> "12hi2" or
-        str(1000000, 32) <> "ugi0" or
-        str(1000000, 33) <> "rr91" or
-        str(1000000, 34) <> "pf1q" or
-        str(1000000, 35) <> "nbbf" or
-        str(1000000, 36) <> "lfls" then
-      writeln(" ***** Integer str with base does not work correct.");
+    if  (1000000 radix  2) <> "11110100001001000000" or
+        (1000000 radix  3) <> "1212210202001" or
+        (1000000 radix  4) <> "3310021000" or
+        (1000000 radix  5) <> "224000000" or
+        (1000000 radix  6) <> "33233344" or
+        (1000000 radix  7) <> "11333311" or
+        (1000000 radix  8) <> "3641100" or
+        (1000000 radix  9) <> "1783661" or
+        (1000000 radix 10) <> "1000000" or
+        (1000000 radix 11) <> "623351" or
+        (1000000 radix 12) <> "402854" or
+        (1000000 radix 13) <> "290221" or
+        (1000000 radix 14) <> "1c0608" or
+        (1000000 radix 15) <> "14b46a" or
+        (1000000 radix 16) <> "f4240" or
+        (1000000 radix 17) <> "bg939" or
+        (1000000 radix 18) <> "9987a" or
+        (1000000 radix 19) <> "7cf1b" or
+        (1000000 radix 20) <> "65000" or
+        (1000000 radix 21) <> "52kc1" or
+        (1000000 radix 22) <> "45k2c" or
+        (1000000 radix 23) <> "3d486" or
+        (1000000 radix 24) <> "3082g" or
+        (1000000 radix 25) <> "2e000" or
+        (1000000 radix 26) <> "24n7e" or
+        (1000000 radix 27) <> "1nlk1" or
+        (1000000 radix 28) <> "1hfe8" or
+        (1000000 radix 29) <> "1c01m" or
+        (1000000 radix 30) <> "1713a" or
+        (1000000 radix 31) <> "12hi2" or
+        (1000000 radix 32) <> "ugi0" or
+        (1000000 radix 33) <> "rr91" or
+        (1000000 radix 34) <> "pf1q" or
+        (1000000 radix 35) <> "nbbf" or
+        (1000000 radix 36) <> "lfls" then
+      writeln(" ***** The radix operator does not work correct.");
       okay := FALSE;
     end if;
-    if  str(intExpr(1000000),  2) <> "11110100001001000000" or
-        str(intExpr(1000000),  3) <> "1212210202001" or
-        str(intExpr(1000000),  4) <> "3310021000" or
-        str(intExpr(1000000),  5) <> "224000000" or
-        str(intExpr(1000000),  6) <> "33233344" or
-        str(intExpr(1000000),  7) <> "11333311" or
-        str(intExpr(1000000),  8) <> "3641100" or
-        str(intExpr(1000000),  9) <> "1783661" or
-        str(intExpr(1000000), 10) <> "1000000" or
-        str(intExpr(1000000), 11) <> "623351" or
-        str(intExpr(1000000), 12) <> "402854" or
-        str(intExpr(1000000), 13) <> "290221" or
-        str(intExpr(1000000), 14) <> "1c0608" or
-        str(intExpr(1000000), 15) <> "14b46a" or
-        str(intExpr(1000000), 16) <> "f4240" or
-        str(intExpr(1000000), 17) <> "bg939" or
-        str(intExpr(1000000), 18) <> "9987a" or
-        str(intExpr(1000000), 19) <> "7cf1b" or
-        str(intExpr(1000000), 20) <> "65000" or
-        str(intExpr(1000000), 21) <> "52kc1" or
-        str(intExpr(1000000), 22) <> "45k2c" or
-        str(intExpr(1000000), 23) <> "3d486" or
-        str(intExpr(1000000), 24) <> "3082g" or
-        str(intExpr(1000000), 25) <> "2e000" or
-        str(intExpr(1000000), 26) <> "24n7e" or
-        str(intExpr(1000000), 27) <> "1nlk1" or
-        str(intExpr(1000000), 28) <> "1hfe8" or
-        str(intExpr(1000000), 29) <> "1c01m" or
-        str(intExpr(1000000), 30) <> "1713a" or
-        str(intExpr(1000000), 31) <> "12hi2" or
-        str(intExpr(1000000), 32) <> "ugi0" or
-        str(intExpr(1000000), 33) <> "rr91" or
-        str(intExpr(1000000), 34) <> "pf1q" or
-        str(intExpr(1000000), 35) <> "nbbf" or
-        str(intExpr(1000000), 36) <> "lfls" then
-      writeln(" ***** Integer str with base does not work correct.");
+    if  (intExpr(1000000) radix  2) <> "11110100001001000000" or
+        (intExpr(1000000) radix  3) <> "1212210202001" or
+        (intExpr(1000000) radix  4) <> "3310021000" or
+        (intExpr(1000000) radix  5) <> "224000000" or
+        (intExpr(1000000) radix  6) <> "33233344" or
+        (intExpr(1000000) radix  7) <> "11333311" or
+        (intExpr(1000000) radix  8) <> "3641100" or
+        (intExpr(1000000) radix  9) <> "1783661" or
+        (intExpr(1000000) radix 10) <> "1000000" or
+        (intExpr(1000000) radix 11) <> "623351" or
+        (intExpr(1000000) radix 12) <> "402854" or
+        (intExpr(1000000) radix 13) <> "290221" or
+        (intExpr(1000000) radix 14) <> "1c0608" or
+        (intExpr(1000000) radix 15) <> "14b46a" or
+        (intExpr(1000000) radix 16) <> "f4240" or
+        (intExpr(1000000) radix 17) <> "bg939" or
+        (intExpr(1000000) radix 18) <> "9987a" or
+        (intExpr(1000000) radix 19) <> "7cf1b" or
+        (intExpr(1000000) radix 20) <> "65000" or
+        (intExpr(1000000) radix 21) <> "52kc1" or
+        (intExpr(1000000) radix 22) <> "45k2c" or
+        (intExpr(1000000) radix 23) <> "3d486" or
+        (intExpr(1000000) radix 24) <> "3082g" or
+        (intExpr(1000000) radix 25) <> "2e000" or
+        (intExpr(1000000) radix 26) <> "24n7e" or
+        (intExpr(1000000) radix 27) <> "1nlk1" or
+        (intExpr(1000000) radix 28) <> "1hfe8" or
+        (intExpr(1000000) radix 29) <> "1c01m" or
+        (intExpr(1000000) radix 30) <> "1713a" or
+        (intExpr(1000000) radix 31) <> "12hi2" or
+        (intExpr(1000000) radix 32) <> "ugi0" or
+        (intExpr(1000000) radix 33) <> "rr91" or
+        (intExpr(1000000) radix 34) <> "pf1q" or
+        (intExpr(1000000) radix 35) <> "nbbf" or
+        (intExpr(1000000) radix 36) <> "lfls" then
+      writeln(" ***** The radix operator does not work correct.");
       okay := FALSE;
     end if;
-    if  str(1000000, intExpr( 2)) <> "11110100001001000000" or
-        str(1000000, intExpr( 3)) <> "1212210202001" or
-        str(1000000, intExpr( 4)) <> "3310021000" or
-        str(1000000, intExpr( 5)) <> "224000000" or
-        str(1000000, intExpr( 6)) <> "33233344" or
-        str(1000000, intExpr( 7)) <> "11333311" or
-        str(1000000, intExpr( 8)) <> "3641100" or
-        str(1000000, intExpr( 9)) <> "1783661" or
-        str(1000000, intExpr(10)) <> "1000000" or
-        str(1000000, intExpr(11)) <> "623351" or
-        str(1000000, intExpr(12)) <> "402854" or
-        str(1000000, intExpr(13)) <> "290221" or
-        str(1000000, intExpr(14)) <> "1c0608" or
-        str(1000000, intExpr(15)) <> "14b46a" or
-        str(1000000, intExpr(16)) <> "f4240" or
-        str(1000000, intExpr(17)) <> "bg939" or
-        str(1000000, intExpr(18)) <> "9987a" or
-        str(1000000, intExpr(19)) <> "7cf1b" or
-        str(1000000, intExpr(20)) <> "65000" or
-        str(1000000, intExpr(21)) <> "52kc1" or
-        str(1000000, intExpr(22)) <> "45k2c" or
-        str(1000000, intExpr(23)) <> "3d486" or
-        str(1000000, intExpr(24)) <> "3082g" or
-        str(1000000, intExpr(25)) <> "2e000" or
-        str(1000000, intExpr(26)) <> "24n7e" or
-        str(1000000, intExpr(27)) <> "1nlk1" or
-        str(1000000, intExpr(28)) <> "1hfe8" or
-        str(1000000, intExpr(29)) <> "1c01m" or
-        str(1000000, intExpr(30)) <> "1713a" or
-        str(1000000, intExpr(31)) <> "12hi2" or
-        str(1000000, intExpr(32)) <> "ugi0" or
-        str(1000000, intExpr(33)) <> "rr91" or
-        str(1000000, intExpr(34)) <> "pf1q" or
-        str(1000000, intExpr(35)) <> "nbbf" or
-        str(1000000, intExpr(36)) <> "lfls" then
-      writeln(" ***** Integer str with base does not work correct.");
+    if  (1000000 radix intExpr( 2)) <> "11110100001001000000" or
+        (1000000 radix intExpr( 3)) <> "1212210202001" or
+        (1000000 radix intExpr( 4)) <> "3310021000" or
+        (1000000 radix intExpr( 5)) <> "224000000" or
+        (1000000 radix intExpr( 6)) <> "33233344" or
+        (1000000 radix intExpr( 7)) <> "11333311" or
+        (1000000 radix intExpr( 8)) <> "3641100" or
+        (1000000 radix intExpr( 9)) <> "1783661" or
+        (1000000 radix intExpr(10)) <> "1000000" or
+        (1000000 radix intExpr(11)) <> "623351" or
+        (1000000 radix intExpr(12)) <> "402854" or
+        (1000000 radix intExpr(13)) <> "290221" or
+        (1000000 radix intExpr(14)) <> "1c0608" or
+        (1000000 radix intExpr(15)) <> "14b46a" or
+        (1000000 radix intExpr(16)) <> "f4240" or
+        (1000000 radix intExpr(17)) <> "bg939" or
+        (1000000 radix intExpr(18)) <> "9987a" or
+        (1000000 radix intExpr(19)) <> "7cf1b" or
+        (1000000 radix intExpr(20)) <> "65000" or
+        (1000000 radix intExpr(21)) <> "52kc1" or
+        (1000000 radix intExpr(22)) <> "45k2c" or
+        (1000000 radix intExpr(23)) <> "3d486" or
+        (1000000 radix intExpr(24)) <> "3082g" or
+        (1000000 radix intExpr(25)) <> "2e000" or
+        (1000000 radix intExpr(26)) <> "24n7e" or
+        (1000000 radix intExpr(27)) <> "1nlk1" or
+        (1000000 radix intExpr(28)) <> "1hfe8" or
+        (1000000 radix intExpr(29)) <> "1c01m" or
+        (1000000 radix intExpr(30)) <> "1713a" or
+        (1000000 radix intExpr(31)) <> "12hi2" or
+        (1000000 radix intExpr(32)) <> "ugi0" or
+        (1000000 radix intExpr(33)) <> "rr91" or
+        (1000000 radix intExpr(34)) <> "pf1q" or
+        (1000000 radix intExpr(35)) <> "nbbf" or
+        (1000000 radix intExpr(36)) <> "lfls" then
+      writeln(" ***** The radix operator does not work correct.");
       okay := FALSE;
     end if;
-    if  str(intExpr(1000000), intExpr( 2)) <> "11110100001001000000" or
-        str(intExpr(1000000), intExpr( 3)) <> "1212210202001" or
-        str(intExpr(1000000), intExpr( 4)) <> "3310021000" or
-        str(intExpr(1000000), intExpr( 5)) <> "224000000" or
-        str(intExpr(1000000), intExpr( 6)) <> "33233344" or
-        str(intExpr(1000000), intExpr( 7)) <> "11333311" or
-        str(intExpr(1000000), intExpr( 8)) <> "3641100" or
-        str(intExpr(1000000), intExpr( 9)) <> "1783661" or
-        str(intExpr(1000000), intExpr(10)) <> "1000000" or
-        str(intExpr(1000000), intExpr(11)) <> "623351" or
-        str(intExpr(1000000), intExpr(12)) <> "402854" or
-        str(intExpr(1000000), intExpr(13)) <> "290221" or
-        str(intExpr(1000000), intExpr(14)) <> "1c0608" or
-        str(intExpr(1000000), intExpr(15)) <> "14b46a" or
-        str(intExpr(1000000), intExpr(16)) <> "f4240" or
-        str(intExpr(1000000), intExpr(17)) <> "bg939" or
-        str(intExpr(1000000), intExpr(18)) <> "9987a" or
-        str(intExpr(1000000), intExpr(19)) <> "7cf1b" or
-        str(intExpr(1000000), intExpr(20)) <> "65000" or
-        str(intExpr(1000000), intExpr(21)) <> "52kc1" or
-        str(intExpr(1000000), intExpr(22)) <> "45k2c" or
-        str(intExpr(1000000), intExpr(23)) <> "3d486" or
-        str(intExpr(1000000), intExpr(24)) <> "3082g" or
-        str(intExpr(1000000), intExpr(25)) <> "2e000" or
-        str(intExpr(1000000), intExpr(26)) <> "24n7e" or
-        str(intExpr(1000000), intExpr(27)) <> "1nlk1" or
-        str(intExpr(1000000), intExpr(28)) <> "1hfe8" or
-        str(intExpr(1000000), intExpr(29)) <> "1c01m" or
-        str(intExpr(1000000), intExpr(30)) <> "1713a" or
-        str(intExpr(1000000), intExpr(31)) <> "12hi2" or
-        str(intExpr(1000000), intExpr(32)) <> "ugi0" or
-        str(intExpr(1000000), intExpr(33)) <> "rr91" or
-        str(intExpr(1000000), intExpr(34)) <> "pf1q" or
-        str(intExpr(1000000), intExpr(35)) <> "nbbf" or
-        str(intExpr(1000000), intExpr(36)) <> "lfls" then
-      writeln(" ***** Integer str with base does not work correct.");
+    if  (intExpr(1000000) radix intExpr( 2)) <> "11110100001001000000" or
+        (intExpr(1000000) radix intExpr( 3)) <> "1212210202001" or
+        (intExpr(1000000) radix intExpr( 4)) <> "3310021000" or
+        (intExpr(1000000) radix intExpr( 5)) <> "224000000" or
+        (intExpr(1000000) radix intExpr( 6)) <> "33233344" or
+        (intExpr(1000000) radix intExpr( 7)) <> "11333311" or
+        (intExpr(1000000) radix intExpr( 8)) <> "3641100" or
+        (intExpr(1000000) radix intExpr( 9)) <> "1783661" or
+        (intExpr(1000000) radix intExpr(10)) <> "1000000" or
+        (intExpr(1000000) radix intExpr(11)) <> "623351" or
+        (intExpr(1000000) radix intExpr(12)) <> "402854" or
+        (intExpr(1000000) radix intExpr(13)) <> "290221" or
+        (intExpr(1000000) radix intExpr(14)) <> "1c0608" or
+        (intExpr(1000000) radix intExpr(15)) <> "14b46a" or
+        (intExpr(1000000) radix intExpr(16)) <> "f4240" or
+        (intExpr(1000000) radix intExpr(17)) <> "bg939" or
+        (intExpr(1000000) radix intExpr(18)) <> "9987a" or
+        (intExpr(1000000) radix intExpr(19)) <> "7cf1b" or
+        (intExpr(1000000) radix intExpr(20)) <> "65000" or
+        (intExpr(1000000) radix intExpr(21)) <> "52kc1" or
+        (intExpr(1000000) radix intExpr(22)) <> "45k2c" or
+        (intExpr(1000000) radix intExpr(23)) <> "3d486" or
+        (intExpr(1000000) radix intExpr(24)) <> "3082g" or
+        (intExpr(1000000) radix intExpr(25)) <> "2e000" or
+        (intExpr(1000000) radix intExpr(26)) <> "24n7e" or
+        (intExpr(1000000) radix intExpr(27)) <> "1nlk1" or
+        (intExpr(1000000) radix intExpr(28)) <> "1hfe8" or
+        (intExpr(1000000) radix intExpr(29)) <> "1c01m" or
+        (intExpr(1000000) radix intExpr(30)) <> "1713a" or
+        (intExpr(1000000) radix intExpr(31)) <> "12hi2" or
+        (intExpr(1000000) radix intExpr(32)) <> "ugi0" or
+        (intExpr(1000000) radix intExpr(33)) <> "rr91" or
+        (intExpr(1000000) radix intExpr(34)) <> "pf1q" or
+        (intExpr(1000000) radix intExpr(35)) <> "nbbf" or
+        (intExpr(1000000) radix intExpr(36)) <> "lfls" then
+      writeln(" ***** The radix operator does not work correct.");
+      okay := FALSE;
+    end if;
+    if  (1000000 RADIX  2) <> "11110100001001000000" or
+        (1000000 RADIX  3) <> "1212210202001" or
+        (1000000 RADIX  4) <> "3310021000" or
+        (1000000 RADIX  5) <> "224000000" or
+        (1000000 RADIX  6) <> "33233344" or
+        (1000000 RADIX  7) <> "11333311" or
+        (1000000 RADIX  8) <> "3641100" or
+        (1000000 RADIX  9) <> "1783661" or
+        (1000000 RADIX 10) <> "1000000" or
+        (1000000 RADIX 11) <> "623351" or
+        (1000000 RADIX 12) <> "402854" or
+        (1000000 RADIX 13) <> "290221" or
+        (1000000 RADIX 14) <> "1C0608" or
+        (1000000 RADIX 15) <> "14B46A" or
+        (1000000 RADIX 16) <> "F4240" or
+        (1000000 RADIX 17) <> "BG939" or
+        (1000000 RADIX 18) <> "9987A" or
+        (1000000 RADIX 19) <> "7CF1B" or
+        (1000000 RADIX 20) <> "65000" or
+        (1000000 RADIX 21) <> "52KC1" or
+        (1000000 RADIX 22) <> "45K2C" or
+        (1000000 RADIX 23) <> "3D486" or
+        (1000000 RADIX 24) <> "3082G" or
+        (1000000 RADIX 25) <> "2E000" or
+        (1000000 RADIX 26) <> "24N7E" or
+        (1000000 RADIX 27) <> "1NLK1" or
+        (1000000 RADIX 28) <> "1HFE8" or
+        (1000000 RADIX 29) <> "1C01M" or
+        (1000000 RADIX 30) <> "1713A" or
+        (1000000 RADIX 31) <> "12HI2" or
+        (1000000 RADIX 32) <> "UGI0" or
+        (1000000 RADIX 33) <> "RR91" or
+        (1000000 RADIX 34) <> "PF1Q" or
+        (1000000 RADIX 35) <> "NBBF" or
+        (1000000 RADIX 36) <> "LFLS" then
+      writeln(" ***** The RADIX operator does not work correct.");
+      okay := FALSE;
+    end if;
+    if  (intExpr(1000000) RADIX  2) <> "11110100001001000000" or
+        (intExpr(1000000) RADIX  3) <> "1212210202001" or
+        (intExpr(1000000) RADIX  4) <> "3310021000" or
+        (intExpr(1000000) RADIX  5) <> "224000000" or
+        (intExpr(1000000) RADIX  6) <> "33233344" or
+        (intExpr(1000000) RADIX  7) <> "11333311" or
+        (intExpr(1000000) RADIX  8) <> "3641100" or
+        (intExpr(1000000) RADIX  9) <> "1783661" or
+        (intExpr(1000000) RADIX 10) <> "1000000" or
+        (intExpr(1000000) RADIX 11) <> "623351" or
+        (intExpr(1000000) RADIX 12) <> "402854" or
+        (intExpr(1000000) RADIX 13) <> "290221" or
+        (intExpr(1000000) RADIX 14) <> "1C0608" or
+        (intExpr(1000000) RADIX 15) <> "14B46A" or
+        (intExpr(1000000) RADIX 16) <> "F4240" or
+        (intExpr(1000000) RADIX 17) <> "BG939" or
+        (intExpr(1000000) RADIX 18) <> "9987A" or
+        (intExpr(1000000) RADIX 19) <> "7CF1B" or
+        (intExpr(1000000) RADIX 20) <> "65000" or
+        (intExpr(1000000) RADIX 21) <> "52KC1" or
+        (intExpr(1000000) RADIX 22) <> "45K2C" or
+        (intExpr(1000000) RADIX 23) <> "3D486" or
+        (intExpr(1000000) RADIX 24) <> "3082G" or
+        (intExpr(1000000) RADIX 25) <> "2E000" or
+        (intExpr(1000000) RADIX 26) <> "24N7E" or
+        (intExpr(1000000) RADIX 27) <> "1NLK1" or
+        (intExpr(1000000) RADIX 28) <> "1HFE8" or
+        (intExpr(1000000) RADIX 29) <> "1C01M" or
+        (intExpr(1000000) RADIX 30) <> "1713A" or
+        (intExpr(1000000) RADIX 31) <> "12HI2" or
+        (intExpr(1000000) RADIX 32) <> "UGI0" or
+        (intExpr(1000000) RADIX 33) <> "RR91" or
+        (intExpr(1000000) RADIX 34) <> "PF1Q" or
+        (intExpr(1000000) RADIX 35) <> "NBBF" or
+        (intExpr(1000000) RADIX 36) <> "LFLS" then
+      writeln(" ***** The RADIX operator does not work correct.");
+      okay := FALSE;
+    end if;
+    if  (1000000 RADIX intExpr( 2)) <> "11110100001001000000" or
+        (1000000 RADIX intExpr( 3)) <> "1212210202001" or
+        (1000000 RADIX intExpr( 4)) <> "3310021000" or
+        (1000000 RADIX intExpr( 5)) <> "224000000" or
+        (1000000 RADIX intExpr( 6)) <> "33233344" or
+        (1000000 RADIX intExpr( 7)) <> "11333311" or
+        (1000000 RADIX intExpr( 8)) <> "3641100" or
+        (1000000 RADIX intExpr( 9)) <> "1783661" or
+        (1000000 RADIX intExpr(10)) <> "1000000" or
+        (1000000 RADIX intExpr(11)) <> "623351" or
+        (1000000 RADIX intExpr(12)) <> "402854" or
+        (1000000 RADIX intExpr(13)) <> "290221" or
+        (1000000 RADIX intExpr(14)) <> "1C0608" or
+        (1000000 RADIX intExpr(15)) <> "14B46A" or
+        (1000000 RADIX intExpr(16)) <> "F4240" or
+        (1000000 RADIX intExpr(17)) <> "BG939" or
+        (1000000 RADIX intExpr(18)) <> "9987A" or
+        (1000000 RADIX intExpr(19)) <> "7CF1B" or
+        (1000000 RADIX intExpr(20)) <> "65000" or
+        (1000000 RADIX intExpr(21)) <> "52KC1" or
+        (1000000 RADIX intExpr(22)) <> "45K2C" or
+        (1000000 RADIX intExpr(23)) <> "3D486" or
+        (1000000 RADIX intExpr(24)) <> "3082G" or
+        (1000000 RADIX intExpr(25)) <> "2E000" or
+        (1000000 RADIX intExpr(26)) <> "24N7E" or
+        (1000000 RADIX intExpr(27)) <> "1NLK1" or
+        (1000000 RADIX intExpr(28)) <> "1HFE8" or
+        (1000000 RADIX intExpr(29)) <> "1C01M" or
+        (1000000 RADIX intExpr(30)) <> "1713A" or
+        (1000000 RADIX intExpr(31)) <> "12HI2" or
+        (1000000 RADIX intExpr(32)) <> "UGI0" or
+        (1000000 RADIX intExpr(33)) <> "RR91" or
+        (1000000 RADIX intExpr(34)) <> "PF1Q" or
+        (1000000 RADIX intExpr(35)) <> "NBBF" or
+        (1000000 RADIX intExpr(36)) <> "LFLS" then
+      writeln(" ***** The RADIX operator does not work correct.");
+      okay := FALSE;
+    end if;
+    if  (intExpr(1000000) RADIX intExpr( 2)) <> "11110100001001000000" or
+        (intExpr(1000000) RADIX intExpr( 3)) <> "1212210202001" or
+        (intExpr(1000000) RADIX intExpr( 4)) <> "3310021000" or
+        (intExpr(1000000) RADIX intExpr( 5)) <> "224000000" or
+        (intExpr(1000000) RADIX intExpr( 6)) <> "33233344" or
+        (intExpr(1000000) RADIX intExpr( 7)) <> "11333311" or
+        (intExpr(1000000) RADIX intExpr( 8)) <> "3641100" or
+        (intExpr(1000000) RADIX intExpr( 9)) <> "1783661" or
+        (intExpr(1000000) RADIX intExpr(10)) <> "1000000" or
+        (intExpr(1000000) RADIX intExpr(11)) <> "623351" or
+        (intExpr(1000000) RADIX intExpr(12)) <> "402854" or
+        (intExpr(1000000) RADIX intExpr(13)) <> "290221" or
+        (intExpr(1000000) RADIX intExpr(14)) <> "1C0608" or
+        (intExpr(1000000) RADIX intExpr(15)) <> "14B46A" or
+        (intExpr(1000000) RADIX intExpr(16)) <> "F4240" or
+        (intExpr(1000000) RADIX intExpr(17)) <> "BG939" or
+        (intExpr(1000000) RADIX intExpr(18)) <> "9987A" or
+        (intExpr(1000000) RADIX intExpr(19)) <> "7CF1B" or
+        (intExpr(1000000) RADIX intExpr(20)) <> "65000" or
+        (intExpr(1000000) RADIX intExpr(21)) <> "52KC1" or
+        (intExpr(1000000) RADIX intExpr(22)) <> "45K2C" or
+        (intExpr(1000000) RADIX intExpr(23)) <> "3D486" or
+        (intExpr(1000000) RADIX intExpr(24)) <> "3082G" or
+        (intExpr(1000000) RADIX intExpr(25)) <> "2E000" or
+        (intExpr(1000000) RADIX intExpr(26)) <> "24N7E" or
+        (intExpr(1000000) RADIX intExpr(27)) <> "1NLK1" or
+        (intExpr(1000000) RADIX intExpr(28)) <> "1HFE8" or
+        (intExpr(1000000) RADIX intExpr(29)) <> "1C01M" or
+        (intExpr(1000000) RADIX intExpr(30)) <> "1713A" or
+        (intExpr(1000000) RADIX intExpr(31)) <> "12HI2" or
+        (intExpr(1000000) RADIX intExpr(32)) <> "UGI0" or
+        (intExpr(1000000) RADIX intExpr(33)) <> "RR91" or
+        (intExpr(1000000) RADIX intExpr(34)) <> "PF1Q" or
+        (intExpr(1000000) RADIX intExpr(35)) <> "NBBF" or
+        (intExpr(1000000) RADIX intExpr(36)) <> "LFLS" then
+      writeln(" ***** The RADIX operator does not work correct.");
       okay := FALSE;
     end if;
 

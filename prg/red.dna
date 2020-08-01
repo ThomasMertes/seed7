@@ -24,17 +24,17 @@
 
 const func string: str (in directSet: a_set) is func
   result
-    var string: result is "{";
+    var string: stri is "{";
   local
     var direction: setElement is direction.value;
   begin
     for setElement range a_set do
-      if result <> "{" then
-        result &:= ", ";
+      if stri <> "{" then
+        stri &:= ", ";
       end if;
-      result &:= str(setElement);
+      stri &:= str(setElement);
     end for;
-    result &:= "}";
+    stri &:= "}";
   end func;
 
 
@@ -86,7 +86,7 @@ const proc: dna (RED) is func
 
     const func direction: optimalDir (in directSet: dirs) is func
       result
-        var direction: result is HERE;
+        var direction: optimalDir is HERE;
 
       local
         var direction: direct is HERE;
@@ -96,7 +96,7 @@ const proc: dna (RED) is func
 
       begin (* optimalDir *)
         if dirs = {HERE} then
-          result := HERE;
+          optimalDir := HERE;
         else
           pow := 0;
           directs := directSet.EMPTY_SET;
@@ -113,7 +113,7 @@ const proc: dna (RED) is func
               end if;
             end if;
           end for;
-          result := ranDir(directs);
+          optimalDir := ranDir(directs);
         end if;
       end func;
 

@@ -48,10 +48,10 @@ const func string: str (in phaseType: phase) is
 
 const func phaseType: (attr phaseType) parse (in string: stri) is func
   result
-    var phaseType: result is phaseType.first;
+    var phaseType: phase is phaseType.first;
   begin
-    while str(result) <> stri do
-      incr(result);
+    while str(phase) <> stri do
+      incr(phase);
     end while;
   end func;
 
@@ -205,31 +205,17 @@ const proc: checkSumOfBadBytes (in stateType: state) is func
   end func;
 
 
-const func bigInteger: getBigFileLength (in string: fileName) is func
-  result
-    var bigInteger: result is -1_;
-  local
-    var file: aFile is STD_NULL;
-  begin
-    aFile := open(fileName, "r");
-    if aFile <> STD_NULL then
-      result := bigLength(aFile);
-      close(aFile);
-    end if;
-  end func;
-
-
 const func bigInteger: countBadBytesInAreasForward (in stateType: state,
     in bigInteger: startPosition) is func
   result
-    var bigInteger: result is 0_;
+    var bigInteger: badBytesInAreasForward is 0_;
   local
     var bigInteger: position is 0_;
     var bigInteger: badAreaSize is 0_;
   begin
     for badAreaSize key position range state.badAreas do
       if position >= startPosition then
-        result +:= badAreaSize;
+        badBytesInAreasForward +:= badAreaSize;
       end if;
     end for;
   end func;
@@ -455,14 +441,14 @@ const func bigInteger: bigLength (in string: stri) is
 
 const func bigInteger: afterMaximumBadArea (in stateType: state) is func
   result
-    var bigInteger: result is 0_
+    var bigInteger: maximumPosition is 0_
   local
     var bigInteger: position is 0_;
     var bigInteger: badAreaSize is 0_;
   begin
     for badAreaSize key position range state.badAreas do
-      if position + badAreaSize > result then
-        result := position + badAreaSize;
+      if position + badAreaSize > maximumPosition then
+        maximumPosition := position + badAreaSize;
       end if;
     end for;
   end func;

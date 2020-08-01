@@ -35,13 +35,13 @@ include "stdio.s7i";
  *)
 const func string: getf (in string: file_name) is func
   result
-    var string: result is "";
+    var string: data is "";
   local
     var file: work_file is STD_NULL;
   begin
     work_file := open(file_name, "r");
     if work_file <> STD_NULL then
-      result := gets(work_file, length(work_file));
+      data := gets(work_file, length(work_file));
       close(work_file);
     end if;
   end func;
@@ -74,14 +74,14 @@ const proc: putf (in string: file_name, in string: stri) is func
  *)
 const func array string: readf (in string: file_name) is func
   result
-    var array string: result is 0 times "";
+    var array string: data is 0 times "";
   local
     var file: work_file is STD_NULL;
   begin
     work_file := open(file_name, "r");
     if work_file <> STD_NULL then
       while hasNext(work_file) do
-        result &:= [] getln(work_file);
+        data &:= [] getln(work_file);
       end while;
       close(work_file);
     end if;

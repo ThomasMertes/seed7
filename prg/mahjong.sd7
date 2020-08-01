@@ -72,21 +72,21 @@ const color: nearEdgeColor is gray(24576); # was: 32768
 const func array color: colorScale (in color: first, in color: second,
     in integer: length) is func
   result
-    var array color: result is 0 times color.value;
+    var array color: colorScale is 0 times color.value;
   local
     var integer: red_delta is 0;
     var integer: green_delta is 0;
     var integer: blue_delta is 0;
     var integer: number is 0;
   begin
-    result := length times color.value;
+    colorScale := length times color.value;
     red_delta   := (second.red_part   - first.red_part)   div succ(length);
     green_delta := (second.green_part - first.green_part) div succ(length);
     blue_delta  := (second.blue_part  - first.blue_part)  div succ(length);
     for number range 1 to length do
-      result[number].red_part   := first.red_part   + number * red_delta;
-      result[number].green_part := first.green_part + number * green_delta;
-      result[number].blue_part  := first.blue_part  + number * blue_delta;
+      colorScale[number].red_part   := first.red_part   + number * red_delta;
+      colorScale[number].green_part := first.green_part + number * green_delta;
+      colorScale[number].blue_part  := first.blue_part  + number * blue_delta;
     end for;
   end func;
 
@@ -1653,7 +1653,7 @@ const func integer: getFreeColumn (in integer: level, in integer: line) is func
 
 const func integer: getFreePlaceColumn (in integer: level, in integer: line) is func
   result
-    var integer: result is 0;
+    var integer: freePlaceColumn is 0;
   local
     var integer: column is 0;
   begin
@@ -1682,7 +1682,7 @@ const func integer: getFreePlaceColumn (in integer: level, in integer: line) is 
           field[pred(level)][succ(line)][pred(column)].present and
           field[pred(level)][succ(line)][succ(column)].present) then
 
-        result := column;
+        freePlaceColumn := column;
       end if;
     end if;
   end func;

@@ -237,21 +237,21 @@ biginttype big1;
         buffer += 3;
         pos = big1->size - 1;
 #if BIGDIGIT_SIZE == 8
-        sprintf(buffer, "%02hhX", big1->bigdigits[pos]);
+        sprintf(buffer, "%02hhx", big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 16
-        sprintf(buffer, "%04hX", big1->bigdigits[pos]);
+        sprintf(buffer, "%04hx", big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 32
 #ifdef INT32TYPE_FORMAT_L
-        sprintf(buffer, "%08lX", big1->bigdigits[pos]);
+        sprintf(buffer, "%08lx", big1->bigdigits[pos]);
 #else
-        sprintf(buffer, "%08X", big1->bigdigits[pos]);
+        sprintf(buffer, "%08x", big1->bigdigits[pos]);
 #endif
 #endif
         if (IS_NEGATIVE(big1->bigdigits[pos])) {
           byteCount = BIGDIGIT_SIZE >> 3;
-          while (byteCount > 1 && memcmp(buffer, "FF", 2) == 0 &&
+          while (byteCount > 1 && memcmp(buffer, "ff", 2) == 0 &&
             ((buffer[2] >= '8' && buffer[2] <= '9') ||
-             (buffer[2] >= 'A' && buffer[2] <= 'F'))) {
+             (buffer[2] >= 'a' && buffer[2] <= 'f'))) {
             memmove(buffer, &buffer[2], strlen(&buffer[2]) + 1);
             byteCount--;
           } /* while */
@@ -267,14 +267,14 @@ biginttype big1;
         while (pos > 0) {
           pos--;
 #if BIGDIGIT_SIZE == 8
-          sprintf(buffer, "%02hhX", big1->bigdigits[pos]);
+          sprintf(buffer, "%02hhx", big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 16
-          sprintf(buffer, "%04hX", big1->bigdigits[pos]);
+          sprintf(buffer, "%04hx", big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 32
 #ifdef INT32TYPE_FORMAT_L
-          sprintf(buffer, "%08lX", big1->bigdigits[pos]);
+          sprintf(buffer, "%08lx", big1->bigdigits[pos]);
 #else
-          sprintf(buffer, "%08X", big1->bigdigits[pos]);
+          sprintf(buffer, "%08x", big1->bigdigits[pos]);
 #endif
 #endif
           buffer += (BIGDIGIT_SIZE >> 3) * 2;
@@ -2812,6 +2812,49 @@ biginttype big2;
 
 
 
+#ifdef ANSI_C
+
+biginttype bigAnd (const_biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigAnd (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    const_biginttype help_big;
+    memsizetype pos;
+    bigdigittype big2_sign;
+    biginttype result;
+
+  /* bigAnd */
+    if (big2->size > big1->size) {
+      help_big = big1;
+      big1 = big2;
+      big2 = help_big;
+    } /* if */
+    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      pos = 0;
+      do {
+        result->bigdigits[pos] = big1->bigdigits[pos] & big2->bigdigits[pos];
+        pos++;
+      } while (pos < big2->size);
+      big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
+      for (; pos < big1->size; pos++) {
+        result->bigdigits[pos] = big1->bigdigits[pos] & big2_sign;
+      } /* for */
+      result->size = pos;
+      result = normalize(result);
+      return result;
+    } /* if */
+  } /* bigAnd */
+
+
+
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
@@ -2896,7 +2939,7 @@ biginttype big1;
   {
     memsizetype pos;
     int byteNum;
-    static const char hex_digit[] = "0123456789ABCDEF";
+    static const char hex_digit[] = "0123456789abcdef";
     char byteBuffer[22];
     bigdigittype digit;
     memsizetype byteDigitCount;
@@ -2938,7 +2981,7 @@ biginttype big1;
       result = NULL;
     } else {
       result->size = result_size;
-      sprintf(byteBuffer, "{0x%02X,0x%02X,0x%02X,0x%02X,",
+      sprintf(byteBuffer, "{0x%02x,0x%02x,0x%02x,0x%02x,",
           (unsigned int) (byteDigitCount >> 24 & 0xFF),
           (unsigned int) (byteDigitCount >> 16 & 0xFF),
           (unsigned int) (byteDigitCount >>  8 & 0xFF),
@@ -4934,6 +4977,49 @@ biginttype big1;
 
 #ifdef ANSI_C
 
+biginttype bigOr (const_biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigOr (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    const_biginttype help_big;
+    memsizetype pos;
+    bigdigittype big2_sign;
+    biginttype result;
+
+  /* bigOr */
+    if (big2->size > big1->size) {
+      help_big = big1;
+      big1 = big2;
+      big2 = help_big;
+    } /* if */
+    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      pos = 0;
+      do {
+        result->bigdigits[pos] = big1->bigdigits[pos] | big2->bigdigits[pos];
+        pos++;
+      } while (pos < big2->size);
+      big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
+      for (; pos < big1->size; pos++) {
+        result->bigdigits[pos] = big1->bigdigits[pos] | big2_sign;
+      } /* for */
+      result->size = pos;
+      result = normalize(result);
+      return result;
+    } /* if */
+  } /* bigOr */
+
+
+
+#ifdef ANSI_C
+
 biginttype bigParse (const const_stritype stri)
 #else
 
@@ -6274,7 +6360,6 @@ biginttype big1;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 biginttype bigXor (const_biginttype big1, const_biginttype big2)
@@ -6315,7 +6400,6 @@ biginttype big2;
       return result;
     } /* if */
   } /* bigXor */
-#endif
 
 
 

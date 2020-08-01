@@ -515,12 +515,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2013-01-20 the number of lines is:
+than 150000 lines of Seed7. For version 2013-02-03 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">103582</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10227</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">111633</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 81820</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">103916</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10278</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">111837</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 82123</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -604,6 +604,7 @@ operating system, make utility, C compiler and shell:
   <tr><th>makefile name</th><th>operating system </th><th>make prog     </th><th>C compiler  </th><th>shell</th></tr>
   
   <tr><td>mk_linux.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_clang.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> clang      </td><td> sh</td></tr>
   <tr><td>mk_cygw.mak  </td><td> Windows (Cygwin)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_msys.mak  </td><td> Windows (MSYS)  </td><td> mingw32-make </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_mingw.mak </td><td> Windows (MinGW) </td><td> mingw32-make </td><td> gcc        </td><td> cmd.exe</td></tr>
@@ -834,7 +835,7 @@ Possible options are
          <li><b>0</b> Do no optimizations with constants.</li>
          <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
          <li><b>2</b> Evaluate constant expressions to simplify expressions.</li>
-         <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions</li></ul></li>
+         <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions.</li></ul></li>
   <li><b>-r</b>   Suppress the generation of range checks for strings and arrays.</li>
   <li><b>-te</b>  Generate code to trace exceptions. This option works in the same way
        as the interpreter option <b>-te</b>: Every exception will write a message
@@ -1828,6 +1829,7 @@ library directories:
     the <tt>'s7'</tt> interpreter executable. E.g.: When the interpreter is in the directory
     <tt><span class="stri">"/home/abc/seed7/bin"</span></tt> the directory <tt><span class="stri">"/home/abc/seed7/lib"</span></tt> is in the list of
     library directories.</li>
+<li>The directories that are specified at the commandline with the option <tt>-l</tt>.</li>
 <li>The directory containing the predefined Seed7 include libraries. This
     directory is hard-coded in the interpreter (an absolute path like
     <tt><span class="stri">"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</span></tt>). The hard-coded library
@@ -1959,11 +1961,20 @@ can be compiled with <tt>'make s7c'</tt>. This three make commands can be combin
 </p><pre class="indent">
 make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend s7 s7c
 </pre><p>
-Alternatively the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> can be compiled in the directory <tt><span class="stri">"seed7/prg"</span></tt>
-with:
+Alternatively the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> can be compiled as post-install step.
+This requires that <tt><span class="stri">"seed7/prg/s7c.sd7"</span></tt> is also installed. The actual
+compilation of <a class="link" href="scrshots/s7c.htm">s7c</a> is done with:
 </p><pre class="indent">
-./s7 s7c -O2 s7c
+s7 s7c -O2 s7c
 </pre><p>
+It is also possible to compile the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> in the build directory.
+In this case it is necessary to specify the direcories <tt>SEED7_LIBRARY</tt>
+and <tt>S7_LIB_DIR</tt> with the options <tt>-l</tt> and <tt>-b</tt>:
+</p><pre class="indent">
+./s7 -l ../lib s7c -l ../lib -b ../bin -O2 s7c
+</pre><p>
+Compiling <a class="link" href="scrshots/s7c.htm">s7c</a> with a make command should be preferred.
+
 </p></div>
 
 <div><br /><a name="bytecode"><h3>Does the interpreter use bytecode?

@@ -58,7 +58,7 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       const proc: (inout arrayType: arr) &:= (in arrayType: extension)        is action "ARR_APPEND";
 
       (**
-       *  Append the element ''extension'' to the array ''arr''.
+       *  Append the given ''element'' to the array ''arr''.
        *  @exception MEMORY_ERROR Not enough memory for the concatenated
        *             array.
        *)
@@ -196,10 +196,10 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
 
         const func arrayType: (attr indexType) times (in baseType: base_value) is func
           result
-            var arrayType: result is arrayType.value;
+            var arrayType: anArray is arrayType.value;
           begin
-            result := arrayType conv (succ(ord(indexType.last) - ord(indexType.first)) times base_value);
-            result := arrayType conv ([ord(indexType.first)] (tupleType conv result));
+            anArray := arrayType conv (succ(ord(indexType.last) - ord(indexType.first)) times base_value);
+            anArray := arrayType conv ([ord(indexType.first)] (tupleType conv anArray));
           end func;
 
       end if;

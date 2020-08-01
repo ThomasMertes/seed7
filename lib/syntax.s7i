@@ -144,6 +144,8 @@ $ syntax expr: .sub.().class.end.class is         -> 13;
 $ syntax expr: .().and.() is                      -> 14;
 $ syntax expr: .().or.() is                       -> 15;
 $ syntax expr: .().val.() is                      -> 16;
+$ syntax expr: .().radix.() is                    -> 16;
+$ syntax expr: .().RADIX.() is                    -> 16;
 $ syntax expr: .().digits.() is                   -> 16;
 $ syntax expr: .().sci.() is                      -> 16;
 $ syntax expr: .().exp.() is                      -> 17;

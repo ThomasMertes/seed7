@@ -180,37 +180,38 @@ const func boolean: doOneCommand (inout string: command,
 
 const func string: execBacktickCommands (in string: stri) is func
   result
-    var string: result is "";
+    var string: withBacktickOutput is "";
   local
     var integer: backtickPos is 0;
     var integer: closingBacktickPos is 0;
     var string: command is "";
     var file: commandFile is STD_NULL;
-    var string: commandOutput is "";
+    var string: backtickOutput is "";
   begin
-    result := stri;
-    backtickPos := pos(result, '`');
+    withBacktickOutput := stri;
+    backtickPos := pos(withBacktickOutput, '`');
     while backtickPos <> 0 do
-      closingBacktickPos := pos(result, '`', succ(backtickPos));
+      closingBacktickPos := pos(withBacktickOutput, '`', succ(backtickPos));
       if closingBacktickPos <> 0 then
-        command := result[succ(backtickPos) .. pred(closingBacktickPos)];
-        if not doOneCommand(command, commandOutput, FALSE) then
+        command := withBacktickOutput[succ(backtickPos) .. pred(closingBacktickPos)];
+        if not doOneCommand(command, backtickOutput, FALSE) then
           commandFile := popen(command, "r");
           if commandFile <> STD_NULL then
-            commandOutput := gets(commandFile, 999999999);
-            while endsWith(commandOutput, "\r\n") do
-              commandOutput := commandOutput[.. length(commandOutput) - 2];
+            backtickOutput := gets(commandFile, 999999999);
+            while endsWith(backtickOutput, "\r\n") do
+              backtickOutput := backtickOutput[.. length(backtickOutput) - 2];
             end while;
-            while endsWith(commandOutput, "\n") do
-              commandOutput := commandOutput[.. pred(length(commandOutput))];
+            while endsWith(backtickOutput, "\n") do
+              backtickOutput := backtickOutput[.. pred(length(backtickOutput))];
             end while;
           else
-            commandOutput := "";
+            backtickOutput := "";
           end if;
         end if;
-        result := result[.. pred(backtickPos)] & commandOutput & result[succ(closingBacktickPos) ..];
+        withBacktickOutput := withBacktickOutput[.. pred(backtickPos)] & backtickOutput &
+                              withBacktickOutput[succ(closingBacktickPos) ..];
       end if;
-      backtickPos := pos(result, '`', succ(backtickPos));
+      backtickPos := pos(withBacktickOutput, '`', succ(backtickPos));
     end while;
   end func;
 
@@ -657,31 +658,31 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
   end func;
 
 
-const func string: executeInternalMacro (in char: macro, in ruleType: rule,
+const func string: expandInternalMacro (in char: macro, in ruleType: rule,
     in array string: strictDependencies) is func
   result
-    var string: result is "";
+    var string: expandedMacro is "";
   begin
     case macro of
       when {'@'}:
-          result := rule.name;
+          expandedMacro := rule.name;
       when {'<'}:
           if length(rule.dependencies) <> 0 then
-            result := rule.dependencies[1];
+            expandedMacro := rule.dependencies[1];
           end if;
       when {'?'}:
-          result := join(strictDependencies, " ");
+          expandedMacro := join(strictDependencies, " ");
       when {'^'}:
-          result := join(strictDependencies, " ");
+          expandedMacro := join(strictDependencies, " ");
       when {'+'}:
-          result := join(rule.dependencies, " ");
+          expandedMacro := join(rule.dependencies, " ");
     end case;
   end func;
 
 
 const func string: applyInternalMacros (in ruleType: rule, in string: stri) is func
   result
-    var string: result is "";
+    var string: macrosApplied is "";
   local
     const set of char: iternalMacroDesignator is {'@', '<', '?', '^', '+'};
     var integer: dollarPos is 0;
@@ -699,52 +700,52 @@ const func string: applyInternalMacros (in ruleType: rule, in string: stri) is f
         incl(dependencySet, dependency);
       end if;
     end for;
-    result := stri;
-    dollarPos := pos(result, '$');
+    macrosApplied := stri;
+    dollarPos := pos(macrosApplied, '$');
     while dollarPos <> 0 do
-      if dollarPos < length(result) then
-        if result[succ(dollarPos)] in iternalMacroDesignator then
-          result := result[.. pred(dollarPos)] &
-              executeInternalMacro(result[succ(dollarPos)], rule, strictDependencies) &
-              result[dollarPos + 2 ..];
-        elsif result[succ(dollarPos)] = '(' then
+      if dollarPos < length(macrosApplied) then
+        if macrosApplied[succ(dollarPos)] in iternalMacroDesignator then
+          macrosApplied := macrosApplied[.. pred(dollarPos)] &
+              expandInternalMacro(macrosApplied[succ(dollarPos)], rule, strictDependencies) &
+              macrosApplied[dollarPos + 2 ..];
+        elsif macrosApplied[succ(dollarPos)] = '(' then
           pos := dollarPos + 2;
-          if pos <= length(result) and result[pos] in iternalMacroDesignator then
-            macro := result[pos];
+          if pos <= length(macrosApplied) and macrosApplied[pos] in iternalMacroDesignator then
+            macro := macrosApplied[pos];
             incr(pos);
-            if pos <= length(result) then
-              if result[pos] = ')' then
-                result := result[.. pred(dollarPos)] &
-                    executeInternalMacro(macro, rule, strictDependencies) &
-                    result[succ(pos) ..];
-              elsif result[pos] = ':' then
+            if pos <= length(macrosApplied) then
+              if macrosApplied[pos] = ')' then
+                macrosApplied := macrosApplied[.. pred(dollarPos)] &
+                    expandInternalMacro(macro, rule, strictDependencies) &
+                    macrosApplied[succ(pos) ..];
+              elsif macrosApplied[pos] = ':' then
                 incr(pos);
                 suffix := "";
-                while pos <= length(result) and result[pos] <> '=' do
-                  suffix &:= result[pos];
+                while pos <= length(macrosApplied) and macrosApplied[pos] <> '=' do
+                  suffix &:= macrosApplied[pos];
                   incr(pos);
                 end while;
-                if pos <= length(result) then
+                if pos <= length(macrosApplied) then
                   incr(pos);
                   replacement := "";
-                  while pos <= length(result) and result[pos] <> ')' do
-                    replacement &:= result[pos];
+                  while pos <= length(macrosApplied) and macrosApplied[pos] <> ')' do
+                    replacement &:= macrosApplied[pos];
                     incr(pos);
                   end while;
-                  if pos <= length(result) then
-                    result := result[.. pred(dollarPos)] &
-                        replaceSuffixes(executeInternalMacro(macro, rule, strictDependencies), suffix, replacement) &
-                        result[succ(pos) ..];
+                  if pos <= length(macrosApplied) then
+                    macrosApplied := macrosApplied[.. pred(dollarPos)] &
+                        replaceSuffixes(expandInternalMacro(macro, rule, strictDependencies), suffix, replacement) &
+                        macrosApplied[succ(pos) ..];
                   end if;
                 end if;
               end if;
             end if;
           end if;
-        elsif result[succ(dollarPos)] = '$' then
-          result := result[.. pred(dollarPos)] & result[succ(dollarPos) ..];
+        elsif macrosApplied[succ(dollarPos)] = '$' then
+          macrosApplied := macrosApplied[.. pred(dollarPos)] & macrosApplied[succ(dollarPos) ..];
         end if;
       end if;
-      dollarPos := pos(result, '$', succ(dollarPos));
+      dollarPos := pos(macrosApplied, '$', succ(dollarPos));
     end while;
   end func;
 

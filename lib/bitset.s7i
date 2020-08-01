@@ -341,17 +341,17 @@ const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref boole
  *)
 const func string: str (in bitset: aSet) is func
   result
-    var string: result is "{";
+    var string: stri is "{";
   local
     var integer: setElement is 0;
   begin
     for setElement range aSet do
-      if result <> "{" then
-        result &:= ", ";
+      if stri <> "{" then
+        stri &:= ", ";
       end if;
-      result &:= str(setElement);
+      stri &:= str(setElement);
     end for;
-    result &:= "}";
+    stri &:= "}";
   end func;
 
 
@@ -363,7 +363,7 @@ const func string: str (in bitset: aSet) is func
  *)
 const func bitset: (attr bitset) parse (in var string: stri) is func
   result
-    var bitset: result is EMPTY_SET;
+    var bitset: aBitset is EMPTY_SET;
   begin
     if stri[1] = '{' then
       repeat
@@ -371,7 +371,7 @@ const func bitset: (attr bitset) parse (in var string: stri) is func
           stri := stri[2 ..];
         until stri[1] <> ' ';
         if stri[1] >= '0' and stri[1] <= '9' then
-          incl(result, integer parse getint(stri));
+          incl(aBitset, integer parse getint(stri));
         elsif stri[1] <> '}' then
           raise RANGE_ERROR;
         end if;

@@ -335,13 +335,13 @@ const func integer: hashCode (in complex: num) is
  *)
 const func string: str (in complex: number) is func
   result
-    var string: result is "";
+    var string: stri is "";
   begin
-    result := str(number.im) <& "i";
-    if result[1] = '-' then
-      result := str(number.re) &       result;
+    stri := str(number.im) <& "i";
+    if stri[1] = '-' then
+      stri := str(number.re) &       stri;
     else
-      result := str(number.re) & "+" & result;
+      stri := str(number.re) & "+" & stri;
     end if;
   end func;
 
@@ -386,13 +386,13 @@ const func complex: (attr complex) parse (in string: stri) is func
  *)
 const func string: (in complex: number) digits (in integer: precision) is func
   result
-    var string: result is "";
+    var string: stri is "";
   begin
-    result := number.im digits precision <& "i";
-    if result[1] = '-' then
-      result := number.re digits precision <&        result;
+    stri := number.im digits precision <& "i";
+    if stri[1] = '-' then
+      stri := number.re digits precision <&        stri;
     else
-      result := number.re digits precision <& "+" <& result;
+      stri := number.re digits precision <& "+" <& stri;
     end if;
   end func;
 

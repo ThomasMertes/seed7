@@ -35,6 +35,7 @@
 #include "actlib.h"
 #include "arrlib.h"
 #include "biglib.h"
+#include "binlib.h"
 #include "blnlib.h"
 #include "bstlib.h"
 #include "chrlib.h"
@@ -147,6 +148,10 @@ static primactrecord prim_act_table[] = {
     { "BIG_STR",                 big_str,                 },
     { "BIG_SUCC",                big_succ,                },
     { "BIG_VALUE",               big_value,               },
+
+    { "BIN_AND",                 bin_and,                 },
+    { "BIN_OR",                  bin_or,                  },
+    { "BIN_XOR",                 bin_xor,                 },
 
     { "BLN_AND",                 bln_and,                 },
     { "BLN_CPY",                 bln_cpy,                 },
@@ -493,6 +498,7 @@ static primactrecord prim_act_table[] = {
     { "INT_PLUS",                int_plus,                },
     { "INT_POW",                 int_pow,                 },
     { "INT_PRED",                int_pred,                },
+    { "INT_RADIX",               int_RADIX,               },
     { "INT_RAND",                int_rand,                },
     { "INT_REM",                 int_rem,                 },
     { "INT_RSHIFT",              int_rshift,              },
@@ -501,9 +507,9 @@ static primactrecord prim_act_table[] = {
     { "INT_SHRINK",              int_shrink,              },
     { "INT_SQRT",                int_sqrt,                },
     { "INT_STR",                 int_str,                 },
-    { "INT_STR_BASED",           int_str_based,           },
     { "INT_SUCC",                int_succ,                },
     { "INT_VALUE",               int_value,               },
+    { "INT_radix",               int_radix,               },
 
     { "ITF_CMP",                 itf_cmp,                 },
     { "ITF_CONV2",               itf_conv2,               },

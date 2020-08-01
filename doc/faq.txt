@@ -196,12 +196,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2013-01-20 the number of lines is:
+than 150000 lines of Seed7. For version 2013-02-03 the number of lines is:
 
-  103582  C source files (*.c)
-   10227  C header files (*.h)
-  111633  Seed7 source files (*.sd7)
-   81820  Seed7 library/include files (*.s7i)
+  103916  C source files (*.c)
+   10278  C header files (*.h)
+  111837  Seed7 source files (*.sd7)
+   82123  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -285,6 +285,7 @@ operating system, make utility, C compiler and shell:
   makefile name|operating system |make prog     |C compiler  |shell
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
+  mk_clang.mak | Linux/Unix/BSD  | (g)make      | clang      | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
   mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
@@ -515,7 +516,7 @@ Possible options are
          0 Do no optimizations with constants.
          1 Use literals and named constants to simplify expressions (default).
          2 Evaluate constant expressions to simplify expressions.
-         3 Like -oc2 and additionally evaluate all constant expressions
+         3 Like -oc2 and additionally evaluate all constant expressions.
   -r   Suppress the generation of range checks for strings and arrays.
   -te  Generate code to trace exceptions. This option works in the same way
        as the interpreter option -te: Every exception will write a message
@@ -1509,14 +1510,15 @@ library directories:
     the 's7' interpreter executable. E.g.: When the interpreter is in the directory
     "/home/abc/seed7/bin" the directory "/home/abc/seed7/lib" is in the list of
     library directories.
- 3. The directory containing the predefined Seed7 include libraries. This
+ 3. The directories that are specified at the commandline with the option -l.
+ 4. The directory containing the predefined Seed7 include libraries. This
     directory is hard-coded in the interpreter (an absolute path like
     "/directory_where_Seed7_was_installed/seed7/lib"). The hard-coded library
     directory is determined when the interpreter is compiled. When the interpreter
     was not compiled from source (binary release) the path "../lib" relative to the
     current working directory is used.
- 4. The directory specified with the SEED7_LIBRARY environment variable.
- 5. Directories specified in the source file with the library pragma.
+ 5. The directory specified with the SEED7_LIBRARY environment variable.
+ 6. Directories specified in the source file with the library pragma.
     E.g.: The line: $ library "/home/abc/seed7/lib" adds the directory
     "/home/abc/seed7/lib" to the list of library directories.
 
@@ -1640,10 +1642,19 @@ can be compiled with 'make s7c'. This three make commands can be combined to
 
   make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend s7 s7c
 
-Alternatively the Seed7 compiler can be compiled in the directory "seed7/prg"
-with:
+Alternatively the Seed7 compiler can be compiled as post-install step.
+This requires that "seed7/prg/s7c.sd7" is also installed. The actual
+compilation of s7c is done with:
 
-  ./s7 s7c -O2 s7c
+  s7 s7c -O2 s7c
+
+It is also possible to compile the Seed7 compiler in the build directory.
+In this case it is necessary to specify the direcories SEED7_LIBRARY
+and S7_LIB_DIR with the options -l and -b:
+
+  ./s7 -l ../lib s7c -l ../lib -b ../bin -O2 s7c
+
+Compiling s7c with a make command should be preferred.
 
 
 

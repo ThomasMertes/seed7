@@ -154,7 +154,9 @@ static const int least_significant[] = {
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
   };
 
-static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+static const char lcDigits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+static const char ucDigits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const const_cstritype digitTable[] = {lcDigits, ucDigits};
 
 
 
@@ -959,6 +961,129 @@ inttype exponent;
 
 
 
+/**
+ *  Convert an integer number to a string using a radix.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with letters.
+ *  The parameter upperCase decides about the letter case.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+#ifdef ANSI_C
+
+stritype intRadix (inttype number, inttype base, booltype upperCase)
+#else
+
+stritype intRadix (number, base, upperCase)
+inttype number;
+inttype base;
+booltype upperCase;
+#endif
+
+  {
+    uinttype unsigned_number;
+    booltype negative;
+    const_cstritype digits;
+    strelemtype buffer_1[75];
+    strelemtype *buffer;
+    memsizetype length;
+    stritype result;
+
+  /* intRadix */
+    if (unlikely(base < 2 || base > 36)) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      negative = (number < 0);
+      if (negative) {
+        /* The unsigned value is negated to avoid a signed integer */
+        /* overflow when the smallest signed integer is negated.   */
+        unsigned_number = -(uinttype) number;
+      } else {
+        unsigned_number = (uinttype) number;
+      } /* if */
+      digits = digitTable[upperCase];
+      buffer = &buffer_1[75];
+      do {
+        *(--buffer) = (strelemtype) (digits[unsigned_number % (uinttype) base]);
+      } while ((unsigned_number /= (uinttype) base) != 0);
+      if (negative) {
+        *(--buffer) = (strelemtype) '-';
+      } /* if */
+      length = (memsizetype) (&buffer_1[75] - buffer);
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = length;
+        memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
+      } /* if */
+    } /* if */
+    return result;
+  } /* intRadix */
+
+
+
+/**
+ *  Convert an integer number to a string using a radix.
+ *  The conversion uses the numeral system with the specified base.
+ *  The base is a power of two and it is specified indirectly with
+ *  shift and mask. Digit values from 10 upward are encoded with
+ *  letters. The parameter upperCase decides about the letter case.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+#ifdef ANSI_C
+
+stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
+#else
+
+stritype intRadixPow2 (number, shft, mask, upperCase)
+inttype number;
+int shift;
+int mask
+booltype upperCase;
+#endif
+
+  {
+    uinttype unsigned_number;
+    booltype negative;
+    const_cstritype digits;
+    strelemtype buffer_1[50];
+    strelemtype *buffer;
+    memsizetype length;
+    stritype result;
+
+  /* intRadixPow2 */
+    negative = (number < 0);
+    if (negative) {
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      unsigned_number = -(uinttype) number;
+    } else {
+      unsigned_number = (uinttype) number;
+    } /* if */
+      digits = digitTable[upperCase];
+    buffer = &buffer_1[50];
+    do {
+      *(--buffer) = (strelemtype) (digits[unsigned_number & (uinttype) mask]);
+    } while ((unsigned_number >>= shift) != 0);
+    if (negative) {
+      *(--buffer) = (strelemtype) '-';
+    } /* if */
+    length = (memsizetype) (&buffer_1[50] - buffer);
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      result->size = length;
+      memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
+      return result;
+    } /* if */
+  } /* intRadixPow2 */
+
+
+
 #ifdef ANSI_C
 
 inttype intRand (inttype lower_limit, inttype upper_limit)
@@ -1081,120 +1206,3 @@ inttype number;
     } /* if */
     return result;
   } /* intStr */
-
-
-
-/**
- *  Convert an integer number to a string.
- *  The conversion uses the numeral system with the given base.
- *  Digit values from 10 upward are encoded with upper case letters.
- *  E.g.: 10 is encoded with A, 11 with B, etc.
- *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
- */
-#ifdef ANSI_C
-
-stritype intStrBased (inttype number, inttype base)
-#else
-
-stritype intStrBased (number, base)
-inttype number;
-inttype base;
-#endif
-
-  {
-    uinttype unsigned_number;
-    booltype negative;
-    strelemtype buffer_1[75];
-    strelemtype *buffer;
-    memsizetype length;
-    stritype result;
-
-  /* intStrBased */
-    if (unlikely(base < 2 || base > 36)) {
-      raise_error(RANGE_ERROR);
-      result = NULL;
-    } else {
-      negative = (number < 0);
-      if (negative) {
-        /* The unsigned value is negated to avoid a signed integer */
-        /* overflow when the smallest signed integer is negated.   */
-        unsigned_number = -(uinttype) number;
-      } else {
-        unsigned_number = (uinttype) number;
-      } /* if */
-      buffer = &buffer_1[75];
-      do {
-        *(--buffer) = (strelemtype) (digits[unsigned_number % (uinttype) base]);
-      } while ((unsigned_number /= (uinttype) base) != 0);
-      if (negative) {
-        *(--buffer) = (strelemtype) '-';
-      } /* if */
-      length = (memsizetype) (&buffer_1[75] - buffer);
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = length;
-        memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
-      } /* if */
-    } /* if */
-    return result;
-  } /* intStrBased */
-
-
-
-/**
- *  Convert an integer number to a string.
- *  The conversion uses the numeral system with the specified base.
- *  The base is a power of two and it is specified indirectly with
- *  shift and mask. Digit values from 10 upward are encoded with
- *  upper case letters. E.g.: 10 is encoded with A, 11 with B, etc.
- *  @return the string result of the conversion.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
- */
-#ifdef ANSI_C
-
-stritype intStrPow2Base (inttype number, int shift, int mask)
-#else
-
-stritype intStrPow2Base (number, shft, mask)
-inttype number;
-int shift;
-int mask
-#endif
-
-  {
-    uinttype unsigned_number;
-    booltype negative;
-    strelemtype buffer_1[50];
-    strelemtype *buffer;
-    memsizetype length;
-    stritype result;
-
-  /* intStrPow2Base */
-    negative = (number < 0);
-    if (negative) {
-      /* The unsigned value is negated to avoid a signed integer */
-      /* overflow when the smallest signed integer is negated.   */
-      unsigned_number = -(uinttype) number;
-    } else {
-      unsigned_number = (uinttype) number;
-    } /* if */
-    buffer = &buffer_1[50];
-    do {
-      *(--buffer) = (strelemtype) (digits[unsigned_number & (uinttype) mask]);
-    } while ((unsigned_number >>= shift) != 0);
-    if (negative) {
-      *(--buffer) = (strelemtype) '-';
-    } /* if */
-    length = (memsizetype) (&buffer_1[50] - buffer);
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
-      raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      result->size = length;
-      memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
-      return result;
-    } /* if */
-  } /* intStrPow2Base */

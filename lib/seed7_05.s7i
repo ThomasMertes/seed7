@@ -417,17 +417,22 @@ $ include "char.s7i";
 
 $ include "string.s7i";
 
+# The function stri with a base is deprecated.
+# The radix operator should be used instead.
+const func string: str (in integer: number, in integer: base) is
+  return number radix base;
+
 const func char: (attr char) parse (in string: stri) is
   return stri[1];
 
 const func boolean: (attr boolean) parse (in string: stri) is func
   result
-    var boolean: result is FALSE;
+    var boolean: aBoolean is FALSE;
   begin
     if stri = "TRUE" then
-      result := TRUE;
+      aBoolean := TRUE;
     elsif stri = "FALSE" then
-      result := FALSE;
+      aBoolean := FALSE;
     else
       raise RANGE_ERROR;
     end if;
@@ -435,12 +440,12 @@ const func boolean: (attr boolean) parse (in string: stri) is func
 
 const func string: str (in boolean: aBool) is func
   result
-    var string: result is "";
+    var string: stri is "";
   begin
     if aBool then
-      result := "TRUE";
+      stri := "TRUE";
     else
-      result := "FALSE";
+      stri := "FALSE";
     end if;
   end func;
 
@@ -448,15 +453,15 @@ const func string: str (in boolean: aBool) is func
 
 const func string: literal (in char: ch) is func
   result
-    var string: result is "";
+    var string: stri is "";
   begin
     if ch = ''' then
-      result := "'\\''";
+      stri := "'\\''";
     elsif ch <= chr(255) then
-      result := literal(str(ch));
-      result := "'" & result[2 .. length(result) - 1] & "'";
+      stri := literal(str(ch));
+      stri := "'" & stri[2 .. length(stri) - 1] & "'";
     else
-      result := "'\\" & str(ord(ch)) & "\\'";
+      stri := "'\\" & str(ord(ch)) & "\\'";
     end if;
   end func;
 
@@ -618,15 +623,15 @@ const func type: tuple (in type: baseType) is func
 (*
       const func tupleType: (in baseType: lower_limit) .. (in baseType: upper_limit) is func
         result
-          var tupleType: result is
+          var tupleType: aTuple is
         local
           var baseType: element is baseType.value;
        begin
           element := lower_limit;
           if variable <= upper_limit then
-            result &:= element;
+            aTuple &:= element;
             while element < upper_limit then
-              result &:= element;
+              aTuple &:= element;
               incr(element);
             end while;
           end if;
@@ -653,27 +658,27 @@ const func array string: split (in string: main_stri, in string: delimiter) is a
 
 const func string: join (in array string: striArray, in char: delimiter) is func
   result
-    var string: result is "";
+    var string: joined is "";
   local
     var integer: pos is 0;
   begin
-    result := striArray[minIdx(striArray)];
+    joined := striArray[minIdx(striArray)];
     for pos range succ(minIdx(striArray)) to maxIdx(striArray) do
-      result &:= delimiter;
-      result &:= striArray[pos];
+      joined &:= delimiter;
+      joined &:= striArray[pos];
     end for;
   end func;
 
 const func string: join (in array string: striArray, in string: delimiter) is func
   result
-    var string: result is "";
+    var string: joined is "";
   local
     var integer: pos is 0;
   begin
-    result := striArray[minIdx(striArray)];
+    joined := striArray[minIdx(striArray)];
     for pos range succ(minIdx(striArray)) to maxIdx(striArray) do
-      result &:= delimiter;
-      result &:= striArray[pos];
+      joined &:= delimiter;
+      joined &:= striArray[pos];
     end for;
   end func;
 
@@ -730,7 +735,7 @@ $ include "set.s7i";
 
 const func integer: toInt (in string: stri, in integer: base) is func
   result
-    var integer: result is 0;
+    var integer: anInteger is 0;
   local
     const array integer: digitval is [] (                    # -1 is illegal
          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,              # 0 - 9
@@ -748,7 +753,7 @@ const func integer: toInt (in string: stri, in integer: base) is func
       if digit = -1 then
         raise RANGE_ERROR;
       end if;
-      result := result * base + digit;
+      anInteger := anInteger * base + digit;
     end for;
   end func;
 
@@ -805,9 +810,9 @@ const proc: type_implements_interface (in type: aType, in type: interfaceType) i
 
     const func aType: xalloc (in aType: newStuct) is func
       result
-        var aType: result is aType.value;
+        var aType: allocated is aType.value;
       begin
-        result := newStuct;
+        allocated := newStuct;
       end func;
 
     addInterface(aType, interfaceType);

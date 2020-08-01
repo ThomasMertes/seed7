@@ -46,6 +46,9 @@
 #include "netdb.h"
 #include "netinet/in.h"
 #include "sys/select.h"
+#ifdef HAS_POLL
+#include "poll.h"
+#endif
 #endif
 #include "errno.h"
 
@@ -57,6 +60,7 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "os_decls.h"
 #include "int_rtl.h"
 #include "rtl_err.h"
 
@@ -1107,7 +1111,7 @@ inttype port;
 
 
 
-#ifdef OUT_OF_ORDER
+#ifdef HAS_POLL
 #ifdef ANSI_C
 
 booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
@@ -1146,7 +1150,8 @@ inttype micro_seconds;
     } /* if */
     return result;
   } /* socInputReady */
-#endif
+
+#else
 
 
 
@@ -1195,6 +1200,8 @@ inttype micro_seconds;
     } /* if */
     return result;
   } /* socInputReady */
+
+#endif
 
 
 

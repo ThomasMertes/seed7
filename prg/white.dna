@@ -40,7 +40,7 @@ const proc: dna (WHITE) is func
 
     const func float: meanFood is func
       result
-        var float: result is 0.0;
+        var float: mean is 0.0;
       local
         var direction: actdir is HERE;
         var power: sum is 0;
@@ -55,21 +55,21 @@ const proc: dna (WHITE) is func
             incr(anz);
           end if;
         end for;
-        result := flt(sum) / flt(anz);
+        mean := flt(sum) / flt(anz);
       end func; (* meanFood *)
 
 
     const func boolean: noEnemy is func
       result
-        var boolean: result is FALSE;
+        var boolean: noEnemy is FALSE;
       local
         const colorSet: ACTSET is {CLEAR, EDGE, WHITE};
 
       begin
-        result := (view(NORTH) in ACTSET) and (view(SOUTH) in ACTSET) and
-                  (view(WEST)  in ACTSET) and (view(EAST)  in ACTSET) and
-                  (view(NW)    in ACTSET) and (view(SW)    in ACTSET) and
-                  (view(NE)    in ACTSET) and (view(SE)    in ACTSET);
+        noEnemy := (view(NORTH) in ACTSET) and (view(SOUTH) in ACTSET) and
+                   (view(WEST)  in ACTSET) and (view(EAST)  in ACTSET) and
+                   (view(NW)    in ACTSET) and (view(SW)    in ACTSET) and
+                   (view(NE)    in ACTSET) and (view(SE)    in ACTSET);
       end func; (* noEnemy *)
 
 

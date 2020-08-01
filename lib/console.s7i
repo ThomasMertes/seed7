@@ -55,10 +55,10 @@ const proc: CON_OPEN                                             is action "CON_
  *)
 const func console_file: open (CONSOLE) is func
   result
-    var console_file: result is STD_CONSOLE;
+    var console_file: consoleFile is STD_CONSOLE;
   begin
     CON_OPEN;
-    result := STD_CONSOLE;
+    consoleFile := STD_CONSOLE;
   end func;
 
 

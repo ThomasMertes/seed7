@@ -206,7 +206,7 @@ var set of string: numeric_functions is {
     "INSTR",    "INT",      "LBOUND",   "LEN",      "LOF",      "LOG",
     "PEEK",     "POINT",    "POS",      "RND",      "SCREEN",   "SGN",
     "SIN",      "SQR",      "STRIG",    "TAN",      "TIMER",    "UBOUND",
-    "VAL"};
+    "VAL",      "VARPTR"};
 
 const set of string: not_allowed_as_label is {
     "BEEP",      "CLEAR",     "CLOSE",     "CLS",       "COLOR",     "COMMON",
@@ -270,35 +270,6 @@ const proc: list_prog (inout file: listFile, in integer: fromLine, in integer: t
                   integer parse (prg[number].linenum) < toLine;
       end if;
     end for;
-  end func;
-
-
-const func string: hex_str (in var integer: number) is func
-  result
-    var string: result is "";
-  local
-    var integer: digit is 0;
-  begin
-    while number >= 0 do
-      digit := number rem 16;
-      number := number div 16;
-      if digit <= 9 then
-        result := str(chr(ord('0') + digit)) & result;
-      else
-        result := str(chr(ord('A') + digit - 10)) & result;
-      end if;
-    end while;
-  end func;
-
-
-const func string: oct_str (in var integer: number) is func
-  result
-    var string: result is "";
-  begin
-    while number >= 0 do
-      result := str(number rem 8) & result;
-      number := number div 8;
-    end while;
   end func;
 
 
@@ -659,22 +630,22 @@ const proc: setStringVar (in string: varName, in string: stri) is func
 
 const func integer: varptr (in string: variable_name) is func
   result
-    var integer: result is 0;
+    var integer: address is 0;
   begin
     if variable_name not in varptr_value then
       varptr_value @:= [variable_name] succ(length(varptr_value));
     end if;
-    result := varptr_value[variable_name];
-    varname_value @:= [result] variable_name;
+    address := varptr_value[variable_name];
+    varname_value @:= [address] variable_name;
   end func;
 
 
 const func string: varname (in integer: address) is func
   result
-    var string: result is "";
+    var string: variable_name is "";
   begin
     if address in varname_value then
-      result := varname_value[address];
+      variable_name := varname_value[address];
     end if;
   end func;
 
@@ -1968,14 +1939,14 @@ const func string: exec_str_primary (
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      exprResult := hex_str(round(num1));
+      exprResult := round(num1) RADIX 16;
       writeln(log, "HEX$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "OCT$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      exprResult := oct_str(round(num1));
+      exprResult := round(num1) RADIX 8;
       writeln(log, "OCT$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "TIME$" then
       symbol := get_symbol(line);
@@ -5598,11 +5569,15 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       aFile := basicOpen(file_name, mode);
       if aFile = STD_NULL and param_access = "" and
           (param_for = "" or param_for = "RANDOM" or param_for = "BINARY") then
-        mode := "w";
+        mode := "w+";     # Try to open a new file with read/write mode
         aFile := basicOpen(file_name, mode);
         if aFile = STD_NULL then
-          mode := "r";
+          mode := "w";    # Try to open a new file with write-only mode
           aFile := basicOpen(file_name, mode);
+          if aFile = STD_NULL then
+            mode := "r";  # Try to open a new file with read-only mode
+            aFile := basicOpen(file_name, mode);
+          end if;
         end if;
       end if;
       if aFile <> STD_NULL then
@@ -5720,7 +5695,7 @@ const proc: exec_close (inout string: symbol, inout string: line) is func
 const proc: exec_file_put (inout string: symbol, inout string: line) is func
   local
     var integer: file_number is 0;
-    var file: aFile is STD_NULL;
+    var file: outFile is STD_NULL;
     var integer: position is 0;
     var boolean: with_position is FALSE;
     var integer: reclen is 0;
@@ -5731,8 +5706,8 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
       symbol := get_symbol(line);
     end if;
     file_number := round(exec_expr(symbol, line));
-    aFile := getFileValue(file_number);
-    if aFile <> STD_NULL then
+    outFile := getFileValue(file_number);
+    if outFile <> STD_NULL then
       if symbol = "," then
         symbol := get_symbol(line);
         if symbol <> "," and not endOfStatement(symbol) then
@@ -5772,7 +5747,7 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
             end if;
           end if;
           if reclen <> 0 then
-            seek(aFile, succ(pred(position) * reclen));
+            seek(outFile, succ(pred(position) * reclen));
           end if;
         else
           error_marker;
@@ -5782,10 +5757,10 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
       end if;
       if length(field_value[file_number]) >= 1 then
         for field range field_value[file_number] do
-          write(aFile, getStringVar(field));
+          write(outFile, getStringVar(field));
         end for;
       elsif variable_name <> "" then
-        write(aFile, getStringVar(variable_name));
+        write(outFile, getStringVar(variable_name));
       else
         error_marker;
         writeln(err, "PUT #" <& file_number <&
@@ -5833,7 +5808,7 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
 const proc: exec_file_get (inout string: symbol, inout string: line) is func
   local
     var integer: file_number is 0;
-    var file: aFile is STD_NULL;
+    var file: inFile is STD_NULL;
     var integer: position is 0;
     var boolean: with_position is FALSE;
     var integer: reclen is 0;
@@ -5844,8 +5819,8 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
       symbol := get_symbol(line);
     end if;
     file_number := round(exec_expr(symbol, line));
-    aFile := getFileValue(file_number);
-    if aFile <> STD_NULL then
+    inFile := getFileValue(file_number);
+    if inFile <> STD_NULL then
       if symbol = "," then
         symbol := get_symbol(line);
         if symbol <> "," and not endOfStatement(symbol) then
@@ -5885,7 +5860,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
             end if;
           end if;
           if reclen <> 0 then
-            seek(aFile, succ(pred(position) * reclen));
+            seek(inFile, succ(pred(position) * reclen));
           end if;
         else
           error_marker;
@@ -5895,10 +5870,10 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
       end if;
       if length(field_value[file_number]) >= 1 then
         for field range field_value[file_number] do
-          setStringVar(field, gets(aFile, length(getStringVar(field))));
+          setStringVar(field, gets(inFile, length(getStringVar(field))));
         end for;
       elsif variable_name <> "" then
-        setStringVar(variable_name, gets(aFile,
+        setStringVar(variable_name, gets(inFile,
             length(getStringVar(variable_name))));
       else
         error_marker;

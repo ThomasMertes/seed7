@@ -1689,6 +1689,23 @@ const func bitmapFont: genStdFont10 is func
         "    XX   ",
         "    XX   "));
 
+    incl(bmpFont.fontPictures, '¤',
+    [] ("         ",
+        "         ",
+        "         ",
+        " X     X ",
+        " XX X XX ",
+        "  XXXXX  ",
+        " XXX XXX ",
+        " XX   XX ",
+        " XXX XXX ",
+        "  XXXXX  ",
+        " XX X XX ",
+        " X     X ",
+        "         ",
+        "         ",
+        "         "));
+
     incl(bmpFont.fontPictures, '¥',
     [] ("          ",
         "          ",

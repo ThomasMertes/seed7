@@ -753,10 +753,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <span class="type">func integer</span>: fib (<span class="keywd">in</span> <span class="type">integer</span>: num1) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">integer</span>: result <span class="keywd">is</span> 1;
+    <span class="keywd">var</span> <span class="type">integer</span>: fib <span class="keywd">is</span> 1;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> num1 &lt;> 1 <span class="op">and</span> num1 &lt;> 2 <span class="keywd">then</span>
-      result := fib(pred(num1)) + fib(num1 - 2);
+      fib := fib(pred(num1)) + fib(num1 - 2);
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -803,12 +803,14 @@ reset(8);
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">func string</span>: oct_str (<span class="keywd">in var</span> <span class="type">integer</span>: number) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: result <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
-    <span class="keywd">while</span> number >= 0 <span class="keywd">do</span>
-      result := str(number <span class="op">rem</span> 8) & result;
-      number := number <span class="op">div</span> 8;
-    <span class="keywd">end while</span>;
+    <span class="keywd">if</span> number >= 0 <span class="keywd">then</span>
+      <span class="keywd">repeat</span>;
+        stri := str(number <span class="op">mod</span> 8) & stri;
+        number := number <span class="op">mdiv</span> 8;
+      <span class="keywd">until</span> number = 0;
+    <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   As you can see this works like a combination of an <tt>'<span class="keywd">in</span>'</tt>
@@ -1260,8 +1262,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
     First the condition between <tt><span class="keywd">while</span></tt> and <tt><span class="keywd">do</span></tt> is evaluated.
-    When this evaluation yields <tt>'FALSE'</tt>, the while-statement is
-    finished. When the evaluation yields <tt>'TRUE'</tt>, the statement
+    When this evaluation yields <tt><span class="var">FALSE</span></tt>, the while-statement is
+    finished. When the evaluation yields <tt><span class="var">TRUE</span></tt>, the statement
     between <tt><span class="keywd">do</span></tt> and <tt><span class="keywd">end</span></tt> is executed and the whole while-statement
     is executed again.
 </dd></dl>
@@ -1308,8 +1310,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   Semantics:</dt><dd>
     The statement between <tt><span class="keywd">repeat</span></tt> and <tt><span class="keywd">until</span></tt> is executed.
     Then the condition after <tt><span class="keywd">until</span></tt> is evaluated. When this
-    evaluation yields <tt>'TRUE'</tt>, the repeat-statement is finished.
-    When the evaluation yields <tt>'FALSE'</tt> the repeat-statement is
+    evaluation yields <tt><span class="var">TRUE</span></tt>, the repeat-statement is finished.
+    When the evaluation yields <tt><span class="var">FALSE</span></tt> the repeat-statement is
     executed again.
 </dd></dl>
 <dl><dt>
@@ -1580,12 +1582,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
     The expressions before <tt><span class="keywd">then</span></tt> are evaluated in row.
-    When such an expression evaluates to 'TRUE' the statements
+    When such an expression evaluates to <tt><span class="var">TRUE</span></tt> the statements
     behind <tt><span class="keywd">then</span></tt> are executed and the if-statement is finished.
-    If all expressions before <tt><span class="keywd">then</span></tt> evaluate to 'FALSE' and an
+    If all expressions before <tt><span class="keywd">then</span></tt> evaluate to <tt><span class="var">FALSE</span></tt> and an
     else-part is present the statements behind <tt><span class="keywd">else</span></tt> are executed
     and the if-statement is finished.
-    If all expressions before <tt><span class="keywd">then</span></tt> evaluate to 'FALSE' and no
+    If all expressions before <tt><span class="keywd">then</span></tt> evaluate to <tt><span class="var">FALSE</span></tt> and no
     else-part is present the if-statement is finished.
 </dd></dl>
 <dl><dt>
@@ -1748,28 +1750,28 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <a name="types_boolean"><h3>5.1 boolean</h3></a>
 <p>
     The type <tt><span class="type">boolean</span></tt> consists of the two truth values
-  TRUE and FALSE. The <tt><span class="type">boolean</span></tt> functions are defined in
+  <tt><span class="var">TRUE</span></tt> and <tt><span class="var">FALSE</span></tt>. The <tt><span class="type">boolean</span></tt> functions are defined in
   the library <span class="stri">"<span class="lib">boolean.s7i</span>"</span>.
 </p><pre class="tt">
     Prefix operators:
       <span class="op">not</span>       Negation
-                  ( <span class="op">not</span> TRUE => FALSE,
-                    <span class="op">not</span> FALSE => TRUE )
+                  ( <span class="op">not</span> <span class="var">TRUE</span> => <span class="var">FALSE</span>,
+                    <span class="op">not</span> <span class="var">FALSE</span> => <span class="var">TRUE</span> )
     Infix operators:
       <span class="op">and</span>       Logical and
-                  ( TRUE <span class="op">and</span> TRUE => TRUE,
-                    A <span class="op">and</span> B => FALSE else )
+                  ( <span class="var">TRUE</span> <span class="op">and</span> <span class="var">TRUE</span> => <span class="var">TRUE</span>,
+                    A <span class="op">and</span> B => <span class="var">FALSE</span> else )
       <span class="op">or</span>        Inclusive logical or
-                  ( FALSE <span class="op">or</span> FALSE => FALSE,
-                    A <span class="op">or</span> B => TRUE else )
+                  ( <span class="var">FALSE</span> <span class="op">or</span> <span class="var">FALSE</span> => <span class="var">FALSE</span>,
+                    A <span class="op">or</span> B => <span class="var">TRUE</span> else )
       <a class="type" href="#types_boolean">boolean</a> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_boolean">boolean</a>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
-                    <a class="type" href="#types_boolean">boolean</a> <span class="op">conv</span> 0 => FALSE,
-                    <a class="type" href="#types_boolean">boolean</a> <span class="op">conv</span> 1 => TRUE )
+                    <a class="type" href="#types_boolean">boolean</a> <span class="op">conv</span> 0 => <span class="var">FALSE</span>,
+                    <a class="type" href="#types_boolean">boolean</a> <span class="op">conv</span> 1 => <span class="var">TRUE</span> )
       <a class="type" href="#types_boolean">boolean</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_boolean">boolean</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
-                    <a class="type" href="#types_boolean">boolean</a> <span class="op">parse</span> <span class="stri">"FALSE"</span> => FALSE,
-                    <a class="type" href="#types_boolean">boolean</a> <span class="op">parse</span> <span class="stri">"TRUE"</span> => TRUE,
+                    <a class="type" href="#types_boolean">boolean</a> <span class="op">parse</span> <span class="stri">"FALSE"</span> => <span class="var">FALSE</span>,
+                    <a class="type" href="#types_boolean">boolean</a> <span class="op">parse</span> <span class="stri">"TRUE"</span> => <span class="var">TRUE</span>,
                     <a class="type" href="#types_boolean">boolean</a> <span class="op">parse</span> <span class="stri">"TRUE "</span> => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     <a class="type" href="#types_boolean">boolean</a> <span class="op">parse</span> <span class="stri">"ASDF"</span> => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Relations:
@@ -1779,28 +1781,28 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     Functions:
       <span class="func">ord</span>(A)    Ordinal number
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    ord(FALSE) => 0, ord(TRUE) => 1 )
+                    ord(<span class="var">FALSE</span>) => 0, ord(<span class="var">TRUE</span>) => 1 )
       <span class="func">succ</span>(A)   Successor
-                  ( succ(FALSE) => TRUE,
-                    succ(TRUE) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                  ( succ(<span class="var">FALSE</span>) => <span class="var">TRUE</span>,
+                    succ(<span class="var">TRUE</span>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">pred</span>(A)   Predecessor
-                  ( pred(FALSE) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-                    pred(TRUE) => FALSE )
+                  ( pred(<span class="var">FALSE</span>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    pred(<span class="var">TRUE</span>) => <span class="var">FALSE</span> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
-                    str(FALSE) => <span class="stri">"FALSE"</span>,
-                    str(TRUE) => <span class="stri">"TRUE"</span> )
+                    str(<span class="var">FALSE</span>) => <span class="stri">"FALSE"</span>,
+                    str(<span class="var">TRUE</span>) => <span class="stri">"TRUE"</span> )
       <span class="func">rand</span>(A, B) Random value in the range [A, B]
                  The random values are uniform distributed.
                   ( rand(A, B) returns a random value such that
                     A &lt;= rand(A, B) <span class="op">and</span> rand(A, B) &lt;= B holds.
                     rand(A, A) => A,
-                    rand(TRUE, FALSE) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    rand(<span class="var">TRUE</span>, <span class="var">FALSE</span>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    compare(FALSE, TRUE) => -1,
-                    compare(TRUE, TRUE) => 0,
-                    compare(TRUE, FALSE) => 1 )
+                    compare(<span class="var">FALSE</span>, <span class="var">TRUE</span>) => -1,
+                    compare(<span class="var">TRUE</span>, <span class="var">TRUE</span>) => 0,
+                    compare(<span class="var">TRUE</span>, <span class="var">FALSE</span>) => 1 )
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
@@ -1826,33 +1828,33 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     <tr><th rowspan="2"> Expression                  </th><th align="center" colspan="2">  Result when the first  
       operand evaluates to   </th></tr>
     
-    <tr><th align="center">   FALSE    </th><th align="center">    TRUE    </th></tr>
+    <tr><th align="center">   <span class="var">FALSE</span>    </th><th align="center">    <span class="var">TRUE</span>    </th></tr>
     
-    <tr><td> <span class="op">not</span> A                       </td><td align="center">    TRUE    </td><td align="center">   FALSE    </td></tr>
+    <tr><td> <span class="op">not</span> A                       </td><td align="center">    <span class="var">TRUE</span>    </td><td align="center">   <span class="var">FALSE</span>    </td></tr>
     
     <tr><td> A <span class="op">and</span> B  <b>respectively</b><br />       
-     <span class="op">not</span>((<span class="op">not</span> A)<span class="op">or</span>(<span class="op">not</span> B))       </td><td align="center">   FALSE    </td><td align="center">     B      </td></tr>
+     <span class="op">not</span>((<span class="op">not</span> A)<span class="op">or</span>(<span class="op">not</span> B))       </td><td align="center">   <span class="var">FALSE</span>    </td><td align="center">     B      </td></tr>
     
     <tr><td> A <span class="op">or</span>  B  <b>respectively</b><br />       
-     <span class="op">not</span>((<span class="op">not</span> A)<span class="op">and</span>(<span class="op">not</span> B))      </td><td align="center">     B      </td><td align="center">    TRUE    </td></tr>
+     <span class="op">not</span>((<span class="op">not</span> A)<span class="op">and</span>(<span class="op">not</span> B))      </td><td align="center">     B      </td><td align="center">    <span class="var">TRUE</span>    </td></tr>
     
     <tr><td> A >  B  <b>respectively</b><br />        
-     A <span class="op">and</span>(<span class="op">not</span> B)                </td><td align="center">   FALSE    </td><td align="center">   <span class="op">not</span> B    </td></tr>
+     A <span class="op">and</span>(<span class="op">not</span> B)                </td><td align="center">   <span class="var">FALSE</span>    </td><td align="center">   <span class="op">not</span> B    </td></tr>
     
     <tr><td> A >= B  <b>respectively</b><br />        
-     A <span class="op">or</span>(<span class="op">not</span> B)                 </td><td align="center">   <span class="op">not</span> B    </td><td align="center">    TRUE    </td></tr>
+     A <span class="op">or</span>(<span class="op">not</span> B)                 </td><td align="center">   <span class="op">not</span> B    </td><td align="center">    <span class="var">TRUE</span>    </td></tr>
     
     <tr><td> A &lt;  B  <b>respectively</b><br />        
-     (<span class="op">not</span> A)<span class="op">and</span> B                </td><td align="center">     B      </td><td align="center">   FALSE    </td></tr>
+     (<span class="op">not</span> A)<span class="op">and</span> B                </td><td align="center">     B      </td><td align="center">   <span class="var">FALSE</span>    </td></tr>
     
     <tr><td> A &lt;= B  <b>respectively</b><br />        
-     (<span class="op">not</span> A)<span class="op">or</span> B                 </td><td align="center">    TRUE    </td><td align="center">     B      </td></tr>
+     (<span class="op">not</span> A)<span class="op">or</span> B                 </td><td align="center">    <span class="var">TRUE</span>    </td><td align="center">     B      </td></tr>
     
     <tr><td> <span class="op">not</span> (A <span class="op">and</span> B)  <b>respectively</b><br /> 
-     (<span class="op">not</span> A)<span class="op">or</span>(<span class="op">not</span> B)            </td><td align="center">    TRUE    </td><td align="center">   <span class="op">not</span> B    </td></tr>
+     (<span class="op">not</span> A)<span class="op">or</span>(<span class="op">not</span> B)            </td><td align="center">    <span class="var">TRUE</span>    </td><td align="center">   <span class="op">not</span> B    </td></tr>
     
     <tr><td> <span class="op">not</span> (A <span class="op">or</span> B)  <b>respectively</b><br />  
-     (<span class="op">not</span> A)<span class="op">and</span>(<span class="op">not</span> B)           </td><td align="center">   <span class="op">not</span> B    </td><td align="center">   FALSE    </td></tr>
+     (<span class="op">not</span> A)<span class="op">and</span>(<span class="op">not</span> B)           </td><td align="center">   <span class="op">not</span> B    </td><td align="center">   <span class="var">FALSE</span>    </td></tr>
     
 </table></dd></dl><p>
 
@@ -1931,6 +1933,16 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     0 >> B => 0 )
       <span class="op">!</span>         Binomial coefficient
                   ( A ! B => !A <span class="op">div</span> (!B * !(A - B)) )
+      A <span class="op">radix</span> B  Convert the <a class="type" href="#types_integer">integer</a> A to a <a class="type" href="#types_string">string</a>. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    48879 <span class="op">radix</span> 16 => <span class="stri">"beef"</span>,
+                    -48879 <span class="op">radix</span> 16 => <span class="stri">"-beef"</span> )
+      A <span class="op">RADIX</span> B  Convert the <a class="type" href="#types_integer">integer</a> A to a <a class="type" href="#types_string">string</a>. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    48879 <span class="op">RADIX</span> 16 => <span class="stri">"BEEF"</span>,
+                    -48879 <span class="op">RADIX</span> 16 => <span class="stri">"-BEEF"</span> )
       <span class="op">lpad</span>      Left padding with spaces
                   ( 123 <span class="op">lpad</span>  8 => <span class="stri">"     123"</span>,
                     123 <span class="op">lpad</span>  4 => <span class="stri">" 123"</span>,
@@ -1982,10 +1994,6 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(12345) => <span class="stri">"12345"</span> )
-      <span class="func">str</span>(A, B) Convert the <a class="type" href="#types_integer">integer</a> A to a <a class="type" href="#types_string">string</a>. The conversion
-                uses the numeral system with the base B.
-                  ( Type of result: <a class="type" href="#types_string">string</a>,
-                    str(48879, 16) => <span class="stri">"beef"</span> )
       <span class="func">literal</span>(A) Conversion to a literal
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     literal(A) => str(A) )
@@ -1997,6 +2005,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
                     log2(2 ** A) = A for A >= 0,
+                    log2(pred(2 ** A)) = pred(A) for A >= 0,
                     log2(2) => 1,
                     log2(1) => 0,
                     log2(0) => -1,
@@ -2177,6 +2186,16 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A >> B => 0_ for A >= 0_ and B > ord(log2(A)),
                     A >> B => -1_ for A &lt; 0_ and B > ord(log2(-A)),
                     0_ >> B => 0_ for every B )
+      A <span class="op">radix</span> B  Convert the <a class="type" href="#types_bigInteger">bigInteger</a> A to a <a class="type" href="#types_string">string</a>. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    3735928559_ <span class="op">radix</span> 16 => <span class="stri">"deadbeef"</span>,
+                    -3735928559_ <span class="op">radix</span> 16 ) => <span class="stri">"-deadbeef"</span> )
+      A <span class="op">RADIX</span> B  Convert the <a class="type" href="#types_integer">integer</a> A to a <a class="type" href="#types_string">string</a>. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    3735928559_ <span class="op">RADIX</span> 16 => <span class="stri">"DEADBEEF"</span>,
+                    -3735928559_ <span class="op">RADIX</span> 16 ) => <span class="stri">"-DEADBEEF"</span> )
       <a class="type" href="#types_bigInteger">bigInteger</a> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_bigInteger">bigInteger</a>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <a class="type" href="#types_bigInteger">bigInteger</a> <span class="op">conv</span> 1 => 1_ )
@@ -2204,10 +2223,6 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(9876543210_) => <span class="stri">"9876543210"</span> )
-      <span class="func">str</span>(A, B) Convert the <a class="type" href="#types_bigInteger">bigInteger</a> A to a <a class="type" href="#types_string">string</a>. The conversion
-                uses the numeral system with the base B.
-                  ( Type of result: <a class="type" href="#types_string">string</a>,
-                    str(3735928559_, 16) => <span class="stri">"deadbeef"</span> )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) => trunc(sqrt(flt(A))),
@@ -2217,6 +2232,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
                     log2(2_ ** A) = A for A >= 0,
+                    log2(pred(2_ ** A)) = pred(A) for A >= 0,
                     log2(2_) => 1_,
                     log2(1_) => 0_,
                     log2(0_) => -1_,
@@ -2345,9 +2361,13 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   represented with an <tt><a class="type" href="#types_integer">integer</a></tt> numerator and an <tt><a class="type" href="#types_integer">integer</a></tt>
   denominator. The values of the type <tt><span class="type">rational</span></tt> are
   finite and periodical decimal numbers. Rational literals
-  do not exist. The result of a <tt><span class="type">rational</span></tt> operation
-  is undefined when it overflows. The <tt><span class="type">rational</span></tt> functions
-  are defined in the library <span class="stri">"<span class="lib">rational.s7i</span>"</span>.
+  do not exist. The result of a <tt><span class="type">rational</span></tt> operation is
+  undefined when it overflows. In <tt><a class="type" href="#types_integer">integer</a></tt> computations an
+  overflow can only happen with very huge positive or negative
+  numbers. In <tt><span class="type">rational</span></tt> computations an overflow can
+  happen with small numbers. Because of widening big denominators
+  can be produced easily. E.g.: <tt>1/1777 + 1/1999 = 3776/3552223</tt> .
+  The <tt><span class="type">rational</span></tt> functions are defined in the library <span class="stri">"<span class="lib">rational.s7i</span>"</span>.
 </p><pre class="tt">
     Elements:
       <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: numerator <span class="keywd">is</span> 0;
@@ -2368,6 +2388,9 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <a class="type" href="#types_rational">rational</a> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_rational">rational</a>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <a class="type" href="#types_rational">rational</a> <span class="op">conv</span> 1 => 1 / 1 )
+      <span class="op">digits</span>    Conversion to <a class="type" href="#types_string">string</a> with specified precision
+                  ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a> )
       <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_rational">rational</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
     Relations:
@@ -2451,6 +2474,9 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <a class="type" href="#types_bigRational">bigRational</a> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_bigInteger">bigInteger</a> to <a class="type" href="#types_bigRational">bigRational</a>
                   ( Type of argument A: <a class="type" href="#types_bigInteger">bigInteger</a>,
                     <a class="type" href="#types_bigRational">bigRational</a> <span class="op">conv</span> 1_ => 1_ / 1_ )
+      <span class="op">digits</span>    Conversion to <a class="type" href="#types_string">string</a> with specified precision
+                  ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a> )
       <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_bigRational">bigRational</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
     Relations:
@@ -3099,18 +3125,18 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     [ -1 .. -2 ] <span class="op">times</span> B => empty array,
                     [ -1 .. -3 ] <span class="op">times</span> B => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Indices:
-      [ A ]     Access one array element
+      <span class="op">[</span> A ]     Access one array element
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <span class="type">baseType</span>,
                     A[minIdx(A)] => First element,
                     A[maxIdx(A)] => Last element,
                     A[pred(minIdx(A))] => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     A[succ(maxIdx(A))] => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      [ A .. B ] Access a sub array
+      <span class="op">[</span> A .. B ] Access a sub array
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
-      [ A .. ]  Access a sub array beginning at position A
+      <span class="op">[</span> A .. ]  Access a sub array beginning at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
-      [ .. A ]  Access a sub array ending at position A
+      <span class="op">[</span> .. A ]  Access a sub array ending at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
     Relations:
       =, &lt;>
@@ -3118,15 +3144,15 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <span class="func">length</span>(A) Length of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     length(A) = succ(maxIdx(A) - minIdx(A)),
-                    length(0 <span class="op">times</span> TRUE) => 0,
-                    length(5 <span class="op">times</span> TRUE) => 5 )
+                    length(0 <span class="op">times</span> <span class="var">TRUE</span>) => 0,
+                    length(5 <span class="op">times</span> <span class="var">TRUE</span>) => 5 )
       <span class="func">minIdx</span>(A) Minimal index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    minIdx(3 <span class="op">times</span> TRUE) => 1,
-                    minIdx([-1 .. 4] <span class="op">times</span> TRUE) => -1 )
+                    minIdx(3 <span class="op">times</span> <span class="var">TRUE</span>) => 1,
+                    minIdx([-1 .. 4] <span class="op">times</span> <span class="var">TRUE</span>) => -1 )
       <span class="func">maxIdx</span>(A) Maximal index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    maxIdx(3 <span class="op">times</span> TRUE) => 3 )
+                    maxIdx(3 <span class="op">times</span> <span class="var">TRUE</span>) => 3 )
       <span class="func">rand</span>(A)   Random element from an array
                 The random elements are uniform distributed.
                   ( Type of result:  <span class="type">baseType</span> )
@@ -3134,11 +3160,14 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   return the removed element
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <span class="type">baseType</span>,
-                    remove(0 <span class="op">times</span> TRUE, 1) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    remove(0 <span class="op">times</span> <span class="var">TRUE</span>, 1) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <a class="func" href="#types_..">sort</a>(A)   Sort array using the compare(<span class="type">baseType</span>, <span class="type">baseType</span>) function
     Statements:
-      A &amp;:= B   Append B to A
+      A <span class="op">&amp;:=</span> B   Append B to A
                   ( A &amp;:= B => A := A &amp; B )
+      A <span class="op">&amp;:=</span> B   Append element B to A
+                  ( Type of argument B: <span class="type">baseType</span>,
+                    A &amp;:= B => A := A &amp; [] (B) )
       <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">do</span>
         C
       <span class="keywd">end for</span>   Loop over all elements of an array
@@ -3241,37 +3270,37 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
       <span class="op">&lt;=</span>        Subset
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
-                    A &lt;= B => TRUE when no element X exists for which
+                    A &lt;= B => <span class="var">TRUE</span> when no element X exists for which
                        X <span class="op">in</span> A <span class="op">and</span> X <span class="op">not in</span> B
                     holds.
-                    A &lt;= B => FALSE when an element X exists for which
+                    A &lt;= B => <span class="var">FALSE</span> when an element X exists for which
                        X <span class="op">in</span> A <span class="op">and</span> X <span class="op">not in</span> B
                     holds.
-                    <span class="type">setType</span>.EMPTY_SET &lt;= A => TRUE,
-                    A &lt;= <span class="type">setType</span>.EMPTY_SET => FALSE for A &lt;> EMPTY_SET,
+                    <span class="type">setType</span>.EMPTY_SET &lt;= A => <span class="var">TRUE</span>,
+                    A &lt;= <span class="type">setType</span>.EMPTY_SET => <span class="var">FALSE</span> for A &lt;> EMPTY_SET,
                     A &lt;= B => B >= A )
       <span class="op">&lt;</span>         Proper subset
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     A &lt; B => A &lt;= B <span class="op">and</span> A &lt;> B,
-                    <span class="type">setType</span>.EMPTY_SET &lt; A => TRUE for A &lt;> EMPTY_SET,
-                    A &lt; <span class="type">setType</span>.EMPTY_SET => FALSE,
+                    <span class="type">setType</span>.EMPTY_SET &lt; A => <span class="var">TRUE</span> for A &lt;> EMPTY_SET,
+                    A &lt; <span class="type">setType</span>.EMPTY_SET => <span class="var">FALSE</span>,
                     A &lt; B => B > A )
       <span class="op">>=</span>        Superset
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
-                    A >= B => TRUE when no element X exists for which
+                    A >= B => <span class="var">TRUE</span> when no element X exists for which
                        X <span class="op">in</span> B <span class="op">and</span> X <span class="op">not in</span> A
                     holds.
-                    A >= B => FALSE when an element X exists for which
+                    A >= B => <span class="var">FALSE</span> when an element X exists for which
                        X <span class="op">in</span> B <span class="op">and</span> X <span class="op">not in</span> A
                     holds.
-                    A >= <span class="type">setType</span>.EMPTY_SET => TRUE,
-                    <span class="type">setType</span>.EMPTY_SET >= A => FALSE for A &lt;> EMPTY_SET,
+                    A >= <span class="type">setType</span>.EMPTY_SET => <span class="var">TRUE</span>,
+                    <span class="type">setType</span>.EMPTY_SET >= A => <span class="var">FALSE</span> for A &lt;> EMPTY_SET,
                     A >= B => B &lt;= A )
       <span class="op">></span>         Proper superset
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     A > B => A >= B <span class="op">and</span> A &lt;> B,
-                    A > <span class="type">setType</span>.EMPTY_SET => TRUE for A &lt;> EMPTY_SET,
-                    <span class="type">setType</span>.EMPTY_SET > A => FALSE,
+                    A > <span class="type">setType</span>.EMPTY_SET => <span class="var">TRUE</span> for A &lt;> EMPTY_SET,
+                    <span class="type">setType</span>.EMPTY_SET > A => <span class="var">FALSE</span>,
                     A > B => B &lt; A )
     Functions:
       <span class="func">card</span>      Cardinality of a set
@@ -3557,18 +3586,18 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( Type of argument A: <a class="type" href="#types_reference">reference</a>,
                     Type of result: <a class="type" href="#types_boolean">boolean</a> )
     Indices:
-      [ A ]     Access one ref_list element
+      <span class="op">[</span> A ]     Access one ref_list element
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <a class="type" href="#types_reference">reference</a>,
                     A[1]=>First element,
                     A[length(A)]=>Last element,
                     A[0] => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     A[succ(length(A))] => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      [ A .. B ]  Access a sub list
+      <span class="op">[</span> A .. B ]  Access a sub list
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
-      [ A .. ]  Access a sub list beginning at position A
+      <span class="op">[</span> A .. ]  Access a sub list beginning at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
-      [ .. A ]  Access a sub list ending at position A
+      <span class="op">[</span> .. A ]  Access a sub list ending at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>
@@ -4154,14 +4183,14 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: tak (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: x, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: y, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: z) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: result <span class="keywd">is</span> 0;
+    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: tak <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> y >= x <span class="keywd">then</span>
-      result := z;
+      tak := z;
     <span class="keywd">else</span>
-      result := tak(tak(pred(x), y, z),
-                    tak(pred(y), z, x),
-                    tak(pred(z), x, y));
+      tak := tak(tak(pred(x), y, z),
+                 tak(pred(y), z, x),
+                 tak(pred(z), x, y));
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>
 </pre><p>
@@ -4192,7 +4221,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   <span class="keywd">end func</span>;
 </pre><p>
   Here the second parameter is only evaluated when the first
-  parameter is <tt>'TRUE'</tt>.
+  parameter is <tt><span class="var">TRUE</span></tt>.
 </p>
 
 <a name="types_varfunc"><h3>5.26 varfunc</h3></a>
@@ -4310,20 +4339,20 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     typeof(<span class="stri">"asdf"</span>) => <a class="type" href="#types_string">string</a> )
       is_func(A)  Is this type a '<a class="type" href="#types_func">func</a>' type
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
-                    is_func(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) => TRUE,
-                    is_func(<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_char">char</a>) => FALSE )
-                    is_func(<a class="type" href="#types_char">char</a>) => FALSE )
+                    is_func(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) => <span class="var">TRUE</span>,
+                    is_func(<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_char">char</a>) => <span class="var">FALSE</span> )
+                    is_func(<a class="type" href="#types_char">char</a>) => <span class="var">FALSE</span> )
       is_varfunc(A)  Is this type a '<a class="type" href="#types_varfunc">varfunc</a>' type
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
-                    is_varfunc(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) => FALSE,
-                    is_varfunc(<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_char">char</a>) => TRUE,
-                    is_varfunc(<a class="type" href="#types_char">char</a>) => FALSE )
+                    is_varfunc(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) => <span class="var">FALSE</span>,
+                    is_varfunc(<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_char">char</a>) => <span class="var">TRUE</span>,
+                    is_varfunc(<a class="type" href="#types_char">char</a>) => <span class="var">FALSE</span> )
       result_type(A)  Get the result type of a '<a class="type" href="#types_func">func</a>' or '<a class="type" href="#types_varfunc">varfunc</a>' type
                   ( result_type(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) => <a class="type" href="#types_char">char</a>,
                     result_type(<a class="type" href="#types_char">char</a>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       is_derived(A)  Is this type derived from another type
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
-                    is_derived(<font color=red>subtype</font> <a class="type" href="#types_char">char</a>) => TRUE )
+                    is_derived(<font color=red>subtype</font> <a class="type" href="#types_char">char</a>) => <span class="var">TRUE</span> )
       meta(A)       Get the type from which type A is derived
                   ( meta(<font color=red>subtype</font> <a class="type" href="#types_char">char</a>) => <a class="type" href="#types_char">char</a> )
       base_type(A)  Get the base type of an array, pointer or
@@ -4463,12 +4492,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: total_length (<span class="keywd">in</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: arr) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: result <span class="keywd">is</span> 0;
+    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: lengthSum <span class="keywd">is</span> 0;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: index <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> index <span class="keywd">range</span> 1 <span class="keywd">to</span> length(arr) <span class="keywd">do</span>
-      result +:= length(arr[index]);
+      lengthSum +:= length(arr[index]);
     <span class="keywd">end for</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -4515,17 +4544,17 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: is_prime (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: result <span class="keywd">is</span> FALSE;
+    <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: prime <span class="keywd">is</span> FALSE;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: count <span class="keywd">is</span> 2;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> number = 2 <span class="keywd">then</span>
-      result := TRUE;
+      prime := TRUE;
     <span class="keywd">elsif</span> number >= 3 <span class="keywd">then</span>
       <span class="keywd">while</span> number <span class="op">rem</span> count &lt;> 0 <span class="op">and</span> count * count &lt;= number <span class="keywd">do</span>
         incr(count);
       <span class="keywd">end while</span>;
-      result := number <span class="op">rem</span> count &lt;> 0;
+      prime := number <span class="op">rem</span> count &lt;> 0;
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -4533,15 +4562,15 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a>:
     (<span class="keywd">in</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a>: a) ex (<span class="keywd">in</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a>: b) <span class="keywd">is func</span>
-  <span class="keywd">return</span>
-    <span class="keywd">var</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a>: result <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> 0;
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a>: product <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> 0;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: index1 <span class="keywd">is</span> 1;
   <span class="keywd">begin</span>
-    result := length(a) <span class="op">times</span> length(b) <span class="op">times</span> 0;
+    product := length(a) <span class="op">times</span> length(b) <span class="op">times</span> 0;
     <span class="keywd">for</span> index1 <span class="keywd">range</span> 1 <span class="keywd">to</span> length(a) <span class="keywd">do</span>
       <span class="keywd">for</span> index2 <span class="keywd">range</span> 1 <span class="keywd">to</span> length(b) <span class="keywd">do</span>
-        result[index1][index2] := a[index1] * b[index2];
+        product[index1][index2] := a[index1] * b[index2];
       <span class="keywd">end for</span>;
     <span class="keywd">end for</span>;
   <span class="keywd">end func</span>;
@@ -4592,7 +4621,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: gcd (<span class="keywd">in var</span> <a class="type" href="#types_integer">integer</a>: a, <span class="keywd">in var</span> <a class="type" href="#types_integer">integer</a>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: result <span class="keywd">is</span> 0;
+    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: gcd <span class="keywd">is</span> 0;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: help <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
@@ -4601,7 +4630,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       b := a;
       a := help;
     <span class="keywd">end while</span>;
-    result := b;
+    gcd := b;
   <span class="keywd">end func</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
@@ -4727,16 +4756,8 @@ writeln(name(<a class="type" href="#types_char">char</a>));
 </pre><p>
   An <tt>'<span class="keywd">attr</span>'</tt> parameter can be used in a function also:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>: (<span class="keywd">attr</span> <a class="type" href="#types_char">char</a>) parse (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: stri) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: result <span class="keywd">is</span> <span class="stri">' '</span>;
-  <span class="keywd">begin</span>
-    <span class="keywd">if</span> length(stri) >= 1 <span class="keywd">then</span>
-      result := stri[1];
-    <span class="keywd">else</span>
-      <span class="keywd">raise</span> RANGE_ERROR;
-    <span class="keywd">end if</span>;
-  <span class="keywd">end func</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>: (<span class="keywd">attr</span> <a class="type" href="#types_char">char</a>) parse (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: stri) <span class="keywd">is</span>
+  <span class="keywd">return</span> stri[1];
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
     The actual parameter which corresponds to an <tt>'<span class="keywd">attr</span>'</tt> parameter
@@ -4862,9 +4883,9 @@ method(param1, param2, param3)
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">circle</span>: circle (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: radius) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">circle</span>: result <span class="keywd">is</span> <span class="type">circle</span>.value;
+    <span class="keywd">var</span> <span class="type">circle</span>: aCircle <span class="keywd">is</span> <span class="type">circle</span>.value;
   <span class="keywd">begin</span>
-    result.radius := radius;
+    aCircle.radius := radius;
   <span class="keywd">end func</span>;
 </pre><p>
   Now we can draw a <tt><span class="type">circle</span></tt> object with:
@@ -4912,10 +4933,10 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
 
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">line</span>: line (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: xLen, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: yLen) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">line</span>: result <span class="keywd">is</span> <span class="type">line</span>.value;
+    <span class="keywd">var</span> <span class="type">line</span>: aLine <span class="keywd">is</span> <span class="type">line</span>.value;
   <span class="keywd">begin</span>
-    result.xLen := xLen;
-    result.yLen := yLen;
+    aLine.xLen := xLen;
+    aLine.yLen := yLen;
   <span class="keywd">end func</span>;
 </pre><p>
   In addition we define a normal (not DYNAMIC) function
@@ -5392,23 +5413,23 @@ clear(window1);
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">func string</span>: str (<span class="keywd">in</span> <span class="type">boolean</span>: aBool) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: result <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> aBool <span class="keywd">then</span>
-      result := <span class="stri">"TRUE"</span>;
+      stri := <span class="stri">"TRUE"</span>;
     <span class="keywd">else</span>
-      result := <span class="stri">"FALSE"</span>;
+      stri := <span class="stri">"FALSE"</span>;
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <span class="type">func boolean</span>: (<span class="keywd">attr</span> <span class="type">boolean</span>) parse (<span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">boolean</span>: result <span class="keywd">is</span> FALSE;
+    <span class="keywd">var</span> <span class="type">boolean</span>: aBoolean <span class="keywd">is</span> FALSE;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> stri = <span class="stri">"TRUE"</span> <span class="keywd">then</span>
-      result := TRUE;
+      aBoolean := TRUE;
     <span class="keywd">elsif</span> stri = <span class="stri">"FALSE"</span> <span class="keywd">then</span>
-      result := FALSE;
+      aBoolean := FALSE;
     <span class="keywd">else</span>
       raise RANGE_ERROR;
     <span class="keywd">end if</span>;
@@ -5454,46 +5475,51 @@ writeln(4321 <span class="keywd">lpad</span> 6);
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">func string</span>: (<span class="keywd">ref</span> <span class="type">string</span>: stri) lpad (<span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: result <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <span class="type">string</span>: padded <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> leng > length(stri) <span class="keywd">then</span>
-      result := <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri) & stri;
+      padded := <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri) & stri;
     <span class="keywd">else</span>
-      result := stri;
+      padded := stri;
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <span class="type">func string</span>: (<span class="keywd">ref</span> <span class="type">string</span>: stri) rpad (<span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: result <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <span class="type">string</span>: padded <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> leng > length(stri) <span class="keywd">then</span>
-      result := stri & <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri);
+      padded := stri & <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri);
     <span class="keywd">else</span>
-      result := stri;
+      padded := stri;
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   The <tt><span class="func">enable_io</span></tt> template contains definitions of <tt><span class="keywd">lpad</span></tt> and <tt><span class="keywd">rpad</span></tt>
   to work on the type specified with <tt><span class="func">enable_io</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func string</span>: (<span class="keywd">in</span> <span class="type">aType</span>: aValue) lpad (<span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
-  <span class="keywd">begin</span>
-    stri := str(aValue) <span class="keywd">lpad</span> leng;
-  <span class="keywd">end func</span>;
+<span class="keywd">const</span> <span class="type">func string</span>: (<span class="keywd">in</span> <span class="type">aType</span>: aValue) lpad (<span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is</span>
+  <span class="keywd">return</span> str(aValue) <span class="keywd">lpad</span> leng;
 
-<span class="keywd">const</span> <span class="type">func string</span>: (<span class="keywd">in</span> <span class="type">aType</span>: aValue) rpad (<span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
-  <span class="keywd">begin</span>
-    stri := str(aValue) <span class="keywd">rpad</span> leng;
-  <span class="keywd">end func</span>;
+<span class="keywd">const</span> <span class="type">func string</span>: (<span class="keywd">in</span> <span class="type">aType</span>: aValue) rpad (<span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is</span>
+  <span class="keywd">return</span> str(aValue) <span class="keywd">rpad</span> leng;
+</pre><p>
+  Values of type <tt><a class="type" href="#types_integer">integer</a></tt> and <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> can be written in
+  a numeral system with a radix (base) other than 10. The
+  operators <tt><span class="keywd">radix</span></tt> and <tt><span class="keywd">RADIX</span></tt> can be used for this purpose.
+  E.g. the statements
+</p><pre class="indent">
+writeln(48879 <span class="keywd">radix</span> 16);
+writeln(3735928559_ <span class="keywd">RADIX</span> 16);
+</pre><p>
+  produce the following output:
+</p><pre class="indent">
+beef
+DEADBEEF
 </pre><p>
   For <tt><a class="type" href="#types_float">float</a></tt> values exist additional ways to convert them to
   strings. The <tt><span class="keywd">digits</span></tt> operator allows the specification of a
-  precision. For example the statements
+  precision. E.g. the statements
 </p><pre class="indent">
 writeln(3.1415 <span class="keywd">digits</span> 2);
 writeln(4.0 <span class="keywd">digits</span> 2);
@@ -9599,6 +9625,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>INT_PLUS</td>            <td>int_plus</td>            <td>(noop)</td></tr>
     <tr><td>INT_POW</td>             <td>int_pow</td>             <td>intPow</td></tr>
     <tr><td>INT_PRED</td>            <td>int_pred</td>            <td>--</td></tr>
+    <tr><td>INT_RADIX</td>           <td>int_RADIX</td>           <td>intRadix</td></tr>
     <tr><td>INT_RAND</td>            <td>int_rand</td>            <td>intRand</td></tr>
     <tr><td>INT_REM</td>             <td>int_rem</td>             <td>%</td></tr>
     <tr><td>INT_RSHIFT</td>          <td>int_rshift</td>          <td>a&gt;&gt;b <span class="comment">/* C with arithmetic shift */</span><br />
@@ -9609,9 +9636,9 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>INT_SHRINK</td>          <td>int_shrink</td>          <td>-=</td></tr>
     <tr><td>INT_SQRT</td>            <td>int_sqrt</td>            <td>intSqrt</td></tr>
     <tr><td>INT_STR</td>             <td>int_str</td>             <td>intStr</td></tr>
-    <tr><td>INT_STR_BASED</td>       <td>int_str_based</td>       <td>intStrBased</td></tr>
     <tr><td>INT_SUCC</td>            <td>int_succ</td>            <td>+1</td></tr>
     <tr><td>INT_VALUE</td>           <td>int_value</td>           <td>intValue</td></tr>
+    <tr><td>INT_radix</td>           <td>int_radix</td>           <td>intRadix</td></tr>
 </table><p></p>
 
 <a name="actions_interface"><h3>13.17 Actions for interface types</h3></a>
@@ -10141,27 +10168,27 @@ void <a class="func" href="#ffi_supDoWurx1">supDoWurx1</a> (const <a class="type
   <tt>suplib</tt> and <tt>sup_rtl</tt> must be added to lists of source
   and object files. Adding the <tt>suplib</tt> object file results in:
 </p><pre class="indent">
-LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o drwlib.o
-LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o prclib.o
-LOBJ3 = prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o strlib.o <b>suplib.o</b> timlib.o typlib.o ut8lib.o
+LOBJ = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o drwlib.o \
+       enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o prclib.o \
+       prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o strlib.o <b>suplib.o</b> timlib.o typlib.o ut8lib.o
 </pre><p>
   Adding the <tt>"suplib"</tt> source file results in:
 </p><pre class="indent">
-LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
-LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c
-LSRC3 = prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c <b>suplib.c</b> timlib.c typlib.c ut8lib.c
+LSRC = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c \
+       enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c \
+       prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c <b>suplib.c</b> timlib.c typlib.c ut8lib.c
 </pre><p>
   and object files. Adding the <tt>sup_rtl</tt> object file results in:
 </p><pre class="indent">
-ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
-ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o set_rtl.o soc_rtl.o str_rtl.o <b>sup_rtl.o</b> tim_rtl.o ut8_rtl.o
-ROBJ3 = heaputl.o striutl.o
+ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
+       flt_rtl.o hsh_rtl.o int_rtl.o set_rtl.o soc_rtl.o str_rtl.o <b>sup_rtl.o</b> tim_rtl.o ut8_rtl.o \
+       heaputl.o striutl.o
 </pre><p>
   Adding the <tt>"sup_rtl"</tt> source file results in:
 </p><pre class="indent">
-RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
-RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c set_rtl.c soc_rtl.c str_rtl.c <b>sup_rtl.c</b> tim_rtl.c ut8_rtl.c
-RSRC3 = heaputl.c striutl.c
+RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
+       flt_rtl.c hsh_rtl.c int_rtl.c set_rtl.c soc_rtl.c str_rtl.c <b>sup_rtl.c</b> tim_rtl.c ut8_rtl.c \
+       heaputl.c striutl.c
 </pre><p>
   The external library <tt>"superlib"</tt> itself is added with:
 </p><pre class="indent">

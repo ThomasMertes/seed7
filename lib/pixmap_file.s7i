@@ -165,8 +165,12 @@ const proc: setPosXY (inout pixmapFontFile: fontFile, in integer: xPos, in integ
     fontFile.currLeftX := fontFile.min_x + xPos;
     fontFile.currBaseY := fontFile.min_y + yPos;
     fontFile.useBaseY := TRUE;
-    fontFile.line := yPos div line_delta(fontFile.font);
-    fontFile.column := xPos div column_delta(fontFile.font);
+    if line_delta(fontFile.font) <> 0 then
+      fontFile.line := yPos div line_delta(fontFile.font);
+    end if;
+    if column_delta(fontFile.font) <> 0 then
+      fontFile.column := xPos div column_delta(fontFile.font);
+    end if;
   end func;
 
 

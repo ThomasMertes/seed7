@@ -923,8 +923,9 @@ inttype length;
           /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
           if (num_of_chars_read == 0 && ferror(inFile)) {
             /* printf("errno=%d\n", errno);
-            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  EISDIR=%d  EROFS=%d\n",
-                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, EISDIR, EROFS); */
+            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  EISDIR=%d  EROFS=%d  EBADF=%d\n",
+                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, EISDIR, EROFS, EBADF);
+            printf("inFile=%lx\n", (long int) inFile); */
             err_info = FILE_ERROR;
           } else {
             uchartype *from = &((uchartype *) result->mem)[num_of_chars_read - 1];
@@ -964,8 +965,8 @@ inttype length;
       } /* if */
     } /* if */
     /* printf("filGets(%d, %d) ==> ", fileno(inFile), length);
-        prot_stri(result);
-        printf("\n"); */
+       prot_stri(result);
+       printf("\n"); */
     return result;
   } /* filGets */
 
@@ -1511,6 +1512,9 @@ stritype stri;
     uchartype buffer[BUFFER_SIZE];
 
   /* filWrite */
+    /* printf("filWrite(%d, ", fileno(outFile));
+       prot_stri(stri);
+       printf(")\n"); */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
     if (unlikely(stri->size > 0 && (outFile->flags & _F_WRIT) == 0)) {
       raise_error(FILE_ERROR);

@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "utf8.s7i";
   include "shell.s7i";
   include "bigfile.s7i";
+  include "osfiles.s7i";
 
 
 const proc: f1 (in integer: number) is func
@@ -1937,6 +1938,8 @@ const proc: check_file is func
     var boolean: okay is TRUE;
     var integer: number is 0;
     var integer: i_num is 0;
+    var string: test_file_name is "";
+    var string: test_file_name8 is "";
     var file: aFile is STD_NULL;
     var string: stri is "";
     var integer: file_pos is 0;
@@ -1992,7 +1995,14 @@ const proc: check_file is func
         incr(number);
     end block;
 
-    aFile := open("tmp_test_file", "w");
+    repeat
+      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+    until fileType(test_file_name) = FILE_ABSENT;
+    repeat
+      test_file_name8 := homeDir <& "/tmp_test_file8_" <& rand(0, 999) lpad0 3;
+    until fileType(test_file_name8) = FILE_ABSENT;
+
+    aFile := open(test_file_name, "w");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open file");
     else
@@ -2039,7 +2049,7 @@ const proc: check_file is func
       close(aFile);
     end if;
 
-    aFile := open_utf8("tmp_test_file8", "w");
+    aFile := open_utf8(test_file_name8, "w");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open UTF-8 file");
     else
@@ -2086,14 +2096,14 @@ const proc: check_file is func
       close(aFile);
     end if;
 
-    aFile := open("tmp_test_file", "w");
+    aFile := open(test_file_name, "w");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open file");
     else
       writeln(aFile, "asdf");
       close(aFile);
     end if;
-    aFile := open("tmp_test_file", "r");
+    aFile := open(test_file_name, "r");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open file");
     else
@@ -2123,7 +2133,7 @@ const proc: check_file is func
       end block;
     end if;
 
-    aFile := open_utf8("tmp_test_file", "r");
+    aFile := open_utf8(test_file_name, "r");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open file");
     else
@@ -2153,7 +2163,11 @@ const proc: check_file is func
       end block;
     end if;
 
-    aFile := popen("./s7", "r");
+    if fileType("./s7") = FILE_REGULAR then
+      aFile := popen("./s7", "r");
+    else
+      aFile := popen("s7", "r");
+    end if;
     if aFile = STD_NULL then
       writeln(" ***** Failed to popen pipe");
     else
@@ -2209,7 +2223,11 @@ const proc: check_file is func
       close(aFile);
     end if;
 
-    aFile := popen8("./s7", "r");
+    if fileType("./s7") = FILE_REGULAR then
+      aFile := popen8("./s7", "r");
+    else
+      aFile := popen8("s7", "r");
+    end if;
     if aFile = STD_NULL then
       writeln(" ***** Failed to popen pipe");
     else
@@ -2265,7 +2283,17 @@ const proc: check_file is func
       close(aFile);
     end if;
 
-    if okay and number = 34 then
+    block
+      removeFile(test_file_name);
+      removeFile(test_file_name8);
+      incr(number);
+    exception
+      catch FILE_ERROR:
+        writeln(" ***** removeFile fails");
+        okay := FALSE;
+    end block;
+
+    if okay and number = 35 then
       writeln("File exceptions work correct.");
     else
       writeln(" ***** File exceptions do not work correct");

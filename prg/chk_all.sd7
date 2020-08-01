@@ -30,6 +30,13 @@ $ include "seed7_05.s7i";
 const string: OBJECT_FILE_EXTENSION is     configValue("OBJECT_FILE_EXTENSION");
 const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
 
+var string: interpretProgram  is "./s7 -q ";
+var string: interpretCompiler is "./s7 s7c -g ";
+var string: executeCompiler   is "./s7c -g ";
+var string: s7interpreter     is "./s7" & EXECUTABLE_FILE_EXTENSION;
+var string: s7compiler        is "./s7c" & EXECUTABLE_FILE_EXTENSION;
+var boolean: checkAllFailed is FALSE;
+
 const string: chkint_output is "\n\
   \Integer literals with exponent work correct.\n\
   \Based integer literals work correct.\n\
@@ -234,7 +241,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
   begin
     write(progName);
     flush(OUT);
-    interpretedOutput := cmdOutput("./s7 -q " & progName);
+    interpretedOutput := cmdOutput(interpretProgram & progName);
     if interpretedOutput <> referenceOutput then
       writeln;
       writeln(" *** The interpreted " <& progName <& " does not work okay:");
@@ -244,7 +251,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
       removeFile(progName & EXECUTABLE_FILE_EXTENSION);
     end if;
-    compilerOutput := cmdOutput("./s7 s7c " & progName);
+    compilerOutput := cmdOutput(interpretCompiler & progName);
     if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       compiledOutput := cmdOutput("./" & progName);
       if compiledOutput <> referenceOutput then
@@ -284,7 +291,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       end if;
       okay := FALSE;
     end if;
-    if fileType("s7c" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+    if fileType(s7compiler) = FILE_REGULAR then
       if fileType("tmp_" & progName & ".c") = FILE_REGULAR then
         if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
           removeFile("tmp1_" & progName & ".c");
@@ -294,7 +301,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
         removeFile(progName & EXECUTABLE_FILE_EXTENSION);
       end if;
-      compilerOutput := cmdOutput("./s7c " & progName);
+      compilerOutput := cmdOutput(executeCompiler & progName);
       if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
         if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
           if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
@@ -302,7 +309,10 @@ const proc: check (in string: progName, in string: referenceOutput) is func
             writeln(" *** The interpreted compiler and the compiled compiler do not produce the same output");
             okay := FALSE;
           else
+            removeFile("tmp_" & progName & ".c");
             removeFile("tmp1_" & progName & ".c");
+            removeFile("tmp_" & progName & OBJECT_FILE_EXTENSION);
+            removeFile(progName & EXECUTABLE_FILE_EXTENSION);
           end if;
         end if;
       else
@@ -321,23 +331,46 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     end if;
     if okay then
       writeln(" - okay");
+    else
+      checkAllFailed := TRUE;
     end if;
   end func;
 
 
 const proc: main is func
   begin
-    if fileType("s7c" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
-      removeFile("s7c" & EXECUTABLE_FILE_EXTENSION);
-    end if;
-    write("compiling the compiler");
-    flush(OUT);
-    ignore(cmdOutput("./s7 s7c s7c"));
-    if not fileType("s7c" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
-      writeln;
-      writeln(" *** Failed to compile the compiler");
+    chdir(dir(PROGRAM));
+    if length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "build" then
+      interpretProgram  := "../bin/s7 -l ../lib -q ";
+      interpretCompiler := "../bin/s7 -l ../lib s7c -l ../lib -b ../bin -g ";
+      executeCompiler   := "../bin/s7c -l ../lib -b ../bin -g ";
+      s7compiler        := "../bin/s7c" & EXECUTABLE_FILE_EXTENSION;
+      write("checking for presence of " <& s7compiler);
+      if not fileType(s7compiler) = FILE_REGULAR then
+        writeln;
+        writeln(" *** No Seed7 compiler executable found");
+        checkAllFailed := TRUE;
+      else
+        writeln(" - okay");
+      end if;
     else
-      writeln(" - okay");
+      if fileType(s7interpreter) <> FILE_REGULAR then
+        interpretProgram  := interpretProgram[3 ..];
+        interpretCompiler := interpretCompiler[3 ..];
+      end if;
+      if fileType(s7compiler) = FILE_REGULAR then
+        removeFile(s7compiler);
+      end if;
+      write("compiling the compiler");
+      flush(OUT);
+      ignore(cmdOutput(interpretCompiler & "s7c"));
+      if not fileType(s7compiler) = FILE_REGULAR then
+        writeln;
+        writeln(" *** Failed to compile the compiler");
+        checkAllFailed := TRUE;
+      else
+        writeln(" - okay");
+      end if;
     end if;
     check("chkint",  chkint_output);
     check("chkflt",  chkflt_output);
@@ -347,4 +380,7 @@ const proc: main is func
     check("chkbool", chkbool_output);
     check("chkset",  chkset_output);
     check("chkexc",  chkexc_output);
+    if checkAllFailed then
+      exit(1);
+    end if;
   end func;

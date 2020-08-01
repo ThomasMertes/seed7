@@ -17,6 +17,7 @@ THE MAKEFILES
   makefile name|operating system |make prog     |C compiler  |shell
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
+  mk_clang.mak | Linux/Unix/BSD  | (g)make      | clang      | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
   mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe

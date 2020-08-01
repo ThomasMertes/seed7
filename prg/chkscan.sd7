@@ -32,7 +32,7 @@ $ include "seed7_05.s7i";
 
 const func string: processFile (in string: fileName) is func
   result
-    var string: result is "";
+    var string: processedFile is "";
   local
     var file: inFile is STD_NULL;
     var string: currSymbol is "";
@@ -40,11 +40,11 @@ const func string: processFile (in string: fileName) is func
     inFile := open(fileName, "r");
     if inFile <> STD_NULL then
       inFile.bufferChar := getc(inFile);
-      result := getWhiteSpace(inFile);
+      processedFile := getWhiteSpace(inFile);
       currSymbol := getSymbolOrComment(inFile);
       while currSymbol <> "" do
-        result &:= currSymbol;
-        result &:= getWhiteSpace(inFile);
+        processedFile &:= currSymbol;
+        processedFile &:= getWhiteSpace(inFile);
         currSymbol := getSymbolOrComment(inFile);
       end while;
     end if;

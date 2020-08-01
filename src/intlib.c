@@ -809,6 +809,42 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype int_radix (listtype arguments)
+#else
+
+objecttype int_radix (arguments)
+listtype arguments;
+#endif
+
+  { /* int_radix */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_stri_temp(
+	intRadix(take_int(arg_1(arguments)), take_int(arg_3(arguments)), FALSE));
+  } /* int_radix */
+
+
+
+#ifdef ANSI_C
+#ifdef ANSI_C
+
+objecttype int_RADIX (listtype arguments)
+#else
+
+objecttype int_RADIX (arguments)
+listtype arguments;
+#endif
+
+  { /* int_RADIX */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_stri_temp(
+	intRadix(take_int(arg_1(arguments)), take_int(arg_3(arguments)), TRUE));
+  } /* int_RADIX */
+
+
+
+
 objecttype int_rand (listtype arguments)
 #else
 
@@ -1006,24 +1042,6 @@ listtype arguments;
     isit_int(arg_1(arguments));
     return bld_stri_temp(
         intStr(take_int(arg_1(arguments))));
-  } /* int_str */
-
-
-
-#ifdef ANSI_C
-
-objecttype int_str_based (listtype arguments)
-#else
-
-objecttype int_str_based (arguments)
-listtype arguments;
-#endif
-
-  { /* int_str */
-    isit_int(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    return bld_stri_temp(
-        intStrBased(take_int(arg_1(arguments)), take_int(arg_2(arguments))));
   } /* int_str */
 
 

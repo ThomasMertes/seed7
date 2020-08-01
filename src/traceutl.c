@@ -281,6 +281,57 @@ const const_os_stritype os_stri;
 
 #ifdef ANSI_C
 
+void prot_stri_unquoted (const const_stritype stri)
+#else
+
+void prot_stri_unquoted (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype size;
+    const strelemtype *str;
+    memsizetype len;
+    char buffer[51];
+
+  /* prot_stri_unquoted */
+    if (stri != NULL) {
+      size = stri->size;
+      if (size > 128) {
+        size = 128;
+      } /* if */
+      for (str = stri->mem, len = size; len > 0; str++, len--) {
+        if (*str <= (chartype) 26) {
+          sprintf(buffer, "\\%c", ((int) *str) + '@');
+        } else if (*str <= (chartype) 31) {
+          sprintf(buffer, "\\%lu\\", (unsigned long) *str);
+        } else if (*str == (chartype) '\\') {
+          sprintf(buffer, "\\\\");
+        } else if (*str == (chartype) '\"') {
+          sprintf(buffer, "\\\"");
+        } else if (*str <= (chartype) 127) {
+          sprintf(buffer, "%c", (int) *str);
+        } else if (*str == (chartype) -1) {
+          sprintf(buffer, "\\-1\\");
+        } else {
+          sprintf(buffer, "\\%lu\\", (unsigned long) *str);
+        } /* if */
+        prot_cstri(buffer);
+        /* putc((int) *str, protfile); */
+      } /* for */
+      if (stri->size > 128) {
+        prot_cstri("\\ *AND_SO_ON* SIZE=");
+        prot_int((inttype) stri->size);
+      } /* if */
+    } else {
+      prot_cstri(" *NULL_STRING* ");
+    } /* if */
+  } /* prot_stri_unquoted */
+
+
+
+#ifdef ANSI_C
+
 void prot_stri (const const_stritype stri)
 #else
 
@@ -288,46 +339,10 @@ void prot_stri (stri)
 stritype stri;
 #endif
 
-  {
-    memsizetype size;
-
-  /* prot_stri */
+  { /* prot_stri */
     if (stri != NULL) {
-      size = stri->size;
-      if (size > 128) {
-        size = 128;
-      } /* if */
       prot_cstri("\"");
-      {
-        const strelemtype *str;
-        memsizetype len;
-        char buffer[51];
-
-        for (str = stri->mem, len = size;
-            len > 0; str++, len--) {
-          if (*str <= (chartype) 26) {
-            sprintf(buffer, "\\%c", ((int) *str) + '@');
-          } else if (*str <= (chartype) 31) {
-            sprintf(buffer, "\\%lu\\", (unsigned long) *str);
-          } else if (*str == (chartype) '\\') {
-            sprintf(buffer, "\\\\");
-          } else if (*str == (chartype) '\"') {
-            sprintf(buffer, "\\\"");
-          } else if (*str <= (chartype) 127) {
-            sprintf(buffer, "%c", (int) *str);
-          } else if (*str == (chartype) -1) {
-            sprintf(buffer, "\\-1\\");
-          } else {
-            sprintf(buffer, "\\%lu\\", (unsigned long) *str);
-          } /* if */
-          prot_cstri(buffer);
-          /* putc((int) *str, protfile); */
-        } /* for */
-      }
-      if (stri->size > 128) {
-        prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((inttype) stri->size);
-      } /* if */
+      prot_stri_unquoted(stri);
       prot_cstri("\"");
     } else {
       prot_cstri(" *NULL_STRING* ");

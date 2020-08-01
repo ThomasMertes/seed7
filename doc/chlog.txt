@@ -1,3 +1,36 @@
+29130203:
+- Files to generate man pages for Seed7 interpreter and compiler have
+  been added to the documentation (files doc/s7.1 and doc/s7c.1).
+- The makefiles have been improved to support the targets distclean
+  and test.
+- The operators radix and RADIX have been added to the libraries
+  integer.s7i and bigint.s7i. This operators convert an integer
+  respectively bigInteger to a string. The conversion uses the
+  numeral system with the given base.
+- The variants of the function str, which have a second parameter to
+  specify a numeric base, are deprecated now and will be removed in a
+  future release. The operators radix and RADIX should be used
+  instead.
+- Interpreter and compiler have been improved to support the
+  operators radix and RADIX.
+- In chkint.sd7 checks for the function str with base have been
+  replaced with checks for the operators radix and RADIX.
+- Usages of the function str with base have been changed to usages
+  of the operators radix or RADIX in the files gethttp.s7i, bas7.sd7,
+  encoding.s7i and s7c.sd7.
+- Errors in bas7.sd7, concerning the function VARPTR and the
+  statement OPEN, have been fixed.
+- The function getLineWithMacrosApplied in makedata.s7i has been
+  improved to ignore space and tab characters after an escaped
+  newline.
+- Result variables have been renamed in various libraries and example
+  programs.
+- The currency sign character has been added to stdfont10.s7i,
+  stdfont12.s7i, stdfont14.s7i, stdfont16.s7i, stdfont18.s7i,
+  stdfont20.s7i, stdfont24.s7i, vecfont10.s7i and vecfont18.s7i.
+- The file chkccomp.c has been improved to define a macro that
+  describes what happens, when a cast of a float to int overflows.
+
 20130120:
 - Interpreter and compiler have been improved to support the option
   -l. This option allows adding a directory to the include library
@@ -27,7 +60,7 @@
 - The functions chkLiteral and chkBitLength as well as checks for
   shifts with negative shift count have been added to the program
   chkbig.sd7.
-- The function check_division as well as has checks for the operator
+- The function check_division as well as checks for the operator
   /:= (in check_nan) have been added to the program chkflt.sd7.
 - The function check_str in chkint.sd7 has been improved to check
   the new behaviour of the function str with a give base.

@@ -34,14 +34,14 @@ var duration: diff is duration.value;
 
 const func integer: tak (in integer: x, in integer: y, in integer: z) is func
   result
-    var integer: result is 0;
+    var integer: tak is 0;
   begin
     if y >= x then
-      result := z;
+      tak := z;
     else
-      result := tak(tak(pred(x), y, z),
-                    tak(pred(y), z, x),
-                    tak(pred(z), x, y));
+      tak := tak(tak(pred(x), y, z),
+                 tak(pred(y), z, x),
+                 tak(pred(z), x, y));
     end if;
   end func;
 

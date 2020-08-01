@@ -173,7 +173,7 @@ const func string: toQuotedPrintable (in string: byteStri) is func
               quoted &:= "=\n";
               counter := 1;
             end if;
-            quoted &:= "=" <& upper(str(ord(byteStri[pred(index)]), 16)) lpad0 2;
+            quoted &:= "=" <& ord(byteStri[pred(index)]) RADIX 16 lpad0 2;
             counter +:= 3;
             startPos := index;
           end if;
@@ -185,7 +185,7 @@ const func string: toQuotedPrintable (in string: byteStri) is func
           quoted &:= "=\n";
           counter := 1;
         end if;
-        quoted &:= "=" <& upper(str(ord(ch), 16)) lpad0 2;
+        quoted &:= "=" <& ord(ch) RADIX 16 lpad0 2;
         startPos := succ(index);
         counter +:= 3;
       elsif counter >= 76 then
@@ -371,7 +371,7 @@ const func string: toPercentEncoded (in string: byteStri) is func
         raise RANGE_ERROR;
       elsif ch not in unreservedChars then
         percentEncoded &:= byteStri[start .. pred(pos)];
-        percentEncoded &:= "%" <& upper(str(ord(ch), 16)) lpad0 2;
+        percentEncoded &:= "%" <& ord(ch) RADIX 16 lpad0 2;
         start := succ(pos);
       end if;
     end for;
@@ -437,7 +437,7 @@ const func string: toUrlEncoded (in string: byteStri) is func
         start := succ(pos);
       elsif ch not in unreservedChars then
         urlEncoded &:= byteStri[start .. pred(pos)];
-        urlEncoded &:= "%" <& upper(str(ord(ch), 16)) lpad0 2;
+        urlEncoded &:= "%" <& ord(ch) RADIX 16 lpad0 2;
         start := succ(pos);
       end if;
     end for;

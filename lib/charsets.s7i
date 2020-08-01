@@ -1820,10 +1820,10 @@ const proc: conv2unicode (inout string: stri, in string: codePage) is func
 
 (**
  *  Convert a [[string]] with bytes in UTF-16BE encoding to UTF-32.
- *  When the function is called ''utf16be'' is assumed to be a [[string]]
- *  of bytes. The byte sequence in ''utf16be'' is encoded with UTF-16
- *  in big endian byte order.
- *  @return ''utf16be'' converted to normal (UTF-32) [[string]].
+ *  The parameter ''utf16be'' is assumed to be a [[string]] of bytes.
+ *  The byte sequence in ''utf16be'' is encoded with UTF-16 in
+ *  big endian byte order.
+ *  @return ''utf16be'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
 const func string: utf16beToStri (in string: utf16be) is func
@@ -1858,10 +1858,10 @@ const func string: utf16beToStri (in string: utf16be) is func
 
 (**
  *  Convert a [[string]] with bytes in UTF-16LE encoding to UTF-32.
- *  When the function is called ''utf16le'' is assumed to be a [[string]]
- *  of bytes. The byte sequence in ''utf16le'' is encoded with UTF-16
- *  in little endian byte order.
- *  @return ''utf16le'' converted to normal (UTF-32) [[string]].
+ *  The parameter ''utf16le'' is assumed to be a [[string]] of bytes.
+ *  The byte sequence in ''utf16le'' is encoded with UTF-16 in
+ *  little endian byte order.
+ *  @return ''utf16le'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
 const func string: utf16leToStri (in string: utf16le) is func
@@ -1896,14 +1896,14 @@ const func string: utf16leToStri (in string: utf16le) is func
 
 (**
  *  Return [[string]] where all surrogate pairs are replaced by single chars.
- *  When the function is called ''stri'' is assumed to be a [[string]]
- *  of Unicode characters which may contain surrogate pairs.
+ *  The parameter ''stri'' is assumed to be a [[string]] of UTF-16 or
+ *  UTF-32 Unicode characters, which may contain surrogate pairs.
  *  @return ''stri'' with all surrogate pairs replaced by single UTF-32 chars.
  *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
 const func string: replaceUtf16SurrogatePairs (in string: stri) is func
   result
-    var string: result is "";
+    var string: resultStri is "";
   local
     var integer: index is 0;
     var integer: startPos is 1;
@@ -1916,9 +1916,9 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
         if index < length(stri) then
           ch2 := stri[succ(index)];
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
-            result &:= stri[startPos .. pred(index)];
-            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
-                               (ord(ch2) - 16#DC00) + 16#10000));
+            resultStri &:= stri[startPos .. pred(index)];
+            resultStri &:= str(chr((ord(ch1) - 16#D800) << 10 +
+                                   (ord(ch2) - 16#DC00) + 16#10000));
             startPos := succ(index);
             incr(index);
           else
@@ -1929,20 +1929,20 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
         end if;
       end if;
     end for;
-    result &:= stri[startPos ..];
+    resultStri &:= stri[startPos ..];
   end func;
 
 
 (**
  *  Convert a [[string]] from an UTF-7 encoding to UTF-32.
- *  When the function is called ''stri'' is assumed to be a [[string]]
- *  of bytes. The byte sequence in ''stri'' is encoded with UTF-7.
- *  @return ''stri'' converted to normal (UTF-32) [[string]].
+ *  The parameter ''stri7'' is assumed to be a [[string]] of bytes.
+ *  The byte sequence in ''stri7'' is encoded with UTF-7.
+ *  @return ''stri7'' converted a to normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR The [[string]] is not UTF-7 encoded.
  *)
-const func string: utf7ToStri (in string: stri) is func
+const func string: utf7ToStri (in string: stri7) is func
   result
-    var string: result is "";
+    var string: resultStri is "";
   local
     const array integer: decode is [] (                      # -1 is illegal
         62, -1, -1, -1, 63,                                  # + /
@@ -1965,24 +1965,24 @@ const func string: utf7ToStri (in string: stri) is func
     var boolean: okay is FALSE;
     var string: unicodeStri is "";
   begin
-    plusPos := pos(stri, "+");
+    plusPos := pos(stri7, "+");
     while plusPos <> 0 do
-      result &:= stri[startPos .. pred(plusPos)];
-      minusPos := pos(stri, "-", succ(plusPos));
+      resultStri &:= stri7[startPos .. pred(plusPos)];
+      minusPos := pos(stri7, "-", succ(plusPos));
       if minusPos = 0 then
-        result &:= "+";
+        resultStri &:= "+";
         minusPos := plusPos;
       elsif minusPos = succ(plusPos) then
-        result &:= "+";
+        resultStri &:= "+";
       else
         okay := TRUE;
         unicodeStri := "";
         accumulator := 0;
         numBits := 0;
         for index range succ(plusPos) to pred(minusPos) do
-          ch := stri[index];
+          ch := stri7[index];
           if ch >= '+' and ch <= 'z' then
-            number := decode[ord(stri[index]) - ord(pred('+'))];
+            number := decode[ord(stri7[index]) - ord(pred('+'))];
             if number >= 0 then
               accumulator := (accumulator << 6) + number;
               numBits +:= 6;
@@ -2005,17 +2005,17 @@ const func string: utf7ToStri (in string: stri) is func
           if accumulator <> 0 then
             raise RANGE_ERROR;
           else
-            result &:= replaceUtf16SurrogatePairs(unicodeStri);
+            resultStri &:= replaceUtf16SurrogatePairs(unicodeStri);
           end if;
         else
-          result &:= "+";
+          resultStri &:= "+";
           minusPos := plusPos;
         end if;
       end if;
       startPos := succ(minusPos);
-      plusPos := pos(stri, "+", startPos);
+      plusPos := pos(stri7, "+", startPos);
     end while;
-    result &:= stri[startPos ..];
+    resultStri &:= stri7[startPos ..];
   end func;
 
 
