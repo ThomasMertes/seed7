@@ -71,7 +71,6 @@ inttype length;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_STRI(bytes_requested);
         for (position = 0; position < bytes_requested; position++) {
           result->mem[position] = (strelemtype) gkbGetc();
         } /* for */
@@ -106,7 +105,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
       while ((ch = gkbGetc()) != '\n' && ch != EOF) {
@@ -161,7 +159,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
       do {
@@ -222,7 +219,6 @@ inttype length;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_STRI(bytes_requested);
         for (position = 0; position < bytes_requested; position++) {
           result->mem[position] = (strelemtype) kbdGetc();
         } /* for */
@@ -257,7 +253,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
       while ((ch = kbdGetc()) != '\n' && ch != EOF) {
@@ -312,7 +307,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
       do {

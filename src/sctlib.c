@@ -53,6 +53,56 @@
 
 #ifdef ANSI_C
 
+objecttype sct_alloc (listtype arguments)
+#else
+
+objecttype sct_alloc (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype stru_from;
+    memsizetype new_size;
+    structtype new_stru;
+    objecttype result;
+
+  /* sct_alloc */
+    stru_from = arg_1(arguments);
+    isit_struct(stru_from);
+    if (TEMP_OBJECT(stru_from)) {
+      CLEAR_TEMP_FLAG(stru_from);
+      result = stru_from;
+      arg_1(arguments) = NULL;
+    } else {
+      if (ALLOC_OBJECT(result)) {
+        new_size = take_struct(stru_from)->size;
+        if (ALLOC_STRUCT(new_stru, new_size)) {
+          new_stru->size = new_size;
+          if (!crea_array(new_stru->stru,
+              take_struct(stru_from)->stru, new_size)) {
+            FREE_OBJECT(result);
+            FREE_STRUCT(new_stru, new_size);
+            return(raise_exception(SYS_MEM_EXCEPTION));
+          } /* if */
+          result->type_of = stru_from->type_of;
+          result->descriptor.property = stru_from->descriptor.property;
+          INIT_CATEGORY_OF_OBJ(result, stru_from->objcategory);
+          result->value.structvalue = new_stru;
+        } else {
+          FREE_OBJECT(result);
+          return(raise_exception(SYS_MEM_EXCEPTION));
+        } /* if */
+      } else {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+    } /* if */
+    return(bld_reference_temp(result));
+  } /* sct_alloc */
+
+
+
+#ifdef ANSI_C
+
 objecttype sct_cat (listtype arguments)
 #else
 
@@ -442,56 +492,6 @@ listtype arguments;
     isit_struct(arg_1(arguments));
     return(bld_int_temp((inttype) take_struct(arg_1(arguments))->size));
   } /* sct_lng */
-
-
-
-#ifdef ANSI_C
-
-objecttype sct_alloc (listtype arguments)
-#else
-
-objecttype sct_alloc (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype stru_from;
-    memsizetype new_size;
-    structtype new_stru;
-    objecttype result;
-
-  /* sct_alloc */
-    stru_from = arg_1(arguments);
-    isit_struct(stru_from);
-    if (TEMP_OBJECT(stru_from)) {
-      CLEAR_TEMP_FLAG(stru_from);
-      result = stru_from;
-      arg_1(arguments) = NULL;
-    } else {
-      if (ALLOC_OBJECT(result)) {
-        new_size = take_struct(stru_from)->size;
-        if (ALLOC_STRUCT(new_stru, new_size)) {
-          new_stru->size = new_size;
-          if (!crea_array(new_stru->stru,
-              take_struct(stru_from)->stru, new_size)) {
-            FREE_OBJECT(result);
-            FREE_STRUCT(new_stru, new_size);
-            return(raise_exception(SYS_MEM_EXCEPTION));
-          } /* if */
-          result->type_of = stru_from->type_of;
-          result->descriptor.property = stru_from->descriptor.property;
-          INIT_CATEGORY_OF_OBJ(result, stru_from->objcategory);
-          result->value.structvalue = new_stru;
-        } else {
-          FREE_OBJECT(result);
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } /* if */
-      } else {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } /* if */
-    } /* if */
-    return(bld_reference_temp(result));
-  } /* sct_alloc */
 
 
 

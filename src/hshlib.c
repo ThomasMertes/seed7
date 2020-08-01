@@ -1062,33 +1062,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype hsh_for_key (listtype arguments)
-#else
-
-objecttype hsh_for_key (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype key_variable;
-    hashtype hash1;
-    objecttype statement;
-    objecttype key_copy_func;
-
-  /* hsh_for_key */
-    isit_hash(arg_2(arguments));
-    key_variable = arg_1(arguments);
-    hash1 = take_hash(arg_2(arguments));
-    statement = arg_3(arguments);
-    key_copy_func = take_reference(arg_4(arguments));
-    for_key_hash(key_variable, hash1, statement, key_copy_func);
-    return(SYS_EMPTY_OBJECT);
-  } /* hsh_for_key */
-
-
-
-#ifdef ANSI_C
-
 objecttype hsh_for_data_key (listtype arguments)
 #else
 
@@ -1116,6 +1089,33 @@ listtype arguments;
         data_copy_func, key_copy_func);
     return(SYS_EMPTY_OBJECT);
   } /* hsh_for_data_key */
+
+
+
+#ifdef ANSI_C
+
+objecttype hsh_for_key (listtype arguments)
+#else
+
+objecttype hsh_for_key (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype key_variable;
+    hashtype hash1;
+    objecttype statement;
+    objecttype key_copy_func;
+
+  /* hsh_for_key */
+    isit_hash(arg_2(arguments));
+    key_variable = arg_1(arguments);
+    hash1 = take_hash(arg_2(arguments));
+    statement = arg_3(arguments);
+    key_copy_func = take_reference(arg_4(arguments));
+    for_key_hash(key_variable, hash1, statement, key_copy_func);
+    return(SYS_EMPTY_OBJECT);
+  } /* hsh_for_key */
 
 
 

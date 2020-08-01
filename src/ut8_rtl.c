@@ -231,7 +231,6 @@ inttype length;
     memsizetype bytes_in_buffer;
     memsizetype chars_read;
     memsizetype chars_there;
-    chartype curr_ch; 
     strelemtype *stri_dest;
     stritype result;
 
@@ -261,13 +260,16 @@ inttype length;
           return(NULL);
         } /* if */
       } /* if */
-      COUNT_STRI(chars_requested);
 #ifdef OUT_OF_ORDER
-      for (stri_dest = result->mem, chars_missing = chars_requested, curr_ch = '\0';
-          chars_missing > 0 && (curr_ch = ut8Getc(fil1)) != EOF;
-          stri_dest++, chars_missing--) {
-        *stri_dest = curr_ch;
-      } /* for */
+      {
+        chartype curr_ch; 
+
+        for (stri_dest = result->mem, chars_missing = chars_requested, curr_ch = '\0';
+            chars_missing > 0 && (curr_ch = ut8Getc(fil1)) != EOF;
+            stri_dest++, chars_missing--) {
+          *stri_dest = curr_ch;
+        } /* for */
+      }
       result->size = stri_dest - result->mem;
       if (!RESIZE_STRI(result, chars_requested, result->size)) {
         FREE_STRI(result, chars_requested);
@@ -416,7 +418,6 @@ chartype *termination_char;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_STRI(position);
         if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
           FREE_BSTRI(buffer, memlength);
           FREE_STRI(result, position);
@@ -522,7 +523,6 @@ chartype *termination_char;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_STRI(position);
         if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
           FREE_BSTRI(buffer, memlength);
           FREE_STRI(result, position);

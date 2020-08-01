@@ -864,35 +864,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype prc_print (listtype arguments)
-#else
-
-objecttype prc_print (arguments)
-listtype arguments;
-#endif
-
-  {
-    stritype stri;
-    cstritype str1;
-
-  /* prc_print */
-    isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    str1 = cp_to_cstri(stri);
-    if (str1 == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      fputs(str1, stdout);
-      fflush(stdout);
-      free_cstri(str1, stri);
-      return(SYS_EMPTY_OBJECT);
-    } /* if */
-  } /* prc_print */
-
-
-
-#ifdef ANSI_C
-
 objecttype prc_raise (listtype arguments)
 #else
 

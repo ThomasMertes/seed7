@@ -2846,6 +2846,8 @@ CONTENTS
                   ( Type of result: string )
       eoln(A)   End of line
                   ( Type of result: boolean )
+      hasNext(A) A call of getc does not return the EOF character
+                  ( Type of result: boolean )
       eof(A)    End of file
                   ( Type of result: boolean )
     Statements:

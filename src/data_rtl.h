@@ -72,10 +72,10 @@ typedef union {
 #ifdef WITH_FLOAT
     floattype     floatvalue;   /* FLOATOBJECT */
 #endif
-  } valueunion;
+  } rtlValueunion;
 
 typedef struct rtlObjectstruct {
-    valueunion value;
+    rtlValueunion value;
   } rtlObjecttype;
 
 typedef struct rtlListstruct {

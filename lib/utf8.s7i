@@ -100,6 +100,9 @@ const func string: getln (inout utf8_file: aFile) is
 const func boolean: eof (ref utf8_file: aFile) is
   return eof(aFile.ext_file);
 
+const func boolean: hasNext (ref utf8_file: aFile) is
+  return hasNext(aFile.ext_file);
+
 const func integer: length (ref utf8_file: aFile) is
   return length(aFile.ext_file);
 

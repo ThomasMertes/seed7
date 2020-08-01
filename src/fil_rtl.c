@@ -158,11 +158,11 @@ stritype file_mode;
 
 #ifdef ANSI_C
 
-biginttype filBigLng (filetype fil1)
+biginttype filBigLng (filetype aFile)
 #else
 
-biginttype filBigLng (fil1)
-filetype fil1;
+biginttype filBigLng (aFile)
+filetype aFile;
 #endif
 
   {
@@ -171,17 +171,17 @@ filetype fil1;
 
   /* filBigLng */
 #ifdef myLseek
-    fflush(fil1);
-    current_file_position = myLseek(fileno(fil1), (offsettype) 0, SEEK_CUR);
+    fflush(aFile);
+    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
     if (current_file_position == (offsettype) -1) {
       raise_error(FILE_ERROR);
       return(NULL);
     } else {
-      file_length = myLseek(fileno(fil1), (offsettype) 0, SEEK_END);
+      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
       if (file_length == (offsettype) -1) {
         raise_error(FILE_ERROR);
         return(NULL);
-      } else if (myLseek(fileno(fil1), current_file_position, SEEK_SET) == (offsettype) -1) {
+      } else if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
         raise_error(FILE_ERROR);
         return(NULL);
       } else if (sizeof(offsettype) == 8) {
@@ -191,19 +191,19 @@ filetype fil1;
       } /* if */
     } /* if */
 #else
-    current_file_position = myFtell(fil1);
+    current_file_position = myFtell(aFile);
     if (current_file_position == -1) {
       raise_error(FILE_ERROR);
       return(NULL);
-    } else if (myFseek(fil1, (offsettype) 0, SEEK_END) != 0) {
+    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
       raise_error(FILE_ERROR);
       return(NULL);
     } else {
-      file_length = myFtell(fil1);
+      file_length = myFtell(aFile);
       if (file_length == -1) {
         raise_error(FILE_ERROR);
         return(NULL);
-      } else if (myFseek(fil1, current_file_position, SEEK_SET) != 0) {
+      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
         raise_error(FILE_ERROR);
         return(NULL);
       } else if (sizeof(offsettype) == 8) {
@@ -219,11 +219,11 @@ filetype fil1;
 
 #ifdef ANSI_C
 
-void filBigSeek (filetype fil1, biginttype big_position)
+void filBigSeek (filetype aFile, biginttype big_position)
 #else
 
-void filBigSeek (fil1, big_position)
-filetype fil1;
+void filBigSeek (aFile, big_position)
+filetype aFile;
 biginttype big_position;
 #endif
 
@@ -232,7 +232,7 @@ biginttype big_position;
 
   /* filBigSeek */
 #ifdef myLseek
-    fflush(fil1);
+    fflush(aFile);
     if (sizeof(offsettype) == 8) {
       file_position = bigLOrd(big_position);
     } else {
@@ -240,7 +240,7 @@ biginttype big_position;
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-    } else if (myLseek(fileno(fil1), file_position - 1, SEEK_SET) == (offsettype) -1) {
+    } else if (myLseek(fileno(aFile), file_position - 1, SEEK_SET) == (offsettype) -1) {
       raise_error(FILE_ERROR);
     } /* if */
 #else
@@ -251,7 +251,7 @@ biginttype big_position;
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-    } else if (myFseek(fil1, file_position - 1, SEEK_SET) != 0) {
+    } else if (myFseek(aFile, file_position - 1, SEEK_SET) != 0) {
       raise_error(FILE_ERROR);
     } /* if */
 #endif
@@ -261,11 +261,11 @@ biginttype big_position;
 
 #ifdef ANSI_C
 
-biginttype filBigTell (filetype fil1)
+biginttype filBigTell (filetype aFile)
 #else
 
-biginttype filBigTell (fil1)
-filetype fil1;
+biginttype filBigTell (aFile)
+filetype aFile;
 #endif
 
   {
@@ -273,8 +273,8 @@ filetype fil1;
 
   /* filBigTell */
 #ifdef myLseek
-    fflush(fil1);
-    current_file_position = myLseek(fileno(fil1), (offsettype) 0, SEEK_CUR);
+    fflush(aFile);
+    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
     if (current_file_position == (offsettype) -1) {
       raise_error(FILE_ERROR);
       return(NULL);
@@ -284,7 +284,7 @@ filetype fil1;
       return(bigUIConv(current_file_position + 1));
     } /* if */
 #else
-    current_file_position = myFtell(fil1);
+    current_file_position = myFtell(aFile);
     if (current_file_position == -1) {
       raise_error(FILE_ERROR);
       return(NULL);
@@ -300,11 +300,11 @@ filetype fil1;
 
 #ifdef ANSI_C
 
-stritype filGets (filetype fil1, inttype length)
+stritype filGets (filetype aFile, inttype length)
 #else
 
-stritype filGets (fil1, length)
-filetype fil1;
+stritype filGets (aFile, length)
+filetype aFile;
 inttype length;
 #endif
 
@@ -322,10 +322,10 @@ inttype length;
     } else {
       bytes_requested = (memsizetype) length;
       if (!ALLOC_STRI(result, bytes_requested)) {
-        if ((current_file_position = ftell(fil1)) != -1) {
-          fseek(fil1, 0, SEEK_END);
-          bytes_there = (memsizetype) (ftell(fil1) - current_file_position);
-          fseek(fil1, current_file_position, SEEK_SET);
+        if ((current_file_position = ftell(aFile)) != -1) {
+          fseek(aFile, 0, SEEK_END);
+          bytes_there = (memsizetype) (ftell(aFile) - current_file_position);
+          fseek(aFile, current_file_position, SEEK_SET);
           if (bytes_there < bytes_requested) {
             bytes_requested = bytes_there;
             if (!ALLOC_STRI(result, bytes_requested)) {
@@ -341,9 +341,8 @@ inttype length;
           return(NULL);
         } /* if */
       } /* if */
-      COUNT_STRI(bytes_requested);
       result_size = (memsizetype) fread(result->mem, 1,
-          (SIZE_TYPE) bytes_requested, fil1);
+          (SIZE_TYPE) bytes_requested, aFile);
 #ifdef WIDE_CHAR_STRINGS
       if (result_size > 0) {
         uchartype *from = &((uchartype *) result->mem)[result_size - 1];
@@ -371,11 +370,46 @@ inttype length;
 
 #ifdef ANSI_C
 
-stritype filLineRead (filetype fil1, chartype *termination_char)
+booltype filHasNext (filetype aFile)
 #else
 
-stritype filLineRead (fil1, termination_char)
-filetype fil1;
+booltype filHasNext (aFile)
+filetype aFile;
+#endif
+
+  {
+    int next_char;
+    booltype result;
+
+  /* filHasNext */
+    if (feof(aFile)) {
+      result = FALSE;
+    } else {
+      next_char = getc(aFile);
+      if (next_char != EOF) {
+        if (ungetc(next_char, aFile) != next_char) {
+          raise_error(FILE_ERROR);
+          result = FALSE;
+        } else {
+          result = TRUE;
+        } /* if */
+      } else {
+        clearerr(aFile);
+        result = FALSE;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* filHasNext */
+
+
+
+#ifdef ANSI_C
+
+stritype filLineRead (filetype aFile, chartype *termination_char)
+#else
+
+stritype filLineRead (aFile, termination_char)
+filetype aFile;
 chartype *termination_char;
 #endif
 
@@ -393,10 +427,9 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
-      while ((ch = getc(fil1)) != '\n' && ch != EOF) {
+      while ((ch = getc(aFile)) != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
           if (!RESIZE_STRI(result, memlength, newmemlength)) {
@@ -427,11 +460,11 @@ chartype *termination_char;
 
 #ifdef ANSI_C
 
-stritype filLit (filetype fil1)
+stritype filLit (filetype aFile)
 #else
 
-stritype filLit (fil1)
-filetype fil1;
+stritype filLit (aFile)
+filetype aFile;
 #endif
 
   {
@@ -440,13 +473,13 @@ filetype fil1;
     stritype result;
 
   /* filLit */
-    if (fil1 == NULL) {
+    if (aFile == NULL) {
       file_name = "NULL";
-    } else if (fil1 == stdin) {
+    } else if (aFile == stdin) {
       file_name = "stdin";
-    } else if (fil1 == stdout) {
+    } else if (aFile == stdout) {
       file_name = "stdout";
-    } else if (fil1 == stderr) {
+    } else if (aFile == stderr) {
       file_name = "stderr";
     } else {
       file_name = "file";
@@ -456,9 +489,8 @@ filetype fil1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(length);
       result->size = length;
-      stri_expand(result->mem, file_name, length);
+      cstri_expand(result->mem, file_name, length);
       return(result);
     } /* if */
   } /* filLit */
@@ -467,11 +499,11 @@ filetype fil1;
 
 #ifdef ANSI_C
 
-inttype filLng (filetype fil1)
+inttype filLng (filetype aFile)
 #else
 
-inttype filLng (fil1)
-filetype fil1;
+inttype filLng (aFile)
+filetype aFile;
 #endif
 
   {
@@ -480,18 +512,18 @@ filetype fil1;
 
   /* filLng */
 #ifdef myLseek
-    fflush(fil1);
-    current_file_position = myLseek(fileno(fil1), (offsettype) 0, SEEK_CUR);
+    fflush(aFile);
+    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
     if (current_file_position == (offsettype) -1) {
       raise_error(FILE_ERROR);
       return(0);
     } else {
-      file_length = myLseek(fileno(fil1), (offsettype) 0, SEEK_END);
+      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
       if (file_length == (offsettype) -1) {
         raise_error(FILE_ERROR);
         return(0);
       } else {
-        if (myLseek(fileno(fil1), current_file_position, SEEK_SET) == (offsettype) -1) {
+        if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
           raise_error(FILE_ERROR);
           return(0);
         } else {
@@ -505,19 +537,19 @@ filetype fil1;
       } /* if */
     } /* if */
 #else
-    current_file_position = myFtell(fil1);
+    current_file_position = myFtell(aFile);
     if (current_file_position == -1) {
       raise_error(FILE_ERROR);
       return(0);
-    } else if (myFseek(fil1, (offsettype) 0, SEEK_END) != 0) {
+    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
       raise_error(FILE_ERROR);
       return(0);
     } else {
-      file_length = myFtell(fil1);
+      file_length = myFtell(aFile);
       if (file_length == -1) {
         raise_error(FILE_ERROR);
         return(0);
-      } else if (myFseek(fil1, current_file_position, SEEK_SET) != 0) {
+      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
         raise_error(FILE_ERROR);
         return(0);
       } else {
@@ -623,18 +655,43 @@ stritype file_mode;
 
 #ifdef ANSI_C
 
-void filSeek (filetype fil1, inttype file_position)
+void filPrint (stritype stri)
 #else
 
-void filSeek (fil1, file_position)
-filetype fil1;
+void filPrint (stri)
+stritype stri;
+#endif
+
+  {
+    cstritype str1;
+
+  /* filPrint */
+    str1 = cp_to_cstri(stri);
+    if (str1 == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      fputs(str1, stdout);
+      fflush(stdout);
+      free_cstri(str1, stri);
+    } /* if */
+  } /* filPrint */
+
+
+
+#ifdef ANSI_C
+
+void filSeek (filetype aFile, inttype file_position)
+#else
+
+void filSeek (aFile, file_position)
+filetype aFile;
 inttype file_position;
 #endif
 
   { /* filSeek */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-    } else if (fseek(fil1, file_position - 1, SEEK_SET) != 0) {
+    } else if (fseek(aFile, file_position - 1, SEEK_SET) != 0) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSeek */
@@ -643,18 +700,18 @@ inttype file_position;
 
 #ifdef ANSI_C
 
-inttype filTell (filetype fil1)
+inttype filTell (filetype aFile)
 #else
 
-inttype filTell (fil1)
-filetype fil1;
+inttype filTell (aFile)
+filetype aFile;
 #endif
 
   {
     inttype file_position;
 
   /* filTell */
-    file_position = ftell(fil1);
+    file_position = ftell(aFile);
     if (file_position == -1) {
       raise_error(FILE_ERROR);
       return(0);
@@ -670,11 +727,11 @@ filetype fil1;
 
 #ifdef ANSI_C
 
-stritype filWordRead (filetype fil1, chartype *termination_char)
+stritype filWordRead (filetype aFile, chartype *termination_char)
 #else
 
-stritype filWordRead (fil1, termination_char)
-filetype fil1;
+stritype filWordRead (aFile, termination_char)
+filetype aFile;
 chartype *termination_char;
 #endif
 
@@ -692,11 +749,10 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
       do {
-        ch = getc(fil1);
+        ch = getc(aFile);
       } while (ch == ' ' || ch == '\t');
       while (ch != ' ' && ch != '\t' &&
           ch != '\n' && ch != EOF) {
@@ -711,7 +767,7 @@ chartype *termination_char;
           memlength = newmemlength;
         } /* if */
         memory[position++] = (strelemtype) ch;
-        ch = getc(fil1);
+        ch = getc(aFile);
       } /* while */
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
@@ -731,11 +787,11 @@ chartype *termination_char;
 
 #ifdef ANSI_C
 
-void filWrite (filetype fil1, stritype stri)
+void filWrite (filetype aFile, stritype stri)
 #else
 
 void filWrite (stri)
-filetype fil1;
+filetype aFile;
 stritype stri;
 #endif
 
@@ -758,7 +814,7 @@ stritype stri;
           } /* if */
           *ustri = (uchartype) *str;
         } /* for */
-        fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, fil1);
+        fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile);
       } /* for */
       if (len > 0) {
         for (ustri = buffer, buf_len = len;
@@ -769,11 +825,11 @@ stritype stri;
           } /* if */
           *ustri = (uchartype) *str;
         } /* for */
-        fwrite(buffer, sizeof(uchartype), len, fil1);
+        fwrite(buffer, sizeof(uchartype), len, aFile);
       } /* if */
     }
 #else
     fwrite(stri->mem, sizeof(strelemtype),
-        (SIZE_TYPE) stri->size, fil1);
+        (SIZE_TYPE) stri->size, aFile);
 #endif
   } /* filWrite */

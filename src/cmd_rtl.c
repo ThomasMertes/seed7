@@ -712,8 +712,14 @@ stritype stri;
         opt = C_COMPILER;
       } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
         opt = REDIRECT_C_ERRORS;
-      } else if (strcmp(opt_name, "LINKER_LIBS") == 0) {
-        opt = LINKER_LIBS;
+      } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
+        opt = SYSTEM_LIBS;
+      } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
+        opt = SEED7_LIB;
+      } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {
+        opt = COMP_DATA_LIB;
+      } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
+        opt = COMPILER_LIB;
       } else {
         opt = "";
       } /* if */

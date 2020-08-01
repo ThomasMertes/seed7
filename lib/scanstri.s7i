@@ -1,0 +1,147 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  scanstri.s7i  String scanner functions                          *)
+(*  Copyright (C) 1989 - 2008  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "charsets.s7i";
+
+
+(**
+ *  Reads a sequence of digits from 'stri'.
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the digits.
+ *  @return the digit sequence or "" when no digit was found.
+ *)
+const func string: getDigits (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] >= '0' and stri[pos] <= '9' do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads an alphanumeric name from 'stri'.
+ *  A name consists of a letter or underscore followed by letters,
+ *  digits or underscores. When the function is called it is assumed
+ *  that 'stri' is empty or stri[1] contains the first character to be
+ *  handled. When the function is left 'stri' is empty or stri[1]
+ *  contains the character after the name.
+ *  @return the name or "" when no letter or underscore was found.
+ *)
+const func string: getName (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var char: character is ' ';
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in name_start_char then
+      incr(pos);
+      while pos <= leng and stri[pos] in name_char do
+        incr(pos);
+      end while;
+      symbol := stri[.. pred(pos)];
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Skips space characters from 'stri'.
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the space characters.
+ *)
+const proc: skipSpace (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] = ' ' do
+      incr(pos);
+    end while;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Skips whitespace characters from 'stri'.
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the whitespace characters.
+ *)
+const proc: skipWhiteSpace (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in white_space_char do
+      incr(pos);
+    end while;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads whitespace characters from 'stri'.
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the whitespace characters.
+ *  @return the string of whitespace characters or "" when no
+ *          whitespace character was found.
+ *)
+const func string: getWhiteSpace (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in white_space_char do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;

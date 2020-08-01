@@ -158,6 +158,21 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype gkb_window (listtype arguments)
+#else
+
+objecttype gkb_window (arguments)
+listtype arguments;
+#endif
+
+  { /* gkb_window */
+    return(bld_win_temp(gkbWindow()));
+  } /* gkb_window */
+
+
+
+#ifdef ANSI_C
+
 objecttype gkb_word_read (listtype arguments)
 #else
 
@@ -175,21 +190,6 @@ listtype arguments;
     return(bld_stri_temp(
         gkbWordRead(&ch_variable->value.charvalue)));
   } /* gkb_word_read */
-
-
-
-#ifdef ANSI_C
-
-objecttype gkb_window (listtype arguments)
-#else
-
-objecttype gkb_window (arguments)
-listtype arguments;
-#endif
-
-  { /* gkb_window */
-    return(bld_win_temp(gkbWindow()));
-  } /* gkb_window */
 
 
 
@@ -669,6 +669,37 @@ listtype arguments;
     drwFlush();
     return(SYS_EMPTY_OBJECT);
   } /* drw_flush */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_fpolyLine (listtype arguments)
+#else
+
+objecttype drw_fpolyLine (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x, y, col;
+    const_bstritype point_list;
+
+  /* drw_fpolyLine */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_bstri(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x = take_int(arg_2(arguments));
+    y = take_int(arg_3(arguments));
+    point_list = take_bstri(arg_4(arguments));
+    col = take_int(arg_5(arguments));
+    drwFPolyLine(actual_window, x, y, point_list, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_fpolyLine */
 
 
 
@@ -1222,37 +1253,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype drw_fpolyLine (listtype arguments)
-#else
-
-objecttype drw_fpolyLine (arguments)
-listtype arguments;
-#endif
-
-  {
-    wintype actual_window;
-    inttype x, y, col;
-    const_bstritype point_list;
-
-  /* drw_fpolyLine */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    isit_bstri(arg_4(arguments));
-    isit_int(arg_5(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x = take_int(arg_2(arguments));
-    y = take_int(arg_3(arguments));
-    point_list = take_bstri(arg_4(arguments));
-    col = take_int(arg_5(arguments));
-    drwFPolyLine(actual_window, x, y, point_list, col);
-    return(SYS_EMPTY_OBJECT);
-  } /* drw_fpolyLine */
-
-
-
-#ifdef ANSI_C
-
 objecttype drw_ppoint (listtype arguments)
 #else
 
@@ -1405,6 +1405,21 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_scale (listtype arguments)
+#else
+
+objecttype drw_scale (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_scale */
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_scale */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_setTransparentColor (listtype arguments)
 #else
 
@@ -1419,21 +1434,6 @@ listtype arguments;
         take_int(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* drw_setTransparentColor */
-
-
-
-#ifdef ANSI_C
-
-objecttype drw_scale (listtype arguments)
-#else
-
-objecttype drw_scale (arguments)
-listtype arguments;
-#endif
-
-  { /* drw_scale */
-    return(SYS_EMPTY_OBJECT);
-  } /* drw_scale */
 
 
 

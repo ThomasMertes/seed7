@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  scanner.s7i   Scanner functions                                 *)
-(*  Copyright (C) 1989 - 2007  Thomas Mertes                        *)
+(*  scanfile.s7i  File scanner functions                            *)
+(*  Copyright (C) 1989 - 2008  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,58 +26,7 @@
 (********************************************************************)
 
 
-const set of char: letter_char is {'A' .. 'Z'} | {'a' .. 'z'};
-const set of char: digit_char is {'0' .. '9'};
-const set of char: alphanum_char is letter_char | digit_char;
-const set of char: special_char is
-    {'!', '$', '%', '&', '*', '+', ',', '-', '.', '/',
-     ':', ';', '<', '=', '>', '?', '@', '\\','^', '`',
-     '|', '~'};
-const set of char: extended_special_char is special_char | { '"', '#', ''' };
-const set of char: angle_bracket is {'<'};
-const set of char: special_html_char is special_char - angle_bracket;
-const set of char: apostrophe_char is {'''};
-const set of char: quotation_char is {'"'};
-const set of char: sharp_char is {'#'};
-const set of char: paren_char is {'(', ')', '[', ']', '{', '}'};
-const set of char: left_paren_char is {'('};
-const set of char: other_paren_char is {')', '[', ']', '{', '}'};
-const set of char: name_start_char is letter_char | {'_'};
-const set of char: name_char is letter_char | digit_char | {'_'};
-const set of char: white_space_char is {' ', '\t', '\n', '\r'};
-const set of char: special_comment_char is {'(', '*', EOF};
-const set of char: no_escape_char is
-    {' ', '!',      '#', '$', '%', '&', ''',
-     '(', ')', '*', '+', ',', '-', '.', '/',
-     '0', '1', '2', '3', '4', '5', '6', '7',
-     '8', '9', ':', ';', '<', '=', '>', '?',
-     '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-     'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-     'X', 'Y', 'Z', '[',      ']', '^', '_',
-     '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-     'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-     'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-     'x', 'y', 'z', '{', '|', '}', '~'};
-
-const array string: esc_tab is [](
-    (* " *) "\"", (* # *) " ",  (* $ *) " ",  (* % *) " ",  (* & *) " ",
-    (* ' *) "'",  (* ( *) " ",  (* ) *) " ",  (* * *) " ",  (* + *) " ",
-    (* , *) " ",  (* - *) " ",  (* . *) " ",  (* / *) " ",  (* 0 *) " ",
-    (* 1 *) " ",  (* 2 *) " ",  (* 3 *) " ",  (* 4 *) " ",  (* 5 *) " ",
-    (* 6 *) " ",  (* 7 *) " ",  (* 8 *) " ",  (* 9 *) " ",  (* : *) " ",
-    (* ; *) " ",  (* < *) " ",  (* = *) " ",  (* > *) " ",  (* ? *) " ",
-    (* @ *) " ",  (* A *) "\A", (* B *) "\B", (* C *) "\C", (* D *) "\D",
-    (* E *) "\E", (* F *) "\F", (* G *) "\G", (* H *) "\H", (* I *) "\I",
-    (* J *) "\J", (* K *) "\K", (* L *) "\L", (* M *) "\M", (* N *) "\N",
-    (* O *) "\O", (* P *) "\P", (* Q *) "\Q", (* R *) "\R", (* S *) "\S",
-    (* T *) "\T", (* U *) "\U", (* V *) "\V", (* W *) "\W", (* X *) "\X",
-    (* Y *) "\Y", (* Z *) "\Z", (* [ *) " ",  (* \ *) "\\", (* ] *) " ",
-    (* ^ *) " ",  (* _ *) " ",  (* ` *) " ",  (* a *) "\a", (* b *) "\b",
-    (* c *) " ",  (* d *) " ",  (* e *) "\e", (* f *) "\f", (* g *) " ",
-    (* h *) " ",  (* i *) " ",  (* j *) " ",  (* k *) " ",  (* l *) " ",
-    (* m *) " ",  (* n *) "\n", (* o *) " ",  (* p *) " ",  (* q *) " ",
-    (* r *) "\r", (* s *) " ",  (* t *) "\t", (* u *) " ",  (* v *) "\v");
+include "charsets.s7i";
 
 
 (**
@@ -435,6 +384,33 @@ const func string: getStringLiteral (inout file: inFile) is func
       end if;
     until not reading_string;
     inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads an alphanumeric name from the 'inFile'.
+ *  A name consists of a letter or underscore followed by letters,
+ *  digits or underscores. When the function is called it is assumed
+ *  that inFile.bufferChar contains the first character to be handled.
+ *  When the function is left inFile.bufferChar contains the character
+ *  after the name.
+ *  @return the name or "" when no letter or underscore was found.
+ *)
+const func string: getName (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar in name_start_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in name_char do
+        symbol &:= str(character);
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
   end func;
 
 

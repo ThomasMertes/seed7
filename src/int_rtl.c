@@ -441,7 +441,6 @@ inttype pad_size;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(result_size);
       result->size = result_size;
 #ifdef WIDE_CHAR_STRINGS
       {
@@ -502,20 +501,20 @@ stritype stri;
         } /* if */
         negative = FALSE;
       } /* if */
+      while (position < stri->size &&
+          stri->mem[position] >= ((strelemtype) '0') &&
+          stri->mem[position] <= ((strelemtype) '9')) {
+        digitval = ((inttype) stri->mem[position]) - ((inttype) '0');
+        if (integer_value < MAX_DIV_10 ||
+            (integer_value == MAX_DIV_10 &&
+            digitval <= MAX_REM_10)) {
+          integer_value = ((inttype) 10) * integer_value + digitval;
+        } else {
+          okay = FALSE;
+        } /* if */
+        position++;
+      } /* while */
     } /* if */
-    while (position < stri->size &&
-        stri->mem[position] >= ((strelemtype) '0') &&
-        stri->mem[position] <= ((strelemtype) '9')) {
-      digitval = ((inttype) stri->mem[position]) - ((inttype) '0');
-      if (integer_value < MAX_DIV_10 ||
-          (integer_value == MAX_DIV_10 &&
-          digitval <= MAX_REM_10)) {
-        integer_value = ((inttype) 10) * integer_value + digitval;
-      } else {
-        okay = FALSE;
-      } /* if */
-      position++;
-    } /* while */
     if (position == 0 || position < stri->size) {
       okay = FALSE;
     } /* if */
@@ -681,7 +680,6 @@ inttype arg1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(len);
       result->size = len;
       memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
       return(result);

@@ -114,7 +114,7 @@ objecttype actual_param;
       } /* if */
     } else {
       if (!VAR_OBJECT(actual_param)) {
-        /* printf("category: %s\n", category_stri(CATEGORY_OF_OBJ(actual_param))); */
+        /* printf("category: %s\n", category_cstri(CATEGORY_OF_OBJ(actual_param))); */
         err_expr_obj(WRONGACCESSRIGHT, expr_object, actual_param);
       } /* if */
     } /* if */
@@ -165,7 +165,7 @@ objecttype object;
                   } /* if */
                 } else {
                   if (!VAR_OBJECT(expr_list->obj)) {
-                    /* printf("category: %s\n", category_stri(CATEGORY_OF_OBJ(expr_list->obj))); */
+                    /* printf("category: %s\n", category_cstri(CATEGORY_OF_OBJ(expr_list->obj))); */
                     err_expr_obj(WRONGACCESSRIGHT, object, expr_list->obj);
                   } /* if */
                 } /* if */

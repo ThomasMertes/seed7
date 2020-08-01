@@ -81,7 +81,7 @@ const proc: destroy (ref proc param) is                         action "PRC_NOOP
 const proc: noop is                                             action "PRC_NOOP";
 const proc: (ref void param) ; (ref void param) is noop;
 
-const proc: PRINT (ref string param) is                         action "PRC_PRINT";
+const proc: PRINT (ref string param) is                         action "FIL_PRINT";
 
 const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
   begin
@@ -347,7 +347,7 @@ const EXCEPTION: ILLEGAL_ACTION is    enumlit;
 $ system "memory_error" is   MEMORY_ERROR;
 $ system "numeric_error" is  NUMERIC_ERROR;
 $ system "range_error" is    RANGE_ERROR;
-$ system "file_error" is       FILE_ERROR;
+$ system "file_error" is     FILE_ERROR;
 $ system "illegal_action" is ILLEGAL_ACTION;
 
 const proc: raise (ref EXCEPTION param) is  action "PRC_RAISE";
@@ -872,6 +872,7 @@ const func ref_list: (in ref_list param) [ (in integer param) ..
 const func ref_list: (in ref_list param) & (in ref_list param) is        action "RFL_CAT";
 
 const func boolean: (in reference param) in (in ref_list param) is       action "RFL_ELEM";
+const func boolean: (in reference param) not in (in ref_list param) is   action "RFL_NOT_ELEM";
 const func integer: pos (in ref_list param, in reference param) is       action "RFL_POS";
 const proc: incl (in ref_list param, in reference param) is              action "RFL_INCL";
 const proc: excl (in ref_list param, in reference param) is              action "RFL_EXCL";
@@ -880,9 +881,6 @@ const func integer: length (in ref_list param) is                        action 
 const proc: TRACE_LIST (in ref_list param) is                            action "RFL_TRACE";
 
 const proc: for (inout reference param) range (ref ref_list param) do (ref proc param) end for is action "RFL_FOR";
-
-const func boolean: (in reference: aRef) not in (in ref_list: aRefList) is
-  return not aRef in aRefList;
 
 
 (* POINTER *)
@@ -2783,6 +2781,7 @@ const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param
 const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN (in string param, in string param) is action "FIL_POPEN";
 const proc: close (ref PRIMITIVE_FILE param) is                              action "FIL_CLOSE";
 const func boolean: eof (ref PRIMITIVE_FILE param) is                        action "FIL_EOF";
+const func boolean: hasNext (ref PRIMITIVE_FILE param) is                    action "FIL_HAS_NEXT";
 const proc: flush (ref PRIMITIVE_FILE param) is                              action "FIL_FLUSH";
 const func char: getc (ref PRIMITIVE_FILE param) is                          action "FIL_GETC";
 const func string: gets (ref PRIMITIVE_FILE param, ref integer param) is     action "FIL_GETS";
@@ -2811,8 +2810,27 @@ const func string: getln (inout file param) is DYNAMIC;
 const func string: getwd (inout file param) is DYNAMIC;
 const func string: getk (ref file param) is DYNAMIC;
 const func boolean: eoln (ref file param) is DYNAMIC;
+
+(**
+ *  Return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return the state of the end-of-file indicator.
+ *)
 const func boolean: eof (ref file param) is DYNAMIC;
+
+(**
+ *  Return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *  This function allows a file to be handled like an iterator.
+ *  @return a boolean value indicating if 'getc' would not return EOF.
+ *)
+const func boolean: hasNext (ref file param) is DYNAMIC;
+
+(**
+ *  Return the length of a file.
+ *)
 const func integer: length (ref file param) is DYNAMIC;
+
 const proc: seek (ref file param, in integer param) is DYNAMIC;
 const func integer: tell (ref file param) is DYNAMIC;
 const func char: (ref file param).bufferChar is DYNAMIC;
@@ -2913,6 +2931,8 @@ const proc: writeln (inout NULL_FILE: aFile) is func
   end func;
 
 const boolean: eof (ref NULL_FILE param) is TRUE;
+
+const boolean: hasNext (ref NULL_FILE param) is FALSE;
 
 const func boolean: eoln (ref NULL_FILE: aFile) is
   return aFile.bufferChar = '\n';
@@ -3044,6 +3064,9 @@ const func string: getln (inout external_file: aFile) is
 
 const func boolean: eof (ref external_file: aFile) is
   return eof(aFile.ext_file);
+
+const func boolean: hasNext (ref external_file: aFile) is
+  return hasNext(aFile.ext_file);
 
 const func integer: length (ref external_file: aFile) is
   return length(aFile.ext_file);
@@ -3273,8 +3296,7 @@ enable_io(integer);
 enable_io(boolean);
 enable_io(bitset);
 # enable_output(type);
-enable_output(ACTION);
-enable_output(reference);
+# enable_output(ACTION);
 
 
 (* text *)

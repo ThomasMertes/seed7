@@ -77,13 +77,9 @@ const func array string: readf (in string: file_name) is func
   begin
     work_file := open(file_name, "r");
     if work_file <> STD_NULL then
-      while not eof(work_file) do
+      while hasNext(work_file) do
         result &:= [] getln(work_file);
       end while;
-      if work_file.bufferChar <> '\n' and
-          result[length(result)] = "" then
-        result := result[..pred(length(result))];
-      end if;
       close(work_file);
     end if;
   end func;

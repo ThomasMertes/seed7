@@ -35,24 +35,18 @@
 #include "sigutl.h"
 #include "data.h"
 #include "infile.h"
-#include "chclsutl.h"
 #include "syvarutl.h"
 #include "identutl.h"
 #include "entutl.h"
 #include "findid.h"
 #include "symbol.h"
 #include "analyze.h"
-#include "doany.h"
 #include "traceutl.h"
 #include "exec.h"
-#include "primitiv.h"
 #include "option.h"
 #include "runerr.h"
 #include "level.h"
 #include "scr_drv.h"
-
-
-progrecord prog;
 
 
 
@@ -73,7 +67,7 @@ char **argv;
 #ifdef TRACE_HI
     printf("BEGIN HI\n");
 #endif
-    printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2007 Thomas Mertes\n", LEVEL);
+    printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2008 Thomas Mertes\n", LEVEL);
     set_trace(NULL, -1, NULL);
     if (argc == 1) {
       printf("usage: hi [options] sourcefile [parameters]\n");
@@ -83,16 +77,6 @@ char **argv;
       if (option.source_file_name == NULL) {
         printf("*** Sourcefile missing\n");
       } else {
-#ifdef CATCH_SIGNALS
-        if (option.catch_signals) {
-          activate_signal_handlers();
-        } /* if */
-#endif
-        init_lib_path();
-        init_chclass();
-        init_primitiv();
-        init_do_any();
-        memset(&prog, 0, sizeof(progrecord)); /* not used, saved in analyze and interpr */
         currentProg = analyze((ustritype) option.source_file_name);
         if (!option.analyze_only && currentProg != NULL &&
             (currentProg->error_count == 0 || option.execute_always)) {

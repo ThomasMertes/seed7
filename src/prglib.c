@@ -458,7 +458,7 @@ listtype arguments;
 #endif
 
   { /* prg_prog */
-    return(bld_reference_temp(NULL));
+    return(bld_prog_temp(NULL));
   } /* prg_prog */
 
 

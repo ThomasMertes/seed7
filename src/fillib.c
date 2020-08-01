@@ -295,6 +295,26 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype fil_has_next (listtype arguments)
+#else
+
+objecttype fil_has_next (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_has_next */
+    isit_file(arg_1(arguments));
+    if (filHasNext(take_file(arg_1(arguments)))) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* fil_has_next */
+
+
+
+#ifdef ANSI_C
+
 objecttype fil_in (listtype arguments)
 #else
 
@@ -305,63 +325,6 @@ listtype arguments;
   { /* fil_in */
     return(bld_file_temp(stdin));
   } /* fil_in */
-
-
-
-#ifdef ANSI_C
-
-objecttype fil_lit (listtype arguments)
-#else
-
-objecttype fil_lit (arguments)
-listtype arguments;
-#endif
-
-  { /* fil_lit */
-    isit_file(arg_1(arguments));
-    return(bld_stri_temp(
-        filLit(take_file(arg_1(arguments)))));
-  } /* fil_lit */
-
-
-
-#ifdef ANSI_C
-
-objecttype fil_lng (listtype arguments)
-#else
-
-objecttype fil_lng (arguments)
-listtype arguments;
-#endif
-
-  { /* fil_lng */
-    isit_file(arg_1(arguments));
-    return(bld_int_temp(
-        filLng(take_file(arg_1(arguments)))));
-  } /* fil_lng */
-
-
-
-#ifdef ANSI_C
-
-objecttype fil_line_read (listtype arguments)
-#else
-
-objecttype fil_line_read (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype ch_variable;
-
-  /* fil_line_read */
-    isit_file(arg_1(arguments));
-    ch_variable = arg_2(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
-    return(bld_stri_temp(
-        filLineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
-  } /* fil_line_read */
 
 
 
@@ -397,7 +360,6 @@ listtype arguments;
     if (!ALLOC_STRI(result, length)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(length);
       result->size = length;
       memcpy(result->mem, line, (SIZE_TYPE) length);
       ch_variable->value.charvalue = (chartype) line[length];
@@ -431,7 +393,6 @@ listtype arguments;
     if (!ALLOC_STRI(result, memlength)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       result->mem[0] = '\0';
       printf("/%d/", feof(take_file(arg_1(arguments))));
@@ -467,6 +428,63 @@ listtype arguments;
     } /* if */
   } /* fil_l_rd */
 #endif
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_line_read (listtype arguments)
+#else
+
+objecttype fil_line_read (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype ch_variable;
+
+  /* fil_line_read */
+    isit_file(arg_1(arguments));
+    ch_variable = arg_2(arguments);
+    isit_char(ch_variable);
+    is_variable(ch_variable);
+    return(bld_stri_temp(
+        filLineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
+  } /* fil_line_read */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_lit (listtype arguments)
+#else
+
+objecttype fil_lit (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_lit */
+    isit_file(arg_1(arguments));
+    return(bld_stri_temp(
+        filLit(take_file(arg_1(arguments)))));
+  } /* fil_lit */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_lng (listtype arguments)
+#else
+
+objecttype fil_lng (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_lng */
+    isit_file(arg_1(arguments));
+    return(bld_int_temp(
+        filLng(take_file(arg_1(arguments)))));
+  } /* fil_lng */
 
 
 
@@ -540,6 +558,35 @@ listtype arguments;
     return(bld_file_temp(
         filPopen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* fil_popen */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_print (listtype arguments)
+#else
+
+objecttype fil_print (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype stri;
+    cstritype str1;
+
+  /* fil_print */
+    isit_stri(arg_1(arguments));
+    stri = take_stri(arg_1(arguments));
+    str1 = cp_to_cstri(stri);
+    if (str1 == NULL) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      fputs(str1, stdout);
+      fflush(stdout);
+      free_cstri(str1, stri);
+      return(SYS_EMPTY_OBJECT);
+    } /* if */
+  } /* fil_print */
 
 
 

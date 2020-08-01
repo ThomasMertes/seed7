@@ -31,17 +31,17 @@
 
 #define compr_size(stri) (6 * (stri)->size)
 #define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, compr_size(stri));
-
+#define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 
 #ifdef ANSI_C
 
-memsizetype stri_to_utf8 (ustritype, stritype);
+memsizetype stri_to_utf8 (ustritype, const_stritype);
 memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, SIZE_TYPE);
 memsizetype utf8_bytes_missing (const_ustritype, SIZE_TYPE);
 cstritype cp_to_cstri (stritype);
 wchar_t *cp_to_wstri (stritype);
 bstritype stri_to_bstri (stritype);
-bstritype stri_to_bstri8 (stritype);
+bstritype stri_to_bstri8 (const_stritype);
 stritype cstri_to_stri (const_cstritype);
 stritype cstri8_to_stri (const_cstritype);
 strelemtype *stri_charpos (stritype, strelemtype);
@@ -66,14 +66,14 @@ strelemtype *stri_charpos ();
 
 #ifdef ANSI_C
 
-void stri_export (ustritype, stritype);
-void stri_expand (strelemtype *, const_ustritype, SIZE_TYPE);
+void stri_export (ustritype, const_stritype);
+void ustri_expand (strelemtype *, const_ustritype, SIZE_TYPE);
 void stri_compress (ustritype, const strelemtype *, SIZE_TYPE);
 
 #else
 
 void stri_export ();
-void stri_expand ();
+void ustri_expand ();
 void stri_compress ();
 
 #endif
@@ -81,7 +81,7 @@ void stri_compress ();
 #else
 
 #define stri_export(ustri,stri) memcpy((ustri), (stri)->mem, (stri)->size); (ustri)[(stri)->size] = '\0';
-#define stri_expand(stri,ustri,len) memcpy((stri), (ustri), (len))
+#define ustri_expand(stri,ustri,len) memcpy((stri), (ustri), (len))
 #define stri_compress(ustri,stri,len) memcpy((ustri), (stri), (len))
 
 #endif

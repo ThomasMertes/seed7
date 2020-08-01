@@ -47,9 +47,65 @@ const proc: execute (ref program param) is                                 actio
 const func reference: sys_var (ref program param, in string param) is      action "PRG_SYSVAR";
 const func integer: error_count (ref program param) is                     action "PRG_ERROR_COUNT";
 const func ref_list: declared_objects (ref program param) is               action "PRG_DECL_OBJECTS";
+
+
+const type: category is newtype;
+IN_PARAM_IS_VALUE(category);
+
+const proc: (ref category param) ::= (ref category param)      is action "INT_CREATE";
+const proc: destroy (ref category param)                       is noop;
+const proc: (inout category param) := (in category param)      is action "INT_CPY";
+
+const func boolean: (in category param) = (in category param)  is action "INT_EQ";
+const func boolean: (in category param) <> (in category param) is action "INT_NE";
+
+const func string: str (in category param)                     is action "REF_CAT_STR";
+const func category: (attr category) parse (in string param)   is action "REF_CAT_PARSE";
+
+const category: (attr category) . value is category parse "SYMBOLOBJECT";
+
+const category: SYMBOLOBJECT      is category parse "SYMBOLOBJECT";
+const category: DECLAREDOBJECT    is category parse "DECLAREDOBJECT";
+const category: FORWARDOBJECT     is category parse "FORWARDOBJECT";
+const category: FWDREFOBJECT      is category parse "FWDREFOBJECT";
+const category: BLOCKOBJECT       is category parse "BLOCKOBJECT";
+const category: CALLOBJECT        is category parse "CALLOBJECT";
+const category: MATCHOBJECT       is category parse "MATCHOBJECT";
+const category: TYPEOBJECT        is category parse "TYPEOBJECT";
+const category: FORMPARAMOBJECT   is category parse "FORMPARAMOBJECT";
+const category: INTOBJECT         is category parse "INTOBJECT";
+const category: BIGINTOBJECT      is category parse "BIGINTOBJECT";
+const category: CHAROBJECT        is category parse "CHAROBJECT";
+const category: STRIOBJECT        is category parse "STRIOBJECT";
+const category: BSTRIOBJECT       is category parse "BSTRIOBJECT";
+const category: ARRAYOBJECT       is category parse "ARRAYOBJECT";
+const category: HASHOBJECT        is category parse "HASHOBJECT";
+const category: STRUCTOBJECT      is category parse "STRUCTOBJECT";
+const category: CLASSOBJECT       is category parse "CLASSOBJECT";
+const category: INTERFACEOBJECT   is category parse "INTERFACEOBJECT";
+const category: SETOBJECT         is category parse "SETOBJECT";
+const category: FILEOBJECT        is category parse "FILEOBJECT";
+const category: SOCKETOBJECT      is category parse "SOCKETOBJECT";
+const category: LISTOBJECT        is category parse "LISTOBJECT";
+const category: FLOATOBJECT       is category parse "FLOATOBJECT";
+const category: WINOBJECT         is category parse "WINOBJECT";
+const category: ENUMLITERALOBJECT is category parse "ENUMLITERALOBJECT";
+const category: CONSTENUMOBJECT   is category parse "CONSTENUMOBJECT";
+const category: VARENUMOBJECT     is category parse "VARENUMOBJECT";
+const category: REFOBJECT         is category parse "REFOBJECT";
+const category: REFLISTOBJECT     is category parse "REFLISTOBJECT";
+const category: EXPROBJECT        is category parse "EXPROBJECT";
+const category: ACTOBJECT         is category parse "ACTOBJECT";
+const category: VALUEPARAMOBJECT  is category parse "VALUEPARAMOBJECT";
+const category: REFPARAMOBJECT    is category parse "REFPARAMOBJECT";
+const category: RESULTOBJECT      is category parse "RESULTOBJECT";
+const category: LOCALVOBJECT      is category parse "LOCALVOBJECT";
+const category: PROGOBJECT        is category parse "PROGOBJECT";
+
+
 const func boolean: is_var (ref reference param) is                        action "REF_ISVAR";
-const func string: category (ref reference param) is                       action "REF_CATEGORY";
-const proc: setCategory (ref reference param, ref string param) is         action "REF_SETCATEGORY";
+const func category: category (ref reference param) is                     action "REF_CATEGORY";
+const proc: setCategory (ref reference param, ref category param) is       action "REF_SETCATEGORY";
 (* const func reference: meta (ref reference param) is                     action "REF_META"; *)
 const func ref_list: params (ref reference param) is                       action "REF_PARAMS";
 const proc: setParams (ref reference param, ref ref_list param) is         action "REF_SETPARAMS";

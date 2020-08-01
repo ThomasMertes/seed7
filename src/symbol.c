@@ -129,8 +129,6 @@ errinfotype *err_info;
       COUNT_USTRI(symbol.name_length, count.symb, count.symb_bytes);
       if (!ALLOC_STRI(symbol.strivalue, symbol.stri_max)) {
         *err_info = MEMORY_ERROR;
-      } else {
-        COUNT_STRI(symbol.stri_max);
       } /* if */
     } /* if */
   } /* init_symbol */

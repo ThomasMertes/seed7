@@ -47,7 +47,7 @@
 #ifdef WIDE_CHAR_STRINGS
 #ifdef ANSI_C
 
-memsizetype stri_to_utf8 (ustritype out_stri, stritype in_stri)
+memsizetype stri_to_utf8 (ustritype out_stri, const_stritype in_stri)
 #else
 
 memsizetype stri_to_utf8 (out_stri, in_stri)
@@ -57,7 +57,7 @@ stritype in_stri;
 
   {
     register ustritype ustri;
-    register strelemtype *stri;
+    register const strelemtype *stri;
     memsizetype len;
 
   /* stri_to_utf8 */
@@ -267,16 +267,16 @@ SIZE_TYPE len;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-void stri_expand (strelemtype *stri, ustritype ustri, SIZE_TYPE len)
+void ustri_expand (strelemtype *stri, ustritype ustri, SIZE_TYPE len)
 #else
 
-void stri_expand (stri, ustri, len)
+void ustri_expand (stri, ustri, len)
 strelemtype *stri;
 ustritype ustri;
 SIZE_TYPE len;
 #endif
 
-  { /* stri_expand */
+  { /* ustri_expand */
     for (; len > 0; len--) {
       if (*ustri <= 0x7F) {
         *stri++ = (strelemtype) *ustri++;
@@ -326,27 +326,27 @@ SIZE_TYPE len;
                    ustri[5] & 0x3F;
         ustri += 6;
     } /* while */
-  } /* stri_expand */
+  } /* ustri_expand */
 #endif
 
 
 
 #ifdef ANSI_C
 
-void stri_expand (strelemtype *stri, const_ustritype ustri, SIZE_TYPE len)
+void ustri_expand (strelemtype *stri, const_ustritype ustri, SIZE_TYPE len)
 #else
 
-void stri_expand (stri, ustri, len)
+void ustri_expand (stri, ustri, len)
 strelemtype *stri;
 ustritype ustri;
 SIZE_TYPE len;
 #endif
 
-  { /* stri_expand */
+  { /* ustri_expand */
     for (; len > 0; stri++, ustri++, len--) {
       *stri = (strelemtype) *ustri;
     } /* while */
-  } /* stri_expand */
+  } /* ustri_expand */
 
 
 
@@ -371,7 +371,7 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-void stri_export (ustritype out_stri, stritype in_stri)
+void stri_export (ustritype out_stri, const_stritype in_stri)
 #else
 
 void stri_export (out_stri, in_stri)
@@ -485,7 +485,7 @@ stritype stri;
 
 #ifdef ANSI_C
 
-bstritype stri_to_bstri8 (stritype stri)
+bstritype stri_to_bstri8 (const_stritype stri)
 #else
 
 bstritype stri_to_bstri8 (stri)
@@ -530,9 +530,8 @@ cstritype stri;
   /* cstri_to_stri */
     length = strlen(cstri);
     if (ALLOC_STRI(stri, length)) {
-      COUNT_STRI(length);
       stri->size = length;
-      stri_expand(stri->mem, cstri, (SIZE_TYPE) length);
+      cstri_expand(stri->mem, cstri, (SIZE_TYPE) length);
     } /* if */
     return(stri);
   } /* cstri_to_stri */
@@ -555,8 +554,7 @@ cstritype cstri;
   /* cstri8_to_stri */
     length = strlen(cstri);
     if (ALLOC_STRI(stri, length)) {
-      COUNT_STRI(length);
-      if (utf8_to_stri(stri->mem, &stri->size, cstri, length) == 0) {
+      if (utf8_to_stri(stri->mem, &stri->size, (const_ustritype) cstri, length) == 0) {
         if (!RESIZE_STRI(stri, length, stri->size)) {
           FREE_STRI(stri, length);
           stri = NULL;

@@ -35,6 +35,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
+#include "datautl.h"
 #include "chclsutl.h"
 #include "identutl.h"
 #include "entutl.h"

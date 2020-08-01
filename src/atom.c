@@ -181,12 +181,10 @@ static INLINE stritype new_string ()
     if (!ALLOC_STRI(symbol.strivalue, symbol.stri_max)) {
       fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
-    COUNT_STRI(symbol.stri_max);
 #else
     if (!ALLOC_STRI(stri_created, symbol.strivalue->size)) {
       fatal_memory_error(SOURCE_POSITION(2057));
     } /* if */
-    COUNT_STRI(symbol.strivalue->size);
     stri_created->size = symbol.strivalue->size;
     memcpy(stri_created->mem, symbol.strivalue->mem,
         (SIZE_TYPE) symbol.strivalue->size * sizeof(strelemtype));

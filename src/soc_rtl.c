@@ -204,7 +204,6 @@ inttype length;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(bytes_requested);
       result_size = (memsizetype) recv(sock, result->mem,
           (SIZE_TYPE) bytes_requested, 0);
 #ifdef WIDE_CHAR_STRINGS
@@ -393,7 +392,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
       bytes_received = (memsizetype) recv(sock, &ch, 1, 0);
@@ -727,7 +725,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(memlength);
       memory = result->mem;
       position = 0;
       do {

@@ -35,9 +35,9 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
+#include "datautl.h"
 #include "striutl.h"
 #include "chclsutl.h"
-#include "identutl.h"
 #include "entutl.h"
 #include "syvarutl.h"
 #include "actutl.h"
@@ -53,57 +53,6 @@
 
 FILE *protfile = NULL; /* was: stdout; */
 booltype internal_protocol = FALSE;
-
-static cstritype category_name[] = {
-    "SYMBOLOBJECT",      /* pos (file, line) - Symbol object        */
-                         /*                    created by read_atom */
-                         /*                    and read_name        */
-    "DECLAREDOBJECT",    /* NO VALUE -         Object declared and  */
-                         /*                    not initialized      */
-    "FORWARDOBJECT",     /* NO VALUE -         Object declared      */
-                         /*                    forward              */
-    "FWDREFOBJECT",      /* objvalue -    Reference to Object which */
-                         /*               was declared forward      */
-    "BLOCKOBJECT",       /* blockvalue - Procedure possibly with    */
-                         /*              parameters, declared       */
-                         /*              result or local variables  */
-    "CALLOBJECT",        /* listvalue - Subroutine call:            */
-                         /*             First element is subroutine */
-                         /*             Rest of list is parameters  */
-    "MATCHOBJECT",       /* listvalue - Don't exec subroutine call: */
-                         /*             First element is subroutine */
-                         /*             Rest of list is parameters  */
-    "TYPEOBJECT",        /* typevalue -   type                      */
-    "FORMPARAMOBJECT",   /* objvalue -    Reference to formal param */
-    "INTOBJECT",         /* intvalue -    integer                   */
-    "BIGINTOBJECT",      /* bigintvalue - bigInteger                */
-    "CHAROBJECT",        /* charvalue -   char                      */
-    "STRIOBJECT",        /* strivalue -   string                    */
-    "BSTRIOBJECT",       /* bstrivalue -  byte string               */
-    "ARRAYOBJECT",       /* arrayvalue -  array                     */
-    "HASHOBJECT",        /* hashvalue -   hash                      */
-    "STRUCTOBJECT",      /* structvalue - struct                    */
-    "CLASSOBJECT",       /* structvalue - struct                    */
-    "INTERFACEOBJECT",   /* objvalue -    Dynamic Object            */
-    "SETOBJECT",         /* setvalue -    set                       */
-    "FILEOBJECT",        /* filevalue -   file                      */
-    "SOCKETOBJECT",      /* socketvalue - socket                    */
-    "LISTOBJECT",        /* listvalue -   list                      */
-    "FLOATOBJECT",       /* floatvalue -  float                     */
-    "WINOBJECT",         /* winvalue -    Window                    */
-    "ENUMLITERALOBJECT", /* objvalue -    Enumeration literal       */
-    "CONSTENUMOBJECT",   /* objvalue -    Constant enumeration obj  */
-    "VARENUMOBJECT",     /* objvalue -    Variable enumeration obj  */
-    "REFOBJECT",         /* objvalue -    reference                 */
-    "REFLISTOBJECT",     /* listvalue -   ref_list                  */
-    "EXPROBJECT",        /* listvalue -   expression                */
-    "ACTOBJECT",         /* actvalue -    Action                    */
-    "VALUEPARAMOBJECT",  /* objvalue -    Formal value parameter    */
-    "REFPARAMOBJECT",    /* objvalue -    Formal ref parameter      */
-    "RESULTOBJECT",      /* objvalue -    Result of procedure       */
-    "LOCALVOBJECT",      /* objvalue -    Local variable            */
-    "PROGOBJECT"         /* progvalue -   Program                   */
-  };
 
 
 
@@ -463,58 +412,6 @@ void prot_heapsize ()
 
 #ifdef ANSI_C
 
-cstritype category_stri (objectcategory category)
-#else
-
-cstritype category_stri (category)
-objectcategory category;
-#endif
-
-  {
-    cstritype result;
-
-  /* category_stri */
-#ifdef TRACE_TRACE
-    printf("BEGIN category_stri\n");
-#endif
-    if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
-      result = category_name[(int) category];
-    } else {
-      result = "*UNKNOWN*";
-    } /* if */
-#ifdef TRACE_TRACE
-    printf("END category_stri\n");
-#endif
-    return(result);
-  } /* category_stri */
-
-
-
-#ifdef ANSI_C
-
-objectcategory category_value (cstritype stri)
-#else
-
-objectcategory category_value (stri)
-cstritype stri;
-#endif
-
-  {
-    objectcategory result;
-
-  /* category_value */
-    for (result = SYMBOLOBJECT; result <= PROGOBJECT; result++) {
-      if (strcmp(stri, category_name[(int) result]) == 0) {
-        return(result);
-      } /* if */
-    } /* for */
-    return((objectcategory) -1);
-  } /* category_value */
-
-
-
-#ifdef ANSI_C
-
 void printcategory (objectcategory category)
 #else
 
@@ -527,7 +424,7 @@ objectcategory category;
     printf("BEGIN printcategory\n");
 #endif
     if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
-      prot_cstri(category_name[(int) category]);
+      prot_cstri(category_cstri(category));
     } else {
       prot_int((inttype) category);
     } /* if */
@@ -1692,6 +1589,9 @@ cstritype prot_file_name;
       } /* for */
     } /* if */
     if (prot_file_name != NULL) {
+      if (protfile != NULL) {
+        fclose(protfile);
+      } /* if */
       if ((protfile = fopen(prot_file_name, "w")) == NULL) {
         protfile = stdout;
       } /* if */

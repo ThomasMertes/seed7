@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -35,10 +35,10 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
-#include "syvarutl.h"
 #include "striutl.h"
-#include "identutl.h"
 #include "listutl.h"
+#include "syvarutl.h"
+#include "identutl.h"
 #include "entutl.h"
 #include "blockutl.h"
 #include "executl.h"
@@ -51,6 +51,7 @@
 #include "name.h"
 #include "option.h"
 #include "infile.h"
+#include "ref_data.h"
 
 #undef EXTERN
 #define EXTERN
@@ -318,30 +319,45 @@ objecttype ref_category (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj;
-    cstritype name;
-    memsizetype len;
-    stritype result;
-
-  /* ref_category */
+  { /* ref_category */
     isit_reference(arg_1(arguments));
-    obj = take_reference(arg_1(arguments));
-    if (obj == NULL) {
-      name = "*NULL_OBJECT*";
-    } else {
-      name = category_stri(CATEGORY_OF_OBJ(obj));
-    } /* if */
-    len = (memsizetype) strlen(name);
-    if (ALLOC_STRI(result, len)) {
-      COUNT_STRI(len);
-      result->size = len;
-      stri_expand(result->mem, name, len);
-      return(bld_stri_temp(result));
-    } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
+    return(bld_int_temp(refCategory(
+	take_reference(arg_1(arguments)))));
   } /* ref_category */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_cat_parse (listtype arguments)
+#else
+
+objecttype ref_cat_parse (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_cat_parse */
+    isit_stri(arg_3(arguments));
+    return(bld_int_temp(refCatParse(
+        take_stri(arg_3(arguments)))));
+  } /* ref_cat_parse */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_cat_str (listtype arguments)
+#else
+
+objecttype ref_cat_str (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_cat_str */
+    isit_int(arg_1(arguments));
+    return(bld_stri_temp(refCatStr(
+        take_int(arg_1(arguments)))));
+  } /* ref_cat_str */
 
 
 
@@ -589,7 +605,8 @@ listtype arguments;
 
   { /* ref_hashcode */
     isit_reference(arg_1(arguments));
-    return(bld_int_temp((inttype) take_reference(arg_1(arguments))));
+    return(bld_int_temp((inttype)
+        (((unsigned int) take_reference(arg_1(arguments))) >> 6)));
   } /* ref_hashcode */
 
 
@@ -710,31 +727,10 @@ objecttype ref_local_consts (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    listtype local_elem;
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
-
-  /* ref_local_consts */
+  { /* ref_local_consts */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    result = NULL;
-    if (CATEGORY_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
-      list_insert_place = &result;
-      local_elem = obj_arg1->value.blockvalue->local_consts;
-      while (local_elem != NULL) {
-        list_insert_place = append_element_to_list(list_insert_place,
-            local_elem->obj, &err_info);
-        local_elem = local_elem->next;
-      } /* while */
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      emptylist(result);
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-    return(bld_reflist_temp(result));
+    return(bld_reflist_temp(refLocalConsts(
+	take_reference(arg_1(arguments)))));
   } /* ref_local_consts */
 
 
@@ -748,31 +744,10 @@ objecttype ref_local_vars (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    loclisttype local_elem;
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
-
-  /* ref_local_vars */
+  { /* ref_local_vars */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    result = NULL;
-    if (CATEGORY_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
-      list_insert_place = &result;
-      local_elem = obj_arg1->value.blockvalue->local_vars;
-      while (local_elem != NULL) {
-        list_insert_place = append_element_to_list(list_insert_place,
-            local_elem->local.object, &err_info);
-        local_elem = local_elem->next;
-      } /* while */
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      emptylist(result);
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-    return(bld_reflist_temp(result));
+    return(bld_reflist_temp(refLocalVars(
+	take_reference(arg_1(arguments)))));
   } /* ref_local_vars */
 
 
@@ -915,50 +890,10 @@ objecttype ref_num (arguments)
 listtype arguments;
 #endif
 
-  {
-    static unsigned int table_size = 0;
-    static unsigned int table_used = 0;
-    static objecttype *obj_table = NULL;
-    register objecttype *actual_obj_ptr;
-    register objecttype obj_arg1;
-    unsigned int result;
-
-  /* ref_num */
+  { /* ref_num */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    if (obj_arg1 == (objecttype) NULL) {
-      result = 0;
-    } else {
-      table_used++;
-      if (table_used > table_size) {
-        if (obj_table == NULL) {
-          ALLOC_TABLE(obj_table, objecttype, table_used + TABLE_INCREMENT);
-        } else {
-          if (RESIZE_TABLE(obj_table, objecttype,
-              table_size, table_used + TABLE_INCREMENT)) {
-            COUNT3_TABLE(objecttype, table_size, table_used + TABLE_INCREMENT);
-          } /* if */
-        } /* if */
-        if (obj_table == NULL) {
-          table_size = 0;
-          table_used = 0;
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } /* if */
-        table_size = table_used + TABLE_INCREMENT;
-      } /* if */
-      obj_table[table_used - 1] = obj_arg1;
-      actual_obj_ptr = obj_table;
-      while (*actual_obj_ptr != obj_arg1) {
-        actual_obj_ptr++;
-      } /* while */
-      result = (unsigned int) (actual_obj_ptr - obj_table);
-      if (result != table_used - 1) {
-        table_used--;
-      } /* if */
-      result++;
-    } /* if */
-    /* printf("ref_num: %lx %lx %lu\n", arg_1(arguments), obj_arg1, result); */
-    return(bld_int_temp((inttype) result));
+    return(bld_int_temp(refNum(
+	take_reference(arg_1(arguments)))));
   } /* ref_num */
 
 
@@ -1237,29 +1172,11 @@ objecttype ref_setcategory (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj;
-    stritype stri;
-    cstritype name;
-    objectcategory category;
-
-  /* ref_setcategory */
+  { /* ref_setcategory */
     isit_reference(arg_1(arguments));
-    isit_stri(arg_2(arguments));
-    obj = take_reference(arg_1(arguments));
-    stri = take_stri(arg_2(arguments));
-    name = cp_to_cstri(stri);
-    if (name == NULL) {
-      raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      category = category_value(name);
-      free_cstri(name, stri);
-      if (category == (objectcategory) -1) {
-        raise_exception(SYS_RNG_EXCEPTION);
-      } else {
-        SET_CATEGORY_OF_OBJ(obj, category);
-      } /* if */
-    } /* if */
+    isit_int(arg_2(arguments));
+    refSetCategory(take_reference(arg_1(arguments)),
+                   take_int(      arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* ref_setcategory */
 
@@ -1305,18 +1222,11 @@ objecttype ref_settype (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj;
-
-  /* ref_settype */
+  { /* ref_settype */
     isit_reference(arg_1(arguments));
     isit_type(arg_2(arguments));
-    obj = take_reference(arg_1(arguments));
-    if (obj == NULL) {
-      raise_exception(SYS_RNG_EXCEPTION);
-    } else {
-      obj->type_of = take_type(arg_2(arguments));
-    } /* if */
+    refSetType(take_reference(arg_1(arguments)),
+               take_type(     arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* ref_settype */
 
@@ -1331,69 +1241,10 @@ objecttype ref_str (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    char *stri;
-    memsizetype buffer_len;
-    char *buffer;
-    listtype name_elem;
-    objecttype param_obj;
-    memsizetype len;
-    stritype stri_result;
-    objecttype result;
-
-  /* ref_str */
+  { /* ref_str */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    buffer = NULL;
-    if (obj_arg1 == NULL) {
-      stri = " *NULL_OBJECT* ";
-    } else if (HAS_POSINFO(obj_arg1)) {
-      stri = file_name(GET_FILE_NUM(obj_arg1));
-      buffer_len = (memsizetype) strlen(stri) + 32;
-      if (!ALLOC_CSTRI(buffer, buffer_len)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        sprintf(buffer, "%s(%u)", stri, GET_LINE_NUM(obj_arg1));
-        stri = buffer;
-      } /* if */
-    } else if (!HAS_ENTITY(obj_arg1)) {
-      stri = " *NULL_ENTITY_OBJECT* ";
-    } else if (GET_ENTITY(obj_arg1)->ident != NULL) {
-      stri = id_string(GET_ENTITY(obj_arg1)->ident);
-    } else {
-      stri = NULL;
-      name_elem = GET_ENTITY(obj_arg1)->name_list;
-      while (name_elem != NULL && stri == NULL) {
-        if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
-          param_obj = name_elem->obj->value.objvalue;
-          if (CATEGORY_OF_OBJ(param_obj) != VALUEPARAMOBJECT &&
-              CATEGORY_OF_OBJ(param_obj) != REFPARAMOBJECT &&
-              CATEGORY_OF_OBJ(param_obj) != TYPEOBJECT) {
-            stri = id_string(GET_ENTITY(param_obj)->ident);
-          } /* if */
-        } else {
-          stri = id_string(GET_ENTITY(name_elem->obj)->ident);
-        } /* if */
-        name_elem = name_elem->next;
-      } /* while */
-      if (stri == NULL) {
-        stri = " *UNKNOWN_NAME* ";
-      } /* if */
-    } /* if */
-    len = (memsizetype) strlen(stri);
-    if (!ALLOC_STRI(stri_result, len)) {
-      result = raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      COUNT_STRI(len);
-      stri_result->size = len;
-      stri_expand(stri_result->mem, stri, (SIZE_TYPE) len);
-      result = bld_stri_temp(stri_result);
-    } /* if */
-    if (buffer != NULL) {
-      UNALLOC_CSTRI(buffer, buffer_len);
-    } /* if */
-    return(result);
+    return(bld_stri_temp(refStr(
+	take_reference(arg_1(arguments)))));
   } /* ref_str */
 
 
@@ -1457,27 +1308,10 @@ objecttype ref_type (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj;
-    objecttype result;
-
-  /* ref_type */
+  { /* ref_type */
     isit_reference(arg_1(arguments));
-    obj = take_reference(arg_1(arguments));
-    /* printf("obj: ");
-    trace1(obj);
-    printf("\n"); */
-    if (obj == NULL) {
-      result = raise_exception(SYS_RNG_EXCEPTION);
-    } else if (obj->type_of == NULL) {
-      printf("ref_type - obj: ");
-      trace1(obj);
-      printf("\n");
-      result = raise_exception(SYS_RNG_EXCEPTION);
-    } else {
-      result = bld_type_temp(obj->type_of);
-    } /* if */
-    return(result);
+    return(bld_type_temp(refType(
+	take_reference(arg_1(arguments)))));
   } /* ref_type */
 
 
@@ -1491,117 +1325,8 @@ objecttype ref_value (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg;
-
-  /* ref_value */
+  { /* ref_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (CATEGORY_OF_OBJ(obj_arg) == FWDREFOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == REFOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == REFPARAMOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == RESULTOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == LOCALVOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == ENUMLITERALOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
-      return(bld_reference_temp(take_reference(obj_arg)));
-    } else {
-      run_error(REFOBJECT, obj_arg);
-      return(bld_reference_temp(NULL));
-    } /* if */
+    return(bld_reference_temp(refValue(
+	take_reference(arg_1(arguments)))));
   } /* ref_value */
-
-
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-objecttype ref_value (listtype arguments)
-#else
-
-objecttype ref_value (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype obj_arg1;
-    stritype str1;
-    listtype lst;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
-
-  /* ref_value */
-    isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-/*  printf("ref_value(");
-    printcategory(CATEGORY_OF_OBJ(obj_arg1));
-    printf(")\n"); */
-    switch (CATEGORY_OF_OBJ(obj_arg1)) {
-      case INTOBJECT:
-        result = bld_int_temp(take_int(obj_arg1));
-        break;
-      case CHAROBJECT:
-        result = bld_char_temp(take_char(obj_arg1));
-        break;
-      case STRIOBJECT:
-        if (!ALLOC_STRI(str1, take_stri(obj_arg1)->size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } /* if */
-        COUNT_STRI(take_stri(obj_arg1)->size);
-        str1->size = take_stri(obj_arg1)->size;
-        memcpy(str1->mem, take_stri(obj_arg1)->mem,
-            (SIZE_TYPE) (str1->size * sizeof(strelemtype)));
-        result = bld_stri_temp(str1);
-        break;
-      case ARRAYOBJECT:
-      case STRUCTOBJECT:
-        if (!array_to_list(take_array(obj_arg1), &lst)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } /* if */
-        result = bld_reflist_temp(lst);
-        break;
-      case FILEOBJECT:
-        result = bld_file_temp(take_file(obj_arg1));
-        break;
-#ifdef WITH_FLOAT
-      case FLOATOBJECT:
-        result = bld_float_temp((double) take_float(obj_arg1));
-        break;
-#endif
-      case LISTOBJECT:
-      case EXPROBJECT:
-      case MATCHOBJECT:
-      case CALLOBJECT:
-        copy_list(take_list(obj_arg1), &lst, &err_info);
-        if (err_info != OKAY_NO_ERROR) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } /* if */
-        result = bld_reflist_temp(lst);
-        break;
-      case ACTOBJECT:
-        result = bld_action_temp(take_action(obj_arg1));
-        break;
-      case REFOBJECT:
-      case ENUMLITERALOBJECT:
-      case CONSTENUMOBJECT:
-      case VARENUMOBJECT:
-      case LOCALVOBJECT:
-      case RESULTOBJECT:
-        result = bld_reference_temp(take_reference(obj_arg1));
-        break;
-      case TYPEOBJECT:
-        result = obj_arg1;
-        break;
-      default:
-        printf("value(");
-        trace1(obj_arg1);
-        printf(")\n");
-        result = obj_arg1;
-/*      result = bld_reference_temp(obj_arg1); */
-/*      result = bld_reference_temp((objecttype) NULL); */
-        break;
-    } /* switch */
-    return(result);
-  } /* ref_value */
-#endif

@@ -26,25 +26,27 @@
 (*  **CIRCLE, CLEAR, CLOSE, CLS, **COLOR, **COMMON, CONST, COS,     *)
 (*  CSNG, CSRLIN, DATA, DATE$, **DECLARE, DECR, DEF FN, **DEF SEG,  *)
 (*  **DEFDBL, **DEFINT, **DEFSNG, DEFSTR, DIM, DO, DO UNTIL,        *)
-(*  DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE, EXIT DO,     *)
-(*  EXIT FOR, EXP, FIX, FOR, GET, **GET#, GOSUB, GOSUB OF, GOTO,    *)
-(*  GOTO OF, HEX$, IF, INCR, INKEY$, **INP, INPUT, INPUT#, INPUT$,  *)
-(*  INSTR, INT, **KEY, LCASE$, LEFT$, LEN, LET, LINE INPUT,         *)
-(*  LINE INPUT#, LOCATE, LOF, LOG, LOOP, LOOP UNTIL, LOOP WHILE,    *)
-(*  LTRIM$, MID$, NEXT, OCT$, ON ERROR, ON GOSUB, ON GOTO,          *)
-(*  **ON KEY, **ON TIMER, OPEN, OPTION BASE, **OUT, **PAINT,        *)
-(*  **PALETTE, **PEEK, **PLAY, **POINT, **POKE, POS, PRESET, PRINT, *)
-(*  PRINT#, PRINT USING, PSET, PUT, **PUT#, RANDOMIZE, READ, REDIM, *)
-(*  REM, RESET, RESTORE, RESUME, RETURN, RIGHT$, RND, RTRIM$,       *)
-(*  SCREEN, SEEK#, SELECT, SGN, SIN, SLEEP, **SOUND, SPACE$, SPC,   *)
-(*  SQR, STOP, STR$, STRING$, **SUB, SWAP, SYSTEM, TAB, TAN, TIME$, *)
-(*  TIMER, UCASE$, VAL, WEND, WHILE, **WIDTH, WRITE, WRITE#         *)
+(*  DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE, ERR, ERROR,  *)
+(*  EXIT DO, EXIT FOR, EXP, FIX, FOR, FREEFILE, GET, **GET#, GOSUB, *)
+(*  GOSUB OF, GOTO, GOTO OF, HEX$, IF, INCR, INKEY$, **INP, INPUT,  *)
+(*  INPUT#, INPUT$, INSTR, INT, **KEY, LCASE$, LEFT$, LEN, LET,     *)
+(*  LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP, LOOP UNTIL,    *)
+(*  LOOP WHILE, LTRIM$, MID$, NEXT, OCT$, ON ERROR, ON GOSUB,       *)
+(*  ON GOTO, **ON KEY, **ON TIMER, OPEN, OPTION BASE, **OUT,        *)
+(*  **PAINT, **PALETTE, **PEEK, **PLAY, **POINT, **POKE, POS,       *)
+(*  PRESET, PRINT, PRINT#, PRINT USING, PSET, PUT, **PUT#,          *)
+(*  RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, RETURN,    *)
+(*  RIGHT$, RND, RTRIM$, SCREEN, SEEK#, SELECT, SGN, SIN, SLEEP,    *)
+(*  **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, *)
+(*  SWAP, SYSTEM, TAB, TAN, TIME$, TIMER, UCASE$, VAL, WEND, WHILE, *)
+(*  **WIDTH, WRITE, WRITE#                                          *)
 (*                                                                  *)
 (********************************************************************)
 
 
 $ include "seed7_05.s7i";
-  include "scanner.s7i";
+  include "scanfile.s7i";
+  include "scanstri.s7i";
   include "float.s7i";
   include "screen.s7i";
   include "draw.s7i";
@@ -59,8 +61,11 @@ const integer: MAX_LINENUM is 2147483647;
 const set of char: basic_name_char is alphanum_char | {'.'};
 const set of char: hexdigit_char is digit_char | {'A' .. 'F'} | {'a' .. 'f'};
 const set of char: octdigit_char is {'0' .. '7'};
+const set of char: number_suffix is {'!', '#', '&'};
 
 const type: lineType is new struct
+    var string: fileName is "";
+    var integer: fileLine is 0;
     var string: linenum is "";
     var string: label is "";
     var string: line is "";
@@ -76,6 +81,8 @@ var text: win is STD_NULL;
 var integer: file_line_number is 0;
 var string: statement_label is "";
 var string: on_error_label is "";
+
+var integer: error_code is 0;
 
 var integer: resume_next_line is 0;
 var integer: resume_next_column is 0;
@@ -143,6 +150,7 @@ const type: gosubReturnDescrType is new struct
     var integer: returnLine is 0;
     var integer: returnColumn is 0;
     var integer: subEntryLine is 0;
+    var integer: forLoopStackDepth is 0;
   end struct;
 
 var array gosubReturnDescrType: gosubReturn is 0 times gosubReturnDescrType.value;
@@ -312,7 +320,7 @@ const func string: get_symbol (inout string: line) is func
             else
               ch :=  ' ';
             end if;
-          until ch not in name_char;
+          until ch not in basic_name_char;
           if ch = '$' or ch = '%' or ch = '!' or ch = '#' or ch = '&' then
             incr(index);
           end if;
@@ -368,7 +376,7 @@ const func string: get_symbol (inout string: line) is func
               decr(index);
             end if;
           end if;
-          if ch = '!' or ch = '#' then
+          if ch in number_suffix then
             incr(index);
           end if;
           symbol := line[start .. pred(index)];
@@ -412,7 +420,7 @@ const func string: get_symbol (inout string: line) is func
                 decr(index);
               end if;
             end if;
-            if ch = '!' or ch = '#' then
+            if ch in number_suffix then
               incr(index);
             end if;
             symbol := "0" & line[start .. pred(index)];
@@ -432,6 +440,10 @@ const func string: get_symbol (inout string: line) is func
                 incr(index);
               end while;
               symbol := str(hex_value(line[start .. pred(index)]));
+              if index <= leng and line[index] in number_suffix then
+                symbol &:= line[index len 1];
+                incr(index);
+              end if;
             elsif ch = 'O' then
               incr(index);
               start := index;
@@ -439,6 +451,10 @@ const func string: get_symbol (inout string: line) is func
                 incr(index);
               end while;
               symbol := str(oct_value(line[start .. pred(index)]));
+              if index <= leng and line[index] in number_suffix then
+                symbol &:= line[index len 1];
+                incr(index);
+              end if;
             else
               symbol := "&";
             end if;
@@ -502,7 +518,7 @@ const func string: get_symbol (inout string: line) is func
 
 
 const func boolean: endOfStatement (in string: symbol) is
-  return symbol = ":" or symbol = "" or symbol = "'" or symbol = "REM";
+  return symbol = ":" or symbol = "" or symbol = "'" or symbol = "REM" or symbol = "ELSE";
 
 
 const proc: line_marker is func
@@ -510,10 +526,17 @@ const proc: line_marker is func
     if statement_label <> "" then
       log << statement_label;
       log << " ";
-    else
+    elsif file_line_number <= length(prg) then
+      if prg[file_line_number].fileName <> prg[1].fileName then
+        log << prg[file_line_number].fileName;
+      end if;
       log << "(";
-      log << file_line_number;
+      log << prg[file_line_number].fileLine;
       log << ") ";
+    else
+      log << "##### ";
+      log << file_line_number;
+      log << " ##### ";      
     end if;
   end func;
 
@@ -525,8 +548,11 @@ const proc: line_marker (in integer: line_number) is func
     elsif prg[line_number].linenum <> "" then
       log << prg[line_number].linenum;
     else
+      if prg[line_number].fileName <> prg[1].fileName then
+        log << prg[line_number].fileName;
+      end if;
       log << "(";
-      log << line_number;
+      log << prg[line_number].fileLine;
       log << ")";
     end if;
   end func;
@@ -540,8 +566,11 @@ const proc: error_marker is func
       err << statement_label;
       err << "] ";
     else
+      if prg[file_line_number].fileName <> prg[1].fileName then
+        err << prg[file_line_number].fileName;
+      end if;
       err << "(";
-      err << file_line_number;
+      err << prg[file_line_number].fileLine;
       err << ") ";
     end if;
   end func;
@@ -752,6 +781,9 @@ const func string: read_input_string (inout file: inFile) is func
     while ch = ' ' do
       ch := getc(inFile);
     end while;
+    if ch = '\r' then
+      ch := getc(inFile);
+    end if;
     inFile.bufferChar := ch;
   end func;
 
@@ -779,6 +811,9 @@ const func string: read_input_number (inout file: inFile) is func
     while ch = ' ' do
       ch := getc(inFile);
     end while;
+    if ch = '\r' then
+      ch := getc(inFile);
+    end if;
     inFile.bufferChar := ch;
   end func;
 
@@ -1128,6 +1163,101 @@ const func string: extendedKeyCode (in char: current_key) is func
   end func;
 
 
+const func integer: keyboardScanCode (in char: current_key) is func
+  result
+    var integer: result is 0;
+  begin
+    case current_key of
+
+
+      when {KEY_ESC}:                                        result := 16#01;
+      when {'!' (* At keypad: '1' *) }:                      result := 16#02;
+      when {'@' (* At keypad: '2' *) }:                      result := 16#03;
+      when {'#' (* At keypad: '3' *) }:                      result := 16#04;
+      when {'$' (* At keypad: '4' *) }:                      result := 16#05;
+      when {'%' (* At keypad: '5' *) }:                      result := 16#06;
+      when {'^' (* At keypad: '6' *) }:                      result := 16#07;
+      when {'&' (* At keypad: '7' *) }:                      result := 16#08;
+      when {'*' (* At keypad: '8' *) }:                      result := 16#09;
+      when {'(' (* At keypad: '9' *) }:                      result := 16#0A;
+      when {')' (* At keypad: '0' *) }:                      result := 16#0B;
+      when {'_', '-'}:                                       result := 16#0C;
+      when {'+', '='}:                                       result := 16#0D;
+      when {KEY_BS}:                                         result := 16#0E;
+      when {KEY_TAB}:                                        result := 16#0F;
+      when {'Q', 'q', KEY_ALT_Q, KEY_CTL_Q}:                 result := 16#10;
+      when {'W', 'w', KEY_ALT_W, KEY_CTL_W}:                 result := 16#11;
+      when {'E', 'e', KEY_ALT_E, KEY_CTL_E}:                 result := 16#12;
+      when {'R', 'r', KEY_ALT_R, KEY_CTL_R}:                 result := 16#13;
+      when {'T', 't', KEY_ALT_T, KEY_CTL_T}:                 result := 16#14;
+      when {'Y', 'y', KEY_ALT_Y, KEY_CTL_Y}:                 result := 16#15;
+      when {'U', 'u', KEY_ALT_U, KEY_CTL_U}:                 result := 16#16;
+      when {'I', 'i', KEY_ALT_I  (* KEY_TAB=KEY_CTL_I *) }:  result := 16#17;
+      when {'O', 'o', KEY_ALT_O, KEY_CTL_O}:                 result := 16#18;
+      when {'P', 'p', KEY_ALT_P, KEY_CTL_P}:                 result := 16#19;
+      when {'{', '['}:                                       result := 16#1A;
+      when {'}', ']'}:                                       result := 16#1B;
+      when {KEY_NL}:                                         result := 16#1C;
+      #     Not mapped: CTRL                                 result := 16#1D;
+      when {'A', 'a', KEY_ALT_A, KEY_CTL_A}:                 result := 16#1E;
+      when {'S', 's', KEY_ALT_S, KEY_CTL_S}:                 result := 16#1F;
+      when {'D', 'd', KEY_ALT_D, KEY_CTL_D}:                 result := 16#20;
+      when {'F', 'f', KEY_ALT_F, KEY_CTL_F}:                 result := 16#21;
+      when {'G', 'g', KEY_ALT_G, KEY_CTL_G}:                 result := 16#22;
+      when {'H', 'h', KEY_ALT_H  (* KEY_BS=KEY_CTL_H *) }:   result := 16#23;
+      when {'J', 'j', KEY_ALT_J  (* KEY_NL=KEY_CTL_J *) }:   result := 16#24;
+      when {'K', 'k', KEY_ALT_K, KEY_CTL_K}:                 result := 16#25;
+      when {'L', 'l', KEY_ALT_L, KEY_CTL_L}:                 result := 16#26;
+      when {':', ';'}:                                       result := 16#27;
+      when {'"', '\''}:                                      result := 16#28;
+      when {'~', '`'}:                                       result := 16#29;
+      #     Not mapped: LEFT SHIFT                           result := 16#2A;
+      when {'|', '\\'}:                                      result := 16#2B;
+      when {'Z', 'z', KEY_ALT_Z, KEY_CTL_Z}:                 result := 16#2C;
+      when {'X', 'x', KEY_ALT_X, KEY_CTL_X}:                 result := 16#2D;
+      when {'C', 'c', KEY_ALT_C, KEY_CTL_C}:                 result := 16#2E;
+      when {'V', 'v', KEY_ALT_V, KEY_CTL_V}:                 result := 16#2F;
+      when {'B', 'b', KEY_ALT_B, KEY_CTL_B}:                 result := 16#30;
+      when {'N', 'n', KEY_ALT_N, KEY_CTL_N}:                 result := 16#31;
+      when {'M', 'm', KEY_ALT_M, KEY_CTL_M}:                 result := 16#32;
+      when {'<', ','}:                                       result := 16#33;
+      when {'>', '.'}:                                       result := 16#34;
+      when {'?', '/'}:                                       result := 16#35;
+      #     Not mapped: RIGHT SHIFT                          result := 16#36;
+      #     Not mapped: PRTSC or *                           result := 16#37;
+      #     Not mapped: ALT                                  result := 16#38;
+      when {' '}:                                            result := 16#39;
+      #     Not mapped: CAPSLOCK                             result := 16#3A;
+      when {KEY_F1,  KEY_SFT_F1,  KEY_CTL_F1,  KEY_ALT_F1}:  result := 16#3B;
+      when {KEY_F2,  KEY_SFT_F2,  KEY_CTL_F2,  KEY_ALT_F2}:  result := 16#3C;
+      when {KEY_F3,  KEY_SFT_F3,  KEY_CTL_F3,  KEY_ALT_F3}:  result := 16#3D;
+      when {KEY_F4,  KEY_SFT_F4,  KEY_CTL_F4,  KEY_ALT_F4}:  result := 16#3E;
+      when {KEY_F5,  KEY_SFT_F5,  KEY_CTL_F5,  KEY_ALT_F5}:  result := 16#3F;
+      when {KEY_F6,  KEY_SFT_F6,  KEY_CTL_F6,  KEY_ALT_F6}:  result := 16#40;
+      when {KEY_F7,  KEY_SFT_F7,  KEY_CTL_F7,  KEY_ALT_F7}:  result := 16#41;
+      when {KEY_F8,  KEY_SFT_F8,  KEY_CTL_F8,  KEY_ALT_F8}:  result := 16#42;
+      when {KEY_F9,  KEY_SFT_F9,  KEY_CTL_F9,  KEY_ALT_F9}:  result := 16#43;
+      when {KEY_F10, KEY_SFT_F10, KEY_CTL_F10, KEY_ALT_F10}: result := 16#44;
+      #     Not mapped: NUMLOCK                              result := 16#45;
+      #     Not mapped: SCROLL LOCK                          result := 16#46;
+      when {KEY_HOME,       KEY_CTL_HOME,  '7'}:             result := 16#47;
+      when {KEY_UP,         KEY_CTL_UP,    '8'}:             result := 16#48;
+      when {KEY_PGUP,       KEY_CTL_PGUP,  '9'}:             result := 16#49;
+      #     Already mapped: '-'                              result := 16#4A;
+      when {KEY_LEFT,       KEY_CTL_LEFT,  '4'}:             result := 16#4B;
+      when {KEY_PAD_CENTER,                '5'}:             result := 16#4C;
+      when {KEY_RIGHT,      KEY_CTL_RIGHT, '6'}:             result := 16#4D;
+      #     Already mapped: '+'                              result := 16#4E;
+      when {KEY_END,        KEY_CTL_END,   '1'}:             result := 16#4F;
+      when {KEY_DOWN,       KEY_CTL_DOWN,  '2'}:             result := 16#50;
+      when {KEY_PGDN,       KEY_CTL_PGDN,  '3'}:             result := 16#51;
+      when {KEY_INS,        KEY_CTL_INS,   '0'}:             result := 16#52;
+      when {KEY_DEL,        KEY_CTL_DEL    (*  '.' *) }:     result := 16#53;
+      otherwise:                                             result := 0;
+    end case;
+  end func;
+
+
 const func string: exec_str_primary (
     inout string: symbol,
     inout string: line,
@@ -1141,6 +1271,7 @@ const func string: exec_str_primary (
     var float: num1 is 0.0;
     var float: num2 is 0.0;
     var integer: index1 is 0;
+    var integer: index2 is 0;
     var char: current_key is ' ';
     var string: func_name is "";
   begin
@@ -1341,16 +1472,54 @@ const func string: exec_str_primary (
     elsif symbol = "INPUT$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
-      num1 := exec_expr(symbol, line);
-      expect(")", symbol, line);
-      flush(win);
-      result := gets(KEYBOARD, round(num1));
-      log << "INPUT$(";
-      log << round(num1);
-      log << ") -> ";
-      log << literal(result);
-      log << NL;
-      flush(log);
+      index1 := round(exec_expr(symbol, line));
+      if index1 >= 0 then
+        if symbol = "," then
+          symbol := get_symbol(line);
+          if symbol = "#" then
+            symbol := get_symbol(line);
+          end if;
+          index2 := round(exec_expr(symbol, line));
+          expect(")", symbol, line);
+          if file_value[index2] <> STD_NULL then
+            log << "INPUT$(";
+            log << index1;
+            log << ", #";
+            log << index2;
+            log << ") -> ";
+            log << literal(result);
+            log << NL;
+            flush(log);
+            result := gets(file_value[index2], index1);
+          else
+            error_marker;
+            err << "FILE #";
+            err << index2;
+            err << " NOT OPEN IN INPUT$.";
+            err << NL;
+          end if;
+        else
+          expect(")", symbol, line);
+          flush(win);
+          result := gets(KEYBOARD, index1);
+          log << "INPUT$(";
+          log << index1;
+          log << ") -> ";
+          log << literal(result);
+          log << NL;
+          flush(log);
+        end if;
+      else
+        error_marker;
+        err << "INPUT$ WITH NEGATIVE NUMBER ";
+        err << index1;
+        err << ".";
+        err << NL;
+        while symbol <> ")" do
+          symbol := get_symbol(line);
+        end while;
+        symbol := get_symbol(line);
+      end if;
     elsif symbol = "HEX$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -1515,9 +1684,11 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
     var string: func_name is "";
   begin
     if symbol[1] in digit_char then
+      if symbol[length(symbol)] in number_suffix then
+        symbol := symbol[.. pred(length(symbol))];
+      end if;
       block
         result := float parse symbol;
-        symbol := get_symbol(line);
       exception
         catch RANGE_ERROR:
           error_marker;
@@ -1526,6 +1697,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           err << ".";
           err << NL;
       end block;
+      symbol := get_symbol(line);
     elsif symbol = "INT" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -1749,14 +1921,15 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect("(", symbol, line);
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
-      if eof(file_value[index1]) then
-        result := -1.0;
-      else
+      if hasNext(file_value[index1]) then
         result := 0.0;
+      else
+        result := -1.0;
       end if;
       log << "EOF(";
       log << index1;
-      log << ")";
+      log << ") -> ";
+      log << result;
       log << NL;
       flush(log);
     elsif symbol = "LOF" then
@@ -1842,20 +2015,15 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
       case index1 of
-        when {96}:    # Get keyboard scan code
+        when {16#60}:  # &H60/96    Get keyboard scan code
           current_key := busy_getc(KEYBOARD);
           if current_key = KEY_NONE then
-            result := 0.0;
+            result := 128.0; # This is a key release code
           else
-            stri1 := extendedKeyCode(current_key);
-            if length(stri1) = 1 then
-              result := flt(ord(stri1[1]));
-            elsif length(stri1) = 2 then
-              result := flt(ord(stri1[2]));
-            else
-              result := 0.0;
-            end if;
+            result := flt(keyboardScanCode(current_key));
           end if;
+        when {16#3DA}: # &H3DA/986  Indicate vertical retrace
+          result := flt(rand(0, 1) * 8);
         otherwise:
           result := 0.0;
       end case;
@@ -1909,6 +2077,49 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         log << NL;
         flush(log);
       end if;
+    elsif symbol = "STRIG" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      index1 := round(exec_expr(symbol, line));
+      expect(")", symbol, line);
+      result := 0.0;
+      current_key := busy_getc(KEYBOARD);
+      case index1 of
+        when {0, 1}:
+          if current_key = KEY_MOUSE1 then
+            current_key := getc(KEYBOARD);
+            result := -1.0;
+          end if;
+        when {4, 5}:
+          if current_key = KEY_MOUSE3 then
+            current_key := getc(KEYBOARD);
+            result := -1.0;
+          end if;
+      end case;
+      log << "**STRIG(";
+      log << index1;
+      log << ") -> ";
+      log << result;
+      log << NL;
+      flush(log);
+    elsif symbol = "FREEFILE" then
+      symbol := get_symbol(line);
+      index1 := 1;
+      while index1 <= 255 and file_value[index1] <> STD_NULL do
+        incr(index1);
+      end while;
+      result := flt(index1);
+      log << "FREEFILE -> ";
+      log << result;
+      log << NL;
+      flush(log);
+    elsif symbol = "ERR" then
+      symbol := get_symbol(line);
+      result := flt(error_code);
+      log << "ERR -> ";
+      log << result;
+      log << NL;
+      flush(log);
     elsif symbol = "(" then
       symbol := get_symbol(line);
       result := exec_expr(symbol, line);
@@ -1932,6 +2143,23 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         log << NL;
         flush(log);
       end if;
+    elsif symbol = "%" then
+      variable_name := "";
+      repeat
+        variable_name &:= symbol;
+        symbol := get_symbol(line);
+        if symbol <> "" and symbol[1] in alphanum_char then
+          variable_name &:= symbol;
+          symbol := get_symbol(line);
+        end if;
+      until symbol <> "_";
+      append_index(variable_name, symbol, line);
+      result := get_num_value(variable_name);
+      log << variable_name;
+      log << " is ";
+      log << result;
+      log << NL;
+      flush(log);
     end if;
   end func;
 
@@ -2051,7 +2279,8 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
         symbol <> "LOF"    and symbol <> "POS"    and symbol <> "CSRLIN" and
         symbol <> "TIMER"  and symbol <> "CDBL"   and symbol <> "CSNG"   and
         symbol <> "PEEK"   and symbol <> "INP"    and symbol <> "SCREEN" and
-        symbol <> "POINT"  then
+        symbol <> "POINT"  and symbol <> "ERR"    and symbol <> "STRIG"  and
+        symbol <> "FREEFILE" then
       stri1 := exec_str_expr(symbol, line, unused_name);
       if symbol = "=" or symbol = "<>" or
           symbol = "<" or symbol = ">" or
@@ -2379,6 +2608,8 @@ const func string: find_end_select (inout string: line) is func
     while symbol <> "END" and symbol <> "" do
       if symbol = "SELECT" then
         symbol := find_end_select(line);
+      elsif symbol = "EXIT" then
+        symbol := get_symbol(line);
       elsif symbol = "'" or symbol = "REM" then
         line := "";
       end if;
@@ -2496,6 +2727,8 @@ const func string: find_case_or_end_select (inout string: line) is func
         if symbol = "CASE" then
           symbol := find_end_select(line);
         end if;
+      elsif symbol = "EXIT" then
+        symbol := get_symbol(line);
       elsif symbol = "'" or symbol = "REM" then
         line := "";
       end if;
@@ -2659,6 +2892,7 @@ const proc: set_return_position (in string: line) is func
     gosubReturn := [] (gosubReturnDescrType.value) & gosubReturn;
     gosubReturn[1].returnLine := file_line_number;
     gosubReturn[1].returnColumn := column;
+    gosubReturn[1].forLoopStackDepth := length(forLoop);
   end func;
 
 
@@ -2670,6 +2904,26 @@ const proc: set_sub_entry_position is func
   end func;
 
 
+const proc: check_for_loop_stack_before_return is func
+  begin
+    if length(forLoop) > gosubReturn[1].forLoopStackDepth then
+      error_marker;
+      err << "RETURN - SOME FOR LOOPS WERE NOT LEFT";
+      err << NL;
+      repeat
+        line_marker;
+        log << "LEAVE THE FOR ";
+        log << forLoop[1].varName;
+        log << " LOOP AT LINE ";
+        line_marker(forLoop[1].bodyLine);
+        log << NL;
+        flush(log);
+        forLoop := forLoop[2 .. ];
+      until length(forLoop) <= gosubReturn[1].forLoopStackDepth;
+    end if;
+  end func;
+      
+
 const proc: do_return (inout string: symbol, inout string: line) is func
   begin
     file_line_number := gosubReturn[1].returnLine;
@@ -2677,6 +2931,16 @@ const proc: do_return (inout string: symbol, inout string: line) is func
     line := prg[file_line_number].line[gosubReturn[1].returnColumn .. ];
     symbol := get_symbol(line);
     gosubReturn := gosubReturn[2 .. ];
+  end func;
+
+
+const proc: goto_on_error (in string: on_error_label, in string: line) is func
+  begin
+    resume_next_line := file_line_number;
+    resume_next_column :=
+        length(prg[file_line_number].line) - length(line) + 1;
+    in_error_handler := TRUE;
+    goto_label_or_linenum(on_error_label);
   end func;
 
 
@@ -2922,6 +3186,69 @@ const proc: exec_let (in var string: variable_name,
   end func;
 
 
+const proc: exec_mid_statement (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: unused_name is "";
+    var string: var_value is "";
+    var string: stri is "";
+    var integer: position is 0;
+    var integer: length is 0;
+  begin
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+      variable_name := get_name(symbol, line);
+      expect(",", symbol, line);
+      position := round(exec_expr(symbol, line));
+      log << "MID$(";
+      log << variable_name;
+      log << ", ";
+      log << position;
+      if symbol = "," then
+        symbol := get_symbol(line);
+        length := round(exec_expr(symbol, line));
+        log << ", ";
+        log << length;
+        expect(")", symbol, line);
+        expect("=", symbol, line);
+        stri := exec_str_expr(symbol, line, unused_name);
+        if length > length(stri) then
+          length := length(stri);
+        end if;
+      else
+        expect(")", symbol, line);
+        expect("=", symbol, line);
+        stri := exec_str_expr(symbol, line, unused_name);
+        length := length(stri);
+      end if;
+      var_value := get_str_value(variable_name);
+      if position <= length(var_value) then
+        if succ(length(var_value) - position) < length then
+          length := succ(length(var_value) - position);
+        end if;
+        var_value := var_value[ .. pred(position)] & stri[ .. length] &
+            var_value[position + length ..];
+        string_var @:= [variable_name] var_value;
+        log << ")=";
+        log << literal(stri);
+      else
+        error_marker;
+        err << "MID$ POSITION ";
+        err << position;
+        err << " LARGER THAN LENGTH OF ";
+        err << literal(var_value);
+        err << NL;
+      end if;
+    else
+      error_marker;
+      err << "STRING VARIABLE EXPECTED - FOUND ";
+      err << literal(symbol);
+      err << NL;
+    end if;
+  end func;
+
+
 const proc: exec_do (inout string: symbol, inout string: line) is func
   local
     var string: variable_name is "";
@@ -2960,9 +3287,6 @@ const proc: exec_do (inout string: symbol, inout string: line) is func
           line_marker;
           log << "CONTINUE AFTER \"DO WHILE ... LOOP\"";
           log << NL;
-          line_marker;
-          log << line;
-          log << NL;
           flush(log);
         else
           err << " ***** (";
@@ -2997,9 +3321,6 @@ const proc: exec_do (inout string: symbol, inout string: line) is func
           until endOfStatement(symbol);
           line_marker;
           log << "CONTINUE AFTER \"DO UNTIL ... LOOP\n";
-          log << NL;
-          line_marker;
-          log << line;
           log << NL;
           flush(log);
         else
@@ -3044,11 +3365,6 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
           if symbol <> "WHILE" and symbol <> "UNTIL" then
             log << "LOOP - CONTINUE \"DO ... LOOP WHILE\"";
             log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
-            log << NL;
             flush(log);
           else
             error_marker;
@@ -3064,11 +3380,6 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
           doLoop := doLoop[2 .. ];
           line_marker;
           log << "LOOP - LEAVE \"DO ... LOOP WHILE\"";
-          log << NL;
-          line_marker;
-          log << symbol;
-          log << " ";
-          log << line;
           log << NL;
           flush(log);
         end if;
@@ -3090,11 +3401,6 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
           if symbol <> "WHILE" and symbol <> "UNTIL" then
             log << "LOOP - CONTINUE \"DO ... LOOP UNTIL\"";
             log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
-            log << NL;
             flush(log);
           else
             error_marker;
@@ -3110,11 +3416,6 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
           doLoop := doLoop[2 .. ];
           line_marker;
           log << "LOOP - LEAVE \"DO ... LOOP UNTIL\"";
-          log << NL;
-          line_marker;
-          log << symbol;
-          log << " ";
-          log << line;
           log << NL;
           flush(log);
         end if;
@@ -3139,21 +3440,11 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
             line := param2;
             log << "LOOP - CONTINUE \"DO WHILE ... LOOP\"";
             log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
-            log << NL;
             flush(log);
           else
             doLoop := doLoop[2 .. ];
             line_marker;
             log << "LOOP - LEAVE \"DO WHILE ... LOOP\"";
-            log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
             log << NL;
             flush(log);
           end if;
@@ -3168,21 +3459,11 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
             line := param2;
             log << "LOOP - CONTINUE \"DO UNTIL ... LOOP\"";
             log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
-            log << NL;
             flush(log);
           else
             doLoop := doLoop[2 .. ];
             line_marker;
             log << "LOOP - LEAVE \"DO UNTIL ... LOOP\"";
-            log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
             log << NL;
             flush(log);
           end if;
@@ -3193,11 +3474,6 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
           symbol := param1;
           line := param2;
           log << "LOOP - CONTINUE \"DO ... LOOP\"";
-          log << NL;
-          line_marker;
-          log << symbol;
-          log << " ";
-          log << line;
           log << NL;
           flush(log);
         end if;
@@ -3215,6 +3491,7 @@ const proc: exec_select (inout string: symbol, inout string: line) is func
     var string: unused_name is "";
     var string: param1 is "";
     var string: param2 is "";
+    var string: param3 is "";
     var float: num1 is 0.0;
     var float: num2 is 0.0;
     var float: num3 is 0.0;
@@ -3259,29 +3536,45 @@ const proc: exec_select (inout string: symbol, inout string: line) is func
                   comparison := "=";
                 end if;
                 param2 := exec_str_expr(symbol, line, unused_name);
-                if comparison = "=" then
-                  found := param1 = param2;
-                elsif comparison = "<>" then
-                  found := param1 <> param2;
-                elsif comparison = "<" then
-                  found := param1 < param2;
-                elsif comparison = ">" then
-                  found := param1 > param2;
-                elsif comparison = "<=" then
-                  found := param1 <= param2;
-                elsif comparison = ">=" then
-                  found := param1 >= param2;
+                if symbol = "TO" then
+                  symbol := get_symbol(line);
+                  param3 := exec_str_expr(symbol, line, unused_name);
+                  line_marker;
+                  log << "CASE ";
+                  log << literal(param2);
+                  log << " TO ";
+                  log << literal(param3);
+                  if param1 >= param2 and param1 <= param3 then
+                    found := TRUE;
+                    log << " - FOUND";
+                  end if;
+                  log << NL;
+                  flush(log);
+                else
+                  if comparison = "=" then
+                    found := param1 = param2;
+                  elsif comparison = "<>" then
+                    found := param1 <> param2;
+                  elsif comparison = "<" then
+                    found := param1 < param2;
+                  elsif comparison = ">" then
+                    found := param1 > param2;
+                  elsif comparison = "<=" then
+                    found := param1 <= param2;
+                  elsif comparison = ">=" then
+                    found := param1 >= param2;
+                  end if;
+                  line_marker;
+                  log << "CASE IS ";
+                  log << comparison;
+                  log << " ";
+                  log << literal(param2);
+                  if found then
+                    log << " - FOUND";
+                  end if;
+                  log << NL;
+                  flush(log);
                 end if;
-                line_marker;
-                log << "CASE IS ";
-                log << comparison;
-                log << " ";
-                log << literal(param2);
-                if found then
-                  log << " - FOUND";
-                end if;
-                log << NL;
-                flush(log);
                 if symbol = "," then
                   symbol := get_symbol(line);
                 else
@@ -3362,7 +3655,9 @@ const proc: exec_select (inout string: symbol, inout string: line) is func
                     found := num1 >= num2;
                   end if;
                   line_marker;
-                  log << "CASE ";
+                  log << "CASE IS ";
+                  log << comparison;
+                  log << " ";
                   log << num2;
                   if found then
                     log << " - FOUND";
@@ -4219,6 +4514,64 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
   end func;
 
 
+const func file: basicOpen (in var string: filePath, in string: access) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var array string: pathElems is 0 times "";
+    var integer: startElem is 1;
+    var integer: number is 0;
+    var array string: directoryContent is 0 times "";
+    var string: directoryElement is "";
+    var boolean: foundTwice is FALSE;
+    var string: foundElement is "";
+    var boolean: path_okay is TRUE;
+    var string: path is "";
+  begin
+    filePath := replace(filePath, "\\", "/");
+    pathElems := split(filePath, '/');
+    if length(pathElems) >= 1 and pathElems[1] = "" then
+      # absolute path
+      path := "/";
+      startElem := 2;
+    else
+      # relative path
+      path := getcwd;
+      startElem := 1;
+    end if;
+    for number range startElem to length(pathElems) do
+      # writeln(log, literal(path) <& " " <& literal(pathElems[number]));
+      if file_type(path & "/" & pathElems[number]) <> FILE_UNKNOWN then
+        path &:= "/" & pathElems[number];
+      elsif file_type(path) = FILE_DIR then
+        directoryContent := read_dir(path);
+        foundTwice := FALSE;
+        foundElement := "";
+        for directoryElement range directoryContent do
+          if upper(pathElems[number]) = upper(directoryElement) then
+            if foundElement = "" then
+              foundElement := directoryElement;
+            else
+              foundTwice := TRUE;
+            end if;
+          end if;
+        end for;
+        if foundElement <> "" and not foundTwice and
+            file_type(path & "/" & foundElement) <> FILE_UNKNOWN then
+          path &:= "/" & foundElement;
+        else
+          path_okay := FALSE;
+        end if;
+      else
+        path_okay := FALSE;
+      end if;
+    end for;
+    if path_okay then
+      result := open(path, access);
+    end if;
+  end func;
+
+
 const proc: exec_open (inout string: symbol, inout string: line) is func
   local
     var string: unused_name is "";
@@ -4261,6 +4614,17 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         symbol := get_symbol(line);
       end if;
     end if;
+    if symbol = "SHARED" then
+      symbol := get_symbol(line);
+    elsif symbol = "LOCK" then
+      symbol := get_symbol(line);
+      if symbol = "READ" then
+        symbol := get_symbol(line);
+      end if;
+      if symbol = "WRITE" then
+        symbol := get_symbol(line);
+      end if;
+    end if;
     if symbol = "AS" or symbol = "AS#" then
       if symbol = "AS#" then
         symbol := "#";
@@ -4276,7 +4640,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         index2 := round(exec_expr(symbol, line));
       end if;
       file_name := param1;
-      file_value[index1] := open(file_name, mode);
+      file_value[index1] := basicOpen(file_name, mode);
       line_marker;
       log << "OPEN ";
       log << param1;
@@ -4318,7 +4682,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       expect(",", symbol, line);
       param2 := exec_str_expr(symbol, line, unused_name);
       file_name := param2;
-      file_value[index1] := open(file_name, mode);
+      file_value[index1] := basicOpen(file_name, mode);
       if symbol = "," then
         symbol := get_symbol(line);
         index2 := round(exec_expr(symbol, line));
@@ -4340,6 +4704,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     end if;
     if file_value[index1] = STD_NULL then
       if on_error_label <> "" then
+        error_code := 53; # File not found
         line_marker;
         log << "COULD NOT OPEN ";
         log << literal(file_name);
@@ -4347,11 +4712,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         log << on_error_label;
         log << NL;
         flush(log);
-        resume_next_line := file_line_number;
-        resume_next_column :=
-            length(prg[file_line_number].line) - length(line) + 1;
-        in_error_handler := TRUE;
-        goto_label_or_linenum(on_error_label);
+        goto_on_error(on_error_label, line);
         symbol := "";
         line := "";
       else
@@ -4777,10 +5138,18 @@ const proc: exec_get (inout string: symbol, inout string: line) is func
     y1 := round(exec_expr(symbol, line));
     expect(")", symbol, line);
     expect("-", symbol, line);
-    expect("(", symbol, line);
-    x2 := round(exec_expr(symbol, line));
-    expect(",", symbol, line);
-    y2 := round(exec_expr(symbol, line));
+    if symbol = "STEP" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      x2 := x1 + round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      y2 := y1 + round(exec_expr(symbol, line));
+    else
+      expect("(", symbol, line);
+      x2 := round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      y2 := round(exec_expr(symbol, line));
+    end if;
     expect(")", symbol, line);
     expect(",", symbol, line);
     variable_name := get_name(symbol, line);
@@ -5004,13 +5373,24 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
               log << NL;
               flush(log);
             elsif label_or_linenum(symbol) then
-              log << " THEN - GOTO ";
-              log << symbol;
-              log << NL;
-              flush(log);
-              goto_label_or_linenum(symbol);
-              symbol := "";
-              line := "";
+              param1 := symbol;
+              symbol := get_symbol(line);
+              # A label and a variable can share the same name
+              if symbol = "=" or symbol = "("  or symbol = "[" then
+                # A let statement is recognized: Write log and exec the let statement.
+                log << " THEN - EXECUTE STATEMENTS IN LINE UNTIL \"ELSE\"";
+                log << NL;
+                flush(log);
+                exec_let(param1, symbol, line);
+              else
+                log << " THEN - GOTO ";
+                log << param1;
+                log << NL;
+                flush(log);
+                goto_label_or_linenum(param1);
+                symbol := "";
+                line := "";
+              end if;
             else
               log << " THEN - EXECUTE STATEMENTS IN LINE UNTIL \"ELSE\"";
               log << NL;
@@ -5175,6 +5555,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         exec_gosub(symbol, line);
       elsif symbol = "RETURN" then
         if length(gosubReturn) >= 1 then
+          check_for_loop_stack_before_return;
           line_marker;
           log << "RETURN FROM \"GOSUB ";
           line_marker(gosubReturn[1].subEntryLine);
@@ -5184,6 +5565,17 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           line_marker;
           log << NL;
           flush(log);
+        elsif on_error_label <> "" then
+          symbol := get_symbol(line);
+          error_code := 3; # RETURN without GOSUB
+          line_marker;
+          log << "RETURN WITHOUT GOSUB - ON ERROR GOTO ";
+          log << on_error_label;
+          log << NL;
+          flush(log);
+          goto_on_error(on_error_label, line);
+          symbol := "";
+          line := "";
         else
           symbol := get_symbol(line);
           error_marker;
@@ -5282,7 +5674,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           line := "";
           symbol := "";
           line_marker;
-          log << "SKIP ELSE - CONTINUE AT NEXT LINE";
+          log << "SKIP ELSE PART - CONTINUE AT NEXT LINE";
           log << NL;
           flush(log);
         end if;
@@ -5319,6 +5711,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           flush(log);
         elsif symbol = "SUB" then
           if length(gosubReturn) >= 1 then
+            check_for_loop_stack_before_return;
             line_marker;
             do_return(symbol, line);
             log << "END SUB - RETURN TO ";
@@ -5404,7 +5797,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
                 error_marker;
                 err << "NEXT ";
                 err << symbol;
-                err << "DOES NOT FIT TO FOR ";
+                err << " DOES NOT FIT TO FOR ";
                 err << variable_name;
                 err << NL;
               end if;
@@ -5414,9 +5807,6 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             end if;
             line_marker;
             log << "CONTINUE AFTER NEXT";
-            log << NL;
-            line_marker;
-            log << line;
             log << NL;
             flush(log);
           else
@@ -5475,9 +5865,6 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
                 log << num1 + forLoop[1].stepValue;
                 log << " CONTINUE FOR";
                 log << NL;
-                line_marker;
-                log << line;
-                log << NL;
                 flush(log);
               else
                 line_marker;
@@ -5499,11 +5886,23 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
               err << "\"";
               err << NL;
             end if;
+          elsif on_error_label <> "" then
+            error_code := 1; # NEXT without FOR
+            line_marker;
+            log << "NEXT ";
+            log << variable_name;
+            log << " WITHOUT FOR - ON ERROR GOTO ";
+            log << on_error_label;
+            log << NL;
+            flush(log);
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
           else
             error_marker;
-            err << "UNEXPECTED \"NEXT ";
+            err << "NEXT ";
             err << variable_name;
-            err << "\"";
+            err << " WITHOUT FOR";
             err << NL;
           end if;
         until symbol <> ",";
@@ -5595,7 +5994,12 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
                   error_marker;
                   err << "UNDEFINED LABEL ";
                   err << symbol;
-                  err << " AFTER \"OF\".";
+                  err << " AFTER \"";
+                  log << "ON ";
+                  log << index1;
+                  log << " ";
+                  err << param1;
+                  err << "\".";
                   err << NL;
                 end if;
               else
@@ -5653,9 +6057,6 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             line_marker;
             log << "CONTINUE AFTER WEND";
             log << NL;
-            line_marker;
-            log << line;
-            log << NL;
             flush(log);
           else
             err << " ***** (";
@@ -5678,22 +6079,12 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             line := param2;
             log << "WEND - CONTINUE WHILE";
             log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
-            log << NL;
             flush(log);
           else
             symbol := get_symbol(line);
             whileLoop := whileLoop[2 .. ];
             line_marker;
             log << "WEND - END WHILE";
-            log << NL;
-            line_marker;
-            log << symbol;
-            log << " ";
-            log << line;
             log << NL;
             flush(log);
           end if;
@@ -5810,32 +6201,30 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         end if;
       elsif symbol = "SEEK" or symbol = "SEEK#" then
         if symbol = "SEEK#" then
-          symbol := "#";
+          symbol := get_symbol(line);
         else
           symbol := get_symbol(line);
-        end if;
-        if symbol = "#" then
-          symbol := get_symbol(line);
-          index1 := round(exec_expr(symbol, line));
-          expect(",", symbol, line);
-          index2 := round(exec_expr(symbol, line));
-          if file_value[index1] <> STD_NULL then
-            seek(file_value[index1], index2);
-            line_marker;
-            log << "SEEK ";
-            log << symbol;
-            log << ",";
-            log << line;
-            log << NL;
-          else
-            error_marker;
-            err << "FILE #";
-            err << index1;
-            err << " NOT OPEN IN SEEK.";
-            err << NL;
+          if symbol = "#" then
+            symbol := get_symbol(line);
           end if;
+        end if;
+        index1 := round(exec_expr(symbol, line));
+        expect(",", symbol, line);
+        index2 := round(exec_expr(symbol, line));
+        if file_value[index1] <> STD_NULL then
+          seek(file_value[index1], index2);
+          line_marker;
+          log << "SEEK ";
+          log << symbol;
+          log << ",";
+          log << line;
+          log << NL;
         else
-          error_expect("#", symbol);
+          error_marker;
+          err << "FILE #";
+          err << index1;
+          err << " NOT OPEN IN SEEK.";
+          err << NL;
         end if;
       elsif symbol = "DEF" then
         symbol := get_symbol(line);
@@ -6178,20 +6567,14 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
       elsif symbol = "EXIT" then
         symbol := get_symbol(line);
         if symbol = "FOR" then
-          symbol := get_symbol(line);
-          if symbol <> "NEXT" then
-            param1 := statement_label;
-            symbol := find_next(line);
-          end if;
+          param1 := statement_label;
+          symbol := find_next(line);
           if symbol = "NEXT" then
             line_marker;
             repeat
               symbol := get_symbol(line);
             until endOfStatement(symbol);
             log << "EXIT FOR";
-            log << NL;
-            line_marker;
-            log << line;
             log << NL;
             flush(log);
           else
@@ -6200,21 +6583,15 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             err << ") NO CORRESPONDING \"NEXT\" FOUND FOR \"EXIT FOR\"";
             err << NL;
           end if;
-        elsif symbol = "DO" then
-          symbol := get_symbol(line);
-          if symbol <> "LOOP" then
-            param1 := statement_label;
-            symbol := find_loop(line);
-          end if;
+        elsif symbol = "DO" or symbol = "LOOP" then
+          param1 := statement_label;
+          symbol := find_loop(line);
           if symbol = "LOOP" then
             line_marker;
             repeat
               symbol := get_symbol(line);
             until endOfStatement(symbol);
             log << "EXIT DO";
-            log << NL;
-            line_marker;
-            log << line;
             log << NL;
             flush(log);
           else
@@ -6223,8 +6600,24 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             err << ") NO CORRESPONDING \"LOOP\" FOUND FOR \"EXIT DO\"";
             err << NL;
           end if;
+        elsif symbol = "SELECT" then
+          param1 := statement_label;
+          symbol := find_end_select(line);
+          if symbol = "SELECT" then
+            symbol := get_symbol(line);
+            line_marker;
+            log << "EXIT SELECT";
+            log << NL;
+            flush(log);
+          else
+            err << " ***** (";
+            err << param1;
+            err << ") NO \"END SELECT\" FOUND";
+            err << NL;
+          end if;
         elsif symbol = "SUB" then
           if length(gosubReturn) >= 1 then
+            check_for_loop_stack_before_return;
             line_marker;
             do_return(symbol, line);
             log << "EXIT SUB - RETURN TO ";
@@ -6428,57 +6821,96 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
         end while;
       elsif symbol = "CONST" then
-        symbol := get_symbol(line);
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
-          variable_name := get_name(symbol, line);
-          if symbol = "=" then
-            symbol := get_symbol(line);
-            param3 := exec_str_expr(symbol, line, unused_name);
-            string_var @:= [variable_name] param3;
-            line_marker;
-            log << "CONST ";
-            log << variable_name;
-            log << "=";
-            log << literal(param3);
-            log << NL;
-            flush(log);
+        repeat
+          symbol := get_symbol(line);
+          if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+            variable_name := get_name(symbol, line);
+            if symbol = "=" then
+              symbol := get_symbol(line);
+              param3 := exec_str_expr(symbol, line, unused_name);
+              string_var @:= [variable_name] param3;
+              line_marker;
+              log << "CONST ";
+              log << variable_name;
+              log << "=";
+              log << literal(param3);
+              log << NL;
+              flush(log);
+            else
+              error_marker;
+              err << "\"=\" EXPECTED AFTER ";
+              err << literal(variable_name);
+              err << " - FOUND ";
+              err << literal(symbol);
+              err << ".";
+              err << NL;
+            end if;
           else
-            error_marker;
-            err << "\"=\" EXPECTED AFTER ";
-            err << literal(variable_name);
-            err << " - FOUND ";
-            err << literal(symbol);
-            err << ".";
-            err << NL;
+            variable_name := get_name(symbol, line);
+            if symbol = "=" then
+              symbol := get_symbol(line);
+              num1 := exec_expr(symbol, line);
+              numeric_var @:= [variable_name] num1;
+              line_marker;
+              log << "CONST ";
+              log << variable_name;
+              log << "=";
+              log << num1;
+              log << NL;
+              flush(log);
+            else
+              error_marker;
+              err << "\"=\" EXPECTED AFTER ";
+              err << literal(variable_name);
+              err << " - FOUND ";
+              err << literal(symbol);
+              err << ".";
+              err << NL;
+            end if;
           end if;
+        until symbol <> ",";
+      elsif symbol = "%" then
+        variable_name := "";
+        repeat
+          variable_name &:= symbol;
+          symbol := get_symbol(line);
+          if symbol <> "" and symbol[1] in alphanum_char then
+            variable_name &:= symbol;
+            symbol := get_symbol(line);
+          end if;
+        until symbol <> "_";
+        append_index(variable_name, symbol, line);
+        if symbol = "=" then
+          symbol := get_symbol(line);
+          num1 := exec_expr(symbol, line);
+          numeric_var @:= [variable_name] num1;
+          line_marker;
+          log << variable_name;
+          log << "=";
+          log << num1;
+          log << NL;
+          flush(log);
         else
-          variable_name := get_name(symbol, line);
-          if symbol = "=" then
-            symbol := get_symbol(line);
-            num1 := exec_expr(symbol, line);
-            numeric_var @:= [variable_name] num1;
-            line_marker;
-            log << "CONST ";
-            log << variable_name;
-            log << "=";
-            log << num1;
-            log << NL;
-            flush(log);
-          else
-            error_marker;
-            err << "\"=\" EXPECTED AFTER ";
-            err << literal(variable_name);
-            err << " - FOUND ";
-            err << literal(symbol);
-            err << ".";
-            err << NL;
-          end if;
+          error_marker;
+          err << "\"=\" EXPECTED AFTER ";
+          err << literal(variable_name);
+          err << " - FOUND ";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
         end if;
       elsif symbol = "RESUME" then
         symbol := get_symbol(line);
         if symbol = "NEXT" then
           if in_error_handler then
+            line_marker;
+            log << "RESUME NEXT";
+            log << NL;
+            flush(log);
             do_resume_next(symbol, line);
+            if symbol <> "" then
+              process_next := TRUE;
+            end if;
           else
             error_marker;
             err << "RESUME NEXT - NOT IN ERROR HANDLER.";
@@ -6511,16 +6943,26 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           err << " - UNDEFINED RESUME.";
           err << NL;
         end if;
+      elsif symbol = "MID$" then
+        exec_mid_statement(symbol, line);
       elsif symbol = "INCR" then
         symbol := get_symbol(line);
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("INCR", symbol, line);
         else
           variable_name := get_name(symbol, line);
-          numeric_var @:= [variable_name] get_num_value(variable_name) + 1.0;
+          if symbol = "," then
+            symbol := get_symbol(line);
+            num1 := exec_expr(symbol, line);
+          else
+            num1 := 1.0;
+          end if;
+          numeric_var @:= [variable_name] get_num_value(variable_name) + num1;
           line_marker;
           log << "INCR ";
           log << variable_name;
+          log << " BY ";
+          log << num1;
           log << NL;
           flush(log);
         end if;
@@ -6530,10 +6972,18 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           exec_let("DECR", symbol, line);
         else
           variable_name := get_name(symbol, line);
-          numeric_var @:= [variable_name] get_num_value(variable_name) - 1.0;
+          if symbol = "," then
+            symbol := get_symbol(line);
+            num1 := exec_expr(symbol, line);
+          else
+            num1 := 1.0;
+          end if;
+          numeric_var @:= [variable_name] get_num_value(variable_name) - num1;
           line_marker;
           log << "DECR ";
           log << variable_name;
+          log << " BY ";
+          log << num1;
           log << NL;
           flush(log);
         end if;
@@ -6550,6 +7000,8 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           log << literal(param1);
           log << NL;
           if load_prog(param1) then
+            log << "load_prog finished";
+            log << NL;
             line_marker;
             log << "CHAIN ";
             log << literal(param1);
@@ -6573,6 +7025,27 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           err << "STRING EXPECTED FOR CHAIN - FOUND ";
           err << symbol;
           err << ".";
+          err << NL;
+        end if;
+      elsif symbol = "ERROR" then
+        symbol := get_symbol(line);
+        error_code := round(exec_expr(symbol, line));
+        if on_error_label <> "" then
+          line_marker;
+          log << "ERROR ";
+          log << error_code;
+          log << " - ON ERROR GOTO ";
+          log << on_error_label;
+          log << NL;
+          flush(log);
+          goto_on_error(on_error_label, line);
+          symbol := "";
+          line := "";
+        else
+          error_marker;
+          err << "ERROR ";
+          err << error_code;
+          err << " WITHOUT ON ERROR HANDLER";
           err << NL;
         end if;
       elsif symbol = ":" then
@@ -6658,7 +7131,12 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
       log << line;
       log << NL;
       flush(log);
-    elsif symbol <> "" and symbol <> "ELSE" then
+    elsif symbol = "ELSE" then
+      line_marker;
+      log << "SKIP ELSE PART - CONTINUE AT NEXT LINE";
+      log << NL;
+      flush(log);
+    elsif symbol <> "" then
       error_marker;
       err << "UNEXPECTED SYMBOL ";
       err << literal(symbol);
@@ -6709,34 +7187,48 @@ const proc: run_prog is func
   end func;
 
 
-const func boolean: is_statement (in string: symbol) is
+const func boolean: not_allowed_as_label (in string: symbol) is
   return
-      symbol = "BEEP"      or symbol = "CALL"      or symbol = "CASE"      or
-      symbol = "CHAIN"     or symbol = "CIRCLE"    or symbol = "CLEAR"     or
-      symbol = "CLOSE"     or symbol = "CLS"       or symbol = "COLOR"     or
-      symbol = "COMMON"    or symbol = "CONST"     or symbol = "DATA"      or
-      symbol = "DECLARE"   or symbol = "DECR"      or symbol = "DEF"       or
-      symbol = "DEFDBL"    or symbol = "DEFINT"    or symbol = "DEFSNG"    or
-      symbol = "DEFSTR"    or symbol = "DIM"       or symbol = "DO"        or
-      symbol = "DRAW"      or symbol = "ELSE"      or symbol = "ELSEIF"    or
-      symbol = "END"       or symbol = "ERASE"     or symbol = "EXIT"      or
-      symbol = "FOR"       or symbol = "GET"       or symbol = "GO"        or
-      symbol = "GOSUB"     or symbol = "GOTO"      or symbol = "IF"        or
-      symbol = "INCR"      or symbol = "INPUT"     or symbol = "KEY"       or
-      symbol = "LET"       or symbol = "LINE"      or symbol = "LOCATE"    or
-      symbol = "LOOP"      or symbol = "NEXT"      or symbol = "ON"        or
+      symbol = "BEEP"      or symbol = "CLEAR"     or symbol = "CLOSE"     or
+      symbol = "CLS"       or symbol = "COLOR"     or symbol = "COMMON"    or
+      symbol = "CONST"     or symbol = "DATA"      or symbol = "DECLARE"   or
+      symbol = "DEF"       or symbol = "DEFDBL"    or symbol = "DEFINT"    or
+      symbol = "DEFSNG"    or symbol = "DEFSTR"    or symbol = "DIM"       or
+      symbol = "DO"        or symbol = "DRAW"      or symbol = "ELSE"      or
+      symbol = "ELSEIF"    or symbol = "END"       or symbol = "ERASE"     or
+      symbol = "EXIT"      or symbol = "GET"       or symbol = "IF"        or
+      symbol = "INPUT"     or symbol = "KEY"       or symbol = "LET"       or
+      symbol = "LOCATE"    or symbol = "LOOP"      or symbol = "NEXT"      or
       symbol = "OPEN"      or symbol = "OPTION"    or symbol = "OUT"       or
       symbol = "PAINT"     or symbol = "PALETTE"   or symbol = "PLAY"      or
-      symbol = "POKE"      or symbol = "PRESET"    or symbol = "PRINT"     or
-      symbol = "PSET"      or symbol = "PUT"       or symbol = "RANDOMIZE" or
-      symbol = "READ"      or symbol = "REDIM"     or symbol = "REM"       or
-      symbol = "RESET"     or symbol = "RESTORE"   or symbol = "RESUME"    or
-      symbol = "RETURN"    or symbol = "SCREEN"    or symbol = "SEEK"      or
-      symbol = "SELECT"    or symbol = "SLEEP"     or symbol = "SOUND"     or
-      symbol = "STOP"      or symbol = "SUB"       or symbol = "SWAP"      or
-      symbol = "SYSTEM"    or symbol = "WEND"      or symbol = "WHILE"     or
-      symbol = "WIDTH"     or symbol = "WRITE"     or
-      symbol = "?"         or symbol = "'";
+      symbol = "POKE"      or symbol = "PRINT"     or symbol = "PUT"       or
+      symbol = "RANDOMIZE" or symbol = "READ"      or symbol = "REDIM"     or
+      symbol = "REM"       or symbol = "RESET"     or symbol = "RESTORE"   or
+      symbol = "RESUME"    or symbol = "RETURN"    or symbol = "SCREEN"    or
+      symbol = "SEEK"      or symbol = "SELECT"    or symbol = "SLEEP"     or
+      symbol = "STOP"      or symbol = "SUB"       or symbol = "SYSTEM"    or
+      symbol = "WEND"      or symbol = "WRITE";
+
+
+const proc: log_line (in lineType: aLine) is func
+  begin
+    if aLine.linenum <> "" then
+      log << aLine.linenum lpad 5;
+      log << " ";
+      if aLine.label <> "" then
+        log << aLine.label;
+        log << ": ";
+      end if;
+    elsif aLine.label <> "" then
+      log << aLine.label & ":" rpad 5;
+      log << " ";
+    else
+      log << "" lpad 5;
+      log << " ";
+    end if;
+    log << aLine.line;
+    log << NL;
+  end func;
 
 
 const func boolean: load_prog (in string: name) is func
@@ -6745,8 +7237,6 @@ const func boolean: load_prog (in string: name) is func
   local
     var file: infile is STD_NULL;
     var integer: file_line_number is 0;
-    var integer: number is 0;
-    var integer: last_number is 0;
     var string: symbol is "";
     var string: line_number is "";
     var string: line_label is "";
@@ -6755,29 +7245,14 @@ const func boolean: load_prog (in string: name) is func
     var string: variable_name is "";
     var boolean: control_z is FALSE;
     var boolean: continuation_line is FALSE;
+    var integer: number is 1;
     var integer: line_number_incr is 1;
-    var boolean: log_line is TRUE;
   begin
     if lower(name[length(name) - 3 ..]) <> ".bas" then
-      infile := open(name & ".bas", "r");
-      if infile = STD_NULL then
-        infile := open(name & ".BAS", "r");
-        if infile = STD_NULL then
-          infile := open(lower(name) & ".bas", "r");
-          if infile = STD_NULL then
-            infile := open(upper(name) & ".BAS", "r");
-          end if;
-        end if;
-      end if;
+      infile := basicOpen(name & ".bas", "r");
     end if;
     if infile = STD_NULL then
-      infile := open(name, "r");
-      if infile = STD_NULL then
-        infile := open(lower(name), "r");
-        if infile = STD_NULL then
-          infile := open(upper(name), "r");
-        end if;
-      end if;
+      infile := basicOpen(name, "r");
     end if;
     if infile <> STD_NULL then
       repeat
@@ -6794,7 +7269,6 @@ const func boolean: load_prog (in string: name) is func
             line := line[.. pred(pos(line, "\Z"))];
             control_z := TRUE;
           end if;
-          log_line := TRUE;
           line := trim(line);
           if length(line) >= 2 and line[pred(length(line)) ..] = " _" then
             continuation_line := TRUE;
@@ -6806,12 +7280,12 @@ const func boolean: load_prog (in string: name) is func
         until not continuation_line;
         if line <> "" then
           if line[1] in digit_char then
-            line_number := getint(line);
+            line_number := getDigits(line);
             if line <> "" and line[1] = '.' then
               # Accept line numbers with decimal point
               line_number &:= ".";
               line := line[2 .. ];
-              line_number &:= getint(line);
+              line_number &:= getDigits(line);
             end if;
             while line <> "" and line[1] = ' ' do
               line := line[2 .. ];
@@ -6826,14 +7300,64 @@ const func boolean: load_prog (in string: name) is func
               err << ")";
               err << NL;
             else
-              label @:= [line_number] file_line_number;
+              label @:= [line_number] succ(length(prg));
             end if;
           else
             line_number := "";
           end if;
           help_line := line;
           symbol := get_symbol(help_line);
-          if symbol = "SUB" then
+          if symbol = "'" or symbol = "REM" then
+            repeat
+              symbol := get_symbol(help_line);
+            until symbol = "" or symbol = "$";
+            symbol := get_symbol(help_line);
+            if symbol = "INCLUDE" then
+              symbol := get_symbol(help_line);
+              if symbol = ":" then
+                symbol := get_symbol(help_line);
+                if symbol = "'" then
+                  symbol := help_line[.. pred(pos(help_line, '\''))];
+                  if symbol <> "" then
+                    prg &:= [] (lineType.value);
+                    prg[length(prg)].fileName := name;
+                    prg[length(prg)].fileLine := file_line_number;
+                    prg[length(prg)].linenum := line_number;
+                    prg[length(prg)].label := line_label;
+                    prg[length(prg)].line := line;
+                    log_line(prg[length(prg)]);
+                    if not load_prog(symbol) then
+                      err << " ***** INCLUDE FILE ";
+                      err << literal(symbol);
+                      err << " NOT FOUND.";
+                      err << NL;
+                    end if;
+                  end if;
+                end if;
+              end if;
+            end if;
+          elsif symbol = "#" or symbol = "$" then
+            symbol := get_symbol(help_line);
+            if symbol = "INCLUDE" then
+              symbol := get_symbol(help_line);
+              if symbol <> "" and symbol[1] = '"' then
+                symbol := symbol[2 ..];
+                prg &:= [] (lineType.value);
+                prg[length(prg)].fileName := name;
+                prg[length(prg)].fileLine := file_line_number;
+                prg[length(prg)].linenum := line_number;
+                prg[length(prg)].label := line_label;
+                prg[length(prg)].line := line;
+                log_line(prg[length(prg)]);
+                if not load_prog(symbol) then
+                  err << " ***** INCLUDE FILE ";
+                  err << literal(symbol);
+                  err << " NOT FOUND.";
+                  err << NL;
+                end if;
+              end if;
+            end if;
+          elsif symbol = "SUB" then
             symbol := get_symbol(help_line);
             if symbol in subprogram then
               err << " ***** SUB ";
@@ -6845,7 +7369,7 @@ const func boolean: load_prog (in string: name) is func
               err << ")";
               err << NL;
             else
-              subprogram @:= [symbol] file_line_number;
+              subprogram @:= [symbol] succ(length(prg));
             end if;
             line_label := "";
 (*
@@ -6860,13 +7384,13 @@ const func boolean: load_prog (in string: name) is func
               end if;
             end if;
 *)
-          elsif symbol = "" or is_statement(symbol) or
+          elsif symbol = "" or not_allowed_as_label(symbol) or
               symbol in declared then
             line_label := "";
           else
             line_label := symbol;
             symbol := get_symbol(help_line);
-            if symbol = ":" then
+            if line_label[1] in letter_char and symbol = ":" then
               if line_label in label then
                 err << " ***** LABEL ";
                 err << line_label;
@@ -6877,7 +7401,7 @@ const func boolean: load_prog (in string: name) is func
                 err << ")";
                 err << NL;
               else
-                label @:= [line_label] file_line_number;
+                label @:= [line_label] succ(length(prg));
               end if;
               line := help_line;
               while line <> "" and line[1] = ' ' do
@@ -6885,51 +7409,15 @@ const func boolean: load_prog (in string: name) is func
               end while;
             else
               line_label := "";
-(*            Concatenate possible continuation lines.
-              if line_number = "" and length(prg) >= 1 then
-                # A line without number, label and legal
-                # statement symbol is possibly a continuation line.
-                help_line := line;
-                symbol := get_symbol(help_line);
-                variable_name := get_name(symbol, help_line);
-                if symbol <> "=" and variable_name[.. 3] <> "REM" then
-                  # This line does not contain a LET statement.
-                  # Concatenate this line to the last line and
-                  # set the current line to empty.
-                  prg[length(prg)].line &:= " " & line;
-                  log << "" lpad 5;
-                  log << " ";
-                  log << line;
-                  log << NL;
-                  log_line := FALSE;
-                  line := "";
-                end if;
-              end if;
-*)
             end if;
           end if;
           prg &:= [] (lineType.value);
+          prg[length(prg)].fileName := name;
+          prg[length(prg)].fileLine := file_line_number;
           prg[length(prg)].linenum := line_number;
           prg[length(prg)].label := line_label;
           prg[length(prg)].line := line;
-          if log_line then
-            if line_number <> "" then
-              log << line_number lpad 5;
-              log << " ";
-              if line_label <> "" then
-                log << line_label;
-                log << ": ";
-              end if;
-            elsif line_label <> "" then
-              log << line_label & ":" rpad 5;
-              log << " ";
-            else
-              log << "" lpad 5;
-              log << " ";
-            end if;
-            log << line;
-            log << NL;
-          end if;
+          log_line(prg[length(prg)]);
         else
           prg &:= [] (lineType.value);
           log << NL;
@@ -6938,8 +7426,6 @@ const func boolean: load_prog (in string: name) is func
       close(infile);
       result := TRUE;
     end if;
-    log << "load_prog finished";
-    log << NL;
   end func;
 
 
@@ -6952,6 +7438,8 @@ const proc: main is func
       end if;
       err := log;
       if load_prog(argv(PROGRAM)[1]) then
+        log << "load_prog finished";
+        log << NL;
         # list_prog;
         scr := open(SCREEN);
         cursor(scr, TRUE);

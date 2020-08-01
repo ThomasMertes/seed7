@@ -190,9 +190,8 @@ inttype digits_precision;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(len);
       result->size = len;
-      stri_expand(result->mem, buffer_ptr, len);
+      cstri_expand(result->mem, buffer_ptr, len);
       return(result);
     } /* if */
   } /* fltDgts */
@@ -310,6 +309,8 @@ stritype stri;
         } else {
           okay = FALSE;
         } /* if */
+      } else if (next_ch != &buffer[stri->size]) {
+        okay = FALSE;
       } /* if */
     } else {
       okay = FALSE;
@@ -317,7 +318,7 @@ stritype stri;
 #else
     position = 0;
     result = 0.0;
-    while (position < stri->SIZE &&
+    while (position < stri->size &&
         stri->mem[position] >= ((strelemtype) '0') &&
         stri->mem[position] <= ((strelemtype) '9')) {
       digitval = ((inttype) stri->mem[position]) - ((inttype) '0');
@@ -330,7 +331,7 @@ stritype stri;
       } /* if */
       position++;
     } /* while */
-    if (position == 0 || position < stri->SIZE) {
+    if (position == 0 || position < stri->size) {
       okay = FALSE;
     } /* if */
 #endif
@@ -410,9 +411,8 @@ floattype number;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(len);
       result->size = len;
-      stri_expand(result->mem, buffer, (SIZE_TYPE) len);
+      cstri_expand(result->mem, buffer, (SIZE_TYPE) len);
       return(result);
     } /* if */
   } /* fltStr */

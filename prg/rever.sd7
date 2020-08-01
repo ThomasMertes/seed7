@@ -146,16 +146,13 @@ const proc: write_move (in integer: line, in integer: column) is func
   end func;
 
 
-const proc: show_board (in field_type: current_colour,
-    in integer: move_line, in integer: move_column) is func
+const proc: show_board (in field_array: board) is func
 
   local
     var integer: line is 0;
     var integer: column is 0;
 
   begin (* show_board *)
-    count_fields(board);
-
     writeln;
     writeln("   |  A  |  B  |  C  |  D  |  E  |  F  |  G  |  H  |");
     writeln("---+-----+-----+-----+-----+-----+-----+-----+-----+---");
@@ -179,8 +176,23 @@ const proc: show_board (in field_type: current_colour,
       writeln(pred(line));
       writeln("---+-----+-----+-----+-----+-----+-----+-----+-----+---");
     end for;
+
     writeln("   |  A  |  B  |  C  |  D  |  E  |  F  |  G  |  H  |");
     writeln;
+  end func; (* show_board *)
+
+
+const proc: show_board (in field_type: current_colour,
+    in integer: move_line, in integer: move_column) is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+
+  begin (* show_board *)
+    count_fields(board);
+    show_board(board);
+
     write("You have");
     write(field_counter[HUMAN] lpad 3);
     if field_counter[HUMAN] = 1 then

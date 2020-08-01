@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-  include "scanner.s7i";
+  include "scanfile.s7i";
 
 const type: wordHash is hash [string] integer;
 const type: countHash is hash [integer] array string;

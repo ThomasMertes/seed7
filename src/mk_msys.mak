@@ -6,13 +6,18 @@
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS = -O2
-# LFLAGS = -O2 -pg
+LFLAGS =
+# LFLAGS = -pg
+# LFLAGS = -pg -lc_p
 LIBS = -lm -lgdi32 -lws2_32
-SEED7_OBJ_LIB = seed7_05.a
+SEED7_LIB = seed7_05.a
+COMP_DATA_LIB = s7_data.a
+COMPILER_LIB = s7_comp.a
 CC = gcc
 
 # SCREEN_OBJ = scr_x11.o
@@ -30,42 +35,48 @@ CC = gcc
 SCREEN_OBJ = scr_win.o
 SCREEN_SRC = scr_win.c
 
-MOBJ1 = hi.o option.o primitiv.o
+MOBJ1 = hi.o
+POBJ1 = runerr.o option.o primitiv.o
 LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o clslib.o cmdlib.o dcllib.o drwlib.o
 LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o kbdlib.o lstlib.o prclib.o prglib.o reflib.o
 LOBJ3 = rfllib.o scrlib.o sctlib.o setlib.o soclib.o strlib.o timlib.o typlib.o ut8lib.o
-EOBJ1 = exec.o doany.o memory.o runerr.o
-AOBJ1 = analyze.o syntax.o token.o parser.o name.o type.o
+EOBJ1 = exec.o doany.o memory.o
+AOBJ1 = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o
 AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
 AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
-GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
-GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
+GOBJ1 = syvarutl.o traceutl.o actutl.o arrutl.o executl.o blockutl.o
+GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
 ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o ut8_rtl.o heaputl.o
 ROBJ3 = striutl.o
 DOBJ1 = $(SCREEN_OBJ) tim_win.o drw_win.o
-OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
-A_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
+OBJ = $(MOBJ1)
+SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
+COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
+COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 
-MSRC1 = hi.c option.c primitiv.c
+MSRC1 = hi.c
+PSRC1 = runerr.c option.c primitiv.c
 LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c clslib.c cmdlib.c dcllib.c drwlib.c
 LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c kbdlib.c lstlib.c prclib.c prglib.c reflib.c
 LSRC3 = rfllib.c scrlib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
-ESRC1 = exec.c doany.c memory.c runerr.c
-ASRC1 = analyze.c syntax.c token.c parser.c name.c type.c
+ESRC1 = exec.c doany.c memory.c
+ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
-GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c arrutl.c executl.c blockutl.c
-GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
+GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
+GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
 RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
 RSRC3 = striutl.c
 DSRC1 = $(SCREEN_SRC) tim_win.c drw_win.c
-SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
-A_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
+SRC = $(MSRC1)
+SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
+COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
+COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi: $(OBJ) $(SEED7_OBJ_LIB)
-	$(CC) $(LFLAGS) $(OBJ) $(SEED7_OBJ_LIB) $(LIBS) -o hi
+hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
+	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
 	cp hi.exe ../prg
 	./hi.exe level
 #	cp hi /usr/local/bin/hi
@@ -108,7 +119,7 @@ scr_cur.o: scr_cur.c version.h scr_drv.h
 
 
 clear:
-	rm *.o *.a depend a_depend version.h
+	rm *.o *.a depend a_depend b_depend c_depend version.h
 
 dep: depend
 
@@ -134,23 +145,38 @@ version.h:
 	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
-	echo "#define LINKER_LIBS \"\\\"`pwd -W`/$(SEED7_OBJ_LIB)\\\" $(LIBS)\"" >> version.h
+	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
+	echo "#define SEED7_LIB \"`pwd -W`/$(SEED7_LIB)\"" >> version.h
+	echo "#define COMP_DATA_LIB \"`pwd -W`/$(COMP_DATA_LIB)\"" >> version.h
+	echo "#define COMPILER_LIB \"`pwd -W`/$(COMPILER_LIB)\"" >> version.h
 	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd -W`\" >> ../src/version.h; cd ../src
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c
 
-depend: a_depend version.h
+depend: a_depend b_depend c_depend version.h
 	$(CC) -M $(SRC) > depend
 
 a_depend: version.h
-	$(CC) -M $(A_SRC) > a_depend
+	$(CC) -M $(SEED7_LIB_SRC) > a_depend
+
+b_depend: version.h
+	$(CC) -M $(COMP_DATA_LIB_SRC) > b_depend
+
+c_depend: version.h
+	$(CC) -M $(COMPILER_LIB_SRC) > c_depend
 
 level.h:
 	hi level
 
-$(SEED7_OBJ_LIB): $(A_OBJ)
-	ar r $(SEED7_OBJ_LIB) $(A_OBJ)
+$(SEED7_LIB): $(SEED7_LIB_OBJ)
+	ar r $(SEED7_LIB) $(SEED7_LIB_OBJ)
+
+$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
+	ar r $(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+
+$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
+	ar r $(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
 	wc $(GSRC1) $(GSRC2)
@@ -171,4 +197,6 @@ lint2: $(SRC)
 ifeq (depend,$(wildcard depend))
 include depend
 include a_depend
+include b_depend
+include c_depend
 endif

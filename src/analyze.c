@@ -32,11 +32,13 @@
 #include "string.h"
 
 #include "common.h"
+#include "sigutl.h"
 #include "data.h"
 #include "heaputl.h"
-#include "syvarutl.h"
 #include "striutl.h"
+#include "syvarutl.h"
 #include "traceutl.h"
+#include "chclsutl.h"
 #include "identutl.h"
 #include "entutl.h"
 #include "fatal.h"
@@ -55,6 +57,8 @@
 #include "match.h"
 #include "name.h"
 #include "exec.h"
+#include "primitiv.h"
+#include "doany.h"
 #include "option.h"
 #include "runerr.h"
 
@@ -64,6 +68,37 @@
 
 #undef TRACE_ANALYZE
 #undef TRACE_DECL_ANY
+
+
+static booltype analyze_initialized = FALSE;
+progrecord prog;
+
+
+
+#ifdef ANSI_C
+
+static void init_analyze (void)
+#else
+
+static void init_analyze ()
+#endif
+
+  { /* init_analyze */
+    if (!analyze_initialized) {
+#ifdef CATCH_SIGNALS
+      if (option.catch_signals) {
+        activate_signal_handlers();
+      } /* if */
+#endif
+      set_trace(NULL, -1, NULL);
+      init_lib_path();
+      init_chclass();
+      init_primitiv();
+      init_do_any();
+      memset(&prog, 0, sizeof(progrecord)); /* not used, saved in analyze and interpr */
+      analyze_initialized = TRUE;
+    } /* if */
+  } /* init_analyze */
 
 
 
@@ -136,7 +171,6 @@ static INLINE void include_file ()
       if (!ALLOC_STRI(include_file_name, symbol.strivalue->size)) {
         err_warning(OUT_OF_HEAP_SPACE);
       } else {
-        COUNT_STRI(symbol.strivalue->size);
         include_file_name->size = symbol.strivalue->size;
         memcpy(include_file_name->mem, symbol.strivalue->mem,
             (SIZE_TYPE) symbol.strivalue->size * sizeof(strelemtype));
@@ -486,6 +520,7 @@ ustritype source_file_name;
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze\n");
 #endif
+    init_analyze();
     resultProg = NULL;
     len = strlen((cstritype) source_file_name);
     pos = len;
@@ -504,11 +539,10 @@ ustritype source_file_name;
       /* fatal_memory_error(SOURCE_POSITION(2113)); */
       err_warning(OUT_OF_HEAP_SPACE);
     } else {
-      COUNT_STRI(name_len);
       source_name->size = name_len;
-      stri_expand(source_name->mem, source_file_name, len);
+      ustri_expand(source_name->mem, source_file_name, len);
       if (add_extension) {
-        stri_expand(&source_name->mem[len], ".sd7", 4);
+        cstri_expand(&source_name->mem[len], ".sd7", 4);
       } /* if */
       open_infile(source_name, &err_info);
       if (err_info == FILE_ERROR && add_extension) {
@@ -554,6 +588,7 @@ stritype input_string;
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze_string\n");
 #endif
+    init_analyze();
     resultProg = NULL;
     input_bstri = stri_to_bstri8(input_string);
     if (input_bstri != NULL) {

@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "draw.s7i";
   include "keybd.s7i";
+  include "dialog.s7i";
   include "pic32.s7i";
   include "time.s7i";
 
@@ -180,6 +181,7 @@ const type: playerObj is sub graphObj struct
     var directionType: direction is NORTH;
     var itemSet: inventory is itemSet.EMPTY_SET;
     var integer: strength is 0;
+    var boolean: living is TRUE;
   end struct;
 
 const type: roomType is new struct
@@ -1219,6 +1221,7 @@ const proc: initPlayerData is func
     player.direction := SOUTH;
     player.inventory := itemSet.EMPTY_SET;
     player.strength := MAX_STRENGTH;
+    player.living := TRUE;
   end func;
 
 
@@ -1326,26 +1329,6 @@ const proc: displayBox (in color: boxColor) is func
     point(width - 2, 1, boxColor);
     point(width - 2, height - 2, boxColor);
     point(1, height - 2, boxColor);
-  end func;
-
-
-const func boolean: isOkay (in array string: messagText) is func
-  result
-    var boolean: result is FALSE;
-  local
-    var PRIMITIVE_WINDOW: popupWindow is PRIMITIVE_WINDOW.value;
-    var file: messageFile is STD_NULL;
-    var integer: number is 0;
-    var char: ch is ' ';
-  begin
-    popupWindow := PRIMITIVE_GRAPHIC_OPEN(0, 0, 300, 200, "Yes or No");
-    messageFile := open(popupWindow);
-    for number range 1 to length(messagText) do
-      writeln(messageFile, messagText[number]);
-    end for;
-    ch := upper(getc(KEYBOARD));
-    result := ch = 'Y';
-    close(messageFile);
   end func;
 
 
@@ -1763,7 +1746,7 @@ const proc: checkRoom is func
 
           displayAll;
 
-          exitGame := TRUE;
+          player.living := FALSE;
         end if;
       when {SECRET_ROOM}:
         room[WINDING_PASSAGE2].data[18] := "   ########  ########## ";
@@ -1842,7 +1825,7 @@ const proc: loadGame is func
     var integer: column is 0;
   begin
     if exists("castle.sav") then
-      if isOkay([]("Do you want to load a saved game.", "This will end the current game? <Y/N>")) then
+      if isOkay([]("Do you want to load a saved game.", "This will end the current game?")) then
         load_file := open("castle.sav", "r");
         for monster_ident range MIN_MONSTER to MAX_MONSTER do
           readln(load_file, monster[monster_ident].adjective);
@@ -1889,7 +1872,7 @@ const proc: saveGame is func
     var integer: column is 0;
   begin
     if exists("castle.sav") then
-      if isOkay([]("Do you want to overwrite the", "game currently saved? <Y/N>")) then
+      if isOkay([]("Do you want to overwrite the", "game currently saved?")) then
         remove("castle.sav");
       end if;
     end if;
@@ -2314,6 +2297,72 @@ const func array string: getItemMessage (in itemType: item_ident) is func
   end func;
 
 
+const func integer: getScore is func
+  result
+    var integer: result is 0;
+  local
+    var monsterType: monster_ident is NO_MONSTER;
+    var itemType: item_ident is NO_ITEM;
+  begin
+    for monster_ident range MIN_MONSTER to BAT do
+      if not monster[monster_ident].living then
+        result +:= 100;
+      end if;
+    end for;
+    for item_ident range CROWN to MAX_ITEM do
+      if item_ident in player.inventory or
+          item[item_ident].room_num = COURTYARD then
+        result +:= 50;
+      end if;
+    end for;
+    if player.room = ESCAPED then
+      result +:= 100;
+    end if;
+
+    if result > highScore.points then
+      highScore.points := result;
+      highScore.name := player.name;
+    end if;
+  end func;
+
+
+const proc: showStatus is func
+  local
+    var char: command is ' ';
+  begin
+    rect(BUTTONS_1_XPOS, BUTTON_YPOS_MIN, 272, 128, black);
+    box(BUTTONS_1_XPOS, BUTTON_YPOS_MIN, 272, 128, light_red);
+    color(screen, white, black);
+    if player.room = ESCAPED then
+      setPos(screen, BUTTON_TEXT_LINE1, 100);
+      write(screen, "You've Escaped the Castle!");
+    elsif player.living then
+      setPos(screen, BUTTON_TEXT_LINE1, 100);
+      write(screen, "  Your current status:");
+    else
+      setPos(screen, BUTTON_TEXT_LINE1, 100);
+      write(screen, "You have failed to Escape!");
+    end if;
+    rect(LEGEND_XPOS, 0, width(curr_win) - LEGEND_XPOS, height(curr_win), black);
+    collectedTreasures;
+    killedMonsters;
+    setPos(screen, BUTTON_TEXT_LINE1 + 2, 105);
+    write(screen, "Your Score: " <& getScore);
+    setPos(screen, BUTTON_TEXT_LINE1 + 3, 104);
+    write(screen, "(1550 is perfect)");
+    saveHighScore;
+    setPos(screen, BUTTON_TEXT_LINE1 + 5, 104);
+    write(screen, "- Press any key -");
+    repeat
+      command := upper(getc(KEYBOARD));
+      if command in {'Y', 'N'} then
+        setPos(screen, BUTTON_TEXT_LINE1 + 6, 105);
+        write(screen, "(Except Y or N)");
+      end if;
+    until command not in {'Y', 'N'};
+  end func;
+
+
 const proc: lookItemInRoom is func
   local
     var char: command is ' ';
@@ -2339,9 +2388,21 @@ const proc: lookItemInRoom is func
       case room[player.room].data[line][column] of
         when {'#', '&'}:
           if player.room = COURTYARD then
-            message := [] ("look wall:",
-                           "Writing on the wall says...",
-                           highScore.name & " " & str(highScore.points));
+            if highScore.name = "" then
+              message := [] ("look wall:",
+                             "Writing on the wall says...",
+                             "Highscore: " & str(highScore.points));
+            else
+              message := [] ("look wall:",
+                             "Writing on the wall says...",
+                             "Highscore: " & str(highScore.points) &
+                             " by " & highScore.name);
+            end if;
+            displayMessage;
+            showStatus;
+            displayCommands(curr_win);
+            displayAll;
+            message := 0 times "";
           elsif player.room = MAZE74 then
             message := [] ("look wall:",
                            "The Wall Says:",
@@ -2555,66 +2616,11 @@ const proc: welcomeScreen is func
   end func;
 
 
-const func integer: getScore is func
-  result
-    var integer: result is 0;
-  local
-    var monsterType: monster_ident is NO_MONSTER;
-    var itemType: item_ident is NO_ITEM;
-  begin
-    for monster_ident range MIN_MONSTER to BAT do
-      if not monster[monster_ident].living then
-        result +:= 100;
-      end if;
-    end for;
-    for item_ident range CROWN to MAX_ITEM do
-      if item_ident in player.inventory or
-          item[item_ident].room_num = COURTYARD then
-        result +:= 50;
-      end if;
-    end for;
-    if player.room = ESCAPED then
-      result +:= 100;
-    end if;
-
-    if result > highScore.points then
-      highScore.points := result;
-      highScore.name := player.name;
-    end if;
-  end func;
-
-
 const proc: endOfGame is func
   local
     var char: command is ' ';
   begin
-    rect(BUTTONS_1_XPOS, BUTTON_YPOS_MIN, 272, 128, black);
-    box(BUTTONS_1_XPOS, BUTTON_YPOS_MIN, 272, 128, light_red);
-    color(screen, white, black);
-    if player.room = ESCAPED then
-      setPos(screen, BUTTON_TEXT_LINE1, 100);
-      write(screen, "You've Escaped the Castle!");
-    else
-      setPos(screen, BUTTON_TEXT_LINE1, 100);
-      write(screen, "You have failed to Escape!");
-    end if;
-    rect(LEGEND_XPOS, 0, width(curr_win) - LEGEND_XPOS, height(curr_win), black);
-    collectedTreasures;
-    killedMonsters;
-    setPos(screen, BUTTON_TEXT_LINE1 + 2, 105);
-    write(screen, "Your Score: " <& getScore);
-    setPos(screen, BUTTON_TEXT_LINE1 + 3, 104);
-    write(screen, "(1550 is perfect)");
-    saveHighScore;
-    setPos(screen, BUTTON_TEXT_LINE1 + 5, 104);
-    write(screen, "- Press any key -");
-    repeat
-      command := upper(getc(KEYBOARD));
-      if command in {'Y', 'N'} then
-        setPos(screen, BUTTON_TEXT_LINE1 + 6, 105);
-        write(screen, "(Except Y or N)");
-      end if;
-    until command not in {'Y', 'N'};
+    showStatus;
     setPos(screen, BUTTON_TEXT_LINE1 + 5, 104);
     write(screen, "Play Again (Y/N)?");
     setPos(screen, BUTTON_TEXT_LINE1 + 6, 105);
@@ -2825,7 +2831,7 @@ const proc: moveMonsters is func
        player.strength -:= monster[current_monster].attack;
         if player.strength < 1 then
           message &:= [] ("The " & monster[current_monster].name & " has killed you!");
-          exitGame := TRUE;
+          player.living := FALSE;
         else
           message &:= [] ("The " & monster[current_monster].name & " struck you!");
           if rand(1, 2) = 1 and HELMET in player.inventory then
@@ -3199,7 +3205,7 @@ const proc: takeItem is func
 
 const proc: quitGame is func
   begin
-    if isOkay([]("Do you want to quit? <Y/N>")) then
+    if isOkay([]("Quit the castle game?")) then
       exitGame := TRUE;
     end if;
   end func;
@@ -3212,7 +3218,7 @@ const proc: playGame is func
     var integer: yPos is 0;
   begin
     displayAll;
-    while not exitGame do
+    while player.living and not exitGame do
 
       command := getc(KEYBOARD);
       case command of
@@ -3256,11 +3262,8 @@ const proc: playGame is func
 
       moveMonsters;
 
-      if player.room = ESCAPED then
+      if player.room = ESCAPED or not player.living then
         exitGame := TRUE;
-      end if;
-
-      if exitGame then
         endOfGame;
       end if;
     end while;

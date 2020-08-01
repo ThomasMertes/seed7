@@ -238,6 +238,10 @@ const func boolean: eof (in socket: aSocket) is
   return FALSE; # eof(aSocket.sock);
 
 
+const func boolean: hasNext (in socket: aSocket) is
+  return TRUE; # hasNext(aSocket.sock);
+
+
 const func integer: length (in socket: aSocket) is
   return 0; # length(aSocket.sock);
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_rtl.h     Primitive actions for the bigInteger type.        */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -39,6 +39,7 @@
 
 biginttype bigAbs (const const_biginttype);
 biginttype bigAdd (const_biginttype, const_biginttype);
+biginttype bigAddTemp (biginttype, const_biginttype);
 inttype bigBitLength (const const_biginttype);
 stritype bigCLit (const const_biginttype);
 inttype bigCmp (const const_biginttype, const const_biginttype);
@@ -72,6 +73,7 @@ biginttype bigPred (const const_biginttype);
 biginttype bigRand (const const_biginttype, const const_biginttype);
 biginttype bigRem (const const_biginttype, const const_biginttype);
 biginttype bigSbtr (const const_biginttype, const const_biginttype);
+biginttype bigSbtrTemp (biginttype, const_biginttype);
 void bigShrink (biginttype *const, const const_biginttype);
 stritype bigStr (const const_biginttype);
 biginttype bigSucc (const const_biginttype);
@@ -84,6 +86,7 @@ biginttype bigUIConv (uinttype);
 
 biginttype bigAbs ();
 biginttype bigAdd ();
+biginttype bigAddTemp ();
 inttype bigBitLength ();
 stritype bigCLit ();
 inttype bigCmp ();
@@ -117,6 +120,7 @@ biginttype bigPred ();
 biginttype bigRand ();
 biginttype bigRem ();
 biginttype bigSbtr ();
+biginttype bigSbtrTemp ();
 void bigShrink ();
 stritype bigStr ();
 biginttype bigSucc ();

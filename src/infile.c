@@ -562,7 +562,6 @@ errinfotype *err_info;
             if (!ALLOC_STRI(stri, length)) {
               *err_info = MEMORY_ERROR;
             } else {
-              COUNT_STRI(length);
               stri->size = length;
               memcpy(stri->mem, curr_path->mem,
                   (SIZE_TYPE) curr_path->size * sizeof(strelemtype));
@@ -618,7 +617,6 @@ errinfotype *err_info;
     if (!ALLOC_STRI(stri, stri_len)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_STRI(stri_len);
       resized_lib_path = REALLOC_ARRAY(lib_path,
           lib_path->max_position, lib_path->max_position + 1);
       if (resized_lib_path == NULL) {

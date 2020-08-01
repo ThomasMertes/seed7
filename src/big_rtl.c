@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_rtl.c     Primitive actions for the bigInteger type.        */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -126,7 +126,8 @@ biginttype big1;
       } /* if */
       pos++;
       if (big1->size != pos) {
-        if (!RESIZE_BIG(big1, big1->size, pos)) {
+        big1 = REALLOC_BIG(big1, big1->size, pos);
+        if (big1 == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_BIG(big1->size, pos);
@@ -1984,7 +1985,8 @@ biginttype big1;
         } while (pos < big1->size);
         if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
           result->size++;
-          if (!RESIZE_BIG(result, big1->size, result->size)) {
+          result = REALLOC_BIG(result, big1->size, result->size);
+          if (result == NULL) {
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {
@@ -2056,6 +2058,27 @@ biginttype big2;
       return(result);
     } /* if */
   } /* bigAdd */
+
+
+
+/**
+ *  Returns the sum of two signed big integers.
+ *  Big1 is assumed to be a temporary value which is reused.
+ */
+#ifdef ANSI_C
+
+biginttype bigAddTemp (biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigAddTemp  (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  { /* bigAddTemp */
+    bigGrow(&big1, big2);
+    return(big1);
+  } /* bigAddTemp */
 
 
 
@@ -2307,7 +2330,8 @@ biginttype *big_variable;
     pos = big1->size;
     if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (negative) {
-        if (!RESIZE_BIG(big1, pos, pos + 1)) {
+        big1 = REALLOC_BIG(big1, pos, pos + 1);
+        if (big1 == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_BIG(pos, pos + 1);
@@ -2317,7 +2341,8 @@ biginttype *big_variable;
         } /* if */
       } else if (big1->bigdigits[pos - 1] == 0 &&
           pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
-        if (!RESIZE_BIG(big1, pos, pos - 1)) {
+        big1 = REALLOC_BIG(big1, pos, pos - 1);
+        if (big1 == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_BIG(pos, pos - 1);
@@ -2471,7 +2496,8 @@ biginttype big2;
  *  When the size of big2 is smaller than *big_variable the
  *  algorithm tries to save computations. Therefore there are
  *  checks for carry == 0 and carry != 0.
- * 
+ *  In case the resizing fails the content of *big_variable
+ *  is freed and *big_variable is set to NULL.
  */
 #ifdef ANSI_C
 
@@ -2489,6 +2515,7 @@ biginttype big2;
     doublebigdigittype carry = 0;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
+    biginttype resized_big1;
 
   /* bigGrow */
     big1 = *big_variable;
@@ -2520,23 +2547,29 @@ biginttype big2;
       carry &= BIGDIGIT_MASK;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
-        if (!RESIZE_BIG(big1, big1->size, big1->size + 1)) {
+        resized_big1 = REALLOC_BIG(big1, big1->size, big1->size + 1);
+        if (resized_big1 == NULL) {
+          FREE_BIG(big1, big1->size);
+          *big_variable = NULL;
           raise_error(MEMORY_ERROR);
-          return;
         } else {
+          big1 = resized_big1;
           COUNT3_BIG(big1->size, big1->size + 1);
           big1->size++;
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           *big_variable = big1;
         } /* if */
       } else {
-        big1 = normalize(big1);
+        *big_variable = normalize(big1);
       } /* if */
     } else {
-      if (!RESIZE_BIG(big1, big1->size, big2->size + 1)) {
+      resized_big1 = REALLOC_BIG(big1, big1->size, big2->size + 1);
+      if (resized_big1 == NULL) {
+        FREE_BIG(big1, big1->size);
+        *big_variable = NULL;
         raise_error(MEMORY_ERROR);
-        return;
       } else {
+        big1 = resized_big1;
         COUNT3_BIG(big1->size, big2->size + 1);
         big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
         pos = 0;
@@ -2555,8 +2588,7 @@ biginttype big2;
         carry += big1_sign + big2_sign;
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
         big1->size = pos + 1;
-        big1 = normalize(big1);
-        *big_variable = big1;
+        *big_variable = normalize(big1);
       } /* if */
     } /* if */
   } /* bigGrow */
@@ -2642,7 +2674,8 @@ biginttype *big_variable;
     pos = big1->size;
     if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (!negative) {
-        if (!RESIZE_BIG(big1, pos, pos + 1)) {
+        big1 = REALLOC_BIG(big1, pos, pos + 1);
+        if (big1 == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_BIG(pos, pos + 1);
@@ -2652,7 +2685,8 @@ biginttype *big_variable;
         } /* if */
       } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
           pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
-        if (!RESIZE_BIG(big1, pos, pos - 1)) {
+        big1 = REALLOC_BIG(big1, pos, pos - 1);
+        if (big1 == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_BIG(pos, pos - 1);
@@ -3079,7 +3113,8 @@ biginttype big1;
       } while (pos < big1->size);
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          if (!RESIZE_BIG(result, pos, pos + 1)) {
+          result = REALLOC_BIG(result, pos, pos + 1);
+          if (result == NULL) {
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {
@@ -3089,7 +3124,8 @@ biginttype big1;
           } /* if */
         } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          if (!RESIZE_BIG(result, pos, pos - 1)) {
+          result = REALLOC_BIG(result, pos, pos - 1);
+          if (result == NULL) {
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {
@@ -3426,7 +3462,8 @@ biginttype big1;
       } while (pos < big1->size);
       if (!IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          if (!RESIZE_BIG(result, pos, pos + 1)) {
+          result = REALLOC_BIG(result, pos, pos + 1);
+          if (result == NULL) {
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {
@@ -3436,7 +3473,8 @@ biginttype big1;
           } /* if */
         } else if (result->bigdigits[pos - 1] == 0 &&
             pos >= 2 && !IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          if (!RESIZE_BIG(result, pos, pos - 1)) {
+          result = REALLOC_BIG(result, pos, pos - 1);
+          if (result == NULL) {
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {
@@ -3613,6 +3651,9 @@ biginttype big2;
 
 
 
+/**
+ *  Returns the difference of two signed big integers.
+ */
 #ifdef ANSI_C
 
 biginttype bigSbtr (const const_biginttype big1, const const_biginttype big2)
@@ -3692,12 +3733,34 @@ biginttype big2;
 
 
 /**
+ *  Returns the difference of two signed big integers.
+ *  Big1 is assumed to be a temporary value which is reused.
+ */
+#ifdef ANSI_C
+
+biginttype bigSbtrTemp (biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigSbtrTemp  (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  { /* bigSbtrTemp */
+    bigShrink(&big1, big2);
+    return(big1);
+  } /* bigSbtrTemp */
+
+
+
+/**
  *  Subtracts big2 from *big_variable. The operation is done in
  *  place and *big_variable is only resized when necessary.
  *  When the size of big2 is smaller than *big_variable the
  *  algorithm tries to save computations. Therefore there are
  *  checks for carry != 0 and carry == 0.
- * 
+ *  In case the resizing fails the content of *big_variable
+ *  is freed and *big_variable is set to NULL.
  */
 #ifdef ANSI_C
 
@@ -3715,6 +3778,7 @@ biginttype big2;
     doublebigdigittype carry = 1;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
+    biginttype resized_big1;
 
   /* bigShrink */
     big1 = *big_variable;
@@ -3747,23 +3811,29 @@ biginttype big2;
       carry &= BIGDIGIT_MASK;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
-        if (!RESIZE_BIG(big1, big1->size, big1->size + 1)) {
+        resized_big1 = REALLOC_BIG(big1, big1->size, big1->size + 1);
+        if (resized_big1 == NULL) {
+          FREE_BIG(big1, big1->size);
+          *big_variable = NULL;
           raise_error(MEMORY_ERROR);
-          return;
         } else {
+          big1 = resized_big1;
           COUNT3_BIG(big1->size, big1->size + 1);
           big1->size++;
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           *big_variable = big1;
         } /* if */
       } else {
-        big1 = normalize(big1);
+        *big_variable = normalize(big1);
       } /* if */
     } else {
-      if (!RESIZE_BIG(big1, big1->size, big2->size + 1)) {
+      resized_big1 = REALLOC_BIG(big1, big1->size, big2->size + 1);
+      if (resized_big1 == NULL) {
+        FREE_BIG(big1, big1->size);
+        *big_variable = NULL;
         raise_error(MEMORY_ERROR);
-        return;
       } else {
+        big1 = resized_big1;
         COUNT3_BIG(big1->size, big2->size + 1);
         big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
         pos = 0;
@@ -3783,8 +3853,7 @@ biginttype big2;
         carry += big1_sign + big2_sign;
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
         big1->size = pos + 1;
-        big1 = normalize(big1);
-        *big_variable = big1;
+        *big_variable = normalize(big1);
       } /* if */
     } /* if */
   } /* bigShrink */
@@ -3815,7 +3884,6 @@ biginttype big1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(result_size);
       if (!ALLOC_BIG(help_big, big1->size + 1)) {
         FREE_STRI(result, result_size);
         raise_error(MEMORY_ERROR);
@@ -3920,7 +3988,8 @@ biginttype big1;
       } while (pos < big1->size);
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          if (!RESIZE_BIG(result, pos, pos + 1)) {
+          result = REALLOC_BIG(result, pos, pos + 1);
+          if (result == NULL) {
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {
@@ -3930,7 +3999,8 @@ biginttype big1;
           } /* if */
         } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          if (!RESIZE_BIG(result, pos, pos - 1)) {
+          result = REALLOC_BIG(result, pos, pos - 1);
+          if (result == NULL) {
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {

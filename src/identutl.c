@@ -186,41 +186,6 @@ unsigned int length;
 
 #ifdef ANSI_C
 
-cstritype id_string (const_identtype actual_ident)
-#else
-
-cstritype id_string (actual_ident)
-identtype actual_ident;
-#endif
-
-  {
-    cstritype result;
-
-  /* id_string */
-#ifdef TRACE_IDENTUTL_x
-    printf("BEGIN id_string\n");
-#endif
-    if (actual_ident == NULL) {
-      result = " *NULL_IDENT* ";
-    } else if (actual_ident->name == NULL) {
-      result = " *NULL_NAME_IDENT* ";
-    } else if (actual_ident->name[0] == '\0') {
-      result = " *NULL_STRING_IDENT* ";
-    } else if (memchr((cstritype) actual_ident->name, '\0', 51) == NULL) {
-      result = " *GARBAGE_IDENT* ";
-    } else {
-      result = (cstritype) actual_ident->name;
-    } /* if */
-#ifdef TRACE_IDENTUTL_x
-    printf("END id_string\n");
-#endif
-    return(result);
-  } /* id_string */
-
-
-
-#ifdef ANSI_C
-
 void close_idents (const_progtype currentProg)
 #else
 

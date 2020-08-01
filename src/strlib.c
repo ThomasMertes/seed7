@@ -48,16 +48,6 @@
 #include "strlib.h"
 
 
-static char *cstri_escape_sequence[] = {
-    "\\000", "\\001", "\\002", "\\003", "\\004",
-    "\\005", "\\006", "\\007", "\\b",   "\\t",
-    "\\n",   "\\013", "\\f",   "\\r",   "\\016",
-    "\\017", "\\020", "\\021", "\\022", "\\023",
-    "\\024", "\\025", "\\026", "\\027", "\\030",
-    "\\031", "\\032", "\\033", "\\034", "\\035",
-    "\\036", "\\037"};
-
-
 
 #ifdef WIDE_CHAR_STRINGS
 #ifdef ANSI_C
@@ -136,7 +126,6 @@ memsizetype *used_max_position;
 
   /* add_stri_to_array */
     if (ALLOC_STRI(new_stri, length)) {
-      COUNT_STRI(length);
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems,
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -434,7 +423,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_STRI(result_size);
         result->size = result_size;
         memcpy(result->mem, str1->mem,
             (SIZE_TYPE) str1_size * sizeof(strelemtype));
@@ -512,64 +500,10 @@ objecttype str_clit (arguments)
 listtype arguments;
 #endif
 
-  {
-    register strelemtype character;
-    register memsizetype position;
-    stritype str1;
-    memsizetype length;
-    memsizetype pos;
-    SIZE_TYPE len;
-    stritype result;
-
-  /* str_clit */
+  { /* str_clit */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    length = str1->size;
-    if (!ALLOC_STRI(result, (memsizetype) (4 * length + 2))) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-    COUNT_STRI(4 * length + 2);
-    result->mem[0] = (strelemtype) '"';
-    pos = 1;
-    for (position = 0; position < length; position++) {
-      character = (int) str1->mem[position];
-      /* The following comparison uses 255 instead of '\377',       */
-      /* because chars might be signed and this can produce wrong   */
-      /* code when '\377' is sign extended.                         */
-      if (character > 255) {
-        result->mem[pos] = (strelemtype) '?';
-        pos++;
-      } else if (no_escape_char(character)) {
-        result->mem[pos] = (strelemtype) character;
-        pos++;
-      } else if (character < ' ') {
-        len = strlen(cstri_escape_sequence[character]);
-        stri_expand(&result->mem[pos],
-            cstri_escape_sequence[character], len);
-        pos = pos + len;
-      } else if (character <= '~') {
-        result->mem[pos] = (strelemtype) '\\';
-        result->mem[pos + 1] = (strelemtype) character;
-        pos = pos + 2;
-      } else if (character == '\177') {
-        stri_expand(&result->mem[pos],
-            "\\177", (SIZE_TYPE) 4);
-        pos = pos + 4;
-      } else {
-        result->mem[pos] = (strelemtype) character;
-        pos++;
-      } /* if */
-    } /* for */
-    result->mem[pos] = (strelemtype) '"';
-    result->size = pos + 1;
-    if (!RESIZE_STRI(result, (memsizetype) (4 * length + 2),
-        (memsizetype) (pos + 1))) {
-      FREE_STRI(result, (memsizetype) (4 * length + 2));
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      COUNT3_STRI(4 * length + 2, pos + 1);
-      return(bld_stri_temp(result));
-    } /* if */
+    return(bld_stri_temp(strCLit(
+        take_stri(arg_1(arguments)))));
   } /* str_clit */
 
 
@@ -653,7 +587,6 @@ listtype arguments;
         if (!ALLOC_STRI(new_str, new_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
-          COUNT_STRI(new_size);
           FREE_STRI(take_stri(str_to), take_stri(str_to)->size);
           str_to->value.strivalue = new_str;
           new_str->size = new_size;
@@ -697,7 +630,6 @@ listtype arguments;
         str_to->value.strivalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(new_size);
       str_to->value.strivalue = new_str;
       new_str->size = new_size;
       memcpy(new_str->mem, take_stri(str_from)->mem,
@@ -934,7 +866,6 @@ listtype arguments;
         if (!ALLOC_STRI(result, result_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
-        COUNT_STRI(result_size);
         result->size = result_size;
         memcpy(result->mem, str1->mem,
             (SIZE_TYPE) result_size * sizeof(strelemtype));
@@ -943,7 +874,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(bld_stri_temp(result));
@@ -1091,7 +1021,6 @@ listtype arguments;
     if (!ALLOC_STRI(result, length)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(length);
       result->size = length;
       for (pos = 0; pos < length; pos++) {
 #ifdef WIDE_CHAR_STRINGS
@@ -1137,7 +1066,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, f_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(f_size);
       result->size = f_size;
 #ifdef WIDE_CHAR_STRINGS
       {
@@ -1161,7 +1089,6 @@ listtype arguments;
         if (!ALLOC_STRI(result, length)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
-        COUNT_STRI(length);
         result->size = length;
         memcpy(result->mem, str1->mem,
             (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1242,7 +1169,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_STRI(result_size);
         result->size = result_size;
         if (len != 0) {
           if (len == 1) {
@@ -1353,7 +1279,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(result_size);
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
       /* when using the -Ozacegilt optimisation option in the   */
@@ -1367,7 +1292,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(bld_stri_temp(result));
@@ -1441,7 +1365,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, f_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(f_size);
       result->size = f_size;
       memcpy(result->mem, str1->mem,
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1466,7 +1389,6 @@ listtype arguments;
         if (!ALLOC_STRI(result, length)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
-        COUNT_STRI(length);
         result->size = length;
         memcpy(result->mem, str1->mem,
             (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1537,7 +1459,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, str1->size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_STRI(str1->size);
         result->size = str1->size;
         memcpy(result->mem, str1->mem,
             (SIZE_TYPE) str1->size * sizeof(strelemtype));
@@ -1587,7 +1508,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(result_size);
       memcpy(result->mem, &str1->mem[start - 1],
           (SIZE_TYPE) result_size * sizeof(strelemtype));
       result->size = result_size;
@@ -1595,7 +1515,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(bld_stri_temp(result));
@@ -1633,7 +1552,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(result_size);
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
       /* when using the -Ozacegilt optimisation option in the   */
@@ -1647,7 +1565,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(bld_stri_temp(result));
@@ -1687,7 +1604,6 @@ listtype arguments;
     if (!ALLOC_STRI(result, length)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(length);
       result->size = length;
       memcpy(result->mem, &str1->mem[start],
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1719,7 +1635,6 @@ listtype arguments;
     if (!ALLOC_STRI(result, length)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(length);
       result->size = length;
       for (pos = 0; pos < length; pos++) {
 #ifdef WIDE_CHAR_STRINGS
@@ -1761,7 +1676,6 @@ listtype arguments;
     if (!ALLOC_STRI(result, str1->size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(str1->size);
       result->size = str1->size;
       memcpy(result->mem, str1->mem,
           (SIZE_TYPE) (result->size * sizeof(strelemtype)));

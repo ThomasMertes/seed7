@@ -1,3 +1,27 @@
+20080203:
+- The compiler (comp.sd7) was improved to allow the compilation of itself.
+- The compiler now compiles the programs rever.sd7 and sl.sd7.
+- The scanner.s7i library was renamed to scanfile.s7i and the getName function was
+  added to it.
+- Three libraries dialog.s7i, scanstri.s7i and charsets.s7i were added.
+- The functions str, digits and parse of complex.s7i were changed to use the
+  -0.5000+0.8660i format.
+- The hasNext function, which allows an iterator like handling of files, was added to
+  the file interface.
+- Two new object librarys s7_comp and s7_data were added to support the compiler.
+- The following files were added: act_comp.c, act_comp.h prg_comp.c, prg_comp.h,
+  ref_data.c, ref_data.h, rfl_data.c, rfl_data.h typ_data.c, typ_data.h, datautl.c and
+  datautl.h .
+- The following primitive actions were added or improved: CMD_FILETYPE, FIL_HAS_NEXT,
+  FIL_PRINT, FIL_VALUE, REF_ARRMAXPOS, REF_CAT_PARSE, REF_CAT_STR, RFL_NOT_ELEM
+- The prototypes of several *.h files were improved to contain parameter names.
+- The category of an object returned by refCategory is now an integer/enumeration like
+  type instead of a string.
+- The bigAddTemp and bigSbtrTemp functions were added to allow optimized bigInteger
+  operations in the compiler.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The Exit function of the castle.sd7 example program was improved.
+
 20080120:
 - Optimisations for the string functions =, <>, stri[num], &, upper, lower, pos, rpos, split
   and for the array indexing were added to the compiler (comp.sd7).

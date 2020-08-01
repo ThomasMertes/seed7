@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -35,10 +35,10 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
+#include "datautl.h"
 #include "syvarutl.h"
 #include "striutl.h"
 #include "object.h"
-#include "identutl.h"
 #include "typeutl.h"
 #include "executl.h"
 #include "runerr.h"
@@ -385,7 +385,8 @@ listtype arguments;
 
   { /* typ_hashcode */
     isit_type(arg_1(arguments));
-    return(bld_int_temp((inttype) take_type(arg_1(arguments))));
+    return(bld_int_temp((inttype)
+        (((unsigned int) take_type(arg_1(arguments))) >> 6)));
   } /* typ_hashcode */
 
 
@@ -714,9 +715,8 @@ listtype arguments;
     if (!ALLOC_STRI(result, len)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(len);
       result->size = len;
-      stri_expand(result->mem, stri, (SIZE_TYPE) len);
+      cstri_expand(result->mem, stri, (SIZE_TYPE) len);
       return(bld_stri_temp(result));
     } /* if */
   } /* typ_str */

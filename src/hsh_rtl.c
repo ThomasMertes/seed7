@@ -54,6 +54,8 @@
 #define EXTERN
 #include "hsh_rtl.h"
 
+#undef TRACE_HSH_RTL
+
 
 #define TABLE_BITS 10
 #define TABLE_SIZE(bits) (1 << (bits))
@@ -495,6 +497,10 @@ comparetype cmp_func;
     int cmp;
 
   /* hshContains */
+#ifdef TRACE_HSH_RTL
+    printf("BEGIN hshContains(%lu, %lu, %lu)\n",
+        (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode);
+#endif
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
@@ -508,6 +514,11 @@ comparetype cmp_func;
         hashelem = hashelem->next_greater;
       } /* if */
     } /* while */
+#ifdef TRACE_HSH_RTL
+    printf("END hshContains(%lu, %lu, %lu) ==> %d\n",
+        (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode,
+        result_hashelem != NULL);
+#endif
     return(result_hashelem != NULL);
   } /* hshContains */
 
@@ -748,6 +759,10 @@ comparetype cmp_func;
     rtlObjecttype *result;
 
   /* hshIdxAddr */
+#ifdef TRACE_HSH_RTL
+    printf("BEGIN hshIdxAddr(%lu, %lu, %lu)\n",
+        (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode);
+#endif
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
@@ -765,10 +780,88 @@ comparetype cmp_func;
       result = &result_hashelem->data;
     } else {
       raise_error(RANGE_ERROR);
-      return(0);
+      result = NULL;
     } /* if */
+#ifdef TRACE_HSH_RTL
+    printf("END hshIdxAddr(%lu, %lu, %lu) ==> %lu (%lu)\n",
+	(unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode,
+        result != NULL ? *((rtlGenerictype *)result) : 0);
+#endif
     return(result);
   } /* hshIdxAddr */
+
+
+
+#ifdef ANSI_C
+
+rtlGenerictype hshIdxWithDefault (const rtlHashtype hash1, const rtlGenerictype key,
+    const rtlGenerictype data, inttype hashcode, comparetype cmp_func,
+    createfunctype key_create_func, createfunctype data_create_func)
+#else
+
+rtlGenerictype hshIdxWithDefault (hash1, key, data, hashcode, cmp_func,
+    key_create_func, data_create_func)
+rtlHashtype hash1;
+rtlGenerictype key;
+rtlGenerictype data;
+inttype hashcode;
+comparetype cmp_func;
+createfunctype key_create_func;
+createfunctype data_create_func;
+#endif
+
+  {
+    rtlHelemtype hashelem;
+    rtlHelemtype result_hashelem;
+    int cmp;
+    errinfotype err_info = OKAY_NO_ERROR;
+    rtlGenerictype result;
+
+  /* hshIdxWithDefault */
+    hashelem = hash1->table[hashcode & hash1->mask];
+    if (hashelem == NULL) {
+      result_hashelem = new_helem(key, data,
+          key_create_func, data_create_func, &err_info);
+      hash1->table[hashcode & hash1->mask] = result_hashelem;
+      hash1->size++;
+    } else {
+      do {
+        cmp = cmp_func(hashelem->key.value.genericvalue, key);
+        if (cmp < 0) {
+          if (hashelem->next_less == NULL) {
+            result_hashelem = new_helem(key, data,
+                key_create_func, data_create_func, &err_info);
+            hashelem->next_less = result_hashelem;
+            hash1->size++;
+            hashelem = NULL;
+          } else {
+            hashelem = hashelem->next_less;
+          } /* if */
+        } else if (cmp == 0) {
+          result_hashelem = hashelem;
+          hashelem = NULL;
+        } else {
+          if (hashelem->next_greater == NULL) {
+            result_hashelem = new_helem(key, data,
+                key_create_func, data_create_func, &err_info);
+            hashelem->next_greater = result_hashelem;
+            hash1->size++;
+            hashelem = NULL;
+          } else {
+            hashelem = hashelem->next_greater;
+          } /* if */
+        } /* if */
+      } while (hashelem != NULL);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      hash1->size--;
+      raise_error(MEMORY_ERROR);
+      result = 0;
+    } else {
+      result = result_hashelem->data.value.genericvalue;
+    } /* if */
+    return(result);
+  } /* hshIdxWithDefault */
 
 
 
@@ -798,6 +891,11 @@ copyfunctype data_copy_func;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* hshIncl */
+#ifdef TRACE_HSH_RTL
+    printf("BEGIN hshIncl(%lu, %lu, %lu, %lu)\n",
+        (unsigned long) hash1, (unsigned long) key,
+        (unsigned long) data, (unsigned long) hashcode);
+#endif
     hashelem = hash1->table[hashcode & hash1->mask];
     if (hashelem == NULL) {
       hash1->table[hashcode & hash1->mask] = new_helem(key, data,
@@ -833,8 +931,12 @@ copyfunctype data_copy_func;
     if (err_info != OKAY_NO_ERROR) {
       hash1->size--;
       raise_error(MEMORY_ERROR);
-      return;
     } /* if */
+#ifdef TRACE_HSH_RTL
+    printf("END hshIncl(%lu, %lu, %lu, %lu)\n",
+        (unsigned long) hash1, (unsigned long) key,
+        (unsigned long) data, (unsigned long) hashcode);
+#endif
   } /* hshIncl */
 
 

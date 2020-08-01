@@ -380,7 +380,7 @@ inttype stop;
       memcpy(arr1->arr, &arr1->arr[stop_idx + 1],
           (SIZE_TYPE) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-      if (resized_arr1 = NULL) {
+      if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
       } else {
         arr1 = resized_arr1;
@@ -520,7 +520,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
   { /* arrSort */
     /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
-    rtl_qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position - 1], cmp_func);
+    rtl_qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position], cmp_func);
     return(arr1);
   } /* arrSort */
 

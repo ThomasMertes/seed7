@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -707,6 +707,36 @@ listtype arguments;
     } /* if */
     return(result);
   } /* rfl_ne */
+
+
+
+#ifdef ANSI_C
+
+objecttype rfl_not_elem (listtype arguments)
+#else
+
+objecttype rfl_not_elem (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype searched_object;
+    listtype list_element;
+
+  /* rfl_not_elem */
+    isit_reference(arg_1(arguments));
+    isit_reflist(arg_3(arguments));
+    searched_object = take_reference(arg_1(arguments));
+    list_element = take_reflist(arg_3(arguments));
+    while (list_element != NULL && list_element->obj != searched_object) {
+      list_element = list_element->next;
+    } /* while */
+    if (list_element == NULL) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* rfl_not_elem */
 
 
 

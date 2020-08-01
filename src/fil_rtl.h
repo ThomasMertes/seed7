@@ -31,19 +31,21 @@
 
 #ifdef ANSI_C
 
-biginttype filBigLng (filetype);
-void filBigSeek (filetype, biginttype);
-biginttype filBigTell (filetype);
-stritype filGets (filetype, inttype);
-stritype filLineRead (filetype, chartype *);
-stritype filLit (filetype);
-inttype filLng (filetype);
-filetype filOpen (stritype, stritype);
-filetype filPopen (stritype, stritype);
-void filSeek (filetype, inttype);
-inttype filTell (filetype);
-stritype filWordRead (filetype, chartype *);
-void filWrite (filetype, stritype);
+biginttype filBigLng (filetype aFile);
+void filBigSeek (filetype aFile, biginttype big_position);
+biginttype filBigTell (filetype aFile);
+stritype filGets (filetype aFile, inttype length);
+booltype filHasNext (filetype aFile);
+stritype filLineRead (filetype aFile, chartype *termination_char);
+stritype filLit (filetype aFile);
+inttype filLng (filetype aFile);
+filetype filOpen (stritype file_name, stritype file_mode);
+filetype filPopen (stritype command, stritype file_mode);
+void filPrint (stritype stri);
+void filSeek (filetype aFile, inttype file_position);
+inttype filTell (filetype aFile);
+stritype filWordRead (filetype aFile, chartype *termination_char);
+void filWrite (filetype aFile, stritype stri);
 
 #else
 
@@ -51,11 +53,13 @@ biginttype filBigLng ();
 void filBigSeek ();
 biginttype filBigTell ();
 stritype filGets ();
+booltype filHasNext ();
 stritype filLineRead ();
 stritype filLit ();
 inttype filLng ();
 filetype filOpen ();
 filetype filPopen ();
+void filPrint ();
 void filSeek ();
 inttype filTell ();
 stritype filWordRead ();

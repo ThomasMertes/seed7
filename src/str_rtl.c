@@ -55,6 +55,15 @@ static char *stri_escape_sequence[] = {
     "\\25\\", "\\26\\", "\\e",    "\\28\\", "\\29\\",
     "\\30\\", "\\31\\"};
 
+static char *cstri_escape_sequence[] = {
+    "\\000", "\\001", "\\002", "\\003", "\\004",
+    "\\005", "\\006", "\\007", "\\b",   "\\t",
+    "\\n",   "\\013", "\\f",   "\\r",   "\\016",
+    "\\017", "\\020", "\\021", "\\022", "\\023",
+    "\\024", "\\025", "\\026", "\\027", "\\030",
+    "\\031", "\\032", "\\033", "\\034", "\\035",
+    "\\036", "\\037"};
+
 
 
 #ifdef WIDE_CHAR_STRINGS
@@ -157,7 +166,6 @@ memsizetype *used_max_position;
 
   /* add_stri_to_array */
     if (ALLOC_STRI(new_stri, length)) {
-      COUNT_STRI(length);
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems,
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -208,7 +216,8 @@ stritype stri_from;
     if (stri_from->size != 0) {
       stri_dest = *stri_to;
       new_size = stri_dest->size + stri_from->size;
-      if (!RESIZE_STRI(stri_dest, stri_dest->size, new_size)) {
+      stri_dest = REALLOC_STRI(stri_dest, stri_dest->size, new_size);
+      if (stri_dest == NULL) {
         raise_error(MEMORY_ERROR);
         return;
       } /* if */
@@ -438,10 +447,9 @@ chartype delimiter;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-stritype strCLit (stritype str1)
+stritype strCLit (const const_stritype str1)
 #else
 
 stritype strCLit (str1)
@@ -454,6 +462,8 @@ stritype str1;
     memsizetype length;
     memsizetype pos;
     SIZE_TYPE len;
+    char buffer[25];
+    stritype resized_result;
     stritype result;
 
   /* strCLit */
@@ -462,7 +472,6 @@ stritype str1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } /* if */
-    COUNT_STRI(4 * length + 2);
     result->mem[0] = (strelemtype) '"';
     pos = 1;
     for (position = 0; position < length; position++) {
@@ -470,43 +479,43 @@ stritype str1;
       /* The following comparison uses 255 instead of '\377',       */
       /* because chars might be signed and this can produce wrong   */
       /* code when '\377' is sign extended.                         */
-      if (character > 255) {
-        result->mem[pos] = (strelemtype) '?';
-        pos++;
-      } else if (no_escape_char(character)) {
-        result->mem[pos] = (strelemtype) character;
-        pos++;
-      } else if (character < ' ') {
+      if (character < ' ') {
         len = strlen(cstri_escape_sequence[character]);
-        stri_expand(&result->mem[pos],
+        cstri_expand(&result->mem[pos],
             cstri_escape_sequence[character], len);
         pos = pos + len;
-      } else if (character <= '~') {
+      } else if (character == '\\' || character == '\"') {
         result->mem[pos] = (strelemtype) '\\';
         result->mem[pos + 1] = (strelemtype) character;
         pos = pos + 2;
-      } else if (character == '\177') {
-        stri_expand(&result->mem[pos],
-            "\\177", (SIZE_TYPE) 4);
-        pos = pos + 4;
-      } else {
+      } else if (character < 127) {
         result->mem[pos] = (strelemtype) character;
         pos++;
+      } else if (character < 256) {
+        sprintf(buffer, "\\%lo", character);
+        len = strlen(buffer);
+        cstri_expand(&result->mem[pos], buffer, len);
+        pos = pos + len;
+      } else {
+        FREE_STRI(result, (memsizetype) (4 * length + 2));
+        raise_error(RANGE_ERROR);
+        return(NULL);
       } /* if */
     } /* for */
     result->mem[pos] = (strelemtype) '"';
     result->size = pos + 1;
-    if (!RESIZE_STRI(result, (memsizetype) (4 * length + 2),
-        (memsizetype) (pos + 1))) {
+    resized_result = REALLOC_STRI(result,
+        (memsizetype) (4 * length + 2), (memsizetype) (pos + 1));
+    if (resized_result == NULL) {
       FREE_STRI(result, (memsizetype) (4 * length + 2));
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
+      result = resized_result;
       COUNT3_STRI(4 * length + 2, pos + 1);
       return(result);
     } /* if */
   } /* strCLit */
-#endif
 
 
 
@@ -572,7 +581,6 @@ stritype stri2;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(result_size);
       result->size = result_size;
       memcpy(result->mem, stri1->mem,
           (SIZE_TYPE) stri1->size * sizeof(strelemtype));
@@ -602,14 +610,17 @@ stritype stri2;
 
   {
     memsizetype result_size;
+    stritype resized_stri1;
 
   /* strConcatTemp */
     result_size = stri1->size + stri2->size;
-    if (!RESIZE_STRI(stri1, stri1->size, result_size)) {
+    resized_stri1 = REALLOC_STRI(stri1, stri1->size, result_size);
+    if (resized_stri1 == NULL) {
       FREE_STRI(stri1, stri1->size);
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
+      stri1 = resized_stri1;
       COUNT3_STRI(stri1->size, result_size);
       memcpy(&stri1->mem[stri1->size], stri2->mem,
           (SIZE_TYPE) stri2->size * sizeof(strelemtype));
@@ -644,7 +655,6 @@ stritype stri_from;
         raise_error(MEMORY_ERROR);
         return;
       } else {
-        COUNT_STRI(new_size);
         FREE_STRI(*stri_to, (*stri_to)->size);
         stri_dest->size = new_size;
         *stri_to = stri_dest;
@@ -674,10 +684,11 @@ stritype stri_from;
     if (!ALLOC_STRI(result, new_size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_STRI(new_size);
       result->size = new_size;
-      memcpy(result->mem, stri_from->mem,
-          (SIZE_TYPE) new_size * sizeof(strelemtype));
+      if (new_size != 0) {
+        memcpy(result->mem, stri_from->mem,
+            (SIZE_TYPE) new_size * sizeof(strelemtype));
+      } /* if */
     } /* if */
     return(result);
   } /* strCreate */
@@ -716,7 +727,6 @@ stritype strEmpty ()
     if (!ALLOC_STRI(result, 0)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(result);
@@ -834,7 +844,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(result_size);
       result->size = result_size;
       memcpy(result->mem, stri->mem,
           (SIZE_TYPE) result_size * sizeof(strelemtype));
@@ -843,7 +852,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(result);
@@ -946,7 +954,8 @@ stritype stri;
     memsizetype length;
     memsizetype pos;
     SIZE_TYPE len;
-    uchartype buffer[25];
+    char buffer[25];
+    stritype resized_result;
     stritype result;
 
   /* strLit */
@@ -955,21 +964,20 @@ stritype stri;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } /* if */
-    COUNT_STRI(12 * length + 2);
     result->mem[0] = (strelemtype) '"';
     pos = 1;
     for (position = 0; position < length; position++) {
       character = (strelemtype) stri->mem[position];
       if (character < ' ') {
         len = strlen(stri_escape_sequence[character]);
-        stri_expand(&result->mem[pos],
+        cstri_expand(&result->mem[pos],
             stri_escape_sequence[character], len);
         pos = pos + len;
       } else if ((character >= 128 && character < 159) ||
           character >= 255) {
         sprintf(buffer, "\\%lu\\", character);
         len = strlen(buffer);
-        stri_expand(&result->mem[pos], buffer, len);
+        cstri_expand(&result->mem[pos], buffer, len);
         pos = pos + len;
       } else if (character == '\\' || character == '\"') {
         result->mem[pos] = (strelemtype) '\\';
@@ -982,12 +990,14 @@ stritype stri;
     } /* for */
     result->mem[pos] = (strelemtype) '"';
     result->size = pos + 1;
-    if (!RESIZE_STRI(result, (memsizetype) (5 * length + 2),
-        (memsizetype) (pos + 1))) {
-      FREE_STRI(result, (memsizetype) (5 * length + 2));
+    resized_result = REALLOC_STRI(result,
+        (memsizetype) (12 * length + 2), (memsizetype) (pos + 1));
+    if (resized_result == NULL) {
+      FREE_STRI(result, (memsizetype) (12 * length + 2));
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
+      result = resized_result;
       COUNT3_STRI(5 * length + 2, pos + 1);
       return(result);
     } /* if */
@@ -1015,7 +1025,6 @@ stritype stri;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(length);
       result->size = length;
       for (pos = 0; pos < length; pos++) {
 #ifdef WIDE_CHAR_STRINGS
@@ -1086,7 +1095,6 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(f_size);
       result->size = f_size;
 #ifdef WIDE_CHAR_STRINGS
       {
@@ -1107,7 +1115,6 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(length);
       result->size = length;
       memcpy(result->mem, stri->mem,
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1175,7 +1182,6 @@ inttype factor;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_STRI(result_size);
         result->size = result_size;
         if (len != 0) {
           if (len == 1) {
@@ -1277,7 +1283,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(result_size);
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
       /* when using the -Ozacegilt optimisation option in the   */
@@ -1292,7 +1297,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(result);
@@ -1367,7 +1371,6 @@ stritype replace;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } /* if */
-    COUNT_STRI(guessed_result_size);
     copy_start = main_stri->mem;
     result_end = result->mem;
     if (searched_size != 0 && searched_size <= main_size) {
@@ -1435,7 +1438,6 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(f_size);
       result->size = f_size;
       memcpy(result->mem, stri->mem,
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1457,7 +1459,6 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(length);
       result->size = length;
       memcpy(result->mem, stri->mem,
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1738,7 +1739,6 @@ inttype len;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(result_size);
       memcpy(result->mem, &stri->mem[start - 1],
           (SIZE_TYPE) result_size * sizeof(strelemtype));
       result->size = result_size;
@@ -1747,7 +1747,6 @@ inttype len;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(result);
@@ -1781,7 +1780,6 @@ inttype start;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(result_size);
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
       /* when using the -Ozacegilt optimisation option in the   */
@@ -1796,7 +1794,6 @@ inttype start;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_STRI(0);
       result->size = 0;
     } /* if */
     return(result);
@@ -1834,7 +1831,6 @@ stritype stri;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(length);
       result->size = length;
       memcpy(result->mem, &stri->mem[start],
           (SIZE_TYPE) length * sizeof(strelemtype));
@@ -1864,7 +1860,6 @@ stritype stri;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_STRI(length);
       result->size = length;
       for (pos = 0; pos < length; pos++) {
 #ifdef WIDE_CHAR_STRINGS

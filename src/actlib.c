@@ -149,9 +149,8 @@ listtype arguments;
     if (!ALLOC_STRI(result, len)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(len);
       result->size = len;
-      stri_expand(result->mem, stri, (SIZE_TYPE) len);
+      cstri_expand(result->mem, stri, (SIZE_TYPE) len);
       return(bld_stri_temp(result));
     } /* if */
   } /* act_str */

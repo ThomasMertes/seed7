@@ -31,11 +31,11 @@
 
 #include "common.h"
 #include "data.h"
+#include "flistutl.h"
+#include "listutl.h"
 #include "syvarutl.h"
 #include "traceutl.h"
-#include "flistutl.h"
 #include "infile.h"
-#include "listutl.h"
 #include "scanner.h"
 #include "symbol.h"
 #include "object.h"

@@ -719,6 +719,7 @@ const proc: main is func
     check_string;
     check_array;
 
+(*
     block
       obj := ref_list.EMPTY[0];
       writeln(" ***** ref_list.EMPTY[0] did not raise RANGE_ERROR");
@@ -739,6 +740,7 @@ const proc: main is func
     exception
       catch RANGE_ERROR: writeln("action \"asdf\" raises RANGE_ERROR");
     end block;
+*)
 
     block
       seek(STD_IN, 0);

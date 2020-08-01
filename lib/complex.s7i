@@ -214,11 +214,11 @@ const func string: str (in complex: num) is func
   result
     var string: result is "";
   begin
-    result := str(num.im);
+    result := str(num.im) <& "i";
     if result[1] = '-' then
-      result := str(num.re) & "i" &       result;
+      result := str(num.re) &       result;
     else
-      result := str(num.re) & "i" & "+" & result;
+      result := str(num.re) & "+" & result;
     end if;
   end func;
 
@@ -230,12 +230,17 @@ const func complex: (attr complex) parse (in string: stri) is func
   result
     var complex: result is complex.value;
   local
-    var integer: iPos is 0;
+    var integer: pos is 0;
+    var integer: pos2 is 0;
   begin
-    iPos := pos(stri, 'i');
-    if iPos <> 0 then
-      result.re := float parse (stri[.. pred(iPos)]);
-      result.im := float parse (stri[succ(iPos) ..]);
+    pos := rpos(stri, '+');
+    pos2 := rpos(stri, '-');
+    if pos2 > pos then
+      pos := pos2;
+    end if;
+    if pos <> 0 and stri[length(stri)] = 'i' then
+      result.re := float parse (stri[.. pred(pos)]);
+      result.im := float parse (stri[pos .. pred(length(stri))]);
     else
       raise RANGE_ERROR;
     end if;
@@ -251,11 +256,11 @@ const func string: (in complex: num) digits (in integer: numDigits) is func
   result
     var string: result is "";
   begin
-    result := num.im digits numDigits;
+    result := num.im digits numDigits <& "i";
     if result[1] = '-' then
-      result := num.re digits numDigits <& "i" <&        result;
+      result := num.re digits numDigits <&        result;
     else
-      result := num.re digits numDigits <& "i" <& "+" <& result;
+      result := num.re digits numDigits <& "+" <& result;
     end if;
   end func;
 

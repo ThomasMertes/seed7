@@ -236,6 +236,7 @@ chartype actual_char;
     int number;
     int len;
     int key_number;
+    chartype result;
 
   /* read_f_key */
     if (last_partial_time != 0) {
@@ -361,24 +362,25 @@ chartype actual_char;
       pos++;
     } while (partial_match != 0 && pos < 100);
     if (exact_match == 1) {
-      return(key_code[key_number]);
+      result = key_code[key_number];
     } else {
       if (pos == 2 || pos == 3) {
         if (utf8_mode) {
-          return(read_utf8_key(in_buffer, pos - 1));
+          result = read_utf8_key(in_buffer, pos - 1);
         } else {
           if (pos == 2) {
-            return(actual_char);
-          } else if (pos == 3) {
+            result = actual_char;
+          } else { /* if (pos == 3) { */
             last_key = in_buffer[1];
             key_buffer_filled = TRUE;
-            return(actual_char);
+            result = actual_char;
           } /* if */
         } /* if */
       } else {
-        return(K_UNDEF);
+        result = K_UNDEF;
       } /* if */
     } /* if */
+    return(result);
   } /* read_f_key */
 
 

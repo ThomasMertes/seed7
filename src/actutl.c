@@ -50,6 +50,9 @@
 #undef USE_BSEARCH
 
 
+static primacttype *action_ptr_table = NULL;
+
+
 
 #ifdef USE_BSEARCH
 #ifdef ANSI_C
@@ -77,6 +80,40 @@ char *strg2;
     return(strcmp(strg1, ((primacttype) strg2)->name));
   } /* act_strcmp */
 #endif
+
+
+
+#ifdef ANSI_C
+
+#ifdef USE_CDECL
+static int _cdecl action_ptr_compare (char *act_ptr1, char *act_ptr2)
+#else
+static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
+#endif
+#else
+
+static int action_ptr_compare (act_ptr1, act_ptr2)
+char *act_ptr1;
+char *act_ptr2;
+#endif
+
+  { /* action_ptr_compare */
+#ifdef TRACE_ACTUTIL
+    printf("BEGIN action_ptr_compare\n");
+#endif
+    if (((unsigned long) (*((primacttype *) act_ptr1))->action) <
+        ((unsigned long) (*((primacttype *) act_ptr2))->action)) {
+      return -1;
+    } else if (((unsigned long) (*((primacttype *) act_ptr1))->action) ==
+               ((unsigned long) (*((primacttype *) act_ptr2))->action)) {
+      return 0;
+    } else {
+      return 1;
+    } /* if */
+#ifdef TRACE_ACTUTIL
+    printf("END action_ptr_compare\n");
+#endif
+  } /* action_ptr_compare */
 
 
 
@@ -187,7 +224,7 @@ acttype *action_found;
 
 #ifdef ANSI_C
 
-primacttype get_primact (register acttype action_searched)
+primacttype get_primact (acttype action_searched)
 #else
 
 primacttype get_primact (action_searched)
@@ -195,21 +232,52 @@ register acttype action_searched;
 #endif
 
   {
-    register primacttype actual_primitive;
+    int number;
+    int lower;
+    int upper;
+    int middle;
+    primacttype result;
 
   /* get_primact */
 #ifdef TRACE_ACTUTIL
     printf("BEGIN get_primact\n");
 #endif
-    actual_primitive = &act_table.primitive[act_table.size - 1];
-    while (actual_primitive->action != action_searched &&
-        actual_primitive != &act_table.primitive[0]) {
-      actual_primitive--;
-    } /* while */
+    if (action_ptr_table == NULL) {
+      if (!ALLOC_TABLE(action_ptr_table, primacttype, act_table.size)) {
+        action_searched = act_table.primitive[0].action;
+      } else {
+        for (number = 0; number < act_table.size; number++) {
+          action_ptr_table[number] = &act_table.primitive[number];
+        } /* for */
+        qsort(action_ptr_table, act_table.size, sizeof(primacttype),
+            action_ptr_compare);
+      } /* if */
+    } /* if */
+
+    result = &act_table.primitive[0];
+    if (action_searched != act_table.primitive[0].action) {
+      lower = -1;
+      upper = act_table.size;
+      while (lower < upper - 1) {
+        middle = (lower + upper) >> 1;
+        /* printf("%d %d %d >%lu< >%lu<\n", lower, middle, upper,
+           action_ptr_table[middle]->action, action_searched); */
+
+        if (((unsigned long) action_ptr_table[middle]->action) <
+            ((unsigned long) action_searched)) {
+          lower = middle;
+        } else if (action_ptr_table[middle]->action == action_searched) {
+          lower = upper - 1;
+          result = action_ptr_table[middle];
+        } else {
+          upper = middle;
+        } /* if */
+      } /* while */
+    } /* if */
 #ifdef TRACE_ACTUTIL
     printf("END get_primact\n");
 #endif
-    return(actual_primitive);
+    return(result);
   } /* get_primact */
 
 

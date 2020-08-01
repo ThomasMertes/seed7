@@ -207,6 +207,10 @@ const func boolean: eof (in stritext: aStritext) is
   return aStritext.line > length(aStritext.content);
 
 
+const func boolean: hasNext (in stritext: aStritext) is
+  return aStritext.line <= length(aStritext.content);
+
+
 const func integer: length (in stritext: aStritext) is func
   result
     var integer: result is 0;

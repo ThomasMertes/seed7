@@ -44,6 +44,58 @@
 
 
 
+#ifdef WITH_STRI_CAPACITY
+#ifdef ANSI_C
+
+stritype growStri (stritype stri, memsizetype len)
+#else
+
+stritype growStri (stri, len)
+stritype stri;
+memsizetype len;
+#endif
+
+  {
+    memsizetype new_len;
+    stritype result;
+
+  /* growStri */
+    if (2 * stri->capacity >= len) {
+      new_len = 2 * stri->capacity;
+    } else {
+      new_len = 2 * len;
+    } /* if */
+    result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
+    result->capacity = new_len;
+    return(result);
+  } /* growStri */
+
+
+
+#ifdef ANSI_C
+
+stritype shrinkStri (stritype stri, memsizetype len)
+#else
+
+stritype shrinkStri (stri, len)
+stritype stri;
+memsizetype len;
+#endif
+
+  {
+    memsizetype new_len;
+    stritype result;
+
+  /* shrinkStri */
+    new_len = 2 * len;
+    result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
+    result->capacity = new_len;
+    return(result);
+  } /* shrinkStri */
+#endif
+
+
+
 #ifdef DO_HEAP_STATISTIC
 #ifdef ANSI_C
 
@@ -195,77 +247,4 @@ void rtlHeapStatistic ()
     printf("END heap_statistic\n");
 #endif
   } /* rtlHeapStatistic */
-#endif
-
-
-
-#ifdef DO_HEAP_CHECK
-#ifdef ANSI_C
-
-void check_heap (long sizediff, char *file_name, unsigned int line_num)
-#else
-
-void check_heap (sizediff)
-long sizediff;
-#endif
-
-  {
-    memsizetype bytes_used;
-
-  /* check_heap */
-#ifdef TRACE_HEAPUTIL
-    printf("BEGIN check_heap\n");
-#endif
-    bytes_used =
-        ((memsizetype) count.stri) * SIZ_STRI(0) +
-        count.stri_elems * sizeof(strelemtype) +
-        ((memsizetype) count.bstri) * SIZ_BSTRI(0) +
-        count.bstri_elems * sizeof(uchartype) +
-        ((memsizetype) count.array) * SIZ_ARR(0) +
-        count.arr_elems * SIZ_REC(objectrecord) +
-        ((memsizetype) count.hash) * SIZ_HSH(0) +
-        count.hsh_elems * SIZ_REC(helemtype) +
-        ((memsizetype) count.helem) * SIZ_REC(helemrecord) +
-        ((memsizetype) count.set) * SIZ_SET(0) +
-        count.set_elems * SIZ_REC(bitsettype) +
-        ((memsizetype) count.stru) * SIZ_SCT(0) +
-        count.sct_elems * SIZ_REC(objectrecord) +
-        ((memsizetype) count.big) * SIZ_BIG(0) +
-        count.big_elems * SIZ_REC(bigdigittype) +
-        ((memsizetype) count.ident) * SIZ_REC(identrecord) +
-        count.idt_bytes + ((memsizetype) count.idt) +
-        ((memsizetype) count.entity)         * SIZ_REC(entityrecord) +
-        ((memsizetype) count.property)       * SIZ_REC(propertyrecord) +
-        ((memsizetype) count.object)         * SIZ_REC(objectrecord) +
-        ((memsizetype) count.node)           * SIZ_REC(noderecord) +
-        ((memsizetype) count.token)          * SIZ_REC(tokenrecord) +
-        ((memsizetype) count.owner)          * SIZ_REC(ownerrecord) +
-        ((memsizetype) count.stack)          * SIZ_REC(stackrecord) +
-        ((memsizetype) count.typelist_elems) * SIZ_REC(typelistrecord) +
-        ((memsizetype) count.type)           * SIZ_REC(typerecord) +
-        ((memsizetype) count.list_elem)      * SIZ_REC(listrecord) +
-        ((memsizetype) count.block)          * SIZ_REC(blockrecord) +
-        ((memsizetype) count.loclist)        * SIZ_REC(loclistrecord) +
-        ((memsizetype) count.infil)          * SIZ_REC(infilrecord) +
-        ((memsizetype) count.prog)           * SIZ_REC(progrecord) +
-        ((memsizetype) count.win)            * count.size_winrecord +
-        count.fnam_bytes + ((memsizetype) count.fnam) +
-        count.symb_bytes + ((memsizetype) count.symb) +
-        count.byte;
-    if (bytes_used != hs) {
-      printf("*** %s(%u)\n%lu %lu %ld %ld \n",
-          file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
-/*  } else {
-      printf("\n%lu %ld %d \n", hs, sizediff, in_file.line);
-*/  } /* if */
-    /* if (sizediff > 0) {
-      printf("\nalloc(%ld)\n", sizediff);
-    } else {
-      printf("\nfree(%ld)\n", -sizediff);
-    } if */
-/*  show_statistic(); */
-#ifdef TRACE_HEAPUTIL
-    printf("END check_heap\n");
-#endif
-  } /* check_heap */
 #endif

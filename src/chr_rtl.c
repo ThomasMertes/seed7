@@ -141,7 +141,6 @@ chartype ch;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_STRI(1);
         result->size = 1;
         result->mem[0] = (strelemtype) ch;
         return(result);

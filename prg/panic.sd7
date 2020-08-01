@@ -2546,7 +2546,7 @@ const proc: process (inout playerObj: playerObject) is func
       playerObject.column_direction := 0;
       playerObject.falling := TRUE;
       playerObject.face_direction := 0;
-      playerObject.pixmap := player_falling_pixmap
+      playerObject.pixmap := player_falling_pixmap;
     else
       process_command(playerObject);
       stop_at_hole(playerObject);

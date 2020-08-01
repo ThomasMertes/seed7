@@ -61,7 +61,7 @@ typedef int booltype;
 #undef  DO_HEAP_LOG
 #undef  DO_HEAP_CHECK
 #define WIDE_CHAR_STRINGS
-#undef  MMAP_ABLE_STRI
+#undef  WITH_STRI_CAPACITY
 #define BIGDIGIT_SIZE 16
 
 
@@ -172,12 +172,10 @@ typedef struct setstruct {
 
 typedef struct stristruct {
     memsizetype size;
-#ifdef MMAP_ABLE_STRI
-    strelemtype *mem;
-    strelemtype mem1[1];
-#else
-    strelemtype mem[1];
+#ifdef WITH_STRI_CAPACITY
+    memsizetype capacity;
 #endif
+    strelemtype mem[1];
   } strirecord;
 
 typedef struct bstristruct {

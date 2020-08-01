@@ -43,6 +43,8 @@ void hshExcl (const rtlHashtype, const rtlGenerictype, inttype,
               comparetype, destrfunctype, destrfunctype);
 rtlGenerictype hshIdx (const const_rtlHashtype, const rtlGenerictype, inttype, comparetype);
 rtlObjecttype *hshIdxAddr (const const_rtlHashtype, const rtlGenerictype, inttype, comparetype);
+rtlGenerictype hshIdxWithDefault (const rtlHashtype, const rtlGenerictype, const rtlGenerictype,
+                                  inttype, comparetype, createfunctype, createfunctype);
 void hshIncl (const rtlHashtype, const rtlGenerictype, const rtlGenerictype , inttype,
 	      comparetype, createfunctype, createfunctype, copyfunctype);
 rtlArraytype hshKeys (const const_rtlHashtype, createfunctype, destrfunctype);

@@ -240,7 +240,6 @@ cstritype stri;
     result = FALSE;
     LEN = (memsizetype) strlen(stri);
     if (ALLOC_STRI(out_stri, LEN)) {
-      COUNT_STRI(LEN);
       out_stri->size = LEN;
       memcpy(out_stri->mem, stri, (SIZE_TYPE) LEN);
       result = do_wrstri(outfile, out_stri);

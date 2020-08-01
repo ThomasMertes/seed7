@@ -238,22 +238,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype chr_iconv (listtype arguments)
-#else
-
-objecttype chr_iconv (arguments)
-listtype arguments;
-#endif
-
-  { /* chr_iconv */
-    isit_int(arg_3(arguments));
-    return(bld_char_temp((chartype) take_int(arg_3(arguments))));
-  } /* chr_iconv */
-
-
-
-#ifdef ANSI_C
-
 objecttype chr_hashcode (listtype arguments)
 #else
 
@@ -265,6 +249,22 @@ listtype arguments;
     isit_char(arg_1(arguments));
     return(bld_int_temp((inttype) take_char(arg_1(arguments))));
   } /* chr_hashcode */
+
+
+
+#ifdef ANSI_C
+
+objecttype chr_iconv (listtype arguments)
+#else
+
+objecttype chr_iconv (arguments)
+listtype arguments;
+#endif
+
+  { /* chr_iconv */
+    isit_int(arg_3(arguments));
+    return(bld_char_temp((chartype) take_int(arg_3(arguments))));
+  } /* chr_iconv */
 
 
 
@@ -436,7 +436,6 @@ listtype arguments;
       if (!ALLOC_STRI(result, 1)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_STRI(1);
         result->size = 1;
         result->mem[0] = (strelemtype) take_char(arg_1(arguments));
         return(bld_stri_temp(result));

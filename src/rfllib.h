@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -45,6 +45,7 @@ objecttype rfl_incl (listtype);
 objecttype rfl_lng (listtype);
 objecttype rfl_mklist (listtype);
 objecttype rfl_ne (listtype);
+objecttype rfl_not_elem (listtype);
 objecttype rfl_pos (listtype);
 objecttype rfl_range (listtype);
 objecttype rfl_setvalue (listtype);
@@ -72,6 +73,7 @@ objecttype rfl_incl ();
 objecttype rfl_lng ();
 objecttype rfl_mklist ();
 objecttype rfl_ne ();
+objecttype rfl_not_elem ();
 objecttype rfl_pos ();
 objecttype rfl_range ();
 objecttype rfl_setvalue ();
