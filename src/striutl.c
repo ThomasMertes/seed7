@@ -704,7 +704,7 @@ stritype stri;
         memmove(&cmd[outPos + 2], &cmd[inPos], strlen(&cmd[inPos]) + 1);
         memmove(&cmd[1], cmd, outPos);
         cmd[0] = '"';
-	cmd[outPos + 1] = '"';
+        cmd[outPos + 1] = '"';
       } /* if */
       /* for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
            printf("%c", cmd[inPos]);

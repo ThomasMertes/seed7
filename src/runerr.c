@@ -41,6 +41,7 @@
 #include "traceutl.h"
 #include "infile.h"
 #include "exec.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -129,8 +130,13 @@ listtype stack_elem;
           printf("at %s(%u)\n",
               file_name(GET_FILE_NUM(stack_elem->obj)),
               GET_LINE_NUM(stack_elem->obj));
+        } else if (HAS_PROPERTY(stack_elem->obj) &&
+            stack_elem->obj->descriptor.property->line != 0) {
+          printf("at %s(%u)\n",
+              file_name(stack_elem->obj->descriptor.property->file_number),
+              stack_elem->obj->descriptor.property->line);
         } else {
-          printf("no POSINFO ");
+          printf("no POSITION INFORMATION ");
           /* trace1(stack_elem->obj); */
           printf("\n");
         } /* if */
@@ -157,24 +163,47 @@ listtype list;
 
   /* raise_with_arguments */
 #ifdef WITH_PROTOCOL
+    if (list == curr_argument_list) {
+      if (curr_exec_object != NULL) {
+        curr_action_object = curr_exec_object->value.listvalue->obj;
+        incl_list(&fail_stack, curr_action_object, &err_info);
+      } /* if */
+    } /* if */
     if (trace.exceptions) {
       prot_nl();
       prot_cstri("*** EXCEPTION ");
       printobject(exception);
       printf(" raised");
       if (list == curr_argument_list) {
-        if (curr_exec_object != NULL && HAS_POSINFO(curr_exec_object)) {
-          printf(" at %s(%u)",
-              file_name(GET_FILE_NUM(curr_exec_object)),
-              GET_LINE_NUM(curr_exec_object));
+        if (curr_action_object != NULL) {
+          if (HAS_POSINFO(curr_action_object)) {
+            printf(" at %s(%u)",
+                file_name(GET_FILE_NUM(curr_action_object)),
+                GET_LINE_NUM(curr_action_object));
+          } else if (HAS_PROPERTY(curr_action_object) &&
+              curr_action_object->descriptor.property->line != 0) {
+            printf(" at %s(%u)",
+                file_name(curr_action_object->descriptor.property->file_number),
+                curr_action_object->descriptor.property->line);
+          } /* if */
         } /* if */
-        printf(" with\n");
+        printf("\n");
         prot_list(list);
         if (curr_exec_object != NULL) {
-          curr_action_object = curr_exec_object->value.listvalue->obj;
+          if (HAS_POSINFO(curr_exec_object)) {
+            printf(" at %s(%u)",
+                file_name(GET_FILE_NUM(curr_exec_object)),
+                GET_LINE_NUM(curr_exec_object));
+          } else if (HAS_PROPERTY(curr_exec_object) &&
+              curr_exec_object->descriptor.property->line != 0) {
+            printf(" at %s(%u)",
+                file_name(curr_exec_object->descriptor.property->file_number),
+                curr_exec_object->descriptor.property->line);
+          } /* if */
         } /* if */
+        printf("\n");
         if (curr_action_object->value.actvalue != NULL) {
-          printf("\n*** ACTION \"%s\"\n",
+          printf("*** ACTION \"%s\"\n",
               get_primact(curr_action_object->value.actvalue)->name);
         } /* if */
       } else {
@@ -224,16 +253,16 @@ objecttype exception;
 
 #ifdef ANSI_C
 
-void raise_error (int exception_num)
+void raise_error2 (int exception_num, char *filename, int line)
 #else
 
-void raise_error (exception_num)
+void raise_error2 (exception_num, filename, line)
 int exception_num;
 #endif
 
-  { /* raise_error */
+  { /* raise_error2 */
     raise_exception(prog.sys_var[exception_num]);
-  } /* raise_error */
+  } /* raise_error2 */
 
 
 

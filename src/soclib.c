@@ -237,7 +237,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_int(arg_2(arguments));
     return(bld_bstri_temp(
-	socInetAddr(take_stri(arg_1(arguments)),
+        socInetAddr(take_stri(arg_1(arguments)),
                     take_int(arg_2(arguments)))));
   } /* soc_inet_addr */
 
@@ -255,7 +255,7 @@ listtype arguments;
   { /* soc_inet_local_addr */
     isit_int(arg_1(arguments));
     return(bld_bstri_temp(
-	socInetLocalAddr(take_int(arg_1(arguments)))));
+        socInetLocalAddr(take_int(arg_1(arguments)))));
   } /* soc_inet_local_addr */
 
 
@@ -272,7 +272,7 @@ listtype arguments;
   { /* soc_inet_serv_addr */
     isit_int(arg_1(arguments));
     return(bld_bstri_temp(
-	socInetServAddr(take_int(arg_1(arguments)))));
+        socInetServAddr(take_int(arg_1(arguments)))));
   } /* soc_inet_serv_addr */
 
 
@@ -357,9 +357,9 @@ listtype arguments;
     is_variable(arg_2(arguments));
     return(bld_int_temp(
         socRecv(take_socket(arg_1(arguments)),
-		        &take_stri(arg_2(arguments)),
-		        take_int(arg_3(arguments)),
-		        take_int(arg_4(arguments)))));
+               &take_stri(arg_2(arguments)),
+                take_int(arg_3(arguments)),
+                take_int(arg_4(arguments)))));
   } /* soc_recv */
 
 
@@ -383,10 +383,10 @@ listtype arguments;
     is_variable(arg_5(arguments));
     return(bld_int_temp(
         socRecvfrom(take_socket(arg_1(arguments)),
-		            &take_stri(arg_2(arguments)),
-		            take_int(arg_3(arguments)),
-		            take_int(arg_4(arguments)),
-                    &take_bstri(arg_5(arguments)))));
+                   &take_stri(arg_2(arguments)),
+                    take_int(arg_3(arguments)),
+                    take_int(arg_4(arguments)),
+                   &take_bstri(arg_5(arguments)))));
   } /* soc_recvfrom */
 
 
@@ -406,8 +406,8 @@ listtype arguments;
     isit_int(arg_3(arguments));
     return(bld_int_temp(
         socSend(take_socket(arg_1(arguments)),
-		        take_stri(arg_2(arguments)),
-		        take_int(arg_3(arguments)))));
+                take_stri(arg_2(arguments)),
+                take_int(arg_3(arguments)))));
   } /* soc_send */
 
 
@@ -428,8 +428,8 @@ listtype arguments;
     isit_bstri(arg_4(arguments));
     return(bld_int_temp(
         socSendto(take_socket(arg_1(arguments)),
-		          take_stri(arg_2(arguments)),
-		          take_int(arg_3(arguments)),
+                  take_stri(arg_2(arguments)),
+                  take_int(arg_3(arguments)),
                   take_bstri(arg_4(arguments)))));
   } /* soc_sendto */
 

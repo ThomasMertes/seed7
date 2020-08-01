@@ -308,6 +308,24 @@ const func type: getExprResultType (in reference: aReference) is func
   end func;
 
 
+const proc: process_raise_error (in string: exceptionName, in reference: function, inout expr_type: c_expr) is func
+  begin
+    if function <> NIL then
+      c_expr.expr &:= "(raise_error2(";
+      c_expr.expr &:= exceptionName;
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= c_literal(file(function));
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= str(line(function));
+      c_expr.expr &:= "),0)";
+    else
+      c_expr.expr &:= "(raise_error(";
+      c_expr.expr &:= exceptionName;
+      c_expr.expr &:= "),0)";
+    end if;
+  end func;
+
+
 const proc: process_create_declaration (in type: object_type,
     inout expr_type: c_expr) is forward;
 
@@ -728,7 +746,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= "size = size_a;\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "if (size_a < size_b) {\n";
-    c_expr.expr &:= "*a=realloc(*a, sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "*a=realloc((void *)(*a), sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype));\n";
     c_expr.expr &:= "size = size_a;\n";
     c_expr.expr &:= "for (i = size_a; i < size_b; i++) {\n";
@@ -743,7 +761,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     process_destr_call(array_element[object_type],
         "((arraytype)*a)->arr[i].value.intvalue", c_expr.expr);
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "*a=realloc(*a, sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "*a=realloc((void *)(*a), sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype));\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
@@ -1217,6 +1235,8 @@ const proc: select_value_from_rtlObjectstruct (in type: typeWanted, inout expr_t
       c_expr.expr &:= ".value.floatvalue";
     elsif typeWanted = stritype then
       c_expr.expr &:= ".value.strivalue";
+    elsif typeWanted = biginttype then
+      c_expr.expr &:= ".value.bigintvalue";
     else
       c_expr.expr &:= ".value.intvalue";
     end if;
@@ -1681,15 +1701,7 @@ const proc: process_prc_block (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= "int fail_value;\n";
     c_expr.expr &:= "catch_stack_pos++;\n";
     c_expr.expr &:= "if (catch_stack_pos >= max_catch_stack) {\n";
-    c_expr.expr &:= "  catch_type *resized_stack;\n";
-    c_expr.expr &:= "  max_catch_stack += 128;\n";
-    c_expr.expr &:= "  resized_stack = realloc(catch_stack, max_catch_stack);\n";
-    c_expr.expr &:= "  if (resized_stack == NULL) {\n";
-    c_expr.expr &:= "    catch_stack_pos--;\n";
-    c_expr.expr &:= "    raise_error(MEMORY_ERROR);\n";
-    c_expr.expr &:= "  } else {\n";
-    c_expr.expr &:= "    catch_stack = resized_stack;\n";
-    c_expr.expr &:= "  }\n";
+    c_expr.expr &:= "  resize_catch_stack();\n";
     c_expr.expr &:= "}\n";
     if USE_SIGSETJMP then
       c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], -1)) == 0) {\n";
@@ -1855,12 +1867,17 @@ const proc: process_prc_args (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_prc_raise (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_prc_raise (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "raise_error(";
+    c_expr.expr &:= "raise_error2(";
     getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= "+1);\n";
+    c_expr.expr &:= "+1, ";
+    c_expr.expr &:= c_literal(file(function));
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= str(line(function));
+    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -2134,7 +2151,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
     if category(param3) = INTOBJECT and not isVar(param3) then
       index := getValue(param3, integer);
       if index < array_min_index(anArray) or index > array_max_index(anArray) then
-        c_expr.expr &:= "(raise_error(RANGE_ERROR),0)";
+        process_raise_error("RANGE_ERROR", function, c_expr);
       else
         c_expr.expr &:= "arr[";
         c_expr.expr &:= str(const_table[anArray]);
@@ -2171,7 +2188,9 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= ">=";
         c_expr.expr &:= str(succ(array_max_index(anArray) - array_min_index(anArray)));
-        c_expr.expr &:= " ? (raise_error(RANGE_ERROR),0) : 0, tmp_";
+        c_expr.expr &:= " ? ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= " : 0, tmp_";
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= ")";
       else
@@ -2214,7 +2233,9 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       c_expr.expr &:= str(index);
       c_expr.expr &:= ">tmp_";
       c_expr.expr &:= str(array_temp_num);
-      c_expr.expr &:= "->max_position ? (raise_error(RANGE_ERROR),0) : 0, ";
+      c_expr.expr &:= "->max_position ? ";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= " : 0, ";
       c_expr.expr &:= str(index);
       c_expr.expr &:= "-tmp_";
       c_expr.expr &:= str(array_temp_num);
@@ -2273,7 +2294,9 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= " > tmp_";
         c_expr.expr &:= str(array_temp_num);
-        c_expr.expr &:= "->max_position ? (raise_error(RANGE_ERROR),0) : 0, tmp_";
+        c_expr.expr &:= "->max_position ? ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= " : 0, tmp_";
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= "-tmp_";
         c_expr.expr &:= str(array_temp_num);
@@ -3652,14 +3675,14 @@ const proc: process_bst_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
-const proc: process_const_chr_chr (in integer: number, inout expr_type: c_expr) is func
+const proc: process_const_chr_chr (in reference: function, in integer: number, inout expr_type: c_expr) is func
 
   local
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
     if number < pred(-2147483647) or number > 2147483647 then
-      c_expr.expr &:= "(raise_error(RANGE_ERROR),0)";
+      process_raise_error("RANGE_ERROR", function, c_expr);
     else
       c_expr.expr &:= "(chartype)";
       c_expr.expr &:= str(number);
@@ -3667,13 +3690,13 @@ const proc: process_const_chr_chr (in integer: number, inout expr_type: c_expr) 
   end func;
 
 
-const proc: process_chr_chr (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_chr_chr (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var integer: temp_num is 0;
   begin
     if category(params[1]) = INTOBJECT and not isVar(params[1]) then
-      process_const_chr_chr(getValue(params[1], integer), c_expr);
+      process_const_chr_chr(function, getValue(params[1], integer), c_expr);
     elsif INTTYPE_64BIT then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -3688,7 +3711,9 @@ const proc: process_chr_chr (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "< -2147483648||tmp_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= ">2147483647?(raise_error(RANGE_ERROR),0):(chartype)tmp_";
+      c_expr.expr &:= ">2147483647?";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= ":(chartype)tmp_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= ")";
     else
@@ -9428,6 +9453,8 @@ const proc: process_soc_inet_addr (in ref_list: params, inout expr_type: c_expr)
     prepare_bstri_result(c_expr);
     c_expr.result_expr &:= "socInetAddr(";
     getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -9760,8 +9787,8 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
-const proc: process_const_str_elemcpy (in reference: param1, in integer: index, in reference: param6,
-    inout expr_type: c_expr) is func
+const proc: process_const_str_elemcpy (in reference: function, in reference: param1,
+    in integer: index, in reference: param6, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
@@ -9769,7 +9796,9 @@ const proc: process_const_str_elemcpy (in reference: param1, in integer: index, 
   begin
     incr(countOptimizations);
     if index < 1 then
-      c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */ raise_error(RANGE_ERROR);\n";
+      c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= ";\n";
     else
       process_expr(param1, c_param1);
       c_param6.temp_num := c_param1.temp_num;
@@ -9790,7 +9819,9 @@ const proc: process_const_str_elemcpy (in reference: param1, in integer: index, 
         c_expr.expr &:= "if (";
         c_expr.expr &:= str(pred(index));
         c_expr.expr &:= " >= str1->size) {\n";
-        c_expr.expr &:= "  raise_error(RANGE_ERROR);\n";
+        c_expr.expr &:= "  ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= ";\n";
         c_expr.expr &:= "} else {\n";
         c_expr.expr &:= "  str1->mem[";
         c_expr.expr &:= str(pred(index));
@@ -9818,7 +9849,7 @@ const proc: process_const_str_elemcpy (in reference: param1, in integer: index, 
   end func;
 
 
-const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_str_elemcpy (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
@@ -9826,7 +9857,7 @@ const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) i
     var expr_type: c_param6 is expr_type.value;
   begin
     if category(params[4]) = INTOBJECT and not isVar(params[4]) then
-      process_const_str_elemcpy(params[1], getValue(params[4], integer), params[6], c_expr);
+      process_const_str_elemcpy(function, params[1], getValue(params[4], integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
       c_param4.temp_num := c_param1.temp_num;
@@ -9860,7 +9891,9 @@ const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) i
           c_expr.expr &:= "pos < 0 && ";
         end if;
         c_expr.expr &:= "pos >= str1->size) {\n";
-        c_expr.expr &:= "  raise_error(RANGE_ERROR);\n";
+        c_expr.expr &:= "  ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= ";\n";
         c_expr.expr &:= "} else {\n";
         c_expr.expr &:= "  str1->mem[pos] = (strelemtype)(";
         c_expr.expr &:= c_param6.expr;
@@ -10057,7 +10090,8 @@ const proc: process_str_head (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_const_str_idx (in string: stri, in reference: param3, inout expr_type: c_expr) is func
+const proc: process_const_str_idx (in reference: function, in string: stri,
+    in reference: param3, inout expr_type: c_expr) is func
 
   local
     var integer: index is 0;
@@ -10067,7 +10101,7 @@ const proc: process_const_str_idx (in string: stri, in reference: param3, inout 
     if category(param3) = INTOBJECT and not isVar(param3) then
       index := getValue(param3, integer);
       if index < 1 or index > length(stri) then
-        c_expr.expr &:= "(raise_error(RANGE_ERROR),0)";
+        process_raise_error("RANGE_ERROR", function, c_expr);
       else
         c_expr.expr &:=  c_literal(stri[index]);
       end if;
@@ -10102,7 +10136,9 @@ const proc: process_const_str_idx (in string: stri, in reference: param3, inout 
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= ">=";
         c_expr.expr &:= str(length(stri));
-        c_expr.expr &:= " ? (raise_error(RANGE_ERROR),0) : 0, tmp_";
+        c_expr.expr &:= " ? ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= " : 0, tmp_";
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= ")";
       else
@@ -10115,14 +10151,15 @@ const proc: process_const_str_idx (in string: stri, in reference: param3, inout 
   end func;
 
 
-const proc: process_const_str_idx (in reference: param1, in integer: index, inout expr_type: c_expr) is func
+const proc: process_const_str_idx (in reference: function, in reference: param1,
+    in integer: index, inout expr_type: c_expr) is func
 
   local
     var integer: string_temp_num is 0;
   begin
     incr(countOptimizations);
     if index < 1 then
-      c_expr.expr &:= "(raise_error(RANGE_ERROR),0)";
+      process_raise_error("RANGE_ERROR", function, c_expr);
     elsif array_range_check then
       incr(c_expr.temp_num);
       string_temp_num := c_expr.temp_num;
@@ -10139,7 +10176,9 @@ const proc: process_const_str_idx (in reference: param1, in integer: index, inou
       c_expr.expr &:= str(string_temp_num);
       c_expr.expr &:= "->size<";
       c_expr.expr &:= str(index);
-      c_expr.expr &:= " ? (raise_error(RANGE_ERROR),0) : 0, ";
+      c_expr.expr &:= " ? ";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= " : 0, ";
       c_expr.expr &:= str(pred(index));
       c_expr.expr &:= ")";
       c_expr.expr &:= "]))";
@@ -10153,16 +10192,16 @@ const proc: process_const_str_idx (in reference: param1, in integer: index, inou
   end func;
 
 
-const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_str_idx (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var integer: string_temp_num is 0;
     var integer: index_temp_num is 0;
   begin
     if category(params[1]) = STRIOBJECT and not isVar(params[1]) then
-      process_const_str_idx(getValue(params[1], string), params[3], c_expr);
+      process_const_str_idx(function, getValue(params[1], string), params[3], c_expr);
     elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_str_idx(params[1], getValue(params[3], integer), c_expr);
+      process_const_str_idx(function, params[1], getValue(params[3], integer), c_expr);
     elsif array_range_check then
       incr(c_expr.temp_num);
       string_temp_num := c_expr.temp_num;
@@ -10197,7 +10236,9 @@ const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= str(index_temp_num);
       c_expr.expr &:= ">=tmp_";
       c_expr.expr &:= str(string_temp_num);
-      c_expr.expr &:= "->size ? (raise_error(RANGE_ERROR),0) : 0, tmp_";
+      c_expr.expr &:= "->size ? ";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= " : 0, tmp_";
       c_expr.expr &:= str(index_temp_num);
       c_expr.expr &:= ")";
       c_expr.expr &:= "]))";
@@ -10905,9 +10946,9 @@ const proc: process_typ_varconv (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_ut8_getc (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "ut8Getc(";
+    c_expr.expr &:= "ut8Getc((filetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -10915,9 +10956,9 @@ const proc: process_ut8_gets (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr &:= "ut8Gets(";
+    c_expr.result_expr &:= "ut8Gets((filetype)(";
     getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
+    c_expr.result_expr &:= "), ";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
   end func;
@@ -10927,9 +10968,9 @@ const proc: process_ut8_line_read (in ref_list: params, inout expr_type: c_expr)
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr &:= "ut8LineRead(";
+    c_expr.result_expr &:= "ut8LineRead((filetype)(";
     getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", &(";
+    c_expr.result_expr &:= "), &(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
   end func;
@@ -10938,9 +10979,9 @@ const proc: process_ut8_line_read (in ref_list: params, inout expr_type: c_expr)
 const proc: process_ut8_seek (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "ut8Seek(";
+    c_expr.expr &:= "ut8Seek((filetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
+    c_expr.expr &:= "), ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ");\n";
   end func;
@@ -10950,9 +10991,9 @@ const proc: process_ut8_word_read (in ref_list: params, inout expr_type: c_expr)
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr &:= "ut8WordRead(";
+    c_expr.result_expr &:= "ut8WordRead((filetype)(";
     getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", &(";
+    c_expr.result_expr &:= "), &(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
   end func;
@@ -10961,9 +11002,9 @@ const proc: process_ut8_word_read (in ref_list: params, inout expr_type: c_expr)
 const proc: process_ut8_write (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "ut8Write(";
+    c_expr.expr &:= "ut8Write((filetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
+    c_expr.expr &:= "), ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
   end func;
@@ -11173,7 +11214,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       end if;
     elsif action_prefix = "CHR" then
       if action_name = "CHR_CHR" then
-        process_chr_chr(params, c_expr);
+        process_chr_chr(function, params, c_expr);
       elsif action_name = "CHR_CONV" then
         process_chr_conv(params, c_expr);
       elsif action_name = "CHR_CPY" then
@@ -11729,7 +11770,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "PRC_NOOP" then
         process_prc_noop(function, params, c_expr);
       elsif action_name = "PRC_RAISE" then
-        process_prc_raise(params, c_expr);
+        process_prc_raise(function, params, c_expr);
       elsif action_name = "PRC_REPEAT" then
         process_prc_repeat(params, c_expr);
       elsif action_name = "PRC_WHILE" then
@@ -12041,7 +12082,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "STR_CPY" then
         process_str_cpy(params, c_expr);
       elsif action_name = "STR_ELEMCPY" then
-        process_str_elemcpy(params, c_expr);
+        process_str_elemcpy(function, params, c_expr);
       elsif action_name = "STR_EQ" then
         process_str_eq(params, c_expr);
       elsif action_name = "STR_GE" then
@@ -12055,7 +12096,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "STR_HEAD" then
         process_str_head(params, c_expr);
       elsif action_name = "STR_IDX" then
-        process_str_idx(params, c_expr);
+        process_str_idx(function, params, c_expr);
       elsif action_name = "STR_IPOS" then
         process_str_ipos(params, c_expr);
       elsif action_name = "STR_LE" then
@@ -14699,7 +14740,8 @@ const proc: process_arr_times_declaration (in reference: current_object,
     c_expr.expr &:= " a;\n";
     c_expr.expr &:= "unsigned long i;\n";
     c_expr.expr &:= "if (n < 0) {\n";
-    c_expr.expr &:= "raise_error(RANGE_ERROR);\n";
+    process_raise_error("RANGE_ERROR", NIL, c_expr);
+    c_expr.expr &:= ";\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  n * sizeof(rtlObjecttype));\n";
@@ -15543,12 +15585,16 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "  strelemtype mem[1];");
     writeln(c_prog, "} *stritype;");
+    writeln(c_prog, "typedef struct {");
+    writeln(c_prog, "  int dummy;");
+    writeln(c_prog, "} *biginttype;");
     writeln(c_prog, "typedef inttype generictype;");
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  generictype genericvalue;");
     writeln(c_prog, "  inttype     intvalue;");
     writeln(c_prog, "  floattype   floatvalue;");
     writeln(c_prog, "  stritype    strivalue;");
+    writeln(c_prog, "  biginttype  bigintvalue;");
     writeln(c_prog, "} valueunion;");
     writeln(c_prog, "typedef struct rtlObjectstruct {");
     writeln(c_prog, "  valueunion value;");
@@ -15559,9 +15605,6 @@ const proc: write_file_head is func
     writeln(c_prog, "  struct list *next;");
     writeln(c_prog, "  long obj;");
     writeln(c_prog, "} *listtype;");
-    writeln(c_prog, "typedef struct {");
-    writeln(c_prog, "  int dummy;");
-    writeln(c_prog, "} *biginttype;");
     writeln(c_prog, "typedef struct bstri {");
     writeln(c_prog, "  memsizetype size;");
     writeln(c_prog, "  unsigned char mem[1];");
@@ -15674,6 +15717,8 @@ const proc: write_file_head is func
     writeln(c_prog, "catch_type *catch_stack;");
     writeln(c_prog, "int catch_stack_pos;");
     writeln(c_prog, "int max_catch_stack;");
+    writeln(c_prog, "char *error_file = NULL;");
+    writeln(c_prog, "int error_line = 0;");
   end func;
 
 
@@ -15708,6 +15753,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        bigGrow (biginttype *, biginttype);");
     writeln(c_prog, "void        bigIncr (biginttype *);");
     writeln(c_prog, "biginttype  bigIPow (biginttype, inttype);");
+    writeln(c_prog, "biginttype  bigLog2 (biginttype);");
     writeln(c_prog, "inttype     bigLowestSetBit (biginttype);");
     writeln(c_prog, "biginttype  bigMDiv (biginttype, biginttype);");
     writeln(c_prog, "biginttype  bigMinus (biginttype);");
@@ -15883,9 +15929,26 @@ const proc: write_prototypes is func
     writeln(c_prog, "booltype    setNe (settype, settype);");
     writeln(c_prog, "booltype    setNotElem (inttype, settype);");
     writeln(c_prog, "inttype     setRand (settype);");
-    writeln(c_prog, "inttype     strRChPos (stritype, chartype);");
     writeln(c_prog, "settype     setSymdiff (settype, settype);");
     writeln(c_prog, "settype     setUnion (settype, settype);");
+    writeln(c_prog, "sockettype  socAccept (sockettype, bstritype * );");
+    writeln(c_prog, "void        socBind (sockettype, bstritype);");
+    writeln(c_prog, "void        socClose (sockettype);");
+    writeln(c_prog, "void        socConnect (sockettype, bstritype);");
+    writeln(c_prog, "chartype    socGetc (sockettype);");
+    writeln(c_prog, "stritype    socGets (sockettype, inttype);");
+    writeln(c_prog, "bstritype   socInetAddr (stritype, inttype);");
+    writeln(c_prog, "bstritype   socInetLocalAddr (inttype);");
+    writeln(c_prog, "bstritype   socInetServAddr (inttype);");
+    writeln(c_prog, "stritype    socLineRead (sockettype, chartype * );");
+    writeln(c_prog, "void        socListen (sockettype, inttype);");
+    writeln(c_prog, "inttype     socRecv (sockettype, stritype *, inttype, inttype);");
+    writeln(c_prog, "inttype     socRecvfrom (sockettype, stritype *, inttype, inttype, bstritype * );");
+    writeln(c_prog, "inttype     socSend (sockettype, stritype, inttype);");
+    writeln(c_prog, "inttype     socSendto (sockettype, stritype, inttype, bstritype);");
+    writeln(c_prog, "sockettype  socSocket (inttype, inttype, inttype);");
+    writeln(c_prog, "stritype    socWordRead (sockettype, chartype * );");
+    writeln(c_prog, "void        socWrite (sockettype, stritype);");
     writeln(c_prog, "void        strAppend (stritype *, stritype);");
     writeln(c_prog, "inttype     strChIpos (stritype, chartype, inttype);");
     writeln(c_prog, "inttype     strChPos (stritype, chartype);");
@@ -15914,6 +15977,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    strMult (stritype, inttype);");
     writeln(c_prog, "inttype     strPos (stritype, stritype);");
     writeln(c_prog, "stritype    strRange (stritype, inttype, inttype);");
+    writeln(c_prog, "inttype     strRChPos (stritype, chartype);");
     writeln(c_prog, "stritype    strRepl (stritype, stritype, stritype);");
     writeln(c_prog, "stritype    strRpad (stritype, inttype);");
     writeln(c_prog, "inttype     strRpos (stritype, stritype);");
@@ -15939,7 +16003,8 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        ut8Seek (filetype, inttype);");
     writeln(c_prog, "stritype    ut8WordRead (filetype, chartype *);");
     writeln(c_prog, "void        ut8Write (filetype, stritype);");
-    writeln(c_prog, "void        raise_error (int);");
+    writeln(c_prog, "void        raise_error2 (int, char *, int);");
+    writeln(c_prog, "#define raise_error(num) raise_error2(num, __FILE__, __LINE__)\n");
 (*
     writeln(c_prog, "stritype    actStr (void *a)                              {printf(\"actStr\\n\");}");
     writeln(c_prog, "arraytype   arrHead (arraytype a, inttype b)              {printf(\"arrHead\\n\");}");
@@ -16056,6 +16121,22 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "    signal(SIGINT, handle_signals);");
     writeln(c_prog, "    signal(SIGSEGV, handle_signals);");
     writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
+    writeln(c_prog, "  }");
+    writeln(c_prog);
+    writeln(c_prog);
+    writeln(c_prog, "static void resize_catch_stack (void)");
+    writeln(c_prog);
+    writeln(c_prog, "  {");
+    writeln(c_prog, "    catch_type *resized_stack;");
+    writeln(c_prog);
+    writeln(c_prog, "    max_catch_stack += 128;");
+    writeln(c_prog, "    resized_stack = realloc(catch_stack, max_catch_stack);");
+    writeln(c_prog, "    if (resized_stack == NULL) {");
+    writeln(c_prog, "      catch_stack_pos--;");
+    writeln(c_prog, "      raise_error(MEMORY_ERROR);");
+    writeln(c_prog, "    } else {");
+    writeln(c_prog, "      catch_stack = resized_stack;");
+    writeln(c_prog, "    }");
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
@@ -16409,12 +16490,19 @@ const proc: generate_main (in program: prog) is func
     var ref_list: sorted_list is ref_list.EMPTY;
   begin
     if not compilerLibraryUsed then
+      c_expr.expr &:= "void raise_error2 (int a, char *file_name, int line_number)\n";
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "  error_file = file_name;\n";
+      c_expr.expr &:= "  error_line = line_number;\n";
       if USE_SIGSETJMP then
-        c_expr.expr &:= "void raise_error (int a) {siglongjmp(catch_stack[catch_stack_pos], a); }\n";
+        c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], a);\n";
       else
-        c_expr.expr &:= "void raise_error (int a) {longjmp(catch_stack[catch_stack_pos], a); }\n";
+        c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], a);\n";
       end if;
-#     c_expr.expr &:= "void raise_error (int a) {raise(SIGINT); }\n";
+#     c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
+#     c_expr.expr &:= "  raise(SIGINT);\n";
+#     c_expr.expr &:= "  raise(SIGSEGV);\n";
+      c_expr.expr &:= "}\n";
       c_expr.expr &:= "inttype heapsize (void) {return(0);}\n";
 #!    c_expr.expr &:= "inttype heapsize (void) {rtlHeapStatistic(); return(0);}\n";
       c_expr.expr &:= "inttype refType (void *a) {printf(\"refType\\n\");}\n";
@@ -16603,12 +16691,16 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "return 0;\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
-    c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION %s raised\\n\",\n";
+    c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION %s raised\",\n";
     c_expr.expr &:= "        exception_name[fail_value]);\n";
     c_expr.expr &:= "  } else {\n";
     c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION %d raised\\n\",\n";
     c_expr.expr &:= "        fail_value);\n";
     c_expr.expr &:= "  }\n";
+    c_expr.expr &:= "  if (error_file != NULL) {\n";
+    c_expr.expr &:= "    printf(\" at %s(%d)\", error_file, error_line);\n";
+    c_expr.expr &:= "  }\n";
+    c_expr.expr &:= "  printf(\"\\n\");\n";
     c_expr.expr &:= "  return 1;\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";

@@ -95,6 +95,7 @@ float.s7i    Floating point support library
 getf.s7i     Read and write whole files into and from strings  
 graph.s7i    Graphic library                                   
 gtkserver.s7i Gtk-server connection library                     
+gzip.s7i      uncompression function                           
 html_ent.s7i HTML entity handling library                      
 keybd.s7i    Keyboard driver                                   
 line.s7i     Filter file which reads the input linewise        

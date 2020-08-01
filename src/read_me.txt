@@ -33,7 +33,7 @@ THE MAKEFILES
 
   If you try different makefiles in succession you need to do
 
-    make clear
+    make clean
 
   before you start a new attempt.
 
@@ -255,11 +255,11 @@ HOW TO USE THE GMP LIBRARY?
     USE_BIG_RTL_LIBRARY = undef
     BIGINT_LIB = big_gmp
 
-  After the makefile changes it is necessary to start the
+  After the changes in the makefile it is necessary to start the
   compilation process from scratch with (use the corresponding
   make command (gmake, nmake, ...) for your make tool):
 
-    make clear
+    make clean
     make depend
     make
 
@@ -294,21 +294,54 @@ THE VERSION.H FILE
 
   USE_DIRWIN: The opendir(), readdir() and closedir() functions
               from dir_win.c are used. This functions are based
-              on _findfirst() and _findnext(). Only one #define
-              of USE_DIRxxx is allowed.
+              on FindFirstFileA() and FindNextFileA(). Only one
+              #define of USE_DIRxxx is allowed. Additionally the
+              file dir_win.c contains also definitions of the
+              wopendir(), wreaddir() and wclosedir() based
+              on FindFirstFileW() and FindNextFileW().
 
   USE_DIRDOS: The opendir(), readdir() and closedir() functions
               from dir_dos.c are used. This functions are based
               on _dos_findfirst() and _dos_findnext(). Only one
               #define of USE_DIRxxx is allowed.
 
-  PATH_DELIMITER: This is '/' for most operating systems except
-                  for windows where it is '\\'.
+  READDIR_UTF8: Use the functions opendir(), readdir() and
+                closedir() to read directorys, but assume that
+                an UTF-8 encoding is used for the file names.
+
+  USE_WOPENDIR: Use the functions wopendir(), wreaddir() and
+                wclosedir() together with the types 'WDIR' and
+                'wdirent' to read directorys with wide (unicode)
+                characters. If the wide directory read functions
+                and types are present, but have different names
+                such as _wopendir() additional defines for the
+                function and type names are necessary. When no
+                implementation of the wide directory read
+                functions is present in the runtime library,
+                the implementation from dir_win.c can be used.
+
+  USE_WFOPEN: Use the function _wfopen() to open files with
+              wide (unicode) characters instead of fopen() with
+              UTF-8 encoded characters.
+
+  USE_WINSOCK: Use thw winsocket functions instead of the
+               normal unix socket functions.
 
   MKDIR_WITH_ONE_PARAMETER: Under windows the mkdir() function
                             usually has only one parameter while
                             under unix/linux/bsd mkdir() has two
                             parameters.
+
+  PATH_DELIMITER: This is the path delimiter character used by
+                  the command shell of the operating system. It
+                  is defined as '/' for most operating systems,
+                  except for windows, where it is defined as
+                  '\\'. The PATH_DELIMITER macro is used when
+                  the functions popen() and system() are called.
+                  Seed7 programs are portable and do not need to
+                  distinguish between different path delimiter
+                  characters. Instead Seed7 programs must always
+                  use '/' as path delimiter.
 
   ESCAPE_SPACES_IN_COMMANDS: Depending on the shell/os the C
                              functions system() and popen() need
@@ -344,13 +377,37 @@ THE VERSION.H FILE
                            signed integers is preserved with a
                            right shift ( -1 >> 1 == -1 ).
 
+  TWOS_COMPLEMENT_INTTYPE: Defined when signed integers are
+                           represented as twos complement
+                           numbers. This allows some simplified
+                           range checks in compiled programs.
+                           This macro is defined when
+                           ~(-1) == 0 holds.
+
+  TURN_OFF_FP_EXCEPTIONS: In Seed7 floating point errors such
+                          as the division by zero should create
+                          values like Infinite and NaN which
+                          are defined in IEEE 754. Some C
+                          compilers/libraries raise exceptions
+                          for floating point errors. This macro
+                          is used to turn off such a behaviour.
+                          
+  DEFINE_MATHERR_FUNCTION: Some C compilers/libraries call the
+                           _matherr() function for every floating
+                           point error and terminate the program
+                           when the function is not present.
+                           To get the Seed7 behaviour of using
+                           the IEEE 754 values of Infinite and
+                           NaN this function must be defined and
+                           it must return 1.
+
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
-                         object files (later several object files
-                         and libraries are linked together to an
+                         object files (Several object files and
+                         libraries are linked together to an
                          executable). Under linux/unix/bsd this
-                         is usually ".o" Uunder windows this is
-                         ".o" for MinGW and cygwin. Under MSVC it
-                         is ".obj".
+                         is usually ".o" Under windows this is
+                         ".o" for MinGW and cygwin, but ".obj"
+                         for MSVC and bcc32.
 
   EXECUTABLE_FILE_EXTENSION: The extension which is used by the
                              operating systemfor executables.
@@ -360,24 +417,30 @@ THE VERSION.H FILE
                              ".exe" is used.
 
   C_COMPILER: Contains the command to call the stand-alone C
-              compiler can be called (Most IDEs also provide also
-              a stand-alone compiler).
+              compiler and linker (Most IDEs provide also a
+              stand-alone compiler/linker).
 
-  REDIRECT_C_ERRORS The redirect command to redirect the errors
-                    of the compiler to a file. The MSVC
-                    stand-alone C compiler (CL) writes the error
-                    messages to standard output (use: "2>NUL: >"),
-                    while the unix C compliers including MinGW and
-                    cygwin write the error messages to the error
-                    output (use "2>").
+  INHIBIT_C_WARNINGS: Contains the C compiler switch to suppress
+                      all warnings.
 
-  SYSTEM_LIBS: Contains options that the stand-alone
-               compiler/linker needs to link the system libraries.
+  REDIRECT_C_ERRORS: The redirect command to redirect the errors
+                     of the C compiler to a file. The MSVC
+                     stand-alone C compiler (CL) writes the error
+                     messages to standard output (use: "2>NUL: >"),
+                     while the unix C compliers including MinGW and
+                     cygwin write the error messages to the error
+                     output (use "2>").
 
-  SEED7_LIB: Contains the path and the name of the seed7 runtime
+  LINKER_FLAGS: Contains options for the stand-alone linker to link
+                a compiled Seed7 program.
+
+  SYSTEM_LIBS: Contains system libraries for the stand-alone linker
+               to link a compiled Seed7 program.
+
+  SEED7_LIB: Contains the path and the name of the Seed7 runtime
              library.
 
-  COMP_DATA_LIB, COMPILER_LIB: Contain path and name of other seed7
+  COMP_DATA_LIB, COMPILER_LIB: Contain path and name of other Seed7
                                runtime libraries.
 
   SEED7_LIBRARY: Contains the path where the Seed7 include files

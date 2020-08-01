@@ -42,6 +42,7 @@
 #include "runerr.h"
 #include "memory.h"
 #include "str_rtl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -774,7 +775,7 @@ listtype arguments;
   { /* str_getenv */
     isit_stri(arg_1(arguments));
     return(bld_stri_temp(strGetenv(
-	take_stri(arg_1(arguments)))));
+        take_stri(arg_1(arguments)))));
   } /* str_getenv */
 
 
@@ -1267,7 +1268,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_int(arg_3(arguments));
     return(bld_stri_temp(strMult(
-	take_stri(arg_1(arguments)), take_int(arg_3(arguments)))));
+        take_stri(arg_1(arguments)), take_int(arg_3(arguments)))));
   } /* str_mult */
 
 

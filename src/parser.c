@@ -419,7 +419,7 @@ errinfotype *err_info;
           printtype(declared_object->type_of);
           printf("\n"); */
         decl_value(typeof_object, declared_object, is_dollar_type, err_info);
-	/* printf("after decl_value\n");
+        /* printf("after decl_value\n");
           printf("typeof_object: <%lx> ", typeof_object);
           trace1(typeof_object);
           printf("\n");

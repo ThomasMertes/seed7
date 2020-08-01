@@ -594,7 +594,7 @@ objecttype obj_arg;
       } else {
         result = (inttype) hshIdxWithDefault(obj_table, (rtlGenerictype) obj_arg,
             (rtlGenerictype) next_free_number,
-	    ((inttype) obj_arg) >> 6, (comparetype) &refCmp,
+            ((inttype) obj_arg) >> 6, (comparetype) &refCmp,
             (createfunctype) &refCreate, (createfunctype) &intCreate);
         if (result == next_free_number) {
           next_free_number++;

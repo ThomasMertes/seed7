@@ -1,3 +1,20 @@
+20081102:
+- A new gzip.s7i library, which contains a gzip uncompression function, was added.
+- The functions getXmlTagHeadOrContent, getSymbolInXmlTag, getHtmlAttributeValue and
+  getNextXmlAttribute were added to the scanfile.s7i library.
+- In the library scanstri.s7i the function getXmlTagHeadOrContent was added and the
+  function getSymbolInHtmlTag was renamed to getSymbolInXmlTag.
+- The call stack written by the (hi) interpreter, when an uncatched exception occurs, was
+  improved.
+- The compiler (comp.sd7) was improved to write a file name and a line when an uncatched
+  exception occurs.
+- The handling of sockets in the compiler was improved to support them also for the
+  cl C compiler from msvc.
+- The makefiles were improved to define 'make clean' additionally to 'make clear' to
+  remove the object files and libraries which were created during the compilation process.
+- The documentation file src/read_me.txt was improved to explain more #define values used
+  in the file version.h .
+
 20081019:
 - The support for compilation with the cl C compiler from msvc was improved such that
   the chk_all.sd7 check program succeeds.

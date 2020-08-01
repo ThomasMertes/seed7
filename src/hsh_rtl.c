@@ -784,7 +784,7 @@ comparetype cmp_func;
     } /* if */
 #ifdef TRACE_HSH_RTL
     printf("END hshIdxAddr(%lu, %lu, %lu) ==> %lu (%lu)\n",
-	(unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode,
+        (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode,
         result != NULL ? *((rtlGenerictype *)result) : 0);
 #endif
     return(result);

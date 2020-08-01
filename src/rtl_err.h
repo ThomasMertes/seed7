@@ -29,12 +29,15 @@
 /*                                                                  */
 /********************************************************************/
 
+#define raise_error(num) raise_error2(num, __FILE__, __LINE__)
+
+
 #ifdef ANSI_C
 
-void raise_error (int);
+void raise_error2 (int, char *, int);
 
 #else
 
-void raise_error ();
+void raise_error2 ();
 
 #endif

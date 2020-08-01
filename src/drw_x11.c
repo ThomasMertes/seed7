@@ -274,7 +274,7 @@ chartype gkbGetc ()
         lookup_count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
         buffer[lookup_count] = '\0';
         if (myevent.xkey.state & ShiftMask) {
-	  /* printf("ShiftMask\n"); */
+          /* printf("ShiftMask\n"); */
           switch (mykey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
@@ -323,7 +323,7 @@ chartype gkbGetc ()
               break;
           } /* switch */
         } else if (myevent.xkey.state & ControlMask) {
-	  /* printf("ControlMask\n"); */
+          /* printf("ControlMask\n"); */
           switch (mykey) {
             case XK_Return:     result = K_CTL_NL;      break;
             case XK_BackSpace:  result = K_UNDEF;       break;
@@ -403,7 +403,7 @@ chartype gkbGetc ()
               break;
           } /* switch */
         } else if (myevent.xkey.state & Mod1Mask) { /* Left ALT modifier */
-	  /* printf("Mod1Mask\n"); */
+          /* printf("Mod1Mask\n"); */
           switch (mykey) {
             case XK_Return:     result = K_UNDEF;       break;
             case XK_BackSpace:  result = K_UNDEF;       break;
@@ -513,7 +513,7 @@ chartype gkbGetc ()
               break;
           } /* switch */
         } else if (myevent.xkey.state & Mod2Mask) { /* Num Lock modifier */
-	  /* printf("Mod2Mask\n"); */
+          /* printf("Mod2Mask\n"); */
           switch (mykey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
@@ -2461,7 +2461,7 @@ inttype col;
       if (to_clip_mask(pixmap) == 0) {
         to_clip_mask(pixmap) = XCreatePixmap(mydisplay,
             to_window(pixmap), to_width(pixmap), to_height(pixmap), 1);
-	/* printf("clip_mask = %lu\n", to_window(pixmap)); */
+        /* printf("clip_mask = %lu\n", to_window(pixmap)); */
       } /* if */
       bitmap_gc = XCreateGC(mydisplay, to_clip_mask(pixmap), 0, 0);
       depth = DefaultDepth(mydisplay, myscreen);
@@ -2490,7 +2490,7 @@ inttype col;
             mydisplay, to_window(pixmap), to_clip_mask(pixmap), bitmap_gc,
             0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask); */
         XCopyPlane(mydisplay, to_window(pixmap), to_clip_mask(pixmap), bitmap_gc,
-	    0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask);
+            0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask);
         plane_mask <<= 1;
       } /* for */
       XFreeGC(mydisplay, bitmap_gc);

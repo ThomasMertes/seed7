@@ -818,7 +818,7 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
       until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
-      if inFile.bufferChar <> EOF then
+      if inFile.bufferChar = '>' then
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
       end if;
@@ -827,6 +827,153 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
       until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
+ *  A XML/HTML tag head starts with < and ends before a > a
+ *  whitespace character or EOF. The content text starts with
+ *  everything else and ends just before a < or with EOF. When the
+ *  function is called it is assumed that inFile.bufferChar
+ *  contains the introducing < of a XML/HTML tag or the first
+ *  charater of the content text. When the function is left the
+ *  character after the XML/HTML tag head or the content text is in
+ *  inFile.bufferChar.
+ *  @return the XML/HTML tag head, XML/HTML content text or "" when
+ *          EOF was reached.
+ *)
+const func string: getXmlTagHeadOrContent (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    if inFile.bufferChar = '<' then
+      repeat
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar in white_space_char or
+          inFile.bufferChar = '>' or inFile.bufferChar = EOF;
+    elsif inFile.bufferChar <> EOF then
+      repeat
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a symbol which can appear inside a XML/HTML tag from a 'file'.
+ *  Before reading the symbol it skips whitespace characters. A symbol
+ *  inside a XML/HTML tag can be a name, a string literal (quoted with "
+ *  or ' ), the equals sign (=), the end tag sign (>), the end of empty
+ *  element tag sign (/) or a special symbol (sequence of characters
+ *  terminated with the character > or a whitespace character). Special
+ *  symbols can only appear in HTML tags. When the function is called it
+ *  is assumed that inFile.bufferChar contains a whitespace character or
+ *  the first character of a symbol. When the function is left
+ *  inFile.bufferChar contains the character after the XML/HTML symbol
+ *  or EOF.
+ *  @return the symbol or "" when EOF was reached.
+ *)
+const func string: getSymbolInXmlTag (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when html_name_start_char:
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar not in html_name_char;
+      when double_quotation_char:
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when single_quotation_char:
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when equals_or_end_tag:
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      otherwise:
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_or_end_tag or
+            inFile.bufferChar = EOF;
+    end case;
+  end func;
+
+
+(**
+ *  Reads a HTML tag attribute value from a 'file'.
+ *  Before reading the value it skips whitespace characters. A HTML
+ *  tag attribute value can be quoted with " or ' or it is terminated
+ *  with the character > or a whitespace character. When the function
+ *  is called it is assumed that inFile.bufferChar contains a
+ *  whitespace character or the first character of a value. When the
+ *  function is left inFile.bufferChar contains the character after
+ *  the XML/HTML symbol or EOF.
+ *  @return the symbol or "" when EOF was reached.
+ *)
+const func string: getHtmlAttributeValue (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when double_quotation_char:
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when single_quotation_char:
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when right_angle_bracket:
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      otherwise:
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_or_end_tag or
+            inFile.bufferChar = EOF;
+    end case;
+  end func;
+
+
+const proc: getNextXmlAttribute (inout file: inFile,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(inFile);
+    if attributeName = "/" or attributeName = ">" then
+      attributeName := "";
+    else
+      if getSymbolInXmlTag(inFile) = "=" then
+        attributeValue := getSymbolInXmlTag(inFile);
+        if attributeValue = "/" or attributeValue = ">" then
+          attributeValue := "";
+        end if;
+      else
+        attributeValue := "";
+      end if;
     end if;
   end func;
 

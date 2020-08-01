@@ -124,7 +124,9 @@ scr_cur.obj: scr_cur.c version.h scr_drv.h
 	$(CC) $(CFLAGS) -c scr_cur.c
 
 
-clear:
+clear: clean
+
+clean:
 	del version.h
 	del calltlib.exe
 	del a_depend

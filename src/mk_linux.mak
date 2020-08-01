@@ -127,7 +127,9 @@ scr_cur.o: scr_cur.c version.h scr_drv.h
 	$(CC) $(CFLAGS) -c scr_cur.c
 
 
-clear:
+clear: clean
+
+clean:
 	rm *.o *.a depend a_depend b_depend c_depend version.h
 
 dep: depend

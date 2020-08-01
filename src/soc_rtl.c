@@ -176,7 +176,7 @@ bstritype address;
   { /* socConnect */
     if (connect(sock, (const struct sockaddr *) address->mem,
         address->size) != 0) {
-      /* printf("socConnect errno=%d\n", errno); */
+      /* printf("socConnect(%d) errno=%d\n", sock, errno); */
       raise_error(RANGE_ERROR);
     } /* if */
   } /* socConnect */
@@ -309,6 +309,7 @@ inttype port;
         } else {
           /*
           printf("Host name:      %s\n", host_ent->h_name);
+          printf("Port:           %d\n", port);
           printf("Address type:   %d\n", host_ent->h_addrtype);
           printf("Address type:   %d\n", AF_INET);
           printf("Address length: %d\n", host_ent->h_length);

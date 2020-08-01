@@ -44,7 +44,6 @@ objecttype undef_objectcategory (objecttype, listtype);
 void write_call_stack (const_listtype);
 objecttype raise_with_arguments (objecttype, listtype);
 objecttype raise_exception (objecttype);
-void raise_error (int);
 
 #else
 
@@ -56,6 +55,5 @@ objecttype undef_objectcategory ();
 void write_call_stack ();
 objecttype raise_with_arguments ();
 objecttype raise_exception ();
-void raise_error ();
 
 #endif

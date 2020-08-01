@@ -95,10 +95,11 @@ void setupFloat ()
 #ifdef DEFINE_MATHERR_FUNCTION
 #ifdef ANSI_C
 
-int _matherr(struct _exception *a)
+int _matherr (struct _exception *a)
 #else
 
-int _matherr(struct _exception *a)
+int _matherr (a)
+struct _exception *a;
 #endif
 
   { /* _matherr */

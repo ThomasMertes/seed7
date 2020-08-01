@@ -4105,15 +4105,15 @@ inttype number;
       result->size = big1->size + 1;
       if (number < 0) {
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-	  uBigMultNegativeWithNegatedDigit(big1, (bigdigittype) -number, result);
+          uBigMultNegativeWithNegatedDigit(big1, (bigdigittype) -number, result);
         } else {
-	  uBigMultPositiveWithNegatedDigit(big1, (bigdigittype) -number, result);
+          uBigMultPositiveWithNegatedDigit(big1, (bigdigittype) -number, result);
         } /* if */
       } else {
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-	  uBigMultNegativeWithDigit(big1, (bigdigittype) number, result);
+          uBigMultNegativeWithDigit(big1, (bigdigittype) number, result);
         } else {
-	  uBigMultPositiveWithDigit(big1, (bigdigittype) number, result);
+          uBigMultPositiveWithDigit(big1, (bigdigittype) number, result);
         } /* if */
       } /* if */
       result = normalize(result);

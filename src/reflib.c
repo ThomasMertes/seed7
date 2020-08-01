@@ -208,7 +208,7 @@ listtype arguments;
   { /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
     return(bld_int_temp(refArrmaxidx(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_arrmaxidx */
 
 
@@ -225,7 +225,7 @@ listtype arguments;
   { /* ref_arrminidx */
     isit_reference(arg_1(arguments));
     return(bld_int_temp(refArrminidx(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_arrminidx */
 
 
@@ -242,7 +242,7 @@ listtype arguments;
   { /* ref_arrtolist */
     isit_reference(arg_1(arguments));
     return(bld_reflist_temp(refArrtolist(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_arrtolist */
 
 
@@ -259,7 +259,7 @@ listtype arguments;
   { /* ref_body */
     isit_reference(arg_1(arguments));
     return(bld_reference_temp(refBody(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_body */
 
 
@@ -295,7 +295,7 @@ listtype arguments;
   { /* ref_category */
     isit_reference(arg_1(arguments));
     return(bld_int_temp(refCategory(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_category */
 
 
@@ -593,7 +593,7 @@ listtype arguments;
   { /* ref_hshdatatolist */
     isit_reference(arg_1(arguments));
     return(bld_reflist_temp(refHshDataToList(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_hshdatatolist */
 
 
@@ -610,7 +610,7 @@ listtype arguments;
   { /* ref_hshkeytolist */
     isit_reference(arg_1(arguments));
     return(bld_reflist_temp(refHshKeyToList(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_hshkeytolist */
 
 
@@ -675,7 +675,7 @@ listtype arguments;
   { /* ref_itftosct */
     isit_reference(arg_1(arguments));
     return(bld_reference_temp(refItftosct(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_itftosct */
 
 
@@ -725,7 +725,7 @@ listtype arguments;
   { /* ref_local_consts */
     isit_reference(arg_1(arguments));
     return(bld_reflist_temp(refLocalConsts(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_local_consts */
 
 
@@ -742,7 +742,7 @@ listtype arguments;
   { /* ref_local_vars */
     isit_reference(arg_1(arguments));
     return(bld_reflist_temp(refLocalVars(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_local_vars */
 
 
@@ -855,7 +855,7 @@ listtype arguments;
   { /* ref_num */
     isit_reference(arg_1(arguments));
     return(bld_int_temp(refNum(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_num */
 
 
@@ -1026,7 +1026,7 @@ listtype arguments;
   { /* ref_scttolist */
     isit_reference(arg_1(arguments));
     return(bld_reflist_temp(refScttolist(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_scttolist */
 
 
@@ -1218,7 +1218,7 @@ listtype arguments;
   { /* ref_str */
     isit_reference(arg_1(arguments));
     return(bld_stri_temp(refStr(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_str */
 
 
@@ -1285,7 +1285,7 @@ listtype arguments;
   { /* ref_type */
     isit_reference(arg_1(arguments));
     return(bld_type_temp(refType(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_type */
 
 
@@ -1302,5 +1302,5 @@ listtype arguments;
   { /* ref_value */
     isit_reference(arg_1(arguments));
     return(bld_reference_temp(refValue(
-	take_reference(arg_1(arguments)))));
+        take_reference(arg_1(arguments)))));
   } /* ref_value */
