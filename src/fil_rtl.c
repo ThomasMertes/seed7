@@ -148,7 +148,7 @@ filetype aFile;
 #ifdef FTELL_WRONG_FOR_PIPE
     {
       int file_no;
-      os_stat_struct stat_buf;
+      os_fstat_struct stat_buf;
 
       file_no = fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
@@ -215,7 +215,7 @@ filetype aFile;
 #ifdef FTELL_WRONG_FOR_PIPE
     {
       int file_no;
-      os_stat_struct stat_buf;
+      os_fstat_struct stat_buf;
 
       file_no = fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
@@ -262,7 +262,7 @@ int origin;
 #ifdef FTELL_WRONG_FOR_PIPE
     {
       int file_no;
-      os_stat_struct stat_buf;
+      os_fstat_struct stat_buf;
 
       file_no = fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
@@ -313,7 +313,7 @@ filetype aFile;
 
   {
     int file_no;
-    os_stat_struct stat_buf;
+    os_fstat_struct stat_buf;
     os_off_t file_length;
     os_off_t current_file_position;
     memsizetype result;
@@ -582,7 +582,7 @@ filetype aFile;
 
   {
     int file_no;
-    os_stat_struct stat_buf;
+    os_fstat_struct stat_buf;
     biginttype result;
 
   /* filBigLng */
@@ -607,7 +607,7 @@ filetype aFile;
 
 #ifdef ANSI_C
 
-void filBigSeek (filetype aFile, biginttype big_position)
+void filBigSeek (filetype aFile, const const_biginttype big_position)
 #else
 
 void filBigSeek (aFile, big_position)
@@ -967,7 +967,7 @@ filetype aFile;
 
   {
     int file_no;
-    os_stat_struct stat_buf;
+    os_fstat_struct stat_buf;
     inttype result;
 
   /* filLng */
@@ -1026,7 +1026,7 @@ stritype mode;
     errinfotype err_info = OKAY_NO_ERROR;
 #ifdef FOPEN_OPENS_DIRECTORIES
     int file_no;
-    os_stat_struct stat_buf;
+    os_fstat_struct stat_buf;
 #endif
     filetype result;
 

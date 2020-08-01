@@ -1,3 +1,36 @@
+20110203:
+- Many thanks to Bogdan Lisovich for his help to investigate and fix a
+  compilation problem under Mac OS.
+- The fannkuch-redux benchmark "fannkuch.sd7" from "Bart C" was added
+  (Many thanks to "Bart C" for releasing "fannkuch.sd7" under the GPL).
+- The comanche.sd7 webserver was improved to support CGI programs.
+- The chapter explaining 'operating system access' in the manual was improved.
+- The function 'getCgiParameters(file)' was added to "cgi.s7i".
+- The functions 'setenv' and 'file(PROGRAM)' were added to "seed7_05.s7i"
+- The interpreter and the compiler were improved to support the function
+  'getenv'.
+- Several changes were done to support compiling with a C++ compiler.
+- The keyword INLINE was removed from the functions bigCmp, bigCreate,
+  bstCmp, bstCreate, fltCmp, intCmp, rflCreate, setCmp, setCreate, strCompare
+  and strCreate (C++ does not generate an externally visible function for
+  inline functions).
+- The compiler (comp.sd7) was improved to generate runtime library prototypes
+  with constant types.
+- The function timFromIntTimestamp was introduced in "tim_rtl.c" and used
+  in "timlib.c" and in compiled code.
+- The example programs dirtst.sd7, eliza.sd7, fib.sd7, gkbd.sd7, hamu.sd7,
+  kbd.sd7, rand.sd7, rever.sd7, sl.sd7, snake.sd7 and tak.sd7 were improved
+  to use the operator <& instead of multiple calls of write.
+- The const qualifier was added to function prototypes in "arr_rtl.c",
+  "arr_rtl.h", "big_rtl.c", "big_gmp.c", "big_drv.h", "blockutl.c",
+  "blockutl.h", "drw_x11.c", "drw_win.c", "drw_drv.h", "fil_rtl.c",
+  "fil_rtl.h", "ref_data.c", "ref_data.h", "soc_rtl.c", "soc_rtl.h",
+  "tim_rtl.c", "traceutl.c" and "traceutl.h".
+- The macro 'os_fstat_struct' was introduced in the files "mk_bccv5.mak",
+  "common.h"" "infile.c", "fil_rtl.c", "cmd_rtl.c".
+- Parameter names were added to the prototypes in the files "blockutl.h",
+  "dir_win.h", "doany.h" and "traceutl.h".
+
 20110116:
 - The chapter explaining 'operating system access' in the manual was improved.
 - The standard path representation was changed to forbid drive letters

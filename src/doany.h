@@ -27,11 +27,11 @@
 
 #ifdef ANSI_C
 
-objecttype exec1 (listtype);
-booltype do_flush (objecttype);
-booltype do_wrnl (objecttype);
-booltype do_wrstri (objecttype, stritype);
-booltype do_wrcstri (objecttype, const_cstritype);
+objecttype exec1 (listtype list);
+booltype do_flush (objecttype outfile);
+booltype do_wrnl (objecttype outfile);
+booltype do_wrstri (objecttype outfile, stritype stri);
+booltype do_wrcstri (objecttype outfile, const_cstritype stri);
 void init_do_any (void);
 
 #else

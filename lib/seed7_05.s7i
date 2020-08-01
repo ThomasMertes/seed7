@@ -872,7 +872,7 @@ const func integer: length (in ref_list param) is                        action 
 
 const proc: TRACE_LIST (in ref_list param) is                            action "RFL_TRACE";
 
-const proc: for (inout reference param) range (ref ref_list param) do 
+const proc: for (inout reference param) range (ref ref_list param) do
               (ref proc param)
             end for                                                   is action "RFL_FOR";
 const proc: for (inout reference param) range (ref ref_list param) until (in func boolean param) do
@@ -3553,10 +3553,11 @@ const proc: clear_box (ref text param) is DYNAMIC;
 
 (* ARGS + ENV *)
 
-const func array string: argv (PROGRAM) is     action "PRC_ARGS";
-const func string: name (PROGRAM) is           action "PRG_NAME";
-const func string: path (PROGRAM) is           action "PRG_PATH";
-const func string: getenv (in string param) is action "STR_GETENV";
+const func array string: argv (PROGRAM)               is action "PRC_ARGS";
+const func string: name (PROGRAM)                     is action "PRG_NAME";
+const func string: path (PROGRAM)                     is action "PRG_PATH";
+const func string: getenv (in string param)           is action "CMD_GETENV";
+const proc: setenv (in string param, in string param) is action "CMD_SETENV";
 
 const func string: dir (PROGRAM) is func
   result
@@ -3568,6 +3569,19 @@ const func string: dir (PROGRAM) is func
     slashPos := rpos(result, '/');
     if slashPos > 1 then
       result := result[.. pred(slashPos)];
+    end if;
+  end func;
+
+const func string: file (PROGRAM) is func
+  result
+    var string: result is "";
+  local
+    var integer: slashPos is 0;
+  begin
+    result := path(PROGRAM);
+    slashPos := rpos(result, '/');
+    if slashPos <> 0 then
+      result := result[succ(slashPos) ..];
     end if;
   end func;
 

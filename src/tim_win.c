@@ -36,6 +36,7 @@
 #include "time.h"
 #include "windows.h"
 #include "sys/stat.h"
+#include "sys/types.h"
 #ifdef INCLUDE_SYS_UTIME
 #include "sys/utime.h"
 #else

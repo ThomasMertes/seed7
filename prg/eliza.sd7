@@ -286,8 +286,7 @@ const proc: main is func
       if sentence[length(sentence)] <> '*' then
         writeln(sentence);
       else
-        write(sentence[.. pred(length(sentence))]);
-        writeln(replaced_stri);
+        writeln(sentence[.. pred(length(sentence))] <& replaced_stri);
       end if;
       last_input := user_input;
     until FALSE;

@@ -45,10 +45,10 @@
 
 #ifdef ANSI_C
 
-cstritype bigHexCStri (const_biginttype big1);
+cstritype bigHexCStri (const const_biginttype big1);
 biginttype bigAbs (const const_biginttype big1);
 biginttype bigAdd (const_biginttype big1, const_biginttype big2);
-biginttype bigAddTemp (biginttype big1, const_biginttype big2);
+biginttype bigAddTemp (biginttype big1, const const_biginttype big2);
 inttype bigBitLength (const const_biginttype big1);
 stritype bigCLit (const const_biginttype big1);
 inttype bigCmp (const const_biginttype big1, const const_biginttype big2);
@@ -83,6 +83,7 @@ biginttype bigMinus (const const_biginttype big1);
 biginttype bigMod (const const_biginttype big1, const const_biginttype big2);
 biginttype bigMult (const_biginttype big1, const_biginttype big2);
 void bigMultAssign (biginttype *const big_variable, const_biginttype big2);
+biginttype bigMultSignedDigit (const_biginttype big1, inttype number);
 booltype bigOdd (const const_biginttype big1);
 biginttype bigParse (const const_stritype stri);
 biginttype bigPred (const const_biginttype big1);
@@ -143,6 +144,7 @@ biginttype bigMinus ();
 biginttype bigMod ();
 biginttype bigMult ();
 void bigMultAssign ();
+biginttype bigMultSignedDigit ();
 booltype bigOdd ();
 biginttype bigParse ();
 biginttype bigPred ();

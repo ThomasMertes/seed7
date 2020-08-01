@@ -163,7 +163,10 @@ version.h:
 	echo ^#define os_fseek _fseeki64 >> version.h
 	echo ^#define os_ftell _ftelli64 >> version.h
 	echo ^#define os_off_t __int64 >> version.h
-	echo ^#define os_getenv _wgetenv >> version.h
+	echo ^#define USE_WGETENV_WSTRI >> version.h
+	echo ^#define os_getenv wgetenv_wstri >> version.h
+	echo ^#define DEFINE_WSETENV >> version.h
+	echo ^#define os_setenv wsetenv >> version.h
 	echo ^#define USE_WINSOCK >> version.h
 	echo ^#define $(BIGINT_LIB_DEFINE) >> version.h
 	echo bcc32.exe %* > bcc32.bat

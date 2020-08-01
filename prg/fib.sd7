@@ -40,10 +40,6 @@ const proc: main is func
     var integer: number is 0;
   begin
     for number range 0 to 20 do
-      write("fib(");
-      write(number);
-      write(") = ");
-      write(fib(number));
-      writeln;
+      writeln("fib(" <& number <& ") = " <& fib(number));
     end for;
   end func;

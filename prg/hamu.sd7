@@ -124,30 +124,28 @@ const proc: state_of_the_nation (
     writeln;
     writeln;
     title;
-    write("here is the report to the state of the nation in the year ");
-    write(year);
-    writeln(":");
+    writeln("here is the report to the state of the nation in the year " <& year <& ":");
     writeln;
     if dead_this_year > 0 then
-      write("people starved ........."); writeln(dead_this_year lpad 6);
+      writeln("people starved ........." <& dead_this_year lpad 6);
     end if;
     if killed_by_desease > 0 then
-      write("died due to desease ...."); writeln(killed_by_desease lpad 6);
+      writeln("died due to desease ...." <& killed_by_desease lpad 6);
     end if;
     if immigrants > 0 then
-      write("immigrants ............."); writeln(immigrants lpad 6);
+      writeln("immigrants ............." <& immigrants lpad 6);
     end if;
-    write("population ............."); writeln(population lpad 6);
-    write("property of acres soil ."); writeln(property_of_acres_soil lpad 6);
+    writeln("population ............." <& population lpad 6);
+    writeln("property of acres soil ." <& property_of_acres_soil lpad 6);
     if profits_per_acre > 0 then
-      write("profits per acre ......."); writeln(profits_per_acre lpad 6);
+      writeln("profits per acre ......." <& profits_per_acre lpad 6);
     end if;
     if destroyed_bushels > 0 then
-      write("destroyed by rats ......"); writeln(destroyed_bushels lpad 6);
+      writeln("destroyed by rats ......") <& destroyed_bushels lpad 6);
     end if;
-    write("stock of bushels corn .."); writeln(stock_of_bushels lpad 6);
+    writeln("stock of bushels corn .." <& stock_of_bushels lpad 6);
     if private_property > 0 then
-      write("private property ......."); writeln(private_property lpad 6);
+      writeln("private property ......." <& private_property lpad 6);
     end if;
   end func; (* state_of_the_nation *)
 
@@ -166,9 +164,7 @@ const proc: buy_soil (
     repeat
       input_ok := TRUE;
       writeln;
-      write("Soil is traded with ");
-      write(price_per_acre);
-      writeln(" bushels per acre.");
+      writeln("Soil is traded with " <& price_per_acre <& " bushels per acre.");
       read_number("  How many acres soil do you want to buy: ",
           buy_acres, quit);
       if not quit and buy_acres > 0 then
@@ -178,8 +174,7 @@ const proc: buy_soil (
         else
           input_ok := FALSE;
           think_it_over;
-          write(bushels_corn);
-          writeln(" bushels corn!");
+          writeln(bushels_corn <& " bushels corn!");
         end if;
       end if;
     until input_ok;
@@ -208,8 +203,7 @@ const proc: sell_soil (
         else
           input_ok := FALSE;
           think_it_over;
-          write(acres_soil);
-          writeln(" acres soil!");
+          writeln(acres_soil <& " acres soil!");
         end if;
       end if;
     until input_ok;
@@ -236,8 +230,7 @@ const proc: support_population (
           else
             input_ok := FALSE;
             think_it_over;
-            write(bushels_corn);
-            writeln(" bushels corn!");
+            writeln(bushels_corn <& " bushels corn!");
           end if;
         end if;
       until input_ok;
@@ -276,15 +269,12 @@ const proc: cultivate_soil (
             input_ok := FALSE;
             think_it_over;
             if acres_soil = possible_to_work_on then
-              write(acres_soil);
-              writeln(" acres soil!");
+              writeln(acres_soil <& " acres soil!");
             else
               if (10 * population) = possible_to_work_on then
-                write(population);
-                writeln(" persons to gather in the harvest!");
+                writeln(population <& " persons to gather in the harvest!");
               else
-                write(bushels_corn);
-                writeln(" bushels corn!");
+                writeln(bushels_corn <& " bushels corn!");
               end if;
             end if;
           end if;
@@ -325,32 +315,18 @@ const proc: budget (
         title;
         writeln("in your budget you:");
         if buy_acres > 0 then
-          write("  Buy ");
-          write(buy_acres);
-          write(" acres of soil for a price of ");
-          write(price_per_acre);
-          writeln(".");
+          writeln("  Buy " <& buy_acres <& " acres of soil for a price of " <& price_per_acre <& ".");
         elsif sell_acres > 0 then
-          write("  Sell ");
-          write(sell_acres);
-          write(" acres of soil for a price of ");
-          write(price_per_acre);
-          writeln(".");
+          writeln("  Sell " <& sell_acres <& " acres of soil for a price of " <& price_per_acre <& ".");
         else
           writeln("  Do not trade with soil.");
         end if;
-        write("  Support the population with ");
-        write(public_assistance);
-        writeln(" bushels corn.");
-        write("  Cultivate ");
-        write(soil_to_work_on);
-        writeln(" acres of soil.");
+        writeln("  Support the population with " <& public_assistance <& " bushels corn.");
+        writeln("  Cultivate " <& soil_to_work_on <& " acres of soil.");
         writeln;
 
         repeat
-          write("Do you approve the budget for the year ");
-          write(succ(year));
-          write(" (Yes/No/Quit)? ");
+          write("Do you approve the budget for the year " <& succ(year) <& " (Yes/No/Quit)? ");
           readln(answer);
           answer := upper(answer);
           quit := answer = "Q";
@@ -413,9 +389,7 @@ const proc: population_growth (
 (*        private_property -:= dead_this_year; *)
         end if;
         if 100 * dead_this_year > 45 * population then
-          write("You let die ");
-          write(dead_this_year);
-          writeln(" persons in one year.");
+          writeln("You let die " <& dead_this_year <& " persons in one year.");
           writeln;
           if dead_this_year = population then
             writeln("Due to your crazy actions the whole population of your country died.");
@@ -451,21 +425,13 @@ const proc: statistics (in integer: percent_population, in integer: acres_per_pe
 
   begin (* statistics *)
     writeln;
-    write("In your ");
-    write(year);
-    writeln("-year rulership you let die an");
-    write("average of ");
-    write(percent_population);
-    writeln("% of your population.");
-    write("Altogether ");
-    write(dead_total);
-    writeln(" persons died due to hunger.");
+    writeln("In your " <& year <& "-year rulership you let die an");
+    writeln("average of " <& percent_population <& "% of your population.");
+    writeln("Altogether " <& dead_total <& " persons died due to hunger.");
     writeln;
     if acres_per_person <> -1 then
       writeln("Your rulership started with 10 acres per head");
-      write("and ends with ");
-      write(acres_per_person);
-      writeln(" acres per head.");
+      writeln("and ends with " <& acres_per_person <& " acres per head.");
     end if;
     writeln;
   end func; (* statistics *)
@@ -524,8 +490,7 @@ const proc: evaluation (in integer: percent_population, in integer: acres_per_pe
       enemys_in_the_population := population *
           rand(0, pred(population_factor * acres_factor)) div 100;
       if enemys_in_the_population > 0 then
-        write(enemys_in_the_population);
-        write(" person");
+        write(enemys_in_the_population <& " person");
         if enemys_in_the_population > 1 then
           write("s");
         end if;
@@ -546,9 +511,9 @@ const proc: final_report is func
       writeln;
       writeln("Everybody should be able to rule at least one year.");
     else
-(*    write("POP TOTAL "); write(population_total);
-      write("  dead_total "); write(dead_total);
-      write("  YEAR "); writeln(year); *)
+(*    write("POP TOTAL " <& population_total);
+      write("  dead_total " <& dead_total);
+      write("  YEAR " <& year); *)
       percent_population := (dead_total * 100) div population_total;
       if population <> 0 then
         acres_per_person := property_of_acres_soil div population;

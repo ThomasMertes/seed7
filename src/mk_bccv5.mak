@@ -141,10 +141,11 @@ version.h:
 	echo ^#define os_closedir wclosedir >> version.h
 	echo ^#define os_DIR wDIR >> version.h
 	echo ^#define os_dirent_struct struct wdirent >> version.h
-	echo ^#define os_fstat _fstat >> version.h
-	echo ^#define os_lstat _wstat >> version.h
-	echo ^#define os_stat _wstat >> version.h
-	echo ^#define os_stat_struct struct _stat >> version.h
+	echo ^#define os_fstat fstat >> version.h
+	echo ^#define os_lstat _wstati64 >> version.h
+	echo ^#define os_stat _wstati64 >> version.h
+	echo ^#define os_fstat_struct struct stat >> version.h
+	echo ^#define os_stat_struct struct stati64 >> version.h
 	echo ^#define os_chown(name,uid,gid) >> version.h
 	echo ^#define os_chmod _wchmod >> version.h
 	echo ^#define os_utime_orig _wutime >> version.h
@@ -157,7 +158,10 @@ version.h:
 	echo ^#define os_popen _wpopen >> version.h
 	echo ^#define wide_fopen _wfopen >> version.h
 	echo ^#define os_off_t long >> version.h
-	echo ^#define os_getenv _wgetenv >> version.h
+	echo ^#define USE_WGETENV_WSTRI >> version.h
+	echo ^#define os_getenv wgetenv_wstri >> version.h
+	echo ^#define DEFINE_WSETENV >> version.h
+	echo ^#define os_setenv wsetenv >> version.h
 	echo ^#define USE_WINSOCK >> version.h
 	echo ^#define $(BIGINT_LIB_DEFINE) >> version.h
 	echo bcc32.exe %* > bcc32.bat

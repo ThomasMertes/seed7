@@ -32,8 +32,7 @@ const proc: main is func
     writeln("Keyboard test program. Type ! to terminate the program");
     repeat
       ch := getc(KEYBOARD);
-      write(ord(ch));
-      write(" ");
+      write(ord(ch) <& " ");
       if ord(ch) >= 1 and ord(ch) <= length(EVENT_DESCR) then
         writeln(EVENT_DESCR[ord(ch)]);
       else

@@ -47,17 +47,10 @@ const func integer: tak (in integer: x, in integer: y, in integer: z) is func
 const proc: main is func
   begin
     before := time(NOW);
-    write("tak(18, 12, 6) = ");
-    writeln(tak(18, 12, 6));
+    writeln("tak(18, 12, 6) = " <& tak(18, 12, 6));
     after := time(NOW);
-    write(before);
-    write(" ");
-    writeln(before.micro_second lpad 6);
-    write(after);
-    write(" ");
-    writeln(after.micro_second lpad 6);
+    writeln(before);
+    writeln(after);
     diff := after - before;
-    write(diff);
-    write(" ");
-    writeln(diff.micro_second lpad 6);
+    writeln(diff <& " " <& diff.micro_second lpad 6);
   end func;

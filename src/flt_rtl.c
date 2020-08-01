@@ -116,10 +116,10 @@ struct _exception *a;
 
 #ifdef ANSI_C
 
-INLINE inttype fltCmp (floattype number1, floattype number2)
+inttype fltCmp (floattype number1, floattype number2)
 #else
 
-INLINE inttype fltCmp (number1, number2)
+inttype fltCmp (number1, number2)
 floattype number1;
 floattype number2;
 #endif

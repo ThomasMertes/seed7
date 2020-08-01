@@ -34,8 +34,7 @@ const proc: main is func
     dirFile := open_dir_path(getln(IN));
     name := getln(dirFile);
     while name <> "" do
-      write(name);
-      write(" ");
+      write(name <& " ");
       name := getln(dirFile);
     end while;
   end func;

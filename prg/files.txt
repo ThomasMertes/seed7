@@ -24,7 +24,7 @@ clock.sd7    Displays a digital clock
 clock2.sd7   Displays a digital clock with microseconds        
 clock3.sd7   Analog Clock                                      
 cmpfil.sd7   Compares two files in main memory                 
-comanche.sd7 Simple webserver for static pages.                
+comanche.sd7 Simple webserver for static and cgi pages.        
 comp.sd7     Compiler from Seed7 to C                          
 dirtst.sd7   Test reading a directory as file                  
 dirx.sd7     Make a directory listing                          
@@ -33,6 +33,7 @@ dragon.sd7   Draw a dragon curve
 echo.sd7     Write the arguments of the program                
 eliza.sd7    The computer psychiatrist                         
 err.sd7      Test for almost all possible compile time errors  
+fannkuch.sd7 Fannkuch-redux benchmark program                  
 fib.sd7      Compute fibonacci numbers                         
 fractree.sd7 Draw a fractal tree                               
 gcd.sd7      Compute the greatest common divisor               

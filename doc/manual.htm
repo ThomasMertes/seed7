@@ -7537,657 +7537,648 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="Standard_path_representation"><h3>12.1 Standard path representation</h3></a>
 <p>
-A path specifies the location of a file in a file system.
-Operating systems have different concepts how a path should
-look like. Seed7 compensates this differences with a standard
-path representation. Standard paths are used by all Seed7
-functions dealing with paths. The standard path representation
-uses strings with the fillowing properties to describe paths:
+    A path specifies the location of a file in a file system.
+  Operating systems have different concepts how a path should
+  look like. Seed7 compensates this differences with a standard
+  path representation. Standard paths are used by all Seed7
+  functions dealing with paths. The standard path representation
+  uses strings with the fillowing properties to describe paths:
 </p><ul>
     <li><!-- -  -->The slash (<tt>'/'</tt>) is used as path delimiter.</li>
     <li><!-- -  -->Drive letters are not allowed, but there is a solution
       to replace them.</li>
-    <li><!-- -  -->Except for the path <tt><font color=maroon>"/"</font></tt>
-      a standard path is not allowed to end with a slash.
+    <li><!-- -  -->Except for the path <tt><font color=maroon>"/"</font></tt> a standard path is not allowed
+      to end with a slash.
 </ul><p>
-When a function like <tt>'open'</tt> is called with a path that is not
-<tt><font color=maroon>"/"</font></tt>, but ends with a slash, the exception <tt>'RANGE_ERROR'</tt> is raised.
-Under Windows a standard path like <tt><font color=maroon>"/c"</font></tt> is mapped to
-the drive <tt><font color=maroon>"C:"</font></tt>. Reading the directory <tt><font color=maroon>"/"</font></tt> under Windows
-returns a list of available drives. A path with a backslash
-or with a drive letter may raise the exception <tt>'RANGE_ERROR'</tt>,
-when a function like <tt>'open'</tt>is called.  
+  When a function like <tt>'open'</tt> is called with a path that is not
+  <tt><font color=maroon>"/"</font></tt>, but ends with a slash, the exception <tt>'RANGE_ERROR'</tt> is
+  raised. Under Windows a standard path like <tt><font color=maroon>"/c"</font></tt> is mapped to
+  the drive <tt><font color=maroon>"C:"</font></tt>. Reading the directory <tt><font color=maroon>"/"</font></tt> under Windows
+  returns a list of available drives. A path with a backslash
+  or with a drive letter may raise the exception <tt>'RANGE_ERROR'</tt>,
+  when a function like <tt>'open'</tt>is called.  
 </p><p>
-An absolute path specifies an unique location in the file
-system. Absolute paths always start with a slash. A relative
-path specifies a location relative to the current working
-directory of the program. Although standard paths are defined
-in a portable way, an absolute path will usually not be portable.
+  An absolute path specifies an unique location in the file
+  system. Absolute paths always start with a slash. A relative
+  path specifies a location relative to the current working
+  directory of the program. Although standard paths are defined
+  in a portable way, an absolute path will usually not be portable.
 </p>
 
 <a name="read_dir"><h3>12.2 read_dir</h3></a>
 <p>
-    The function <tt>'read_dir'</tt> provides a portable access
-    to the contents of directories in the file system. It reads
-    the specified directory and the filenames are stored in the
-    string-array result. The files <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt> are left out from
-    the result. Note that the strings contain only the filenames.
-    Additional information must be obtained with other calls.
+    The function <tt>'read_dir'</tt> provides a portable access to the
+  contents of directories in the file system. It reads the
+  specified directory and the filenames are stored in the
+  string-array result. The files <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt> are left out from
+  the result. Note that the strings contain only the filenames.
+  Additional information must be obtained with other calls.
 </p><pre>
-      <font color=blue>const</font> <font color=red>func array string</font>: read_dir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func array string</font>: read_dir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd>
-      An array of strings containing the names of all
-      files in the specified directory, except <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt>
-      </dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'dirPath'</tt> to the system path type or not
-          enough memory to represent the result <tt>'<font color=red>string array</font>'</tt>.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'dirPath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Examples:</p></dt><dd>
-      <p>
-      After the declaration
-      </p><pre>
-        <font color=blue>var</font> <font color=red>array string</font>: dir_array <font color=blue>is </font>0 <font color=blue>times</font> <font color=maroon>""</font>;
-      </pre><p>
-      the statement
-      </p><pre>
-        dir_array := read_dir(<font color=maroon>"."</font>);
-      </pre><p>
-      reads the current working directory and stores it into the
-      string-array <tt>'dir_array'</tt>. The components of the directory
-      can now be accessed via indexing:
-      </p><pre>
-        <font color=blue>for</font> index <font color=blue>range</font> 1 <font color=blue>to</font> length(dir_array) <font color=blue>do</font>
-          writeln(dir_array[index]);
-        <font color=blue>end for</font>;
-      </pre><p>
-      </p></dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    An array of strings containing the names of all
+    files in the specified directory, except <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt>
+    </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'dirPath'</tt> to the system
+        path type or not enough memory to represent the result
+        <tt>'<font color=red>string array</font>'</tt>.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'dirPath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Examples:</p></dt><dd><p>
+    After the declaration
+    </p><pre>
+      <font color=blue>var</font> <font color=red>array string</font>: dir_array <font color=blue>is </font>0 <font color=blue>times</font> <font color=maroon>""</font>;
+    </pre><p>
+    the statement
+    </p><pre>
+      dir_array := read_dir(<font color=maroon>"."</font>);
+    </pre><p>
+    reads the current working directory and stores it into the
+    string-array <tt>'dir_array'</tt>. The components of the directory
+    can now be accessed via indexing:
+    </p><pre>
+      <font color=blue>for</font> index <font color=blue>range</font> 1 <font color=blue>to</font> length(dir_array) <font color=blue>do</font>
+        writeln(dir_array[index]);
+      <font color=blue>end for</font>;
+    </pre><p></p></dd></dl></p>
 
 <a name="open_dir"><h3>12.3 open_dir</h3></a>
 <p>
     The function <tt>'open_dir'</tt> opens the specified
-    directory as file. Each line in this directory file
-    contains the filename of a file present in the the
-    directory. The files <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt> are left out from the
-    directory file. Note that only filenames can be read
-    from the directory file. Additional information must be
-    obtained with other calls.
+  directory as file. Each line in this directory file
+  contains the filename of a file present in the the
+  directory. The files <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt> are left out from the
+  directory file. Note that only filenames can be read
+  from the directory file. Additional information must be
+  obtained with other calls.
 </p><pre>
-      <font color=blue>const</font> <font color=red>func file</font>: open_dir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func file</font>: open_dir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd>
-      The directory file of the specified directory.
-      </dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'dirPath'</tt> to the system path type or not
-          enough memory to represent the result <tt>'<font color=red>string array</font>'</tt>.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'dirPath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Examples:</p></dt><dd>
-      <pre>
-        ...
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    The directory file of the specified directory.
+    </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'dirPath'</tt> to the system
+        path type or not enough memory to represent the result
+        <tt>'<font color=red>string array</font>'</tt>.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'dirPath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Examples:</p></dt><dd><pre>
+      ...
 
-        <font color=blue>include</font> <font color=maroon>"dir.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"dir.s7i"</font>;
 
-        <font color=blue>var</font> <font color=red>file</font>: dir_file <font color=blue>is</font> STD_NULL;
-        <font color=blue>var</font> <font color=red>string</font>: file_name <font color=blue>is</font> <font color=maroon>""</font>;
+      <font color=blue>var</font> <font color=red>file</font>: dir_file <font color=blue>is</font> STD_NULL;
+      <font color=blue>var</font> <font color=red>string</font>: file_name <font color=blue>is</font> <font color=maroon>""</font>;
 
-        ...
+      ...
 
-        dir_file := open_dir(<font color=maroon>"."</font>);
+      dir_file := open_dir(<font color=maroon>"."</font>);
+      file_name := getln(dir_file);
+      <font color=blue>while</font> file_name &lt;> <font color=maroon>""</font> <font color=blue>do</font>
+        writeln(file_name);
         file_name := getln(dir_file);
-        <font color=blue>while</font> file_name &lt;> <font color=maroon>""</font> <font color=blue>do</font>
-          writeln(file_name);
-          file_name := getln(dir_file);
-        <font color=blue>end while</font>;
-      </pre><p>
-      </p></dd></dl></p>
+      <font color=blue>end while</font>;
+    </pre><p></p></dd></dl></p>
 
 <a name="getcwd"><h3>12.4 getcwd</h3></a>
 <p>
     The function <tt>'getcwd'</tt> returns the current working
-    directory of the calling process as absolute path.
+  directory of the calling process as absolute path.
 </p><pre>
-      <font color=blue>const</font> <font color=red>func string</font>: getcwd <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func string</font>: getcwd <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd><p>
-      The absolute path of the current working directory.
-      </p></dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>The system function returns an error.</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Examples:</p></dt><dd>
-      <p>
-      The statement
-      </p><pre>
-        my_dir := getcwd;
-      </pre><p>
-      assigns the full path of the current working directory to
-      the string variable <tt>'my_dir'</tt>.
-      </p></dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    The absolute path of the current working directory.
+    </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>The system function returns an error.</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Examples:</p></dt><dd><p>
+    The statement
+    </p><pre>
+      my_dir := getcwd;
+    </pre><p>
+    assigns the full path of the current working directory to
+    the string variable <tt>'my_dir'</tt>.
+    </p></dd></dl></p>
 
 <a name="chdir"><h3>12.5 chdir</h3></a>
 <p>
     The function <tt>'chdir'</tt> changes the current working
-    directory of the calling process to the specified directory.
+  directory of the calling process to the specified directory.
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: chdir (<font color=blue>in</font> <font color=red>string</font>: name) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: chdir (<font color=blue>in</font> <font color=red>string</font>: name) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'name'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'name'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Examples:</p></dt><dd>
-      <p>
-      The statement
-      </p><pre>
-        chdir(<font color=maroon>"/usr/bin"</font>);
-      </pre><p>
-      changes the current working directory to <tt><font color=maroon>"/usr/bin"</font></tt>.
-      </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'name'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'name'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Examples:</p></dt><dd><p>
+    The statement
+    </p><pre>
+      chdir(<font color=maroon>"/usr/bin"</font>);
+    </pre><p>
+    changes the current working directory to <tt><font color=maroon>"/usr/bin"</font></tt>.
+    </p></dd></dl></p>
 
 <a name="mkdir"><h3>12.6 mkdir</h3></a>
 <p>
     The function <tt>'mkdir'</tt> creates a new directory.
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: mkdir (<font color=blue>in</font> <font color=red>string</font>: name) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: mkdir (<font color=blue>in</font> <font color=red>string</font>: name) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'name'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'name'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Examples:</p></dt><dd>
-      <p>
-      The statement
-      </p><pre>
-        mkdir(<font color=maroon>"my_dir"</font>);
-      </pre><p>
-      creates the directory <tt><font color=maroon>"my_dir"</font></tt>.
-      </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'name'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'name'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Examples:</p></dt><dd><p>
+    The statement
+    </p><pre>
+      mkdir(<font color=maroon>"my_dir"</font>);
+    </pre><p>
+    creates the directory <tt><font color=maroon>"my_dir"</font></tt>.
+    </p></dd></dl></p>
 
 <a name="fileType"><h3>12.7 fileType</h3></a>
 <p>
     The type of a file can determined with <tt>'fileType'</tt> or
-    <tt>'fileTypeSL'</tt>:
+  <tt>'fileTypeSL'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>func integer</font>: fileType (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
-      <font color=blue>const</font> <font color=red>func integer</font>: fileTypeSL (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func integer</font>: fileType (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func integer</font>: fileTypeSL (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre><p>
-    The function <tt>'fileType'</tt> does follow symbolic links.
-    Therefore <tt>'fileType'</tt> never returns <tt>'FILE_SYMLINK'</tt>.
-    The function <tt>'fileTypeSL'</tt> does not follow symbolic
-    links. Therefore <tt>'fileTypeSL'</tt> can also return
-    <tt>'FILE_SYMLINK'</tt>. Most functions which use a file path
-    except <tt>'fileTypeSL'</tt> and <tt>'readlink'</tt> follow
-    symbolic links. 
+  The function <tt>'fileType'</tt> does follow symbolic links.
+  Therefore <tt>'fileType'</tt> never returns <tt>'FILE_SYMLINK'</tt>.
+  The function <tt>'fileTypeSL'</tt> does not follow symbolic
+  links. Therefore <tt>'fileTypeSL'</tt> can also return
+  <tt>'FILE_SYMLINK'</tt>. Most functions which use a file path
+  except <tt>'fileTypeSL'</tt> and <tt>'readlink'</tt> follow symbolic links. 
 </p>
-    <p><dl><dt><p>Returns:</p></dt><dd>
-      <dl>
-      <dt>FILE_ABSENT</dt>
-          <dd>A component of path does not exist.</dd>
-      <dt>FILE_UNKNOWN</dt>
-          <dd>The file exists but has an unknown type.</dd>
-      <dt>FILE_REGULAR</dt>
-          <dd>The file is a regular file.</dd>
-      <dt>FILE_DIR</dt>
-          <dd>The file is a directory.</dd>
-      <dt>FILE_CHAR</dt>
-          <dd>The file is a character special file.</dd>
-      <dt>FILE_BLOCK</dt>
-          <dd>The file is a block special file.</dd>
-      <dt>FILE_FIFO</dt>
-          <dd>The file is a pipe or FIFO special file.</dd>
-      <dt>FILE_SYMLINK</dt>
-          <dd>The file is a symbolic link.</dd>
-      <dt>FILE_SOCKET</dt>
-          <dd>The file is a socket.</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>The system function returns an error other than ENOENT or ENOTDIR.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><dl>
+    <dt>FILE_ABSENT</dt>
+        <dd>A component of path does not exist.</dd>
+    <dt>FILE_UNKNOWN</dt>
+        <dd>The file exists but has an unknown type.</dd>
+    <dt>FILE_REGULAR</dt>
+        <dd>The file is a regular file.</dd>
+    <dt>FILE_DIR</dt>
+        <dd>The file is a directory.</dd>
+    <dt>FILE_CHAR</dt>
+        <dd>The file is a character special file.</dd>
+    <dt>FILE_BLOCK</dt>
+        <dd>The file is a block special file.</dd>
+    <dt>FILE_FIFO</dt>
+        <dd>The file is a pipe or FIFO special file.</dd>
+    <dt>FILE_SYMLINK</dt>
+        <dd>The file is a symbolic link.</dd>
+    <dt>FILE_SOCKET</dt>
+        <dd>The file is a socket.</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>The system function returns an error other than ENOENT or ENOTDIR.</dd>
+    </dl></dd></dl></p>
 
 <a name="fileMode"><h3>12.8 fileMode</h3></a>
 <p>
     The permissions of a file can determined with <tt>'fileMode'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>func fileMode</font>: fileMode (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func fileMode</font>: fileMode (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd><p>
-      The <tt>'<font color=red>fileMode</font>'</tt> which is defined as <tt>'<font color=red>set of filePermission</font>'</tt>.
-      </p></dd></dl></p>
-    <p><dl><dt><p>The literal values of <tt>'<font color=red>filePermission</font>'</tt> are:</p></dt><dd>
-      <dl>
-      <dt>EXEC_OTHER</dt>
-          <dd>others have execute permission</dd>
-      <dt>WRITE_OTHER</dt>
-          <dd>others have write permission</dd>
-      <dt>READ_OTHER</dt>
-          <dd>others have read permission</dd>
-      <dt>EXEC_GROUP</dt>
-          <dd>group has execute permission</dd>
-      <dt>WRITE_GROUP</dt>
-          <dd>group has write permission</dd>
-      <dt>READ_GROUP</dt>
-          <dd>group has read permission</dd>
-      <dt>EXEC_USER</dt>
-          <dd>owner has execute permission</dd>
-      <dt>WRITE_USER</dt>
-          <dd>owner has write permission</dd>
-      <dt>READ_USER</dt>
-          <dd>owner has read permission</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    The <tt>'<font color=red>fileMode</font>'</tt> which is defined as <tt>'<font color=red>set of filePermission</font>'</tt>.
+    </p></dd></dl></p>
+  <p><dl><dt><p>The literal values of <tt>'<font color=red>filePermission</font>'</tt> are:</p></dt><dd><dl>
+    <dt>EXEC_OTHER</dt>
+        <dd>others have execute permission</dd>
+    <dt>WRITE_OTHER</dt>
+        <dd>others have write permission</dd>
+    <dt>READ_OTHER</dt>
+        <dd>others have read permission</dd>
+    <dt>EXEC_GROUP</dt>
+        <dd>group has execute permission</dd>
+    <dt>WRITE_GROUP</dt>
+        <dd>group has write permission</dd>
+    <dt>READ_GROUP</dt>
+        <dd>group has read permission</dd>
+    <dt>EXEC_USER</dt>
+        <dd>owner has execute permission</dd>
+    <dt>WRITE_USER</dt>
+        <dd>owner has write permission</dd>
+    <dt>READ_USER</dt>
+        <dd>owner has read permission</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="setFileMode"><h3>12.9 setFileMode</h3></a>
 <p>
     The permissions of a file can changed with <tt>'setFileMode'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: setFileMode (<font color=blue>in</font> <font color=red>string</font>: filePath, <font color=blue>in</font> <font color=red>fileMode</font>: newFileMode) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: setFileMode (<font color=blue>in</font> <font color=red>string</font>: filePath, <font color=blue>in</font> <font color=red>fileMode</font>: newFileMode) <font color=blue>is</font> ...
 </pre><p>
-    The type <tt>'<font color=red>fileMode</font>'</tt> is defined as <tt>'<font color=red>set of filePermission</font>'</tt>.
+  The type <tt>'<font color=red>fileMode</font>'</tt> is defined as <tt>'<font color=red>set of filePermission</font>'</tt>.
 </p>
-    <p><dl><dt><p>The literal values of <tt>'<font color=red>filePermission</font>'</tt> are:</p></dt><dd>
-      <dl>
-      <dt>EXEC_OTHER</dt>
-          <dd>others have execute permission</dd>
-      <dt>WRITE_OTHER</dt>
-          <dd>others have write permission</dd>
-      <dt>READ_OTHER</dt>
-          <dd>others have read permission</dd>
-      <dt>EXEC_GROUP</dt>
-          <dd>group has execute permission</dd>
-      <dt>WRITE_GROUP</dt>
-          <dd>group has write permission</dd>
-      <dt>READ_GROUP</dt>
-          <dd>group has read permission</dd>
-      <dt>EXEC_USER</dt>
-          <dd>owner has execute permission</dd>
-      <dt>WRITE_USER</dt>
-          <dd>owner has write permission</dd>
-      <dt>READ_USER</dt>
-          <dd>owner has read permission</dd>
-      </dl></dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>The literal values of <tt>'<font color=red>filePermission</font>'</tt> are:</p></dt><dd><dl>
+    <dt>EXEC_OTHER</dt>
+        <dd>others have execute permission</dd>
+    <dt>WRITE_OTHER</dt>
+        <dd>others have write permission</dd>
+    <dt>READ_OTHER</dt>
+        <dd>others have read permission</dd>
+    <dt>EXEC_GROUP</dt>
+        <dd>group has execute permission</dd>
+    <dt>WRITE_GROUP</dt>
+        <dd>group has write permission</dd>
+    <dt>READ_GROUP</dt>
+        <dd>group has read permission</dd>
+    <dt>EXEC_USER</dt>
+        <dd>owner has execute permission</dd>
+    <dt>WRITE_USER</dt>
+        <dd>owner has write permission</dd>
+    <dt>READ_USER</dt>
+        <dd>owner has read permission</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="fileSize"><h3>12.10 fileSize</h3></a>
 <p>
     The size of a file can be determined with <tt>'fileSize'</tt> and <tt>'bigFileSize'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>func integer</font>: fileSize (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
-      <font color=blue>const</font> <font color=red>func bigInteger</font>: bigFileSize (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func integer</font>: fileSize (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func bigInteger</font>: bigFileSize (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd><p>
-      For directories a size of 0 is returned. For other file types
-      the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
-      used to determine the size of a file. The functions <tt>'fileSize'</tt>
-      and <tt>'bigFileSize'</tt> succeed when at least one strategy to determine
-      the file size succeeds. 
-      </p></dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd>The file size is not representable as <font color=red>integer</font>
-          (this exception is not raised by <tt>'bigFileSize'</tt>).</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>It was not possible to determine the file size.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    For directories a size of 0 is returned. For other file types
+    the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
+    used to determine the size of a file. The functions <tt>'fileSize'</tt>
+    and <tt>'bigFileSize'</tt> succeed when at least one strategy to determine
+    the file size succeeds. 
+    </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd>The file size is not representable as <font color=red>integer</font>
+        (this exception is not raised by <tt>'bigFileSize'</tt>).</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>It was not possible to determine the file size.</dd>
+    </dl></dd></dl></p>
 
 <a name="getATime"><h3>12.11 getATime</h3></a>
 <p>
     The access time of a file is returned by the function <tt>'getATime'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>func time</font>: getATime (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func time</font>: getATime (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="getCTime"><h3>12.12 getCTime</h3></a>
 <p>
     The change time of a file is returned by the function <tt>'getCTime'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>func time</font>: getCTime (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func time</font>: getCTime (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="getMTime"><h3>12.13 getMTime</h3></a>
 <p>
     The modification time of a file is returned by the function <tt>'getMTime'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>func time</font>: getMTime (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func time</font>: getMTime (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="setATime"><h3>12.14 setATime</h3></a>
 <p>
     The function <tt>'setATime'</tt> sets the access time of a file:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: setATime (<font color=blue>in</font> <font color=red>string</font>: filePath, <font color=blue>in</font> <font color=red>time</font>: aTime) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: setATime (<font color=blue>in</font> <font color=red>string</font>: filePath, <font color=blue>in</font> <font color=red>time</font>: aTime) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type or
-          <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type or
+        <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="setMTime"><h3>12.15 setMTime</h3></a>
 <p>
     The function <tt>'setMTime'</tt> sets the modification time of a file:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: setMTime (<font color=blue>in</font> <font color=red>string</font>: filePath, <font color=blue>in</font> <font color=red>time</font>: aTime) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: setMTime (<font color=blue>in</font> <font color=red>string</font>: filePath, <font color=blue>in</font> <font color=red>time</font>: aTime) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type or
-          <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type or
+        <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="readlink"><h3>12.16 readlink</h3></a>
 <p>
     The function <tt>'readlink'</tt> reads the destination of a symbolic link:
 </p><pre>
-      <font color=blue>const</font> <font color=red>func string</font>: readlink (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func string</font>: readlink (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd><p>
-      The symbolic link refered by <tt>'filePath'</tt>. 
-      </p></dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
-          enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    The symbolic link refered by <tt>'filePath'</tt>. 
+    </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
+        enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
+    </dl></dd></dl></p>
 
 <a name="symlink"><h3>12.17 symlink</h3></a>
 <p>
     The function <tt>'symlink'</tt> creates a symbolic link called
-    <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
+  <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: symlink (<font color=blue>in</font> <font color=red>string</font>: source, <font color=blue>in</font> <font color=red>string</font>: dest) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: symlink (<font color=blue>in</font> <font color=red>string</font>: source, <font color=blue>in</font> <font color=red>string</font>: dest) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Parameters:</p></dt><dd>
-      <dl>
-      <dt>source</dt>
-          <dd>Name of the symbolic link to be created.</dd>
-      <dt>dest</dt>
-          <dd>String to be contained in the symbolic link.</dd>
-      </dl></dd></dl></p>
-
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
-          to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'source'</tt> or <tt>'dest'</tt> is not representable in the
-          system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>A system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Parameters:</p></dt><dd><dl>
+    <dt>source</dt>
+        <dd>Name of the symbolic link to be created.</dd>
+    <dt>dest</dt>
+        <dd>String to be contained in the symbolic link.</dd>
+    </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
+        to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'source'</tt> or <tt>'dest'</tt> is not representable in the
+        system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="removeFile"><h3>12.18 removeFile</h3></a>
 <p>
     The function <tt>'removeFile'</tt> removes a file or
-    empty directory:
+  empty directory:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: removeFile (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: removeFile (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>The file does not exist or a system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>The file does not exist or a system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="removeAnyFile"><h3>12.19 removeAnyFile</h3></a>
 <p>
     The function <tt>'removeAnyFile'</tt> removes a file independend
-    of its file type:
+  of its file type:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: removeAnyFile (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: removeAnyFile (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>The file does not exist or a system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>The file does not exist or a system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="copyFile"><h3>12.20 copyFile</h3></a>
 <p>
     The function <tt>'copyFile'</tt> copies a file or directory
-    tree:
+  tree:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: copyFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: copyFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
 </pre><p>
-    Permissions/mode, ownership and timestamps of the destination file are
-    determined undependend of the corresponding source properties.
-    The destination file gets the permissions/mode defined by umask.
-    The user executing the program is the owner of the destination file.
-    The timestamps of the destination file are set to the current time.
-    Symbolic links in sourcePath are always followed.
-    Therefore <tt>'copyFile'</tt> will never create a symbolic link.
-    Note that <tt>'copyFile'</tt> does not preserve hard
-    links (they are resolved to distinct files).
+  Permissions/mode, ownership and timestamps of the destination file are
+  determined undependend of the corresponding source properties.
+  The destination file gets the permissions/mode defined by umask.
+  The user executing the program is the owner of the destination file.
+  The timestamps of the destination file are set to the current time.
+  Symbolic links in sourcePath are always followed.
+  Therefore <tt>'copyFile'</tt> will never create a symbolic link.
+  Note that <tt>'copyFile'</tt> does not preserve hard
+  links (they are resolved to distinct files).
 </p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
-          to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
-          system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>Source file does not exist, destination file already exists or
-          a system function returns an error.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
+        to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+        system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>Source file does not exist, destination file already exists or
+        a system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="cloneFile"><h3>12.21 cloneFile</h3></a>
 <p>
     The function <tt>'cloneFile'</tt> clones a file or directory
-    tree:
+  tree:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: cloneFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: cloneFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
 </pre><p>
-    Permissions/mode, ownership and timestamps of the original are
-    preserved. Symlinks are not followed. Instead the symlink
-    is copied. Note that <tt>'cloneFile'</tt> does not preserve hard
-    links (they are resolved to distinct files).</p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
-          to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
-          system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>Source file does not exist, destination file already exists or
-          a system function returns an error.</dd>
-      </dl></dd></dl></p>
+  Permissions/mode, ownership and timestamps of the original are
+  preserved. Symlinks are not followed. Instead the symlink
+  is copied. Note that <tt>'cloneFile'</tt> does not preserve hard
+  links (they are resolved to distinct files).
+</p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
+        to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+        system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>Source file does not exist, destination file already exists or
+        a system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="moveFile"><h3>12.22 moveFile</h3></a>
 <p>
     The function <tt>'moveFile'</tt> moves and/or renames a
-    file or directory tree:
+  file or directory tree:
 </p><pre>
-      <font color=blue>const</font> <font color=red>proc</font>: moveFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>proc</font>: moveFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
 </pre><p>
-    The function uses the C <tt>'rename()'</tt> function.
-    When <tt>'rename()'</tt> fails the file (or directory tree)
-    is cloned with <tt>'cloneFile'</tt> (which preserves
-    permissions/mode, ownership and timestamps) to the new place
-    and with the new name. When <tt>'cloneFile'</tt> succeeds
-    the original file is deleted. When <tt>'cloneFile'</tt> fails (no space on
-    device or other reason) all remains of the failed clone are
-    removed. Note that <tt>'cloneFile'</tt> works for
-    symbolic links but does not preserve hard links (they are
-    resolved to distinct files).</p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
-          to the system path type.</dd>
-      <dt>RANGE_ERROR</dt>
-          <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
-          system path type.</dd>
-      <dt>FILE_ERROR</dt>
-          <dd>Source file does not exist, destination file already exists or
-          a system function returns an error.</dd>
-      </dl></dd></dl></p>
+  The function uses the C <tt>'rename()'</tt> function.
+  When <tt>'rename()'</tt> fails the file (or directory tree)
+  is cloned with <tt>'cloneFile'</tt> (which preserves
+  permissions/mode, ownership and timestamps) to the new place
+  and with the new name. When <tt>'cloneFile'</tt> succeeds
+  the original file is deleted. When <tt>'cloneFile'</tt> fails (no space on
+  device or other reason) all remains of the failed clone are
+  removed. Note that <tt>'cloneFile'</tt> works for
+  symbolic links but does not preserve hard links (they are
+  resolved to distinct files).
+</p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
+        to the system path type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+        system path type.</dd>
+    <dt>FILE_ERROR</dt>
+        <dd>Source file does not exist, destination file already exists or
+        a system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <a name="argv_PROGRAM"><h3>12.23 argv(PROGRAM)</h3></a>
 <p>
     The function <tt>'argv(PROGRAM)'</tt> returns the argument
-    vector of the program as array of strings.
+  vector of the program as array of strings.
 </p><pre>
-      <font color=blue>const</font> <font color=red>func array string</font>: argv (PROGRAM) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func array string</font>: argv (PROGRAM) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd>
-      An array of strings containing the argument vector.
-      </dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    An array of strings containing the argument vector.
+    </p></dd></dl></p>
 
 <a name="path_PROGRAM"><h3>12.24 path(PROGRAM)</h3></a>
 <p>
     The function <tt>'path(PROGRAM)'</tt> returns the absolute
-    path of the program.
+  path of the program.
 </p><pre>
-      <font color=blue>const</font> <font color=red>func string</font>: path (PROGRAM) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func string</font>: path (PROGRAM) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd>
-      The absolute path of the program.
-      </dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    The absolute path of the program.
+    </p></dd></dl></p>
 
 <a name="dir_PROGRAM"><h3>12.25 dir(PROGRAM)</h3></a>
 <p>
     The function <tt>'dir(PROGRAM)'</tt> returns the absolute
-    path of the directory containing the program. The dir(PROGRAM)
-    function allows placing configuration data in the directory
-    of the program.
+  path of the directory containing the program. The dir(PROGRAM)
+  function allows placing configuration data in the directory
+  of the program.
 </p><pre>
       <font color=blue>const</font> <font color=red>func string</font>: dir (PROGRAM) <font color=blue>is</font> ...
 </pre>
-    <p><dl><dt><p>Returns:</p></dt><dd>
-      The absolute path of the directory containing the program.
-      </dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    The absolute path of the directory containing the program.
+    </p></dd></dl></p>
 
 <a name="getenv"><h3>12.26 getenv</h3></a>
 <p>
     The function <tt>'getenv'</tt> determines the value of an
-    environment variable.
+  environment variable.
 </p><pre>
-      <font color=blue>const</font> <font color=red>func string</font>: getenv (<font color=blue>in</font> <font color=red>string</font>: name) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func string</font>: getenv (<font color=blue>in</font> <font color=red>string</font>: name) <font color=blue>is</font> ...
 </pre><p>
-    The <tt>'getenv'</tt> function searches the environment for an
-    environment variable with the given <tt>'name'</tt>. When such
-    an environment variable exists the corresponding <font color=red>string</font>
-    value is returned.
+  The <tt>'getenv'</tt> function searches the environment for an
+  environment variable with the given <tt>'name'</tt>. When such
+  an environment variable exists the corresponding <font color=red>string</font>
+  value is returned.
 </p>
-    <p><dl><dt><p>Returns:</p></dt><dd><p>
-      The value of an environment variable or <font color=maroon>""</font>
-      when the requested environment variable does not exist.
-      </p></dd></dl></p>
-    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
-      <dl>
-      <dt>MEMORY_ERROR</dt>
-          <dd>Not enough memory to convert <tt>'name'</tt> to the system string type or not
-          enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
-      </dl></dd></dl></p>
+  <p><dl><dt><p>Returns:</p></dt><dd><p>
+    The value of an environment variable or <font color=maroon>""</font>
+    when the requested environment variable does not exist.
+    </p></dd></dl></p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'name'</tt> to the system string type or not
+        enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
+    </dl></dd></dl></p>
+
+<a name="setenv"><h3>12.27 setenv</h3></a>
+<p>
+    The function <tt>'setenv'</tt> adds or changes an environment
+  variable. 
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: setenv (<font color=blue>in</font> <font color=red>string</font>: name, <font color=blue>in</font> <font color=red>string</font>: value) <font color=blue>is</font> ...
+</pre><p>
+  The <tt>'setenv'</tt> function searches the environment for an
+  environment variable with the given <tt>'name'</tt>. When such
+  an environment variable exists the corresponding value is
+  changed to <tt>'value'</tt>. When no environment variable with
+  the given <tt>'name'</tt> exists a new environment variable
+  <tt>'name'</tt> with the value <tt>'value'</tt> is created.
+</p>
+  <p><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt>MEMORY_ERROR</dt>
+        <dd>Not enough memory to convert <tt>'name'</tt> or <tt>'value'</tt> to
+        the system string type.</dd>
+    <dt>RANGE_ERROR</dt>
+        <dd>A system function returns an error.</dd>
+    </dl></dd></dl></p>
 
 <p></p>
 <a name="PRIMITIVE_ACTIONS"><h2>13. PRIMITIVE ACTIONS</h2></a>

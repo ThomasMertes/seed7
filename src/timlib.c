@@ -99,16 +99,16 @@ listtype arguments;
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
-    timFromTimestamp(arg_1(arguments)->value.intvalue,
-                    &arg_2(arguments)->value.intvalue,
-                    &arg_3(arguments)->value.intvalue,
-                    &arg_4(arguments)->value.intvalue,
-                    &arg_5(arguments)->value.intvalue,
-                    &arg_6(arguments)->value.intvalue,
-                    &arg_7(arguments)->value.intvalue,
-                    &arg_8(arguments)->value.intvalue,
-                    &arg_9(arguments)->value.intvalue,
-                    &is_dst);
+    timFromIntTimestamp(arg_1(arguments)->value.intvalue,
+                       &arg_2(arguments)->value.intvalue,
+                       &arg_3(arguments)->value.intvalue,
+                       &arg_4(arguments)->value.intvalue,
+                       &arg_5(arguments)->value.intvalue,
+                       &arg_6(arguments)->value.intvalue,
+                       &arg_7(arguments)->value.intvalue,
+                       &arg_8(arguments)->value.intvalue,
+                       &arg_9(arguments)->value.intvalue,
+                       &is_dst);
     if (is_dst) {
       arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
     } else {

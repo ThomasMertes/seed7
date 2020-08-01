@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "sys/types.h"
 
 #include "common.h"
 #include "heaputl.h"
@@ -743,7 +744,7 @@ chartype *termination_char;
 
 #ifdef ANSI_C
 
-void ut8Write (filetype aFile, stritype stri)
+void ut8Write (filetype aFile, const const_stritype stri)
 #else
 
 void ut8Write (aFile, stri)

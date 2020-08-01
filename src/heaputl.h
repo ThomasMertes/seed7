@@ -324,7 +324,7 @@ EXTERN memsizetype hs;
 #define UNALLOC_CSTRI(var,len)     FREE_HEAP(var, SIZ_CSTRI(len))
 
 
-#define ALLOC_WSTRI(var,len)       ALLOC_HEAP(var, cstritype, SIZ_WSTRI(len))
+#define ALLOC_WSTRI(var,len)       ALLOC_HEAP(var, wstritype, SIZ_WSTRI(len))
 #define REALLOC_WSTRI(var,len)     ((wchar_t *) REALLOC_HEAP(var, ustritype, SIZ_WSTRI(len)))
 #define UNALLOC_WSTRI(var,len)     FREE_HEAP(var, SIZ_WSTRI(len))
 

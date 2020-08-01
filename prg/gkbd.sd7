@@ -47,8 +47,7 @@ const proc: main is func
       ch := busy_getc(KEYBOARD);
       if ch <> KEY_NONE then
         lastChar := ch;
-        write(ord(ch));
-        write(" ");
+        write(ord(ch) <& " ");
         if ord(ch) >= 1 and ord(ch) <= length(EVENT_DESCR) then
           writeln(EVENT_DESCR[ord(ch)]);
         else

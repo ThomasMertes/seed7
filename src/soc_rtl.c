@@ -295,7 +295,7 @@ inttype length;
 
 #ifdef ANSI_C
 
-bstritype socInetAddr (stritype host_name, inttype port)
+bstritype socInetAddr (const const_stritype host_name, inttype port)
 #else
 
 bstritype socInetAddr (host_name, port)
@@ -323,12 +323,34 @@ inttype port;
         {
           struct addrinfo *res;
           int getaddrinfo_result;
-          getaddrinfo_result = getaddrinfo(name, NULL, NULL, &res);
+          char servname[10];
+          sprintf(servname, "%u", port);
+          getaddrinfo_result = getaddrinfo(name, servname, NULL, &res);
           if (getaddrinfo_result == 0) {
-            printf("ai_flags=%d\n",    res->ai_flags);
-            printf("ai_family=%d  (AF_INET=%d, AF_INET6=%d)\n",   res->ai_family, AF_INET, AF_INET6);
-            printf("ai_socktype=%d\n", res->ai_socktype);
-            printf("ai_protocol=%d\n", res->ai_protocol);
+            /* do { */
+              printf("ai_flags=%d\n",    res->ai_flags);
+              printf("ai_family=%d  (AF_INET=%d, AF_INET6=%d)\n", res->ai_family, AF_INET, AF_INET6);
+              printf("ai_socktype=%d\n", res->ai_socktype);
+              printf("ai_protocol=%d\n", res->ai_protocol);
+              printf("ai_addrlen=%d\n", res->ai_addrlen);
+              printf("sa_family=%d  (AF_INET=%d, AF_INET6=%d)\n", res->ai_addr->sa_family, AF_INET, AF_INET6);
+              inet_address = (struct sockaddr_in *) res->ai_addr;
+              printf("sin_port=%d\n", ntohs(inet_address->sin_port));
+              printf("sin_addr.s_addr=%d.%d.%d.%d\n",
+                  inet_address->sin_addr.s_addr        & 255,
+                 (inet_address->sin_addr.s_addr >>  8) & 255,
+                 (inet_address->sin_addr.s_addr >> 16) & 255,
+                 (inet_address->sin_addr.s_addr >> 24) & 255);
+              printf("ai_next=%d\n", res->ai_next);
+            /* res = res->ai_next;
+            } while (res != NULL); */
+            if (!ALLOC_BSTRI_SIZE_OK(result, res->ai_addrlen)) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              result->size = res->ai_addrlen;
+              memcpy(result->mem, res->ai_addr, res->ai_addrlen);
+            } /* if */
+            return result;
           } else {
             printf("getaddrinfo(\"%s\") -> %d\n", name, getaddrinfo_result);
             printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d  EAI_MEMORY=%d\n",
@@ -339,6 +361,7 @@ inttype port;
                 EAI_SYSTEM, EAI_OVERFLOW);
             /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
                 EAI_ADDRFAMILY, EAI_NODATA); */
+            raise_error(RANGE_ERROR);
           }
         }
 #endif
@@ -741,7 +764,7 @@ bstritype *address;
 
 #ifdef ANSI_C
 
-inttype socSend (sockettype sock, stritype stri, inttype flags)
+inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
 #else
 
 inttype socSend (sock, stri, flags)
@@ -774,7 +797,7 @@ inttype flags;
 
 #ifdef ANSI_C
 
-inttype socSendto (sockettype sock, stritype stri, inttype flags,
+inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
     const_bstritype address)
 #else
 
@@ -930,7 +953,7 @@ chartype *termination_char;
 
 #ifdef ANSI_C
 
-void socWrite (sockettype sock, stritype stri)
+void socWrite (sockettype sock, const const_stritype stri)
 #else
 
 void socWrite (sock, stri)

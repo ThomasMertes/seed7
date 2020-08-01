@@ -199,7 +199,7 @@ const func string: getHttp (inout file: sock) is func
       elsif startsWith(line, "Content-Encoding") then
         contentEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
       elsif startsWith(line, "Content-Length") then
-        contentLengthStri := lower(trim(line[succ(pos(line, ":")) ..]));
+        contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
         block
           contentLength := integer parse contentLengthStri;
         exception

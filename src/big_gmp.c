@@ -50,7 +50,7 @@
 
 #ifdef ANSI_C
 
-cstritype bigHexCStri (const_biginttype big1)
+cstritype bigHexCStri (const const_biginttype big1)
 #else
 
 cstritype bigHexCStri (big1)
@@ -189,7 +189,7 @@ biginttype big2;
  */
 #ifdef ANSI_C
 
-biginttype bigAddTemp (biginttype big1, const_biginttype big2)
+biginttype bigAddTemp (biginttype big1, const const_biginttype big2)
 #else
 
 biginttype bigAddTemp (big1, big2)
@@ -312,10 +312,10 @@ biginttype big1;
 
 #ifdef ANSI_C
 
-INLINE inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
+inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
 #else
 
-INLINE inttype bigCmp (big1, big2)
+inttype bigCmp (big1, big2)
 biginttype big1;
 biginttype big2;
 #endif
@@ -400,10 +400,10 @@ biginttype big_from;
 
 #ifdef ANSI_C
 
-INLINE biginttype bigCreate (const const_biginttype big_from)
+biginttype bigCreate (const const_biginttype big_from)
 #else
 
-INLINE biginttype bigCreate (big_from)
+biginttype bigCreate (big_from)
 biginttype big_from;
 #endif
 

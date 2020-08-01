@@ -151,6 +151,7 @@ version.h:
 	echo #define os_ftell _ftelli64 >> version.h
 	echo #define os_off_t __int64 >> version.h
 	echo #define os_getenv _wgetenv >> version.h
+	echo #define os_putenv _wputenv >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	$(GET_CC_VERSION_INFO) cc_version
@@ -218,7 +219,7 @@ version.h:
 	del setpaths.c
 	del setpaths.exe
 
-.c.o:
+.c.obj:
 	$(CC) $(CFLAGS) -c $<
 
 depend: version.h

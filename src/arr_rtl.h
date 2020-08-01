@@ -39,22 +39,22 @@ rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg
     stritype *exePath);
 #endif
 stritype examineSearchPath (const const_stritype fileName);
-void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from);
+void arrAppend (rtlArraytype *const arr_variable, const const_rtlArraytype arr_from);
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
 rtlArraytype arrBaselit (const rtlGenerictype element);
 rtlArraytype arrBaselit2 (inttype start_position, const rtlGenerictype element);
-rtlArraytype arrCat (rtlArraytype arr1, rtlArraytype arr2);
+rtlArraytype arrCat (rtlArraytype arr1, const_rtlArraytype arr2);
 rtlArraytype arrExtend (rtlArraytype arr1, const rtlGenerictype element);
 rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element2);
-rtlArraytype arrHead (rtlArraytype arr1, inttype stop);
+rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop);
 rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop);
 rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos);
 void arrPush (rtlArraytype *arr_variable, const rtlGenerictype element);
-rtlArraytype arrRange (rtlArraytype arr1, inttype start, inttype stop);
+rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop);
 rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop);
 rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position);
 rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype));
-rtlArraytype arrTail (rtlArraytype arr1, inttype start);
+rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start);
 rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start);
 
 #else

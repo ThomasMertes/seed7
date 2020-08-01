@@ -45,6 +45,12 @@ typedef struct {
 os_stritype *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_stritype *w_argv);
 stritype getExecutablePath (const const_stritype arg_0);
+#ifdef USE_WGETENV_WSTRI
+os_stritype wgetenv_wstri (os_stritype name);
+#endif
+#ifdef DEFINE_WSETENV
+int wsetenv (os_stritype name, os_stritype value, int overwrite);
+#endif
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList (void);
 stritype readVolumeName (volumeListType *volumeList);
@@ -56,6 +62,12 @@ void closeVolumeList (volumeListType *volumeList);
 os_stritype *getUtf16Argv ();
 void freeUtf16Argv ();
 stritype getExecutablePath ();
+#ifdef USE_WGETENV_WSTRI
+os_stritype wgetenv_wstri ();
+#endif
+#ifdef DEFINE_WSETENV
+int wsetenv ();
+#endif
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList ();
 stritype readVolumeName ();

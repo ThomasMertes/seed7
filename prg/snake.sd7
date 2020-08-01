@@ -110,9 +110,7 @@ const proc: show_status is func
 
   begin
     setPos(status, 1, max_column div 2 - 3);
-    write(status, " ");
-    write(status, SNAKE.length);
-    write(status, " ");
+    write(status, " " <& SNAKE.length <& " ");
   end func;
 
 

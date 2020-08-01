@@ -779,23 +779,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype str_getenv (listtype arguments)
-#else
-
-objecttype str_getenv (arguments)
-listtype arguments;
-#endif
-
-  { /* str_getenv */
-    isit_stri(arg_1(arguments));
-    return(bld_stri_temp(strGetenv(
-        take_stri(arg_1(arguments)))));
-  } /* str_getenv */
-
-
-
-#ifdef ANSI_C
-
 objecttype str_gt (listtype arguments)
 #else
 

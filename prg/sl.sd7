@@ -261,13 +261,9 @@ const proc: writeMap (inout text: map_win) is func
     line_div := pred(length(workspace[current].field)) div pred(height(map_win)) ;
     column_div :=  pred(length(workspace[current].field[1])) div pred(width(map_win));
     for index range 1 to listlength[current] do
-(*    write(prot, "CELL(");
-      write(prot, index);
-      write(prot, ", ");
-      write(prot, workspace[current].bact_list[index].lin);
-      write(prot, ", ");
-      write(prot, workspace[current].bact_list[index].col);
-      writeln(prot, ");"); *)
+(*    writeln(prot, "CELL(" <& index <& ", " <&
+          workspace[current].bact_list[index].lin <& ", " <&
+          workspace[current].bact_list[index].col <& ");"); *)
       line := succ((workspace[current].bact_list[index].lin - 2) div line_div);
       column := succ((workspace[current].bact_list[index].col - 2) div column_div);
       if line >= 1 and line <= length(mapfield) and
@@ -582,13 +578,8 @@ const proc: save (in string: filename) is func
           stopcolumn := current_element.col;
         end if;
       end for;
-      write(savefile, "+ ");
-      write(savefile, generation);
-      write(savefile, " ");
-      write(savefile, startline + MINLINE - 1);
-      write(savefile, " ");
-      write(savefile, startcolumn + MINCOLUMN);
-      writeln(savefile);
+      writeln(savefile, "+ " <& generation <& " " <&
+          startline + MINLINE - 1 <& " " <& startcolumn + MINCOLUMN);
       for line range startline to stopline do
         end_of_current_line := stopcolumn;
         while end_of_current_line >= startcolumn and
@@ -845,11 +836,7 @@ const proc: init is func
 
 const proc: markcell (in integer: line, in integer: column, inout fieldtype: nextfield, inout listtype: nextlist) is func
   begin (* markcell *)
-(*  write(prot, "mark(");
-    write(prot, line);
-    write(prot, ", ");
-    write(prot, column);
-    writeln(prot, ");"); *)
+(*  writeln(prot, "mark(" <& line <& ", " <& column <& ");"); *)
     incr(listindex);
     nextlist[listindex].lin := line;
     nextlist[listindex].col := column;
@@ -885,13 +872,7 @@ const proc: nextgeneration (in fieldtype: currfield, inout fieldtype: nextfield,
       line := currlist[index].lin;
       column := currlist[index].col;
 
-(*    write(prot, "DO(");
-      write(prot, index);
-      write(prot, ", ");
-      write(prot, line);
-      write(prot, ", ");
-      write(prot, column);
-      writeln(prot, ");"); *)
+(*    writeln(prot, "DO(" <& index <& ", " <& line <& ", " <& column <& ");"); *)
 
       cell2 := currfield[pred(line)][succ(column)];
       cell3 := currfield[line][succ(column)];
@@ -996,20 +977,12 @@ const proc: nextgeneration (in fieldtype: currfield, inout fieldtype: nextfield,
           ord(currfield[pred(line)][pred(column)]);
       if neighbors <> 2 and neighbors <> 3 then
         (* Cell dies *)
-(*      write(prot, "DIE(");
-        write(prot, line);
-        write(prot, ", ");
-        write(prot, column);
-        writeln(prot, ");"); *)
+(*      writeln(prot, "DIE(" <& line <& ", " <& column <& ");"); *)
         setPos(field_win, line + MINLINE, column + MINCOLUMN);
         write(field_win, EMPTYFIELD);
       else
         (* Cell lives *)
-(*      write(prot, "LIVE(");
-        write(prot, line);
-        write(prot, ", ");
-        write(prot, column);
-        writeln(prot, ");"); *)
+(*      writeln(prot, "LIVE(" <& line <& ", " <& column <& ");"); *)
         incr(listindex);
         nextlist[listindex].lin := line;
         nextlist[listindex].col := column;
@@ -1046,8 +1019,7 @@ const proc: main is func
     generation := 0;
     clear(gen_win);
     setPos(gen_win, 1, 1);
-    write(gen_win, generation lpad MAXDIGITS);
-    write(gen_win, " ");
+    write(gen_win, generation lpad MAXDIGITS <& " ");
     editmode(quit);
     if not quit then
       runinfo();

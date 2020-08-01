@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  comanche.sd7  Simple webserver for static pages.                *)
+(*  comanche.sd7  Simple webserver for static and cgi pages.        *)
 (*  Copyright (C) 2009  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -24,64 +24,144 @@
 
 $ include "seed7_05.s7i";
   include "socket.s7i";
+  include "shell.s7i";
   include "getf.s7i";
 
 const integer: port is 1080;
 var string: htdocs is "../htdocs";
+var string: cgi_bin is "";
 
 
 const proc: sendHttpResponse (inout file: sock, in string: buffer,
-    in string: contentType) is func
+    in var string: contentType, in array string: header) is func
+  local
+    var string: line is "";
+    var string: status is "";
   begin
-    writeln(sock, "HTTP/1.0 200 OK");
+    for line range header do
+      if startsWith(line, "Status") then
+        status := trim(line[succ(pos(line, ":")) ..]);
+      elsif startsWith(line, "Content-Type") then
+        contentType := trim(line[succ(pos(line, ":")) ..]);
+      end if;
+    end for;
+    if status = "" then
+      writeln(sock, "HTTP/1.1 200 OK");
+    else
+      writeln(sock, "HTTP/1.1 " <& status);
+    end if;
     writeln(sock, "Server: Comanche");
     writeln(sock, "Transfer-Encoding: identity");
+    # writeln("Content-Length: " <& length(buffer));
+    writeln(sock, "Content-Length: " <& length(buffer));
     if contentType <> "" then
       writeln(sock, "Content-Type: " <& contentType);
     elsif startsWith(buffer, "\137\PNG") then
       writeln(sock, "Content-Type: image/png");
     elsif pos(buffer, "<html") = 0 then
-      writeln(sock, "Content-Type: text/plain");
-    else
       writeln(sock, "Content-Type: text/html");
+    else
+      writeln(sock, "Content-Type: text/plain");
     end if;
-    writeln(sock, "Content-Length: " <& length(buffer));
-    # writeln("Content-Length: " <& length(buffer));
+    for line range header do
+      if not startsWith(line, "Content-Type") then
+        writeln(sock, line);
+      end if;
+    end for;
     writeln(sock);
-    writeln(sock, buffer);
+    write(sock, buffer);
   end func;
 
 
 const proc: sendClientError (inout file: sock, in string: message,
     in string: explanation) is func
+  local
+    var string: htmlMessage is "";
   begin
-    writeln(sock, "HTTP/1.0 " <& message);
+    htmlMessage := "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n\
+                   \<html><head>\n\
+                   \<title>" <& message <& "</title>\n\
+                   \</head><body>\n\
+                   \<h1>Not Found</h1>\n\
+                   \<p>" <& explanation <& "</p>\n\
+                   \<hr>\n\
+                   \<address>Comanche</address>\n\
+                   \</body></html>\n";
+    writeln(sock, "HTTP/1.1 " <& message);
     writeln(sock, "Server: Comanche");
     writeln(sock, "Transfer-Encoding: identity");
+    writeln(sock, "Content-Length: " <& length(htmlMessage));
     writeln(sock, "Content-Type: text/html");
     writeln(sock);
-    writeln(sock, "<html><head>");
-    writeln(sock, "<title>" <& message <& "</title>");
-    writeln(sock, "</head><body>");
-    writeln(sock, "<h1>Not Found</h1>");
-    writeln(sock, "<p>" <& explanation <& "</p>");
-    writeln(sock, "<hr>");
-    writeln(sock, "<address>Comanche</address>");
-    writeln(sock, "</body></html>");
-    writeln(sock);
+    write(sock, htmlMessage);
+  end func;
+
+
+const func string: callCgi (in string: filePath, in string: queryParams,
+    in string: postParams, inout array string: header) is func
+  result
+    var string: result is "";
+  local
+    var string: tempName is "";
+    var file: cgiInput is STD_NULL;
+    var file: cgiOutput is STD_NULL;
+    var string: line is "";
+  begin
+    # writeln("CGI " <& filePath <& " " <& queryParams);
+    # writeln(postParams);
+    setenv("QUERY_STRING", queryParams);
+    tempName := "cgiInput_" & str(rand(0, 99999));
+    cgiInput := open(tempName, "w");
+    writeln(cgiInput, postParams);
+    # writeln(cgiInput, "*");
+    # writeln(cgiInput, "*");
+    close(cgiInput);
+    # cgiOutput := popen("./hi -q " <& filePath & " < " & tempName, "r");
+    cgiOutput := popen(filePath & " < " & tempName, "r");
+    if cgiOutput <> STD_NULL then
+      line := getln(cgiOutput);
+      while line <> "" do
+        # writeln(line);
+        header &:= [] (line);
+        line := getln(cgiOutput);
+      end while;
+      # writeln;
+      result := gets(cgiOutput, 999999999);
+      # writeln(length(result));
+      # writeln(literal(result));
+      close(cgiOutput);
+      removeFile(tempName);
+    end if;
+    if result = "" then
+      result := "<html><head>\n\
+                \<title>CGI Error</title>\n\
+                \</head><body>\n\
+                \<h1>CGI</h1>\n\
+                \<p>" <& filePath <& "</p>\n\
+                \<p>" <& queryParams <& "</p>\n\
+                \<p>" <& postParams <& "</p>\n\
+                \<hr>\n\
+                \<address>Comanche</address>\n\
+                \</body></html>\n";
+    end if;
   end func;
 
 
 const proc: processHttpRequest (inout file: sock) is func
   local
     var string: line is "";
-    var array string: header is 0 times "";
     var string: requestCommand is "";
     var string: requestPath is "";
     var string: filePath is "";
     var string: hostName is "";
+    var integer: questionMarkPos is 0;
+    var string: queryParams is "";
+    var string: postParams is "";
+    var array string: cgiHeader is 0 times "";
     var string: buffer is "";
     var string: contentType is "";
+    var string: contentLengthStri is "";
+    var integer: contentLength is 0;
   begin
     line := getln(sock);
     # writeln(literal(line));
@@ -91,41 +171,100 @@ const proc: processHttpRequest (inout file: sock) is func
         requestCommand := "GET";
         requestPath := trim(line[4 ..]);
         requestPath := requestPath[.. pred(pos(requestPath, ' '))];
-      end if;
-      if startsWith(line, "Host") then
+      elsif startsWith(line, "POST") then
+        requestCommand := "POST";
+        requestPath := trim(line[5 ..]);
+        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
+      elsif startsWith(line, "Host") then
         hostName := trim(line[succ(pos(line, ":")) ..]);
+      elsif startsWith(line, "Content-Length") then
+        contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
+        block
+          contentLength := integer parse contentLengthStri;
+        exception
+          catch RANGE_ERROR:
+            contentLength := -1;
+        end block;
       end if;
-      header &:= [] (line);
       line := getln(sock);
     end while;
     if requestCommand = "GET" then
-      # writeln(requestPath);
+      # writeln("GET" <& requestPath);
+      questionMarkPos := pos(requestPath, '?');
+      if questionMarkPos <> 0 then
+        queryParams := requestPath[succ(questionMarkPos) ..];
+        requestPath := requestPath[.. pred(questionMarkPos)];
+      end if;
       filePath := replace(requestPath, "\\", "/");
-      filePath := toStdPath(htdocs & "/" & filePath);
-      # writeln(literal(filePath));
-      if fileType(filePath) = FILE_ABSENT then
-        if fileType(filePath & ".html") <> FILE_ABSENT then
-          filePath &:= ".html";
-        elsif fileType(filePath & ".htm") <> FILE_ABSENT then
-          filePath &:= ".htm";
+      if startsWith(filePath, "/cgi-bin/") then
+        filePath := toStdPath(cgi_bin & filePath[9 ..]);
+        buffer := callCgi(filePath, queryParams, "", cgiHeader);
+        if buffer <> "" then
+          sendHttpResponse(sock, buffer, "", cgiHeader);
         end if;
-      elsif fileType(filePath) = FILE_DIR then
-        if fileType(filePath & "/index.html") <> FILE_ABSENT then
-          filePath &:= "/index.html";
-        elsif fileType(filePath & "/index.htm") <> FILE_ABSENT then
-          filePath &:= "/index.htm";
+      else
+        filePath := toStdPath(htdocs & "/" & filePath);
+        # writeln(literal(filePath));
+        if fileType(filePath) = FILE_ABSENT then
+          if fileType(filePath & ".html") <> FILE_ABSENT then
+            filePath &:= ".html";
+          elsif fileType(filePath & ".htm") <> FILE_ABSENT then
+            filePath &:= ".htm";
+          end if;
+        elsif fileType(filePath) = FILE_DIR then
+          if fileType(filePath & "/index.html") <> FILE_ABSENT then
+            filePath &:= "/index.html";
+          elsif fileType(filePath & "/index.htm") <> FILE_ABSENT then
+            filePath &:= "/index.htm";
+          end if;
+        end if;
+        if fileType(filePath) = FILE_REGULAR then
+          buffer := getf(filePath);
+        else
+          buffer := "";
+        end if;
+        if buffer <> "" then
+          if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
+            contentType := "text/html";
+          end if;
+          sendHttpResponse(sock, buffer, contentType, 0 times "");
         end if;
       end if;
-      if fileType(filePath) = FILE_REGULAR then
-        buffer := getf(filePath);
+      if buffer = "" then
+        sendClientError(sock, "404 Not Found",
+            "The requested URL " <& requestPath <&
+            " was not found on this server.");
+      end if;
+    elsif requestCommand = "POST" then
+      # writeln("POST" <& requestPath);
+      questionMarkPos := pos(requestPath, '?');
+      if questionMarkPos <> 0 then
+        queryParams := requestPath[succ(questionMarkPos) ..];
+        requestPath := requestPath[.. pred(questionMarkPos)];
+      end if;
+      # writeln(queryParams);
+      if contentLengthStri <> "" then
+        while contentLength <> 0 do
+          buffer := gets(sock, contentLength);
+          contentLength -:= length(buffer);
+          postParams &:= buffer;
+        end while;
       else
-        buffer := "";
+        buffer := gets(sock, 10000000);
+        while buffer <> "" do
+          postParams &:= buffer;
+          buffer := gets(sock, 10000000);
+        end while;
+      end if;
+      buffer := "";
+      # writeln(postParams);
+      filePath := replace(requestPath, "\\", "/");
+      if startsWith(filePath, "/cgi-bin/") then
+        filePath := toStdPath(cgi_bin & filePath[9 ..]);
+        buffer := callCgi(filePath, queryParams, postParams, cgiHeader);
       end if;
       if buffer <> "" then
-        if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
-          contentType := "text/html";
-        end if;
-        sendHttpResponse(sock, buffer, contentType);
+        sendHttpResponse(sock, buffer, "", cgiHeader);
       else
         sendClientError(sock, "404 Not Found",
             "The requested URL " <& requestPath <&
@@ -139,7 +278,6 @@ const proc: main is func
   local
     var listener: inetListener is listener.value;
     var file: sock is socket.value;
-    var string: line is "";
   begin
     writeln("Comanche Version 1.0 - Simple webserver for static pages");
     writeln("Copyright (C) 2009 Thomas Mertes");
@@ -149,6 +287,9 @@ const proc: main is func
     writeln("Homepage: http://seed7.sourceforge.net");
     if length(argv(PROGRAM)) >= 1 then
       htdocs := argv(PROGRAM)[1];
+      if length(argv(PROGRAM)) >= 2 then
+        cgi_bin := argv(PROGRAM)[2];
+      end if;
     end if;
     if fileType(htdocs) <> FILE_DIR then
       writeln(" *** Directory " <& literal(htdocs) <& " not found.");

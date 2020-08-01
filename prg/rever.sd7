@@ -96,10 +96,8 @@ const proc: rules is func
     writeln("The game is played between two players (human and computer). It  uses  a  chess");
     writeln("board (64 fields) and every player has 32 stones.");
     writeln;
-    write("  computer stones:  ");
-    writeln(COMPUTER_STONE);
-    write("  human stones:     ");
-    writeln(HUMAN_STONE);
+    writeln("  computer stones:  " <& COMPUTER_STONE);
+    writeln("  human stones:     " <& HUMAN_STONE);
     writeln;
     writeln("The players alternate in doing their move. In a move one stone is put on a free");
     writeln("field  adjacent to a stone of the other player. The stone must enclose at least");
@@ -141,8 +139,7 @@ const proc: count_fields (in field_array: board) is func
 const proc: write_move (in integer: line, in integer: column) is func
 
   begin
-    write(chr(ord('A') + column - 2));
-    write(pred(line));
+    write(chr(ord('A') + column - 2) <& str(pred(line)));
   end func;
 
 
@@ -158,22 +155,18 @@ const proc: show_board (in field_array: board) is func
     writeln("---+-----+-----+-----+-----+-----+-----+-----+-----+---");
 
     for line range 9 downto 2 do
-      write(pred(line) lpad 2);
-      write(" |");
+      write(pred(line) lpad 2 <& " |");
       for column range 2 to 9 do
         case board[line][column] of
           when {HUMAN}:
-            write(HUMAN_STONE lpad 3);
-            write("  |");
+            write(HUMAN_STONE lpad 3 <& "  |");
           when {COMPUTER}:
-            write(COMPUTER_STONE lpad 3);
-            write("  |");
+            write(COMPUTER_STONE lpad 3 <& "  |");
           when {FREE_PLACE}:
             write("     |");
         end case;
       end for;
-      write(" ");
-      writeln(pred(line));
+      writeln(" " <& pred(line));
       writeln("---+-----+-----+-----+-----+-----+-----+-----+-----+---");
     end for;
 
@@ -193,8 +186,7 @@ const proc: show_board (in field_type: current_colour,
     count_fields(board);
     show_board(board);
 
-    write("You have");
-    write(field_counter[HUMAN] lpad 3);
+    write("You have" <& field_counter[HUMAN] lpad 3);
     if field_counter[HUMAN] = 1 then
       write(" field  ");
     else
@@ -206,8 +198,7 @@ const proc: show_board (in field_type: current_colour,
       write_move(move_line, move_column);
     end if;
     writeln;
-    write("I have  ");
-    write(field_counter[COMPUTER] lpad 3);
+    write("I have  " <& field_counter[COMPUTER] lpad 3);
     if field_counter[COMPUTER] = 1 then
       write(" field  ");
     else
@@ -421,8 +412,7 @@ const proc: calculate_move (
 
           if count <> 0 then
             current_value := sum + TVAL[index_line][index_column];
-(*          write(current_value lpad 5);
-            write("  ");
+(*          write(current_value lpad 5 <& "  ");
             write_move(index_line, index_column);
             writeln;
             flush(OUT); *)
@@ -468,13 +458,9 @@ const proc: calculate_move (
           flush(OUT);
         end if;
 *)
-(*      write(" ");
-        write(level);
-        write(" ");
-        write(heapsize(PROGRAM)); *)
+(*      write(" " <& level <& " " <& heapsize(PROGRAM)); *)
         help_board := board;
-(*      write(" ");
-        writeln(heapsize(PROGRAM)); *)
+(*      writeln(" " <& heapsize(PROGRAM)); *)
         turn(help_board, best_move[index].line,
             best_move[index].column, current_colour, other_colour);
         calculate_move(help_board, move_line, move_column,

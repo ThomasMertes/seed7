@@ -27,7 +27,7 @@
 
 typedef struct {
     stritype          source_file_name;
-    char             *prot_file_name;
+    const_cstritype   prot_file_name;
     booltype          analyze_only;
     booltype          execute_always;
     booltype          show_ident_table;
@@ -37,8 +37,8 @@ typedef struct {
     booltype          linecount_info;
     booltype          catch_signals;
     unsigned int      incr_message_line;
-    cstritype         comp_trace_level;
-    cstritype         exec_trace_level;
+    const_cstritype   comp_trace_level;
+    const_cstritype   exec_trace_level;
     void             *argv;
     memsizetype       argv_start;
     objecttype        arg_v;

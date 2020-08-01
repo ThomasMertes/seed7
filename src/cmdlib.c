@@ -319,6 +319,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_getenv (listtype arguments)
+#else
+
+objecttype cmd_getenv (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_getenv */
+    isit_stri(arg_1(arguments));
+    return(bld_stri_temp(cmdGetenv(
+        take_stri(arg_1(arguments)))));
+  } /* cmd_getenv */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_get_atime (listtype arguments)
 #else
 
@@ -564,6 +581,24 @@ listtype arguments;
     cmdRemoveAnyFile(take_stri(arg_1(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* cmd_remove_any_file */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_setenv (listtype arguments)
+#else
+
+objecttype cmd_setenv (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_setenv */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdSetenv(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_setenv */
 
 
 

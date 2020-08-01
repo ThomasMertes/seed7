@@ -154,7 +154,7 @@ memsizetype remainingBytesInFile (filetype aFile);
 inttype getFileLengthUsingSeek (filetype aFile);
 biginttype getBigFileLengthUsingSeek (filetype aFile);
 biginttype filBigLng (filetype aFile);
-void filBigSeek (filetype aFile, biginttype big_position);
+void filBigSeek (filetype aFile, const const_biginttype big_position);
 biginttype filBigTell (filetype aFile);
 void filClose (filetype aFile);
 stritype filGets (filetype aFile, inttype length);

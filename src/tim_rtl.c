@@ -222,6 +222,74 @@ booltype *is_dst;
 
 #ifdef ANSI_C
 
+void timFromIntTimestamp (inttype timestamp,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
+    booltype *is_dst)
+#else
+
+void timFromIntTimestamp (timestamp,
+    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
+inttype timestamp;
+inttype *year;
+inttype *month;
+inttype *day;
+inttype *hour;
+inttype *min;
+inttype *sec;
+inttype *micro_sec;
+inttype *time_zone;
+booltype *is_dst;
+#endif
+
+  { /* timFromIntTimestamp */
+#ifdef TIME_T_SIGNED
+#if TIME_T_SIZE < INTTYPE_SIZE
+#if TIME_T_SIZE == 32
+    if (unlikely(timestamp < INT32TYPE_MIN || timestamp > INT32TYPE_MAX)) {
+#elsif TIME_T_SIZE == 64
+    if (unlikely(timestamp < INT64TYPE_MIN || timestamp > INT64TYPE_MAX)) {
+#else
+    if (TRUE) {
+#endif
+      raise_error(RANGE_ERROR);
+    } else {
+#endif
+      timFromTimestamp((time_t) timestamp,
+          year, month, day, hour, min, sec, micro_sec, time_zone, is_dst);
+#if TIME_T_SIZE < INTTYPE_SIZE
+    } /* if */
+#endif
+
+#else
+
+    if (unlikely(timestamp < 0)) {
+      raise_error(RANGE_ERROR);
+    } else {
+#if TIME_T_SIZE < INTTYPE_SIZE
+#if TIME_T_SIZE == 32
+      if (unlikely(timestamp > UINT32TYPE_MAX)) {
+#elsif TIME_T_SIZE == 64
+      if (unlikely(timestamp > UINT64TYPE_MAX)) {
+#else
+      if (TRUE) {
+#endif
+        raise_error(RANGE_ERROR);
+      } else {
+#endif
+        timFromTimestamp((time_t) timestamp,
+            year, month, day, hour, min, sec, micro_sec, time_zone, is_dst);
+#if TIME_T_SIZE < INTTYPE_SIZE
+      } /* if */
+#endif
+    } /* if */
+#endif
+  } /* timFromIntTimestamp */
+
+
+
+#ifdef ANSI_C
+
 time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
@@ -341,7 +409,7 @@ booltype *is_dst;
 
 #ifdef ANSI_C
 
-void timFromBigTimestamp (biginttype timestamp,
+void timFromBigTimestamp (const const_biginttype timestamp,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)

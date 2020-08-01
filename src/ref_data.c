@@ -730,7 +730,7 @@ inttype aCategory;
 
 #ifdef ANSI_C
 
-void refSetParams (objecttype obj_arg, listtype params)
+void refSetParams (objecttype obj_arg, const_listtype params)
 #else
 
 void refSetParams (obj_arg, params)

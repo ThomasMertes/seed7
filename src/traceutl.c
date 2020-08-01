@@ -173,7 +173,7 @@ inttype ivalue;
 
 #ifdef ANSI_C
 
-void prot_bigint (const_biginttype bintvalue)
+void prot_bigint (const const_biginttype bintvalue)
 #else
 
 void prot_bigint (bintvalue)
@@ -220,19 +220,19 @@ chartype cvalue;
 
 #ifdef ANSI_C
 
-void prot_stri (const_stritype out_mem)
+void prot_stri (const const_stritype stri)
 #else
 
-void prot_stri (out_mem)
-stritype out_mem;
+void prot_stri (stri)
+stritype stri;
 #endif
 
   {
     memsizetype size;
 
   /* prot_stri */
-    if (out_mem != NULL) {
-      size = out_mem->size;
+    if (stri != NULL) {
+      size = stri->size;
       if (size > 128) {
         size = 128;
       } /* if */
@@ -242,7 +242,7 @@ stritype out_mem;
         memsizetype len;
         char buffer[51];
 
-        for (str = out_mem->mem, len = size;
+        for (str = stri->mem, len = size;
             len > 0; str++, len--) {
           if (*str <= (chartype) 26) {
             sprintf(buffer, "\\%c", ((int) *str) + '@');
@@ -263,9 +263,9 @@ stritype out_mem;
           /* putc((int) *str, protfile); */
         } /* for */
       }
-      if (out_mem->size > 128) {
+      if (stri->size > 128) {
         prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((inttype) out_mem->size);
+        prot_int((inttype) stri->size);
       } /* if */
       prot_cstri("\"");
     } else {
@@ -277,19 +277,19 @@ stritype out_mem;
 
 #ifdef ANSI_C
 
-void prot_bstri (bstritype out_mem)
+void prot_bstri (bstritype bstri)
 #else
 
-void prot_bstri (out_mem)
-bstritype out_mem;
+void prot_bstri (bstri)
+bstritype bstri;
 #endif
 
   {
     memsizetype size;
 
   /* prot_bstri */
-    if (out_mem != NULL) {
-      size = out_mem->size;
+    if (bstri != NULL) {
+      size = bstri->size;
       if (size > 128) {
         size = 128;
       } /* if */
@@ -299,7 +299,7 @@ bstritype out_mem;
         memsizetype len;
         char buffer[51];
 
-        for (str = out_mem->mem, len = size;
+        for (str = bstri->mem, len = size;
             len > 0; str++, len--) {
           if (*str <= (uchartype) 26) {
             sprintf(buffer, "\\%c", ((int) *str) + '@');
@@ -315,9 +315,9 @@ bstritype out_mem;
           prot_cstri(buffer);
         } /* while */
       }
-      if (out_mem->size > 128) {
+      if (bstri->size > 128) {
         prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((inttype) out_mem->size);
+        prot_int((inttype) bstri->size);
       } /* if */
       prot_cstri("\"");
     } else {
@@ -1611,7 +1611,7 @@ listtype list;
 
 #ifdef ANSI_C
 
-void set_trace (const_cstritype trace_level, int len, cstritype prot_file_name)
+void set_trace (const_cstritype trace_level, int len, const_cstritype prot_file_name)
 #else
 
 void set_trace (trace_level, len, prot_file_name)
@@ -1675,7 +1675,7 @@ cstritype prot_file_name;
 
 #ifdef ANSI_C
 
-void set_trace2 (stritype trace_level)
+void set_trace2 (const_stritype trace_level)
 #else
 
 void set_trace2 (trace_level)

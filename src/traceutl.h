@@ -46,29 +46,27 @@ EXTERN tracerecord trace;
 
 void prot_flush (void);
 void prot_nl (void);
-void prot_cstri (const_cstritype);
-void prot_writeln (const_cstritype);
-void prot_int (inttype);
-void prot_bigint (const_biginttype);
-void prot_stri (const_stritype);
-void prot_set (const_settype);
+void prot_cstri (const_cstritype stri);
+void prot_writeln (const_cstritype stri);
+void prot_int (inttype ivalue);
+void prot_bigint (const const_biginttype bintvalue);
+void prot_stri (const const_stritype stri);
+void prot_set (const_settype setValue);
 void prot_heapsize (void);
-void printcategory (objectcategory);
-void printtype (const_typetype);
-void printvalue (const_objecttype);
-void printobject (const_objecttype);
-void prot_list (const_listtype);
+void printcategory (objectcategory category);
+void printtype (const_typetype anytype);
+void printvalue (const_objecttype anyobject);
+void printobject (const_objecttype anyobject);
+void prot_list (const_listtype list);
 void prot_name (const_listtype list);
-void trace_node (const_nodetype);
+void trace_node (const_nodetype anynode);
 void trace_nodes (void);
-void printnodes (const_nodetype);
-void trace1 (const_objecttype);
-void trace_entity (const_entitytype);
-void trace_list (const_listtype);
-void traceelements (nodetype);
-void trace2 (objecttype);
-void set_trace (const_cstritype, int, cstritype);
-void set_trace2 (stritype);
+void printnodes (const_nodetype anynode);
+void trace1 (const_objecttype traceobject);
+void trace_entity (const_entitytype anyentity);
+void trace_list (const_listtype list);
+void set_trace (const_cstritype trace_level, int len, const_cstritype prot_file_name);
+void set_trace2 (const_stritype trace_level);
 
 #else
 
@@ -93,8 +91,6 @@ void printnodes ();
 void trace1 ();
 void trace_entity ();
 void trace_list ();
-void traceelements ();
-void trace2 ();
 void set_trace ();
 void set_trace2 ();
 

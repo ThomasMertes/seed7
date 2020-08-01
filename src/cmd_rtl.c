@@ -73,6 +73,7 @@
 #include "tim_rtl.h"
 #include "tim_drv.h"
 #include "big_drv.h"
+#include "cmd_drv.h"
 #include "rtl_err.h"
 
 #ifdef USE_MMAP
@@ -308,7 +309,7 @@ errinfotype *err_info;
     FILE *to_file;
 #ifdef USE_MMAP
     int file_no;
-    os_stat_struct file_stat;
+    os_fstat_struct file_stat;
     memsizetype file_length;
     ustritype file_content;
     booltype classic_copy = TRUE;
@@ -1386,6 +1387,47 @@ stritype cmdGetcwd ()
 
 #ifdef ANSI_C
 
+stritype cmdGetenv (const const_stritype name)
+#else
+
+stritype cmdGetenv (name)
+stritype name;
+#endif
+
+  {
+    os_stritype env_name;
+    os_stritype env_value;
+    errinfotype err_info = OKAY_NO_ERROR;
+    static os_chartype null_char = (os_chartype) '\0';
+    stritype result;
+
+  /* cmdGetenv */
+    env_name = stri_to_os_stri(name, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+      result = NULL;
+    } else {
+      env_value = os_getenv(env_name);
+      os_stri_free(env_name);
+      if (env_value == NULL) {
+        result = os_stri_to_stri(&null_char);
+      } else {
+        result = os_stri_to_stri(env_value);
+#ifdef USE_WGETENV_WSTRI
+        os_stri_free(env_value);
+#endif
+      } /* if */
+      if (unlikely(result == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
+    } /* if */
+    return result;
+  } /* cmdGetenv */
+
+
+
+#ifdef ANSI_C
+
 void cmdGetATime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
@@ -1796,6 +1838,104 @@ stritype file_name;
 
 
 
+#ifdef os_putenv
+#ifdef ANSI_C
+
+void cmdSetenv (const const_stritype name, const const_stritype value)
+#else
+
+void cmdSetenv (name, value)
+stritype name;
+stritype value;
+#endif
+
+  {
+    memsizetype stri_size;
+    stritype stri;
+    os_stritype env_stri;
+    int putenv_result;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdSetenv */
+    if (unlikely(name->size > MAX_STRI_LEN - value->size - 1)) {
+      /* number of bytes does not fit into memsizetype */
+      raise_error(MEMORY_ERROR);
+    } else {
+      stri_size = name->size + value->size + 1;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(stri, stri_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        stri->size = stri_size;
+        memcpy(stri->mem, name->mem,
+            name->size * sizeof(strelemtype));
+        stri->mem[name->size] = (strelemtype) '=';
+        memcpy(&stri->mem[name->size + 1], value->mem,
+            value->size * sizeof(strelemtype));
+        env_stri = stri_to_os_stri(stri, &err_info);
+        FREE_STRI(stri, stri->size);;
+        if (env_stri != NULL) {
+          putenv_result = os_putenv(env_stri);
+          os_stri_free(env_stri);
+          if (putenv_result != 0) {
+            /* printf("errno=%d\n", errno); */
+            raise_error(RANGE_ERROR);
+          } /* if */
+        } else {
+          raise_error(MEMORY_ERROR);
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* cmdSetenv */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+void cmdSetenv (const const_stritype name, const const_stritype value)
+#else
+
+void cmdSetenv (name, value)
+stritype name;
+stritype value;
+#endif
+
+  {
+    os_stritype env_name;
+    os_stritype env_value;
+    int setenv_result;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdSetenv */
+    env_name = stri_to_os_stri(name, &err_info);
+    if (env_name != NULL) {
+      env_value = stri_to_os_stri(value, &err_info);
+      if (env_value != NULL) {
+        setenv_result = os_setenv(env_name, env_value, 1);
+        os_stri_free(env_name);
+        os_stri_free(env_value);
+        if (setenv_result != 0) {
+          /* printf("errno=%d\n", errno); */
+          if (errno == ENOMEM) {
+            raise_error(MEMORY_ERROR);
+          } else {
+            raise_error(RANGE_ERROR);
+          } /* if */
+        } /* if */
+      } else {
+        os_stri_free(env_name);
+        raise_error(err_info);
+      } /* if */
+    } else {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdSetenv */
+
+#endif
+
+
+
 #ifdef ANSI_C
 
 void cmdSetATime (const const_stritype file_name,
@@ -1835,7 +1975,7 @@ inttype time_zone;
         } else if (os_utime(os_path, &utime_buf) != 0) {
           /* printf("errno=%d\n", errno);
           printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-	      EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
+              EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           err_info = FILE_ERROR;
         } /* if */
       } else {
@@ -1892,7 +2032,7 @@ settype mode;
           (int_mode & 0001 ? S_IXOTH : 0));
 #endif
       if (chmod_result != 0) {
-        /* printf("errno=%d\n", errno); */
+        /* printf("\nerrno=%d %s\n", errno, strerror(errno)); */
         err_info = FILE_ERROR;
       } /* if */
       os_stri_free(os_path);
@@ -1943,7 +2083,7 @@ inttype time_zone;
         } else if (os_utime(os_path, &utime_buf) != 0) {
           /* printf("errno=%d\n", errno);
           printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-	      EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
+              EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           err_info = FILE_ERROR;
         } /* if */
       } else {

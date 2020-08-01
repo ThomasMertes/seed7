@@ -50,7 +50,7 @@ objecttype refResini (objecttype obj_arg);
 objecttype refResult (objecttype obj_arg);
 listtype refScttolist (objecttype obj_arg);
 void refSetCategory (objecttype obj_arg, inttype aCategory);
-void refSetParams (objecttype obj_arg, listtype params);
+void refSetParams (objecttype obj_arg, const_listtype params);
 void refSetType (objecttype obj_arg, typetype any_type);
 void refSetVar (objecttype obj_arg, booltype var_flag);
 stritype refStr (objecttype obj_arg);

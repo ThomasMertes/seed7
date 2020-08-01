@@ -186,10 +186,10 @@ listtype list_from;
 
 #ifdef ANSI_C
 
-INLINE listtype rflCreate (const const_listtype list_from)
+listtype rflCreate (const const_listtype list_from)
 #else
 
-INLINE listtype rflCreate (list_from)
+listtype rflCreate (list_from)
 listtype list_from;
 #endif
 

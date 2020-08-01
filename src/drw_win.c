@@ -1688,7 +1688,7 @@ static void dra_init ()
 #ifdef ANSI_C
 
 wintype drwOpen (inttype xPos, inttype yPos,
-    inttype width, inttype height, stritype window_name)
+    inttype width, inttype height, const const_stritype window_name)
 #else
 
 wintype drwOpen (xPos, yPos, width, height, window_name)
@@ -2384,8 +2384,8 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwText (const_wintype actual_window, inttype x, inttype y, stritype stri,
-    inttype col, inttype bkcol)
+void drwText (const_wintype actual_window, inttype x, inttype y,
+    const const_stritype stri, inttype col, inttype bkcol)
 #else
 
 void drwText (actual_window, x, y, stri, col, bkcol)

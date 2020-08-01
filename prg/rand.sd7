@@ -40,13 +40,7 @@ const proc: rand_test_1 is func
           incr(count_even);
         end if;
       end for;
-      write(count_even);
-      write(" ");
-      write(count_odd);
-      write(" ");
-      write(count_odd - count_even);
-      write("  ");
-      write("\r");
+      write(count_even <& " " <& count_odd <& " " <& count_odd - count_even <& "  \r");
     end while;
   end func;
 
@@ -64,11 +58,7 @@ const proc: rand_test_2 is func
         incr(counter);
         mean := mean + (flt(number) - mean) / flt(counter);
       end for;
-      write(mean);
-      write(" ");
-      write(counter);
-      write(" ");
-      write("\r");
+      write(mean <& " " <& counter <& " \r");
       flush(OUT);
     end while;
   end func;
@@ -87,12 +77,7 @@ const proc: rand_test_3 is func
         sum := sum + rand(-1.0, 1.0);
       end for;
       counter := counter + 1000;
-      write(sum / flt(counter) digits 28 lpad 31);
-      write(" ");
-      write(counter);
-      write(" ");
-      write(sum);
-      write("\r");
+      write(sum / flt(counter) digits 28 lpad 31 <& " " <& counter <& " " <& sum <& "    \r");
       flush(OUT);
     end while;
   end func;

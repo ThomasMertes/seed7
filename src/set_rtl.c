@@ -203,10 +203,10 @@ settype set1;
  */
 #ifdef ANSI_C
 
-INLINE inttype setCmp (const const_settype set1, const const_settype set2)
+inttype setCmp (const const_settype set1, const const_settype set2)
 #else
 
-INLINE inttype setCmp (set1, set2)
+inttype setCmp (set1, set2)
 settype set1;
 settype set2;
 #endif
@@ -368,10 +368,10 @@ settype set_from;
 
 #ifdef ANSI_C
 
-INLINE settype setCreate (const const_settype set_from)
+settype setCreate (const const_settype set_from)
 #else
 
-INLINE settype setCreate (set_from)
+settype setCreate (set_from)
 settype set_from;
 #endif
 

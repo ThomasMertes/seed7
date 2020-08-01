@@ -777,7 +777,7 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
     var boolean: result is TRUE;
   local
     var integer: quotePos is 0;
-    var string: commandOutput is ""; 
+    var string: commandOutput is "";
     var string: redirect is "";
     var string: fileName is "";
   begin

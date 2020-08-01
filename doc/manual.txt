@@ -7537,657 +7537,648 @@ ont color=blue>is "";
 
 12.1 Standard path representation
 
-A path specifies the location of a file in a file system.
-Operating systems have different concepts how a path should
-look like. Seed7 compensates this differences with a standard
-path representation. Standard paths are used by all Seed7
-functions dealing with paths. The standard path representation
-uses strings with the fillowing properties to describe paths:
+    A path specifies the location of a file in a file system.
+  Operating systems have different concepts how a path should
+  look like. Seed7 compensates this differences with a standard
+  path representation. Standard paths are used by all Seed7
+  functions dealing with paths. The standard path representation
+  uses strings with the fillowing properties to describe paths:
 
     - The slash ('/') is used as path delimiter.
     - Drive letters are not allowed, but there is a solution
       to replace them.
-    - Except for the path "/"
-      a standard path is not allowed to end with a slash.
+    - Except for the path "/" a standard path is not allowed
+      to end with a slash.
 
-When a function like 'open' is called with a path that is not
-"/", but ends with a slash, the exception 'RANGE_ERROR' is raised.
-Under Windows a standard path like "/c" is mapped to
-the drive "C:". Reading the directory "/" under Windows
-returns a list of available drives. A path with a backslash
-or with a drive letter may raise the exception 'RANGE_ERROR',
-when a function like 'open'is called.  
+  When a function like 'open' is called with a path that is not
+  "/", but ends with a slash, the exception 'RANGE_ERROR' is
+  raised. Under Windows a standard path like "/c" is mapped to
+  the drive "C:". Reading the directory "/" under Windows
+  returns a list of available drives. A path with a backslash
+  or with a drive letter may raise the exception 'RANGE_ERROR',
+  when a function like 'open'is called.  
 
-An absolute path specifies an unique location in the file
-system. Absolute paths always start with a slash. A relative
-path specifies a location relative to the current working
-directory of the program. Although standard paths are defined
-in a portable way, an absolute path will usually not be portable.
+  An absolute path specifies an unique location in the file
+  system. Absolute paths always start with a slash. A relative
+  path specifies a location relative to the current working
+  directory of the program. Although standard paths are defined
+  in a portable way, an absolute path will usually not be portable.
 
 
 12.2 read_dir
 
-    The function 'read_dir' provides a portable access
-    to the contents of directories in the file system. It reads
-    the specified directory and the filenames are stored in the
-    string-array result. The files "." and ".." are left out from
-    the result. Note that the strings contain only the filenames.
-    Additional information must be obtained with other calls.
+    The function 'read_dir' provides a portable access to the
+  contents of directories in the file system. It reads the
+  specified directory and the filenames are stored in the
+  string-array result. The files "." and ".." are left out from
+  the result. Note that the strings contain only the filenames.
+  Additional information must be obtained with other calls.
 
-      const func array string: read_dir (in string: dirPath) is ...
+    const func array string: read_dir (in string: dirPath) is ...
 
-    Returns:
-      An array of strings containing the names of all
-      files in the specified directory, except "." and ".."
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'dirPath' to the system path type or not
-          enough memory to represent the result 'string array'.
-      RANGE_ERROR
-          'dirPath' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
-    Examples:
-      
-      After the declaration
-      
-        var array string: dir_array is 0 times "";
-      
-      the statement
-      
-        dir_array := read_dir(".");
-      
-      reads the current working directory and stores it into the
-      string-array 'dir_array'. The components of the directory
-      can now be accessed via indexing:
-      
-        for index range 1 to length(dir_array) do
-          writeln(dir_array[index]);
-        end for;
-      
-      
+  Returns:
+    An array of strings containing the names of all
+    files in the specified directory, except "." and ".."
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'dirPath' to the system
+        path type or not enough memory to represent the result
+        'string array'.
+    RANGE_ERROR
+        'dirPath' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
+  Examples:
+    After the declaration
+    
+      var array string: dir_array is 0 times "";
+    
+    the statement
+    
+      dir_array := read_dir(".");
+    
+    reads the current working directory and stores it into the
+    string-array 'dir_array'. The components of the directory
+    can now be accessed via indexing:
+    
+      for index range 1 to length(dir_array) do
+        writeln(dir_array[index]);
+      end for;
+    
 
 12.3 open_dir
 
     The function 'open_dir' opens the specified
-    directory as file. Each line in this directory file
-    contains the filename of a file present in the the
-    directory. The files "." and ".." are left out from the
-    directory file. Note that only filenames can be read
-    from the directory file. Additional information must be
-    obtained with other calls.
+  directory as file. Each line in this directory file
+  contains the filename of a file present in the the
+  directory. The files "." and ".." are left out from the
+  directory file. Note that only filenames can be read
+  from the directory file. Additional information must be
+  obtained with other calls.
 
-      const func file: open_dir (in string: dirPath) is ...
+    const func file: open_dir (in string: dirPath) is ...
 
-    Returns:
-      The directory file of the specified directory.
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'dirPath' to the system path type or not
-          enough memory to represent the result 'string array'.
-      RANGE_ERROR
-          'dirPath' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
-    Examples:
-      
-        ...
+  Returns:
+    The directory file of the specified directory.
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'dirPath' to the system
+        path type or not enough memory to represent the result
+        'string array'.
+    RANGE_ERROR
+        'dirPath' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
+  Examples:
+      ...
 
-        include "dir.s7i";
+      include "dir.s7i";
 
-        var file: dir_file is STD_NULL;
-        var string: file_name is "";
+      var file: dir_file is STD_NULL;
+      var string: file_name is "";
 
-        ...
+      ...
 
-        dir_file := open_dir(".");
+      dir_file := open_dir(".");
+      file_name := getln(dir_file);
+      while file_name <> "" do
+        writeln(file_name);
         file_name := getln(dir_file);
-        while file_name <> "" do
-          writeln(file_name);
-          file_name := getln(dir_file);
-        end while;
-      
-      
+      end while;
+    
 
 12.4 getcwd
 
     The function 'getcwd' returns the current working
-    directory of the calling process as absolute path.
+  directory of the calling process as absolute path.
 
-      const func string: getcwd is ...
+    const func string: getcwd is ...
 
-    Returns:
-      The absolute path of the current working directory.
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to represent the result 'string'.
-      FILE_ERROR
-          The system function returns an error.
-      
-    Examples:
-      
-      The statement
-      
-        my_dir := getcwd;
-      
-      assigns the full path of the current working directory to
-      the string variable 'my_dir'.
-      
+  Returns:
+    The absolute path of the current working directory.
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to represent the result 'string'.
+    FILE_ERROR
+        The system function returns an error.
+    
+  Examples:
+    The statement
+    
+      my_dir := getcwd;
+    
+    assigns the full path of the current working directory to
+    the string variable 'my_dir'.
+    
 
 12.5 chdir
 
     The function 'chdir' changes the current working
-    directory of the calling process to the specified directory.
+  directory of the calling process to the specified directory.
 
-      const proc: chdir (in string: name) is ...
+    const proc: chdir (in string: name) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'name' to the system path type.
-      RANGE_ERROR
-          'name' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
-    Examples:
-      
-      The statement
-      
-        chdir("/usr/bin");
-      
-      changes the current working directory to "/usr/bin".
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'name' to the system path type.
+    RANGE_ERROR
+        'name' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
+  Examples:
+    The statement
+    
+      chdir("/usr/bin");
+    
+    changes the current working directory to "/usr/bin".
+    
 
 12.6 mkdir
 
     The function 'mkdir' creates a new directory.
 
-      const proc: mkdir (in string: name) is ...
+    const proc: mkdir (in string: name) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'name' to the system path type.
-      RANGE_ERROR
-          'name' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
-    Examples:
-      
-      The statement
-      
-        mkdir("my_dir");
-      
-      creates the directory "my_dir".
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'name' to the system path type.
+    RANGE_ERROR
+        'name' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
+  Examples:
+    The statement
+    
+      mkdir("my_dir");
+    
+    creates the directory "my_dir".
+    
 
 12.7 fileType
 
     The type of a file can determined with 'fileType' or
-    'fileTypeSL':
+  'fileTypeSL':
 
-      const func integer: fileType (in string: filePath) is ...
-      const func integer: fileTypeSL (in string: filePath) is ...
+    const func integer: fileType (in string: filePath) is ...
+    const func integer: fileTypeSL (in string: filePath) is ...
 
-    The function 'fileType' does follow symbolic links.
-    Therefore 'fileType' never returns 'FILE_SYMLINK'.
-    The function 'fileTypeSL' does not follow symbolic
-    links. Therefore 'fileTypeSL' can also return
-    'FILE_SYMLINK'. Most functions which use a file path
-    except 'fileTypeSL' and 'readlink' follow
-    symbolic links. 
+  The function 'fileType' does follow symbolic links.
+  Therefore 'fileType' never returns 'FILE_SYMLINK'.
+  The function 'fileTypeSL' does not follow symbolic
+  links. Therefore 'fileTypeSL' can also return
+  'FILE_SYMLINK'. Most functions which use a file path
+  except 'fileTypeSL' and 'readlink' follow symbolic links. 
 
-    Returns:
-      
-      FILE_ABSENT
-          A component of path does not exist.
-      FILE_UNKNOWN
-          The file exists but has an unknown type.
-      FILE_REGULAR
-          The file is a regular file.
-      FILE_DIR
-          The file is a directory.
-      FILE_CHAR
-          The file is a character special file.
-      FILE_BLOCK
-          The file is a block special file.
-      FILE_FIFO
-          The file is a pipe or FIFO special file.
-      FILE_SYMLINK
-          The file is a symbolic link.
-      FILE_SOCKET
-          The file is a socket.
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          The system function returns an error other than ENOENT or ENOTDIR.
-      
+  Returns:
+    FILE_ABSENT
+        A component of path does not exist.
+    FILE_UNKNOWN
+        The file exists but has an unknown type.
+    FILE_REGULAR
+        The file is a regular file.
+    FILE_DIR
+        The file is a directory.
+    FILE_CHAR
+        The file is a character special file.
+    FILE_BLOCK
+        The file is a block special file.
+    FILE_FIFO
+        The file is a pipe or FIFO special file.
+    FILE_SYMLINK
+        The file is a symbolic link.
+    FILE_SOCKET
+        The file is a socket.
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        The system function returns an error other than ENOENT or ENOTDIR.
+    
 
 12.8 fileMode
 
     The permissions of a file can determined with 'fileMode':
 
-      const func fileMode: fileMode (in string: filePath) is ...
+    const func fileMode: fileMode (in string: filePath) is ...
 
-    Returns:
-      The 'fileMode' which is defined as 'set of filePermission'.
-      
-    The literal values of 'filePermission' are:
-      
-      EXEC_OTHER
-          others have execute permission
-      WRITE_OTHER
-          others have write permission
-      READ_OTHER
-          others have read permission
-      EXEC_GROUP
-          group has execute permission
-      WRITE_GROUP
-          group has write permission
-      READ_GROUP
-          group has read permission
-      EXEC_USER
-          owner has execute permission
-      WRITE_USER
-          owner has write permission
-      READ_USER
-          owner has read permission
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
+  Returns:
+    The 'fileMode' which is defined as 'set of filePermission'.
+    
+  The literal values of 'filePermission' are:
+    EXEC_OTHER
+        others have execute permission
+    WRITE_OTHER
+        others have write permission
+    READ_OTHER
+        others have read permission
+    EXEC_GROUP
+        group has execute permission
+    WRITE_GROUP
+        group has write permission
+    READ_GROUP
+        group has read permission
+    EXEC_USER
+        owner has execute permission
+    WRITE_USER
+        owner has write permission
+    READ_USER
+        owner has read permission
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.9 setFileMode
 
     The permissions of a file can changed with 'setFileMode':
 
-      const proc: setFileMode (in string: filePath, in fileMode: newFileMode) is ...
+    const proc: setFileMode (in string: filePath, in fileMode: newFileMode) is ...
 
-    The type 'fileMode' is defined as 'set of filePermission'.
+  The type 'fileMode' is defined as 'set of filePermission'.
 
-    The literal values of 'filePermission' are:
-      
-      EXEC_OTHER
-          others have execute permission
-      WRITE_OTHER
-          others have write permission
-      READ_OTHER
-          others have read permission
-      EXEC_GROUP
-          group has execute permission
-      WRITE_GROUP
-          group has write permission
-      READ_GROUP
-          group has read permission
-      EXEC_USER
-          owner has execute permission
-      WRITE_USER
-          owner has write permission
-      READ_USER
-          owner has read permission
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
+  The literal values of 'filePermission' are:
+    EXEC_OTHER
+        others have execute permission
+    WRITE_OTHER
+        others have write permission
+    READ_OTHER
+        others have read permission
+    EXEC_GROUP
+        group has execute permission
+    WRITE_GROUP
+        group has write permission
+    READ_GROUP
+        group has read permission
+    EXEC_USER
+        owner has execute permission
+    WRITE_USER
+        owner has write permission
+    READ_USER
+        owner has read permission
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.10 fileSize
 
     The size of a file can be determined with 'fileSize' and 'bigFileSize':
 
-      const func integer: fileSize (in string: filePath) is ...
-      const func bigInteger: bigFileSize (in string: filePath) is ...
+    const func integer: fileSize (in string: filePath) is ...
+    const func bigInteger: bigFileSize (in string: filePath) is ...
 
-    Returns:
-      For directories a size of 0 is returned. For other file types
-      the operating system functions 'stat()' and 'seek()' are
-      used to determine the size of a file. The functions 'fileSize'
-      and 'bigFileSize' succeed when at least one strategy to determine
-      the file size succeeds. 
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      RANGE_ERROR
-          The file size is not representable as integer
-          (this exception is not raised by 'bigFileSize').
-      FILE_ERROR
-          It was not possible to determine the file size.
-      
+  Returns:
+    For directories a size of 0 is returned. For other file types
+    the operating system functions 'stat()' and 'seek()' are
+    used to determine the size of a file. The functions 'fileSize'
+    and 'bigFileSize' succeed when at least one strategy to determine
+    the file size succeeds. 
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    RANGE_ERROR
+        The file size is not representable as integer
+        (this exception is not raised by 'bigFileSize').
+    FILE_ERROR
+        It was not possible to determine the file size.
+    
 
 12.11 getATime
 
     The access time of a file is returned by the function 'getATime':
 
-      const func time: getATime (in string: filePath) is ...
+    const func time: getATime (in string: filePath) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.12 getCTime
 
     The change time of a file is returned by the function 'getCTime':
 
-      const func time: getCTime (in string: filePath) is ...
+    const func time: getCTime (in string: filePath) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.13 getMTime
 
     The modification time of a file is returned by the function 'getMTime':
 
-      const func time: getMTime (in string: filePath) is ...
+    const func time: getMTime (in string: filePath) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.14 setATime
 
     The function 'setATime' sets the access time of a file:
 
-      const proc: setATime (in string: filePath, in time: aTime) is ...
+    const proc: setATime (in string: filePath, in time: aTime) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type or
-          'aTime' is invalid or cannot be converted to the system file time.
-      FILE_ERROR
-          A system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type or
+        'aTime' is invalid or cannot be converted to the system file time.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.15 setMTime
 
     The function 'setMTime' sets the modification time of a file:
 
-      const proc: setMTime (in string: filePath, in time: aTime) is ...
+    const proc: setMTime (in string: filePath, in time: aTime) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type or
-          'aTime' is invalid or cannot be converted to the system file time.
-      FILE_ERROR
-          A system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type or
+        'aTime' is invalid or cannot be converted to the system file time.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.16 readlink
 
     The function 'readlink' reads the destination of a symbolic link:
 
-      const func string: readlink (in string: filePath) is ...
+    const func string: readlink (in string: filePath) is ...
 
-    Returns:
-      The symbolic link refered by 'filePath'. 
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type or not
-          enough memory to represent the result 'string'.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          The file described with 'filePath' does not exist or is not a symbolic link.
-      
+  Returns:
+    The symbolic link refered by 'filePath'. 
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type or not
+        enough memory to represent the result 'string'.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        The file described with 'filePath' does not exist or is not a symbolic link.
+    
 
 12.17 symlink
 
     The function 'symlink' creates a symbolic link called
-    'dest' that contains the string referred by 'source':
+  'dest' that contains the string referred by 'source':
 
-      const proc: symlink (in string: source, in string: dest) is ...
+    const proc: symlink (in string: source, in string: dest) is ...
 
-    Parameters:
-      
-      source
-          Name of the symbolic link to be created.
-      dest
-          String to be contained in the symbolic link.
-      
-
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'source' or 'dest'
-          to the system path type.
-      RANGE_ERROR
-          'source' or 'dest' is not representable in the
-          system path type.
-      FILE_ERROR
-          A system function returns an error.
-      
+  Parameters:
+    source
+        Name of the symbolic link to be created.
+    dest
+        String to be contained in the symbolic link.
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'source' or 'dest'
+        to the system path type.
+    RANGE_ERROR
+        'source' or 'dest' is not representable in the
+        system path type.
+    FILE_ERROR
+        A system function returns an error.
+    
 
 12.18 removeFile
 
     The function 'removeFile' removes a file or
-    empty directory:
+  empty directory:
 
-      const proc: removeFile (in string: filePath) is ...
+    const proc: removeFile (in string: filePath) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          The file does not exist or a system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        The file does not exist or a system function returns an error.
+    
 
 12.19 removeAnyFile
 
     The function 'removeAnyFile' removes a file independend
-    of its file type:
+  of its file type:
 
-      const proc: removeAnyFile (in string: filePath) is ...
+    const proc: removeAnyFile (in string: filePath) is ...
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'filePath' to the system path type.
-      RANGE_ERROR
-          'filePath' is not representable in the system path type.
-      FILE_ERROR
-          The file does not exist or a system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'filePath' to the system path type.
+    RANGE_ERROR
+        'filePath' is not representable in the system path type.
+    FILE_ERROR
+        The file does not exist or a system function returns an error.
+    
 
 12.20 copyFile
 
     The function 'copyFile' copies a file or directory
-    tree:
+  tree:
 
-      const proc: copyFile (in string: sourcePath, in string: destPath) is ...
+    const proc: copyFile (in string: sourcePath, in string: destPath) is ...
 
-    Permissions/mode, ownership and timestamps of the destination file are
-    determined undependend of the corresponding source properties.
-    The destination file gets the permissions/mode defined by umask.
-    The user executing the program is the owner of the destination file.
-    The timestamps of the destination file are set to the current time.
-    Symbolic links in sourcePath are always followed.
-    Therefore 'copyFile' will never create a symbolic link.
-    Note that 'copyFile' does not preserve hard
-    links (they are resolved to distinct files).
+  Permissions/mode, ownership and timestamps of the destination file are
+  determined undependend of the corresponding source properties.
+  The destination file gets the permissions/mode defined by umask.
+  The user executing the program is the owner of the destination file.
+  The timestamps of the destination file are set to the current time.
+  Symbolic links in sourcePath are always followed.
+  Therefore 'copyFile' will never create a symbolic link.
+  Note that 'copyFile' does not preserve hard
+  links (they are resolved to distinct files).
 
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'sourcePath' or 'destPath'
-          to the system path type.
-      RANGE_ERROR
-          'sourcePath' or 'destPath' is not representable in the
-          system path type.
-      FILE_ERROR
-          Source file does not exist, destination file already exists or
-          a system function returns an error.
-      
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'sourcePath' or 'destPath'
+        to the system path type.
+    RANGE_ERROR
+        'sourcePath' or 'destPath' is not representable in the
+        system path type.
+    FILE_ERROR
+        Source file does not exist, destination file already exists or
+        a system function returns an error.
+    
 
 12.21 cloneFile
 
     The function 'cloneFile' clones a file or directory
-    tree:
+  tree:
 
-      const proc: cloneFile (in string: sourcePath, in string: destPath) is ...
+    const proc: cloneFile (in string: sourcePath, in string: destPath) is ...
 
-    Permissions/mode, ownership and timestamps of the original are
-    preserved. Symlinks are not followed. Instead the symlink
-    is copied. Note that 'cloneFile' does not preserve hard
-    links (they are resolved to distinct files).
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'sourcePath' or 'destPath'
-          to the system path type.
-      RANGE_ERROR
-          'sourcePath' or 'destPath' is not representable in the
-          system path type.
-      FILE_ERROR
-          Source file does not exist, destination file already exists or
-          a system function returns an error.
-      
+  Permissions/mode, ownership and timestamps of the original are
+  preserved. Symlinks are not followed. Instead the symlink
+  is copied. Note that 'cloneFile' does not preserve hard
+  links (they are resolved to distinct files).
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'sourcePath' or 'destPath'
+        to the system path type.
+    RANGE_ERROR
+        'sourcePath' or 'destPath' is not representable in the
+        system path type.
+    FILE_ERROR
+        Source file does not exist, destination file already exists or
+        a system function returns an error.
+    
 
 12.22 moveFile
 
     The function 'moveFile' moves and/or renames a
-    file or directory tree:
+  file or directory tree:
 
-      const proc: moveFile (in string: sourcePath, in string: destPath) is ...
+    const proc: moveFile (in string: sourcePath, in string: destPath) is ...
 
-    The function uses the C 'rename()' function.
-    When 'rename()' fails the file (or directory tree)
-    is cloned with 'cloneFile' (which preserves
-    permissions/mode, ownership and timestamps) to the new place
-    and with the new name. When 'cloneFile' succeeds
-    the original file is deleted. When 'cloneFile' fails (no space on
-    device or other reason) all remains of the failed clone are
-    removed. Note that 'cloneFile' works for
-    symbolic links but does not preserve hard links (they are
-    resolved to distinct files).
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'sourcePath' or 'destPath'
-          to the system path type.
-      RANGE_ERROR
-          'sourcePath' or 'destPath' is not representable in the
-          system path type.
-      FILE_ERROR
-          Source file does not exist, destination file already exists or
-          a system function returns an error.
-      
+  The function uses the C 'rename()' function.
+  When 'rename()' fails the file (or directory tree)
+  is cloned with 'cloneFile' (which preserves
+  permissions/mode, ownership and timestamps) to the new place
+  and with the new name. When 'cloneFile' succeeds
+  the original file is deleted. When 'cloneFile' fails (no space on
+  device or other reason) all remains of the failed clone are
+  removed. Note that 'cloneFile' works for
+  symbolic links but does not preserve hard links (they are
+  resolved to distinct files).
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'sourcePath' or 'destPath'
+        to the system path type.
+    RANGE_ERROR
+        'sourcePath' or 'destPath' is not representable in the
+        system path type.
+    FILE_ERROR
+        Source file does not exist, destination file already exists or
+        a system function returns an error.
+    
 
 12.23 argv(PROGRAM)
 
     The function 'argv(PROGRAM)' returns the argument
-    vector of the program as array of strings.
+  vector of the program as array of strings.
 
-      const func array string: argv (PROGRAM) is ...
+    const func array string: argv (PROGRAM) is ...
 
-    Returns:
-      An array of strings containing the argument vector.
-      
+  Returns:
+    An array of strings containing the argument vector.
+    
 
 12.24 path(PROGRAM)
 
     The function 'path(PROGRAM)' returns the absolute
-    path of the program.
+  path of the program.
 
-      const func string: path (PROGRAM) is ...
+    const func string: path (PROGRAM) is ...
 
-    Returns:
-      The absolute path of the program.
-      
+  Returns:
+    The absolute path of the program.
+    
 
 12.25 dir(PROGRAM)
 
     The function 'dir(PROGRAM)' returns the absolute
-    path of the directory containing the program. The dir(PROGRAM)
-    function allows placing configuration data in the directory
-    of the program.
+  path of the directory containing the program. The dir(PROGRAM)
+  function allows placing configuration data in the directory
+  of the program.
 
       const func string: dir (PROGRAM) is ...
 
-    Returns:
-      The absolute path of the directory containing the program.
-      
+  Returns:
+    The absolute path of the directory containing the program.
+    
 
 12.26 getenv
 
     The function 'getenv' determines the value of an
-    environment variable.
+  environment variable.
 
-      const func string: getenv (in string: name) is ...
+    const func string: getenv (in string: name) is ...
 
-    The 'getenv' function searches the environment for an
-    environment variable with the given 'name'. When such
-    an environment variable exists the corresponding string
-    value is returned.
+  The 'getenv' function searches the environment for an
+  environment variable with the given 'name'. When such
+  an environment variable exists the corresponding string
+  value is returned.
 
-    Returns:
-      The value of an environment variable or ""
-      when the requested environment variable does not exist.
-      
-    Possible exceptions:
-      
-      MEMORY_ERROR
-          Not enough memory to convert 'name' to the system string type or not
-          enough memory to represent the result 'string'.
-      
+  Returns:
+    The value of an environment variable or ""
+    when the requested environment variable does not exist.
+    
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'name' to the system string type or not
+        enough memory to represent the result 'string'.
+    
+
+12.27 setenv
+
+    The function 'setenv' adds or changes an environment
+  variable. 
+
+    const proc: setenv (in string: name, in string: value) is ...
+
+  The 'setenv' function searches the environment for an
+  environment variable with the given 'name'. When such
+  an environment variable exists the corresponding value is
+  changed to 'value'. When no environment variable with
+  the given 'name' exists a new environment variable
+  'name' with the value 'value' is created.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'name' or 'value' to
+        the system string type.
+    RANGE_ERROR
+        A system function returns an error.
+    
 
 
 13. PRIMITIVE ACTIONS

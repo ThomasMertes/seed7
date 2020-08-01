@@ -588,10 +588,10 @@ inttype number;
 
 #ifdef ANSI_C
 
-INLINE inttype intCmp (inttype number1, inttype number2)
+inttype intCmp (inttype number1, inttype number2)
 #else
 
-INLINE inttype intCmp (number1, number2)
+inttype intCmp (number1, number2)
 inttype number1;
 inttype number2;
 #endif
@@ -1060,7 +1060,9 @@ inttype base;
     } else {
       negative = (number < 0);
       if (negative) {
-        unsigned_number = (uinttype) -number;
+        /* The unsigned value is negated to avoid a signed integer */
+        /* overflow when the smallest signed integer is negated.   */
+        unsigned_number = -(uinttype) number;
       } else {
         unsigned_number = (uinttype) number;
       } /* if */
@@ -1104,7 +1106,9 @@ inttype number;
   /* intStrHex */
     negative = (number < 0);
     if (negative) {
-      unsigned_number = (uinttype) -number;
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      unsigned_number = -(uinttype) number;
     } else {
       unsigned_number = (uinttype) number;
     } /* if */

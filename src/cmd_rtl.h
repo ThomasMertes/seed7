@@ -42,6 +42,7 @@ inttype cmdFileSize (const const_stritype file_name);
 inttype cmdFileType (const const_stritype file_name);
 inttype cmdFileTypeSL (const const_stritype file_name);
 stritype cmdGetcwd (void);
+stritype cmdGetenv (const const_stritype stri);
 void cmdGetATime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
@@ -59,6 +60,7 @@ void cmdMove (const const_stritype source_name, const const_stritype dest_name);
 stritype cmdReadlink (const const_stritype link_name);
 void cmdRemove (const const_stritype file_name);
 void cmdRemoveAnyFile (const const_stritype file_name);
+void cmdSetenv (const const_stritype name, const const_stritype value);
 void cmdSetATime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
@@ -82,6 +84,7 @@ inttype cmdFileSize ();
 inttype cmdFileType ();
 inttype cmdFileTypeSL ();
 stritype cmdGetcwd ();
+stritype cmdGetenv ();
 void cmdGetATime ();
 void cmdGetCTime ();
 void cmdGetMTime ();
@@ -90,6 +93,7 @@ void cmdMove ();
 stritype cmdReadlink ();
 void cmdRemove ();
 void cmdRemoveAnyFile ();
+void cmdSetenv ();
 void cmdSetATime ();
 void cmdSetFileMode ();
 void cmdSetMTime ();

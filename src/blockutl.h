@@ -27,14 +27,20 @@
 
 #ifdef ANSI_C
 
-void free_block (blocktype);
-blocktype new_block (loclisttype, const_locobjtype, loclisttype,
-    listtype, objecttype);
-void get_result_var (locobjtype, typetype, objecttype, errinfotype *);
-void get_return_var (locobjtype, typetype, errinfotype *);
-loclisttype get_param_list (listtype, errinfotype *);
-loclisttype get_local_var_list (listtype, errinfotype *);
-listtype get_local_const_list (listtype, errinfotype *);
+void free_block (blocktype block);
+blocktype new_block (loclisttype block_params, const_locobjtype block_result,
+    loclisttype block_local_vars, listtype block_local_consts,
+    objecttype block_body);
+void get_result_var (locobjtype result_var, typetype result_type,
+    objecttype result_init, errinfotype *err_info);
+void get_return_var (locobjtype return_var, typetype return_type,
+    errinfotype *err_info);
+loclisttype get_param_list (const_listtype param_object_list,
+    errinfotype *err_info);
+loclisttype get_local_var_list (const_listtype local_object_list,
+    errinfotype *err_info);
+listtype get_local_const_list (const_listtype local_object_list,
+    errinfotype *err_info);
 
 #else
 

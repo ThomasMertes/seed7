@@ -48,7 +48,6 @@ stritype strCreate (const const_stritype stri_from);
 void strDestr (const stritype old_string);
 stritype strEmpty (void);
 booltype strGe (const const_stritype stri1, const const_stritype stri2);
-stritype strGetenv (const const_stritype stri);
 booltype strGt (const const_stritype stri1, const const_stritype stri2);
 inttype strHashCode (const const_stritype stri);
 #ifdef ALLOW_STRITYPE_SLICES
@@ -121,7 +120,6 @@ stritype strCreate ();
 void strDestr ();
 stritype strEmpty ();
 booltype strGe ();
-stritype strGetenv ();
 booltype strGt ();
 inttype strHashCode ();
 #ifdef ALLOW_STRITYPE_SLICES
@@ -152,6 +150,7 @@ inttype strRChPos ();
 stritype strRepl ();
 stritype strRpad ();
 inttype strRpos ();
+stritype strRtrim ();
 /* rtlArraytype strSplit (); */
 #ifdef ALLOW_STRITYPE_SLICES
 stritype strSubstrSlice ();

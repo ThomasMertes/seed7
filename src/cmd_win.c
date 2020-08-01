@@ -39,6 +39,7 @@
 #include "dir_drv.h"
 
 #include "common.h"
+#include "heaputl.h"
 #include "striutl.h"
 #include "rtl_err.h"
 
@@ -115,6 +116,64 @@ stritype arg_0;
     } /* if */
     return result;
   } /* getExecutablePath */
+
+
+
+#ifdef USE_WGETENV_WSTRI
+#ifdef ANSI_C
+
+os_stritype wgetenv_wstri (os_stritype name)
+#else
+
+os_stritype wgetenv_wstri (name)
+os_stritype name;
+#endif
+
+  {
+    memsizetype result_size;
+    os_stritype result;
+
+  /* wgetenv_wstri */
+    result_size = GetEnvironmentVariableW(name, NULL, 0);
+    if (result_size == 0) {
+      result = NULL;
+    } else {
+      if (!ALLOC_WSTRI(result, result_size - 1)) {
+        result = NULL;
+      } else {
+        if (GetEnvironmentVariableW(name, result, result_size) != result_size - 1) {
+          os_stri_free(result);
+          result = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* wgetenv_wstri */
+#endif
+
+
+
+#ifdef DEFINE_WSETENV
+#ifdef ANSI_C
+
+int wsetenv (os_stritype name, os_stritype value, int overwrite)
+#else
+
+int wsetenv (name, value, overwrite)
+os_stritype name;
+os_stritype value;
+int overwrite;
+#endif
+
+  {
+    int result;
+
+  /* wsetenv */
+    /* printf("wsetenv(%ls, %ls, &d)\n", name, value, overwrite); */
+    result = !SetEnvironmentVariableW(name, value);
+    return result;
+  } /* wsetenv */
+#endif
 
 
 

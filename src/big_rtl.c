@@ -209,7 +209,7 @@ void bigShrink ();
 
 #ifdef ANSI_C
 
-cstritype bigHexCStri (const_biginttype big1)
+cstritype bigHexCStri (const const_biginttype big1)
 #else
 
 cstritype bigHexCStri (big1)
@@ -452,10 +452,10 @@ biginttype big1;
  */
 #ifdef ANSI_C
 
-static void uBigMultBy10AndAdd (const biginttype big1, doublebigdigittype carry)
+static INLINE void uBigMultBy10AndAdd (const biginttype big1, doublebigdigittype carry)
 #else
 
-static void uBigMultBy10AndAdd (big1, carry)
+static INLINE void uBigMultBy10AndAdd (big1, carry)
 biginttype big1;
 doublebigdigittype carry;
 #endif
@@ -485,10 +485,10 @@ doublebigdigittype carry;
  */
 #ifdef ANSI_C
 
-static bigdigittype uBigDivideByPowerOf10 (const biginttype big1)
+static INLINE bigdigittype uBigDivideByPowerOf10 (const biginttype big1)
 #else
 
-static bigdigittype uBigDivideByPowerOf10 (big1)
+static INLINE bigdigittype uBigDivideByPowerOf10 (big1)
 biginttype big1;
 #endif
 
@@ -2602,7 +2602,7 @@ biginttype big2;
  */
 #ifdef ANSI_C
 
-biginttype bigAddTemp (biginttype big1, const_biginttype big2)
+biginttype bigAddTemp (biginttype big1, const const_biginttype big2)
 #else
 
 biginttype bigAddTemp (big1, big2)
@@ -2781,10 +2781,10 @@ biginttype big1;
 
 #ifdef ANSI_C
 
-INLINE inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
+inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
 #else
 
-INLINE inttype bigCmp (big1, big2)
+inttype bigCmp (big1, big2)
 biginttype big1;
 biginttype big2;
 #endif
@@ -2924,10 +2924,10 @@ biginttype big_from;
 
 #ifdef ANSI_C
 
-INLINE biginttype bigCreate (const const_biginttype big_from)
+biginttype bigCreate (const const_biginttype big_from)
 #else
 
-INLINE biginttype bigCreate (big_from)
+biginttype bigCreate (big_from)
 biginttype big_from;
 #endif
 
@@ -4136,8 +4136,8 @@ inttype lshift;
  *  Computes an integer modulo division of big1 by big2 for signed
  *  big integers. The memory for the result is requested and the
  *  normalized result is returned. When big2 has just one digit
- *  or when big1 has less digits than big2 the bigDiv1() or
- *  bigDivSizeLess() functions are called. In the general case
+ *  or when big1 has less digits than big2 the bigMDiv1() or
+ *  bigMDivSizeLess() functions are called. In the general case
  *  the absolute values of big1 and big2 are taken. Then big1 is
  *  extended by one leading zero digit. After that big1 and big2
  *  are shifted to the left such that the most significant bit

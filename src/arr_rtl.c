@@ -346,7 +346,7 @@ stritype fileName;
 
 #ifdef ANSI_C
 
-void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from)
+void arrAppend (rtlArraytype *const arr_variable, const const_rtlArraytype arr_from)
 #else
 
 void arrAppend (arr_variable, arr_from)
@@ -465,7 +465,7 @@ rtlGenerictype element;
 
 #ifdef ANSI_C
 
-rtlArraytype arrCat (rtlArraytype arr1, rtlArraytype arr2)
+rtlArraytype arrCat (rtlArraytype arr1, const_rtlArraytype arr2)
 #else
 
 rtlArraytype arrCat (arr1, arr2)
@@ -569,7 +569,7 @@ rtlGenerictype element2;
 
 #ifdef ANSI_C
 
-rtlArraytype arrHead (rtlArraytype arr1, inttype stop)
+rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
 #else
 
 rtlArraytype arrHead (arr1, stop)
@@ -750,7 +750,7 @@ rtlGenerictype element;
 
 #ifdef ANSI_C
 
-rtlArraytype arrRange (rtlArraytype arr1, inttype start, inttype stop)
+rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop)
 #else
 
 rtlArraytype arrRange (arr1, start, stop)
@@ -932,7 +932,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
 #ifdef ANSI_C
 
-rtlArraytype arrTail (rtlArraytype arr1, inttype start)
+rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
 #else
 
 rtlArraytype arrTail (arr1, start)

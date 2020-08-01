@@ -37,10 +37,14 @@ extern const_cstritype cstri_escape_sequence[];
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 
+
 #ifdef OS_PATH_WCHAR
+typedef wchar_t         *wstritype;
+typedef const wchar_t   *const_wstritype;
+
 typedef wchar_t          os_chartype;
-typedef wchar_t         *os_stritype;
-typedef const wchar_t   *const_os_stritype;
+typedef wstritype        os_stritype;
+typedef const_wstritype  const_os_stritype;
 #define os_stri_strlen   wcslen
 #define os_stri_strcpy   wcscpy
 #define os_stri_strcat   wcscat
@@ -103,7 +107,7 @@ os_stritype cp_to_command ();
 #ifdef ANSI_C
 
 memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *stri,
-			  memsizetype len);
+                          memsizetype len);
 void stri_export (ustritype out_stri, const_stritype in_stri);
 void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
 void stri_compress (ustritype ustri, const strelemtype *stri, size_t len);

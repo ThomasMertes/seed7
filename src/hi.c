@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/hi.c                                            */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2010, 2011  Thomas Mertes                 */
 /*  Content: Main program of the hi Interpreter.                    */
 /*                                                                  */
 /********************************************************************/
@@ -87,6 +87,7 @@ rtlArraytype arg_v;
   {
     int position;
     stritype opt;
+    cstritype cstri_opt;
 
   /* processOptions */
 #ifdef TRACE_OPTION
@@ -107,9 +108,10 @@ rtlArraytype arg_v;
               break;
             case 'd':
               if (opt->size >= 3) {
-                if (ALLOC_CSTRI(option.comp_trace_level, opt->size - 2)) {
-                  stri_compress((ustritype) option.comp_trace_level,
+                if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
+                  stri_compress((ustritype) cstri_opt,
                       &opt->mem[2], opt->size - 2);
+                  option.comp_trace_level = cstri_opt;
                 } else {
                   option.comp_trace_level = "";
                 } /* if */
@@ -128,9 +130,10 @@ rtlArraytype arg_v;
               break;
             case 'p':
               if (opt->size >= 3) {
-                if (ALLOC_CSTRI(option.prot_file_name, opt->size - 2)) {
-                  stri_compress((ustritype) option.prot_file_name,
+                if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
+                  stri_compress((ustritype) cstri_opt,
                       &opt->mem[2], opt->size - 2);
+                  option.prot_file_name = cstri_opt;
                 } else {
                   option.prot_file_name = "";
                 } /* if */
@@ -138,9 +141,10 @@ rtlArraytype arg_v;
                 if (position < arg_v->max_position - 1) {
                   position++;
                   opt = arg_v->arr[position].value.strivalue;
-                  if (ALLOC_CSTRI(option.prot_file_name, opt->size)) {
-                    stri_compress((ustritype) option.prot_file_name,
+                  if (ALLOC_CSTRI(cstri_opt, opt->size)) {
+                    stri_compress((ustritype) cstri_opt,
                         opt->mem, opt->size);
+                    option.prot_file_name = cstri_opt;
                   } else {
                     option.prot_file_name = "";
                   } /* if */
@@ -157,9 +161,10 @@ rtlArraytype arg_v;
               break;
             case 't':
               if (opt->size >= 3) {
-                if (ALLOC_CSTRI(option.exec_trace_level, opt->size - 2)) {
-                  stri_compress((ustritype) option.exec_trace_level,
+                if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
+                  stri_compress((ustritype) cstri_opt,
                       &opt->mem[2], opt->size - 2);
+                  option.exec_trace_level = cstri_opt;
                 } else {
                   option.exec_trace_level = "";
                 } /* if */
@@ -240,7 +245,7 @@ char **argv;
     } else {
       processOptions(arg_v);
       if (option.version_info) {
-        printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2010 Thomas Mertes\n", LEVEL);
+        printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2011 Thomas Mertes\n", LEVEL);
       } /* if */
 #ifdef CATCH_SIGNALS
       if (option.catch_signals) {

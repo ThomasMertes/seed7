@@ -290,7 +290,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-loclisttype get_param_list (listtype param_object_list,
+loclisttype get_param_list (const_listtype param_object_list,
     errinfotype *err_info)
 #else
 
@@ -301,7 +301,7 @@ errinfotype *err_info;
 
   {
     loclisttype *params_insert_place;
-    listtype param_element;
+    const_listtype param_element;
     objecttype create_call_obj;
     objecttype destroy_call_obj;
     loclisttype params;
@@ -343,7 +343,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-loclisttype get_local_var_list (listtype local_object_list,
+loclisttype get_local_var_list (const_listtype local_object_list,
     errinfotype *err_info)
 #else
 
@@ -354,7 +354,7 @@ errinfotype *err_info;
 
   {
     loclisttype *local_vars_insert_place;
-    listtype local_element;
+    const_listtype local_element;
     objecttype local_var;
     objecttype init_value;
     objecttype create_call_obj;
@@ -398,7 +398,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-listtype get_local_const_list (listtype local_object_list,
+listtype get_local_const_list (const_listtype local_object_list,
     errinfotype *err_info)
 #else
 
@@ -409,7 +409,7 @@ errinfotype *err_info;
 
   {
     listtype *list_insert_place;
-    listtype local_element;
+    const_listtype local_element;
     listtype local_consts;
 
   /* get_local_const_list */

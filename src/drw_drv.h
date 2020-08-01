@@ -84,7 +84,7 @@ void drwPLine (const_wintype actual_window,
 wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height);
 wintype drwNewBitmap (const_wintype actual_window, inttype width, inttype height);
 wintype drwOpen (inttype xPos, inttype yPos,
-    inttype width, inttype height, stritype window_name);
+    inttype width, inttype height, const const_stritype window_name);
 wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
     inttype width, inttype height);
 void drwPoint (const_wintype actual_window, inttype x, inttype y);
@@ -109,7 +109,7 @@ void drwSetContent (const_wintype actual_window, const_wintype pixmap);
 void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos);
 void drwSetTransparentColor (wintype pixmap, inttype col);
 void drwText (const_wintype actual_window, inttype x, inttype y,
-    stritype stri, inttype col, inttype bkcol);
+    const const_stritype stri, inttype col, inttype bkcol);
 void drwToBottom (const_wintype actual_window);
 void drwToTop (const_wintype actual_window);
 inttype drwWidth (const_wintype actual_window);

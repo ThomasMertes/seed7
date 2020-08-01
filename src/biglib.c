@@ -127,7 +127,8 @@ listtype arguments;
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_2(arguments));
     return(bld_int_temp(
-        bigCmp(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments)))));
+        bigCmp(take_bigint(arg_1(arguments)),
+               take_bigint(arg_2(arguments)))));
   } /* big_cmp */
 
 
@@ -303,7 +304,7 @@ listtype arguments;
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
-        take_bigint(arg_3(arguments))) >= 0) {
+               take_bigint(arg_3(arguments))) >= 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -344,7 +345,7 @@ listtype arguments;
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
-        take_bigint(arg_3(arguments))) > 0) {
+               take_bigint(arg_3(arguments))) > 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -440,7 +441,7 @@ listtype arguments;
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
-        take_bigint(arg_3(arguments))) <= 0) {
+               take_bigint(arg_3(arguments))) <= 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -532,7 +533,7 @@ listtype arguments;
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
-        take_bigint(arg_3(arguments))) < 0) {
+               take_bigint(arg_3(arguments))) < 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);

@@ -248,7 +248,7 @@ stritype stri2;
         result->mem[endPos1] = (chartype) '/';
         endPos1++;
         memcpy(&result->mem[endPos1], &stri2->mem[startPos2],
-	    (stri2->size - startPos2) * sizeof(strelemtype));
+            (stri2->size - startPos2) * sizeof(strelemtype));
       } /* if */
     } /* if */
     return result;
@@ -769,10 +769,10 @@ stritype stri;
 
 #ifdef ANSI_C
 
-INLINE inttype strCompare (const const_stritype stri1, const const_stritype stri2)
+inttype strCompare (const const_stritype stri1, const const_stritype stri2)
 #else
 
-INLINE inttype strCompare (stri1, stri2)
+inttype strCompare (stri1, stri2)
 stritype stri1;
 stritype stri2;
 #endif
@@ -1063,10 +1063,10 @@ stritype stri_from;
 
 #ifdef ANSI_C
 
-INLINE stritype strCreate (const const_stritype stri_from)
+stritype strCreate (const const_stritype stri_from)
 #else
 
-INLINE stritype strCreate (stri_from)
+stritype strCreate (stri_from)
 stritype stri_from;
 #endif
 
@@ -1176,44 +1176,6 @@ stritype stri2;
       } /* if */
     } /* if */
   } /* strGe */
-
-
-
-#ifdef ANSI_C
-
-stritype strGetenv (const const_stritype stri)
-#else
-
-stritype strGetenv (stri)
-stritype stri;
-#endif
-
-  {
-    os_stritype env_name;
-    errinfotype err_info = OKAY_NO_ERROR;
-    os_stritype env_value;
-    static os_chartype null_char = (os_chartype) '\0';
-    stritype result;
-
-  /* strGetenv */
-    env_name = stri_to_os_stri(stri, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
-      raise_error(err_info);
-      result = NULL;
-    } else {
-      env_value = os_getenv(env_name);
-      os_stri_free(env_name);
-      if (env_value == NULL) {
-        result = os_stri_to_stri(&null_char);
-      } else {
-        result = os_stri_to_stri(env_value);
-      } /* if */
-      if (unlikely(result == NULL)) {
-        raise_error(MEMORY_ERROR);
-      } /* if */
-    } /* if */
-    return result;
-  } /* strGetenv */
 
 
 

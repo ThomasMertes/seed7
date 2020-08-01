@@ -37,6 +37,10 @@ void timFromTimestamp (time_t st_time,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst);
+void timFromIntTimestamp (inttype timestamp,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
+    booltype *is_dst);
 time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
 void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
@@ -47,6 +51,7 @@ void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
 time_t mkutc ();
 time_t unchecked_mkutc ();
 void timFromTimestamp ();
+void timFromIntTimestamp ();
 time_t timToTimestamp ();
 void timSetLocalTZ ();
 

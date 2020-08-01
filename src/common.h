@@ -235,13 +235,11 @@ typedef int                prior_type;
 typedef unsigned char      uchartype;
 typedef char *             cstritype;
 typedef unsigned char *    ustritype;
-typedef uint16type *       wstritype;
 typedef FILE *             filetype;
 typedef int                sockettype;
 
 typedef const char *           const_cstritype;
 typedef const unsigned char *  const_ustritype;
-typedef const uint16type *     const_wstritype;
 
 #define MAX_DIV_10 ((inttype) (INTTYPE_MAX / 10))
 #define MAX_REM_10 ((inttype) (INTTYPE_MAX % 10))
@@ -313,6 +311,9 @@ typedef int errinfotype;
 #ifndef os_stat_struct
 #define os_stat_struct struct stat
 #endif
+#ifndef os_fstat_struct
+#define os_fstat_struct os_stat_struct
+#endif
 #ifndef os_chown
 #define os_chown chown
 #endif
@@ -342,6 +343,9 @@ typedef int errinfotype;
 #endif
 #ifndef os_getenv
 #define os_getenv getenv
+#endif
+#ifndef os_setenv
+#define os_setenv setenv
 #endif
 
 

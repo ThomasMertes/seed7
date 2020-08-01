@@ -153,7 +153,7 @@ listtype arguments;
 
   { /* prc_args */
     if (option.arg_v == NULL) {
-      option.arg_v = copy_args(option.argv, option.argv_start);
+      option.arg_v = copy_args((rtlArraytype) option.argv, option.argv_start);
     } /* if */
     if (option.arg_v == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));

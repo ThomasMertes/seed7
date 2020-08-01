@@ -29,6 +29,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "sys/types.h"
 
 #include "common.h"
 #include "data.h"

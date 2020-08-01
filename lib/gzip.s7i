@@ -652,7 +652,7 @@ const func boolean: hasNext (inout gunzipFile: aFile) is func
           aFile.uncompressed, aFile.bfinal);
     end while;
     result := aFile.position <= length(aFile.uncompressed);
-  end func;      
+  end func;
 
 
 const func integer: length (inout gunzipFile: aFile) is func

@@ -60,12 +60,12 @@ typedef struct {
 
 #ifdef ANSI_C
 
-DIR *opendir (char *);
-struct dirent *readdir (DIR *);
-int closedir (DIR *);
-WDIR *wopendir (wchar_t *);
-struct wdirent *wreaddir (WDIR *);
-int wclosedir (WDIR *);
+DIR *opendir (char *name);
+struct dirent *readdir (DIR *curr_dir);
+int closedir (DIR *curr_dir);
+WDIR *wopendir (wchar_t *name);
+struct wdirent *wreaddir (WDIR *curr_dir);
+int wclosedir (WDIR *curr_dir);
 
 #else
 

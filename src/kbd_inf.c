@@ -214,7 +214,7 @@ int ustri_len;
       return ustri[0];
     } else {
       while (ustri_len < len) {
-        if (read_char_if_present(&ustri[ustri_len])) {
+        if (read_char_if_present((cstritype) &ustri[ustri_len])) {
           ustri[ustri_len + 1] = '\0';
         } else {
           ustri[ustri_len] = '\0';

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comp.sd7      Compiler from Seed7 to C                          *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2010  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2011  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -382,6 +382,7 @@ const func string: raw_type_name (in type: object_type) is func
         when {REFOBJECT}:       result := "objreftype";
         when {REFLISTOBJECT}:   result := "listtype";
         when {TYPEOBJECT}:      result := "typetype";
+        when {ACTOBJECT}:       result := "acttype";
         otherwise:
           result := "t_";
           result &:= str(type_number(object_type));
@@ -543,6 +544,7 @@ const func string: raw_type_value (in type: object_type) is func
         when {REFOBJECT}:       result := "objrefvalue";
         when {REFLISTOBJECT}:   result := "listvalue";
         when {TYPEOBJECT}:      result := "typevalue";
+        when {ACTOBJECT}:       result := "actvalue";
         otherwise:              result := "genericvalue";
        end case;
     else
@@ -933,7 +935,7 @@ const proc: process_create_call (in type: object_type,
       case typeCategory[object_type] of
         when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
               FILEOBJECT, SOCKETOBJECT, REFOBJECT, INTERFACEOBJECT,
-              BLOCKOBJECT}:
+              ACTOBJECT, BLOCKOBJECT}:
                                 expr &:= param_b;
         when {BIGINTOBJECT}:    expr &:= "bigCreate(" & param_b & ")";
         when {STRIOBJECT}:      expr &:= "strCreate(" & param_b & ")";
@@ -1119,7 +1121,7 @@ const proc: process_destr_call (in type: object_type,
       case typeCategory[object_type] of
         when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
               FILEOBJECT, SOCKETOBJECT, REFOBJECT, INTERFACEOBJECT,
-              TYPEOBJECT, BLOCKOBJECT}:
+              TYPEOBJECT, ACTOBJECT, BLOCKOBJECT}:
                                 noop;
         when {BIGINTOBJECT}:    expr &:= "bigDestr(" & param_b & ");\n";
         when {STRIOBJECT}:      expr &:= "strDestr(" & param_b & ");\n";
@@ -1320,7 +1322,7 @@ const proc: process_cpy_call (in type: object_type,
       case typeCategory[object_type] of
         when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
               FILEOBJECT, SOCKETOBJECT, REFOBJECT, INTERFACEOBJECT,
-              TYPEOBJECT, BLOCKOBJECT}:
+              TYPEOBJECT, ACTOBJECT, BLOCKOBJECT}:
                                 expr &:= param_a & "=" & param_b;
         when {BIGINTOBJECT}:    expr &:= "bigCpy(&(" & param_a & "), " & param_b & ")";
         when {STRIOBJECT}:      expr &:= "strCopy(&(" & param_a & "), " & param_b & ")";
@@ -2626,8 +2628,9 @@ const proc: process_prc_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "/* prc_cpy */ ";
     if isVar(params[3]) then
-      c_expr.expr &:= "o_";
-      create_name(params[1], c_expr.expr);
+      # c_expr.expr &:= "o_";
+      # create_name(params[1], c_expr.expr);
+      process_expr(params[1], c_expr);
       c_expr.expr &:= " = o_";
       create_name(params[3], c_expr.expr);
       c_expr.expr &:= ";\n";
@@ -2635,15 +2638,17 @@ const proc: process_prc_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       paramCategory := category(params[3]);
       if paramCategory = MATCHOBJECT or paramCategory = CALLOBJECT or
           paramCategory = BLOCKOBJECT then
-        c_expr.expr &:= "o_";
-        create_name(params[1], c_expr.expr);
+        # c_expr.expr &:= "o_";
+        # create_name(params[1], c_expr.expr);
+        process_expr(params[1], c_expr);
         c_expr.expr &:= " = ";
         create_name(params[3], obj_number(params[3]), valueName);
         processFuncValue(valueName, getType(params[3]), params[3], c_expr);
         c_expr.expr &:= ";\n";
       else
-        c_expr.expr &:= "o_";
-        create_name(params[1], c_expr.expr);
+        # c_expr.expr &:= "o_";
+        # create_name(params[1], c_expr.expr);
+        process_expr(params[1], c_expr);
         c_expr.expr &:= " = ";
         c_expr.expr &:= " = &o_";
         create_name(params[3], c_expr.expr);
@@ -5243,25 +5248,25 @@ const proc: process_const_bst_idx (in reference: function, in reference: param1,
     in integer: index, inout expr_type: c_expr) is func
 
   local
-    var integer: string_temp_num is 0;
+    var integer: temp_num is 0;
   begin
     incr(countOptimizations);
     if index < 1 then
       process_raise_error("RANGE_ERROR", function, c_expr);
     elsif array_range_check then
       incr(c_expr.temp_num);
-      string_temp_num := c_expr.temp_num;
+      temp_num := c_expr.temp_num;
       c_expr.temp_decls &:= "bstritype tmp_";
-      c_expr.temp_decls &:= str(string_temp_num);
+      c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(*(tmp_";
-      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "=";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ", &tmp_";
-      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "->mem[(tmp_";
-      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "->size<";
       c_expr.expr &:= str(index);
       c_expr.expr &:= " ? ";
@@ -5726,7 +5731,7 @@ const proc: process_chr_str (in ref_list: params, inout expr_type: c_expr) is fu
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "struct stri stri_";
+      c_expr.temp_decls &:= "struct stristruct stri_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "chrStrMacro(";
@@ -5862,6 +5867,16 @@ const proc: process_cmd_getcwd (in ref_list: params, inout expr_type: c_expr) is
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "cmdGetcwd()";
+  end func;
+
+
+const proc: process_cmd_getenv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdGetenv(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -6007,6 +6022,18 @@ const proc: process_cmd_remove_any_file (in ref_list: params, inout expr_type: c
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdRemoveAnyFile(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_cmd_setenv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSetenv(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -12819,16 +12846,6 @@ const proc: process_str_ge (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_str_getenv (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "strGetenv(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
 const proc: process_str_gt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -12865,7 +12882,7 @@ const proc: process_str_head (in reference: param1, in reference: param4,
       c_expr.temp_decls &:= "stritype tmp_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
-      c_expr.temp_decls &:= "struct stri stri_";
+      c_expr.temp_decls &:= "struct stristruct stri_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(tmp_";
@@ -12891,7 +12908,7 @@ const proc: process_str_head (in reference: param1, in reference: param4,
     elsif ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "struct stri slice_";
+      c_expr.temp_decls &:= "struct stristruct slice_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "strHeadSlice(";
@@ -13471,7 +13488,7 @@ const proc: process_str_range (in ref_list: params, inout expr_type: c_expr) is 
     elsif ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "struct stri slice_";
+      c_expr.temp_decls &:= "struct stristruct slice_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "strRangeSlice(";
@@ -13615,7 +13632,7 @@ const proc: process_str_substr1 (in reference: param1, in reference: param3,
     end if;
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
-    c_expr.temp_decls &:= "struct stri stri_";
+    c_expr.temp_decls &:= "struct stristruct stri_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
     c_expr.expr &:= "(tmp_";
@@ -13666,7 +13683,7 @@ const proc: process_str_substr (in ref_list: params, inout expr_type: c_expr) is
     elsif ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "struct stri slice_";
+      c_expr.temp_decls &:= "struct stristruct slice_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "strSubstrSlice(";
@@ -13699,7 +13716,7 @@ const proc: process_str_tail (in ref_list: params, inout expr_type: c_expr) is f
     if ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "struct stri slice_";
+      c_expr.temp_decls &:= "struct stristruct slice_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "strTailSlice(";
@@ -13813,7 +13830,7 @@ const proc: process_tim_from_timestamp (in ref_list: params, inout expr_type: c_
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "timFromTimestamp(";
+    c_expr.expr &:= "timFromIntTimestamp(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", &(";
     process_expr(params[2], c_expr);
@@ -14421,6 +14438,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_filetype_sl(params, c_expr);
       elsif action_name = "CMD_GETCWD" then
         process_cmd_getcwd(params, c_expr);
+      elsif action_name = "CMD_GETENV" then
+        process_cmd_getenv(params, c_expr);
       elsif action_name = "CMD_GET_ATIME" then
         process_cmd_get_atime(params, c_expr);
       elsif action_name = "CMD_GET_CTIME" then
@@ -14439,6 +14458,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_remove(params, c_expr);
       elsif action_name = "CMD_REMOVE_ANY_FILE" then
         process_cmd_remove_any_file(params, c_expr);
+      elsif action_name = "CMD_SETENV" then
+        process_cmd_setenv(params, c_expr);
       elsif action_name = "CMD_SET_ATIME" then
         process_cmd_set_atime(params, c_expr);
       elsif action_name = "CMD_SET_FILEMODE" then
@@ -15295,8 +15316,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_str_eq(params, c_expr);
       elsif action_name = "STR_GE" then
         process_str_ge(params, c_expr);
-      elsif action_name = "STR_GETENV" then
-        process_str_getenv(params, c_expr);
       elsif action_name = "STR_GT" then
         process_str_gt(params, c_expr);
       elsif action_name = "STR_HASHCODE" then
@@ -16254,7 +16273,11 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
       c_expr.expr &:= "struct {\n";
       for dataItem range data_list do
         c_expr.expr &:= type_name(getType(dataItem));
-        c_expr.expr &:= " *data_";
+        if is_func(getType(dataItem)) then
+          c_expr.expr &:= " data_";
+        else
+          c_expr.expr &:= " *data_";
+        end if;
         create_name(dataItem, c_expr.expr);
         c_expr.expr &:= ";\n";
         if is_func(getType(dataItem)) then
@@ -16283,7 +16306,7 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
           create_name(dataItem, data_value);
         end if;
         funcparam_data @:= [dataItem] data_value;
-        data_value := "*((functype_";
+        data_value := "((functype_";
         data_value &:= valueName;
         data_value &:= " *) data_";
         data_value &:= valueName;
@@ -16468,9 +16491,7 @@ const proc: call_params (in ref_list: formal_params,
                 c_expr.expr &:= "_";
               end if;
               if actual_param in funcparam_reference then
-                c_expr.expr &:= "&(";
                 c_expr.expr &:= funcparam_reference[actual_param];
-                c_expr.expr &:= ")";
               else
                 c_expr.expr &:= "o_";
                 create_name(actual_param, c_expr.expr);
@@ -16725,9 +16746,11 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
     elsif exprCategory = BLOCKOBJECT then
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
-      c_expr.expr &:= "()";
-      if result_type(getType(current_expression)) = voidtype then
-        c_expr.expr &:= ";\n";
+      if not isVar(current_expression) then
+        c_expr.expr &:= "()";
+        if result_type(getType(current_expression)) = voidtype then
+          c_expr.expr &:= ";\n";
+        end if;
       end if;
     elsif exprCategory = ACTOBJECT then
       process_action(current_expression, ref_list.EMPTY, c_expr);
@@ -17779,33 +17802,42 @@ const proc: process_ref_list_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   local
-    var reference: element is NIL;
-    var boolean: first_element is TRUE;
+    var ref_list: refListValue is ref_list.EMPTY;
+    var integer: index is 0;
   begin
-    if TRUE then
-      c_expr.expr &:= type_name(getType(current_object));
-      c_expr.expr &:= " o_";
-      create_name(current_object, c_expr.expr);
-      if length(getValue(current_object, ref_list)) = 0 then
-        c_expr.expr &:= "=";
+    refListValue := getValue(current_object, ref_list);
+    for index range length(refListValue) downto 1 do
+      c_expr.expr &:= "struct liststruct rec_";
+      c_expr.expr &:= str(obj_number(current_object));
+      c_expr.expr &:= "_";
+      c_expr.expr &:= str(index);
+      c_expr.expr &:= "={";
+      if index = length(refListValue) then
         c_expr.expr &:= "NULL";
       else
-        c_expr.expr &:= "[]={";
-        for element range getValue(current_object, ref_list) do
-          if first_element then
-            first_element := FALSE;
-          else
-            c_expr.expr &:= ", ";
-          end if;
-          c_expr.expr &:= "&(";
-          process_expr(element, c_expr);
-          c_expr.expr &:= ")";
-        end for;
-        c_expr.expr &:= "}";
+        c_expr.expr &:= "&rec_";
+        c_expr.expr &:= str(obj_number(current_object));
+        c_expr.expr &:= "_";
+        c_expr.expr &:= str(succ(index));
       end if;
-      c_expr.expr &:= ";\n\n";
-      count_declarations;
+      c_expr.expr &:= ", (objreftype) &(";
+      process_expr(refListValue[index], c_expr);
+      c_expr.expr &:= ")};\n";
+    end for;
+    c_expr.expr &:= "\n";
+    c_expr.expr &:= type_name(getType(current_object));
+    c_expr.expr &:= " o_";
+    create_name(current_object, c_expr.expr);
+    c_expr.expr &:= "=";
+    if length(refListValue) = 0 then
+      c_expr.expr &:= "NULL";
+    else
+      c_expr.expr &:= "&rec_";
+      c_expr.expr &:= str(obj_number(current_object));
+      c_expr.expr &:= "_1";
     end if;
+    c_expr.expr &:= ";\n\n";
+    count_declarations;
   end func;
 
 
@@ -18947,6 +18979,9 @@ const proc: process_action_declaration (in reference: current_object,
       if action_name = "PRC_DYNAMIC" then
         process_dynamic_declaration(current_object, c_expr);
         count_declarations;
+      elsif action_name = "ACT_CPY" then
+        defineParam1TypeCategory(current_object, ACTOBJECT);
+        count_declarations;
       elsif action_name = "ARR_CREATE" then
         process_arr_create_declaration(current_object, c_expr);
         count_declarations;
@@ -19374,7 +19409,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef uinttype bitsettype;");
     writeln(c_prog, "typedef uint" <& POINTER_SIZE <& "type memsizetype;");
     writeln(c_prog, "typedef unsigned char *ustritype;");
-    writeln(c_prog, "typedef struct stri {");
+    writeln(c_prog, "typedef struct stristruct  {");
     writeln(c_prog, "  memsizetype size;");
     if WITH_STRI_CAPACITY then
       writeln(c_prog, "  memsizetype capacity;");
@@ -19386,30 +19421,41 @@ const proc: write_file_head is func
       writeln(c_prog, "  strelemtype mem[1];");
     end if;
     writeln(c_prog, "} *stritype;");
-    writeln(c_prog, "typedef struct bstri {");
+    writeln(c_prog, "typedef const struct stristruct  *const_stritype;");
+    writeln(c_prog, "typedef struct bstristruct {");
     writeln(c_prog, "  memsizetype size;");
     writeln(c_prog, "  unsigned char mem[1];");
     writeln(c_prog, "} *bstritype;");
+    writeln(c_prog, "typedef const struct bstristruct  *const_bstritype;");
     writeln(c_prog, "typedef struct setstruct {");
     writeln(c_prog, "  inttype min_position;");
     writeln(c_prog, "  inttype max_position;");
     writeln(c_prog, "  bitsettype bitset[1];");
     writeln(c_prog, "} *settype;");
+    writeln(c_prog, "typedef const struct setstruct  *const_settype;");
     writeln(c_prog, "typedef struct bigintstruct {");
     writeln(c_prog, "  int dummy;");
     writeln(c_prog, "} *biginttype;");
+    writeln(c_prog, "typedef const struct bigintstruct *const_biginttype;");
     writeln(c_prog, "typedef struct winstruct {");
     writeln(c_prog, "  uinttype usage_count;");
     writeln(c_prog, "} *wintype;");
+    writeln(c_prog, "typedef const struct winstruct *const_wintype;");
     writeln(c_prog, "typedef struct progstruct {");
     writeln(c_prog, "  uinttype usage_count;");
     writeln(c_prog, "} *progtype;");
+    writeln(c_prog, "typedef const struct progstruct *const_progtype;");
     writeln(c_prog, "typedef struct rtlArraystruct *arraytype;");
+    writeln(c_prog, "typedef const struct rtlArraystruct *const_arraytype;");
     writeln(c_prog, "typedef struct rtlHashstruct *hashtype;");
+    writeln(c_prog, "typedef const struct rtlHashstruct *const_hashtype;");
     writeln(c_prog, "typedef struct rtlStructstruct *structtype;");
     writeln(c_prog, "typedef struct rtlStructstruct *interfacetype;");
     writeln(c_prog, "typedef struct objectstruct *objreftype;");
+    writeln(c_prog, "typedef const struct objectstruct *const_objreftype;");
     writeln(c_prog, "typedef struct liststruct *listtype;");
+    writeln(c_prog, "typedef const struct liststruct *const_listtype;");
+    writeln(c_prog, "typedef objreftype (*acttype) (listtype);");
     writeln(c_prog, "typedef FILE *filetype;");
     writeln(c_prog, "typedef int sockettype;");
     writeln(c_prog, "typedef uint" <& GENERIC_SIZE <& "type generictype;");
@@ -19435,6 +19481,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  interfacetype interfacevalue;");
     writeln(c_prog, "  objreftype    objrefvalue;");
     writeln(c_prog, "  listtype      listvalue;");
+    writeln(c_prog, "  acttype       actvalue;");
     writeln(c_prog, "} rtlValueunion;");
     writeln(c_prog, "typedef struct rtlObjectstruct {");
     writeln(c_prog, "  rtlValueunion value;");
@@ -19485,20 +19532,20 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef generictype (*createfunctype) (generictype);");
     writeln(c_prog, "typedef void (*destrfunctype) (generictype);");
     writeln(c_prog, "typedef void (*copyfunctype) (generictype *, generictype);");
-    writeln(c_prog, "stritype       arg_0;");
-    writeln(c_prog, "stritype       programPath;");
-    writeln(c_prog, "arraytype      arg_v;");
-    writeln(c_prog, "biginttype    *big;");
-    writeln(c_prog, "stritype       str[];");
-    writeln(c_prog, "bstritype      bst[];");
-    writeln(c_prog, "settype        set[];");
-    writeln(c_prog, "typetype       typ[];");
-    writeln(c_prog, "arraytype     *arr;");
-    writeln(c_prog, "structtype    *sct;");
-    writeln(c_prog, "hashtype      *hsh;");
-    writeln(c_prog, "interfacetype *itf;");
-    writeln(c_prog, "rtlValueunion  flt2int;");
-    writeln(c_prog, "memsizetype hs;");
+    writeln(c_prog, "stritype         arg_0;");
+    writeln(c_prog, "stritype         programPath;");
+    writeln(c_prog, "arraytype        arg_v;");
+    writeln(c_prog, "extern stritype  str[];");
+    writeln(c_prog, "extern bstritype bst[];");
+    writeln(c_prog, "extern settype   set[];");
+    writeln(c_prog, "extern typetype  typ[];");
+    writeln(c_prog, "biginttype      *big;");
+    writeln(c_prog, "arraytype       *arr;");
+    writeln(c_prog, "structtype      *sct;");
+    writeln(c_prog, "hashtype        *hsh;");
+    writeln(c_prog, "interfacetype   *itf;");
+    writeln(c_prog, "rtlValueunion    flt2int;");
+    writeln(c_prog, "extern memsizetype hs;");
     writeln(c_prog);
     writeln(c_prog, "static inttype fact[] = {");
     writeln(c_prog, "    1, 1, 2, 6, 24, 120, 720, 5040, 40320,");
@@ -19562,40 +19609,40 @@ const proc: write_file_head is func
 const proc: write_prototypes is func
 
   begin
-    writeln(c_prog, "stritype    actStr (generictype);");
-    writeln(c_prog, "generictype actValue (objreftype);");
-    writeln(c_prog, "void        arrAppend (arraytype *, arraytype);");
+    writeln(c_prog, "stritype    actStr (acttype);");
+    writeln(c_prog, "acttype     actValue (objreftype);");
+    writeln(c_prog, "void        arrAppend (arraytype *, const_arraytype);");
     writeln(c_prog, "arraytype   arrArrlit2 (inttype, arraytype);");
     writeln(c_prog, "arraytype   arrBaselit (generictype);");
     writeln(c_prog, "arraytype   arrBaselit2 (inttype, generictype);");
-    writeln(c_prog, "arraytype   arrCat (arraytype, arraytype);");
+    writeln(c_prog, "arraytype   arrCat (arraytype, const_arraytype);");
     writeln(c_prog, "arraytype   arrExtend (arraytype, generictype);");
     writeln(c_prog, "arraytype   arrGen (generictype, generictype);");
-    writeln(c_prog, "arraytype   arrHead (arraytype, inttype);");
+    writeln(c_prog, "arraytype   arrHead (const_arraytype, inttype);");
     writeln(c_prog, "arraytype   arrHeadTemp (arraytype *, inttype);");
     writeln(c_prog, "generictype arrIdxTemp (arraytype *, inttype);");
     writeln(c_prog, "void        arrPush (arraytype *, generictype);");
-    writeln(c_prog, "arraytype   arrRange (arraytype, inttype, inttype);");
+    writeln(c_prog, "arraytype   arrRange (const_arraytype, inttype, inttype);");
     writeln(c_prog, "arraytype   arrRangeTemp (arraytype *, inttype, inttype);");
-    writeln(c_prog, "generictype arrRemove (arraytype, inttype);");
+    writeln(c_prog, "generictype arrRemove (arraytype *, inttype);");
     writeln(c_prog, "arraytype   arrSort (arraytype, comparetype);");
-    writeln(c_prog, "arraytype   arrTail (arraytype, inttype);");
+    writeln(c_prog, "arraytype   arrTail (const_arraytype, inttype);");
     writeln(c_prog, "arraytype   arrTailTemp (arraytype *, inttype);");
-    writeln(c_prog, "biginttype  bigAbs (biginttype);");
-    writeln(c_prog, "biginttype  bigAdd (biginttype, biginttype);");
-    writeln(c_prog, "biginttype  bigAddTemp (biginttype, biginttype);");
-    writeln(c_prog, "inttype     bigBitLength (biginttype);");
-    writeln(c_prog, "stritype    bigCLit (biginttype);");
-    writeln(c_prog, "inttype     bigCmp (biginttype, biginttype);");
+    writeln(c_prog, "biginttype  bigAbs (const_biginttype);");
+    writeln(c_prog, "biginttype  bigAdd (const_biginttype, const_biginttype);");
+    writeln(c_prog, "biginttype  bigAddTemp (biginttype, const_biginttype);");
+    writeln(c_prog, "inttype     bigBitLength (const_biginttype);");
+    writeln(c_prog, "stritype    bigCLit (const_biginttype);");
+    writeln(c_prog, "inttype     bigCmp (const_biginttype, const_biginttype);");
     writeln(c_prog, "inttype     bigCmpGeneric (generictype, generictype);");
-    writeln(c_prog, "inttype     bigCmpSignedDigit (biginttype, inttype);");
-    writeln(c_prog, "void        bigCpy (biginttype *, biginttype);");
-    writeln(c_prog, "biginttype  bigCreate (biginttype);");
+    writeln(c_prog, "inttype     bigCmpSignedDigit (const_biginttype, inttype);");
+    writeln(c_prog, "void        bigCpy (biginttype *, const_biginttype);");
+    writeln(c_prog, "biginttype  bigCreate (const_biginttype);");
     writeln(c_prog, "generictype bigCreateGeneric (generictype);");
     writeln(c_prog, "void        bigDecr (biginttype *);");
     writeln(c_prog, "void        bigDestr (biginttype);");
-    writeln(c_prog, "biginttype  bigDiv (biginttype, biginttype);");
-    writeln(c_prog, "booltype    bigEq (biginttype, biginttype);");
+    writeln(c_prog, "biginttype  bigDiv (const_biginttype, const_biginttype);");
+    writeln(c_prog, "booltype    bigEq (const_biginttype, const_biginttype);");
     if INTTYPE_SIZE = 64 then
       writeln(c_prog, "biginttype  bigFromInt64 (inttype);");
       writeln(c_prog, "#define     bigIConv bigFromInt64");
@@ -19603,60 +19650,59 @@ const proc: write_prototypes is func
       writeln(c_prog, "biginttype  bigFromInt32 (inttype);");
       writeln(c_prog, "#define     bigIConv bigFromInt32");
     end if;
-    writeln(c_prog, "biginttype  bigGcd (biginttype, biginttype);");
-    writeln(c_prog, "void        bigGrow (biginttype *, biginttype);");
-    writeln(c_prog, "inttype     bigHashCode (biginttype);");
-    writeln(c_prog, "char       *bigHexCStri (biginttype);");
+    writeln(c_prog, "biginttype  bigGcd (const_biginttype, const_biginttype);");
+    writeln(c_prog, "void        bigGrow (biginttype *, const_biginttype);");
+    writeln(c_prog, "inttype     bigHashCode (const_biginttype);");
+    writeln(c_prog, "char       *bigHexCStri (const_biginttype);");
     writeln(c_prog, "biginttype  bigImport (ustritype);");
     writeln(c_prog, "void        bigIncr (biginttype *);");
-    writeln(c_prog, "biginttype  bigIPow (biginttype, inttype);");
-    writeln(c_prog, "biginttype  bigLog2 (biginttype);");
-    writeln(c_prog, "inttype     bigLowestSetBit (biginttype);");
-    writeln(c_prog, "biginttype  bigLShift (biginttype, inttype);");
+    writeln(c_prog, "biginttype  bigIPow (const_biginttype, inttype);");
+    writeln(c_prog, "biginttype  bigLog2 (const_biginttype);");
+    writeln(c_prog, "inttype     bigLowestSetBit (const_biginttype);");
+    writeln(c_prog, "biginttype  bigLShift (const_biginttype, inttype);");
     writeln(c_prog, "void        bigLShiftAssign (biginttype *, inttype);");
     writeln(c_prog, "biginttype  bigLShiftOne (inttype);");
-    writeln(c_prog, "biginttype  bigMDiv (biginttype, biginttype);");
-    writeln(c_prog, "biginttype  bigMinus (biginttype);");
-    writeln(c_prog, "biginttype  bigMod (biginttype, biginttype);");
-    writeln(c_prog, "biginttype  bigMult (biginttype, biginttype);");
-    writeln(c_prog, "void        bigMultAssign (biginttype *, biginttype);");
-    writeln(c_prog, "biginttype  bigMultSignedDigit (biginttype, inttype);");
-    writeln(c_prog, "booltype    bigOdd (biginttype);");
+    writeln(c_prog, "biginttype  bigMDiv (const_biginttype, const_biginttype);");
+    writeln(c_prog, "biginttype  bigMinus (const_biginttype);");
+    writeln(c_prog, "biginttype  bigMod (const_biginttype, const_biginttype);");
+    writeln(c_prog, "biginttype  bigMult (const_biginttype, const_biginttype);");
+    writeln(c_prog, "void        bigMultAssign (biginttype *, const_biginttype);");
+    writeln(c_prog, "biginttype  bigMultSignedDigit (const_biginttype, inttype);");
+    writeln(c_prog, "booltype    bigOdd (const_biginttype);");
     if INTTYPE_SIZE = 64 then
-      writeln(c_prog, "inttype     bigToInt64 (biginttype);");
+      writeln(c_prog, "inttype     bigToInt64 (const_biginttype);");
       writeln(c_prog, "#define     bigOrd bigToInt64");
     elsif INTTYPE_SIZE = 32 then
-      writeln(c_prog, "inttype     bigToInt32 (biginttype);");
+      writeln(c_prog, "inttype     bigToInt32 (const_biginttype);");
       writeln(c_prog, "#define     bigOrd bigToInt32");
     end if;
-    writeln(c_prog, "inttype     bigOrd (biginttype);");
-    writeln(c_prog, "biginttype  bigParse (stritype);");
-    writeln(c_prog, "biginttype  bigPred (biginttype);");
+    writeln(c_prog, "biginttype  bigParse (const_stritype);");
+    writeln(c_prog, "biginttype  bigPred (const_biginttype);");
     writeln(c_prog, "biginttype  bigPredTemp (biginttype);");
-    writeln(c_prog, "biginttype  bigRand (biginttype, biginttype);");
-    writeln(c_prog, "biginttype  bigRem (biginttype, biginttype);");
-    writeln(c_prog, "biginttype  bigRShift (biginttype, inttype);");
+    writeln(c_prog, "biginttype  bigRand (const_biginttype, const_biginttype);");
+    writeln(c_prog, "biginttype  bigRem (const_biginttype, const_biginttype);");
+    writeln(c_prog, "biginttype  bigRShift (const_biginttype, inttype);");
     writeln(c_prog, "void        bigRShiftAssign (biginttype *, inttype);");
-    writeln(c_prog, "biginttype  bigSbtr (biginttype, biginttype);");
-    writeln(c_prog, "biginttype  bigSbtrTemp (biginttype, biginttype);");
-    writeln(c_prog, "void        bigShrink (biginttype *, biginttype);");
-    writeln(c_prog, "stritype    bigStr (biginttype);");
-    writeln(c_prog, "biginttype  bigSucc (biginttype);");
+    writeln(c_prog, "biginttype  bigSbtr (const_biginttype, const_biginttype);");
+    writeln(c_prog, "biginttype  bigSbtrTemp (biginttype, const_biginttype);");
+    writeln(c_prog, "void        bigShrink (biginttype *, const_biginttype);");
+    writeln(c_prog, "stritype    bigStr (const_biginttype);");
+    writeln(c_prog, "biginttype  bigSucc (const_biginttype);");
     writeln(c_prog, "biginttype  bigSuccTemp (biginttype);");
     writeln(c_prog, "biginttype  bigValue (objreftype);");
     writeln(c_prog, "biginttype  bigZero (void);");
     writeln(c_prog, "void        blnCpy (booltype *, booltype);");
-    writeln(c_prog, "void        bstAppend (bstritype *, bstritype);");
-    writeln(c_prog, "bstritype   bstCat (bstritype, bstritype);");
-    writeln(c_prog, "inttype     bstCmp (bstritype, bstritype);");
+    writeln(c_prog, "void        bstAppend (bstritype *, const_bstritype);");
+    writeln(c_prog, "bstritype   bstCat (const_bstritype, const_bstritype);");
+    writeln(c_prog, "inttype     bstCmp (const_bstritype, const_bstritype);");
     writeln(c_prog, "inttype     bstCmpGeneric (generictype, generictype);");
-    writeln(c_prog, "void        bstCpy (bstritype *, bstritype);");
-    writeln(c_prog, "bstritype   bstCreate (bstritype);");
+    writeln(c_prog, "void        bstCpy (bstritype *, const_bstritype);");
+    writeln(c_prog, "bstritype   bstCreate (const_bstritype);");
     writeln(c_prog, "generictype bstCreateGeneric (generictype);");
     writeln(c_prog, "void        bstDestr (bstritype);");
-    writeln(c_prog, "inttype     bstHashCode (bstritype);");
-    writeln(c_prog, "bstritype   bstParse (stritype);");
-    writeln(c_prog, "stritype    bstStr (bstritype);");
+    writeln(c_prog, "inttype     bstHashCode (const_bstritype);");
+    writeln(c_prog, "bstritype   bstParse (const_stritype);");
+    writeln(c_prog, "stritype    bstStr (const_bstritype);");
     writeln(c_prog, "bstritype   bstValue (objreftype);");
     writeln(c_prog, "stritype    chrCLit (chartype);");
     writeln(c_prog, "inttype     chrCmp (chartype, chartype);");
@@ -19671,82 +19717,84 @@ const proc: write_prototypes is func
     end if;
     writeln(c_prog, "chartype    chrUp (chartype);");
     writeln(c_prog, "chartype    chrValue (objreftype);");
-    writeln(c_prog, "biginttype  cmdBigFileSize (stritype);");
-    writeln(c_prog, "void        cmdChdir (stritype);");
-    writeln(c_prog, "void        cmdCloneFile (stritype, stritype);");
-    writeln(c_prog, "stritype    cmdConfigValue (stritype);");
-    writeln(c_prog, "void        cmdCopyFile (stritype, stritype);");
-    writeln(c_prog, "settype     cmdFileMode (stritype);");
-    writeln(c_prog, "inttype     cmdFileSize (stritype);");
-    writeln(c_prog, "inttype     cmdFileType (stritype);");
-    writeln(c_prog, "inttype     cmdFileTypeSL (stritype);");
+    writeln(c_prog, "biginttype  cmdBigFileSize (const_stritype);");
+    writeln(c_prog, "void        cmdChdir (const_stritype);");
+    writeln(c_prog, "void        cmdCloneFile (const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    cmdConfigValue (const_stritype);");
+    writeln(c_prog, "void        cmdCopyFile (const_stritype, const_stritype);");
+    writeln(c_prog, "settype     cmdFileMode (const_stritype);");
+    writeln(c_prog, "inttype     cmdFileSize (const_stritype);");
+    writeln(c_prog, "inttype     cmdFileType (const_stritype);");
+    writeln(c_prog, "inttype     cmdFileTypeSL (const_stritype);");
     writeln(c_prog, "stritype    cmdGetcwd (void);");
-    writeln(c_prog, "void        cmdGetATime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
-    writeln(c_prog, "void        cmdGetCTime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
-    writeln(c_prog, "void        cmdGetMTime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
-    writeln(c_prog, "arraytype   cmdLs (stritype);");
-    writeln(c_prog, "void        cmdMkdir (stritype);");
-    writeln(c_prog, "void        cmdMove (stritype, stritype);");
-    writeln(c_prog, "stritype    cmdReadlink (stritype);");
-    writeln(c_prog, "void        cmdRemove (stritype);");
-    writeln(c_prog, "void        cmdRemoveAnyFile (stritype);");
-    writeln(c_prog, "void        cmdSetATime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        cmdSetFileMode (stritype, settype);");
-    writeln(c_prog, "void        cmdSetMTime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "inttype     cmdShell (stritype);");
-    writeln(c_prog, "void        cmdSymlink (stritype, stritype);");
-    writeln(c_prog, "inttype     drwPointerXpos (wintype);");
-    writeln(c_prog, "inttype     drwPointerYpos (wintype);");
-    writeln(c_prog, "void        drwArc (wintype, inttype, inttype, inttype, floattype, floattype);");
-    writeln(c_prog, "void        drwArc2 (wintype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "stritype    cmdGetenv (const_stritype);");
+    writeln(c_prog, "void        cmdGetATime (const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        cmdGetCTime (const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        cmdGetMTime (const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "arraytype   cmdLs (const_stritype);");
+    writeln(c_prog, "void        cmdMkdir (const_stritype);");
+    writeln(c_prog, "void        cmdMove (const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    cmdReadlink (const_stritype);");
+    writeln(c_prog, "void        cmdRemove (const_stritype);");
+    writeln(c_prog, "void        cmdRemoveAnyFile (const_stritype);");
+    writeln(c_prog, "void        cmdSetenv (const_stritype, const_stritype);");
+    writeln(c_prog, "void        cmdSetATime (const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        cmdSetFileMode (const_stritype, settype);");
+    writeln(c_prog, "void        cmdSetMTime (const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "inttype     cmdShell (const_stritype);");
+    writeln(c_prog, "void        cmdSymlink (const_stritype, const_stritype);");
+    writeln(c_prog, "inttype     drwPointerXpos (const_wintype);");
+    writeln(c_prog, "inttype     drwPointerYpos (const_wintype);");
+    writeln(c_prog, "void        drwArc (const_wintype, inttype, inttype, inttype, floattype, floattype);");
+    writeln(c_prog, "void        drwArc2 (const_wintype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwBackground (inttype);");
-    writeln(c_prog, "void        drwCircle (wintype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwClear (wintype, inttype);");
+    writeln(c_prog, "void        drwCircle (const_wintype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwClear (const_wintype, inttype);");
     writeln(c_prog, "void        drwColor (inttype);");
-    writeln(c_prog, "void        drwCopyArea (wintype, wintype, inttype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwCopyArea (const_wintype, const_wintype, inttype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwCpy (wintype *, wintype);");
     writeln(c_prog, "wintype     drwCreate (wintype);");
     writeln(c_prog, "generictype drwCreateGeneric (generictype);");
     writeln(c_prog, "void        drwDestr (wintype);");
-    writeln(c_prog, "void        drwFArcChord (wintype, inttype, inttype, inttype, floattype, floattype);");
-    writeln(c_prog, "void        drwFArcPieSlice (wintype, inttype, inttype, inttype, floattype, floattype);");
-    writeln(c_prog, "void        drwFCircle (wintype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwFEllipse (wintype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwFArcChord (const_wintype, inttype, inttype, inttype, floattype, floattype);");
+    writeln(c_prog, "void        drwFArcPieSlice (const_wintype, inttype, inttype, inttype, floattype, floattype);");
+    writeln(c_prog, "void        drwFCircle (const_wintype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwFEllipse (const_wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwFlush (void);");
-    writeln(c_prog, "bstritype   drwGenPointList (arraytype);");
-    writeln(c_prog, "wintype     drwGet (wintype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "inttype     drwHeight (wintype);");
-    writeln(c_prog, "wintype     drwImage (wintype, inttype *, inttype, inttype);");
-    writeln(c_prog, "void        drwLine (wintype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "wintype     drwNewPixmap (wintype, inttype, inttype);");
-    writeln(c_prog, "wintype     drwOpen (inttype, inttype, inttype, inttype, stritype);");
-    writeln(c_prog, "wintype     drwOpenSubWindow (wintype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwPArc (wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
-    writeln(c_prog, "void        drwPCircle (wintype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwPFArcChord (wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
-    writeln(c_prog, "void        drwPFArcPieSlice (wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
-    writeln(c_prog, "void        drwPFCircle (wintype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwPFEllipse (wintype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwPLine (wintype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwPoint (wintype, inttype, inttype);");
-    writeln(c_prog, "void        drwPPoint (wintype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwPRect (wintype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwPolyLine (wintype, inttype, inttype, bstritype, inttype);");
-    writeln(c_prog, "void        drwFPolyLine (wintype, inttype, inttype, bstritype, inttype);");
-    writeln(c_prog, "void        drwPut (wintype, wintype, inttype, inttype);");
-    writeln(c_prog, "void        drwRect (wintype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "bstritype   drwGenPointList (const_arraytype);");
+    writeln(c_prog, "wintype     drwGet (const_wintype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "inttype     drwHeight (const_wintype);");
+    writeln(c_prog, "wintype     drwImage (const_wintype, inttype *, inttype, inttype);");
+    writeln(c_prog, "void        drwLine (const_wintype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "wintype     drwNewPixmap (const_wintype, inttype, inttype);");
+    writeln(c_prog, "wintype     drwOpen (inttype, inttype, inttype, inttype, const_stritype);");
+    writeln(c_prog, "wintype     drwOpenSubWindow (const_wintype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwPArc (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
+    writeln(c_prog, "void        drwPCircle (const_wintype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwPFArcChord (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
+    writeln(c_prog, "void        drwPFArcPieSlice (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
+    writeln(c_prog, "void        drwPFCircle (const_wintype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwPFEllipse (const_wintype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwPLine (const_wintype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwPoint (const_wintype, inttype, inttype);");
+    writeln(c_prog, "void        drwPPoint (const_wintype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwPRect (const_wintype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwPolyLine (const_wintype, inttype, inttype, bstritype, inttype);");
+    writeln(c_prog, "void        drwFPolyLine (const_wintype, inttype, inttype, bstritype, inttype);");
+    writeln(c_prog, "void        drwPut (const_wintype, const_wintype, inttype, inttype);");
+    writeln(c_prog, "void        drwRect (const_wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "inttype     drwRgbColor (inttype, inttype, inttype);");
-    writeln(c_prog, "void        drwSetContent (wintype, wintype);");
-    writeln(c_prog, "void        drwSetPos (wintype, inttype, inttype);");
-    writeln(c_prog, "void        drwText (wintype, inttype, inttype, stritype, inttype, inttype);");
-    writeln(c_prog, "void        drwToBottom (wintype);");
-    writeln(c_prog, "void        drwToTop (wintype);");
+    writeln(c_prog, "void        drwSetContent (const_wintype, const_wintype);");
+    writeln(c_prog, "void        drwSetPos (const_wintype, inttype, inttype);");
+    writeln(c_prog, "void        drwText (const_wintype, inttype, inttype, const_stritype, inttype, inttype);");
+    writeln(c_prog, "void        drwToBottom (const_wintype);");
+    writeln(c_prog, "void        drwToTop (const_wintype);");
     writeln(c_prog, "void        drwSetTransparentColor (wintype, inttype);");
-    writeln(c_prog, "inttype     drwWidth (wintype);");
-    writeln(c_prog, "inttype     drwXPos (wintype);");
-    writeln(c_prog, "inttype     drwYPos (wintype);");
+    writeln(c_prog, "inttype     drwWidth (const_wintype);");
+    writeln(c_prog, "inttype     drwXPos (const_wintype);");
+    writeln(c_prog, "inttype     drwYPos (const_wintype);");
     writeln(c_prog, "biginttype  filBigLng (filetype);");
-    writeln(c_prog, "void        filBigSeek (filetype, biginttype);");
+    writeln(c_prog, "void        filBigSeek (filetype, const_biginttype);");
     writeln(c_prog, "biginttype  filBigTell (filetype);");
     writeln(c_prog, "void        filClose (filetype);");
     writeln(c_prog, "stritype    filGets (filetype, inttype);");
@@ -19754,22 +19802,22 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    filLineRead (filetype, chartype *);");
     writeln(c_prog, "stritype    filLit (filetype);");
     writeln(c_prog, "inttype     filLng (filetype);");
-    writeln(c_prog, "filetype    filOpen (stritype, stritype);");
+    writeln(c_prog, "filetype    filOpen (const_stritype, const_stritype);");
     writeln(c_prog, "void        filPclose (filetype);");
-    writeln(c_prog, "filetype    filPopen (stritype, stritype);");
-    writeln(c_prog, "void        filPrint (stritype);");
+    writeln(c_prog, "filetype    filPopen (const_stritype, const_stritype);");
+    writeln(c_prog, "void        filPrint (const_stritype);");
     writeln(c_prog, "void        filSeek (filetype, inttype);");
     writeln(c_prog, "void        filSetbuf (filetype, inttype, inttype);");
     writeln(c_prog, "inttype     filTell (filetype);");
     writeln(c_prog, "stritype    filWordRead (filetype, chartype *);");
-    writeln(c_prog, "void        filWrite (filetype, stritype);");
+    writeln(c_prog, "void        filWrite (filetype, const_stritype);");
     writeln(c_prog, "filetype    filValue (objreftype);");
     writeln(c_prog, "inttype     fltCmp (floattype, floattype);");
     writeln(c_prog, "inttype     fltCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        fltCpy (floattype *, floattype);");
     writeln(c_prog, "stritype    fltDgts (floattype, inttype);");
     writeln(c_prog, "floattype   fltIPow (floattype, inttype);");
-    writeln(c_prog, "floattype   fltParse (stritype);");
+    writeln(c_prog, "floattype   fltParse (const_stritype);");
     writeln(c_prog, "floattype   fltPow (floattype, floattype);");
     writeln(c_prog, "floattype   fltRand (floattype, floattype);");
     writeln(c_prog, "stritype    fltStr (floattype);");
@@ -19784,17 +19832,17 @@ const proc: write_prototypes is func
     writeln(c_prog, "chartype    gkbRawGetc (void);");
     writeln(c_prog, "wintype     gkbWindow (void);");
     writeln(c_prog, "stritype    gkbWordRead (chartype *);");
-    writeln(c_prog, "booltype    hshContains (hashtype, generictype, inttype, comparetype);");
-    writeln(c_prog, "void        hshCpy (hashtype *, hashtype, createfunctype, destrfunctype, createfunctype, destrfunctype);");
-    writeln(c_prog, "hashtype    hshCreate (hashtype, createfunctype, destrfunctype, createfunctype, destrfunctype);");
+    writeln(c_prog, "booltype    hshContains (const_hashtype, generictype, inttype, comparetype);");
+    writeln(c_prog, "void        hshCpy (hashtype *, const_hashtype, createfunctype, destrfunctype, createfunctype, destrfunctype);");
+    writeln(c_prog, "hashtype    hshCreate (const_hashtype, createfunctype, destrfunctype, createfunctype, destrfunctype);");
     writeln(c_prog, "void        hshDestr (hashtype, destrfunctype, destrfunctype);");
     writeln(c_prog, "hashtype    hshEmpty (void);");
     writeln(c_prog, "void        hshExcl (hashtype, generictype, inttype, comparetype, destrfunctype, destrfunctype);");
-    writeln(c_prog, "generictype hshIdx (hashtype, generictype, inttype, comparetype);");
-    writeln(c_prog, "rtlObjecttype *hshIdxAddr (hashtype, generictype, inttype, comparetype);");
+    writeln(c_prog, "generictype hshIdx (const_hashtype, generictype, inttype, comparetype);");
+    writeln(c_prog, "rtlObjecttype *hshIdxAddr (const_hashtype, generictype, inttype, comparetype);");
     writeln(c_prog, "void        hshIncl (hashtype, generictype, generictype, inttype, comparetype, createfunctype, createfunctype, copyfunctype);");
-    writeln(c_prog, "arraytype   hshKeys (hashtype, createfunctype, destrfunctype);");
-    writeln(c_prog, "arraytype   hshValues (hashtype, createfunctype, destrfunctype);");
+    writeln(c_prog, "arraytype   hshKeys (const_hashtype, createfunctype, destrfunctype);");
+    writeln(c_prog, "arraytype   hshValues (const_hashtype, createfunctype, destrfunctype);");
     writeln(c_prog, "inttype     intBinom (inttype, inttype);");
     writeln(c_prog, "inttype     intBitLength (inttype);");
     writeln(c_prog, "inttype     intCmp (inttype, inttype);");
@@ -19805,7 +19853,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     intLog2 (inttype);");
     writeln(c_prog, "inttype     intLowestSetBit (inttype);");
     writeln(c_prog, "stritype    intLpad0 (inttype, inttype);");
-    writeln(c_prog, "inttype     intParse (stritype);");
+    writeln(c_prog, "inttype     intParse (const_stritype);");
     writeln(c_prog, "inttype     intPow (inttype, inttype);");
     writeln(c_prog, "inttype     intRand (inttype, inttype);");
     writeln(c_prog, "inttype     intSqrt (inttype);");
@@ -19822,17 +19870,17 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     heapsize (void);");
     writeln(c_prog, "void        prcNoop (void)                                {}");
     writeln(c_prog, "void        prgCpy (progtype *, progtype);");
-    writeln(c_prog, "listtype    prgDeclObjects (progtype);");
+    writeln(c_prog, "listtype    prgDeclObjects (const_progtype);");
     writeln(c_prog, "void        prgDestr (progtype);");
-    writeln(c_prog, "inttype     prgErrorCount (progtype);");
+    writeln(c_prog, "inttype     prgErrorCount (const_progtype);");
     writeln(c_prog, "objreftype  prgEval (progtype, objreftype);");
     writeln(c_prog, "void        prgExec (progtype);");
-    writeln(c_prog, "progtype    prgFilParse (stritype);");
-    writeln(c_prog, "progtype    prgStrParse (stritype);");
-    writeln(c_prog, "objreftype  prgMatch (progtype, listtype);");
-    writeln(c_prog, "objreftype  prgMatchExpr (progtype, listtype);");
-    writeln(c_prog, "objreftype  prgSyobject (progtype, stritype);");
-    writeln(c_prog, "objreftype  prgSysvar (progtype, stritype);");
+    writeln(c_prog, "progtype    prgFilParse (const_stritype);");
+    writeln(c_prog, "progtype    prgStrParse (const_stritype);");
+    writeln(c_prog, "objreftype  prgMatch (const_progtype, listtype);");
+    writeln(c_prog, "objreftype  prgMatchExpr (const_progtype, listtype);");
+    writeln(c_prog, "objreftype  prgSyobject (progtype, const_stritype);");
+    writeln(c_prog, "objreftype  prgSysvar (const_progtype, const_stritype);");
     writeln(c_prog, "progtype    prgValue (objreftype);");
     writeln(c_prog, "objreftype  refAlloc (objreftype);");
     writeln(c_prog, "inttype     refArrmaxidx (objreftype);");
@@ -19857,7 +19905,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "objreftype  refResult (objreftype);");
     writeln(c_prog, "listtype    refScttolist (objreftype);");
     writeln(c_prog, "void        refSetCategory (objreftype, inttype);");
-    writeln(c_prog, "void        refSetParams (objreftype, listtype);");
+    writeln(c_prog, "void        refSetParams (objreftype, const_listtype);");
     writeln(c_prog, "void        refSetType (objreftype, typetype);");
     writeln(c_prog, "void        refSetVar (objreftype, booltype);");
     writeln(c_prog, "stritype    refStr (objreftype);");
@@ -19865,20 +19913,20 @@ const proc: write_prototypes is func
     writeln(c_prog, "objreftype  refValue (objreftype);");
     writeln(c_prog, "void        rflAppend (listtype *, listtype);");
     writeln(c_prog, "listtype    rflCat (listtype, listtype);");
-    writeln(c_prog, "void        rflCpy (listtype *, listtype);");
-    writeln(c_prog, "listtype    rflCreate (listtype);");
+    writeln(c_prog, "void        rflCpy (listtype *, const_listtype);");
+    writeln(c_prog, "listtype    rflCreate (const_listtype);");
     writeln(c_prog, "generictype rflCreateGeneric (generictype);");
     writeln(c_prog, "void        rflDestr (listtype);");
-    writeln(c_prog, "booltype    rflElem (objreftype, listtype);");
+    writeln(c_prog, "booltype    rflElem (const_objreftype, const_listtype);");
     writeln(c_prog, "void        rflElemcpy (listtype, inttype, objreftype);");
-    writeln(c_prog, "booltype    rflEq (listtype, listtype);");
+    writeln(c_prog, "booltype    rflEq (const_listtype, const_listtype);");
     writeln(c_prog, "listtype    rflHead (listtype, inttype);");
-    writeln(c_prog, "objreftype  rflIdx (listtype, inttype);");
+    writeln(c_prog, "objreftype  rflIdx (const_listtype, inttype);");
     writeln(c_prog, "void        rflIncl (listtype *, objreftype);");
     writeln(c_prog, "inttype     rflIpos (listtype, objreftype, inttype);");
-    writeln(c_prog, "inttype     rflLng (listtype);");
+    writeln(c_prog, "inttype     rflLng (const_listtype);");
     writeln(c_prog, "listtype    rflMklist (objreftype);");
-    writeln(c_prog, "inttype     rflPos (listtype, objreftype);");
+    writeln(c_prog, "inttype     rflPos (const_listtype, const_objreftype);");
     writeln(c_prog, "void        rflSetvalue (objreftype, listtype);");
     writeln(c_prog, "listtype    rflTail (listtype, inttype);");
     writeln(c_prog, "listtype    rflValue (objreftype);");
@@ -19892,108 +19940,107 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        scrShut (void);");
     writeln(c_prog, "void        scrVScroll (inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "int         scrWidth (void);");
-    writeln(c_prog, "void        scrWrite (stritype stri);");
-    writeln(c_prog, "settype     setArrlit (arraytype);");
+    writeln(c_prog, "void        scrWrite (const_stritype);");
+    writeln(c_prog, "settype     setArrlit (const_arraytype);");
     writeln(c_prog, "settype     setBaselit (inttype);");
-    writeln(c_prog, "inttype     setCard (settype);");
-    writeln(c_prog, "inttype     setCmp (settype, settype);");
+    writeln(c_prog, "inttype     setCard (const_settype);");
+    writeln(c_prog, "inttype     setCmp (const_settype, const_settype);");
     writeln(c_prog, "inttype     setCmpGeneric (generictype, generictype);");
-    writeln(c_prog, "void        setCpy (settype *, settype);");
-    writeln(c_prog, "settype     setCreate (settype);");
+    writeln(c_prog, "void        setCpy (settype *, const_settype);");
+    writeln(c_prog, "settype     setCreate (const_settype);");
     writeln(c_prog, "generictype setCreateGeneric (generictype);");
     writeln(c_prog, "void        setDestr (settype);");
-    writeln(c_prog, "settype     setDiff (settype, settype);");
-    writeln(c_prog, "booltype    setElem (inttype, settype);");
-    writeln(c_prog, "booltype    setEq (settype, settype);");
+    writeln(c_prog, "settype     setDiff (const_settype, const_settype);");
+    writeln(c_prog, "booltype    setElem (inttype, const_settype);");
+    writeln(c_prog, "booltype    setEq (const_settype, const_settype);");
     writeln(c_prog, "void        setExcl (settype *, inttype);");
-    writeln(c_prog, "inttype     setHashCode (settype);");
+    writeln(c_prog, "inttype     setHashCode (const_settype);");
     writeln(c_prog, "settype     setIConv (inttype);");
     writeln(c_prog, "void        setIncl (settype *, inttype);");
-    writeln(c_prog, "settype     setIntersect (settype, settype);");
-    writeln(c_prog, "booltype    setIsProperSubset (settype, settype);");
-    writeln(c_prog, "booltype    setIsSubset (settype, settype);");
-    writeln(c_prog, "inttype     setMax (settype);");
-    writeln(c_prog, "inttype     setMin (settype);");
-    writeln(c_prog, "booltype    setNotElem (inttype, settype);");
-    writeln(c_prog, "inttype     setRand (settype);");
-    writeln(c_prog, "inttype     setSConv (settype);");
+    writeln(c_prog, "settype     setIntersect (const_settype, const_settype);");
+    writeln(c_prog, "booltype    setIsProperSubset (const_settype, const_settype);");
+    writeln(c_prog, "booltype    setIsSubset (const_settype, const_settype);");
+    writeln(c_prog, "inttype     setMax (const_settype);");
+    writeln(c_prog, "inttype     setMin (const_settype);");
+    writeln(c_prog, "booltype    setNotElem (inttype, const_settype);");
+    writeln(c_prog, "inttype     setRand (const_settype);");
+    writeln(c_prog, "inttype     setSConv (const_settype);");
     writeln(c_prog, "settype     setSymdiff (settype, settype);");
-    writeln(c_prog, "settype     setUnion (settype, settype);");
+    writeln(c_prog, "settype     setUnion (const_settype, const_settype);");
     writeln(c_prog, "settype     setValue (objreftype);");
     writeln(c_prog, "sockettype  socAccept (sockettype, bstritype *);");
-    writeln(c_prog, "void        socBind (sockettype, bstritype);");
+    writeln(c_prog, "void        socBind (sockettype, const_bstritype);");
     writeln(c_prog, "void        socClose (sockettype);");
-    writeln(c_prog, "void        socConnect (sockettype, bstritype);");
+    writeln(c_prog, "void        socConnect (sockettype, const_bstritype);");
     writeln(c_prog, "chartype    socGetc (sockettype);");
     writeln(c_prog, "stritype    socGets (sockettype, inttype);");
-    writeln(c_prog, "bstritype   socInetAddr (stritype, inttype);");
+    writeln(c_prog, "bstritype   socInetAddr (const_stritype, inttype);");
     writeln(c_prog, "bstritype   socInetLocalAddr (inttype);");
     writeln(c_prog, "bstritype   socInetServAddr (inttype);");
     writeln(c_prog, "stritype    socLineRead (sockettype, chartype *);");
     writeln(c_prog, "void        socListen (sockettype, inttype);");
     writeln(c_prog, "inttype     socRecv (sockettype, stritype *, inttype, inttype);");
     writeln(c_prog, "inttype     socRecvfrom (sockettype, stritype *, inttype, inttype, bstritype *);");
-    writeln(c_prog, "inttype     socSend (sockettype, stritype, inttype);");
-    writeln(c_prog, "inttype     socSendto (sockettype, stritype, inttype, bstritype);");
+    writeln(c_prog, "inttype     socSend (sockettype, const_stritype, inttype);");
+    writeln(c_prog, "inttype     socSendto (sockettype, const_stritype, inttype, bstritype);");
     writeln(c_prog, "sockettype  socSocket (inttype, inttype, inttype);");
     writeln(c_prog, "stritype    socWordRead (sockettype, chartype *);");
-    writeln(c_prog, "void        socWrite (sockettype, stritype);");
-    writeln(c_prog, "void        strAppend (stritype *, stritype);");
+    writeln(c_prog, "void        socWrite (sockettype, const_stritype);");
+    writeln(c_prog, "void        strAppend (stritype *, const_stritype);");
     writeln(c_prog, "void        strAppendTemp (stritype *, stritype);");
-    writeln(c_prog, "inttype     strChIpos (stritype, chartype, inttype);");
-    writeln(c_prog, "inttype     strChPos (stritype, chartype);");
-    writeln(c_prog, "arraytype   strChSplit (stritype, chartype);");
+    writeln(c_prog, "inttype     strChIpos (const_stritype, chartype, inttype);");
+    writeln(c_prog, "inttype     strChPos (const_stritype, chartype);");
+    writeln(c_prog, "arraytype   strChSplit (const_stritype, chartype);");
     writeln(c_prog, "inttype     strCmpGeneric (generictype, generictype);");
-    writeln(c_prog, "inttype     strCompare (stritype, stritype);");
-    writeln(c_prog, "stritype    strConcat (stritype, stritype);");
-    writeln(c_prog, "stritype    strConcatTemp (stritype, stritype);");
-    writeln(c_prog, "stritype    strCLit (stritype);");
-    writeln(c_prog, "void        strCopy (stritype *, stritype);");
-    writeln(c_prog, "stritype    strCreate (stritype);");
+    writeln(c_prog, "inttype     strCompare (const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    strConcat (const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    strConcatTemp (stritype, const_stritype);");
+    writeln(c_prog, "stritype    strCLit (const_stritype);");
+    writeln(c_prog, "void        strCopy (stritype *, const_stritype);");
+    writeln(c_prog, "stritype    strCreate (const_stritype);");
     writeln(c_prog, "generictype strCreateGeneric (generictype);");
     writeln(c_prog, "void        strDestr (stritype);");
     writeln(c_prog, "stritype    strEmpty(void);");
-    writeln(c_prog, "booltype    strGe (stritype, stritype);");
-    writeln(c_prog, "stritype    strGetenv (stritype);");
-    writeln(c_prog, "booltype    strGt (stritype, stritype);");
-    writeln(c_prog, "inttype     strHashCode (stritype);");
-    writeln(c_prog, "stritype    strHead (stritype, inttype);");
-    writeln(c_prog, "stritype    strHeadSlice (stritype, inttype, stritype);");
+    writeln(c_prog, "booltype    strGe (const_stritype, const_stritype);");
+    writeln(c_prog, "booltype    strGt (const_stritype, const_stritype);");
+    writeln(c_prog, "inttype     strHashCode (const_stritype);");
+    writeln(c_prog, "stritype    strHead (const_stritype, inttype);");
+    writeln(c_prog, "stritype    strHeadSlice (const_stritype, inttype, stritype);");
     writeln(c_prog, "stritype    strHeadTemp (stritype, inttype);");
-    writeln(c_prog, "inttype     strIpos (stritype, stritype, inttype);");
-    writeln(c_prog, "booltype    strLe (stritype, stritype);");
-    writeln(c_prog, "stritype    strLit (stritype);");
-    writeln(c_prog, "stritype    strLow (stritype);");
+    writeln(c_prog, "inttype     strIpos (const_stritype, const_stritype, inttype);");
+    writeln(c_prog, "booltype    strLe (const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    strLit (const_stritype);");
+    writeln(c_prog, "stritype    strLow (const_stritype);");
     writeln(c_prog, "stritype    strLowTemp (stritype);");
-    writeln(c_prog, "stritype    strLpad (stritype, inttype);");
+    writeln(c_prog, "stritype    strLpad (const_stritype, inttype);");
     writeln(c_prog, "stritype    strLpadTemp (stritype, inttype);");
-    writeln(c_prog, "stritype    strLpad0 (stritype, inttype);");
+    writeln(c_prog, "stritype    strLpad0 (const_stritype, inttype);");
     writeln(c_prog, "stritype    strLpad0Temp (stritype, inttype);");
-    writeln(c_prog, "booltype    strLt (stritype, stritype);");
-    writeln(c_prog, "stritype    strMult (stritype, inttype);");
-    writeln(c_prog, "inttype     strPos (stritype, stritype);");
+    writeln(c_prog, "booltype    strLt (const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    strMult (const_stritype, inttype);");
+    writeln(c_prog, "inttype     strPos (const_stritype, const_stritype);");
     writeln(c_prog, "void        strPush (stritype *, chartype);");
-    writeln(c_prog, "stritype    strRange (stritype, inttype, inttype);");
-    writeln(c_prog, "stritype    strRangeSlice (stritype, inttype, inttype, stritype);");
-    writeln(c_prog, "inttype     strRChIpos (stritype, chartype, inttype);");
-    writeln(c_prog, "inttype     strRChPos (stritype, chartype);");
-    writeln(c_prog, "stritype    strRepl (stritype, stritype, stritype);");
-    writeln(c_prog, "stritype    strRpad (stritype, inttype);");
-    writeln(c_prog, "inttype     strRpos (stritype, stritype);");
-    writeln(c_prog, "arraytype   strSplit (stritype, stritype);");
-    writeln(c_prog, "stritype    strSubstr (stritype, inttype, inttype);");
-    writeln(c_prog, "stritype    strSubstrSlice (stritype, inttype, inttype, stritype);");
-    writeln(c_prog, "stritype    strTail (stritype, inttype);");
-    writeln(c_prog, "stritype    strTailSlice (stritype, inttype, stritype);");
-    writeln(c_prog, "stritype    strToUtf8 (stritype);");
-    writeln(c_prog, "stritype    strTrim (stritype);");
-    writeln(c_prog, "stritype    strUp (stritype);");
+    writeln(c_prog, "stritype    strRange (const_stritype, inttype, inttype);");
+    writeln(c_prog, "stritype    strRangeSlice (const_stritype, inttype, inttype, stritype);");
+    writeln(c_prog, "inttype     strRChIpos (const_stritype, chartype, inttype);");
+    writeln(c_prog, "inttype     strRChPos (const_stritype, chartype);");
+    writeln(c_prog, "stritype    strRepl (const_stritype, const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    strRpad (const_stritype, inttype);");
+    writeln(c_prog, "inttype     strRpos (const_stritype, const_stritype);");
+    writeln(c_prog, "arraytype   strSplit (const_stritype, const_stritype);");
+    writeln(c_prog, "stritype    strSubstr (const_stritype, inttype, inttype);");
+    writeln(c_prog, "stritype    strSubstrSlice (const_stritype, inttype, inttype, stritype);");
+    writeln(c_prog, "stritype    strTail (const_stritype, inttype);");
+    writeln(c_prog, "stritype    strTailSlice (const_stritype, inttype, stritype);");
+    writeln(c_prog, "stritype    strToUtf8 (const_stritype);");
+    writeln(c_prog, "stritype    strTrim (const_stritype);");
+    writeln(c_prog, "stritype    strUp (const_stritype);");
     writeln(c_prog, "stritype    strUpTemp (stritype);");
-    writeln(c_prog, "stritype    strUtf8ToStri (stritype);");
+    writeln(c_prog, "stritype    strUtf8ToStri (const_stritype);");
     writeln(c_prog, "stritype    strValue (objreftype);");
     writeln(c_prog, "stritype    cstri8_or_cstri_to_stri (char *);");
     writeln(c_prog, "void        timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        timFromTimestamp (inttype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        timFromIntTimestamp (inttype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "void        timNow (inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "void        timSetLocalTZ (inttype, inttype, inttype, inttype, inttype, inttype, inttype *, booltype *);");
     writeln(c_prog, "inttype     typCmpGeneric (generictype, generictype);");
@@ -20014,11 +20061,11 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    ut8LineRead (filetype, chartype *);");
     writeln(c_prog, "void        ut8Seek (filetype, inttype);");
     writeln(c_prog, "stritype    ut8WordRead (filetype, chartype *);");
-    writeln(c_prog, "void        ut8Write (filetype, stritype);");
+    writeln(c_prog, "void        ut8Write (filetype, const_stritype);");
     if USE_WMAIN then
-      writeln(c_prog, "arraytype   getArgv (int, wchar_t **, stritype *, stritype *);");
+      writeln(c_prog, "arraytype   getArgv (int, wchar_t *const *, stritype *, stritype *);");
     else
-      writeln(c_prog, "arraytype   getArgv (int, char **, stritype *, stritype *);");
+      writeln(c_prog, "arraytype   getArgv (int, char *const *, stritype *, stritype *);");
     end if;
     writeln(c_prog, "void        setupFloat (void);");
     writeln(c_prog, "void        init_values (void);");
@@ -20406,9 +20453,9 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
       stri := stri_index[number][1];
       c_expr.expr &:= "/* str[";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "] */ static struct stri stri_";
+      c_expr.expr &:= "] */ static struct stristruct stri_";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "[]={";
+      c_expr.expr &:= "={";
       c_expr.expr &:= str(length(stri));
       c_expr.expr &:= ",";
       if WITH_STRI_CAPACITY then
@@ -21057,8 +21104,8 @@ const proc: process_global_declarations (in program: prog) is func
     end if;
     if compDataLibraryUsed and not compilerLibraryUsed then
       c_expr.expr &:= "stritype file_name (unsigned int a) {return " <& stringLiteral("") <& ";}\n";
-      c_expr.expr &:= "const unsigned char *file_name_ustri (unsigned int a) {return \"?\";}\n";
-      c_expr.expr &:= "void *get_param_list (listtype a, int *b) {printf(\"get_param_list\\n\"); return NULL;}\n";
+      c_expr.expr &:= "const unsigned char *file_name_ustri (unsigned int a) {return (unsigned char *) \"?\";}\n";
+      c_expr.expr &:= "void *get_param_list (const_listtype a, int *b) {printf(\"get_param_list\\n\"); return NULL;}\n";
       c_expr.expr &:= "void *create_parameter_list (listtype a, int *b) {printf(\"create_parameter_list\\n\"); return NULL;}\n";
       c_expr.expr &:= "\n";
     end if;
@@ -21418,7 +21465,7 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2010 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2011 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("usage: comp [options] sourcefile [parameters]");
     else

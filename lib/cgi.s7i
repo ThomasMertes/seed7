@@ -72,7 +72,36 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
         value := replace(value, "+", " ");
         name := replaceHexChars(name);
         value := replaceHexChars(value);
+        block
+          name := utf8ToStri(name);
+        exception
+          catch RANGE_ERROR:
+            noop;
+        end block;
+        block
+          value := utf8ToStri(value);
+        exception
+          catch RANGE_ERROR:
+            noop;
+        end block;
         result @:= [name] value;
       end if;
     end for;
+  end func;
+
+
+const func hash [string] string: getCgiParameters (inout file: inFile) is func
+  result
+    var hash [string] string: result is (hash [string] string).value;
+  local
+    var string: cgiParamLine is "";
+  begin
+    cgiParamLine := getln(inFile);
+    block
+      cgiParamLine := utf8ToStri(cgiParamLine);
+    exception
+      catch RANGE_ERROR:
+        noop;
+    end block;
+    result := getCgiParameters(cgiParamLine);
   end func;

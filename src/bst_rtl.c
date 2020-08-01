@@ -128,10 +128,10 @@ bstritype bstri2;
 
 #ifdef ANSI_C
 
-INLINE inttype bstCmp (const const_bstritype bstri1, const const_bstritype bstri2)
+inttype bstCmp (const const_bstritype bstri1, const const_bstritype bstri2)
 #else
 
-INLINE inttype bstCmp (bstri1, bstri2)
+inttype bstCmp (bstri1, bstri2)
 bstritype bstri1;
 bstritype bstri2;
 #endif
@@ -226,10 +226,10 @@ bstritype bstri_from;
 
 #ifdef ANSI_C
 
-INLINE bstritype bstCreate (const const_bstritype bstri_from)
+bstritype bstCreate (const const_bstritype bstri_from)
 #else
 
-INLINE bstritype bstCreate (bstri_from)
+bstritype bstCreate (bstri_from)
 bstritype bstri_from;
 #endif
 

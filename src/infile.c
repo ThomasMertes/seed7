@@ -114,7 +114,7 @@ static INLINE booltype speedup ()
     booltype okay;
 #ifdef USE_MMAP
     int file_no;
-    os_stat_struct file_stat;
+    os_fstat_struct file_stat;
     memsizetype file_length;
 #endif
 
