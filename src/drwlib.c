@@ -52,6 +52,41 @@
 
 
 
+static objectType toIntArray (rtlArrayType aRtlArray)
+
+  {
+    memSizeType arraySize;
+    memSizeType pos;
+    arrayType anArray;
+    objectType result;
+
+  /* toIntArray */
+    if (aRtlArray == NULL) {
+      /* Assume that an exception was already raised */
+      result = NULL;
+    } else {
+      arraySize = arraySize(aRtlArray);
+      if (unlikely(!ALLOC_ARRAY(anArray, arraySize))) {
+        FREE_RTL_ARRAY(aRtlArray, arraySize);
+        result = raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        anArray->min_position = aRtlArray->min_position;
+        anArray->max_position = aRtlArray->max_position;
+        for (pos = 0; pos < arraySize; pos++) {
+          anArray->arr[pos].type_of = take_type(SYS_INT_TYPE);
+          anArray->arr[pos].descriptor.property = NULL;
+          anArray->arr[pos].value.intValue = aRtlArray->arr[pos].value.intValue;
+          INIT_CATEGORY_OF_VAR(&anArray->arr[pos], INTOBJECT);
+        } /* for */
+        FREE_RTL_ARRAY(aRtlArray, arraySize);
+        result = bld_array_temp(anArray);
+      } /* if */
+    } /* if */
+    return result;
+  } /* toIntArray */
+
+
+
 objectType gkb_busy_getc (listType arguments)
 
   { /* gkb_busy_getc */
@@ -293,6 +328,15 @@ objectType drw_color (listType arguments)
     drwColor(take_int(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* drw_color */
+
+
+
+objectType drw_convPointList (listType arguments)
+
+  { /* drw_convPointList */
+    isit_bstri(arg_1(arguments));
+    return toIntArray(drwConvPointList(take_bstri(arg_1(arguments))));
+  } /* drw_convPointList */
 
 
 

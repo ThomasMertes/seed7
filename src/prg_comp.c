@@ -124,7 +124,7 @@ static void free_args (objectType arg_v)
     memSizeType arg_array_size;
 
   /* free_args */
-    arg_array = arg_v->value.arrayValue;
+    arg_array = take_array(arg_v);
     arg_array_size = arraySize(arg_array);
     FREE_ARRAY(arg_array, arg_array_size);
     FREE_OBJECT(arg_v);
@@ -155,6 +155,9 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
                             FALSE, FALSE, suspendInterpreter);
         set_trace(prog->option_flags);
         set_protfile_name(protFileName);
+        if (prog->arg_v != NULL) {
+          free_args(prog->arg_v);
+        } /* if */
         prog->arg_v = copy_args(argv, argvStart);
         if (prog->arg_v == NULL) {
           raise_error(MEMORY_ERROR);
@@ -185,7 +188,6 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
             prot_nl();
           } /* if */
 #endif
-          free_args(prog->arg_v);
 #ifdef OUT_OF_ORDER
           shutDrivers();
           if (fail_flag) {
@@ -286,6 +288,9 @@ void prgDestr (progType old_prog)
         FREE_STRI(old_prog->arg0, old_prog->arg0->size);
         FREE_STRI(old_prog->program_name, old_prog->program_name->size);
         FREE_STRI(old_prog->program_path, old_prog->program_path->size);
+        if (old_prog->arg_v != NULL) {
+          free_args(old_prog->arg_v);
+        } /* if */
         FREE_RECORD(old_prog->stack_global, stackRecord, count.stack);
         FREE_RECORD(old_prog, progRecord, count.prog);
         /* printf("heapsize: %ld\n", heapsize()); */

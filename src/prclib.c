@@ -81,6 +81,93 @@ static void fix_posinfo (objectType block_body, const const_objectType block_bod
 
 
 
+static objectType process_local_decl (objectType local_decl,
+    listType *local_object_list, errInfoType *err_info)
+
+  {
+    const_listType local_element;
+    objectType local_var;
+    objectType init_value;
+    objectType result;
+
+  /* process_local_decl */
+    logFunction(printf("process_local_decl(");
+                trace1(local_decl);
+                printf(", " FMT_X_MEM ")\n",
+                       (memSizeType) local_object_list););
+    result = exec_call(local_decl);
+    if (result == SYS_EMPTY_OBJECT) {
+      local_element = *local_object_list;
+      while (local_element != NULL) {
+        if (VAR_OBJECT(local_element->obj)) {
+          local_var = local_element->obj;
+          if (CATEGORY_OF_OBJ(local_var) != LOCALVOBJECT) {
+            /* printf("U "); trace1(local_var); printf("\n"); */
+            if (ALLOC_OBJECT(init_value)) {
+              init_value->type_of =     local_var->type_of;
+              init_value->descriptor.property = NULL;
+              init_value->value =       local_var->value;
+              init_value->objcategory = local_var->objcategory;
+              SET_CATEGORY_OF_OBJ(local_var, LOCALVOBJECT);
+              local_var->value.objValue = init_value; /* was NULL; changed for s7c.sd7 */
+            } else {
+              *err_info = MEMORY_ERROR;
+            } /* if */
+          } /* if */
+        } /* if */
+        local_element = local_element->next;
+      } /* while */
+    } /* if */
+    logFunction(printf("process_local_decl --> ");
+                trace1(result);
+                printf("\n"););
+    return result;
+  } /* process_local_decl */
+
+
+
+static objectType evaluate_local_decls (objectType local_decls,
+    listType *local_object_list, errInfoType *err_info)
+
+  {
+    listType semicol_params;
+    boolType finished = FALSE;
+    objectType result;
+
+  /* evaluate_local_decls */
+    logFunction(printf("evaluate_local_decls(");
+                trace1(local_decls);
+                printf(", " FMT_X_MEM ")\n",
+                       (memSizeType) local_object_list););
+    do {
+      if (CATEGORY_OF_OBJ(local_decls) == MATCHOBJECT ||
+          CATEGORY_OF_OBJ(local_decls) == CALLOBJECT) {
+        semicol_params = local_decls->value.listValue;
+        if (list_length(semicol_params) == 4 &&
+            CATEGORY_OF_OBJ(arg_1(semicol_params)) == ACTOBJECT &&
+            take_action(arg_1(semicol_params)) == &prc_noop) {
+          result = process_local_decl(arg_2(semicol_params),
+              local_object_list, err_info);
+          local_decls = arg_4(semicol_params);
+        } else {
+          result = process_local_decl(local_decls,
+              local_object_list, err_info);
+          finished = TRUE;
+        } /* if */
+      } else {
+        result = process_local_decl(local_decls,
+              local_object_list, err_info);
+        finished = TRUE;
+      } /* if */
+    } while (!finished && result == SYS_EMPTY_OBJECT);
+    logFunction(printf("evaluate_local_decls --> ");
+                trace1(result);
+                printf("\n"););
+    return result;
+  } /* evaluate_local_decls */
+
+
+
 /**
  *  Return the argument vector of the program as array of strings.
  *  The name of the program is not part of the argument vector.
@@ -873,7 +960,7 @@ objectType prc_local (listType arguments)
     block_body = copy_expression(block_body, &err_info);
     push_stack();
     local_object_insert_place = get_local_object_insert_place();
-    decl_res = evaluate(local_decls);
+    decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
     if (decl_res != SYS_EMPTY_OBJECT) {
       printf("eval local decls --> ");
       trace1(decl_res);
@@ -1063,7 +1150,7 @@ objectType prc_res_local (listType arguments)
     if (err_info == OKAY_NO_ERROR) {
       get_result_var(&result_var, result_type, result_init, &err_info);
       local_object_insert_place = get_local_object_insert_place();
-      decl_res = evaluate(local_decls);
+      decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
       if (decl_res != SYS_EMPTY_OBJECT) {
         printf("eval local decls --> ");
         trace1(decl_res);

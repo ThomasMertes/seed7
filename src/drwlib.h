@@ -43,6 +43,7 @@ objectType drw_circle              (listType arguments);
 objectType drw_clear               (listType arguments);
 objectType drw_cmp                 (listType arguments);
 objectType drw_color               (listType arguments);
+objectType drw_convPointList       (listType arguments);
 objectType drw_copyarea            (listType arguments);
 objectType drw_cpy                 (listType arguments);
 objectType drw_create              (listType arguments);

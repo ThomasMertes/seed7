@@ -215,6 +215,26 @@ const pointList: (attr pointList) . value                         is _GENERATE_E
  *)
 const func pointList: genPointList (ref array integer: coordinates) is action "DRW_GENPOINTLIST";
 
+(**
+ *  Converts a 'pointList' to an array of (X,Y) coordinates.
+ *  @return an array of alternate x and y values.
+ *)
+const func array integer: xyArray (ref pointList: aPointList)     is action "DRW_CONVPOINTLIST";
+
+const func pointList: scale (in pointList: basePoints, in integer: scale) is func
+  result
+    var pointList: scaledPoints is pointList.value;
+  local
+    var array integer: coordinates is 0 times 0;
+    var integer: index is 0;
+  begin
+    coordinates := xyArray(basePoints);
+    for key index range coordinates do
+      coordinates[index] *:= scale;
+    end for;
+    scaledPoints := genPointList(coordinates);
+  end func;
+
 const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in pointList: point_list,
     ref pixel: col)                                               is action "DRW_POLYLINE";

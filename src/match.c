@@ -326,6 +326,7 @@ objectType match_object (objectType object)
       case ACTOBJECT:
       case ENUMLITERALOBJECT:
       case VARENUMOBJECT:
+      case INTERFACEOBJECT:
       case VALUEPARAMOBJECT:
       case REFPARAMOBJECT:
       case DECLAREDOBJECT:

@@ -83,6 +83,7 @@ bigIntType bigLog10 (const const_bigIntType big1);
 bigIntType bigLog2 (const const_bigIntType big1);
 bigIntType bigLowerBits (const const_bigIntType big1, const intType bits);
 bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits);
+uint64Type bigLowerBits64 (const const_bigIntType big1);
 intType bigLowestSetBit (const const_bigIntType big1);
 bigIntType bigLShift (const const_bigIntType big1, const intType lshift);
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift);

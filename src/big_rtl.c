@@ -4081,28 +4081,52 @@ bigIntType bigFromUInt32 (uint32Type number)
 
   /* bigFromUInt32 */
     logFunction(printf("bigFromUInt32(" FMT_U32 ")\n", number););
-#if BIGDIGIT_SIZE <= 32
-    result_size = sizeof(uint32Type) / (BIGDIGIT_SIZE >> 3) + 1;
-#else
-    result_size = 1;
+#if BIGDIGIT_SIZE == 32
+    if (number > UINT32_SUFFIX(2147483647)) {
+      result_size = 2;
+    } else {
+      result_size = 1;
+    } /* if */
+#elif BIGDIGIT_SIZE == 16
+    if (number > UINT32_SUFFIX(2147483647)) {
+      result_size = 3;
+    } else if (number > UINT32_SUFFIX(32767)) {
+      result_size = 2;
+    } else {
+      result_size = 1;
+    } /* if */
+#elif BIGDIGIT_SIZE == 8
+    if (number > UINT32_SUFFIX(2147483647)) {
+      result_size = 5;
+    } else if (number > UINT32_SUFFIX(8388607)) {
+      result_size = 4;
+    } else if (number > UINT32_SUFFIX(32767)) {
+      result_size = 3;
+    } else if (number > UINT32_SUFFIX(127)) {
+      result_size = 2;
+    } else {
+      result_size = 1;
+    } /* if */
 #endif
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
+      if (result_size == sizeof(uint32Type) / (BIGDIGIT_SIZE >> 3) + 1) {
+        result_size--;
+        result->bigdigits[result_size] = (bigDigitType) 0;
+      } /* if */
       result->bigdigits[0] = (bigDigitType) (number & BIGDIGIT_MASK);
 #if BIGDIGIT_SIZE < 32
       {
         memSizeType pos;
 
-        for (pos = 1; pos < result_size - 1; pos++) {
+        for (pos = 1; pos < result_size; pos++) {
           number >>= BIGDIGIT_SIZE;
           result->bigdigits[pos] = (bigDigitType) (number & BIGDIGIT_MASK);
         } /* for */
       }
 #endif
-      result->bigdigits[result_size - 1] = (bigDigitType) 0;
-      result = normalize(result);
     } /* if */
     logFunction(printf("bigFromUInt32 --> %s\n", bigHexCStri(result)););
     return result;
@@ -4125,17 +4149,60 @@ bigIntType bigFromUInt64 (uint64Type number)
 
   /* bigFromUInt64 */
     logFunction(printf("bigFromUInt64(" FMT_U64 ")\n", number););
-    result_size = sizeof(uint64Type) / (BIGDIGIT_SIZE >> 3) + 1;
+#if BIGDIGIT_SIZE == 32
+    if (number > UINT64_SUFFIX(9223372036854775807)) {
+      result_size = 3;
+    } else if (number > UINT64_SUFFIX(2147483647)) {
+      result_size = 2;
+    } else {
+      result_size = 1;
+    } /* if */
+#elif BIGDIGIT_SIZE == 16
+    if (number > UINT64_SUFFIX(9223372036854775807)) {
+      result_size = 5;
+    } else if (number > UINT64_SUFFIX(140737488355327)) {
+      result_size = 4;
+    } else if (number > UINT64_SUFFIX(2147483647)) {
+      result_size = 3;
+    } else if (number > UINT64_SUFFIX(32767)) {
+      result_size = 2;
+    } else {
+      result_size = 1;
+    } /* if */
+#elif BIGDIGIT_SIZE == 8
+    if (number > UINT64_SUFFIX(9223372036854775807)) {
+      result_size = 9;
+    } else if (number > UINT64_SUFFIX(36028797018963967)) {
+      result_size = 8;
+    } else if (number > UINT64_SUFFIX(140737488355327)) {
+      result_size = 7;
+    } else if (number > UINT64_SUFFIX(549755813887)) {
+      result_size = 6;
+    } else if (number > UINT64_SUFFIX(2147483647)) {
+      result_size = 5;
+    } else if (number > UINT64_SUFFIX(8388607)) {
+      result_size = 4;
+    } else if (number > UINT64_SUFFIX(32767)) {
+      result_size = 3;
+    } else if (number > UINT64_SUFFIX(127)) {
+      result_size = 2;
+    } else {
+      result_size = 1;
+    } /* if */
+#endif
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
-      for (pos = 0; pos < result_size - 1; pos++) {
-        result->bigdigits[pos] = (bigDigitType) (number & BIGDIGIT_MASK);
+      if (result_size == sizeof(uint64Type) / (BIGDIGIT_SIZE >> 3) + 1) {
+        result_size--;
+        result->bigdigits[result_size] = (bigDigitType) 0;
+      } /* if */
+      result->bigdigits[0] = (bigDigitType) (number & BIGDIGIT_MASK);
+      for (pos = 1; pos < result_size; pos++) {
         number >>= BIGDIGIT_SIZE;
+        result->bigdigits[pos] = (bigDigitType) (number & BIGDIGIT_MASK);
       } /* for */
-      result->bigdigits[result_size - 1] = (bigDigitType) 0;
-      result = normalize(result);
     } /* if */
     logFunction(printf("bigFromUInt64 --> %s\n", bigHexCStri(result)););
     return result;
@@ -4814,6 +4881,33 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
                        bigHexCStri(result), result->size););
     return result;
   } /* bigLowerBitsTemp */
+
+
+
+uint64Type bigLowerBits64 (const const_bigIntType big1)
+
+  {
+    memSizeType pos;
+    uint64Type result;
+
+  /* bigLowerBits64 */
+    logFunction(printf("bigLowerBits64(%s)\n", bigHexCStri(big1)););
+    pos = big1->size - 1;
+    if (pos >= sizeof(uint64Type) / (BIGDIGIT_SIZE >> 3)) {
+      pos = sizeof(uint64Type) / (BIGDIGIT_SIZE >> 3) - 1;
+    } /* if */
+    result = (uint64Type) big1->bigdigits[pos];
+#if BIGDIGIT_SIZE < 64
+    while (pos > 0) {
+      pos--;
+      result <<= BIGDIGIT_SIZE;
+      result |= (uint64Type) big1->bigdigits[pos];
+    } /* while */
+#endif
+    logFunction(printf("bigLowerBits64(%s) --> " FMT_U64 "\n",
+                       bigHexCStri(big1), result););
+    return result;
+  } /* bigLowerBits64 */
 
 
 
@@ -7207,7 +7301,7 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
       if (big1->bigdigits[pos] == 0 && pos > 0) {
         pos--;
       } /* if */
-      if (unlikely(pos >= sizeof(int64Type) / (BIGDIGIT_SIZE >> 3))) {
+      if (unlikely(pos >= sizeof(uint64Type) / (BIGDIGIT_SIZE >> 3))) {
         logError(printf("bigToUInt64(%s): Number too big.\n",
                         bigHexCStri(big1)););
         raise_error(RANGE_ERROR);

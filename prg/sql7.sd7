@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  sql7.sd7      Sql command line tool                             *)
-(*  Copyright (C) 2014  Thomas Mertes                               *)
+(*  Copyright (C) 2014, 2017  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -31,7 +31,7 @@ $ include "seed7_05.s7i";
 
 const proc: writeHelp is func
   begin
-    writeln("usage: sql7 driver dbName user password");
+    writeln("usage: sql7 driver dbName user [password]");
     writeln;
     writeln("The following drivers are supported: ");
     writeln("  Driver     Shortcut  Database");
@@ -82,49 +82,71 @@ const func boolean: failed (in proc: statement) is func
         failed := TRUE;
       catch FILE_ERROR:
         failed := TRUE;
+      catch DATABASE_ERROR:
+        failed := TRUE;
     end block;
+  end func;
+
+
+const proc: displayResult (in sqlStatement: statement) is func
+  local
+    const integer: width is 20;
+    var integer: index is 0;
+  begin
+    for index range 1 to columnCount(statement) do
+      write(columnName(statement, index) rpad width <& " ");
+    end for;
+    writeln;
+    writeln(("-" mult width & " ") mult columnCount(statement));
+    while fetch(statement) do
+      for index range 1 to columnCount(statement) do
+        if failed(write(noCtrlChars(column(statement, index, string)[1 len width])            rpad width <& " ")) and
+           failed(write(            column(statement, index, integer)                         lpad width <& " ")) and
+           failed(write(            column(statement, index, bigInteger)                      lpad width <& " ")) and
+           failed(write(            column(statement, index, bigRational)                     lpad width <& " ")) and
+           failed(write(            column(statement, index, float)       sci width - 7 exp 2 lpad width <& " ")) and
+           failed(write(strDateTime(column(statement, index, time))                           rpad width <& " ")) and
+           failed(write(            column(statement, index, duration)                        rpad width <& " ")) and
+           failed(write(            column(statement, index, boolean)                         lpad width <& " ")) then
+          write("*" mult width <& " ");
+        end if;
+      end for;
+      writeln;
+    end while;
   end func;
 
 
 const proc: doExecute (in database: currDb, in var string: command) is func
   local
-    const integer: width is 20;
     var sqlStatement: statement is sqlStatement.value;
-    var integer: index is 0;
+    var boolean: failed is FALSE;
   begin
     if endsWith(command, ";") then
       command := command[.. pred(length(command))];
     end if;
-    if  failed(statement := prepare(currDb, command)) or
-        failed(execute(statement)) then
-      writeln;
-      writeln(" *** Statement failed.");
-      writeln;
-    elsif columnCount(statement) <> 0 then
-      for index range 1 to columnCount(statement) do
-        write(columnName(statement, index) rpad width <& " ");
-      end for;
-      writeln;
-      writeln(("-" mult width & " ") mult columnCount(statement));
-      while fetch(statement) do
-        for index range 1 to columnCount(statement) do
-          if failed(write(noCtrlChars(column(statement, index, string)[1 len width])            rpad width <& " ")) and
-             failed(write(            column(statement, index, integer)                         lpad width <& " ")) and
-             failed(write(            column(statement, index, bigInteger)                      lpad width <& " ")) and
-             failed(write(            column(statement, index, bigRational)                     lpad width <& " ")) and
-             failed(write(            column(statement, index, float)       sci width - 7 exp 2 lpad width <& " ")) and
-             failed(write(strDateTime(column(statement, index, time))                           rpad width <& " ")) and
-             failed(write(            column(statement, index, duration)                        rpad width <& " ")) and
-             failed(write(            column(statement, index, boolean)                         lpad width <& " ")) then
-            write("*" mult width <& " ");
-          end if;
-        end for;
+    block
+      statement := prepare(currDb, command);
+      execute(statement);
+    exception
+      catch DATABASE_ERROR:
         writeln;
-      end while;
-    else
-      writeln;
-      writeln("Success.");
-      writeln;
+        writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
+        writeln;
+        failed := TRUE;
+      otherwise:
+        writeln;
+        writeln(" *** Error occurred");
+        writeln;
+        failed := TRUE;
+    end block;
+    if not failed then
+      if columnCount(statement) <> 0 then
+        displayResult(statement);
+      else
+        writeln;
+        writeln("Success.");
+        writeln;
+      end if;
     end if;
   end func;
 
@@ -133,6 +155,7 @@ const proc: main is func
   local
     var string: driverName is "";
     var dbCategory: driver is NO_DB;
+    var string: password is "";
     var database: currDb is database.value;
     var string: command is "";
   begin
@@ -150,32 +173,30 @@ const proc: main is func
       writeln;
     elsif length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "-?" then
       writeHelp;
-    elsif length(argv(PROGRAM)) <> 4 then
-      writeln("usage: sql7 driver dbName user password");
+    elsif length(argv(PROGRAM)) not in {3, 4} then
+      writeln("usage: sql7 driver dbName user [password]");
     else
       driverName := argv(PROGRAM)[1];
-      if  upper(driverName) = "MYSQL" or
-          upper(driverName) = "MY" then
-        driver := DB_MYSQL;
-      elsif upper(driverName) = "SQLITE" or
-            upper(driverName) = "LITE" then
-        driver := DB_SQLITE;
-      elsif upper(driverName) = "POSTGRESQL" or
-            upper(driverName) = "POST" then
-        driver := DB_POSTGRESQL;
-      elsif upper(driverName) = "ORACLE" or
-            upper(driverName) = "OCI" then
-        driver := DB_OCI;
-      elsif upper(driverName) = "ODBC" then
-        driver := DB_ODBC;
-      end if;
+      driver := dbCategory parse driverName;
       if driver = NO_DB then
-        writeln("*** " <& driverName <& " is not a valid database driver.");
+        writeln("*** " <& literal(driverName) <& " is not a valid database driver.");
       else
-        currDb := openDatabase(driver, argv(PROGRAM)[2], argv(PROGRAM)[3], argv(PROGRAM)[4]);
-        if FALSE then   # currDb = database.value then
-          writeln(" *** Cannot open " <& argv(PROGRAM)[2]);
+        if length(argv(PROGRAM)) = 3 then
+          write("Password: ");
+          flush(OUT);
+          password := readPassword(IN);
         else
+          password := argv(PROGRAM)[4];
+        end if;
+        block
+          currDb := openDatabase(driver, argv(PROGRAM)[2], argv(PROGRAM)[3], password);
+        exception
+          catch DATABASE_ERROR:
+            writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
+          otherwise:
+            writeln(" *** Cannot open " <& argv(PROGRAM)[2]);
+        end block;
+        if currDb <> database.value then
           write("Sql7? ");
           readln(command);
           while lower(command) <> "exit" and lower(command) <> "quit" do

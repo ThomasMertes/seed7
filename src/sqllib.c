@@ -243,6 +243,54 @@ objectType sql_close (listType arguments)
 
 
 
+objectType sql_cmp_db (listType arguments)
+
+  {
+    memSizeType ref1;
+    memSizeType ref2;
+    intType signumValue;
+
+  /* sql_cmp_db */
+    isit_database(arg_1(arguments));
+    isit_database(arg_2(arguments));
+    ref1 = (memSizeType) take_database(arg_1(arguments));
+    ref2 = (memSizeType) take_database(arg_2(arguments));
+    if (ref1 < ref2) {
+      signumValue = -1;
+    } else if (ref1 > ref2) {
+      signumValue = 1;
+    } else {
+      signumValue = 0;
+    } /* if */
+    return bld_int_temp(signumValue);
+  } /* sql_cmp_db */
+
+
+
+objectType sql_cmp_stmt (listType arguments)
+
+  {
+    memSizeType ref1;
+    memSizeType ref2;
+    intType signumValue;
+
+  /* sql_cmp_stmt */
+    isit_sqlstmt(arg_1(arguments));
+    isit_sqlstmt(arg_2(arguments));
+    ref1 = (memSizeType) take_sqlstmt(arg_1(arguments));
+    ref2 = (memSizeType) take_sqlstmt(arg_2(arguments));
+    if (ref1 < ref2) {
+      signumValue = -1;
+    } else if (ref1 > ref2) {
+      signumValue = 1;
+    } else {
+      signumValue = 0;
+    } /* if */
+    return bld_int_temp(signumValue);
+  } /* sql_cmp_stmt */
+
+
+
 objectType sql_column_bool (listType arguments)
 
   { /* sql_column_bool */
@@ -506,6 +554,68 @@ objectType sql_empty_stmt (listType arguments)
 
 
 
+objectType sql_eq_db (listType arguments)
+
+  { /* sql_eq_db */
+    isit_database(arg_1(arguments));
+    isit_database(arg_3(arguments));
+    if (take_database(arg_1(arguments)) ==
+        take_database(arg_3(arguments))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* sql_eq_db */
+
+
+
+objectType sql_eq_stmt (listType arguments)
+
+  { /* sql_eq_stmt */
+    isit_sqlstmt(arg_1(arguments));
+    isit_sqlstmt(arg_3(arguments));
+    if (take_sqlstmt(arg_1(arguments)) ==
+        take_sqlstmt(arg_3(arguments))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* sql_eq_stmt */
+
+
+
+objectType sql_errCode (listType arguments)
+
+  { /* sql_errCode */
+    return bld_int_temp(sqlErrCode());
+  } /* sql_errCode */
+
+
+
+objectType sql_errDbFunc (listType arguments)
+
+  { /* sql_errDbFunc */
+    return bld_stri_temp(sqlErrDbFunc());
+  } /* sql_errDbFunc */
+
+
+
+objectType sql_errLibFunc (listType arguments)
+
+  { /* sql_errLibFunc */
+    return bld_stri_temp(sqlErrLibFunc());
+  } /* sql_errLibFunc */
+
+
+
+objectType sql_errMessage (listType arguments)
+
+  { /* sql_errMessage */
+    return bld_stri_temp(sqlErrMessage());
+  } /* sql_errMessage */
+
+
+
 objectType sql_execute (listType arguments)
 
   { /* sql_execute */
@@ -545,6 +655,36 @@ objectType sql_is_null (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* sql_is_null */
+
+
+
+objectType sql_ne_db (listType arguments)
+
+  { /* sql_ne_db */
+    isit_database(arg_1(arguments));
+    isit_database(arg_3(arguments));
+    if (take_database(arg_1(arguments)) !=
+        take_database(arg_3(arguments))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* sql_ne_db */
+
+
+
+objectType sql_ne_stmt (listType arguments)
+
+  { /* sql_ne_stmt */
+    isit_sqlstmt(arg_1(arguments));
+    isit_sqlstmt(arg_3(arguments));
+    if (take_sqlstmt(arg_1(arguments)) !=
+        take_sqlstmt(arg_3(arguments))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* sql_ne_stmt */
 
 
 

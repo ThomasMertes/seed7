@@ -31,6 +31,7 @@ clock2.sd7   Displays a digital clock with microseconds
 clock3.sd7   Analog Clock
 cmpfil.sd7   Compares two files in main memory
 comanche.sd7 Simple webserver for static and cgi pages.
+diff7.sd7    Compare two files line by line.
 dirtst.sd7   Test reading a directory as file
 dirx.sd7     Make a directory listing
 dnafight.sd7 Bacterial dna fight programming game
@@ -50,6 +51,7 @@ gtksvtst.sd7 Gtk-server connection test program
 hal.sd7      HAL 9000 simulation program
 hamu.sd7     Game to govern the ancient kingdom of sumeria.
 hanoi.sd7    Solve the tower of hanoi problem
+hd.sd7       Write a hexdump of a given file.
 hello.sd7    Hello world
 ide7.sd7     Cgi dialog demo program.
 kbd.sd7      Keyboard test program

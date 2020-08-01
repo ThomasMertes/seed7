@@ -7616,7 +7616,7 @@ const proc: check_lshift is func
         floatExpr(-2.225073858507200889e-308) << integer.last  <> -Infinity or
         floatExpr(-2.225073858507201383e-308) << integer.last  <> -Infinity or
         floatExpr(-1.797693134862315708e+308) << integer.last  <> -Infinity then
-      writeln(" ***** Shift left of float value sdoes not work correct. (2)");
+      writeln(" ***** Shift left of float value does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -7690,7 +7690,7 @@ const proc: check_lshift is func
         -2.225073858507200889e-308 << intExpr(integer.last ) <> -Infinity or
         -2.225073858507201383e-308 << intExpr(integer.last ) <> -Infinity or
         -1.797693134862315708e+308 << intExpr(integer.last ) <> -Infinity then
-      writeln(" ***** Shift left of float value sdoes not work correct. (3)");
+      writeln(" ***** Shift left of float value does not work correct. (3)");
       okay := FALSE;
     end if;
 
@@ -7764,7 +7764,7 @@ const proc: check_lshift is func
         floatExpr(-2.225073858507200889e-308) << intExpr(integer.last ) <> -Infinity or
         floatExpr(-2.225073858507201383e-308) << intExpr(integer.last ) <> -Infinity or
         floatExpr(-1.797693134862315708e+308) << intExpr(integer.last ) <> -Infinity then
-      writeln(" ***** Shift left of float value sdoes not work correct. (4)");
+      writeln(" ***** Shift left of float value does not work correct. (4)");
       okay := FALSE;
     end if;
 

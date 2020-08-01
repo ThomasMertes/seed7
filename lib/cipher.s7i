@@ -31,7 +31,7 @@
  *  Currently the ciphers NO_CIPHER, RC4, DES, TDES and AES are supported.
  *)
 const type: cipherAlgorithm is new enum
-    NO_CIPHER, RC4, RC2, DES, TDES, AES, DES40
+    NO_CIPHER, RC4, DES, TDES, AES
   end enum;
 
 
@@ -41,6 +41,7 @@ const type: cipherAlgorithm is new enum
  *  [[tdes]] and [[#noCipherState|noCipher]] (no encryption).
  *)
 const type: cipherState is sub object interface;
+
 
 
 (**

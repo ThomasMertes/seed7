@@ -240,12 +240,21 @@ const func type: array (in type: baseType) is func
                     (in proc: statements)
                   end for is func
         local
-          var integer: number is 0;
+          var integer: index is 0;
+          var integer: maxIdx is 0;
         begin
-          for number range minIdx(arr) to maxIdx(arr) until condition do
-            forVar := arr[number];
-            statements;
-          end for;
+          index := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if index <= maxIdx then
+            forVar := arr[index];
+            while index <= maxIdx and not condition do
+              statements;
+              incr(index);
+              if index <= maxIdx then
+                forVar := arr[index];
+              end if;
+            end while;
+          end if;
         end func;
 
       const proc: for (inout baseType: forVar)
@@ -254,12 +263,21 @@ const func type: array (in type: baseType) is func
                     (in proc: statements)
                   end for is func
         local
-          var integer: number is 0;
+          var integer: index is 0;
+          var integer: maxIdx is 0;
         begin
-          for number range minIdx(arr) to maxIdx(arr) until condition do
-            forVar := arr[number];
-            statements;
-          end for;
+          index := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if index <= maxIdx then
+            forVar := arr[index];
+            while index <= maxIdx and not condition do
+              statements;
+              incr(index);
+              if index <= maxIdx then
+                forVar := arr[index];
+              end if;
+            end while;
+          end if;
         end func;
 
       (**
@@ -300,11 +318,21 @@ const func type: array (in type: baseType) is func
                   until (ref func boolean: condition) do
                     (in proc: statements)
                   end for is func
+        local
+          var integer: maxIdx is 0;
         begin
-          for keyVar range minIdx(arr) to maxIdx(arr) until condition do
+          keyVar := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if keyVar <= maxIdx then
             forVar := arr[keyVar];
-            statements;
-          end for;
+            while keyVar <= maxIdx and not condition do
+              statements;
+              incr(keyVar);
+              if keyVar <= maxIdx then
+                forVar := arr[keyVar];
+              end if;
+            end while;
+          end if;
         end func;
 
       const proc: for (inout baseType: forVar)
@@ -313,11 +341,21 @@ const func type: array (in type: baseType) is func
                   until (ref boolean: condition) do
                     (in proc: statements)
                   end for is func
+        local
+          var integer: maxIdx is 0;
         begin
-          for keyVar range minIdx(arr) to maxIdx(arr) until condition do
+          keyVar := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if keyVar <= maxIdx then
             forVar := arr[keyVar];
-            statements;
-          end for;
+            while keyVar <= maxIdx and not condition do
+              statements;
+              incr(keyVar);
+              if keyVar <= maxIdx then
+                forVar := arr[keyVar];
+              end if;
+            end while;
+          end if;
         end func;
 
       (**

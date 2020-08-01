@@ -77,9 +77,6 @@ const ACTION: BIG_TO_BSTRI_LE     is action "BIG_TO_BSTRI_LE";
 const ACTION: BIG_VALUE           is action "BIG_VALUE";
 
 
-const bigInteger: INTTYPE_MAX is 2_ ** pred(ccConf.INTTYPE_SIZE) - 1_;
-
-
 const proc: big_prototypes (inout file: c_prog) is func
 
   begin
@@ -123,6 +120,7 @@ const proc: big_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "bigIntType  bigLog2 (const const_bigIntType);");
     declareExtern(c_prog, "bigIntType  bigLowerBits (const const_bigIntType, const intType);");
     declareExtern(c_prog, "bigIntType  bigLowerBitsTemp (const bigIntType, const intType);");
+    declareExtern(c_prog, "uint64Type  bigLowerBits64 (const const_bigIntType);");
     declareExtern(c_prog, "intType     bigLowestSetBit (const const_bigIntType);");
     declareExtern(c_prog, "bigIntType  bigLShift (const const_bigIntType, const intType);");
     declareExtern(c_prog, "void        bigLShiftAssign (bigIntType *const, intType);");
@@ -169,6 +167,100 @@ const proc: big_prototypes (inout file: c_prog) is func
   end func;
 
 
+const bigInteger: INTTYPE_MAX is 2_ ** pred(ccConf.INTTYPE_SIZE) - 1_;
+const type: addSubBigElementType is new struct
+    var boolean: doAdd is TRUE;
+    var reference: summand is NIL;
+    var bigInteger: constSummand is 0_;
+  end struct;
+const type: addSubBigListType is array addSubBigElementType;
+
+
+const proc: generateAddSubParamList (inout addSubBigListType: addSubParamList,
+    in var reference: leftParam) is func
+
+  local
+    var boolean: actionFound is FALSE;
+    var ref_list: subExprParams is ref_list.EMPTY;
+    var addSubBigElementType: addSubElement is addSubBigElementType.value;
+  begin
+    repeat
+      actionFound := FALSE;
+      if category(leftParam) = CALLOBJECT then
+        subExprParams := getValue(leftParam, ref_list);
+        if category(subExprParams[1]) = ACTOBJECT then
+          if str(getValue(subExprParams[1], ACTION)) = "BIG_ADD" then
+            leftParam := subExprParams[2];
+            addSubElement.doAdd := TRUE;
+            addSubElement.summand := subExprParams[4];
+            addSubParamList := [] (addSubElement) & addSubParamList;
+            actionFound := TRUE;
+          elsif str(getValue(subExprParams[1], ACTION)) = "BIG_SBTR" then
+            leftParam := subExprParams[2];
+            addSubElement.doAdd := FALSE;
+            addSubElement.summand := subExprParams[4];
+            addSubParamList := [] (addSubElement) & addSubParamList;
+            actionFound := TRUE;
+          end if;
+        end if;
+      end if;
+    until not actionFound;
+    if category(leftParam) = CALLOBJECT then
+      subExprParams := getValue(leftParam, ref_list);
+      if category(subExprParams[1]) = ACTOBJECT then
+        if str(getValue(subExprParams[1], ACTION)) = "BIG_SUCC" then
+          addSubElement.doAdd := TRUE;
+          addSubElement.summand := NIL;
+          addSubElement.constSummand := 1_;
+          addSubParamList := [] (addSubElement) & addSubParamList;
+          generateAddSubParamList(addSubParamList, subExprParams[2]);
+          actionFound := TRUE;
+        elsif str(getValue(subExprParams[1], ACTION)) = "BIG_PRED" then
+          addSubElement.doAdd := FALSE;
+          addSubElement.summand := NIL;
+          addSubElement.constSummand := 1_;
+          addSubParamList := [] (addSubElement) & addSubParamList;
+          generateAddSubParamList(addSubParamList, subExprParams[2]);
+          actionFound := TRUE;
+        end if;
+      end if;
+    end if;
+    if not actionFound then
+      addSubElement.doAdd := TRUE;
+      addSubElement.summand := leftParam;
+      addSubParamList := [] (addSubElement) & addSubParamList;
+    end if;
+  end func;
+
+
+const proc: evaluateConstants (inout addSubBigListType: addSubParamList) is func
+
+  local
+    var integer: index is 1;
+    var reference: evaluatedParam is NIL;
+    var bigInteger: paramValue is 0_;
+  begin
+    for key index range addSubParamList do
+      if addSubParamList[index].summand <> NIL then
+        if getConstant(addSubParamList[index].summand, BIGINTOBJECT, evaluatedParam) then
+          paramValue := getValue(evaluatedParam, bigInteger);
+          addSubParamList[index].summand := NIL;
+        end if;
+      else
+        paramValue := addSubParamList[index].constSummand;
+      end if;
+      if addSubParamList[index].summand = NIL then
+        if index > 1 and paramValue < 0_ then
+          addSubParamList[index].doAdd := not addSubParamList[index].doAdd;
+          addSubParamList[index].constSummand := -paramValue;
+        else
+          addSubParamList[index].constSummand := paramValue;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
     inout expr_type: c_expr) is forward;
 
@@ -190,7 +282,7 @@ const proc: process_const_big_lshift (in reference: param1, in integer: lshift,
       prepareAnyParamTemporarys(param1, c_param1, c_expr);
       if c_param1.result_expr <> "" then
         bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
-        c_expr.result_expr &:= "(bigLShiftAssign((";
+        c_expr.result_expr := "(bigLShiftAssign((";
         c_expr.result_expr &:= bigint_name;
         c_expr.result_expr &:= "=";
         c_expr.result_expr &:= c_param1.result_expr;
@@ -1231,9 +1323,10 @@ const proc: process_const_big_mod (in reference: dividend, in bigInteger: diviso
     elsif divisor > 0_ and log2(divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(divisor)) = divisor then
       incr(countOptimizations);
+      prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(dividend, c_dividend, c_expr);
       if c_dividend.result_expr <> "" then
-        c_expr.result_expr &:= "bigLowerBitsTemp(";
+        c_expr.result_expr := "bigLowerBitsTemp(";
         c_expr.result_expr &:= c_dividend.result_expr;
       else
         c_expr.result_expr := "bigLowerBits(";
@@ -1245,7 +1338,8 @@ const proc: process_const_big_mod (in reference: dividend, in bigInteger: diviso
     elsif divisor < 0_ and log2(-divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(-divisor)) = -divisor then
       incr(countOptimizations);
-      c_expr.result_expr &:= "bigNegateTemp(bigLowerBitsTemp(";
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigNegateTemp(bigLowerBitsTemp(";
       prepareAnyParamTemporarys(dividend, c_dividend, c_expr);
       if c_dividend.result_expr <> "" then
         c_expr.result_expr &:= "bigNegateTemp(";
@@ -1294,6 +1388,7 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: factor,
     var reference: evaluatedParam is NIL;
     var bigInteger: product is 0_;
     var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_negate_param is expr_type.value;
   begin
     if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
@@ -1324,8 +1419,21 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: factor,
     elsif factor < 1_ and log2(-factor) <= INTTYPE_MAX and
         2_ ** ord(log2(-factor)) = -factor then
       incr(countOptimizations);
-      c_expr.result_expr := "bigNegateTemp(";
-      process_const_big_lshift(param1, ord(log2(-factor)), c_expr);
+      c_negate_param.temp_num := c_expr.temp_num;
+      process_const_big_lshift(param1, ord(log2(-factor)), c_negate_param);
+      c_expr.temp_num := c_negate_param.temp_num;
+      prepare_bigint_result(c_expr);
+      c_expr.temp_decls &:= c_negate_param.temp_decls;
+      c_expr.temp_assigns &:= c_negate_param.temp_assigns;
+      c_expr.temp_frees &:= c_negate_param.temp_frees;
+      c_expr.temp_to_null &:= c_negate_param.temp_to_null;
+      if c_negate_param.result_expr <> "" then
+        c_expr.result_expr := "bigNegateTemp(";
+        c_expr.result_expr &:= c_negate_param.result_expr;
+      else
+        c_expr.result_expr := "bigNegate(";
+        c_expr.result_expr &:= c_negate_param.expr;
+      end if;
       c_expr.result_expr &:= ")";
     elsif abs(factor) <= MAX_BIGDIGIT then
       incr(countOptimizations);

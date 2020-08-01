@@ -1428,24 +1428,34 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
 
 
-void drwConvPointList (bstriType pointList, intType *xy)
+rtlArrayType drwConvPointList (const const_bstriType pointList)
 
   {
     memSizeType len;
     XPoint *points;
     memSizeType pos;
+    rtlArrayType xyArray;
 
   /* drwConvPointList */
     len = pointList->size / sizeof(XPoint);
-    if (len > 0) {
+    if (unlikely(!ALLOC_RTL_ARRAY(xyArray, len << 1))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      xyArray->min_position = 1;
+      xyArray->max_position = (intType) (len << 1);
       points = (XPoint *) pointList->mem;
-      xy[0] = points[0].x;
-      xy[1] = points[0].y;
+      xyArray->arr[0].value.intValue = (intType) points[0].x;
+      xyArray->arr[1].value.intValue = (intType) points[0].y;
       for (pos = 1; pos < len; pos ++) {
-        xy[pos << 1]       = points[pos].x + xy[(pos << 1) - 2];
-        xy[(pos << 1) + 1] = points[pos].y + xy[(pos << 1) - 1];
+        xyArray->arr[ pos << 1     ].value.intValue =
+            xyArray->arr[(pos << 1) - 2].value.intValue +
+            (intType) points[pos].x;
+        xyArray->arr[(pos << 1) + 1].value.intValue =
+            xyArray->arr[(pos << 1) - 1].value.intValue +
+            (intType) points[pos].y;
       } /* for */
     } /* if */
+    return xyArray;
   } /* drwConvPointList */
 
 

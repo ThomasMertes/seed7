@@ -543,6 +543,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(DRW_CMP, function, params, c_expr);
       elsif action_name = "DRW_COLOR" then
         process(DRW_COLOR, function, params, c_expr);
+      elsif action_name = "DRW_CONVPOINTLIST" then
+        process(DRW_CONVPOINTLIST, function, params, c_expr);
       elsif action_name = "DRW_COPYAREA" then
         process(DRW_COPYAREA, function, params, c_expr);
       elsif action_name = "DRW_CPY" then
@@ -1515,6 +1517,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SQL_BIND_TIME, function, params, c_expr);
       elsif action_name = "SQL_CLOSE" then
         process(SQL_CLOSE, function, params, c_expr);
+      elsif action_name = "SQL_CMP_DB" then
+        process(SQL_CMP_DB, function, params, c_expr);
+      elsif action_name = "SQL_CMP_STMT" then
+        process(SQL_CMP_STMT, function, params, c_expr);
       elsif action_name = "SQL_COLUMN_BIGINT" then
         process(SQL_COLUMN_BIGINT, function, params, c_expr);
       elsif action_name = "SQL_COLUMN_BIGRAT" then
@@ -1539,12 +1545,28 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SQL_CPY_DB, function, params, c_expr);
       elsif action_name = "SQL_CPY_STMT" then
         process(SQL_CPY_STMT, function, params, c_expr);
+      elsif action_name = "SQL_EQ_DB" then
+        process(SQL_EQ_DB, function, params, c_expr);
+      elsif action_name = "SQL_EQ_STMT" then
+        process(SQL_EQ_STMT, function, params, c_expr);
+      elsif action_name = "SQL_ERR_CODE" then
+        process(SQL_ERR_CODE, function, params, c_expr);
+      elsif action_name = "SQL_ERR_DB_FUNC" then
+        process(SQL_ERR_DB_FUNC, function, params, c_expr);
+      elsif action_name = "SQL_ERR_LIB_FUNC" then
+        process(SQL_ERR_LIB_FUNC, function, params, c_expr);
+      elsif action_name = "SQL_ERR_MESSAGE" then
+        process(SQL_ERR_MESSAGE, function, params, c_expr);
       elsif action_name = "SQL_EXECUTE" then
         process(SQL_EXECUTE, function, params, c_expr);
       elsif action_name = "SQL_FETCH" then
         process(SQL_FETCH, function, params, c_expr);
       elsif action_name = "SQL_IS_NULL" then
         process(SQL_IS_NULL, function, params, c_expr);
+      elsif action_name = "SQL_NE_DB" then
+        process(SQL_NE_DB, function, params, c_expr);
+      elsif action_name = "SQL_NE_STMT" then
+        process(SQL_NE_STMT, function, params, c_expr);
       elsif action_name = "SQL_OPEN" then
         process(SQL_OPEN, function, params, c_expr);
       elsif action_name = "SQL_PREPARE" then

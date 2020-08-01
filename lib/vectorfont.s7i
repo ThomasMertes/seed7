@@ -126,9 +126,15 @@ const func PRIMITIVE_WINDOW: genPixmap (in vectorFont: vecFont, in charVectorTyp
     width := charVectors.width;
     pixmap := newPixmap(width * scale, height * scale);
     clear(pixmap, background);
-    for index range 1 to length(charVectors.points) do
-      fpolyLine(pixmap, 0, 0 (*vecFont.baseLineDelta *), charVectors.points[index], foreground);
-    end for;
+    if scale = 1 then
+      for index range 1 to length(charVectors.points) do
+        fpolyLine(pixmap, 0, 0, charVectors.points[index], foreground);
+      end for;
+    else
+      for index range 1 to length(charVectors.points) do
+        fpolyLine(pixmap, 0, 0, scale(charVectors.points[index], scale), foreground);
+      end for;
+    end if;
   end func;
 
 
@@ -154,10 +160,10 @@ const func pixmapFontType: genPixmapFont (in vectorFont: vecFont,
     pixmapFont.scale := scale;
     pixmapFont.foreground := foreground;
     pixmapFont.background := background;
-    pixmapFont.baseLineDelta := baseLineDelta(vecFont);
-    pixmapFont.line_delta := lineHeight(vecFont);
-    pixmapFont.column_delta := columnWidth(vecFont);
-    pixmapFont.characterSpacing := characterSpacing(vecFont);
+    pixmapFont.baseLineDelta := baseLineDelta(vecFont) * scale;
+    pixmapFont.line_delta := lineHeight(vecFont) * scale;
+    pixmapFont.column_delta := columnWidth(vecFont) * scale;
+    pixmapFont.characterSpacing := characterSpacing(vecFont) * scale;
   end func;
 
 

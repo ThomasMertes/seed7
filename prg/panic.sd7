@@ -2470,7 +2470,7 @@ const proc: main is func
     writeln(scr, "Stop moving");
     writeln(scr, "Dig hole");
     writeln(scr, "Pound apples, shut hole and");
-    writeln(scr, "play aggain when the game is over");
+    writeln(scr, "play again when the game is over");
     writeln(scr, "Pause game (press P to continue)");
     writeln(scr, "Restart game");
     writeln(scr, "Quit game");

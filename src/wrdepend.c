@@ -150,9 +150,9 @@ int main (int argc, char **argv)
       } else {
         strcat(command, argv[idx]);
       } /* if */
-      /* printf("arg[%d]: %s\n", idx, argv[idx]); */
+      /* fprintf(stderr, "arg[%d]: %s\n", idx, argv[idx]); */
     } /* for */
-    /* printf("command: %s\n", command); */
+    /* fprintf(stderr, "command: %s\n", command); */
     system(command);
     return 0;
   } /* main */

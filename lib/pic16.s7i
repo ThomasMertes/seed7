@@ -713,6 +713,44 @@ const array string: reset_pic is [](
   "                ");
 
 
+const array string: return_pic is [](
+  "                ",
+  "    BB          ",
+  "   BBB          ",
+  "  BBBBBBBBB     ",
+  "  BBBBBBBBBBB   ",
+  "   BBB     BBB  ",
+  "    BB      BB  ",
+  "             BB ",
+  "             BB ",
+  "             BB ",
+  "             BB ",
+  "            BB  ",
+  "           BBB  ",
+  "  BBBBBBBBBBB   ",
+  "  BBBBBBBBB     ",
+  "                ");
+
+
+const array string: right_arrow_pic is [](
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "           BB   ",
+  "           BBB  ",
+  " BBBBBBBBBBBBBB ",
+  " BBBBBBBBBBBBBB ",
+  "           BBB  ",
+  "           BB   ",
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "                ");
+
+
 const array string: ruby_pic is [](
   "                ",
   "       XX       ",

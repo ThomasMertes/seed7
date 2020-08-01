@@ -49,7 +49,7 @@ GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
        flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj pcs_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj \
        tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj sigutl.obj striutl.obj \
-       sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
+       sql_base.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
 DOBJ = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj stat_win.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -73,7 +73,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
-       sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+       sql_base.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
 DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c stat_win.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -276,12 +276,100 @@ level.h:
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	calltlib ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
-make7: ..\bin\make7.exe
+..\bin\bas7.exe: ..\prg\bas7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bas7
+	copy ..\prg\bas7.exe ..\bin /Y
+	del ..\prg\bas7.exe
+
+..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	copy ..\prg\calc7.exe ..\bin /Y
+	del ..\prg\calc7.exe
+
+..\bin\cat.exe: ..\prg\cat.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\cat
+	copy ..\prg\cat.exe ..\bin /Y
+	del ..\prg\cat.exe
+
+..\bin\comanche.exe: ..\prg\comanche.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\comanche
+	copy ..\prg\comanche.exe ..\bin /Y
+	del ..\prg\comanche.exe
+
+..\bin\diff7.exe: ..\prg\diff7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\diff7
+	copy ..\prg\diff7.exe ..\bin /Y
+	del ..\prg\diff7.exe
+
+..\bin\find7.exe: ..\prg\find7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
+	copy ..\prg\find7.exe ..\bin /Y
+	del ..\prg\find7.exe
+
+..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	copy ..\prg\ftp7.exe ..\bin /Y
+	del ..\prg\ftp7.exe
+
+..\bin\ftpserv.exe: ..\prg\ftpserv.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	copy ..\prg\ftpserv.exe ..\bin /Y
+	del ..\prg\ftpserv.exe
+
+..\bin\hd.exe: ..\prg\hd.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\hd
+	copy ..\prg\hd.exe ..\bin /Y
+	del ..\prg\hd.exe
 
 ..\bin\make7.exe: ..\prg\make7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
+
+..\bin\sql7.exe: ..\prg\sql7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sql7
+	copy ..\prg\sql7.exe ..\bin /Y
+	del ..\prg\sql7.exe
+
+..\bin\sydir7.exe: ..\prg\sydir7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sydir7
+	copy ..\prg\sydir7.exe ..\bin /Y
+	del ..\prg\sydir7.exe
+
+..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	copy ..\prg\tar7.exe ..\bin /Y
+	del ..\prg\tar7.exe
+
+..\bin\toutf8.exe: ..\prg\toutf8.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\toutf8
+	copy ..\prg\toutf8.exe ..\bin /Y
+	del ..\prg\toutf8.exe
+
+..\bin\which.exe: ..\prg\which.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\which
+	copy ..\prg\which.exe ..\bin /Y
+	del ..\prg\which.exe
+
+bas7: ..\bin\bas7.exe
+calc7: ..\bin\calc7.exe
+cat: ..\bin\cat.exe
+comanche: ..\bin\comanche.exe
+diff7: ..\bin\diff7.exe
+find7: ..\bin\find7.exe
+ftp7: ..\bin\ftp7.exe
+ftpserv: ..\bin\ftpserv.exe
+hd: ..\bin\hd.exe
+make7: ..\bin\make7.exe
+sql7: ..\bin\sql7.exe
+sydir7: ..\bin\sydir7.exe
+tar7: ..\bin\tar7.exe
+toutf8: ..\bin\toutf8.exe
+which: ..\bin\which.exe
+
+utils: ..\bin\bas7.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\diff7.exe \
+       ..\bin\find7.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe ..\bin\make7.exe \
+       ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
 	echo SRC:

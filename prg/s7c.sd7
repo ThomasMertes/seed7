@@ -1687,6 +1687,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           functionCategory = WINOBJECT or
           functionCategory = PROCESSOBJECT or
           functionCategory = PROGOBJECT or
+          functionCategory = DATABASEOBJECT or
+          functionCategory = SQLSTMTOBJECT or
           functionCategory = ENUMLITERALOBJECT or
           functionCategory = TYPEOBJECT then
       process_expr(function, c_expr);
@@ -1752,6 +1754,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         catch OVERFLOW_ERROR: c_expr.expr &:= "/* OVERFLOW_ERROR */ "; # noop;
         catch RANGE_ERROR:    c_expr.expr &:= "/* RANGE_ERROR */ "; # noop;
         catch FILE_ERROR:     c_expr.expr &:= "/* FILE_ERROR */ "; # noop;
+        catch DATABASE_ERROR: c_expr.expr &:= "/* DATABASE_ERROR */ "; # noop;
       end block;
     end if;
     exprCategory := category(current_expression);
@@ -2042,6 +2045,20 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
           create_name(current_expression, c_expr.expr);
         end if;
       end if;
+    elsif exprCategory = DATABASEOBJECT then
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        c_expr.expr &:= "/*database.value*/NULL";
+      end if;
+    elsif exprCategory = SQLSTMTOBJECT then
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        c_expr.expr &:= "/*sqlStatement.value*/NULL";
+      end if;
     elsif exprCategory = CONSTENUMOBJECT then
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
@@ -2196,6 +2213,7 @@ const proc: process_result_declaration (in reference: result_object,
           catch OVERFLOW_ERROR: noop;
           catch RANGE_ERROR:    noop;
           catch FILE_ERROR:     noop;
+          catch DATABASE_ERROR: noop;
         end block;
       end if;
       process_local_declaration(result_object, result_init, c_expr);
@@ -2855,12 +2873,16 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&setCreateGeneric";
     elsif action_name = "SET_DESTR" then
       c_expr.expr &:= "&setDestrGeneric";
+    elsif action_name = "SQL_CMP_DB" then
+      c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "SQL_CPY_DB" then
       c_expr.expr &:= "&sqlCpyDbGeneric";
     elsif action_name = "SQL_CREATE_DB" then
       c_expr.expr &:= "&sqlCreateDbGeneric";
     elsif action_name = "SQL_DESTR_DB" then
       c_expr.expr &:= "&sqlDestrDbGeneric";
+    elsif action_name = "SQL_CMP_STMT" then
+      c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "SQL_CPY_STMT" then
       c_expr.expr &:= "&sqlCpyStmtGeneric";
     elsif action_name = "SQL_CREATE_STMT" then
@@ -5174,11 +5196,12 @@ const proc: write_file_head is func
     writeln(c_prog, "#define OVERFLOW_ERROR  3");
     writeln(c_prog, "#define RANGE_ERROR     4");
     writeln(c_prog, "#define FILE_ERROR      5");
-    writeln(c_prog, "#define ACTION_ERROR    6");
-    writeln(c_prog, "#define CREATE_ERROR    7");
-    writeln(c_prog, "#define DESTROY_ERROR   8");
-    writeln(c_prog, "#define COPY_ERROR      9");
-    writeln(c_prog, "#define IN_ERROR       10");
+    writeln(c_prog, "#define DATABSE_ERROR   6");
+    writeln(c_prog, "#define ACTION_ERROR    7");
+    writeln(c_prog, "#define CREATE_ERROR    8");
+    writeln(c_prog, "#define DESTROY_ERROR   9");
+    writeln(c_prog, "#define COPY_ERROR     10");
+    writeln(c_prog, "#define IN_ERROR       11");
     writeln(c_prog, "static const char *exception_name[] = {");
     writeln(c_prog, "    \"OKAY_NO_ERROR\",");
     writeln(c_prog, "    \"MEMORY_ERROR\",");
@@ -5186,6 +5209,7 @@ const proc: write_file_head is func
     writeln(c_prog, "    \"OVERFLOW_ERROR\",");
     writeln(c_prog, "    \"RANGE_ERROR\",");
     writeln(c_prog, "    \"FILE_ERROR\",");
+    writeln(c_prog, "    \"DATABASE_ERROR\",");
     writeln(c_prog, "    \"ACTION_ERROR\",");
     writeln(c_prog, "    \"CREATE_ERROR\",");
     writeln(c_prog, "    \"DESTROY_ERROR\",");

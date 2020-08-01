@@ -564,7 +564,7 @@ const proc: main is func
       game;
       repeat
         writeln;
-        write("Do you want to play aggain (Yes/No/Quit)? ");
+        write("Do you want to play again (Yes/No/Quit)? ");
         readln(answer);
         answer := upper(answer[.. 1]);
       until answer = "Y" or answer = "N" or answer = "Q";

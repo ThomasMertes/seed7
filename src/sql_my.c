@@ -54,6 +54,7 @@
 #include "big_drv.h"
 #include "rtl_err.h"
 #include "dll_drv.h"
+#include "sql_base.h"
 #include "sql_drv.h"
 
 
@@ -111,6 +112,7 @@ static sqlFuncType sqlFunc = NULL;
 
 typedef void (STDCALL *tp_mysql_close) (MYSQL *sock);
 typedef my_bool (STDCALL *tp_mysql_commit) (MYSQL *mysql);
+typedef unsigned int (STDCALL *tp_mysql_errno) (MYSQL *mysql);
 typedef const char *(STDCALL *tp_mysql_error) (MYSQL *mysql);
 typedef MYSQL_FIELD *(STDCALL *tp_mysql_fetch_field_direct) (MYSQL_RES *res, unsigned int fieldnr);
 typedef void (STDCALL *tp_mysql_free_result) (MYSQL_RES *result);
@@ -128,6 +130,7 @@ typedef int (STDCALL *tp_mysql_set_character_set) (MYSQL *mysql, const char *csn
 typedef my_bool (STDCALL *tp_mysql_stmt_bind_param) (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
 typedef my_bool (STDCALL *tp_mysql_stmt_bind_result) (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
 typedef my_bool (STDCALL *tp_mysql_stmt_close) (MYSQL_STMT *stmt);
+typedef unsigned int (STDCALL *tp_mysql_stmt_errno) (MYSQL_STMT *stmt);
 typedef const char *(STDCALL *tp_mysql_stmt_error) (MYSQL_STMT *stmt);
 typedef int (STDCALL *tp_mysql_stmt_execute) (MYSQL_STMT *stmt);
 typedef int (STDCALL *tp_mysql_stmt_fetch) (MYSQL_STMT *stmt);
@@ -137,6 +140,7 @@ typedef MYSQL_RES *(STDCALL *tp_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
 
 static tp_mysql_close                ptr_mysql_close;
 static tp_mysql_commit               ptr_mysql_commit;
+static tp_mysql_errno                ptr_mysql_errno;
 static tp_mysql_error                ptr_mysql_error;
 static tp_mysql_fetch_field_direct   ptr_mysql_fetch_field_direct;
 static tp_mysql_free_result          ptr_mysql_free_result;
@@ -148,6 +152,7 @@ static tp_mysql_set_character_set    ptr_mysql_set_character_set;
 static tp_mysql_stmt_bind_param      ptr_mysql_stmt_bind_param;
 static tp_mysql_stmt_bind_result     ptr_mysql_stmt_bind_result;
 static tp_mysql_stmt_close           ptr_mysql_stmt_close;
+static tp_mysql_stmt_errno           ptr_mysql_stmt_errno;
 static tp_mysql_stmt_error           ptr_mysql_stmt_error;
 static tp_mysql_stmt_execute         ptr_mysql_stmt_execute;
 static tp_mysql_stmt_fetch           ptr_mysql_stmt_fetch;
@@ -157,6 +162,7 @@ static tp_mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata;
 
 #define mysql_close                ptr_mysql_close
 #define mysql_commit               ptr_mysql_commit
+#define mysql_errno                ptr_mysql_errno
 #define mysql_error                ptr_mysql_error
 #define mysql_fetch_field_direct   ptr_mysql_fetch_field_direct
 #define mysql_free_result          ptr_mysql_free_result
@@ -168,6 +174,7 @@ static tp_mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata;
 #define mysql_stmt_bind_param      ptr_mysql_stmt_bind_param
 #define mysql_stmt_bind_result     ptr_mysql_stmt_bind_result
 #define mysql_stmt_close           ptr_mysql_stmt_close
+#define mysql_stmt_errno           ptr_mysql_stmt_errno
 #define mysql_stmt_error           ptr_mysql_stmt_error
 #define mysql_stmt_execute         ptr_mysql_stmt_execute
 #define mysql_stmt_fetch           ptr_mysql_stmt_fetch
@@ -189,6 +196,7 @@ static boolType setupDll (const char *dllName)
       if (dbDll != NULL) {
         if ((mysql_close                = (tp_mysql_close)                dllFunc(dbDll, "mysql_close"))                == NULL ||
             (mysql_commit               = (tp_mysql_commit)               dllFunc(dbDll, "mysql_commit"))               == NULL ||
+            (mysql_errno                = (tp_mysql_errno)                dllFunc(dbDll, "mysql_errno"))                == NULL ||
             (mysql_error                = (tp_mysql_error)                dllFunc(dbDll, "mysql_error"))                == NULL ||
             (mysql_fetch_field_direct   = (tp_mysql_fetch_field_direct)   dllFunc(dbDll, "mysql_fetch_field_direct"))   == NULL ||
             (mysql_free_result          = (tp_mysql_free_result)          dllFunc(dbDll, "mysql_free_result"))          == NULL ||
@@ -200,6 +208,7 @@ static boolType setupDll (const char *dllName)
             (mysql_stmt_bind_param      = (tp_mysql_stmt_bind_param)      dllFunc(dbDll, "mysql_stmt_bind_param"))      == NULL ||
             (mysql_stmt_bind_result     = (tp_mysql_stmt_bind_result)     dllFunc(dbDll, "mysql_stmt_bind_result"))     == NULL ||
             (mysql_stmt_close           = (tp_mysql_stmt_close)           dllFunc(dbDll, "mysql_stmt_close"))           == NULL ||
+            (mysql_stmt_errno           = (tp_mysql_stmt_errno)           dllFunc(dbDll, "mysql_stmt_errno"))           == NULL ||
             (mysql_stmt_error           = (tp_mysql_stmt_error)           dllFunc(dbDll, "mysql_stmt_error"))           == NULL ||
             (mysql_stmt_execute         = (tp_mysql_stmt_execute)         dllFunc(dbDll, "mysql_stmt_execute"))         == NULL ||
             (mysql_stmt_fetch           = (tp_mysql_stmt_fetch)           dllFunc(dbDll, "mysql_stmt_fetch"))           == NULL ||
@@ -245,6 +254,18 @@ static boolType findDll (void)
 
 
 static void sqlClose (databaseType database);
+
+
+
+static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
+    unsigned int my_errno, const char *my_error)
+
+  { /* setDbErrorMsg */
+    dbError.funcName = funcName;
+    dbError.dbFuncName = dbFuncName;
+    dbError.errorCode = my_errno;
+    snprintf(dbError.message, DB_ERR_MESSAGE_SIZE, "%s", my_error);
+  } /* setDbErrorMsg */
 
 
 
@@ -1401,7 +1422,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
           case MYSQL_TYPE_STRING:
           case MYSQL_TYPE_VAR_STRING:
             if (unlikely(preparedStmt->result_array[column - 1].length_value != 1)) {
-              logError(printf("sqlColumnBool: The size of a boolean field must be 1.\n"););
+              logError(printf("sqlColumnBool: Column " FMT_D ": "
+                              "The size of a boolean field must be 1.\n", column););
               raise_error(RANGE_ERROR);
               columnValue = 0;
             } else {
@@ -1867,7 +1889,10 @@ static void sqlCommit (databaseType database)
   /* sqlCommit */
     db = (dbType) database;
     if (unlikely(mysql_commit(db->connection) != 0)) {
-      raise_error(FILE_ERROR);
+      setDbErrorMsg("sqlCommit", "mysql_commit",
+                    mysql_errno(db->connection),
+                    mysql_error(db->connection));
+      raise_error(DATABASE_ERROR);
     } /* if */
   } /* sqlCommit */
 
@@ -1888,27 +1913,43 @@ static void sqlExecute (sqlStmtType sqlStatement)
     /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
     preparedStmt->fetchOkay = FALSE;
     bind_param_result = mysql_stmt_bind_param(preparedStmt->ppStmt, preparedStmt->param_array);
-    if (preparedStmt->result_array_size != 0) {
-      bind_result_result = mysql_stmt_bind_result(preparedStmt->ppStmt, preparedStmt->result_array);
-    } else {
-      bind_result_result = 0;
-    } /* if */
-    if (unlikely(bind_param_result != 0 || bind_result_result != 0)) {
-      /* printf("bind_param_result: %d\n", bind_param_result);
-         printf("bind_result_result: %d\n", bind_result_result);
-         printf("preparedStmt->result_array: %lx\n", (unsigned long) preparedStmt->result_array); */
+    if (unlikely(bind_param_result != 0)) {
+      setDbErrorMsg("sqlExecute", "mysql_stmt_bind_param",
+                    mysql_stmt_errno(preparedStmt->ppStmt),
+                    mysql_stmt_error(preparedStmt->ppStmt));
+      logError(printf("sqlExecute: mysql_stmt_bind_param error: %s\n",
+                      mysql_stmt_error(preparedStmt->ppStmt)););
       preparedStmt->executeSuccessful = FALSE;
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
-      execute_result = mysql_stmt_execute(preparedStmt->ppStmt);
-      if (unlikely(execute_result != 0)) {
-        logError(printf("sqlExecute: mysyl_stmt_execute error: %s\n",
-                        mysql_stmt_error(preparedStmt->ppStmt)););
-        preparedStmt->executeSuccessful = FALSE;
-        raise_error(FILE_ERROR);
+      if (preparedStmt->result_array_size != 0) {
+        bind_result_result = mysql_stmt_bind_result(preparedStmt->ppStmt, preparedStmt->result_array);
+        if (unlikely(bind_result_result != 0)) {
+          setDbErrorMsg("sqlExecute", "mysql_stmt_bind_result",
+                        mysql_stmt_errno(preparedStmt->ppStmt),
+                        mysql_stmt_error(preparedStmt->ppStmt));
+          logError(printf("sqlExecute: mysql_stmt_bind_result error: %s\n",
+                          mysql_stmt_error(preparedStmt->ppStmt)););
+          preparedStmt->executeSuccessful = FALSE;
+          raise_error(DATABASE_ERROR);
+        } /* if */
       } else {
-        preparedStmt->executeSuccessful = TRUE;
-        preparedStmt->fetchFinished = FALSE;
+        bind_result_result = 0;
+      } /* if */
+      if (likely(bind_result_result == 0)) {
+        execute_result = mysql_stmt_execute(preparedStmt->ppStmt);
+        if (unlikely(execute_result != 0)) {
+          setDbErrorMsg("sqlExecute", "mysql_stmt_execute",
+                        mysql_stmt_errno(preparedStmt->ppStmt),
+                        mysql_stmt_error(preparedStmt->ppStmt));
+          logError(printf("sqlExecute: mysql_stmt_execute error: %s\n",
+                          mysql_stmt_error(preparedStmt->ppStmt)););
+          preparedStmt->executeSuccessful = FALSE;
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = TRUE;
+          preparedStmt->fetchFinished = FALSE;
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("sqlExecute -->\n"););
@@ -1927,9 +1968,11 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->executeSuccessful)) {
-      logError(printf("sqlFetch: Execute was not successful\n"););
+      dbLibError("sqlFetch", "PQexecPrepared",
+                 "Execute was not successful.\n");
+      logError(printf("sqlFetch: Execute was not successful.\n"););
       preparedStmt->fetchOkay = FALSE;
-      raise_error(FILE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else if (preparedStmt->result_array_size == 0) {
       preparedStmt->fetchOkay = FALSE;
     } else if (!preparedStmt->fetchFinished) {
@@ -1941,11 +1984,14 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
       } else {
+        setDbErrorMsg("sqlFetch", "mysql_stmt_fetch",
+                      mysql_stmt_errno(preparedStmt->ppStmt),
+                      mysql_stmt_error(preparedStmt->ppStmt));
         logError(printf("sqlFetch: mysql_stmt_fetch error: %s\n",
                         mysql_stmt_error(preparedStmt->ppStmt)););
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
-        raise_error(FILE_ERROR);
+        raise_error(DATABASE_ERROR);
       } /* if */
     } /* if */
     logFunction(printf("sqlFetch --> %d\n", preparedStmt->fetchOkay););
@@ -2006,17 +2052,25 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
         memset(preparedStmt, 0, sizeof(preparedStmtRecord));
         preparedStmt->ppStmt = mysql_stmt_init(db->connection);
         if (preparedStmt->ppStmt == NULL) {
+          setDbErrorMsg("sqlPrepare", "mysql_stmt_init",
+                        mysql_errno(db->connection),
+                        mysql_error(db->connection));
+          logError(printf("sqlPrepare: mysql_stmt_init error: %s\n",
+                          mysql_error(db->connection)););
           FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-          err_info = MEMORY_ERROR;
+          err_info = DATABASE_ERROR;
           preparedStmt = NULL;
         } else {
           prepare_result = mysql_stmt_prepare(preparedStmt->ppStmt, query, query_length);
           if (prepare_result != 0) {
+            setDbErrorMsg("sqlPrepare", "mysql_stmt_prepare",
+                          mysql_stmt_errno(preparedStmt->ppStmt),
+                          mysql_stmt_error(preparedStmt->ppStmt));
             logError(printf("sqlPrepare: mysql_stmt_prepare error: %s\n",
                             mysql_stmt_error(preparedStmt->ppStmt)););
             mysql_stmt_close(preparedStmt->ppStmt);
             FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-            err_info = FILE_ERROR;
+            err_info = DATABASE_ERROR;
             preparedStmt = NULL;
           } else {
             preparedStmt->usage_count = 1;
@@ -2088,7 +2142,10 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
     } else {
       col_name = preparedStmt->result_data_array[column - 1].name;
       if (unlikely(col_name == NULL)) {
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlStmtColumnName", "mysql_fetch_field_direct");
+        logError(printf("sqlStmtColumnName: Column " FMT_D ": "
+                        "Column name is NULL.\n", column););
+        raise_error(DATABASE_ERROR);
         name = NULL;
       } else {
         name = cstri8_to_stri(col_name, &err_info);
@@ -2207,17 +2264,23 @@ databaseType sqlOpenMy (const const_striType dbName,
                 connect_result = mysql_real_connect(connection, host,
                     user8, password8, databaseName, 0, NULL, 0);
                 if (connect_result == NULL) {
+                  setDbErrorMsg("sqlOpenMy", "mysql_real_connect",
+                                mysql_errno(connection),
+                                mysql_error(connection));
                   logError(printf("sqlOpenMy: mysql_real_connect(conn, "
                                   "\"%s\", \"%s\", \"%s\", \"%s\") error:\n%s\n",
                                   host != NULL ? host : "NULL", user8, password8, databaseName,
                                   mysql_error(connection)););
-                  err_info = FILE_ERROR;
+                  err_info = DATABASE_ERROR;
                   mysql_close(connection);
                   database = NULL;
                 } else if (mysql_set_character_set(connection, "utf8") != 0) {
+                  setDbErrorMsg("sqlOpenMy", "mysql_set_character_set",
+                                mysql_errno(connection),
+                                mysql_error(connection));
                   logError(printf("sqlOpenMy: mysql_set_character_set error: %s\n",
                                   mysql_error(connection)););
-                  err_info = FILE_ERROR;
+                  err_info = DATABASE_ERROR;
                   mysql_close(connection);
                   database = NULL;
                 } else if (unlikely(!setupFuncTable() ||

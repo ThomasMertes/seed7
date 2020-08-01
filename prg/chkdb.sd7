@@ -164,6 +164,8 @@ const proc: DECL_INSERT (in type: elemType) is func
             succeeded := FALSE;
           catch FILE_ERROR:
             succeeded := FALSE;
+          catch DATABASE_ERROR:
+            succeeded := FALSE;
         end block;
         if succeeded then
           succeedAction;
@@ -184,6 +186,8 @@ const proc: DECL_INSERT (in type: elemType) is func
           catch RANGE_ERROR:
             succeeded := FALSE;
           catch FILE_ERROR:
+            succeeded := FALSE;
+          catch DATABASE_ERROR:
             succeeded := FALSE;
         end block;
         if succeeded then
@@ -208,6 +212,8 @@ const proc: DECL_INSERT (in type: elemType) is func
           catch RANGE_ERROR:
             succeeded := FALSE;
           catch FILE_ERROR:
+            succeeded := FALSE;
+          catch DATABASE_ERROR:
             succeeded := FALSE;
         end block;
         if succeeded then
@@ -244,6 +250,8 @@ const proc: insert (inout sqlStatement: statement, NULL,
       catch RANGE_ERROR:
         succeeded := FALSE;
       catch FILE_ERROR:
+        succeeded := FALSE;
+      catch DATABASE_ERROR:
         succeeded := FALSE;
     end block;
     if succeeded then
@@ -334,6 +342,8 @@ const proc: testBooleanField (in database: testDb, in dbCategory: driver) is fun
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -409,6 +419,8 @@ const proc: testInt8Field (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -484,6 +496,8 @@ const proc: testInt16Field (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -559,6 +573,8 @@ const proc: testInt32Field (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -634,6 +650,8 @@ const proc: testInt64Field (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -697,6 +715,8 @@ const proc: testBigIntField (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -769,6 +789,8 @@ const proc: testFloatField (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -841,6 +863,8 @@ const proc: testDoubleField (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -1088,6 +1112,8 @@ const proc: testBigRatField (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -1147,6 +1173,8 @@ const proc: testChar1Field (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -1212,6 +1240,8 @@ const proc: testCharField (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -1277,6 +1307,8 @@ const proc: testVarcharField (in database: testDb, in dbCategory: driver) is fun
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -1348,6 +1380,8 @@ const proc: testBlobField (in database: testDb, in dbCategory: driver) is func
         writeln(" *** RANGE_ERROR was raised");
       catch FILE_ERROR:
         writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
     end block;
     statement := prepare(testDb, "DROP TABLE " & tableName);
     execute(statement);
@@ -1383,6 +1417,8 @@ const func boolean: failed (in proc: statement) is func
         failed := TRUE;
       catch FILE_ERROR:
         failed := TRUE;
+      catch DATABASE_ERROR:
+        failed := TRUE;
     end block;
   end func;
 
@@ -1412,17 +1448,17 @@ const func connectData: connectData (in dbCategory: driver, in string: dbName,
 const proc: main is func
   local
     const array connectData: dbConnectData is [] (
-        connectData(DB_MYSQL,      "penguin/test",     "test", "test", DB_MYSQL),
-        connectData(DB_ODBC,       "penguin_mysql",    "test", "test", DB_MYSQL),
-        connectData(DB_POSTGRESQL, "penguin/test",     "test", "test", DB_POSTGRESQL),
-        connectData(DB_ODBC,       "penguin_postgres", "test", "test", DB_POSTGRESQL),
+        # connectData(DB_MYSQL,      "penguin/test",     "test", "test", DB_MYSQL),
+        # connectData(DB_ODBC,       "penguin_mysql",    "test", "test", DB_MYSQL),
+        # connectData(DB_POSTGRESQL, "penguin/test",     "test", "test", DB_POSTGRESQL),
+        # connectData(DB_ODBC,       "penguin_postgres", "test", "test", DB_POSTGRESQL),
         connectData(DB_MYSQL,      "test",             "test", "test", DB_MYSQL),
         connectData(DB_SQLITE,     "test",             "test", "test", DB_SQLITE),
         connectData(DB_POSTGRESQL, "test",             "test", "test", DB_POSTGRESQL),
         connectData(DB_OCI,        "XE",               "test", "test", DB_OCI),
         connectData(DB_OCI,        "192.168.2.99/XE",  "test", "test", DB_OCI),
         connectData(DB_ODBC,       "my",               "test", "test", DB_MYSQL),
-        connectData(DB_ODBC,       "lite",             "test", "test", DB_SQLITE),
+        # connectData(DB_ODBC,       "lite",             "test", "test", DB_SQLITE),
         connectData(DB_ODBC,       "post",             "test", "test", DB_POSTGRESQL));
     var integer: index is 0;
     var database: testDb is database.value;

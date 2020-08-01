@@ -44,11 +44,16 @@
 #include "flt_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
+#include "sql_base.h"
 #include "sql_drv.h"
 
+#undef EXTERN
+#define EXTERN
+#include "sql_rtl.h"
 
-#undef ENCODE_INFINITY
-#undef ENCODE_NAN
+
+#define ENCODE_INFINITY 0
+#define ENCODE_NAN 0
 
 
 typedef struct dbStruct {
@@ -118,15 +123,15 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, pos););
       raise_error(RANGE_ERROR);
-#if !defined ENCODE_INFINITY && !defined ENCODE_NAN
+#if !ENCODE_INFINITY && !ENCODE_NAN
     } else if (bigEqSignedDigit(denominator, 0)) {
       raise_error(RANGE_ERROR);
 #else
-#ifndef ENCODE_INFINITY
+#if !ENCODE_INFINITY
     } else if (bigEqSignedDigit(denominator, 0) && !bigEqSignedDigit(numerator, 0)) {
       raise_error(RANGE_ERROR);
 #endif
-#ifndef ENCODE_NAN
+#if !ENCODE_NAN
     } else if (bigEqSignedDigit(denominator, 0) && bigEqSignedDigit(numerator, 0)) {
       raise_error(RANGE_ERROR);
 #endif
@@ -258,11 +263,11 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
-#ifndef ENCODE_INFINITY
+#if !ENCODE_INFINITY
     } else if (value == POSITIVE_INFINITY || value == NEGATIVE_INFINITY) {
       raise_error(RANGE_ERROR);
 #endif
-#ifndef ENCODE_NAN
+#if !ENCODE_NAN
     } else if (os_isnan(value)) {
       raise_error(RANGE_ERROR);
 #endif
@@ -1036,6 +1041,59 @@ void sqlDestrStmtGeneric (const genericType old_value)
 
 
 
+intType sqlErrCode (void)
+
+  { /* sqlErrCode */
+    return dbError.errorCode;
+  } /* sqlErrCode */
+
+
+
+striType sqlErrDbFunc (void)
+
+  {
+    striType dbFuncName;
+
+  /* sqlErrDbFunc */
+    dbFuncName = cstri_to_stri(dbError.dbFuncName);
+    if (unlikely(dbFuncName == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return dbFuncName;
+  } /* sqlErrDbFunc */
+
+
+
+striType sqlErrLibFunc (void)
+
+  {
+    striType funcName;
+
+  /* sqlErrLibFunc */
+    funcName = cstri_to_stri(dbError.funcName);
+    if (unlikely(funcName == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return funcName;
+  } /* sqlErrLibFunc */
+
+
+
+striType sqlErrMessage (void)
+
+  {
+    striType message;
+
+  /* sqlErrMessage */
+    message = cstri_to_stri(dbError.message);
+    if (unlikely(message == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return message;
+  } /* sqlErrMessage */
+
+
+
 /**
  *  Execute the specified prepared SQL statement.
  *  Bind variable can be assigned with bind functions before
@@ -1177,7 +1235,7 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
         break;
 #endif
       default:
-        logError(printf("sqlOpen: unknown driver: " FMT_D "\n", driver););
+        logError(printf("sqlOpen: Unknown driver: " FMT_D "\n", driver););
         raise_error(RANGE_ERROR);
         database = NULL;
         break;

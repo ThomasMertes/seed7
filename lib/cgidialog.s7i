@@ -38,8 +38,8 @@ const type: paramHashType is hash [string] string;
  *  Interface type for dialog elements.
  *  The dialogElement interface is implemented with ''emptyDialog'',
  *  ''header'', ''label'', ''image'', ''space'', ''vspace'',
- *  ''textField'', ''textArea'', ''checkbox'', ''radioButton'',
- *  ''resetButton'', ''submitButton'', ''closeButton''.
+ *  ''textField'', ''passwordField'', ''textArea'', ''checkbox'',
+ *  ''radioButton'', ''resetButton'', ''submitButton'', ''closeButton''.
  *)
 const type: dialogElement is new interface;
 
@@ -370,6 +370,54 @@ const func string: toHtml (in textField: aTextField) is func
                "\" value=" <& quoteHtmlAttrValue(striToUtf8(aTextField.content)) <& " ";
     if aTextField.size <> 0 then
       content &:= "size=\"" <& aTextField.size <& "\" ";
+    end if;
+    content &:= "/>\n";
+  end func;
+
+
+const type: passwordField is new struct
+    var string: name is "";
+    var string: content is "";
+    var integer: size is 0;
+  end struct;
+
+type_implements_interface(passwordField, dialogElement);
+
+(**
+ *  Create a passwordField dialogElement with the given ''content'' and ''size''.
+ *  @return a passwordField dialogElement.
+ *)
+const func passwordField: passwordField (in string: content, in integer: size) is func
+  result
+    var passwordField: aPasswordField is passwordField.value;
+  begin
+    aPasswordField.name := genDialogElementName;
+    aPasswordField.content := content;
+    aPasswordField.size := size;
+  end func;
+
+const proc: assignName (inout passwordField: aPasswordField, inout integer: id) is func
+  begin
+    aPasswordField.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout passwordField: aPasswordField, in paramHashType: paramHash) is func
+  begin
+    if aPasswordField.name in paramHash then
+      aPasswordField.content := paramHash[aPasswordField.name];
+    end if;
+  end func;
+
+const func string: toHtml (in passwordField: aPasswordField) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("passwordField");
+    content := "<input type=\"password\" name=\"" <& aPasswordField.name <&
+               "\" value=" <& quoteHtmlAttrValue(striToUtf8(aPasswordField.content)) <& " ";
+    if aPasswordField.size <> 0 then
+      content &:= "size=\"" <& aPasswordField.size <& "\" ";
     end if;
     content &:= "/>\n";
   end func;

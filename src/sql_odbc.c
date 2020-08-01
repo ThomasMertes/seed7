@@ -61,6 +61,7 @@
 #include "big_drv.h"
 #include "rtl_err.h"
 #include "dll_drv.h"
+#include "sql_base.h"
 #include "sql_drv.h"
 
 
@@ -111,8 +112,8 @@ static sqlFuncType sqlFunc = NULL;
 /* not correctly supported by some drivers. Therefore decimal       */
 /* encoding is the default and encoding DECODE_NUMERIC_STRUCT       */
 /* should be used with care.                                        */
-#undef DECODE_NUMERIC_STRUCT
-#undef ENCODE_NUMERIC_STRUCT
+#define DECODE_NUMERIC_STRUCT 0
+#define ENCODE_NUMERIC_STRUCT 0
 /* Maximum number of decimal digits that fits in in SQL_NUMERIC_STRUCT */
 #define MAX_NUMERIC_PRECISION 39
 #define MAX_NUMERIC_SCALE 39
@@ -122,6 +123,7 @@ static sqlFuncType sqlFunc = NULL;
 #define SQLLEN_MAX (SQLLEN) (((SQLULEN) 1 << (8 * sizeof(SQLLEN) - 1)) - 1)
 #define SQLINTEGER_MAX (SQLINTEGER) (((SQLUINTEGER) 1 << (8 * sizeof(SQLINTEGER) - 1)) - 1)
 #define SQLSMALLINT_MAX (SQLSMALLINT) (((SQLUSMALLINT) 1 << (8 * sizeof(SQLSMALLINT) - 1)) - 1)
+#define ERROR_MESSAGE_BUFFER_SIZE 1024
 
 
 #ifdef ODBC_DLL
@@ -339,56 +341,40 @@ char *strfill (char *s, unsigned int len, int fill)
 
 
 
-#if VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE
-static void printError (SQLSMALLINT handleType, SQLHANDLE handle)
+static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
+    SQLSMALLINT handleType, SQLHANDLE handle)
 
   {
     SQLRETURN returnCode;
-    SQLCHAR sqlState[1024];
+    SQLCHAR sqlState[5 + NULL_TERMINATION_LEN];
     SQLINTEGER nativeError;
-    SQLCHAR *messageText;
+    SQLCHAR messageText[ERROR_MESSAGE_BUFFER_SIZE];
     SQLSMALLINT bufferLength;
 
-  /* printError */
+  /* setDbErrorMsg */
+    dbError.funcName = funcName;
+    dbError.dbFuncName = dbFuncName;
     returnCode = SQLGetDiagRec(handleType,
                                handle,
                                1,
                                sqlState,
                                &nativeError,
-                               NULL,
-                               0,
+                               messageText,
+                               (SQLSMALLINT) ERROR_MESSAGE_BUFFER_SIZE,
                                &bufferLength);
     if (returnCode == SQL_NO_DATA) {
-      printf(" *** SQLGetDiagRec returned: SQL_NO_DATA\n");
+      snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
+               " *** SQLGetDiagRec returned: SQL_NO_DATA");
     } else if (returnCode != SQL_SUCCESS &&
                returnCode != SQL_SUCCESS_WITH_INFO) {
-      printf(" *** SQLGetDiagRec returned: %d\n", returnCode);
-    } else if (bufferLength < 0 || bufferLength >= SQLSMALLINT_MAX) {
-      printf(" *** SQLGetDiagRec: BufferLength not in allowed range: %hd\n", bufferLength);
+      snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
+               " *** SQLGetDiagRec returned: %d\n", returnCode);
     } else {
-      messageText = malloc((memSizeType) bufferLength + NULL_TERMINATION_LEN);
-      if (messageText == NULL) {
-        printf(" *** malloc failed\n");
-      } else {
-        if (SQLGetDiagRec(handleType,
-                          handle,
-                          1,
-                          sqlState,
-                          &nativeError,
-                          messageText,
-                          (SQLSMALLINT) (bufferLength + NULL_TERMINATION_LEN),
-                          &bufferLength) != SQL_SUCCESS) {
-          printf(" *** SQLGetDiagRec failed\n");
-        } else {
-          printf("%s\n", messageText);
-          printf("SQLState: %s\n", sqlState);
-          printf("NativeError: %d\n", nativeError);
-        } /* if */
-        free(messageText);
-      } /* if */
+      snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
+               "%s\nSQLState: %s\nNativeError: %d\n",
+               messageText, sqlState, nativeError);
     } /* if */
-  } /* printError */
-#endif
+  } /* setDbErrorMsg */
 
 
 
@@ -430,9 +416,11 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     if (preparedStmt->executeSuccessful &&
         (preparedStmt->fetchOkay || preparedStmt->fetchFinished)) {
       if (unlikely(SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE) != SQL_SUCCESS)) {
-        logError(printf("freePreparedStmt: SQLFreeStmt SQL_CLOSE:\n");
-                 printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-        raise_error(FILE_ERROR);
+        setDbErrorMsg("freePreparedStmt", "SQLFreeStmt",
+                      SQL_HANDLE_STMT, preparedStmt->ppStmt);
+        logError(printf("freePreparedStmt: SQLFreeStmt SQL_CLOSE:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
       } /* if */
     } /* if */
     SQLFreeHandle(SQL_HANDLE_STMT, preparedStmt->ppStmt);
@@ -566,9 +554,11 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                         0,
                         NULL,
                         &sqlDataType) != SQL_SUCCESS) {
-      logError(printf("setupResultColumn: SQLColAttribute SQL_DESC_TYPE:\n");
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = FILE_ERROR;
+      setDbErrorMsg("setupResultColumn", "SQLColAttribute",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("setupResultColumn: SQLColAttribute "
+                      "SQL_DESC_TYPE:\n%s\n", dbError.message););
+      *err_info = DATABASE_ERROR;
     } else if (SQLColAttribute(preparedStmt->ppStmt,
                                (SQLUSMALLINT) column_num,
                                SQL_DESC_LENGTH,
@@ -576,9 +566,11 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                                0,
                                NULL,
                                &dataLength) != SQL_SUCCESS) {
-      logError(printf("setupResultColumn: SQLColAttribute SQL_DESC_LENGTH:\n");
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = FILE_ERROR;
+      setDbErrorMsg("setupResultColumn", "SQLColAttribute",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("setupResultColumn: SQLColAttribute "
+                      "SQL_DESC_LENGTH:\n%s\n", dbError.message););
+      *err_info = DATABASE_ERROR;
     } else if (SQLColAttribute(preparedStmt->ppStmt,
                                (SQLUSMALLINT) column_num,
                                SQL_DESC_OCTET_LENGTH,
@@ -586,9 +578,11 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                                0,
                                NULL,
                                &octetLength) != SQL_SUCCESS) {
-      logError(printf("setupResultColumn: SQLColAttribute SQL_DESC_OCTET_LENGTH:\n");
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = FILE_ERROR;
+      setDbErrorMsg("setupResultColumn", "SQLColAttribute",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("setupResultColumn: SQLColAttribute "
+                      "SQL_DESC_OCTET_LENGTH:\n%s\n", dbError.message););
+      *err_info = DATABASE_ERROR;
     } else if (SQLColAttribute(preparedStmt->ppStmt,
                                (SQLUSMALLINT) column_num,
                                SQL_DESC_PRECISION,
@@ -596,9 +590,11 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                                0,
                                NULL,
                                &precision) != SQL_SUCCESS) {
-      logError(printf("setupResultColumn: SQLColAttribute SQL_DESC_PRECISION:\n");
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = FILE_ERROR;
+      setDbErrorMsg("setupResultColumn", "SQLColAttribute",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("setupResultColumn: SQLColAttribute "
+                      "SQL_DESC_PRECISION:\n%s\n", dbError.message););
+      *err_info = DATABASE_ERROR;
     } else if (SQLColAttribute(preparedStmt->ppStmt,
                                (SQLUSMALLINT) column_num,
                                SQL_DESC_SCALE,
@@ -606,9 +602,11 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                                0,
                                NULL,
                                &scale) != SQL_SUCCESS) {
-      logError(printf("setupResultColumn: SQLColAttribute SQL_DESC_SCALE:\n");
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = FILE_ERROR;
+      setDbErrorMsg("setupResultColumn", "SQLColAttribute",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("setupResultColumn: SQLColAttribute "
+                      "SQL_DESC_SCALE:\n%s\n", dbError.message););
+      *err_info = DATABASE_ERROR;
     } else {
       /* printf("sqlDataType: %ld\n", sqlDataType); */
       resultData->buffer_type = (int) sqlDataType;
@@ -625,9 +623,10 @@ static void setupResultColumn (preparedStmtType preparedStmt,
             resultData->sql_data_at_exec = TRUE;
             column_size = (memSizeType) SQL_DATA_AT_EXEC;
           } else if (dataLength < 0) {
+            dbInconsistent("setupResultColumn", "SQLColAttribute");
             logError(printf("setupResultColumn: DataLength negative: %ld\n",
                             dataLength););
-            *err_info = FILE_ERROR;
+            *err_info = DATABASE_ERROR;
           } else if ((SQLULEN) dataLength > (MAX_MEMSIZETYPE / 2) - 1) {
             logError(printf("setupResultColumn: DataLength too big: %ld\n",
                             dataLength););
@@ -660,9 +659,10 @@ static void setupResultColumn (preparedStmtType preparedStmt,
         case SQL_DECIMAL:
           c_type = SQL_C_CHAR;
           if (octetLength < 0) {
+            dbInconsistent("setupResultColumn", "SQLColAttribute");
             logError(printf("setupResultColumn: OctetLength negative: %ld\n",
                             octetLength););
-            *err_info = FILE_ERROR;
+            *err_info = DATABASE_ERROR;
           } else if ((SQLULEN) octetLength > MAX_MEMSIZETYPE - 1) {
             logError(printf("setupResultColumn: OctetLength too big: %ld\n",
                             octetLength););
@@ -695,8 +695,12 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                               0,
                               NULL,
                               &displaySize) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLColAttribute SQL_DESC_DISPLAY_SIZE:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+            setDbErrorMsg("setupResultColumn", "SQLColAttribute",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("setupResultColumn: SQLColAttribute "
+                            "SQL_DESC_DISPLAY_SIZE:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else {
             printf("Display size: %ld\n", displaySize);
           }
@@ -711,8 +715,12 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                               0,
                               NULL,
                               &precisionRadix) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLColAttribute SQL_DESC_DISPLAY_SIZE:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+            setDbErrorMsg("setupResultColumn", "SQLColAttribute",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("setupResultColumn: SQLColAttribute "
+                            "SQL_DESC_NUM_PREC_RADIX:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else {
             printf("Precision radix: %ld\n", precisionRadix);
           }
@@ -749,9 +757,12 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                              SQL_ATTR_APP_ROW_DESC,
                              &descriptorHandle,
                              0, NULL) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLGetStmtAttr:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLGetStmtAttr",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("setupResultColumn: SQLGetStmtAttr "
+                            "SQL_ATTR_APP_ROW_DESC:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } /* if */
           if (SQLGetDescField(descriptorHandle,
                               column_num,
@@ -759,14 +770,18 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                               (SQLPOINTER) &precision2,
                               sizeof(precision2),
                               NULL) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLGetDescField:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+            setDbErrorMsg("setupResultColumn", "SQLGetDescField",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("setupResultColumn: SQLGetDescField "
+                            "SQL_DESC_PRECISION:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else {
             printf("precision2: %ld\n", precision2);
           }
           }
 #endif
-#ifdef DECODE_NUMERIC_STRUCT
+#if DECODE_NUMERIC_STRUCT
           c_type = SQL_C_NUMERIC;
           column_size = sizeof(SQL_NUMERIC_STRUCT);
 #else
@@ -780,9 +795,10 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           column_size += 3;
 #if 0
           if (precision < 0) {
+            dbInconsistent("setupResultColumn", "SQLColAttribute");
             logError(printf("setupResultColumn: Precision negative: %ld\n",
                             precision););
-            *err_info = FILE_ERROR;
+            *err_info = DATABASE_ERROR;
           } else if (precision > MAX_MEMSIZETYPE - 3) {
             logError(printf("setupResultColumn: Precision too big: %ld\n",
                             precision););
@@ -873,9 +889,10 @@ static void setupResultColumn (preparedStmtType preparedStmt,
         case SQL_LONGVARBINARY:
           c_type = SQL_C_BINARY;
           if (dataLength < 0) {
+            dbInconsistent("setupResultColumn", "SQLColAttribute");
             logError(printf("setupResultColumn: DataLength negative: %ld\n",
                             dataLength););
-            *err_info = FILE_ERROR;
+            *err_info = DATABASE_ERROR;
           } else if ((SQLULEN) dataLength > MAX_MEMSIZETYPE) {
             logError(printf("setupResultColumn: DataLength too big: %ld\n",
                             dataLength););
@@ -913,11 +930,12 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                        resultData->buffer,
                        (SQLLEN) resultData->buffer_length,
                        &resultData->length) != SQL_SUCCESS) {
-          logError(printf("setupResultColumn: SQLBindCol:\n");
-                   printError(SQL_HANDLE_STMT, preparedStmt->ppStmt);
-                   printf("c_type: %d\n", c_type);
-                   printf("c_type: %s\n", nameOfCType(c_type)););
-          *err_info = FILE_ERROR;
+          setDbErrorMsg("setupResultColumn", "SQLBindCol",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("setupResultColumn: SQLBindCol "
+                          "c_type: %d = %s:\n%s\n",
+                          c_type, nameOfCType(c_type), dbError.message););
+          *err_info = DATABASE_ERROR;
         } /* if */
         if (c_type == SQL_C_NUMERIC) {
           printf("SQL_C_NUMERIC:\n");
@@ -929,57 +947,78 @@ static void setupResultColumn (preparedStmtType preparedStmt,
                              SQL_ATTR_APP_ROW_DESC,
                              &descriptorHandle,
                              0, NULL) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLGetStmtAttr:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLGetStmtAttr",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("setupResultColumn: SQLGetStmtAttr "
+                            "SQL_ATTR_APP_ROW_DESC:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else if (SQLSetDescField(descriptorHandle,
                                      column_num,
                                      SQL_DESC_TYPE,
                                      (void *) SQL_C_NUMERIC,
                                      0) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLSetDescField SQL_DESC_TYPE:\n");
-                     printError(SQL_HANDLE_DESC, descriptorHandle););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLSetDescField",
+                          SQL_HANDLE_DESC, descriptorHandle);
+            logError(printf("setupResultColumn: SQLGetStmtAttr "
+                            "SQL_DESC_TYPE:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else if (SQLSetDescField(descriptorHandle,
                                      column_num,
                                      SQL_DESC_PRECISION,
                                      (void *) precision,
                                      0) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLSetDescField SQL_DESC_PRECISION:\n");
-                     printError(SQL_HANDLE_DESC, descriptorHandle););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLSetDescField",
+                          SQL_HANDLE_DESC, descriptorHandle);
+            logError(printf("setupResultColumn: SQLSetDescField "
+                            "SQL_DESC_PRECISION:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else if (SQLSetDescField(descriptorHandle,
                                      column_num,
                                      SQL_DESC_SCALE,
                                      (void *) scale,
                                      0) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLSetDescField SQL_DESC_SCALE:\n");
-                     printError(SQL_HANDLE_DESC, descriptorHandle););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLSetDescField",
+                          SQL_HANDLE_DESC, descriptorHandle);
+            logError(printf("setupResultColumn: SQLSetDescField "
+                            "SQL_DESC_SCALE:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else if (SQLSetDescField(descriptorHandle,
                                      column_num,
                                      SQL_DESC_DATA_PTR,
                                      resultData->buffer,
                                      0) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLSetDescField SQL_DESC_DATA_PTR:\n");
-                     printError(SQL_HANDLE_DESC, descriptorHandle););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLSetDescField",
+                          SQL_HANDLE_DESC, descriptorHandle);
+            logError(printf("setupResultColumn: SQLSetDescField "
+                            "SQL_DESC_DATA_PTR:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else if (SQLSetDescField(descriptorHandle,
                                      column_num,
                                      SQL_DESC_INDICATOR_PTR,
                                      &resultData->length,
                                      0) != SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLSetDescField SQL_DESC_INDICATOR_PTR:\n");
-                     printError(SQL_HANDLE_DESC, descriptorHandle););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLSetDescField",
+                          SQL_HANDLE_DESC, descriptorHandle);
+            logError(printf("setupResultColumn: SQLSetDescField "
+                            "SQL_DESC_INDICATOR_PTR:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } else if (SQLSetDescField(descriptorHandle,
                                      column_num,
                                      SQL_DESC_OCTET_LENGTH_PTR,
                                      &resultData->length,
                                      0)!= SQL_SUCCESS) {
-            logError(printf("setupResultColumn: SQLSetDescField SQL_DESC_OCTET_LENGTH_PTR:\n");
-                     printError(SQL_HANDLE_DESC, descriptorHandle););
-            *err_info = FILE_ERROR;
+            setDbErrorMsg("setupResultColumn", "SQLSetDescField",
+                          SQL_HANDLE_DESC, descriptorHandle);
+            logError(printf("setupResultColumn: SQLSetDescField "
+                            "SQL_DESC_OCTET_LENGTH_PTR:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
           } /* if */
         } /* if */
       } /* if */
@@ -999,13 +1038,16 @@ static void setupResult (preparedStmtType preparedStmt,
     logFunction(printf("setupResult\n"););
     if (SQLNumResultCols(preparedStmt->ppStmt,
                          &num_columns) != SQL_SUCCESS) {
-      logError(printf("setupResult: SQLNumResultCols:\n");
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = FILE_ERROR;
+      setDbErrorMsg("setupResult", "SQLNumResultCols",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("setupResult: SQLNumResultCols:\n%s\n",
+                      dbError.message););
+      *err_info = DATABASE_ERROR;
     } else if (num_columns < 0) {
+      dbInconsistent("setupResult", "SQLNumResultCols");
       logError(printf("setupResult: SQLNumResultCols returns negative number: %hd\n",
                       num_columns););
-      *err_info = FILE_ERROR;
+      *err_info = DATABASE_ERROR;
     } else if (!ALLOC_TABLE(preparedStmt->result_array,
                             resultDataRecord, (memSizeType) num_columns)) {
       *err_info = MEMORY_ERROR;
@@ -1055,7 +1097,7 @@ static void resizeBindArray (preparedStmtType preparedStmt, memSizeType pos)
 
 
 
-#ifdef DECODE_NUMERIC_STRUCT
+#if DECODE_NUMERIC_STRUCT
 static intType getNumericInt (const void *buffer)
 
   {
@@ -1226,7 +1268,7 @@ static floatType getNumericFloat (const void *buffer)
 static intType getInt (const void *buffer, memSizeType length)
 
   { /* getInt */
-#ifdef DECODE_NUMERIC_STRUCT
+#if DECODE_NUMERIC_STRUCT
     return getNumericInt(buffer);
 #else
     return getDecimalInt((const_ustriType) buffer, length);
@@ -1238,7 +1280,7 @@ static intType getInt (const void *buffer, memSizeType length)
 static bigIntType getBigInt (const void *buffer, memSizeType length)
 
   { /* getBigInt */
-#ifdef DECODE_NUMERIC_STRUCT
+#if DECODE_NUMERIC_STRUCT
     return getNumericBigInt(buffer);
 #else
     return getDecimalBigInt((const_ustriType) buffer, length);
@@ -1251,7 +1293,7 @@ static bigIntType getBigRational (const void *buffer, memSizeType length,
     bigIntType *denominator)
 
   { /* getBigRational */
-#ifdef DECODE_NUMERIC_STRUCT
+#if DECODE_NUMERIC_STRUCT
     return getNumericBigRational(buffer, denominator);
 #else
     return getDecimalBigRational((const_ustriType) buffer, length, denominator);
@@ -1263,7 +1305,7 @@ static bigIntType getBigRational (const void *buffer, memSizeType length,
 static floatType getFloat (const void *buffer, memSizeType length)
 
   { /* getFloat */
-#ifdef DECODE_NUMERIC_STRUCT
+#if DECODE_NUMERIC_STRUCT
     return getNumericFloat(buffer);
 #else
     return getDecimalFloat((const_ustriType) buffer, length);
@@ -1272,7 +1314,7 @@ static floatType getFloat (const void *buffer, memSizeType length)
 
 
 
-#ifdef ENCODE_NUMERIC_STRUCT
+#if ENCODE_NUMERIC_STRUCT
 static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity,
     const const_bigIntType bigIntValue, errInfoType *err_info)
 
@@ -1480,7 +1522,7 @@ static memSizeType setBigInt (void **buffer, memSizeType *buffer_capacity,
     const const_bigIntType bigIntValue, errInfoType *err_info)
 
   { /* setBigInt */
-#ifdef ENCODE_NUMERIC_STRUCT
+#if ENCODE_NUMERIC_STRUCT
     return setNumericBigInt(buffer, buffer_capacity, bigIntValue, err_info);
 #else
     return setDecimalBigInt(buffer, buffer_capacity, bigIntValue, err_info);
@@ -1494,7 +1536,7 @@ static memSizeType setBigRat (void **buffer,
     errInfoType *err_info)
 
   { /* setBigRat */
-#ifdef ENCODE_NUMERIC_STRUCT
+#if ENCODE_NUMERIC_STRUCT
     return setNumericBigRat(buffer, numerator, denominator, err_info);
 #else
     return setDecimalBigRat(buffer, numerator, denominator, err_info);
@@ -1529,10 +1571,11 @@ static striType getClob (preparedStmtType preparedStmt, intType column,
         *err_info = RANGE_ERROR;
         columnValue = NULL;
       } else if (unlikely(totalLength < 0)) {
-        logError(printf("getClob(" FMT_U_MEM ", " FMT_D "): "
-                        "Column has length: %ld\n",
-                        (memSizeType) preparedStmt, column, totalLength););
-        raise_error(FILE_ERROR);
+        dbInconsistent("getClob", "SQLGetData");
+        logError(printf("getClob: Column " FMT_D ": "
+                        "SQLGetData returns negative total length: %ld\n",
+                        column, totalLength););
+        raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
         /* printf("totalLength=%ld\n", totalLength); */
@@ -1552,20 +1595,22 @@ static striType getClob (preparedStmtType preparedStmt, intType column,
               *err_info = MEMORY_ERROR;
             } /* if */
           } else {
-            logError(printf("getClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
-                            (memSizeType) preparedStmt->ppStmt, column);
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            *err_info = RANGE_ERROR;
+            setDbErrorMsg("getClob", "SQLGetData",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("getClob: SQLGetData:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
             columnValue = NULL;
           } /* if */
           UNALLOC_CSTRI(cstri, (memSizeType) totalLength);
         } /* if */
       } /* if */
     } else {
-      logError(printf("getClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
-                      (memSizeType) preparedStmt->ppStmt, column);
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = RANGE_ERROR;
+      setDbErrorMsg("getClob", "SQLGetData",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("getClob: SQLGetData:\n%s\n",
+                      dbError.message););
+      *err_info = DATABASE_ERROR;
       columnValue = NULL;
     } /* if */
     logFunction(printf("getClob --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
@@ -1600,10 +1645,11 @@ static striType getWClob (preparedStmtType preparedStmt, intType column,
         *err_info = RANGE_ERROR;
         columnValue = NULL;
       } else if (unlikely(totalLength < 0)) {
-        logError(printf("getWClob(" FMT_U_MEM ", " FMT_D "): "
-                        "Column has length: %ld\n",
-                        (memSizeType) preparedStmt, column, totalLength););
-        raise_error(FILE_ERROR);
+        dbInconsistent("getWClob", "SQLGetData");
+        logError(printf("getWClob: Column " FMT_D ": "
+                        "SQLGetData returns negative total length: %ld\n",
+                        column, totalLength););
+        raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
         /* printf("totalLength=%ld\n", totalLength); */
@@ -1619,20 +1665,22 @@ static striType getWClob (preparedStmtType preparedStmt, intType column,
             columnValue = wstri_buf_to_stri(
                 wstri, (memSizeType) totalLength / 2, err_info);
           } else {
-            logError(printf("getWClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
-                            (memSizeType) preparedStmt->ppStmt, column);
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            *err_info = RANGE_ERROR;
+            setDbErrorMsg("getWClob", "SQLGetData",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("getWClob: SQLGetData:\n%s\n",
+                            dbError.message););
+            *err_info = DATABASE_ERROR;
             columnValue = NULL;
           } /* if */
           UNALLOC_WSTRI(wstri, (memSizeType) totalLength / 2);
         } /* if */
       } /* if */
     } else {
-      logError(printf("getWClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
-                      (memSizeType) preparedStmt->ppStmt, column);
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-      *err_info = RANGE_ERROR;
+      setDbErrorMsg("getWClob", "SQLGetData",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("getWClob: SQLGetData:\n%s\n",
+                      dbError.message););
+      *err_info = DATABASE_ERROR;
       columnValue = NULL;
     } /* if */
     logFunction(printf("getWClob --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
@@ -1664,7 +1712,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
               setBigInt(&preparedStmt->param_array[pos - 1].buffer,
                         &preparedStmt->param_array[pos - 1].buffer_capacity,
                         value, &err_info);
-#ifdef ENCODE_NUMERIC_STRUCT
+#if ENCODE_NUMERIC_STRUCT
           preparedStmt->param_array[pos - 1].buffer_type = SQL_NUMERIC;
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_NUMERIC) {
 #else
@@ -1681,7 +1729,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
         } else {
-#ifdef ENCODE_NUMERIC_STRUCT
+#if ENCODE_NUMERIC_STRUCT
           if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
                                         (SQLUSMALLINT) pos,
                                         SQL_PARAM_INPUT,
@@ -1704,9 +1752,11 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                                         (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
                                         NULL) != SQL_SUCCESS)) {
 #endif
-            logError(printf("sqlBindBigInt: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindBigInt", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindBigInt: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -1741,7 +1791,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           preparedStmt->param_array[pos - 1].buffer_length =
               setBigRat(&preparedStmt->param_array[pos - 1].buffer,
                         numerator, denominator, &err_info);
-#ifdef ENCODE_NUMERIC_STRUCT
+#if ENCODE_NUMERIC_STRUCT
           preparedStmt->param_array[pos - 1].buffer_type = SQL_NUMERIC;
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_NUMERIC) {
 #else
@@ -1757,7 +1807,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
         } else {
-#ifdef ENCODE_NUMERIC_STRUCT
+#if ENCODE_NUMERIC_STRUCT
           if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
                                         (SQLUSMALLINT) pos,
                                         SQL_PARAM_INPUT,
@@ -1780,9 +1830,11 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                                         (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
                                         NULL) != SQL_SUCCESS)) {
 #endif
-            logError(printf("sqlBindBigRat: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindBigRat", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindBigRat: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -1837,9 +1889,11 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
                                         preparedStmt->param_array[pos - 1].buffer,
                                         1,
                                         &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-            logError(printf("sqlBindBool: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindBool", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindBool: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -1905,9 +1959,11 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
                                         preparedStmt->param_array[pos - 1].buffer,
                                         (SQLLEN) bstri->size,
                                         &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-            logError(printf("sqlBindBStri: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindBStri", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindBStri: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -2098,9 +2154,11 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                                         preparedStmt->param_array[pos - 1].buffer,
                                         sizeof(SQL_INTERVAL_STRUCT),
                                         NULL) != SQL_SUCCESS)) {
-            logError(printf("sqlBindDuration: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindDuration", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindDuration: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -2159,9 +2217,11 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
                                         preparedStmt->param_array[pos - 1].buffer,
                                         sizeof(floatType),
                                         NULL) != SQL_SUCCESS)) {
-            logError(printf("sqlBindFloat: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindFloat", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindFloat: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -2220,9 +2280,11 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
                                         preparedStmt->param_array[pos - 1].buffer,
                                         sizeof(intType),
                                         NULL) != SQL_SUCCESS)) {
-            logError(printf("sqlBindInt: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindInt", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindInt: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -2261,9 +2323,11 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
                                       NULL,
                                       0,
                                       &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-          logError(printf("sqlBindNull: SQLBindParameter:\n");
-                   printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-          raise_error(FILE_ERROR);
+          setDbErrorMsg("sqlBindNull", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindNull: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
         } else {
           preparedStmt->executeSuccessful = FALSE;
           preparedStmt->fetchOkay = FALSE;
@@ -2323,9 +2387,11 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
                                         preparedStmt->param_array[pos - 1].buffer,
                                         (SQLLEN) (length << 1),
                                         &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-            logError(printf("sqlBindStri: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindStri", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindStri: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -2400,9 +2466,11 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                                         preparedStmt->param_array[pos - 1].buffer,
                                         sizeof(SQL_TIMESTAMP_STRUCT),
                                         NULL) != SQL_SUCCESS)) {
-            logError(printf("sqlBindTime: SQLBindParameter:\n");
-                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-            raise_error(FILE_ERROR);
+            setDbErrorMsg("sqlBindTime", "SQLBindParameter",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlBindTime: SQLBindParameter:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
@@ -2457,9 +2525,11 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: 0\n"); */
         columnValue = bigZero();
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnBigInt: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnBigInt", "SQLBindCol");
+        logError(printf("sqlColumnBigInt: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
@@ -2533,9 +2603,11 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         *numerator = bigZero();
         *denominator = bigFromInt32(1);
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnBigRat: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnBigRat", "SQLBindCol");
+        logError(printf("sqlColumnBigRat: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
         *numerator = NULL;
         *denominator = NULL;
       } else {
@@ -2625,9 +2697,11 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: FALSE\n"); */
         columnValue = 0;
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnBool: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnBool", "SQLBindCol");
+        logError(printf("sqlColumnBool: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
@@ -2641,7 +2715,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
           case SQL_WVARCHAR:
           case SQL_WLONGVARCHAR:
             if (unlikely(preparedStmt->result_array[column - 1].length != 2)) {
-              logError(printf("sqlColumnBool: The size of a boolean field must be 1.\n"););
+              logError(printf("sqlColumnBool: Column " FMT_D ": "
+                              "The size of a boolean field must be 1.\n", column););
               raise_error(RANGE_ERROR);
               columnValue = 0;
             } else {
@@ -2717,9 +2792,11 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
           columnValue->size = 0;
         } /* if */
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnBStri: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnBStri", "SQLBindCol");
+        logError(printf("sqlColumnBStri: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
@@ -2786,9 +2863,11 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         *second       = 0;
         *micro_second = 0;
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnDuration: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnDuration", "SQLBindCol");
+        logError(printf("sqlColumnDuration: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
         /* printf("buffer_type: %s\n",
@@ -2923,9 +3002,11 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: 0.0\n"); */
         columnValue = 0.0;
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnFloat: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnFloat", "SQLBindCol");
+        logError(printf("sqlColumnFloat: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
         columnValue = 0.0;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
@@ -2990,9 +3071,11 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: 0\n"); */
         columnValue = 0;
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnInt: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnInt", "SQLBindCol");
+        logError(printf("sqlColumnInt: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
@@ -3063,9 +3146,11 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         /* printf("Column is NULL -> Use default value: \"\"\n"); */
         columnValue = strEmpty();
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnStri: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnStri", "SQLBindCol");
+        logError(printf("sqlColumnStri: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
@@ -3168,9 +3253,11 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         *time_zone    = 0;
         *is_dst       = 0;
       } else if (unlikely(preparedStmt->result_array[column - 1].length < 0)) {
-        logError(printf("sqlColumnTime: Column " FMT_D " has length: %ld\n",
-                        column, preparedStmt->result_array[column - 1].length););
-        raise_error(FILE_ERROR);
+        dbInconsistent("sqlColumnTime", "SQLBindCol");
+        logError(printf("sqlColumnTime: Column " FMT_D ": "
+                        "Negative length: %ld\n", column,
+                        preparedStmt->result_array[column - 1].length););
+        raise_error(DATABASE_ERROR);
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
         /* printf("buffer_type: %s\n",
@@ -3262,9 +3349,11 @@ static void sqlExecute (sqlStmtType sqlStatement)
     if (preparedStmt->executeSuccessful &&
         (preparedStmt->fetchOkay || preparedStmt->fetchFinished)) {
       if (unlikely(SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE) != SQL_SUCCESS)) {
-        logError(printf("sqlExecute: SQLFreeStmt SQL_CLOSE:\n");
-                 printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-        raise_error(FILE_ERROR);
+        setDbErrorMsg("sqlExecute", "SQLFreeStmt",
+                      SQL_HANDLE_STMT, preparedStmt->ppStmt);
+        logError(printf("sqlExecute: SQLFreeStmt SQL_CLOSE:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
       } /* if */
     } /* if */
     preparedStmt->fetchOkay = FALSE;
@@ -3276,10 +3365,13 @@ static void sqlExecute (sqlStmtType sqlStatement)
       preparedStmt->fetchFinished = FALSE;
     } else if (unlikely(execute_result == SQL_ERROR ||
                         execute_result == SQL_SUCCESS_WITH_INFO)) {
-      logError(printf("sqlExecute: SQLExecute:\n");
-               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+      /* An associated SQLSTATE value can be obtained by calling SQLGetDiagRec. */
+      setDbErrorMsg("sqlExecute", "SQLExecute",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("sqlExecute: SQLExecute:\n%s\n",
+                      dbError.message););
       preparedStmt->executeSuccessful = FALSE;
-      raise_error(FILE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       logError(printf("sqlExecute: SQLExecute returns %d\n",
                       execute_result););
@@ -3300,9 +3392,11 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->executeSuccessful)) {
-      logError(printf("sqlFetch: Execute was not successful\n"););
+      dbLibError("sqlFetch", "SQLExecute",
+                 "Execute was not successful.\n");
+      logError(printf("sqlFetch: Execute was not successful.\n"););
       preparedStmt->fetchOkay = FALSE;
-      raise_error(FILE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else if (preparedStmt->result_array_size == 0) {
       preparedStmt->fetchOkay = FALSE;
     } else if (!preparedStmt->fetchFinished) {
@@ -3316,12 +3410,13 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
       } else {
-        logError(printf("sqlFetch: fetch_result: %d\n",
-                        fetch_result);
-                 printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+        setDbErrorMsg("sqlFetch", "SQLFetch",
+                      SQL_HANDLE_STMT, preparedStmt->ppStmt);
+        logError(printf("sqlFetch: SQLFetch fetch_result: %d:\n%s\n",
+                        fetch_result, dbError.message););
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
-        raise_error(FILE_ERROR);
+        raise_error(DATABASE_ERROR);
       } /* if */
     } /* if */
     logFunction(printf("sqlFetch --> %d\n", preparedStmt->fetchOkay););
@@ -3387,18 +3482,22 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
         if (SQLAllocHandle(SQL_HANDLE_STMT,
                            db->sql_connection,
                            &preparedStmt->ppStmt) != SQL_SUCCESS) {
-          logError(printf("sqlPrepare: SQLAllocHandle:\n");
-                   printError(SQL_HANDLE_DBC, db->sql_environment););
+          setDbErrorMsg("sqlPrepare", "SQLAllocHandle",
+                        SQL_HANDLE_DBC, db->sql_connection);
+          logError(printf("sqlPrepare: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
+                          dbError.message););
           FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-          err_info = FILE_ERROR;
+          err_info = DATABASE_ERROR;
           preparedStmt = NULL;
         } else if (SQLPrepareW(preparedStmt->ppStmt,
                                (SQLWCHAR *) query,
                                (SQLINTEGER) query_length) != SQL_SUCCESS) {
-          logError(printf("sqlPrepare: SQLPrepare:\n");
-                   printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+          setDbErrorMsg("sqlPrepare", "SQLPrepare",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlPrepare: SQLPrepare:\n%s\n",
+                          dbError.message););
           FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-          err_info = FILE_ERROR;
+          err_info = DATABASE_ERROR;
           preparedStmt = NULL;
         } else {
           preparedStmt->usage_count = 1;
@@ -3478,15 +3577,19 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
                                     NULL);
       if (returnCode != SQL_SUCCESS &&
           returnCode != SQL_SUCCESS_WITH_INFO) {
-        logError(printf("sqlStmtColumnName: SQLColAttribute SQL_DESC_BASE_COLUMN_NAME:\n");
-                 printf("returnCode: %d\n", returnCode);
-                 printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
-        err_info = FILE_ERROR;
+        setDbErrorMsg("sqlStmtColumnName", "SQLColAttribute",
+                      SQL_HANDLE_STMT, preparedStmt->ppStmt);
+        logError(printf("sqlStmtColumnName: SQLColAttribute SQL_DESC_NAME "
+                        "returnCode: %d\n%s\n",
+                        returnCode, dbError.message););
+        err_info = DATABASE_ERROR;
         name = NULL;
       } else if (stringLength < 0 || stringLength > SQLSMALLINT_MAX - 2) {
+        dbInconsistent("sqlStmtColumnName", "SQLColAttributeW");
         logError(printf("sqlStmtColumnName: "
-                        "SQLColAttribute returned a stringLength that is negative or too big.\n"););
-        err_info = FILE_ERROR;
+                        "String length negative or too big: %hd\n",
+                        stringLength););
+        err_info = DATABASE_ERROR;
         name = NULL;
       } else if (unlikely(!ALLOC_WSTRI(wideName, (memSizeType) stringLength))) {
         err_info = MEMORY_ERROR;
@@ -3498,10 +3601,12 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
                                   (SQLSMALLINT) (stringLength + 2),
                                   NULL,
                                   NULL) != SQL_SUCCESS) {
-        logError(printf("sqlStmtColumnName: SQLColAttribute SQL_DESC_BASE_COLUMN_NAME:\n");
-                 printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+        setDbErrorMsg("sqlStmtColumnName", "SQLColAttribute",
+                      SQL_HANDLE_STMT, preparedStmt->ppStmt);
+        logError(printf("sqlStmtColumnName: SQLColAttribute SQL_DESC_NAME:\n%s\n",
+                        dbError.message););
         UNALLOC_WSTRI(wideName, stringLength);
-        err_info = FILE_ERROR;
+        err_info = DATABASE_ERROR;
         name = NULL;
       } else {
         name = wstri_buf_to_stri(wideName, (memSizeType) (stringLength >> 1), &err_info);
@@ -3658,22 +3763,27 @@ databaseType sqlOpenOdbc (const const_striType dbName,
             } else if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE,
                                       &sql_environment) != SQL_SUCCESS) {
               logError(printf("sqlOpenOdbc: SQLAllocHandle failed\n"););
-              err_info = FILE_ERROR;
+              err_info = MEMORY_ERROR;
               database = NULL;
             } else if (SQLSetEnvAttr(sql_environment,
                                      SQL_ATTR_ODBC_VERSION,
                                      (SQLPOINTER) SQL_OV_ODBC3,
                                      SQL_IS_INTEGER) != SQL_SUCCESS) {
-              logError(printf("sqlOpenOdbc: SQLSetEnvAttr:\n");
-                       printError(SQL_HANDLE_ENV, sql_environment););
-              err_info = FILE_ERROR;
+              setDbErrorMsg("sqlOpenOdbc", "SQLSetEnvAttr",
+                            SQL_HANDLE_DBC, sql_connection);
+              logError(printf("sqlOpenOdbc: SQLSetEnvAttr "
+                              "SQL_ATTR_ODBC_VERSION:\n%s\n",
+                              dbError.message););
+              err_info = DATABASE_ERROR;
               SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
               database = NULL;
             } else if (SQLAllocHandle(SQL_HANDLE_DBC, sql_environment,
                                       &sql_connection) != SQL_SUCCESS) {
-              logError(printf("sqlOpenOdbc: SQLAllocHandle:\n");
-                       printError(SQL_HANDLE_ENV, sql_environment););
-              err_info = FILE_ERROR;
+              setDbErrorMsg("sqlOpenOdbc", "SQLAllocHandle",
+                            SQL_HANDLE_ENV, sql_environment);
+              logError(printf("sqlOpenOdbc: SQLAllocHandle "
+                              "SQL_HANDLE_DBC:\n%s\n", dbError.message););
+              err_info = DATABASE_ERROR;
               SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
               database = NULL;
             } else {
@@ -3683,11 +3793,13 @@ databaseType sqlOpenOdbc (const const_striType dbName,
                                        (SQLWCHAR *) passwordW, (SQLSMALLINT) passwordW_length);
               if (returnCode != SQL_SUCCESS &&
                   returnCode != SQL_SUCCESS_WITH_INFO) {
-                logError(printf("sqlOpenOdbc: SQLConnect:\n");
-                         printError(SQL_HANDLE_DBC, sql_connection);
+                setDbErrorMsg("sqlOpenOdbc", "SQLConnect",
+                              SQL_HANDLE_DBC, sql_connection);
+                logError(printf("sqlOpenOdbc: SQLConnect:\n%s\n",
+                                dbError.message);
                          listDrivers(sql_environment);
                          listDataSources(sql_environment););
-                err_info = FILE_ERROR;
+                err_info = DATABASE_ERROR;
                 SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
                 SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
                 database = NULL;

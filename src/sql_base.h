@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  rtl_err.h     Runtime error and exception handling procedures.  */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  sql_base.h    Basic database functions.                         */
+/*  Copyright (C) 2017  Thomas Mertes                               */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,19 +23,33 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/rtl_err.h                                       */
-/*  Changes: 1990, 1991, 1992, 1993, 1994, 2005  Thomas Mertes      */
-/*  Content: Runtime error and exception handling procedures.       */
+/*  File: seed7/src/sql_base.h                                      */
+/*  Changes: 2017  Thomas Mertes                                    */
+/*  Content: Basic database functions.                              */
 /*                                                                  */
 /********************************************************************/
 
-#define raise_error(num) raise_error2(num, __FILE__, __LINE__)
+#define DB_ERR_MESSAGE_SIZE 1024
+
+typedef struct dbErrorStruct {
+    const char *funcName;
+    const char *dbFuncName;
+    intType errorCode;
+    char message[DB_ERR_MESSAGE_SIZE];
+  } dbErrorRecord, *dbErrorType;
+
+#ifdef DO_INIT
+dbErrorRecord dbError = {"", "", 0, ""};
+#else
+EXTERN dbErrorRecord dbError;
+#endif
 
 
-void raise_error2 (int exception_num, const_cstriType filename, int line);
-#if !HAS_SNPRINTF
-int snprintf (char *buffer, size_t bufsize, const char *fmt, ...);
-#endif
-#if !HAS_VSNPRINTF
-#define vsnprintf _vsnprintf
-#endif
+#define dbInconsistent(funcName, dbFuncName) \
+    dbInconsistentMsg(funcName, dbFuncName, __FILE__, __LINE__)
+
+
+void dbLibError (const char *funcName, const char *dbFuncName,
+                 const char *format, ...);
+void dbInconsistentMsg (const char *funcName, const char *dbFuncName,
+                        const char *file, int line);

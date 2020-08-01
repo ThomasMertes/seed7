@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  common.h      Basic type definitions and settings.              */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2017  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -463,11 +463,12 @@ typedef int errInfoType;
 #define OVERFLOW_ERROR  3
 #define RANGE_ERROR     4
 #define FILE_ERROR      5
-#define ACTION_ERROR    6
-#define CREATE_ERROR    7
-#define DESTROY_ERROR   8
-#define COPY_ERROR      9
-#define IN_ERROR       10
+#define DATABASE_ERROR  6
+#define ACTION_ERROR    7
+#define CREATE_ERROR    8
+#define DESTROY_ERROR   9
+#define COPY_ERROR     10
+#define IN_ERROR       11
 
 
 #if HAS_SIGSETJMP

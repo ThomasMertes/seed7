@@ -394,7 +394,8 @@ listType refHshKeysToList (const const_objectType aReference)
 boolType refIsVar (const const_objectType aReference)
 
   { /* refIsVar */
-    logFunction(printf("refIsVar(" FMT_U_MEM ")\n", (memSizeType) aReference););
+    logFunction(printf("refIsVar(" FMT_U_MEM ")\n",
+                       (memSizeType) aReference););
     if (unlikely(aReference == NULL)) {
       logError(printf("refIsVar(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
@@ -412,6 +413,8 @@ objectType refItfToSct (const const_objectType aReference)
     objectType result;
 
   /* refItfToSct */
+    logFunction(printf("refItfToSct(" FMT_U_MEM ")\n",
+                       (memSizeType) aReference););
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != INTERFACEOBJECT ||
                  take_reference(aReference) == NULL)) {
@@ -423,6 +426,9 @@ objectType refItfToSct (const const_objectType aReference)
     } else {
       result = take_reference(aReference);
     } /* if */
+    logFunction(printf("refItfToSct --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* refItfToSct */
 

@@ -143,6 +143,7 @@ typedef struct {
 
 void STDCALL mysql_close (MYSQL *sock);
 my_bool STDCALL mysql_commit (MYSQL *mysql);
+unsigned int STDCALL mysql_errno (MYSQL *mysql);
 const char *STDCALL mysql_error (MYSQL *mysql);
 MYSQL_FIELD *STDCALL mysql_fetch_field_direct (MYSQL_RES *res, unsigned int fieldnr);
 void STDCALL mysql_free_result (MYSQL_RES *result);
@@ -160,6 +161,7 @@ int STDCALL mysql_set_character_set (MYSQL *mysql, const char *csname);
 my_bool STDCALL mysql_stmt_bind_param (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
 my_bool STDCALL mysql_stmt_bind_result (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
 my_bool STDCALL mysql_stmt_close (MYSQL_STMT *stmt);
+unsigned int STDCALL mysql_stmt_errno (MYSQL_STMT *stmt);
 const char *STDCALL mysql_stmt_error (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_execute (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_fetch (MYSQL_STMT *stmt);

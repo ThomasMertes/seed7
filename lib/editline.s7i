@@ -304,3 +304,75 @@ const func boolean: eof (in editLineFile: inEditLine) is
  *)
 const func boolean: hasNext (in editLineFile: inEditLine) is
   return inEditLine.bufferChar = EOF;
+
+
+const func string: readPassword (inout file: aFile) is DYNAMIC;
+
+
+const func string: readPassword (inout editLineFile: inEditLine) is func
+  result
+    var string: line is "";
+  local
+    var char: ch is ' ';
+    var integer: pos is 1;
+   begin
+    repeat
+      if pos <= length(line) then
+        cursorOn(inEditLine.outFile, '*');
+      else
+        cursorOn(inEditLine.outFile, ' ');
+      end if;
+      flush(inEditLine.outFile);
+      ch := getc(inEditLine.inFile);
+      if pos <= length(line) then
+        cursorOff(inEditLine.outFile, '*');
+      else
+        cursorOff(inEditLine.outFile, ' ');
+      end if;
+      if ch = KEY_BS then
+        if pos > 1 then
+          decr(pos);
+          moveLeft(inEditLine.outFile, line[pos len 1]);
+          erase(inEditLine.outFile, line[pos ..]);
+          moveLeft(inEditLine.outFile, line[pos ..]);
+          line := line[.. pred(pos)] & line[succ(pos) ..];
+          write(inEditLine.outFile, "*" mult length(line[pos ..]));
+          moveLeft(inEditLine.outFile, line[pos ..]);
+        end if;
+      elsif ch = KEY_DEL then
+        if pos <= length(line) then
+          erase(inEditLine.outFile, line[pos ..]);
+          moveLeft(inEditLine.outFile, line[pos ..]);
+          line := line[.. pred(pos)] & line[succ(pos) ..];
+          write(inEditLine.outFile, "*" mult length(line[pos ..]));
+          moveLeft(inEditLine.outFile, line[pos ..]);
+        end if;
+      elsif ch = KEY_HOME then
+        moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+        pos := 1;
+      elsif ch = KEY_END then
+        write(inEditLine.outFile, line[pos ..]);
+        pos := succ(length(line));
+      elsif ch = KEY_LEFT then
+        if pos > 1 then
+          decr(pos);
+          moveLeft(inEditLine.outFile, line[pos len 1]);
+        end if;
+      elsif ch = KEY_RIGHT then
+        if pos <= length(line) then
+          write(inEditLine.outFile, "*");
+          incr(pos);
+        end if;
+      elsif ch >= ' ' and ch <= '~' or ch >= '\160;' and ch <= '\255;' or
+            ch >= '\256;' and ch <= '\16#10ffff;' and inEditLine.allowUnicode then
+        line := line[.. pred(pos)] & str(ch) & line[pos ..];
+        write(inEditLine.outFile, "*" mult length(line[pos ..]));
+        moveLeft(inEditLine.outFile, line[succ(pos) ..]);
+        incr(pos);
+      end if;
+    until ch = KEY_NL or ch = EOF;
+    writeln(inEditLine.outFile);
+    inEditLine.bufferChar := ch;
+    inEditLine.line := "";
+    inEditLine.lineFinished := FALSE;
+  end func;

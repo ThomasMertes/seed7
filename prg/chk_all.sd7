@@ -133,6 +133,7 @@ const string: chkbin_output is "\n\
   \bits2Float works correct for bin32 and bin64 values.\n\
   \float2MbfBits works correct for bin32 and bin64 values.\n\
   \mbfBits2Float works correct for bin32 and bin64 values.\n\
+  \bin64(aBigInteger mod 2_**y) works correct.\n\
   \Bin32 and bin64 str works correct.\n\
   \Bin32 and bin64 radix does work correct.\n";
 

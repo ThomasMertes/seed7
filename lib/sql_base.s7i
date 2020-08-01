@@ -52,7 +52,30 @@ const func string: str (in dbCategory: driver) is
   return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE",
              "DB_POSTGRESQL", "DB_OCI", "DB_ODBC") [succ(ord(driver))];
 
-enable_output(dbCategory);
+
+const func dbCategory: (attr dbCategory) parse (in string: name) is func
+  result
+    var dbCategory: driver is NO_DB;
+  begin
+    if  upper(name) = "MYSQL" or
+        upper(name) = "MY" then
+      driver := DB_MYSQL;
+    elsif upper(name) = "SQLITE" or
+          upper(name) = "LITE" then
+      driver := DB_SQLITE;
+    elsif upper(name) = "POSTGRESQL" or
+          upper(name) = "POST" then
+      driver := DB_POSTGRESQL;
+    elsif upper(name) = "ORACLE" or
+          upper(name) = "OCI" then
+      driver := DB_OCI;
+    elsif upper(name) = "ODBC" then
+      driver := DB_ODBC;
+    end if;
+  end func;
+
+
+enable_io(dbCategory);
 
 
 (**
@@ -70,6 +93,9 @@ const proc: (inout database: dest) := (ref database: source)   is action "SQL_CP
 const func database: _GENERATE_EMPTY_DATABASE                  is action "SQL_EMPTY_DB";
 const database: (attr database) . value                        is _GENERATE_EMPTY_DATABASE;
 
+const func boolean: (in database: db1) = (in database: db2)    is action "SQL_EQ_DB";
+const func boolean: (in database: db1) <> (in database: db2)   is action "SQL_NE_DB";
+
 
 (**
  *  Abstract data type to store a prepared sql statement.
@@ -79,37 +105,40 @@ const type: sqlStatement is newtype;
 
 IN_PARAM_IS_REFERENCE(sqlStatement);
 
-const proc: (ref sqlStatement: dest) ::= (ref sqlStatement: source)   is action "SQL_CREATE_STMT";
-const proc: destroy (ref sqlStatement: aValue)                        is action "SQL_DESTR_STMT";
-const proc: (inout sqlStatement: dest) := (ref sqlStatement: source)  is action "SQL_CPY_STMT";
+const proc: (ref sqlStatement: dest) ::= (ref sqlStatement: source)      is action "SQL_CREATE_STMT";
+const proc: destroy (ref sqlStatement: aValue)                           is action "SQL_DESTR_STMT";
+const proc: (inout sqlStatement: dest) := (ref sqlStatement: source)     is action "SQL_CPY_STMT";
 
-const func sqlStatement: _GENERATE_EMPTY_STATEMENT                    is action "SQL_EMPTY_STMT";
-const sqlStatement: (attr sqlStatement) . value                       is _GENERATE_EMPTY_STATEMENT;
+const func sqlStatement: _GENERATE_EMPTY_STATEMENT                       is action "SQL_EMPTY_STMT";
+const sqlStatement: (attr sqlStatement) . value                          is _GENERATE_EMPTY_STATEMENT;
+
+const func boolean: (in sqlStatement: stmt1) = (in sqlStatement: stmt2)  is action "SQL_EQ_STMT";
+const func boolean: (in sqlStatement: stmt1) <> (in sqlStatement: stmt2) is action "SQL_NE_STMT";
 
 const func database: SQL_OPEN (in integer: driver, in string: dbName,
-                               in string: user, in string: password)  is action "SQL_OPEN";
+                               in string: user, in string: password)     is action "SQL_OPEN";
 
 const proc: BIND_BIG_RAT (in sqlStatement: statement, in integer: pos,
-    in bigInteger: numerator, in bigInteger: denominator)             is action "SQL_BIND_BIGRAT";
+    in bigInteger: numerator, in bigInteger: denominator)                is action "SQL_BIND_BIGRAT";
 
 const proc: BIND_TIME (in sqlStatement: statement, in integer: pos,
     in integer: year, in integer: month, in integer: day,
     in integer: hour, in integer: minute, in integer: second,
-    in integer: micro_second)                                         is action "SQL_BIND_TIME";
+    in integer: micro_second)                                            is action "SQL_BIND_TIME";
 
 const proc: COLUMN_BIG_RAT (in sqlStatement: statement, in integer: column,
-    inout bigInteger: numerator, inout bigInteger: denominator)       is action "SQL_COLUMN_BIGRAT";
+    inout bigInteger: numerator, inout bigInteger: denominator)          is action "SQL_COLUMN_BIGRAT";
 
 const proc: COLUMN_TIME (in sqlStatement: statement, in integer: column,
     inout integer: year, inout integer: month, inout integer: day,
     inout integer: hour, inout integer: minute, inout integer: second,
     inout integer: micro_second, inout integer: timeZone,
-    inout boolean: daylightSavingTime)                                is action "SQL_COLUMN_TIME";
+    inout boolean: daylightSavingTime)                                   is action "SQL_COLUMN_TIME";
 
 const proc: COLUMN_DURATION (in sqlStatement: statement, in integer: column,
     inout integer: year, inout integer: month, inout integer: day,
     inout integer: hour, inout integer: minute, inout integer: second,
-    inout integer: micro_second)                                      is action "SQL_COLUMN_DURATION";
+    inout integer: micro_second)                                         is action "SQL_COLUMN_DURATION";
 
 
 (**
@@ -531,3 +560,9 @@ const proc: execute (in database: db, in string: sqlStatementStri) is func
     statement := prepare(db, sqlStatementStri);
     execute(statement);
   end func;
+
+
+const func string: libFunction (DATABASE_ERROR)                                        is action "SQL_ERR_LIB_FUNC";
+const func string: dbFunction (DATABASE_ERROR)                                         is action "SQL_ERR_DB_FUNC";
+const func integer: errCode (DATABASE_ERROR)                                           is action "SQL_ERR_CODE";
+const func string: errMessage (DATABASE_ERROR)                                         is action "SQL_ERR_MESSAGE";

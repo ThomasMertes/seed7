@@ -3277,7 +3277,7 @@ intType cmdShell (const const_striType command, const const_striType parameters)
       result = (intType) os_system(os_command);
       /* if (result != 0) {
         printf("errno=%d\nerror: %s\n", errno, strerror(errno));
-        printf("result=%d\n", result);
+        printf("result=" FMT_D "\n", result);
       } */
       FREE_OS_STRI(os_command);
     } /* if */

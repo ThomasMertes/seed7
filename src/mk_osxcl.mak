@@ -88,7 +88,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
        tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o \
-       sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
+       sql_base.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
 DOBJ = $(BIGINT_LIB).o cmd_unx.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o tim_unx.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -111,7 +111,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
-       sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+       sql_base.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
 DSRC = $(BIGINT_LIB).c cmd_unx.c dll_unx.c fil_unx.c pcs_unx.c pol_unx.c tim_unx.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -284,9 +284,11 @@ bas7: ../bin/bas7
 calc7: ../bin/calc7
 cat: ../bin/cat
 comanche: ../bin/comanche
+diff7: ../bin/diff7
 find7: ../bin/find7
 ftp7: ../bin/ftp7
 ftpserv: ../bin/ftpserv
+hd: ../bin/hd
 make7: ../bin/make7
 sql7: ../bin/sql7
 sydir7: ../bin/sydir7
@@ -294,22 +296,22 @@ tar7: ../bin/tar7
 toutf8: ../bin/toutf8
 which: ../bin/which
 
-utils: ../bin/bas7 ../bin/calc7 ../bin/cat ../bin/comanche ../bin/find7 \
-       ../bin/ftp7 ../bin/ftpserv ../bin/make7 ../bin/sql7 ../bin/sydir7 \
-       ../bin/tar7 ../bin/toutf8 ../bin/which
+utils: ../bin/bas7 ../bin/calc7 ../bin/cat ../bin/comanche ../bin/diff7 \
+       ../bin/find7 ../bin/ftp7 ../bin/ftpserv ../bin/hd ../bin/make7 \
+       ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 wc: $(SRC)
-	echo SRC:
+	@echo SRC:
 	wc $(SRC)
-	echo SEED7_LIB_SRC:
+	@echo SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
-	echo CONSOLE_LIB_SRC:
+	@echo CONSOLE_LIB_SRC:
 	wc $(CONSOLE_LIB_SRC)
-	echo DRAW_LIB_SRC:
+	@echo DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
-	echo COMP_DATA_LIB_SRC:
+	@echo COMP_DATA_LIB_SRC:
 	wc $(COMP_DATA_LIB_SRC)
-	echo COMPILER_LIB_SRC:
+	@echo COMPILER_LIB_SRC:
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)

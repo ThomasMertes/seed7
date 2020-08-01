@@ -35,6 +35,8 @@ const ACTION: SQL_BIND_NULL          is action "SQL_BIND_NULL";
 const ACTION: SQL_BIND_STRI          is action "SQL_BIND_STRI";
 const ACTION: SQL_BIND_TIME          is action "SQL_BIND_TIME";
 const ACTION: SQL_CLOSE              is action "SQL_CLOSE";
+const ACTION: SQL_CMP_DB             is action "SQL_CMP_DB";
+const ACTION: SQL_CMP_STMT           is action "SQL_CMP_STMT";
 const ACTION: SQL_COLUMN_BIGINT      is action "SQL_COLUMN_BIGINT";
 const ACTION: SQL_COLUMN_BIGRAT      is action "SQL_COLUMN_BIGRAT";
 const ACTION: SQL_COLUMN_BOOL        is action "SQL_COLUMN_BOOL";
@@ -53,9 +55,17 @@ const ACTION: SQL_DESTR_DB           is action "SQL_DESTR_DB";
 const ACTION: SQL_DESTR_STMT         is action "SQL_DESTR_STMT";
 const ACTION: SQL_EMPTY_DB           is action "SQL_EMPTY_DB";
 const ACTION: SQL_EMPTY_STMT         is action "SQL_EMPTY_STMT";
+const ACTION: SQL_EQ_DB              is action "SQL_EQ_DB";
+const ACTION: SQL_EQ_STMT            is action "SQL_EQ_STMT";
+const ACTION: SQL_ERR_CODE           is action "SQL_ERR_CODE";
+const ACTION: SQL_ERR_DB_FUNC        is action "SQL_ERR_DB_FUNC";
+const ACTION: SQL_ERR_LIB_FUNC       is action "SQL_ERR_LIB_FUNC";
+const ACTION: SQL_ERR_MESSAGE        is action "SQL_ERR_MESSAGE";
 const ACTION: SQL_EXECUTE            is action "SQL_EXECUTE";
 const ACTION: SQL_FETCH              is action "SQL_FETCH";
 const ACTION: SQL_IS_NULL            is action "SQL_IS_NULL";
+const ACTION: SQL_NE_DB              is action "SQL_NE_DB";
+const ACTION: SQL_NE_STMT            is action "SQL_NE_STMT";
 const ACTION: SQL_OPEN               is action "SQL_OPEN";
 const ACTION: SQL_PREPARE            is action "SQL_PREPARE";
 const ACTION: SQL_STMT_COLUMN_COUNT  is action "SQL_STMT_COLUMN_COUNT";
@@ -98,6 +108,10 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        sqlDestrDbGeneric (const genericType);");
     declareExtern(c_prog, "void        sqlDestrStmt (const sqlStmtType);");
     declareExtern(c_prog, "void        sqlDestrStmtGeneric (const genericType);");
+    declareExtern(c_prog, "intType     sqlErrCode (void);");
+    declareExtern(c_prog, "striType    sqlErrDbFunc (void);");
+    declareExtern(c_prog, "striType    sqlErrLibFunc (void);");
+    declareExtern(c_prog, "striType    sqlErrMessage (void);");
     declareExtern(c_prog, "void        sqlExecute (sqlStmtType);");
     declareExtern(c_prog, "boolType    sqlFetch (sqlStmtType);");
     declareExtern(c_prog, "boolType    sqlIsNull (sqlStmtType, intType);");
@@ -298,6 +312,30 @@ const proc: process (SQL_CLOSE, in reference: function,
     c_expr.expr &:= "sqlClose(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (SQL_CMP_DB, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ptrCmp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SQL_CMP_STMT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ptrCmp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -576,6 +614,65 @@ const proc: process (SQL_CPY_STMT, in reference: function,
   end func;
 
 
+const proc: process (SQL_EQ_DB, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SQL_EQ_STMT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SQL_ERR_CODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "sqlErrCode()";
+  end func;
+
+
+const proc: process (SQL_ERR_DB_FUNC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "sqlErrDbFunc()";
+  end func;
+
+
+const proc: process (SQL_ERR_LIB_FUNC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "sqlErrLibFunc()";
+  end func;
+
+
+const proc: process (SQL_ERR_MESSAGE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "sqlErrMessage()";
+  end func;
+
+
 const proc: process (SQL_EXECUTE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -605,6 +702,30 @@ const proc: process (SQL_IS_NULL, in reference: function,
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SQL_NE_DB, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SQL_NE_STMT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 

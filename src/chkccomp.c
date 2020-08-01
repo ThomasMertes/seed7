@@ -2541,6 +2541,24 @@ static void determineOsFunctions (FILE *versionFile)
                              "printf(\"%d\\n\", pipe2(pipefd, O_CLOEXEC) == 0);\n"
                              "return 0;}\n") &&
             doTest() == 1);
+    fprintf(versionFile,
+            "#define HAS_SNPRINTF %d\n",
+            compileAndLinkOk("#include <stdio.h>\n"
+                             "int main(int argc,char *argv[])\n"
+                             "{printf(\"%d\\n\", snprintf(NULL, 0, \"asdf\") == 4);\n"
+                             "return 0;}\n") &&
+            doTest() == 1);
+    fprintf(versionFile,
+            "#define HAS_VSNPRINTF %d\n",
+            compileAndLinkOk("#include <stdio.h>\n#include <stdarg.h>\n"
+                             "int test(const char *format, ...)\n"
+                             "{int result;va_list ap;va_start(ap, format);\n"
+                             "result = vsnprintf(NULL, 0, format, ap);\n"
+                             "va_end(ap);return result;}\n"
+                             "int main(int argc,char *argv[])\n"
+                             "{printf(\"%d\\n\", test(\"asdf\") == 4);\n"
+                             "return 0;}\n") &&
+            doTest() == 1);
   } /* determineOsFunctions */
 
 
@@ -3972,5 +3990,6 @@ int main (int argc, char **argv)
     if (fileIsRegular("tst_vers.h")) {
       remove("tst_vers.h");
     } /* if */
+    fprintf(logFile, " \b");
     return 0;
   } /* main */

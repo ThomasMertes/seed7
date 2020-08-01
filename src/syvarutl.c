@@ -52,6 +52,7 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "overflow_error",
     "range_error",
     "file_error",
+    "database_error",
     "illegal_action",
     "false",
     "true",

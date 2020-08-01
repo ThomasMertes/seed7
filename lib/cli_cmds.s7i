@@ -301,17 +301,26 @@ const func string: getCommandParameter (inout string: stri) is func
     var integer: leng is 0;
     var integer: pos is 1;
     var char: quotation is ' ';
+    var integer: quotedPos is 0;
+    var string: quotedPart is "";
+    var boolean: quoteMissing is FALSE;
   begin
     leng := length(stri);
     repeat
       if stri[pos] = '"' or stri[pos] = ''' then
         quotation := stri[pos];
-        incr(pos);
-        while pos <= leng and stri[pos] <> quotation do
-          symbol &:= stri[pos];
-          incr(pos);
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and stri[quotedPos] <> quotation do
+          quotedPart &:= stri[quotedPos];
+          incr(quotedPos);
         end while;
-        incr(pos);
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
       else
         repeat
           symbol &:= stri[pos];
@@ -319,7 +328,7 @@ const func string: getCommandParameter (inout string: stri) is func
         until pos > leng or stri[pos] not in parameter_char or
             stri[pos] = '"' or stri[pos] = ''';
       end if;
-    until pos > leng or stri[pos] not in parameter_char;
+    until pos > leng or stri[pos] not in parameter_char or quoteMissing;
     stri := stri[pos ..];
   end func;
 
@@ -347,27 +356,44 @@ const func string: getUnixCommandParameter (inout string: parameters) is func
   local
     var integer: leng is 0;
     var integer: pos is 1;
+    var integer: quotedPos is 0;
+    var string: quotedPart is "";
+    var boolean: quoteMissing is FALSE;
   begin
     leng := length(parameters);
-    while pos <= leng and parameters[pos] in parameter_char do
+    while pos <= leng and parameters[pos] in parameter_char and
+        not quoteMissing do
       if parameters[pos] = '"' then
-        incr(pos);
-        while pos <= leng and parameters[pos] <> '"' do
-          if parameters[pos] = '\\' and pos < leng and
-              (parameters[succ(pos)] = '"' or parameters[succ(pos)] = '\\') then
-            incr(pos);
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> '"' do
+          if parameters[quotedPos] = '\\' and quotedPos < leng and
+              (parameters[succ(quotedPos)] = '"' or
+               parameters[succ(quotedPos)] = '\\') then
+            incr(quotedPos);
           end if;
-          symbol &:= parameters[pos];
-          incr(pos);
+          quotedPart &:= parameters[quotedPos];
+          incr(quotedPos);
         end while;
-        incr(pos);
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
       elsif parameters[pos] = ''' then
-        incr(pos);
-        while pos <= leng and parameters[pos] <> ''' do
-          symbol &:= parameters[pos];
-          incr(pos);
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> ''' do
+          quotedPart &:= parameters[quotedPos];
+          incr(quotedPos);
         end while;
-        incr(pos);
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
       else
         repeat
           if parameters[pos] = '\\' and pos < leng then
@@ -402,16 +428,26 @@ const func string: getDosCommandParameter (inout string: parameters) is func
   local
     var integer: leng is 0;
     var integer: pos is 1;
+    var integer: quotedPos is 0;
+    var string: quotedPart is "";
+    var boolean: quoteMissing is FALSE;
   begin
     leng := length(parameters);
-    while pos <= leng and parameters[pos] in dos_parameter_char do
+    while pos <= leng and parameters[pos] in dos_parameter_char and
+        not quoteMissing do
       if parameters[pos] = '"' then
-        incr(pos);
-        while pos <= leng and parameters[pos] <> '"' do
-          symbol &:= parameters[pos];
-          incr(pos);
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> '"' do
+          quotedPart &:= parameters[quotedPos];
+          incr(quotedPos);
         end while;
-        incr(pos);
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
       else
         repeat
           if parameters[pos] = '^' then
@@ -1088,6 +1124,7 @@ const func integer: processCommand (in var string: command) is func
     var integer: gtPos is 0;
     var boolean: doRedirect is FALSE;
     var boolean: doAppend is FALSE;
+    var string: rawFileName is "";
     var string: fileName is "";
     var file: aFile is STD_NULL;
     var string: commandOutput is "";
@@ -1097,15 +1134,19 @@ const func integer: processCommand (in var string: command) is func
     if not doCommands(command) then
       gtPos := rpos(fullCommand, ">");
       if gtPos >= 2 then
-        fileName := fullCommand[succ(gtPos) ..];
-        skipSpace(fileName);
-        if fullCommand[pred(gtPos)] = '>' and gtPos >= 3 and
-            fullCommand[gtPos - 2] not in {'\\', '^'} then
-          doAppend := TRUE;
-          fullCommand := fullCommand[.. gtPos - 2];
-        elsif fullCommand[pred(gtPos)] not in {'\\', '^', '2'} then
-          doRedirect := TRUE;
-          fullCommand := fullCommand[.. pred(gtPos)];
+        rawFileName := fullCommand[succ(gtPos) ..];
+        skipWhiteSpace(rawFileName);
+        fileName := getCommandParameter(rawFileName);
+        skipWhiteSpace(rawFileName);
+        if rawFileName = "" then
+          if fullCommand[pred(gtPos)] = '>' and gtPos >= 3 and
+              fullCommand[gtPos - 2] not in {'\\', '^'} then
+            doAppend := TRUE;
+            fullCommand := fullCommand[.. gtPos - 2];
+          elsif fullCommand[pred(gtPos)] not in {'\\', '^', '2'} then
+            doRedirect := TRUE;
+            fullCommand := fullCommand[.. pred(gtPos)];
+          end if;
         end if;
       end if;
       if doRedirect or doAppend then

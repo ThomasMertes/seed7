@@ -47,6 +47,7 @@
 
 
 void free_list (listType list);
+memSizeType list_length (const_listType list);
 listType *append_element_to_list (listType *list_insert_place, objectType object,
                                   errInfoType *err_info);
 objectType copy_expression (objectType object_from, errInfoType *err_info);

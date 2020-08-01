@@ -75,6 +75,7 @@ SQLITE_API const char *sqlite3_column_name (sqlite3_stmt *pStmt, int N);
 SQLITE_API const unsigned char *sqlite3_column_text (sqlite3_stmt *pStmt, int iCol);
 SQLITE_API int sqlite3_column_type (sqlite3_stmt *pStmt, int iCol);
 SQLITE_API sqlite3 *sqlite3_db_handle (sqlite3_stmt *pStmt);
+SQLITE_API int sqlite3_errcode (sqlite3 *db);
 SQLITE_API const char *sqlite3_errmsg (sqlite3 *db);
 SQLITE_API int sqlite3_finalize (sqlite3_stmt *pStmt);
 SQLITE_API int sqlite3_open (const char *filename, sqlite3 **ppDb);

@@ -57,6 +57,8 @@ void drwCircle (const_winType actual_window,
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col);
 void drwClear (winType actual_window, intType col);
+void drwColor (intType col);
+rtlArrayType drwConvPointList (const const_bstriType pointList);
 void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType src_x, intType src_y, intType width, intType height,
     intType dest_x, intType dest_y);
@@ -90,7 +92,6 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     intType width, intType height);
 void drwPoint (const_winType actual_window, intType x, intType y);
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col);
-void drwConvPointList (bstriType pointList, intType *xy);
 bstriType drwGenPointList (const const_rtlArrayType xyArray);
 intType drwLngPointList (bstriType point_list);
 void drwPolyLine (const_winType actual_window,
@@ -105,7 +106,6 @@ void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col);
 intType drwRgbColor (intType redLight, intType greenLight, intType blueLight);
 void drwBackground (intType col);
-void drwColor (intType col);
 void drwSetContent (const_winType actual_window, const_winType pixmap);
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos);
 void drwSetTransparentColor (winType pixmap, intType col);

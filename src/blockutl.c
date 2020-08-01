@@ -295,14 +295,41 @@ locListType get_local_var_list (const_listType local_object_list,
     locListType local_vars;
 
   /* get_local_var_list */
-    logFunction(printf("get_local_var_list\n"););
+    logFunction(printf("get_local_var_list(" FMT_X_MEM ")\n",
+                       local_object_list););
     local_vars = NULL;
     local_vars_insert_place = &local_vars;
     local_element = local_object_list;
     while (local_element != NULL) {
       if (VAR_OBJECT(local_element->obj)) {
         local_var = local_element->obj;
-        if (ALLOC_OBJECT(init_value)) {
+#if OUT_OF_ORDER
+        if (CATEGORY_OF_OBJ(local_var) != LOCALVOBJECT) {
+          if (ALLOC_OBJECT(init_value)) {
+            init_value->type_of =     local_var->type_of;
+            init_value->descriptor.property = NULL;
+            init_value->value =       local_var->value;
+            init_value->objcategory = local_var->objcategory;
+            SET_CATEGORY_OF_OBJ(local_var, LOCALVOBJECT);
+            local_var->value.objValue = init_value; /* was NULL; changed for s7c.sd7 */
+          } else {
+            *err_info = MEMORY_ERROR;
+          } /* if */
+        } else {
+          /* printf("B "); trace1(local_var); printf("\n"); */
+        } /* if */
+#endif
+        if (CATEGORY_OF_OBJ(local_var) == LOCALVOBJECT) {
+          /* printf("X "); trace1(local_var); printf("\n"); */
+          init_value = local_var->value.objValue;
+          /* printf("Y "); trace1(init_value); printf("\n"); */
+          create_call_obj = get_create_call_obj(init_value, err_info);
+          destroy_call_obj = get_destroy_call_obj(init_value, err_info);
+          append_to_loclist(&local_vars_insert_place,
+              local_var, init_value, create_call_obj, destroy_call_obj, err_info);
+        } /* if */
+#if OUT_OF_ORDER
+        } else if (ALLOC_OBJECT(init_value)) {
           init_value->type_of =     local_var->type_of;
           init_value->descriptor.property = NULL;
           init_value->value =       local_var->value;
@@ -316,6 +343,7 @@ locListType get_local_var_list (const_listType local_object_list,
         } else {
           *err_info = MEMORY_ERROR;
         } /* if */
+#endif
       } /* if */
       local_element = local_element->next;
     } /* while */
@@ -334,7 +362,8 @@ listType get_local_const_list (const_listType local_object_list,
     listType local_consts;
 
   /* get_local_const_list */
-    logFunction(printf("get_local_const_list\n"););
+    logFunction(printf("get_local_const_list(" FMT_X_MEM ")\n",
+                       local_object_list););
     local_consts = NULL;
     list_insert_place = &local_consts;
     local_element = local_object_list;

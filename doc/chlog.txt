@@ -1,3 +1,93 @@
+20170501:
+- The example program diff7.sd7 has been added. This program compares
+  two files line by line.
+- The example program hd.sd7 has been added. This program writes a
+  hexdump of a given file.
+- The functions sha384 and sha512 have been added to msgdigest.s7i.
+- The compiler has been improved to optimize expressions like
+  bin64(aBigExpression mod aPowerOfTwo).
+- The library vectorfont.s7i has been improved to allow scaling of
+  vector fonts.
+- The dialog element passwordField has been added to cgidialog.s7i.
+  The passwordField dialog element allows entering a password without
+  readable echo.
+- The function readPassword has been added to editline.s7i.
+- In array.s7i the for-until loops for arrays have been improved to
+  work correct, when the until-condition uses the for variable.
+- In cli_cmds.s7i the functions getCommandParameter,
+  getUnixCommandParameter and getDosCommandParameter has been
+  improved to recognize when a closing quote is missing.
+- In cli_cmds.s7i in the function processCommand the handling of
+  external commands with redirection of stdin has been improved.
+- The functions xyArray and scale have been added to graph.s7i.
+- In seed7_05.s7i the exception DATABASE_ERROR has been introduced.
+- The programs sql7.sd7 and chkdb.sd7 have been improved to use the
+  new exception DATABASE_ERROR.
+- A parse operator for dbCategory has been added to sql_base.s7i.
+- The pictures return_pic and right_arrow_pic have been added to
+  pic32.s7i and pic16.s7i.
+- The function checkBinBinaryWithBigMod has been added to chkbin.sd7.
+  This function checks the optimizations done with expressions like
+  bin64(aBigExpression mod aPowerOfTwo).
+- In tls.s7i the type securityParameters has been renamed to
+  tlsParameters. The functions showMsg and showMsgType have been
+  renamed to showTlsMsg respectively showTlsMsgType.
+- In tls.s7i the generation of CLIENT_HELLO, SERVER_HELLO,
+  CERTIFICATE, SERVER_HELLO_DONE, CLIENT_KEY_EXCHANGE,
+  CHANGE_CIPHER_SPEC, FINISHED, ALERT and APPLICATION_DATA messages
+  has been improved.
+- In int_act.s7i the types addSubElementType and
+  addSubElementListType have been renamed to addSubIntElementType
+  respectively addSubIntListType.
+- In the compiler (in big_act.s7i, function process_const_big_mod)
+  the handling of the bigInteger mod operator, when the divisor is a
+  power of two, has been improved. Now a temporary result is freed.
+- In the compiler (in big_act.s7i, function process_const_big_mult)
+  the handling of the bigInteger multiplication with a negated power
+  of two has been improved. Now a temporary result is freed.
+- The functions generateAddSubParamList and evaluateConstants have
+  been added to comp/big_act.s7i. 
+- The function optimize_bin_binary_of_big_mod has been added to the
+  compiler (in bin_act.s7i). This function optimizes the expression
+  bin64(aBigNumber mod aPowerOfTwo) to
+  bigLowerBits64(aBigNumber) & ord(pred(aPowerOfTwo)).
+  This optimization converts to bin64 earlier. This allows the usage
+  of cheap bin64 operations instead of bigInteger operations.
+- The functions optimizeAddSubElement and optimizeAddSubList have
+  been added to comp/bin_act.s7i.
+- In big_rtl.c the performance of the functions bigFromUInt32 and
+  bigFromUInt64 has been improved.
+- The function bigLowerBits64 has been added to big_rtl.c and
+  big_gmp.c. This function is used by the compiler to optimize
+  expressions like bin64(aBigNumber mod aPowerOfTwo).
+- The program chkccomp.c has been improved to check for the presence
+  of snprintf() and vsnprintf().
+- The functions sql_eq_db, sql_eq_stmt, sql_ne_db and sql_ne_stmt
+  have been added to sqllib.c.
+- Interpreter and compiler have been improved to support the actions
+  DRW_CONVPOINTLIST, SQL_CMP_DB, SQL_CMP_STMT, SQL_EQ_DB,
+  SQL_EQ_STMT, SQL_ERR_CODE, SQL_ERR_DB_FUNC, SQL_ERR_LIB_FUNC,
+  SQL_ERR_MESSAGE, SQL_NE_DB and SQL_NE_STMT.
+- Support for the action DRW_CONVPOINTLIST has been added to
+  drwlib.c, drwlib.h, drw_win.c and drw_x11.c.
+- A definition of snprintf has been added to fil_win.c.
+- The function list_length has been added to listutl.c.
+- The new files sql_base.c and sql_base.h have been added. This
+  files contain definitions of dbLibError, dbInconsistentMsg and
+  dbError. The makefiles have been adjusted to use sql_base.c.
+- The database drivers sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c
+  and sql_post.c have been improved to write database errors to the
+  struct dbError. The content of dbError can be obtained with the
+  actions SQL_ERR_CODE, SQL_ERR_DB_FUNC, SQL_ERR_LIB_FUNC and
+  SQL_ERR_MESSAGE.
+- The functions sqlErrCode, sqlErrDbFunc, sqlErrLibFunc and
+  sqlErrMessage have been added to sql_rtl.c
+- The handing of local variables has been changed in blockutl.c
+  (improved function get_local_var_list) and prclib.c (new functions
+  process_local_decl and evaluate_local_decls). Instead of executing
+  the local declarations as a whole they are now executed line by
+  line. This change might be useful for future improvements.
+
 20170328:
 - A chapter about signals has been added to the manual.
 - The handling of ctrl-c (respectively the signal SIGINT), when s7 or

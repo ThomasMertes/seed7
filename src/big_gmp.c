@@ -972,6 +972,34 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
 
 
 
+uint64Type bigLowerBits64 (const const_bigIntType big1)
+
+  {
+    uint64Type result;
+
+  /* bigLowerBits64 */
+    logFunction(printf("bigLowerBits64(%s)\n", bigHexCStri(big1)););
+    mpz_fdiv_r_2exp(big1, big1, 64);
+#if LONG_SIZE == 64
+    result = mpz_get_ui(big1);
+#else
+    {
+      mpz_t help;
+
+      mpz_init_set(help, big1);
+      mpz_fdiv_q_2exp(help, help, 32);
+      result = (uint64Type) (mpz_get_ui(help) & 0xFFFFFFFF) << 32 |
+               (uint64Type) (mpz_get_ui(big1) & 0xFFFFFFFF);
+      mpz_clear(help);
+    }
+#endif
+    logFunction(printf("bigLowerBits64(%s) --> " FMT_U64 "\n",
+                       bigHexCStri(big1), result););
+    return result;
+  } /* bigLowerBits64 */
+
+
+
 /**
  *  Index of the lowest-order one bit.
  *  For A <> 0 this is equal to the number of lowest-order zero bits.

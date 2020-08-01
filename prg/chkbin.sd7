@@ -26,10 +26,23 @@ $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "bin32.s7i";
   include "bin64.s7i";
+  include "bigint.s7i";
 
 
 const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
+
+
+const func bin64: bin64Expr (in bin64: aBin64) is
+  return bin64(ord(aBin64) + length(str(rand(1, 9))[2 ..]));
+
+
+const func bigInteger: bigintExpr (in bigInteger: number) is func
+  result
+    var bigInteger: exprResult is 0_;
+  begin
+    exprResult := number;
+  end func;
 
 
 const func boolean: raisesRangeError (ref func bin32: expression) is func
@@ -382,6 +395,247 @@ const proc: checkMbfBits2Float is func
 
     if okay then
       writeln("mbfBits2Float works correct for bin32 and bin64 values.");
+    end if;
+  end func;
+
+
+const proc: checkBinBinaryWithBigMod is func
+  local
+    const bin64: aBin1 is bin64(12776324570088369205_);
+    const bin64: aBin2 is bin64(14297991372781027050_);
+    const bin64: aBin3 is bin64(12969182462188380768_);
+    const bin64: aBin4 is bin64(11430491706143848181_);
+    const integer: anInt1 is -5670419503621182411;
+    const integer: anInt2 is -4148752700928524566;
+    const integer: anInt3 is -5477561611521170848;
+    const integer: anInt4 is -7016252367565703435;
+    const bigInteger: aBig1 is 123456789012345678901_;
+    const bigInteger: aBig2 is 198765432109876543210_;
+    const bigInteger: aBig3 is  31415926535897932384_;
+    const bigInteger: aBig4 is  48323979853562951413_;
+    const bigInteger: powTwo64 is 2_**64;
+    const bigInteger: powTwo63 is 2_**63;
+    const bigInteger: powTwo60 is 2_**60;
+    var boolean: okay is TRUE;
+  begin
+    if  bin64(           aBig1  mod powTwo64) <> aBin1 or
+        bin64(           aBig2  mod powTwo64) <> aBin2 or
+        bin64(           aBig3  mod powTwo64) <> aBin3 or
+        bin64(           aBig4  mod powTwo64) <> aBin4 or
+        bin64(bigintExpr(aBig1) mod powTwo64) <> aBin1 or
+        bin64(bigintExpr(aBig2) mod powTwo64) <> aBin2 or
+        bin64(bigintExpr(aBig3) mod powTwo64) <> aBin3 or
+        bin64(bigintExpr(aBig4) mod powTwo64) <> aBin4 then
+      writeln(" ***** bin64(aBigInt mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(big(          aBin1 ) mod powTwo64) <> aBin1 or
+        bin64(big(          aBin2 ) mod powTwo64) <> aBin2 or
+        bin64(big(          aBin3 ) mod powTwo64) <> aBin3 or
+        bin64(big(          aBin4 ) mod powTwo64) <> aBin4 or
+        bin64(big(bin64Expr(aBin1)) mod powTwo64) <> aBin1 or
+        bin64(big(bin64Expr(aBin2)) mod powTwo64) <> aBin2 or
+        bin64(big(bin64Expr(aBin3)) mod powTwo64) <> aBin3 or
+        bin64(big(bin64Expr(aBin4)) mod powTwo64) <> aBin4 then
+      writeln(" ***** bin64(big(aBin1) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(bigInteger conv         anInt1  mod powTwo64) <> aBin1 or
+        bin64(bigInteger conv         anInt2  mod powTwo64) <> aBin2 or
+        bin64(bigInteger conv         anInt3  mod powTwo64) <> aBin3 or
+        bin64(bigInteger conv         anInt4  mod powTwo64) <> aBin4 or
+        bin64(bigInteger conv intExpr(anInt1) mod powTwo64) <> aBin1 or
+        bin64(bigInteger conv intExpr(anInt2) mod powTwo64) <> aBin2 or
+        bin64(bigInteger conv intExpr(anInt3) mod powTwo64) <> aBin3 or
+        bin64(bigInteger conv intExpr(anInt4) mod powTwo64) <> aBin4 then
+      writeln(" ***** bin64(bigInteger conv number mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(           aBig1  mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(           aBig2  mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(           aBig3  mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(           aBig4  mod powTwo63) <> bin64(2207119669289072373_) or
+        bin64(bigintExpr(aBig1) mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(bigintExpr(aBig2) mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(bigintExpr(aBig3) mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(bigintExpr(aBig4) mod powTwo63) <> bin64(2207119669289072373_) then
+      writeln(" ***** bin64(aBigInt mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(big(          aBin1 ) mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(big(          aBin2 ) mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(big(          aBin3 ) mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(big(          aBin4 ) mod powTwo63) <> bin64(2207119669289072373_) or
+        bin64(big(bin64Expr(aBin1)) mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(big(bin64Expr(aBin2)) mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(big(bin64Expr(aBin3)) mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(big(bin64Expr(aBin4)) mod powTwo63) <> bin64(2207119669289072373_) then
+      writeln(" ***** bin64(big(aBin1) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(bigInteger conv         anInt1  mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(bigInteger conv         anInt2  mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(bigInteger conv         anInt3  mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(bigInteger conv         anInt4  mod powTwo63) <> bin64(2207119669289072373_) or
+        bin64(bigInteger conv intExpr(anInt1) mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(bigInteger conv intExpr(anInt2) mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(bigInteger conv intExpr(anInt3) mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(bigInteger conv intExpr(anInt4) mod powTwo63) <> bin64(2207119669289072373_) then
+      writeln(" ***** bin64(bigInteger conv number mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(           aBig1  mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(           aBig2  mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(           aBig3  mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(           aBig4  mod powTwo60) <> bin64(1054198164682225397_) or
+        bin64(bigintExpr(aBig1) mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(bigintExpr(aBig2) mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(bigintExpr(aBig3) mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(bigintExpr(aBig4) mod powTwo60) <> bin64(1054198164682225397_) then
+      writeln(" ***** bin64(aBigInt mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(big(          aBin1 ) mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(big(          aBin2 ) mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(big(          aBin3 ) mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(big(          aBin4 ) mod powTwo60) <> bin64(1054198164682225397_) or
+        bin64(big(bin64Expr(aBin1)) mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(big(bin64Expr(aBin2)) mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(big(bin64Expr(aBin3)) mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(big(bin64Expr(aBin4)) mod powTwo60) <> bin64(1054198164682225397_) then
+      writeln(" ***** bin64(big(aBin1) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(bigInteger conv         anInt1  mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(bigInteger conv         anInt2  mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(bigInteger conv         anInt3  mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(bigInteger conv         anInt4  mod powTwo60) <> bin64(1054198164682225397_) or
+        bin64(bigInteger conv intExpr(anInt1) mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(bigInteger conv intExpr(anInt2) mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(bigInteger conv intExpr(anInt3) mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(bigInteger conv intExpr(anInt4) mod powTwo60) <> bin64(1054198164682225397_) then
+      writeln(" ***** bin64(bigInteger conv number mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((           aBig1  +            aBig2 ) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((           aBig1  + bigintExpr(aBig2)) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigintExpr(aBig1) +            aBig2 ) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigintExpr(aBig1) + bigintExpr(aBig2)) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((           aBig3  +            aBig4 ) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((           aBig3  + bigintExpr(aBig4)) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigintExpr(aBig3) +            aBig4 ) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo64) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((big(          aBin1 ) + big(          aBin2 )) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((big(          aBin1 ) + big(bin64Expr(aBin2))) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((big(bin64Expr(aBin1)) + big(          aBin2 )) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((big(bin64Expr(aBin1)) + big(bin64Expr(aBin2))) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((big(          aBin3 ) + big(          aBin4 )) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((big(          aBin3 ) + big(bin64Expr(aBin4))) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((big(bin64Expr(aBin3)) + big(          aBin4 )) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((big(bin64Expr(aBin3)) + big(bin64Expr(aBin4))) mod powTwo64) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger conv         anInt1  + bigInteger conv         anInt2 ) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt1  + bigInteger conv intExpr(anInt2)) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger conv         anInt2 ) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger conv intExpr(anInt2)) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt3  + bigInteger conv         anInt4 ) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger conv (anInt1) + bigInteger conv (anInt2) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((           aBig1  +            aBig2 ) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((           aBig1  + bigintExpr(aBig2)) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigintExpr(aBig1) +            aBig2 ) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigintExpr(aBig1) + bigintExpr(aBig2)) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((           aBig3  +            aBig4 ) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((           aBig3  + bigintExpr(aBig4)) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigintExpr(aBig3) +            aBig4 ) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo63) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((big(          aBin1 ) + big(          aBin2 )) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((big(          aBin1 ) + big(bin64Expr(aBin2))) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((big(bin64Expr(aBin1)) + big(          aBin2 )) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((big(bin64Expr(aBin1)) + big(bin64Expr(aBin2))) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((big(          aBin3 ) + big(          aBin4 )) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((big(          aBin3 ) + big(bin64Expr(aBin4))) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((big(bin64Expr(aBin3)) + big(          aBin4 )) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((big(bin64Expr(aBin3)) + big(bin64Expr(aBin4))) mod powTwo63) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger conv         anInt1  + bigInteger conv         anInt2 ) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt1  + bigInteger conv intExpr(anInt2)) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger conv         anInt2 ) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger conv intExpr(anInt2)) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt3  + bigInteger conv         anInt4 ) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger conv (anInt1) + bigInteger conv (anInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((           aBig1  +            aBig2 ) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((           aBig1  + bigintExpr(aBig2)) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigintExpr(aBig1) +            aBig2 ) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigintExpr(aBig1) + bigintExpr(aBig2)) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((           aBig3  +            aBig4 ) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((           aBig3  + bigintExpr(aBig4)) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigintExpr(aBig3) +            aBig4 ) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigintExpr(aBig3) + bigintExpr(aBig4)) mod powTwo60) <> bin64(188322571588442453_) then
+      writeln(" ***** bin64((aBigInt1 + aBigInt2) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((big(          aBin1 ) + big(          aBin2 )) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((big(          aBin1 ) + big(bin64Expr(aBin2))) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((big(bin64Expr(aBin1)) + big(          aBin2 )) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((big(bin64Expr(aBin1)) + big(bin64Expr(aBin2))) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((big(          aBin3 ) + big(          aBin4 )) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((big(          aBin3 ) + big(bin64Expr(aBin4))) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((big(bin64Expr(aBin3)) + big(          aBin4 )) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((big(bin64Expr(aBin3)) + big(bin64Expr(aBin4))) mod powTwo60) <> bin64(188322571588442453_) then
+      writeln(" ***** bin64((big(aBin1) + big(aBin2) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger conv         anInt1  + bigInteger conv         anInt2 ) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv         anInt1  + bigInteger conv intExpr(anInt2)) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger conv         anInt2 ) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger conv intExpr(anInt2)) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv         anInt3  + bigInteger conv         anInt4 ) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) then
+      writeln(" ***** bin64((bigInteger conv (anInt1) + bigInteger conv (anInt2) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("bin64(aBigInteger mod 2_**y) works correct.");
     end if;
   end func;
 
@@ -872,6 +1126,7 @@ const proc: main is func
     checkBits2Float;
     checkFloat2MbfBits;
     checkMbfBits2Float;
+    checkBinBinaryWithBigMod;
     checkStr;
     checkRadix;
   end func;

@@ -83,6 +83,22 @@ void free_list (listType list)
 
 
 
+memSizeType list_length (const_listType list)
+
+  {
+    memSizeType length;
+
+  /* list_length */
+    length = 0;
+    while (list != NULL) {
+      list = list->next;
+      length++;
+    } /* while */
+    return length;
+  } /* list_length */
+
+
+
 listType *append_element_to_list (listType *list_insert_place, objectType object,
     errInfoType *err_info)
 

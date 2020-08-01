@@ -373,17 +373,17 @@ objectType lst_lng (listType arguments)
 
   {
     listType list_element;
-    intType result;
+    intType length;
 
   /* lst_lng */
     isit_list(arg_1(arguments));
     list_element = take_list(arg_1(arguments));
-    result = 0;
+    length = 0;
     while (list_element != NULL) {
       list_element = list_element->next;
-      result++;
+      length++;
     } /* while */
-    return bld_int_temp(result);
+    return bld_int_temp(length);
   } /* lst_lng */
 
 

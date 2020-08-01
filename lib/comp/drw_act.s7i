@@ -31,6 +31,7 @@ const ACTION: DRW_CIRCLE               is action "DRW_CIRCLE";
 const ACTION: DRW_CLEAR                is action "DRW_CLEAR";
 const ACTION: DRW_CMP                  is action "DRW_CMP";
 const ACTION: DRW_COLOR                is action "DRW_COLOR";
+const ACTION: DRW_CONVPOINTLIST        is action "DRW_CONVPOINTLIST";
 const ACTION: DRW_COPYAREA             is action "DRW_COPYAREA";
 const ACTION: DRW_CPY                  is action "DRW_CPY";
 const ACTION: DRW_EQ                   is action "DRW_EQ";
@@ -93,6 +94,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwCircle (const_winType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwClear (winType, intType);");
     declareExtern(c_prog, "void        drwColor (intType);");
+    declareExtern(c_prog, "arrayType   drwConvPointList (const const_bstriType);");
     declareExtern(c_prog, "void        drwCopyArea (const_winType, const_winType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwCpy (winType *const, const winType);");
     declareExtern(c_prog, "void        drwCpyGeneric (genericType *const, const genericType);");
@@ -250,6 +252,20 @@ const proc: process (DRW_COLOR, in reference: function,
     c_expr.expr &:= "drwColor(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_CONVPOINTLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+  begin
+    result_type := resultType(getType(function));
+    prepare_typed_result(result_type, c_expr);
+    c_expr.result_expr := "drwConvPointList(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ");\n";
   end func;
 
 

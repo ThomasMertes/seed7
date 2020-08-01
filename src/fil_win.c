@@ -324,6 +324,33 @@ void filPipe (fileType *inFile, fileType *outFile)
 
 
 
+#if !HAS_SNPRINTF
+int snprintf (char *buffer, size_t bufsize, const char *fmt, ...)
+
+  {
+    va_list ap;
+    int result;
+
+  /* snprintf */
+    if (bufsize == 0) {
+      result = 0;
+    } else {
+      va_start(ap, fmt);
+      result = _vsnprintf(buffer, bufsize - 1, fmt, ap);
+      if (result < 0) {
+        buffer[bufsize - 1] = '\0';
+        result = (int) bufsize;
+      } else if (result == bufsize - 1) {
+        buffer[bufsize - 1] = '\0';
+      } /* if */      
+      va_end(ap);
+    } /* if */
+    return result;
+  } /* snprintf */
+#endif
+
+
+
 void setupFiles (void)
 
   {
