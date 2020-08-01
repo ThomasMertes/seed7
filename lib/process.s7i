@@ -1,0 +1,150 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  process.s7i   Support for creating processes                    *)
+(*  Copyright (C) 2009 - 2013  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "osfiles.s7i";
+include "cc_conf.s7i";
+
+
+(**
+ *  Returns the search path of the system as [[array]] of [[string]]s.
+ *  @return the search path of the system.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
+ *)
+const func array string: getSearchPath  is action "CMD_GET_SEARCH_PATH";
+
+
+const func string: commandPath (in string: command) is func
+  result
+    var string: cmdPath is "";
+  local
+    var string: path is "";
+    var string: filePath is "";
+    var boolean: searching is TRUE;
+  begin
+    if pos(command, '/') = 0 then
+      for path range getSearchPath do
+        filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        if searching and fileType(filePath) = FILE_REGULAR and
+            fileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
+          searching := FALSE;
+          cmdPath := filePath;
+        end if;
+      end for;
+    elsif startsWith(command, "/") then
+      cmdPath := command & ccConf.EXECUTABLE_FILE_EXTENSION;
+    else
+      cmdPath := getcwd & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+    end if;
+  end func;
+
+
+const proc: pipe2 (in string: command, in array string: parameters,
+    inout clib_file: primitiveChildStdin,
+    inout clib_file: primitiveChildStdout) is action "CMD_PIPE2";
+
+
+(**
+ *  Start a process and connect pipes to its standard I/O files.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable. Pipe2
+ *  can be used to execute programs which process a stream of data.
+ *  Interactive programs buffer their I/O when they are not connected
+ *  to a terminal. Pipe2 has no influence of the buffering of the
+ *  executed command. Therefore interactive programs might not work
+ *  correctly with pipe2.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const proc: pipe2 (in string: command, in array string: parameters,
+    inout file: childStdin, inout file: childStdout) is func
+  local
+    var clib_file: primitiveChildStdin is CLIB_NULL_FILE;
+    var clib_file: primitiveChildStdout is CLIB_NULL_FILE;
+    var external_file: new_ChildStdin is external_file.value;
+    var external_file: new_ChildStdout is external_file.value;
+  begin
+    pipe2(command, parameters, primitiveChildStdin, primitiveChildStdout);
+    if primitiveChildStdin <> CLIB_NULL_FILE then
+      new_ChildStdin.ext_file := primitiveChildStdin;
+      childStdin := toInterface(new_ChildStdin);
+    end if;
+    if primitiveChildStdout <> CLIB_NULL_FILE then
+      # setbuf(primitiveChildStdout, IO_NO_BUFFERING, 0);
+      new_ChildStdout.ext_file := primitiveChildStdout;
+      childStdout := toInterface(new_ChildStdout);
+    end if;
+  end func;
+
+
+const proc: pty (in string: command, in array string: parameters,
+    inout clib_file: primitiveChildStdin,
+    inout clib_file: primitiveChildStdout) is action "CMD_PTY";
+
+
+const proc: pty (in string: command, in array string: parameters,
+    inout file: childStdin, inout file: childStdout) is func
+  local
+    var clib_file: primitiveChildStdin is CLIB_NULL_FILE;
+    var clib_file: primitiveChildStdout is CLIB_NULL_FILE;
+    var external_file: new_ChildStdin is external_file.value;
+    var external_file: new_ChildStdout is external_file.value;
+  begin
+    pty(command, parameters, primitiveChildStdin, primitiveChildStdout);
+    if primitiveChildStdin <> CLIB_NULL_FILE then
+      new_ChildStdin.ext_file := primitiveChildStdin;
+      childStdin := toInterface(new_ChildStdin);
+    end if;
+    if primitiveChildStdout <> CLIB_NULL_FILE then
+      new_ChildStdout.ext_file := primitiveChildStdout;
+      childStdout := toInterface(new_ChildStdout);
+    end if;
+  end func;
+
+
+const proc: startProcess (in string: command,
+                            in array string: parameters) is action "CMD_START_PROCESS";
+
+
+const proc: startProcess (in var string: cmdAndParams) is func
+  local
+    var string: command is "";
+    var string: parameter is "";
+    var array string: parameters is 0 times "";
+  begin
+    command := getCommandLineWord(cmdAndParams);
+    parameter := getCommandLineWord(cmdAndParams);
+    while parameter <> "" do
+      parameters &:= parameter;
+      parameter := getCommandLineWord(cmdAndParams);
+    end while;
+    startProcess(command, parameters);
+  end func;

@@ -86,6 +86,25 @@ const array string: cancel_pic is [](
   "                ");
 
 
+const array string: clear_pic is [](
+ "            bbX  ",
+ "           XbbX  ",
+ "           bbX   ",
+ "          XbbX   ",
+ "          XbX    ",
+ "         XbbX    ",
+ "         XbX     ",
+ "        XbbX     ",
+ "  bbbbb XbX      ",
+ " bbbbbbXbbXb     ",
+ " XYYXYbbXXbbbbbb ",
+ " XYXYYXYXYYbbbbX ",
+ "XYYXYXYYXYXYYXXYX",
+ "XXXXXYYXYYXYXXYXX",
+ "     XXXXXYYXYXX ",
+ "          XXXXX  ");
+
+
 const array string: card_back_pic is [](
   "                ",
   " cccccccccccccc ",
@@ -219,23 +238,42 @@ const array string: drop_pic is [](
   "  GGGGG         ");
 
 
+const array string: execute_pic is [](
+  "     X    X     ",
+  "    XyX  XyX    ",
+  "    XyX  XyX    ",
+  "     XyXXyX     ",
+  " XX  XyyyyX  XX ",
+  "XyyXXyWWWWyXXyyX",
+  " XXyyWyyyyWyyXX ",
+  "   XyWyWWXWyX   ",
+  "   XyWyWWXWyX   ",
+  " XXyyWyXXWWWyXX ",
+  "XyyXXyWWWWggWWyX",
+  " XX  XyyyWggggWW",
+  "     XyXXWgggggg",
+  "    XyX  WggggWW",
+  "    XyX  WggWW  ",
+  "     X   WWW    ");
+
+
 const array string: exit_pic is [](
   "gggggggggggggggg",
-  "ggWWWWWWWWWWWWgg",
-  "ggWWWWWWggWWWWgg",
-  "ggWWWWWWggWWWWgg",
-  "ggWWWWWWWWWWWWgg",
-  "ggWWWgggggWWWWgg",
-  "ggWWggWggggWWWgg",
-  "ggWggWgggWgggWgg",
-  "ggWWWWgggWWWWWgg",
-  "ggWWWggWggWWWWgg",
-  "gWWWWggWggWWWWgg",
-  "gWggggWWWggWWWgg",
-  "gWWWWWWWWggWWWgg",
-  "ggWWWWWWWWggWWgg",
-  "ggWWWWWWWWWWWWgg",
-  "gWWWWWWWWWWWWggg");
+  "gggWWWWWWWWWWggg",
+  "gggWWWWWggWWWggg",
+  "gggWWWWWggWWWggg",
+  "gggWWWWWWWWWWggg",
+  "gggWWgggggWWWggg",
+  "gggWggWggggWWggg",
+  "gggWgWgggWggWggg",
+  "gggWWWgggWWWWggg",
+  "gggWWggWggWWWggg",
+  "gWWWWggWggWWWggg",
+  "gWggggWWWggWWggg",
+  "gWWWWWWWWggWWggg",
+  "gggWWWWWWWggWggg",
+  "gggWWWWWWWWWWggg",
+  "ggWWWWWWWWWWgggg");
 
 
 const array string: eye_pic is [](
@@ -562,22 +600,22 @@ const array string: lamp_pic is [](
 
 
 const array string: load_pic is [](
-  "  XXXXXXXXXXX   ",
-  " XxxWxWWWWWWxX  ",
-  " XxxWxWWWxxWxxX ",
-  " XxxWxWWWxxWxxX ",
-  " XxxWxWWWWWWxxX ",
-  " XxxxxxxxxxxxxX ",
-  " XxxWWWWWWWWxxX ",
-  " XxxWxxxxxxWxxX ",
-  " XxxWxxxxxxWxxX ",
-  " XxxWxxRRRxWxxX ",
-  " XxxWxxRRRxWxxX ",
-  " XxxWRRRRRRRxxX ",
-  "  XXXXRRRRRXXX  ",
-  "       RRR      ",
-  "        R       ",
-  "                ");
+  "  xxxxxxxxxxx   ",
+  " xBBWBWWWWWWBx  ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWWWWBBx ",
+  " xBBBBBBBBBBBBx ",
+  " xBBWWWWWWWWBBx ",
+  " xBBWBBBBBBWBBx ",
+  " xBBWBWWWWWWBBx ",
+  " xBBWBWRRRWWBBx ",
+  " xBBWWWRRRWWBBx ",
+  " xBBWRRRRRRRWBx ",
+  "  xxxWRRRRRWxx  ",
+  "      WRRRW     ",
+  "       WRW      ",
+  "        W       ");
 
 
 const array string: magic_wand_pic is [](
@@ -695,22 +733,41 @@ const array string: ruby_pic is [](
 
 
 const array string: save_pic is [](
-  "  XXXXXXXXXXX   ",
-  " XxxWxWWWWWWxX  ",
-  " XxxWxWWWxxWxxX ",
-  " XxxWxWWWxxWxxX ",
-  " XxxWxWWWWWWxxX ",
-  " XxxxxxxxxxxxxX ",
-  " XxxWWWWWWWWxxX ",
-  " XxxWxxxxxxWxxX ",
-  " XxxWxxxxxxWxxX ",
-  " XxxWxxxRxxWxxX ",
-  " XxxWxxRRRxWxxX ",
-  " XxxWxRRRRRWxxX ",
-  "  XXXRRRRRRRXX  ",
-  "       RRR      ",
-  "       RRR      ",
-  "                ");
+  "  xxxxxxxxxxx   ",
+  " xBBWBWWWWWWBx  ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWWWWBBx ",
+  " xBBBBBBBBBBBBx ",
+  " xBBWWWWWWWWBBx ",
+  " xBBWBBBBBBWBBx ",
+  " xBBWBBBWBBWBBx ",
+  " xBBWBBWRWBWBBx ",
+  " xBBWBWRRRWWBBx ",
+  " xBBWWRRRRRWBBx ",
+  "  xxWRRRRRRRWx  ",
+  "    WWWRRRWWW   ",
+  "      WRRRW     ",
+  "      WWWWW     ");
+
+
+const array string: save_as_pic is [](
+  "  xxxxxxxxxxx   ",
+  " xBBWBWWWWWWBWW ",
+  " xBBWBWWWBBWWXXW",
+  " xBBWBWWWWWXXYYX",
+  " xBBWBWWWXXYYYXX",
+  " xBBBBWXXYYYXXWW",
+  " xBBWWXppYXXWWx ",
+  " xBBWXXXXXWWBBx ",
+  " xBBWWWWWWWWBBx ",
+  " xBBWXXWRWXWBBx ",
+  " xBBWWWRRRWWBBx ",
+  " xBBWWRRRRRWBBx ",
+  "  xxWRRRRRRRWx  ",
+  "    WWWRRRWWW   ",
+  "      WRRRW     ",
+  "      WWWWW     ");
 
 
 const array string: scepter_pic is [](
@@ -730,6 +787,44 @@ const array string: scepter_pic is [](
   " YYY            ",
   "YYY             ",
   "RY              ");
+
+
+const array string: seed7_include_pic is [](
+  "XXXXXXXXXXXXXXXX",
+  "XWWWWWWWWWWWWWWX",
+  "XWxxxWxxxxWWWWWX",
+  "XWWxxxxxWWWWWWWX",
+  "XWxxxxWWWWWWWWWX",
+  "XWxxxxWRRRWWRWWX",
+  "XWWWWWWWWRWWWWWX",
+  "XWWWRRWWWRWRRWWX",
+  "XWWRWWWWRWWWRWWX",
+  "XWWWRWWWRWWWRWWX",
+  "XWWWWRWRWWWWRWWX",
+  "XWWRRWWRWWWRRRWX",
+  "XWWWWWWWWWWWXXXX",
+  "XWWWWWWWWWWWXWx ",
+  "XWWWWWWWWWWWXx  ",
+  "XXXXXXXXXXXXX   ");
+
+
+const array string: seed7_source_pic is [](
+  "XXXXXXXXXXXXXXXX",
+  "XWWWWWWWWWWWWWWX",
+  "XWxxxWxxxxWWWWWX",
+  "XWWWWWWWWWWWWWWX",
+  "XWxxxxWxxWWWWWWX",
+  "XWxxxxxxxRxRRRWX",
+  "XWWWWWWWWRWWWRWX",
+  "XWWRRWWRRRWWWRWX",
+  "XWRWWWRWWRWWRWWX",
+  "XWWRWWRWWRWWRWWX",
+  "XWWWRWRWWRWRWWWX",
+  "XWRRWWWRRRWRWWWX",
+  "XWWWWWWWWWWWXXXX",
+  "XWWWWWWWWWWWXWx ",
+  "XWWWWWWWWWWWXx  ",
+  "XXXXXXXXXXXXX   ");
 
 
 const array string: silver_bars_pic is [](

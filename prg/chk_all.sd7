@@ -25,7 +25,8 @@
 $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "osfiles.s7i";
-  include "shell.s7i";
+  include "process.s7i";
+  include "scanstri.s7i";
   include "cc_conf.s7i";
 
 var string: interpretProgram  is "./s7 -q ";
@@ -236,17 +237,26 @@ const func boolean: equalFiles (in string: file1Name, in string: file2Name) is f
   end func;
 
 
-const func string: cmdOutput (in string: command) is func
+const func string: cmdOutput (in var string: cmdAndParams) is func
   result
     var string: output is "";
   local
-    var file: outFile is STD_NULL;
+    var string: command is "";
+    var string: parameter is "";
+    var array string: parameters is 0 times "";
+    var file: childStdin is STD_NULL;
+    var file: childStdout is STD_NULL;
   begin
-    outFile := popen(command, "r");
-    if outFile <> STD_NULL then
-      output := gets(outFile, 999999999);
-      close(outFile);
-    end if;
+    command := getCommandLineWord(cmdAndParams);
+    parameter := getCommandLineWord(cmdAndParams);
+    while parameter <> "" do
+      parameters &:= parameter;
+      parameter := getCommandLineWord(cmdAndParams);
+    end while;
+    pipe2(commandPath(command), parameters, childStdin, childStdout);
+    output := gets(childStdout, 999999999);
+    close(childStdin);
+    close(childStdout);
   end func;
 
 
@@ -267,7 +277,11 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       okay := FALSE;
     end if;
     if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-      removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
+      block
+        removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
+      exception
+        catch FILE_ERROR: noop;
+      end block;
     end if;
     compilerOutput := cmdOutput(interpretCompiler & progName);
     if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
@@ -318,7 +332,11 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
       end if;
       if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-        removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
+        block
+          removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
+        exception
+          catch FILE_ERROR: noop;
+        end block;
       end if;
       compilerOutput := cmdOutput(executeCompiler & progName);
       if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then

@@ -101,7 +101,9 @@ should be no need to call foreign C functions, or to execute shell
       drive letters and different path delimiters.
  - Differences between Unix sockets and winsockets are hidden and
    a Seed7 socket is a file (as in Unix). The type pollData allows
-   to wait until a socket is ready to read or write data.
+   to wait until a socket is ready to read or write data. TLS/SSL
+   and higher level protocols such as HTTP, HTTPS and FTP
+   are also supported.
  - The library keybd.s7i defines the file KEYBOARD, which supports
    reading single key presses. The characters read from KEYBOARD are
    not echoed to the console and there is no need to press ENTER.
@@ -119,8 +121,8 @@ should be no need to call foreign C functions, or to execute shell
    and other annoyances are managed in the graphics library.
  - Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
-   to modify directory access and modification times also under
-   windows).
+   the modification of directory access and modification times also
+   under windows).
 
 
 Which license does Seed7 use?
@@ -173,6 +175,26 @@ Except for LL(1) parsing, no technology used by classical Pascal
 compilers could be used to implement Seed7.
 
 
+How does Seed7 compare to Java?
+===============================
+
+Several features of Seed7 are missing in Java:
+
+  Features missing in Java                  | Comment
+  ------------------------------------------+----------------------------------------------
+  Stand alone functions                     | Singeltons must be used instead
+  Call-by-reference parameters              | All parameters are call-by-value
+  Call-by-name parameters                   | All parameters are call-by-value
+  Operator overloading                      | No possibility to use + for BigInteger values
+  User defined operators                    | -
+  User defined statements                   | -
+  User defined syntax                       | -
+  Elegant way to express data structures    | Property files and XML must be used instead
+  User defined functions to initialize data | -
+  Multiple dispatch                         | -
+
+
+
 What kind of programs can be written in Seed7?
 ==============================================
 
@@ -213,12 +235,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-11-24 the number of lines is:
+than 200000 lines of Seed7. For version 2013-12-08 the number of lines is:
 
-   95304  C source files (*.c)
-    8164  C header files (*.h)
-  115960  Seed7 source files (*.sd7)
-   95898  Seed7 library/include files (*.s7i)
+   95313  C source files (*.c)
+    8168  C header files (*.h)
+  115978  Seed7 source files (*.sd7)
+   96223  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -907,6 +929,33 @@ So you could declare a function
 and call it with
 
   print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
+
+
+Is there an elegant way to initialize data?
+===========================================
+
+Most languages allow that a constant is initialized with a constant expression.
+This usually rules out user defined functions (or it is restricted in other ways).
+Seed7 allows arbitrary expressions (including user defined functions) in
+initializations of constants and variables:
+
+  const integer: limit is 1000 ** 2 * 10;
+
+  var string: s7Page is getHttp("seed7.sourceforge.net");
+
+  const func array string: getWords (in string: fileName) is
+      return split(lower(getf(fileName)), "\n");
+
+  var array string: dict is getWords("unixdict.txt");
+
+  const set of integer: primes is eratosthenes(limit);
+
+  const PRIMITIVE_WINDOW: pic is readBmp("head3.bmp");
+
+  const array integer: someData is [](1, 1, 2, 3, 5, 8, 13, 21, 34, 55);
+
+A nice example is the initialisation of the table stars with
+the function genStarDescr in the library stars.s7i.
 
 
 Why is it necessary to initialize all variables?

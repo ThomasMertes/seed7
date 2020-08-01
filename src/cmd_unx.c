@@ -31,6 +31,7 @@
 
 #include "version.h"
 
+#define _XOPEN_SOURCE
 #include "stdlib.h"
 #include "stdio.h"
 #include "sys/types.h"
@@ -237,18 +238,22 @@ void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else if (access(os_command_stri, X_OK) != 0) {
+      /* printf("No execute permission for %s\n", os_command_stri); */
       os_stri_free(os_command_stri);
       raise_error(FILE_ERROR);
     } else {
       masterfd = posix_openpt(O_RDWR|O_NOCTTY);
+      /* printf("masterfd: %d\n", masterfd); */
       if (masterfd == -1 || grantpt(masterfd) == -1 ||
-          unlockpt (masterfd) == -1 || (slavedevice = ptsname(masterfd)) == NULL) {
+          unlockpt(masterfd) == -1 || (slavedevice = ptsname(masterfd)) == NULL) {
+        /* printf("Cannot open pty\n"); */
         os_stri_free(os_command_stri);
         raise_error(FILE_ERROR);
       } else {
         /* printf("slave device is: %s\n", slavedevice); */
         slavefd = open(slavedevice, O_RDWR|O_NOCTTY);
         if (slavefd < 0) {
+          /* printf("No slavefd\n"); */
           os_stri_free(os_command_stri);
           raise_error(FILE_ERROR);
         } else {
@@ -289,10 +294,10 @@ void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
             close(slavefd); /* This is being used by the child */
             *childStdin  = fdopen(masterfd, "w");
             *childStdout = fdopen(masterfd, "r");
+            os_stri_free(os_command_stri);
           } /* if */
         } /* if */
       } /* if */
-      os_stri_free(os_command_stri);
     } /* if */
   } /* cmdPty */
 #endif

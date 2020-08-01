@@ -1,3 +1,27 @@
+20131208:
+- Explanations how Seed7 compares to Java and about an elegant way
+  to initialize data have been added to the FAQ.
+- The functions pipe2, pty, startProcess and getSearchPath have been
+  moved from shell.s7i to the new library process.s7i.
+- The function commandPath has been added to process.s7i.
+- Under Windows removeFile can trigger an error, when an executable
+  is removed shortly after it was executed. It was not possible to
+  correct this failure of Windows in the Seed7 runtime library. To
+  avoid the Windows error the program chk_all.sd7 has been improved
+  to catch the raised exception.
+- The pictures execute_pic, seed7_include_pic, seed7_source_pic,
+  clear_pic and save_as_pic have been added to pic16.s7i and
+  pic32.s7i.
+- In pic16.s7i and pic32.s7i the pictures exit_pic, load_pic and
+  save_pic have been improved.
+- The function cmdPty in cmd_unx.c has been improved to free memory
+  correctly.
+- The function cmdPipe2 in cmd_win.c has been improved to open stdin
+  and stdout in text mode.
+- The function filInputReady in fil_unx.c and fil_win.c has been
+  improved to return TRUE after a hang up respectively a broken
+  pipe.
+
 20131124:
 - The new library pic_util.s7i has been added. It contains utility
   functions for pictures. A picture is a simple way to describe

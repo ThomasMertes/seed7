@@ -90,6 +90,7 @@ typedef union {
     rtlStructtype    structvalue;    /* STRUCTOBJECT */
     rtlInterfacetype interfacevalue; /* INTERFACEOBJECT */
     filetype         filevalue;      /* FILEOBJECT */
+    filedestype      filedesvalue;   /* FILEDESOBJECT */
     sockettype       socketvalue;    /* SOCKETOBJECT */
     rtlListtype      listvalue;      /* LISTOBJECT, EXPROBJECT */
     wintype          winvalue;       /* WINOBJECT */

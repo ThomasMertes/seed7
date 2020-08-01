@@ -70,8 +70,10 @@ booltype filInputReady (filetype aFile)
           raise_error(FILE_ERROR);
           result = FALSE;
         } else {
-          /* printf("poll_result=%d, pollFd[0].revents=%08x\n", poll_result, pollFd[0].revents); */
-          result = poll_result == 1 && (pollFd[0].revents & POLLIN);
+          /* printf("poll_result=%d, pollFd[0].revents=%08x\n", poll_result, pollFd[0].revents);
+          printf("POLLIN=%08x, POLLPRI=%08x, POLLERR=%08x, POLLHUP=%08x\n",
+              POLLIN, POLLPRI, POLLERR, POLLHUP); */
+          result = poll_result == 1 && (pollFd[0].revents & (POLLIN | POLLHUP));
         } /* if */
       } else {
         raise_error(FILE_ERROR);

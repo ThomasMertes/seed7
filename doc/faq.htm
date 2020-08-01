@@ -9,15 +9,20 @@ a.link:link    { color: blue; text-decoration: none }
 a.link:hover   { color: blue; text-decoration: underline }
 a.link:active  { color: orange; text-decoration: underline }
 
-a.menu:visited { color: purple; background-color: silver }
-a.menu:link    { color: purple; background-color: silver }
-a.menu:hover   { color: red;    background-color: silver }
-a.menu:active  { color: green;  background-color: silver }
-
 a.head:visited { color: cyan;  background-color: blue }
 a.head:link    { color: cyan;  background-color: blue }
 a.head:hover   { color: white; background-color: blue }
 a.head:active  { color: green; background-color: blue }
+
+a.menu:visited { color: purple; background-color: silver }
+a.menu:link    { color: purple; background-color: silver }
+a.menu:hover   { color: red;    background-color: white  }
+a.menu:active  { color: green;  background-color: silver }
+
+a.navigation:visited { color: purple; text-decoration: none; background-color: silver }
+a.navigation:link    { color: purple; text-decoration: none; background-color: silver }
+a.navigation:hover   { color: red;    text-decoration: none; background-color: silver }
+a.navigation:active  { color: green;  text-decoration: none; background-color: silver }
 
 a.type:visited { color: red; text-decoration: underline  }
 a.type:link    { color: red; text-decoration: underline  }
@@ -74,6 +79,18 @@ span.prog    { color: darkgreen }
 span.func    { color: purple }
 span.var     { color: darkcyan }
 
+a.menu, a.head {
+  text-decoration: none;
+  margin: 0px;
+  color: black;
+  padding: 0px;
+  padding-left: 5px;
+  border: 1px solid blue;
+  border-top: 0;
+  display: block;
+  width: 120px;
+}
+
 .tt { font-family: monospace; font-size: 10pt; }
 
 body  { font-size: 12pt; }
@@ -115,7 +132,6 @@ pre.indent {
     color: black;
     padding-left: 16px;
 }
-
 //-->
 </style>
 </head>
@@ -142,6 +158,9 @@ Which license does Seed7 use?
 </b></a></li>
 <li><a class="link" href="#faq_pascal_descendant"><b>
 Is Seed7 a descendant of Pascal?
+</b></a></li>
+<li><a class="link" href="#faq_java_comparison"><b>
+How does Seed7 compare to Java?
 </b></a></li>
 <li><a class="link" href="#faq_application_area"><b>
 What kind of programs can be written in Seed7?
@@ -214,6 +233,9 @@ Can I overload two functions which just differ in the result type?
 </b></a></li>
 <li><a class="link" href="#faq_variable_parameter_list"><b>
 Can functions have variable parameter lists?
+</b></a></li>
+<li><a class="link" href="#faq_initialize_data"><b>
+Is there an elegant way to initialize data?
 </b></a></li>
 <li><a class="link" href="#faq_initialize_variables"><b>
 Why is it necessary to initialize all variables?
@@ -426,7 +448,9 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
       drive letters and different path delimiters.</li></ul></li>
 <li>Differences between Unix sockets and winsockets are hidden and
    a Seed7 <tt><span class="type">socket</span></tt> is a <tt><span class="type">file</span></tt> (as in Unix). The type <tt><span class="type">pollData</span></tt> allows
-   to wait until a socket is ready to read or write data.</li>
+   to wait until a socket is ready to read or write data. <span class="link">TLS/SSL</span>
+   and higher level protocols such as <span class="link">HTTP</span>, <span class="link">HTTPS</span> and <span class="link">FTP</span>
+   are also supported.</li>
 <li>The library <span class="lib">keybd.s7i</span> defines the file <span class="var">KEYBOARD</span>, which supports
    reading single key presses. The characters read from <span class="var">KEYBOARD</span> are
    not echoed to the console and there is no need to press ENTER.
@@ -444,8 +468,8 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
    and other annoyances are managed in the graphics library.</li>
 <li>Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
-   to modify directory <span class="link">access</span> and <span class="link">modification times</span> also under
-   windows).</li>
+   the modification of directory <span class="link">access</span> and <span class="link">modification times</span> also
+   under windows).</li>
 </ul></div>
 
 <div><br /><a name="faq_license"><h3>Which license does Seed7 use?
@@ -498,6 +522,26 @@ Except for LL(1) parsing, no technology used by classical Pascal
 compilers could be used to implement Seed7.
 </p></div>
 
+<div><br /><a name="faq_java_comparison"><h3>How does Seed7 compare to Java?
+</h3></a><hr />
+<p>
+Several features of Seed7 are missing in Java:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>Features missing in Java                  </th><th> Comment</th></tr>
+  
+  <tr><td>Stand alone functions                     </td><td> Singeltons must be used instead </td></tr>
+  <tr><td>Call-by-reference parameters              </td><td> All parameters are call-by-value </td></tr>
+  <tr><td><a class="link" href="#faq_call_by_name">Call-by-name</a> parameters                   </td><td> All parameters are call-by-value </td></tr>
+  <tr><td><a class="link" href="#faq_overloading">Operator overloading</a>                      </td><td> No possibility to use <tt>+</tt> for <tt>BigInteger</tt> values </td></tr>
+  <tr><td>User defined operators                    </td><td> - </td></tr>
+  <tr><td>User defined statements                   </td><td> - </td></tr>
+  <tr><td>User defined syntax                       </td><td> - </td></tr>
+  <tr><td><a class="link" href="#faq_initialize_data">Elegant way to express data structures</a>    </td><td> Property files and XML must be used instead </td></tr>
+  <tr><td><a class="link" href="#faq_initialize_data">User defined functions to initialize data</a> </td><td> - </td></tr>
+  <tr><td><a class="link" href="#faq_multiple_dispatch">Multiple dispatch</a>                         </td><td> - </td></tr>
+</table></dd></dl><p>
+</p></div>
+
 <div><br /><a name="faq_application_area"><h3>What kind of programs can be written in Seed7?
 </h3></a><hr />
 <p>
@@ -538,12 +582,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-11-24 the number of lines is:
+than 200000 lines of Seed7. For version 2013-12-08 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 95304</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8164</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">115960</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 95898</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 95313</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8168</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">115978</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 96223</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1233,6 +1277,33 @@ and call it with
 </p><pre class="indent">
 print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
 </pre></div>
+
+<div><br /><a name="faq_initialize_data"><h3>Is there an elegant way to initialize data?
+</h3></a><hr />
+<p>
+Most languages allow that a constant is initialized with a constant expression.
+This usually rules out user defined functions (or it is restricted in other ways).
+Seed7 allows arbitrary expressions (including user defined functions) in
+initializations of constants and variables:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">integer</span>: limit <span class="keywd">is</span> 1000 ** 2 * 10;
+
+<span class="keywd">var</span> <span class="type">string</span>: s7Page <span class="keywd">is</span> <span class="func">getHttp</span>(<span class="stri">"seed7.sourceforge.net"</span>);
+
+<span class="keywd">const</span> <span class="type">func array string</span>: getWords (<span class="keywd">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
+    <span class="keywd">return</span> split(<span class="func">lower</span>(<span class="func">getf</span>(fileName)), <span class="stri">"\n"</span>);
+
+<span class="keywd">var</span> <span class="type">array string</span>: dict <span class="keywd">is</span> getWords(<span class="stri">"unixdict.txt"</span>);
+
+<span class="keywd">const</span> <span class="type">set of integer</span>: primes <span class="keywd">is</span> <span class="func">eratosthenes</span>(limit);
+
+<span class="keywd">const</span> <span class="type">PRIMITIVE_WINDOW</span>: pic <span class="keywd">is</span> <span class="func">readBmp</span>(<span class="stri">"head3.bmp"</span>);
+
+<span class="keywd">const</span> <span class="type">array integer</span>: someData <span class="keywd">is</span> [](1, 1, 2, 3, 5, 8, 13, 21, 34, 55);
+</pre><p>
+A nice example is the initialisation of the table <span class="var">stars</span> with
+the function <span class="func">genStarDescr</span> in the library <span class="lib">stars.s7i</span>.
+</p></div>
 
 <div><br /><a name="faq_initialize_variables"><h3>Why is it necessary to initialize all variables?
 </h3></a><hr />

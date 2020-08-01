@@ -175,6 +175,7 @@ pixmap_file.s7i Text implementation type to use a pixmap font
 pixmapfont.s7i Defines pixmapFontType and the font cache
 pkcs1.s7i    RSA public-key cryptography standard #1 support.
 poll.s7i     Support for pollData and the poll function
+process.s7i  Support for creating processes
 progs.s7i    Program handling support library
 propertyfile.s7i Read key value pairs from a property file
 rational.s7i Rational number support library

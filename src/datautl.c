@@ -72,6 +72,7 @@ static const_cstritype category_name[] = {
     "INTERFACEOBJECT",   /* objvalue -    Dynamic Object            */
     "SETOBJECT",         /* setvalue -    set                       */
     "FILEOBJECT",        /* filevalue -   file                      */
+    "FILEDESOBJECT",     /* filedesvalue - file descriptor          */
     "SOCKETOBJECT",      /* socketvalue - socket                    */
     "POLLOBJECT",        /* pollvalue -   poll list                 */
     "LISTOBJECT",        /* listvalue -   list                      */

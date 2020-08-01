@@ -88,7 +88,7 @@ booltype filInputReady (filetype aFile)
           if (fileHandle != -1) {
             if (PeekNamedPipe((HANDLE) fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
               result = totalBytesAvail >= 1;
-            } else if (feof(aFile)) {
+            } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(aFile)) {
               result = TRUE;
             } else {
               raise_error(FILE_ERROR);

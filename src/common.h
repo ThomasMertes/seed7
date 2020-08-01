@@ -254,6 +254,7 @@ typedef char *             cstritype;
 typedef unsigned char *    ustritype;
 typedef memsizetype        sysizetype;
 typedef FILE *             filetype;
+typedef int                filedestype;
 
 #ifdef OS_STRI_WCHAR
 typedef wchar_t           *wstritype;

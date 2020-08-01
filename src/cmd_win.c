@@ -35,6 +35,7 @@
 #include "stdio.h"
 #include "windows.h"
 #include "io.h"
+#include "fcntl.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #ifdef OS_STRI_WCHAR
@@ -467,8 +468,7 @@ void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters
     if (likely(err_info == OKAY_NO_ERROR)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
       if (likely(err_info == OKAY_NO_ERROR)) {
-        /* printf("cmdPipe2(%ls, %ls, %d, %d)\n", os_command_stri,
-           command_line, fileno(*childStdin), fileno(*childStdout)); */
+        /* printf("cmdPipe2(%ls, %ls)\n", os_command_stri, command_line); */
         saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
         saAttr.bInheritHandle = TRUE;
         saAttr.lpSecurityDescriptor = NULL;
@@ -509,11 +509,12 @@ void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters
             CloseHandle(childInputRead);
             CloseHandle(childOutputWrite);
             CloseHandle(childErrorWrite);
-            *childStdin  = fdopen(_open_osfhandle((intptr_type) (childInputWrite), 0), "w");
-            *childStdout = fdopen(_open_osfhandle((intptr_type) (childOutputRead), 0), "r");
+            *childStdin  = fdopen(_open_osfhandle((intptr_type) (childInputWrite), _O_TEXT), "w");
+            *childStdout = fdopen(_open_osfhandle((intptr_type) (childOutputRead), _O_TEXT), "r");
             CloseHandle(processInformation.hProcess);
             CloseHandle(processInformation.hThread);
           } else {
+            /* printf("CreateProcessW failed (%d)\n", GetLastError()); */
             err_info = FILE_ERROR;
           } /* if */
         } else {

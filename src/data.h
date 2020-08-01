@@ -58,6 +58,7 @@ typedef enum {
     INTERFACEOBJECT,     /* objvalue -    Dynamic Object            */
     SETOBJECT,           /* setvalue -    set                       */
     FILEOBJECT,          /* filevalue -   file                      */
+    FILEDESOBJECT,       /* filedesvalue - file descriptor          */
     SOCKETOBJECT,        /* socketvalue - socket                    */
     POLLOBJECT,          /* pollvalue -   poll list                 */
     LISTOBJECT,          /* listvalue -   list                      */
@@ -205,6 +206,7 @@ typedef union {
     settype      setvalue;      /* SETOBJECT */
     structtype   structvalue;   /* STRUCTOBJECT */
     filetype     filevalue;     /* FILEOBJECT */
+    filedestype  filedesvalue;  /* FILEDESOBJECT */
     sockettype   socketvalue;   /* SOCKETOBJECT */
     polltype     pollvalue;     /* POLLOBJECT */
     listtype     listvalue;     /* LISTOBJECT, EXPROBJECT */

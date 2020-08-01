@@ -9,15 +9,20 @@ a.link:link    { color: blue; text-decoration: none }
 a.link:hover   { color: blue; text-decoration: underline }
 a.link:active  { color: orange; text-decoration: underline }
 
-a.menu:visited { color: purple; background-color: silver }
-a.menu:link    { color: purple; background-color: silver }
-a.menu:hover   { color: red;    background-color: silver }
-a.menu:active  { color: green;  background-color: silver }
-
 a.head:visited { color: cyan;  background-color: blue }
 a.head:link    { color: cyan;  background-color: blue }
 a.head:hover   { color: white; background-color: blue }
 a.head:active  { color: green; background-color: blue }
+
+a.menu:visited { color: purple; background-color: silver }
+a.menu:link    { color: purple; background-color: silver }
+a.menu:hover   { color: red;    background-color: white  }
+a.menu:active  { color: green;  background-color: silver }
+
+a.navigation:visited { color: purple; text-decoration: none; background-color: silver }
+a.navigation:link    { color: purple; text-decoration: none; background-color: silver }
+a.navigation:hover   { color: red;    text-decoration: none; background-color: silver }
+a.navigation:active  { color: green;  text-decoration: none; background-color: silver }
 
 a.type:visited { color: red; text-decoration: underline  }
 a.type:link    { color: red; text-decoration: underline  }
@@ -74,6 +79,18 @@ span.prog    { color: darkgreen }
 span.func    { color: purple }
 span.var     { color: darkcyan }
 
+a.menu, a.head {
+  text-decoration: none;
+  margin: 0px;
+  color: black;
+  padding: 0px;
+  padding-left: 5px;
+  border: 1px solid blue;
+  border-top: 0;
+  display: block;
+  width: 120px;
+}
+
 .tt { font-family: monospace; font-size: 10pt; }
 
 body  { font-size: 12pt; }
@@ -115,7 +132,6 @@ pre.indent {
     color: black;
     padding-left: 16px;
 }
-
 //-->
 </style>
 </head>
