@@ -312,6 +312,28 @@ inttype k_number;
 
 #ifdef ANSI_C
 
+inttype intCmp (inttype number1, inttype number2)
+#else
+
+inttype intCmp (number1, number2)
+inttype number1;
+inttype number2;
+#endif
+
+  { /* intCmp */
+    if (number1 < number2) {
+      return(-1);
+    } else if (number1 > number2) {
+      return(1);
+    } else {
+      return(0);
+    } /* if */
+  } /* intCmp */
+
+
+
+#ifdef ANSI_C
+
 void intCpy (inttype *dest, inttype source)
 #else
 

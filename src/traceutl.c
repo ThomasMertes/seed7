@@ -630,6 +630,9 @@ objecttype anyobject;
       if (TEMP_OBJECT(anyobject)) {
         prot_cstri("[TEMP] ");
       } /* if */
+      if (TEMP2_OBJECT(anyobject)) {
+        prot_cstri("[TEMP2] ");
+      } /* if */
       switch (CLASS_OF_OBJ(anyobject)) {
         case VARENUMOBJECT:
           if (anyobject->entity != NULL) {
@@ -744,7 +747,7 @@ listtype list;
       if (list->obj == NULL) {
         prot_cstri("*NULL_OBJECT*");
       } else {
-        /* printclass(CLASS_OF_OBJ(list->obj)); */
+        /* printclass(CLASS_OF_OBJ(list->obj)); fflush(stdout); */
         switch (CLASS_OF_OBJ(list->obj)) {
           case LISTOBJECT:
           case EXPROBJECT:
@@ -843,6 +846,23 @@ listtype list;
           case TYPEOBJECT:
             printtype(list->obj->value.typevalue);
             break;
+#ifdef OUT_OF_ORDER
+          case SYMBOLOBJECT:
+            printclass(CLASS_OF_OBJ(list->obj));
+            prot_cstri(" ");
+            prot_int((inttype) list->obj);
+            prot_cstri(" ");
+            fflush(stdout);
+            if (list->obj->entity != NULL) {
+              prot_int((inttype) list->obj->entity);
+              prot_cstri(" ");
+              fflush(stdout);
+              if (list->obj->entity->ident != NULL) {
+                prot_cstri(id_string(list->obj->entity->ident));
+              } /* if */
+            } /* if */
+            break;
+#endif
           default:
             if (list->obj->entity != NULL &&
                 list->obj->entity->ident != NULL) {
@@ -1255,6 +1275,9 @@ objecttype traceobject;
       } /* if */
       if (TEMP_OBJECT(traceobject)) {
         prot_cstri(" [TEMP]");
+      } /* if */
+      if (TEMP2_OBJECT(traceobject)) {
+        prot_cstri(" [TEMP2]");
       } /* if */
       if (traceobject->type_of != NULL) {
         prot_cstri(" ");

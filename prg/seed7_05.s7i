@@ -99,7 +99,6 @@ IN_PARAM_IS_REFERENCE(object);
 IN_PARAM_IS_REFERENCE(string);
 IN_PARAM_IS_REFERENCE(ACTION);
 
-
 const proc: BASIC_TYPE_DECLS (in type: aType) is func
   begin
 (*    PRINT("in BASIC_TYPE_DECLS\n"); *)
@@ -114,6 +113,7 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const type: typeof (ref aType param)                                 is aType;
     const proc: (ref func func aType param) ::= (ref ACTION param)       is action "ACT_CREATE";
     const proc: (ref func varfunc aType param) ::= (ref ACTION param)    is action "ACT_CREATE";
+
     const func func aType: func
                            result
                              var (attr aType) : (ref expr param) is (ref aType param)
@@ -147,12 +147,14 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
                            end func                                   is action "PRC_RES_BEGIN";
 
     const func func aType: return (ref func aType param)              is action "PRC_RETURN";
-
     const func func aType: return (ref aType param)                   is action "PRC_RETURN";
-
     const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_VARFUNC";
-
     const func varfunc aType: return var (inout aType param)          is action "PRC_VARFUNC";
+
+    const func func aType: (attr aType) return (ref func aType param)           is action "PRC_RETURN2";
+    const func func aType: (attr aType) return (ref aType param)                is action "PRC_RETURN2";
+    const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_VARFUNC2";
+    const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_VARFUNC2";
 
   end func;
 
@@ -217,15 +219,12 @@ const func type: subtype (in type: baseType) is func
                              (ref expr param)
                            end func                                   is action "PRC_RES_BEGIN";
 
-(*
-    const func func aType: return (ref func aType param)              is action "PRC_RETURN";
 
-    const func func aType: return (ref aType param)                   is action "PRC_RETURN";
+    const func func aType: (attr aType) return (ref func baseType param)           is action "PRC_RETURN2";
+    const func func aType: (attr aType) return (ref baseType param)                is action "PRC_RETURN2";
+    const func varfunc aType: (attr aType) return var (ref varfunc baseType param) is action "PRC_VARFUNC2";
+    const func varfunc aType: (attr aType) return var (inout baseType param)       is action "PRC_VARFUNC2";
 
-    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_VARFUNC";
-
-    const func varfunc aType: return var (inout aType param)          is action "PRC_VARFUNC";
-*)
 
 (*  TRACE(aType);
     PRINT("\n"); *)
@@ -805,6 +804,7 @@ const func type: getType (in reference param) is                      action "RE
 const func boolean: is_symb (in reference param) is                   action "REF_ISSYMB";
 const func f_param: symb (in reference param) is                      action "REF_SYMB";
 const func type: (attr type) value (in reference param) is            action "TYP_VALUE";
+const func reference: getfunc (in expr param) is                      action "DCL_GETFUNC";
 const func reference: getobj (in expr param) is                       action "DCL_GETOBJ";
 
 const func type: get_type (in reference: type_ref) is func
@@ -1053,15 +1053,40 @@ const func type: tuple (in type: baseType) is func
   result
     var type: tupleType is void;
   begin
-    tupleType := get_type(getobj(tuple (attr baseType)));
+    tupleType := get_type(getfunc(tuple (attr baseType)));
     if tupleType = void then
       global
       tupleType := newtype;
       IN_PARAM_IS_REFERENCE(tupleType);
       const type: tuple (attr baseType) is tupleType;
-      const proc: destroy (ref tupleType param) is                          action "ARR_DESTR";
-      const func tupleType: (in baseType param) , (in baseType param) is    action "ARR_GEN";
-      const func tupleType: (in tupleType param) , (in baseType param) is   action "ARR_EXTEND";
+
+      const reference: (attr tupleType) . dataCreate  is getfunc((ref baseType param) ::= (in baseType param));
+      const reference: (attr tupleType) . dataDestroy is getfunc(destroy(ref baseType param));
+      const reference: (attr tupleType) . dataCopy    is getfunc((inout baseType param) := (in baseType param));
+
+      const proc: CREATE (ref tupleType param, in tupleType param,
+                          in reference param, in reference param) is             action "ARR_CREATE";
+      const proc: DESTROY (ref tupleType param, in reference param) is           action "ARR_DESTR";
+      const func tupleType: GEN (in baseType param, in baseType param,
+                                 in reference param, in reference param) is      action "ARR_GEN";
+      const func tupleType: EXTEND (in tupleType param, in baseType param,
+                                    in reference param, in reference param) is   action "ARR_EXTEND";
+
+      const proc: (ref tupleType: dest) ::= (in tupleType: source) is func
+        begin
+          CREATE(dest, source, tupleType.dataCreate, tupleType.dataDestroy);
+        end func;
+
+      const proc: destroy (ref tupleType: oldTuple) is func
+        begin
+          DESTROY(oldTuple, tupleType.dataDestroy);
+        end func;
+
+      const func tupleType: (ref baseType: element1) , (ref baseType: element2) is
+        return GEN(element1, element2, tupleType.dataCreate, tupleType.dataDestroy);
+
+      const func tupleType: (ref tupleType: aTuple) , (ref baseType: element) is
+        return EXTEND(aTuple, element, tupleType.dataCreate, tupleType.dataDestroy);
 (*
       const func tupleType: (in baseType: lower_limit) .. (in baseType: upper_limit) is func
         result
@@ -1095,7 +1120,7 @@ const func type: array (in type: baseType) is func
   local
     var type: tupleType is void;
   begin
-    arrayType := get_type(getobj(array (attr baseType)));
+    arrayType := get_type(getfunc(array (attr baseType)));
     if arrayType = void then
       global
       arrayType := newtype;
@@ -1103,13 +1128,51 @@ const func type: array (in type: baseType) is func
       tupleType := tuple(baseType);
       const type: array (attr baseType) is                                       arrayType;
       const type: base_type (attr arrayType) is                                  baseType;
-      const proc: (ref arrayType param) ::= (in arrayType param) is              action "ARR_CREATE";
-      const proc: destroy (ref arrayType param) is                               action "ARR_DESTR";
-      const proc: (inout arrayType param) := (in arrayType param) is             action "ARR_CPY";
-      const proc: (inout arrayType param) &:= (in arrayType param) is            action "ARR_APPEND";
 
-      const func arrayType: [] (in tupleType param) is                           action "ARR_ARRLIT";
-      const func arrayType: [] (in baseType param) is                            action "ARR_BASELIT";
+      const reference: (attr arrayType) . dataCreate  is getfunc((ref baseType param) ::= (in baseType param));
+      const reference: (attr arrayType) . dataDestroy is getfunc(destroy(ref baseType param));
+      const reference: (attr arrayType) . dataCopy    is getfunc((inout baseType param) := (in baseType param));
+
+      const proc: CREATE (ref arrayType param, in arrayType param,
+                          in reference param, in reference param) is             action "ARR_CREATE";
+      const proc: DESTROY (ref arrayType param, in reference param) is           action "ARR_DESTR";
+      const proc: COPY (inout arrayType param, in arrayType param,
+                        in reference param, in reference param,
+                        in reference param) is                                   action "ARR_CPY";
+      const proc: APPEND (inout arrayType param, in arrayType param,
+                          in reference param, in reference param) is             action "ARR_APPEND";
+      const func arrayType: ARRLIT (in tupleType param, in reference param,
+                                    in reference param) is                       action "ARR_ARRLIT";
+      const func arrayType: BASELIT (in baseType param, in reference param) is   action "ARR_BASELIT";
+      const func arrayType: TIMES (in integer param, in baseType param,
+                                   in reference param, in reference param) is    action "ARR_TIMES";
+
+      const proc: (ref arrayType: dest) ::= (in arrayType: source) is func
+        begin
+          CREATE(dest, source, arrayType.dataCreate, arrayType.dataDestroy);
+        end func;
+
+      const proc: destroy (ref arrayType: oldArray) is func
+        begin
+          DESTROY(oldArray, arrayType.dataDestroy);
+        end func;
+
+      const proc: (inout arrayType: dest) := (in arrayType: source) is func
+        begin
+          COPY(dest, source, arrayType.dataCreate, arrayType.dataDestroy, arrayType.dataCopy);
+        end func;
+
+      const proc: (inout arrayType: dest) &:= (in arrayType:source) is func
+        begin
+          APPEND(dest, source, arrayType.dataCreate, arrayType.dataDestroy);
+        end func;
+
+      const func arrayType: [] (in tupleType: aTuple) is
+        return ARRLIT(aTuple, arrayType.dataCreate, arrayType.dataDestroy);
+
+      const func arrayType: [] (ref baseType: element) is
+        return BASELIT(element, arrayType.dataCreate);
+
       const func arrayType: [ (in integer param) ] (in tupleType param) is       action "ARR_ARRLIT2";
       const func arrayType: [ (in integer param) ] (in baseType param) is        action "ARR_BASELIT2";
 
@@ -1122,8 +1185,13 @@ const func type: array (in type: baseType) is func
                                                    (in integer param) ] is       action "ARR_RANGE";
       const func baseType: remove(inout arrayType param, in integer param) is    action "ARR_REMOVE";
       const func integer: length (in arrayType param) is                         action "ARR_LNG";
-      const func arrayType: (in integer param) times (in baseType param) is      action "ARR_TIMES";
-      const arrayType: (attr arrayType) . value is                               0 times baseType.value;
+
+      const func arrayType: (attr arrayType) . _GENERATE_EMPTY_ARRAY is          action "ARR_EMPTY";
+
+      const arrayType: (attr arrayType) . value is                               arrayType._GENERATE_EMPTY_ARRAY;
+
+      const func arrayType: (in integer: number) times (in baseType: element) is
+        return TIMES(number, element, arrayType.dataCreate, arrayType.dataDestroy);
 
       const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
                     (in proc: statements)
@@ -1138,7 +1206,7 @@ const func type: array (in type: baseType) is func
         end func;
 
       const func baseType: rand (in arrayType: arr_obj) is
-        return arr_obj[rand(1, length(arr_obj))];
+        baseType return arr_obj[rand(1, length(arr_obj))];
 
       const proc: insert (inout arrayType: arr, in integer: index, in baseType: element) is func
         begin
@@ -1167,14 +1235,32 @@ const func type: array (in type: baseType) is func
           end func;
 
       end if;
+
+      if getobj(compare(in baseType param, in baseType param)) <> NIL then
+
+        const reference: (attr arrayType) . dataCompare  is getobj(compare(in baseType param, in baseType param));
+
+        const func arrayType: SORT (in arrayType param, in reference param,
+                                    in reference param, in reference param) is   action "ARR_SORT";
+
+        const func arrayType: sort (in arrayType: arr_obj) is
+          return SORT(arr_obj, arrayType.dataCreate, arrayType.dataDestroy, arrayType.dataCompare);
+          
+      end if;
       end global;
+
     end if;
   end func;
 
 const type: TEST_1 is array integer;
 const type: TEST_2 is array integer;
 const type: TEST_3 is array string;
-
+(*
+const type: TEST_4 is array char;
+const type: TEST_5 is array boolean;
+const type: TEST_6 is array array char;
+const type: TEST_7 is array array string;
+*)
 
 const func type: array [ (in type: indexType) ] (in type: baseType) is func
   result
@@ -1183,7 +1269,7 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
     var type: stdArrayType is void;
     var type: tupleType is void;
   begin
-    arrayType := get_type(getobj(array [ (attr indexType) ] (attr baseType)));
+    arrayType := get_type(getfunc(array [ (attr indexType) ] (attr baseType)));
     if arrayType = void then
       global
       arrayType := newtype;
@@ -1192,10 +1278,39 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       tupleType := tuple(baseType);
       const type: array [ (attr indexType) ] (attr baseType) is                  arrayType;
       const type: base_type (attr arrayType) is                                  baseType;
-      const proc: (ref arrayType param) ::= (in arrayType param) is              action "ARR_CREATE";
-      const proc: destroy (ref arrayType param) is                               action "ARR_DESTR";
-      const proc: (inout arrayType param) := (in arrayType param) is             action "ARR_CPY";
-      const proc: (inout arrayType param) &:= (in arrayType param) is            action "ARR_APPEND";
+
+      const reference: (attr arrayType) . dataCreate  is getfunc((ref baseType param) ::= (in baseType param));
+      const reference: (attr arrayType) . dataDestroy is getfunc(destroy(ref baseType param));
+      const reference: (attr arrayType) . dataCopy    is getfunc((inout baseType param) := (in baseType param));
+
+      const proc: CREATE (ref arrayType param, in arrayType param,
+                          in reference param, in reference param) is             action "ARR_CREATE";
+      const proc: DESTROY (ref arrayType param, in reference param) is           action "ARR_DESTR";
+      const proc: COPY (inout arrayType param, in arrayType param,
+                        in reference param, in reference param,
+                        in reference param) is                                   action "ARR_CPY";
+      const proc: APPEND (inout arrayType param, in arrayType param,
+                          in reference param, in reference param) is             action "ARR_APPEND";
+
+      const proc: (ref arrayType: dest) ::= (in arrayType: source) is func
+        begin
+          CREATE(dest, source, arrayType.dataCreate, arrayType.dataDestroy);
+        end func;
+
+      const proc: destroy (ref arrayType: oldArray) is func
+        begin
+          DESTROY(oldArray, arrayType.dataDestroy);
+        end func;
+
+      const proc: (inout arrayType: dest) := (in arrayType: source) is func
+        begin
+          COPY(dest, source, arrayType.dataCreate, arrayType.dataDestroy, arrayType.dataCopy);
+        end func;
+
+      const proc: (inout arrayType: dest) &:= (in arrayType: source) is func
+        begin
+          APPEND(dest, source, arrayType.dataCreate, arrayType.dataDestroy);
+        end func;
 
       const func arrayType: (in arrayType param) & (in arrayType param) is       action "ARR_CAT";
       const func integer: length (in arrayType param) is                         action "ARR_LNG";
@@ -1203,7 +1318,10 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       const func arrayType: (attr arrayType) conv (in stdArrayType param) is     action "ARR_CONV";
       const func tupleType: (attr tupleType) conv (in arrayType param) is        action "ARR_CONV";
       const varfunc stdArrayType: (attr stdArrayType) conv (inout arrayType param) is action "TYP_VARCONV";
-      const arrayType: (attr arrayType) . value is                               arrayType conv (0 times baseType.value);
+
+      const func arrayType: (attr arrayType) . _GENERATE_EMPTY_ARRAY is          action "ARR_EMPTY";
+
+      const arrayType: (attr arrayType) . value is                               arrayType._GENERATE_EMPTY_ARRAY;
 
       const func arrayType: [ (attr indexType) ] (in tupleType: arr_tuple) is
         return arrayType conv ([ord(indexType.value)] arr_tuple);
@@ -1212,10 +1330,10 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
         return arrayType conv ([ord(indexType.value)] base_elem);
 
       const func baseType: (in arrayType: an_array) [ (in indexType: an_index) ] is
-        return stdArrayType conv an_array[ord(an_index)];
+        baseType return stdArrayType conv an_array[ord(an_index)];
 
       const varfunc baseType: (inout arrayType: an_array) [ (in indexType: an_index) ] is
-        return var stdArrayType conv an_array[ord(an_index)];
+        baseType return var stdArrayType conv an_array[ord(an_index)];
 
       const func arrayType: (in arrayType: an_array) [ (in indexType: an_index) .. ] is
         return arrayType conv (stdArrayType conv an_array[ord(an_index) .. ]);
@@ -1261,10 +1379,11 @@ PRINT("\n");
     end if;
   end func;
 
+(*
 const type: test_x is array [char] string;
 const type: test_y is array [char] string;
 const type: test_z is array [integer] string;
-
+*)
 
 (* LIST
 
@@ -1314,7 +1433,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
   result
     var type: hashType is void;
   begin
-    hashType := get_type(getobj(hash [ (attr keyType) ] (attr baseType)));
+    hashType := get_type(getfunc(hash [ (attr keyType) ] (attr baseType)));
     if hashType = void then
       global
       hashType := newtype;
@@ -1322,12 +1441,13 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const type: hash [ (attr keyType) ] (attr baseType) is                     hashType;
       const type: base_type (attr hashType) is                                   baseType;
 
-      const reference: (attr hashType) . keyCreate   is getobj((ref keyType param) ::= (in keyType param));
-      const reference: (attr hashType) . keyDestroy  is getobj(destroy(ref keyType param));
-      const reference: (attr hashType) . dataCreate  is getobj((ref baseType param) ::= (in baseType param));
-      const reference: (attr hashType) . dataDestroy is getobj(destroy(ref baseType param));
-      const reference: (attr hashType) . dataCopy    is getobj((inout baseType param) := (in baseType param));
-      const reference: (attr hashType) . cmp_func    is getobj(compare(in keyType param, in keyType param));
+      const reference: (attr hashType) . keyCreate   is getfunc((ref keyType param) ::= (in keyType param));
+      const reference: (attr hashType) . keyDestroy  is getfunc(destroy(ref keyType param));
+      const reference: (attr hashType) . keyCopy     is getfunc((inout keyType param) := (in keyType param));
+      const reference: (attr hashType) . keyCompare  is getfunc(compare(in keyType param, in keyType param));
+      const reference: (attr hashType) . dataCreate  is getfunc((ref baseType param) ::= (in baseType param));
+      const reference: (attr hashType) . dataDestroy is getfunc(destroy(ref baseType param));
+      const reference: (attr hashType) . dataCopy    is getfunc((inout baseType param) := (in baseType param));
 
       const proc: CREATE (ref hashType param, in hashType param,
                           in reference param, in reference param,
@@ -1337,6 +1457,11 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const proc: COPY (inout hashType param, in hashType param,
                         in reference param, in reference param,
                         in reference param, in reference param) is               action "HSH_CPY";
+      const proc: FOR_KEY (inout keyType param, in hashType param,
+                        in proc param, in reference param,
+                        in reference param, in reference param) is               action "HSH_FOR_KEY";
+      const func array keyType: KEYS (in hashType param, in reference param,
+                                      in reference param, in reference param) is action "HSH_KEYS";
 
       const proc: (ref hashType: dest) ::= (in hashType: source) is func
         begin
@@ -1395,32 +1520,32 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const hashType: (attr hashType) . EMPTY_HASH is                            hashType._GENERATE_EMPTY_HASH;
 
       const func baseType: (in hashType: aHash) [ (in keyType: aKey) ] is
-        return INDEX(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+        return INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
 
       const varfunc baseType: (inout hashType: aHash) [ (in keyType: aKey) ] is
-        return var INDEX(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+        return var INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
 
       const func boolean: (in keyType: aKey) in (in hashType: aHash) is
-        return CONTAINS(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+        return CONTAINS(aHash, aKey, hashCode(aKey), hashType.keyCompare);
 
       const func boolean: (in keyType: aKey) not in (in hashType: aHash) is
-        return not CONTAINS(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+        return not CONTAINS(aHash, aKey, hashCode(aKey), hashType.keyCompare);
 
       const proc: incl (inout hashType: aHash, in keyType: aKey, in baseType: anElem) is func
         begin
-          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.cmp_func,
+          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.keyCompare,
               hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
         end func;
 
       const proc: excl (inout hashType: aHash, in keyType: aKey) is func
         begin
-          EXCL(aHash, aKey, hashCode(aKey), hashType.cmp_func,
+          EXCL(aHash, aKey, hashCode(aKey), hashType.keyCompare,
               hashType.keyDestroy, hashType.dataDestroy);
         end func;
 
       const proc: (inout hashType: aHash) @:= [ (in keyType: aKey) ] (in baseType: anElem) is func
         begin
-          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.cmp_func,
+          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.keyCompare,
               hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
         end func;
 
@@ -1434,6 +1559,16 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
           end for;
         end func;
 *)
+
+      const proc: for key (inout keyType: keyVar) range (in hashType: aHash) do
+          (in proc: statements) end for is func
+        begin
+          FOR_KEY(keyVar, aHash, statements, hashType.keyCopy, hashType.keyDestroy, hashType.keyCompare);
+        end func;
+
+      const func array keyType: keys (in hashType: aHash) is
+        return KEYS(aHash, hashType.keyCreate, hashType.keyDestroy, hashType.keyCompare);
+
       end global;
     end if;
   end func;
@@ -1443,6 +1578,7 @@ const type: TEST_100 is hash [string] integer;
 const type: TEST_101 is hash [integer] string;
 const type: TEST_102 is hash [char] boolean;
 const type: TEST_103 is hash [string] reference;
+const type: TEST_104 is hash [string] hash [integer] reference;
 *)
 (*
 var TEST_100: TEST_HASH is TEST_100.EMPTY_HASH;
@@ -1523,7 +1659,7 @@ const func type: set of (in type: baseType) is func
     var type: tupleType is void;
     var type: array_type is void;
   begin
-    setType := get_type(getobj(set of (attr baseType)));
+    setType := get_type(getfunc(set of (attr baseType)));
     if setType = void then
       global
       setType := newtype;
@@ -2144,6 +2280,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     var reference: elem_obj is NIL;
     var ref_list: literal_list is ref_list.EMPTY;
   begin
+    global
     enumType := subtype ENUMERATION;
     IN_PARAM_IS_REFERENCE(enumType);
     elem_list := expr_to_list(elem_expr);
@@ -2208,6 +2345,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
 
     FOR_DECLS(enumType);(* Necessary for this is <= < >= > *)
     CASE_DECLS(enumType);
+    end global;
   end func;
 
 

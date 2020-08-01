@@ -181,7 +181,7 @@ listtype *evaluated_act_params;
     *backup_form_params = NULL;
     backup_insert_place = backup_form_params;    
     *evaluated_act_params = NULL;
-    evaluated_insert_place = evaluated_act_params;    
+    evaluated_insert_place = evaluated_act_params;
     while (form_param != NULL && !fail_flag) {
       append_to_list(backup_insert_place,
           form_param->local.object->value.objvalue, act_param_list);
@@ -219,6 +219,7 @@ listtype *evaluated_act_params;
               trace1(form_param->local.object);
               printf(" %lu\n", (unsigned long) form_param->local.object); */
             } else {
+              CLEAR_TEMP2_FLAG(param_value);
               create_local_object(&form_param->local, param_value, &err_info);
 /*              printf("assign obj ");
               trace1(form_param->local.object);
@@ -234,10 +235,12 @@ listtype *evaluated_act_params;
             form_param->local.object->value.objvalue = param_value;
             if (TEMP_OBJECT(param_value)) {
               CLEAR_TEMP_FLAG(param_value);
+              SET_TEMP2_FLAG(param_value);
               /* printf("ref to temp ");
               trace1(form_param->local.object);
               printf(" %lu\n", (unsigned long) form_param->local.object); */
             } else {
+              CLEAR_TEMP2_FLAG(param_value);
               param_list_elem->obj = NULL;
             } /* if */
             break;

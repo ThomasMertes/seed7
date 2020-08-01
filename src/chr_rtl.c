@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  int_rtl.h     Primitive actions for the integer type.           */
+/*  chr_rtl.c     Primitive actions for the integer type.           */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,52 +23,111 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/int_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994, 2000, 2005  Thomas Mertes            */
-/*  Content: Primitive actions for the integer type.                */
+/*  File: seed7/src/chr_rtl.c                                       */
+/*  Changes: 1992, 1993, 1994, 2005  Thomas Mertes                  */
+/*  Content: Primitive actions for the char type.                   */
 /*                                                                  */
 /********************************************************************/
 
+#include "stdlib.h"
+#include "stdio.h"
+
+#include "version.h"
+#include "common.h"
+#include "heaputl.h"
+#include "rtl_err.h"
+
+#undef EXTERN
+#define EXTERN
+#include "chr_rtl.h"
+
+
+
 #ifdef ANSI_C
-#include "limits.h"
-#endif
 
-
-#ifndef ULONG_MAX
-#define ULONG_MAX ((uinttype) 4294967295L)
-#endif
-
-
-#ifdef ANSI_C
-
-uinttype rand_32 (void);
-inttype most_significant_bit (uinttype);
-inttype least_significant_bit (uinttype);
-inttype intBinom (inttype, inttype);
-inttype intCmp (inttype, inttype);
-void intCpy (inttype *, inttype);
-void intCreate (inttype *, inttype);
-inttype intLd (inttype);
-inttype intParse (stritype);
-inttype intPow (inttype, inttype);
-inttype intRand (inttype, inttype);
-inttype intSqrt (inttype);
-stritype intStr (inttype);
-
+inttype chrCmp (chartype char1, chartype char2)
 #else
 
-uinttype rand_32 ();
-inttype most_significant_bit ();
-inttype least_significant_bit ();
-inttype intBinom ();
-inttype intCmp ();
-void intCpy ();
-void intCreate ();
-inttype intLd ();
-inttype intParse ();
-inttype intPow ();
-inttype intRand ();
-inttype intSqrt ();
-stritype intStr ();
-
+inttype chrCmp (char1, char2)
+chartype char1;
+chartype char2;
 #endif
+
+  {
+
+  /* chrCmp */
+    if (char1 < char2) {
+      return(-1);
+    } else if (char1 > char2) {
+      return(1);
+    } else {
+      return(0);
+    } /* if */
+  } /* chrCmp */
+
+
+
+#ifdef ANSI_C
+
+void chrCpy (chartype *dest, chartype source)
+#else
+
+void chrCpy (dest, source)
+chartype *dest;
+chartype source;
+#endif
+
+  { /* chrCpy */
+    *dest = source;
+  } /* chrCpy */
+
+
+
+#ifdef ANSI_C
+
+void chrCreate (chartype *dest, chartype source)
+#else
+
+void chrCreate (dest, source)
+chartype *dest;
+chartype source;
+#endif
+
+  { /* chrCreate */
+    *dest = source;
+  } /* chrCreate */
+
+
+
+#ifdef ANSI_C
+
+stritype chrStr (chartype ch)
+#else
+
+stritype chrStr (arguments)
+chartype ch;
+#endif
+
+  {
+    stritype result;
+
+  /* chrStr */
+#ifndef WIDE_CHAR_STRINGS
+    if (ch > (chartype) 255) {
+      raise_error(RANGE_ERROR);
+      return(NULL);
+    } else {
+#endif
+      if (!ALLOC_STRI(result, 1)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } else {
+        COUNT_STRI(1);
+        result->size = 1;
+        result->mem[0] = (strelemtype) ch;
+        return(result);
+      } /* if */
+#ifndef WIDE_CHAR_STRINGS
+    } /* if */
+#endif
+  } /* chrStr */

@@ -1084,6 +1084,62 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype prc_return2 (listtype arguments)
+#else
+
+objecttype prc_return2 (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype block_body;
+    locobjrecord return_var;
+    typetype return_type;
+    errinfotype err_info = NO_ERROR;
+    blocktype block;
+
+  /* prc_return2 */
+    block_body = arg_3(arguments);
+    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+        block_body->value.listvalue != NULL &&
+        block_body->value.listvalue->next == NULL) {
+      block_body = block_body->value.listvalue->obj;
+    } /* if */
+    push_stack();
+    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+      update_owner(block_body);
+      block_body = match_expression(block_body);
+    } /* if */
+    if (block_body != NULL) {
+      block_body = match_object(block_body);
+    } /* if */
+    pop_stack();
+#ifdef OUT_OF_ORDER
+    printf("prc_return2 block_body=");
+    trace1(block_body);
+    printf("\n");
+#endif
+    return_type = block_body->type_of;
+    if (return_type->result_type != NULL) {
+      return_type = return_type->result_type;
+    } /* if */
+#ifdef OUT_OF_ORDER
+    printf("return_type=");
+    trace1(return_type->match_obj);
+    printf("\n");
+#endif
+    get_return_var(&return_var, return_type, &err_info);
+    if ((block = new_block(NULL, &return_var, NULL, block_body)) == NULL) {
+      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+    } else {
+      return(bld_block_temp(block));
+    } /* if */
+  } /* prc_return2 */
+
+
+
+#ifdef ANSI_C
+
 objecttype prc_settrace (listtype arguments)
 #else
 
@@ -1154,6 +1210,44 @@ listtype arguments;
       return(bld_block_temp(block));
     } /* if */
   } /* prc_varfunc */
+
+
+
+#ifdef ANSI_C
+
+objecttype prc_varfunc2 (listtype arguments)
+#else
+
+objecttype prc_varfunc2 (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype block_body;
+    blocktype block;
+
+  /* prc_varfunc2 */
+    block_body = arg_4(arguments);
+    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+        block_body->value.listvalue != NULL &&
+        block_body->value.listvalue->next == NULL) {
+      block_body = block_body->value.listvalue->obj;
+    } /* if */
+    push_stack();
+    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+      update_owner(block_body);
+      block_body = match_expression(block_body);
+    } /* if */
+    if (block_body != NULL) {
+      block_body = match_object(block_body);
+    } /* if */
+    pop_stack();
+    if ((block = new_block(NULL, NULL, NULL, block_body)) == NULL) {
+      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+    } else {
+      return(bld_block_temp(block));
+    } /* if */
+  } /* prc_varfunc2 */
 
 
 

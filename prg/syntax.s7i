@@ -67,6 +67,7 @@ $ syntax expr: .().conv.() is                  ->  1;
 $ syntax expr: .().var_conv.() is              ->  1;
 $ syntax expr: .().value.() is                 ->  1;
 $ syntax expr: .().parse.() is                 ->  1;
+$ syntax expr: .getfunc.(expr) is             <-   1;
 $ syntax expr: .getobj.(expr) is              <-   1;
 $ syntax expr: . [ . ] .() is                 <-   1;
 $ syntax expr: . [ .(). ] .() is              <-   1;
@@ -166,6 +167,8 @@ $ syntax expr: .for.().range.().to.().do.().end.for is              -> 25;
 $ syntax expr: .for.().range.().downto.().do.().end.for is          -> 25;
 $ syntax expr: .for.().range.().to.().step.().do.().end.for is      -> 25;
 $ syntax expr: .for.().range.().do.().end.for is                    -> 25;
+$ syntax expr: .for.().key.().range.().do.().end.for is             -> 25;
+$ syntax expr: .for.key.().range.().do.().end.for is                -> 25;
 
 $ syntax expr: .if.().then.().end.if is                             -> 25;
 $ syntax expr: .if.().then.().().end.if is                          -> 25;
@@ -193,6 +196,8 @@ $ syntax expr: .func.result.var.(). : .(expr).is.().local.().begin.(expr).end.fu
 $ syntax expr: .varfunc.return.().().end.varfunc is                                   -> 30;
 $ syntax expr: .return.() is                                                          -> 30;
 $ syntax expr: .return.var.() is                                                      -> 30;
+$ syntax expr: .().return.() is                                                       -> 30;
+$ syntax expr: .().return.var.() is                                                   -> 30;
 
 $ syntax expr: .action.() is                      -> 30;
 

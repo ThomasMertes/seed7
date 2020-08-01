@@ -285,6 +285,48 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype dcl_getfunc (listtype arguments)
+#else
+
+objecttype dcl_getfunc (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype name_expr;
+    objecttype object_found;
+    errinfotype err_info = NO_ERROR;
+
+  /* dcl_getfunc */
+    name_expr = arg_2(arguments);
+#ifdef TRACE_DCL
+    printf("decl const name_expr = ");
+    trace1(name_expr);
+    printf("\n");
+#endif
+    grow_stack(&err_info);
+    if (err_info == NO_ERROR) {
+      object_found = search_name(prog.declaration_root, name_expr, &err_info);
+      shrink_stack();
+    } /* if */
+#ifdef TRACE_DCL
+    printf("entity=%lu ", (unsigned long) object_found->entity);
+    printf("%lu ", (unsigned long) object_found);
+    printf("getfunc object_found = ");
+    trace1(object_found);
+    printf("\n");
+#endif
+    if (err_info != NO_ERROR) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      return(bld_reference_temp(object_found));
+    } /* if */
+  } /* dcl_getfunc */
+
+
+
+#ifdef ANSI_C
+
 objecttype dcl_getobj (listtype arguments)
 #else
 

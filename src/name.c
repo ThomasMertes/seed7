@@ -882,6 +882,85 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
+objecttype search_name (nodetype declaration_base, objecttype object_name,
+    errinfotype *err_info)
+#else
+
+objecttype search_name (declaration_base, object_name, err_info)
+nodetype declaration_base;
+objecttype object_name;
+errinfotype *err_info;
+#endif
+
+  {
+    listtype name_list;
+    objecttype param_obj;
+    entitytype ent;
+    objecttype defined_object;
+
+  /* search_name */
+#ifdef TRACE_NAME
+    printf("BEGIN search_name(%ld, ", (long) declaration_base);
+    trace1(object_name);
+    printf(")\n");
+#endif
+    if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+      if (object_name->value.listvalue->next != NULL) {
+        match_name_list(object_name->value.listvalue);
+        push_stack();
+        name_list = eval_name_list(object_name->value.listvalue, err_info);
+        down_stack();
+        ent = search_entity(declaration_base, name_list);
+        emptylist(name_list);
+      } else if (CLASS_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
+          CLASS_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
+        match_name_list(object_name->value.listvalue);
+        push_stack();
+        name_list = eval_name_list(object_name->value.listvalue, err_info);
+        down_stack();
+        if (CLASS_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+          param_obj = name_list->obj->value.objvalue;
+          if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+              CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+            ent = NULL;
+          } else {
+            ent = param_obj->entity;
+         } /* if */
+        } else {
+          ent = NULL;
+        } /* if */
+      } else {
+        ent = object_name->value.listvalue->obj->entity;
+      } /* if */
+    } else {
+      ent = object_name->entity;
+    } /* if */
+    if (ent != NULL && ent->owner != NULL) {
+      defined_object = ent->owner->obj;
+    } else {
+      defined_object = NULL;
+    } /* if */
+
+/* printf(" %s\n", defined_object->IDENT->NAME);
+   printf("o%d_%s declared \n", defined_object->NUMBER,
+       defined_object->IDENT->NAME); */
+
+#ifdef TRACE_NAME
+    trace_nodes();
+    printf("END search_name(");
+    trace1(object_name);
+    printf(") --> ");
+    trace1(defined_object);
+    printf("\n");
+#endif
+    return(defined_object);
+  } /* search_name */
+
+
+
+#ifdef ANSI_C
+
 static objecttype dollar_parameter (objecttype param_object)
 #else
 

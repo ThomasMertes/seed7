@@ -37,6 +37,7 @@ void pop_stack (void);
 listtype *get_local_object_insert_place (void);
 objecttype entername (nodetype, objecttype, errinfotype *);
 objecttype find_name (nodetype, objecttype, errinfotype *);
+objecttype search_name (nodetype, objecttype, errinfotype *);
 objecttype dollar_entername (nodetype, objecttype, errinfotype *);
 
 #else
@@ -51,6 +52,7 @@ void pop_stack ();
 listtype *get_local_object_insert_place ();
 objecttype entername ();
 objecttype find_name ();
+objecttype search_name ();
 objecttype dollar_entername ();
 
 #endif

@@ -573,7 +573,7 @@ printf("\n"); */
       } /* if */
       name_elem = name_elem->next;
     } /* while */
-    if (curr_node != NULL && curr_node->entity != NULL) {
+    if (curr_node != NULL) {
       entity_found = curr_node->entity;
     } else {
       entity_found = NULL;
@@ -583,6 +583,106 @@ printf("\n"); */
 #endif
     return(entity_found);
   } /* find_entity */
+
+
+
+#ifdef ANSI_C
+
+entitytype search_entity (nodetype start_node, listtype name_list)
+#else
+
+entitytype search_entity (start_node, name_list)
+nodetype start_node;
+listtype name_list;
+#endif
+
+  {
+    objecttype param_obj;
+    nodetype node_found;
+    typetype object_type;
+    entitytype entity_found;
+
+  /* search_entity */
+#ifdef TRACE_ENTITY
+    printf("BEGIN search_entity(");
+    prot_list(name_list);
+    printf(")\n");
+#endif
+    if (name_list == NULL) {
+      if (start_node != NULL) {
+        entity_found = start_node->entity;
+      } else {
+        entity_found = NULL;
+      } /* if */
+    } else {
+      entity_found = NULL;
+      if (start_node != NULL) {
+        if (CLASS_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+/* printf("paramobject x\n"); */
+          param_obj = name_list->obj->value.objvalue;
+          if (CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
+/* printf("inout param ");
+trace1(param_obj);
+printf("\n"); */
+            object_type = param_obj->type_of;
+            do {
+              node_found = find_node(start_node->inout_param, object_type->match_obj);
+              if (node_found != NULL) {
+                entity_found = search_entity(node_found, name_list->next);
+              } /* if */
+              object_type = object_type->meta;
+            } while (object_type != NULL && entity_found == NULL);
+          } else if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+/* printf("value or ref param ");
+trace1(param_obj);
+printf("\n"); */
+            object_type = param_obj->type_of;
+            do {
+              node_found = find_node(start_node->other_param, object_type->match_obj);
+              if (node_found != NULL) {
+                entity_found = search_entity(node_found, name_list->next);
+              } /* if */
+              object_type = object_type->meta;
+            } while (object_type != NULL && entity_found == NULL);
+          } else if (CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+/* printf("attr param ");
+trace1(param_obj);
+printf("\n"); */
+            object_type = param_obj->value.typevalue;
+            do {
+              node_found = find_node(start_node->attr, object_type->match_obj);
+              if (node_found != NULL) {
+                entity_found = search_entity(node_found, name_list->next);
+              } /* if */
+              object_type = object_type->meta;
+            } while (object_type != NULL && entity_found == NULL);
+          } else {
+/* printf("symbol param ");
+trace1(param_obj);
+printf("\n"); */
+            node_found = find_node(start_node->symbol, param_obj);
+            if (node_found != NULL) {
+              entity_found = search_entity(node_found, name_list->next);
+            } /* if */
+          } /* if */
+        } else {
+/* printf("symbol param ");
+trace1(name_list->obj);
+printf("\n"); */
+          node_found = find_node(start_node->symbol, name_list->obj);
+          if (node_found != NULL) {
+            entity_found = search_entity(node_found, name_list->next);
+          } /* if */
+/* printf("after symbol param\n"); */
+        } /* if */
+      } /* if */
+    } /* if */
+#ifdef TRACE_ENTITY
+    printf("END search_entity\n");
+#endif
+    return(entity_found);
+  } /* search_entity */
 
 
 

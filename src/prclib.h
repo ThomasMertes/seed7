@@ -52,9 +52,11 @@ objecttype prc_repeat (listtype);
 objecttype prc_res_begin (listtype);
 objecttype prc_res_local (listtype);
 objecttype prc_return (listtype);
+objecttype prc_return2 (listtype);
 objecttype prc_settrace (listtype);
 objecttype prc_trace (listtype);
 objecttype prc_varfunc (listtype);
+objecttype prc_varfunc2 (listtype);
 objecttype prc_while (listtype);
 
 #else
@@ -84,9 +86,11 @@ objecttype prc_repeat ();
 objecttype prc_res_begin ();
 objecttype prc_res_local ();
 objecttype prc_return ();
+objecttype prc_return2 ();
 objecttype prc_settrace ();
 objecttype prc_trace ();
 objecttype prc_varfunc ();
+objecttype prc_varfunc2 ();
 objecttype prc_while ();
 
 #endif

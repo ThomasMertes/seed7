@@ -83,7 +83,7 @@ typedef int                errinfotype;
 typedef unsigned long      postype;
 typedef unsigned int       linenumtype;
 typedef unsigned int       filenumtype;
-typedef unsigned char      classtype;
+typedef unsigned int       classtype;
 /* typedef unsigned long int  wintype; */
 
 typedef struct identstruct   *identtype;
@@ -358,20 +358,26 @@ extern progrecord prog;
 #define CLASS_MASK ((classtype)  63)
 #define VAR_MASK   ((classtype)  64)
 #define TEMP_MASK  ((classtype) 128)
+#define TEMP2_MASK ((classtype) 256)
 
-#define SET_ANY_FLAG(O,FLAG)        (O)->objclass = (O)->objclass | (FLAG)
+#define SET_ANY_FLAG(O,FLAG)         (O)->objclass = (O)->objclass | (FLAG)
 
-#define INIT_CLASS_OF_OBJ(O,CLASS)  (O)->objclass = (classtype) (CLASS)
-#define SET_CLASS_OF_OBJ(O,CLASS)   (O)->objclass = ((O)->objclass & ~CLASS_MASK) | (classtype) (CLASS)
-#define CLASS_OF_OBJ(O)             ((objectclass) ((O)->objclass & CLASS_MASK))
+#define INIT_CLASS_OF_OBJ(O,CLASS)   (O)->objclass = (classtype) (CLASS)
+#define SET_CLASS_OF_OBJ(O,CLASS)    (O)->objclass = ((O)->objclass & ~CLASS_MASK) | (classtype) (CLASS)
+#define CLASS_OF_OBJ(O)              ((objectclass) ((O)->objclass & CLASS_MASK))
 
-#define INIT_CLASS_OF_VAR(O,CLASS)  (O)->objclass = (classtype) (CLASS) | VAR_MASK
-#define SET_VAR_FLAG(O)             (O)->objclass = (O)->objclass | VAR_MASK
-#define CLEAR_VAR_FLAG(O)           (O)->objclass = (O)->objclass & ~VAR_MASK
-#define VAR_OBJECT(O)               ((O)->objclass & VAR_MASK)
-#define COPY_VAR_FLAG(O1,O2)        (O1)->objclass = ((O1)->objclass & ~VAR_MASK) | ((O2)->objclass & VAR_MASK)
+#define INIT_CLASS_OF_VAR(O,CLASS)   (O)->objclass = (classtype) (CLASS) | VAR_MASK
+#define SET_VAR_FLAG(O)              (O)->objclass = (O)->objclass | VAR_MASK
+#define CLEAR_VAR_FLAG(O)            (O)->objclass = (O)->objclass & ~VAR_MASK
+#define VAR_OBJECT(O)                ((O)->objclass & VAR_MASK)
+#define COPY_VAR_FLAG(O1,O2)         (O1)->objclass = ((O1)->objclass & ~VAR_MASK) | ((O2)->objclass & VAR_MASK)
 
-#define INIT_CLASS_OF_TEMP(O,CLASS) (O)->objclass = (classtype) (CLASS) | TEMP_MASK
-#define SET_TEMP_FLAG(O)            (O)->objclass = (O)->objclass | TEMP_MASK
-#define CLEAR_TEMP_FLAG(O)          (O)->objclass = (O)->objclass & ~TEMP_MASK
-#define TEMP_OBJECT(O)              ((O)->objclass & TEMP_MASK)
+#define INIT_CLASS_OF_TEMP(O,CLASS)  (O)->objclass = (classtype) (CLASS) | TEMP_MASK
+#define SET_TEMP_FLAG(O)             (O)->objclass = (O)->objclass | TEMP_MASK
+#define CLEAR_TEMP_FLAG(O)           (O)->objclass = (O)->objclass & ~TEMP_MASK
+#define TEMP_OBJECT(O)               ((O)->objclass & TEMP_MASK)
+
+#define INIT_CLASS_OF_TEMP2(O,CLASS) (O)->objclass = (classtype) (CLASS) | TEMP2_MASK
+#define SET_TEMP2_FLAG(O)            (O)->objclass = (O)->objclass | TEMP2_MASK
+#define CLEAR_TEMP2_FLAG(O)          (O)->objclass = (O)->objclass & ~TEMP2_MASK
+#define TEMP2_OBJECT(O)              ((O)->objclass & TEMP2_MASK)

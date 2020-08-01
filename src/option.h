@@ -33,6 +33,7 @@ typedef struct {
     booltype get_infile_buffer;
     booltype compilation_info;
     booltype linecount_info;
+    booltype catch_signals;
     unsigned int incr_message_line;
     char *comp_trace_level;
     char *exec_trace_level;
@@ -41,8 +42,8 @@ typedef struct {
   } opttype;
 
 #ifdef DO_INIT
-opttype option = {NULL, NULL, FALSE, FALSE, TRUE, FALSE, TRUE,
-    727, 0, 0, 0, NULL};
+opttype option = {NULL, NULL, FALSE, FALSE, TRUE, FALSE, TRUE, TRUE,
+    727, NULL, NULL, 0, NULL};
 #else
 EXTERN opttype option;
 #endif

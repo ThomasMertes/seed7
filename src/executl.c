@@ -893,14 +893,12 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-objecttype param1_call (objecttype function_obj, objecttype param1,
-    errinfotype *err_info)
+objecttype param1_call (objecttype function_obj, objecttype param1)
 #else
 
-objecttype param1_call (function_obj, param1, err_info)
+objecttype param1_call (function_obj, param1)
 objecttype function_obj;
 objecttype param1;
-errinfotype *err_info;
 #endif
 
   {
@@ -928,14 +926,13 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 objecttype param2_call (objecttype function_obj, objecttype param1,
-    objecttype param2, errinfotype *err_info)
+    objecttype param2)
 #else
 
-objecttype param2_call (function_obj, param1, param2, err_info)
+objecttype param2_call (function_obj, param1, param2)
 objecttype function_obj;
 objecttype param1;
 objecttype param2;
-errinfotype *err_info;
 #endif
 
   {
@@ -965,15 +962,14 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 objecttype param3_call (objecttype function_obj, objecttype param1,
-    objecttype param2, objecttype param3, errinfotype *err_info)
+    objecttype param2, objecttype param3)
 #else
 
-objecttype param3_call (function_obj, param1, param2, param3, err_info)
+objecttype param3_call (function_obj, param1, param2, param3)
 objecttype function_obj;
 objecttype param1;
 objecttype param2;
 objecttype param3;
-errinfotype *err_info;
 #endif
 
   {

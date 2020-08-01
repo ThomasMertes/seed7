@@ -291,14 +291,14 @@ EXTERN memsizetype hs;
 
 #define ALLOC_ARRAY(var,len)       ALLOC_HEAP(var, arraytype, SIZ_ARR(len))
 #define FREE_ARRAY(var,len)        (CNT2_ARR(len, SIZ_ARR(len)), FREE_HEAP(var, byt))
-#define RESIZE_ARRAY(var,LN1,LN2)  REALLOC_HEAP(var, arraytype, SIZ_ARR(LN2))
+#define RESIZE_ARRAY(var,ln1,ln2)  REALLOC_HEAP(var, arraytype, SIZ_ARR(ln2))
 #define COUNT_ARRAY(len)           CNT1_ARR(len, SIZ_ARR(len))
 #define COUNT3_ARRAY(len1,len2)    (CNT2_ARR(len1, SIZ_ARR(len1)), CNT1_ARR(len2, SIZ_ARR(len2)))
 
 
 #define ALLOC_HASH(var,len)        ALLOC_HEAP(var, hashtype, SIZ_HSH(len))
 #define FREE_HASH(var,len)         (CNT2_HSH(len, SIZ_HSH(len)), FREE_HEAP(var, byt))
-#define RESIZE_HASH(var,LN1,LN2)   REALLOC_HEAP(var, hashtype, SIZ_HSH(LN2))
+#define RESIZE_HASH(var,ln1,ln2)   REALLOC_HEAP(var, hashtype, SIZ_HSH(ln2))
 #define COUNT_HASH(len)            CNT1_HSH(len, SIZ_HSH(len))
 #define COUNT3_HASH(len1,len2)     (CNT2_HSH(len1, SIZ_HSH(len1)), CNT1_HSH(len2, SIZ_HSH(len2)))
 
@@ -312,7 +312,7 @@ EXTERN memsizetype hs;
 
 #define ALLOC_STRUCT(var,len)      ALLOC_HEAP(var, structtype, SIZ_SCT(len))
 #define FREE_STRUCT(var,len)       (CNT2_SCT(len, SIZ_SCT(len)), FREE_HEAP(var, byt))
-#define RESIZE_STRUCT(var,LN1,LN2) REALLOC_HEAP(var, structtype, SIZ_SCT(LN2))
+#define RESIZE_STRUCT(var,ln1,ln2) REALLOC_HEAP(var, structtype, SIZ_SCT(ln2))
 #define COUNT_STRUCT(len)          CNT1_SCT(len, SIZ_SCT(len))
 #define COUNT3_STRUCT(len1,len2)   (CNT2_SCT(len1, SIZ_SCT(len1)), CNT1_SCT(len2, SIZ_SCT(len2)))
 

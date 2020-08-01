@@ -82,7 +82,9 @@ char **argv;
         printf("*** Sourcefile missing\n");
       } else {
 #ifdef CATCH_SIGNALS
-        activate_signal_handlers();
+        if (option.catch_signals) {
+          activate_signal_handlers();
+        } /* if */
 #endif
         init_chclass();
         init_primitiv();

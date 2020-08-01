@@ -39,6 +39,7 @@ void close_declaration_root (progtype);
 void free_entity (entitytype);
 entitytype get_entity (nodetype, listtype);
 entitytype find_entity (nodetype, listtype);
+entitytype search_entity (nodetype, listtype);
 void pop_entity (nodetype, entitytype);
 void init_entity (errinfotype *);
 
@@ -50,6 +51,7 @@ void close_declaration_root ();
 void free_entity ();
 entitytype get_entity ();
 entitytype find_entity ();
+entitytype search_entity ();
 void pop_entity ();
 void init_entity ();
 

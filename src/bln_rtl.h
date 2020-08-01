@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  int_rtl.h     Primitive actions for the integer type.           */
+/*  bln_rtl.h     Primitive actions for the integer type.           */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,52 +23,20 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/int_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994, 2000, 2005  Thomas Mertes            */
-/*  Content: Primitive actions for the integer type.                */
+/*  File: seed7/src/bln_rtl.h                                       */
+/*  Changes: 1999, 2005  Thomas Mertes                              */
+/*  Content: Primitive actions for the boolean type.                */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
-#include "limits.h"
-#endif
 
-
-#ifndef ULONG_MAX
-#define ULONG_MAX ((uinttype) 4294967295L)
-#endif
-
-
-#ifdef ANSI_C
-
-uinttype rand_32 (void);
-inttype most_significant_bit (uinttype);
-inttype least_significant_bit (uinttype);
-inttype intBinom (inttype, inttype);
-inttype intCmp (inttype, inttype);
-void intCpy (inttype *, inttype);
-void intCreate (inttype *, inttype);
-inttype intLd (inttype);
-inttype intParse (stritype);
-inttype intPow (inttype, inttype);
-inttype intRand (inttype, inttype);
-inttype intSqrt (inttype);
-stritype intStr (inttype);
+void blnCpy (booltype *, booltype);
+void blnCreate (booltype *, booltype);
 
 #else
 
-uinttype rand_32 ();
-inttype most_significant_bit ();
-inttype least_significant_bit ();
-inttype intBinom ();
-inttype intCmp ();
-void intCpy ();
-void intCreate ();
-inttype intLd ();
-inttype intParse ();
-inttype intPow ();
-inttype intRand ();
-inttype intSqrt ();
-stritype intStr ();
+void blnCpy ();
+void blnCreate ();
 
 #endif

@@ -27,7 +27,6 @@
 
 #include "stdlib.h"
 #include "stdio.h"
-#include "string.h"
 
 #include "version.h"
 #include "common.h"
@@ -36,8 +35,10 @@
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "listutl.h"
+#include "arrutl.h"
 #include "traceutl.h"
 #include "executl.h"
+#include "exec.h"
 #include "runerr.h"
 #include "memory.h"
 
@@ -49,30 +50,30 @@
 #define TABLE_BITS 10
 #define TABLE_SIZE(bits) (1 << (bits))
 #define TABLE_MASK(bits) (TABLE_SIZE(bits)-1)
+#define ARRAY_SIZE_INCREMENT 512
 
 
 
 #ifdef ANSI_C
 
 static void free_helem (helemtype old_helem, objecttype key_destr_func,
-    objecttype data_destr_func, errinfotype *err_info)
+    objecttype data_destr_func)
 #else
 
-static void free_helem (old_helem, key_destr_func, data_destr_func, err_info)
+static void free_helem (old_helem, key_destr_func, data_destr_func)
 helemtype old_helem;
 objecttype key_destr_func;
 objecttype data_destr_func;
-errinfotype *err_info;
 #endif
 
   { /* free_helem */
     if (old_helem != NULL) {
-      param1_call(key_destr_func, &old_helem->key, err_info);
-      param1_call(data_destr_func, &old_helem->data, err_info);
+      param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
+      param2_call(data_destr_func, &old_helem->data, SYS_DESTR_OBJECT);
       free_helem(old_helem->next_less, key_destr_func,
-          data_destr_func, err_info);
+          data_destr_func);
       free_helem(old_helem->next_greater, key_destr_func,
-          data_destr_func, err_info);
+          data_destr_func);
       FREE_RECORD(old_helem, helemrecord, count.helem);
     } /* if */
   } /* free_helem */
@@ -82,14 +83,13 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static void free_hash (hashtype old_hash, objecttype key_destr_func,
-    objecttype data_destr_func, errinfotype *err_info)
+    objecttype data_destr_func)
 #else
 
-static void free_hash (old_hash, key_destr_func, data_destr_func, err_info)
+static void free_hash (old_hash, key_destr_func, data_destr_func)
 hashtype old_hash;
 objecttype key_destr_func;
 objecttype data_destr_func;
-errinfotype *err_info;
 #endif
 
   {
@@ -101,7 +101,7 @@ errinfotype *err_info;
       number = old_hash->table_size;
       curr_helem = &old_hash->table[0];
       while (number > 0) {
-        free_helem(*curr_helem, key_destr_func, data_destr_func, err_info);
+        free_helem(*curr_helem, key_destr_func, data_destr_func);
         number--;
         curr_helem++;
       } /* while */
@@ -136,11 +136,11 @@ errinfotype *err_info;
       helem->key.entity = key->entity;
       INIT_CLASS_OF_VAR(&helem->key, DECLAREDOBJECT);
       helem->key.type_of = key->type_of;
-      param3_call(key_create_func, &helem->key, SYS_CREA_OBJECT, key, err_info);
+      param3_call(key_create_func, &helem->key, SYS_CREA_OBJECT, key);
       helem->data.entity = data->entity;
       INIT_CLASS_OF_VAR(&helem->data, DECLAREDOBJECT);
       helem->data.type_of = data->type_of;
-      param3_call(data_create_func, &helem->data, SYS_CREA_OBJECT, data, err_info);
+      param3_call(data_create_func, &helem->data, SYS_CREA_OBJECT, data);
       helem->next_less = NULL;
       helem->next_greater = NULL;
     } /* if */
@@ -252,11 +252,11 @@ errinfotype *err_info;
         dest_helem->key.entity = source_helem->key.entity;
         INIT_CLASS_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
         dest_helem->key.type_of = source_helem->key.type_of;
-        param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key, err_info);
+        param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
         dest_helem->data.entity = source_helem->data.entity;
         INIT_CLASS_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
         dest_helem->data.type_of = source_helem->data.type_of;
-        param3_call(data_create_func, &dest_helem->data, SYS_CREA_OBJECT, &source_helem->data, err_info);
+        param3_call(data_create_func, &dest_helem->data, SYS_CREA_OBJECT, &source_helem->data);
         dest_helem->next_less = copy_helem(source_helem->next_less,
             key_create_func, data_create_func, err_info);
         dest_helem->next_greater = copy_helem(source_helem->next_greater,
@@ -315,6 +315,180 @@ errinfotype *err_info;
     } /* if */
     return(dest_hash);
   } /* copy_hash */
+
+
+
+#ifdef ANSI_C
+
+static void keys_helem (arraytype *key_array, memsizetype *arr_pos,
+    helemtype curr_helem, objecttype key_create_func, errinfotype *err_info)
+#else
+
+static void keys_helem (key_array, arr_pos, curr_helem, key_create_func, err_info)
+arraytype *key_array;
+memsizetype *arr_pos;
+helemtype curr_helem;
+objecttype key_create_func;
+errinfotype *err_info;
+#endif
+
+  {
+    memsizetype array_size;
+    objecttype dest_obj;
+
+  /* keys_helem */
+    array_size = (*key_array)->max_position - (*key_array)->min_position;
+    if (*arr_pos >= array_size) {
+      if (!RESIZE_ARRAY(*key_array, array_size, array_size + ARRAY_SIZE_INCREMENT)) {
+        *err_info = MEMORY_ERROR;
+        return;
+      } else {
+        COUNT3_ARRAY(array_size, array_size + ARRAY_SIZE_INCREMENT);
+        (*key_array)->max_position += ARRAY_SIZE_INCREMENT;
+      } /* if */
+    } /* if */
+    dest_obj = &(*key_array)->arr[*arr_pos];
+    dest_obj->entity = curr_helem->key.entity;
+    INIT_CLASS_OF_VAR(dest_obj, DECLAREDOBJECT);
+    dest_obj->type_of = curr_helem->key.type_of;
+    param3_call(key_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->key);
+    (*arr_pos)++;
+    if (curr_helem->next_less != NULL) {
+      keys_helem(key_array, arr_pos, curr_helem->next_less, key_create_func, err_info);
+    } /* if */
+    if (curr_helem->next_greater != NULL) {
+      keys_helem(key_array, arr_pos, curr_helem->next_greater, key_create_func, err_info);
+    } /* if */
+  } /* keys_helem */
+
+
+
+#ifdef ANSI_C
+
+static arraytype keys_hash (hashtype curr_hash, objecttype key_create_func,
+    objecttype key_destr_func, objecttype key_cmp_func, errinfotype *err_info)
+#else
+
+static arraytype keys_hash (curr_hash, key_create_func, key_destr_func,
+    key_cmp_func, err_info)
+hashtype curr_hash;
+objecttype key_create_func;
+objecttype key_destr_func;
+objecttype key_cmp_func;
+errinfotype *err_info;
+#endif
+
+  {
+    memsizetype arr_pos;
+    int number;
+    helemtype *curr_helem;
+    memsizetype array_size;
+    arraytype key_array;
+
+  /* keys_hash */
+    if (curr_hash != NULL) {
+      if (!ALLOC_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        COUNT_ARRAY(ARRAY_SIZE_INCREMENT);
+        key_array->min_position = 1;
+        key_array->max_position = ARRAY_SIZE_INCREMENT;
+        arr_pos = 0;
+        number = curr_hash->table_size;
+        curr_helem = &curr_hash->table[0];
+        while (number > 0 && *err_info == NO_ERROR) {
+	  if (*curr_helem != NULL) {
+            keys_helem(&key_array, &arr_pos, *curr_helem, key_create_func, err_info);
+	  } /* if */
+          number--;
+          curr_helem++;
+        } /* while */
+        array_size = key_array->max_position - key_array->min_position;
+        if (*err_info != NO_ERROR) {
+          for (number = 0; number < arr_pos; number++) {
+            param2_call(key_destr_func, &key_array->arr[number], SYS_DESTR_OBJECT);
+          } /* for */
+	  FREE_ARRAY(key_array, array_size);
+          key_array = NULL;
+        } else {
+          if (!RESIZE_ARRAY(key_array, array_size, arr_pos)) {
+	    FREE_ARRAY(key_array, array_size);
+            key_array = NULL;
+            *err_info = MEMORY_ERROR;
+          } else {
+            COUNT3_ARRAY(array_size, arr_pos);
+            key_array->max_position = arr_pos;
+            qsort_array(key_array->arr, &key_array->arr[arr_pos - 1], key_cmp_func);
+          } /* if */
+        } /* if */
+      } /* if */
+    } else {
+      if (!ALLOC_ARRAY(key_array, 0)) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        COUNT_ARRAY(0);
+        key_array->min_position = 1;
+        key_array->max_position = 0;
+      } /* if */
+    } /* if */
+    return(key_array);
+  } /* keys_hash */
+
+
+
+#ifdef ANSI_C
+
+static void for_helem (objecttype for_variable, helemtype curr_helem,
+    objecttype statement, objecttype key_copy_func)
+#else
+
+static void for_helem (for_variable, curr_helem, statement, key_copy_func)
+objecttype for_variable;
+helemtype curr_helem;
+objecttype statement;
+objecttype key_copy_func;
+#endif
+
+  { /* for_helem */
+    if (curr_helem != NULL) {
+      param3_call(key_copy_func, for_variable, SYS_ASSIGN_OBJECT, &curr_helem->key);
+      evaluate(statement);
+      for_helem(for_variable, curr_helem->next_less, statement, key_copy_func);
+      for_helem(for_variable, curr_helem->next_greater, statement, key_copy_func);
+    } /* if */
+  } /* for_helem */
+
+
+
+#ifdef ANSI_C
+
+static void for_hash (objecttype for_variable, hashtype curr_hash,
+    objecttype statement, objecttype key_copy_func)
+#else
+
+static void for_hash (for_variable, curr_hash, statement,
+    key_copy_func)
+objecttype for_variable;
+hashtype curr_hash;
+objecttype statement;
+objecttype key_copy_func;
+#endif
+
+  {
+    int number;
+    helemtype *curr_helem;
+
+  /* for_hash */
+    if (curr_hash != NULL) {
+      number = curr_hash->table_size;
+      curr_helem = &curr_hash->table[0];
+      while (number > 0) {
+        for_helem(for_variable, *curr_helem, statement, key_copy_func);
+        number--;
+        curr_helem++;
+      } /* while */
+    } /* if */
+  } /* for_hash */
 
 
 
@@ -391,7 +565,6 @@ listtype arguments;
     helemtype result_hashelem;
     objecttype cmp_obj;
     int cmp;
-    errinfotype err_info = NO_ERROR;
     objecttype result;
 
   /* hsh_contains */
@@ -408,9 +581,10 @@ listtype arguments;
       result_hashelem = NULL;
       hashelem = hash1->table[hashcode & hash1->mask];
       while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key, &err_info);
+        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
+        FREE_OBJECT(cmp_obj);
         if (cmp < 0) {
           hashelem = hashelem->next_less;
         } else if (cmp == 0) {
@@ -508,12 +682,12 @@ listtype arguments;
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
-    free_hash(hsh_dest, key_destr_func, data_destr_func, &err_info);
+    free_hash(hsh_dest, key_destr_func, data_destr_func);
     if (err_info != NO_ERROR) {
       hsh_to->value.hashvalue = NULL;
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      if (TEMP_OBJECT(hsh_from)) {
+      if (TEMP2_OBJECT(hsh_from)) {
         hsh_to->value.hashvalue = hsh_source;
         hsh_from->value.hashvalue = NULL;
       } else {
@@ -521,7 +695,7 @@ listtype arguments;
             key_create_func, data_create_func, &err_info);
         if (err_info != NO_ERROR) {
           free_hash(hsh_to->value.hashvalue, key_destr_func,
-              data_destr_func, &err_info);
+              data_destr_func);
           hsh_to->value.hashvalue = NULL;
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
@@ -561,7 +735,7 @@ listtype arguments;
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
     SET_CLASS_OF_OBJ(hsh_to, HASHOBJECT);
-    if (TEMP_OBJECT(hsh_from)) {
+    if (TEMP2_OBJECT(hsh_from)) {
       hsh_to->value.hashvalue = hsh_source;
       hsh_from->value.hashvalue = NULL;
     } else {
@@ -569,7 +743,7 @@ listtype arguments;
           key_create_func, data_create_func, &err_info);
       if (err_info != NO_ERROR) {
         free_hash(hsh_to->value.hashvalue, key_destr_func,
-            data_destr_func, &err_info);
+            data_destr_func);
         hsh_to->value.hashvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -592,14 +766,13 @@ listtype arguments;
     hashtype old_hash;
     objecttype key_destr_func;
     objecttype data_destr_func;
-    errinfotype err_info = NO_ERROR;
 
   /* hsh_destr */
     isit_hash(arg_1(arguments));
     old_hash        =      take_hash(arg_1(arguments));
     key_destr_func  = take_reference(arg_2(arguments));
     data_destr_func = take_reference(arg_3(arguments));
-    free_hash(old_hash, key_destr_func, data_destr_func, &err_info);
+    free_hash(old_hash, key_destr_func, data_destr_func);
     arg_1(arguments)->value.hashvalue = NULL;
     return(SYS_EMPTY_OBJECT);
   } /* hsh_destr */
@@ -652,7 +825,6 @@ listtype arguments;
     helemtype old_hashelem;
     objecttype cmp_obj;
     int cmp;
-    errinfotype err_info = NO_ERROR;
     objecttype result;
 
   /* hsh_excl */
@@ -671,9 +843,10 @@ listtype arguments;
       delete_pos = &hash1->table[hashcode & hash1->mask];
       hashelem = hash1->table[hashcode & hash1->mask];
       while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key, &err_info);
+        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
+        FREE_OBJECT(cmp_obj);
         if (cmp < 0) {
           delete_pos = &hashelem->next_less;
           hashelem = hashelem->next_less;
@@ -694,7 +867,7 @@ listtype arguments;
             old_hashelem->next_less = NULL;
             old_hashelem->next_greater = NULL;
             free_helem(old_hashelem, key_destr_func,
-                data_destr_func, &err_info);
+                data_destr_func);
           } /* if */
           hashelem = NULL;
         } else {
@@ -756,6 +929,41 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype hsh_for_key (listtype arguments)
+#else
+
+objecttype hsh_for_key (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype for_variable;
+    hashtype hash1;
+    objecttype statement;
+    objecttype key_copy_func;
+    objecttype key_destr_func;
+    objecttype key_cmp_func;
+    arraytype key_array;
+    errinfotype err_info = NO_ERROR;
+
+  /* hsh_for_key */
+    isit_hash(arg_2(arguments));
+    for_variable = arg_1(arguments);
+    hash1 = take_hash(arg_2(arguments));
+    statement = arg_3(arguments);
+    key_copy_func = take_reference(arg_4(arguments));
+    key_destr_func = take_reference(arg_5(arguments));
+    key_cmp_func = take_reference(arg_6(arguments));
+    /* key_array = keys_hash(hash1, key_copy_func, key_destr_func,
+       key_cmp_func, &err_info); */
+    for_hash(for_variable, hash1, statement, key_copy_func);
+    return(SYS_EMPTY_OBJECT);
+  } /* hsh_for_key */
+
+
+
+#ifdef ANSI_C
+
 objecttype hsh_idx (listtype arguments)
 #else
 
@@ -772,7 +980,6 @@ listtype arguments;
     helemtype result_hashelem;
     objecttype cmp_obj;
     int cmp;
-    errinfotype err_info = NO_ERROR;
     objecttype result;
 
   /* hsh_idx */
@@ -789,9 +996,10 @@ listtype arguments;
       result_hashelem = NULL;
       hashelem = hash1->table[hashcode & hash1->mask];
       while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key, &err_info);
+        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
+        FREE_OBJECT(cmp_obj);
         if (cmp < 0) {
           hashelem = hashelem->next_less;
         } else if (cmp == 0) {
@@ -803,7 +1011,7 @@ listtype arguments;
       } /* while */
       if (result_hashelem != NULL) {
         result = &result_hashelem->data;
-        if (TEMP_OBJECT(arg_1(arguments))) {
+        if (TEMP2_OBJECT(arg_1(arguments))) {
           /* The hash will be destroyed after indexing. */
           /* Therefore it is necessary here to remove it */
           /* from the hashtable to avoid a crash !!!!! */
@@ -863,9 +1071,10 @@ listtype arguments;
       result_hashelem = NULL;
       hashelem = hash1->table[hashcode & hash1->mask];
       while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key, &err_info);
+        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
+        FREE_OBJECT(cmp_obj);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
             result_hashelem = new_helem(key, data,
@@ -953,9 +1162,10 @@ listtype arguments;
             key_create_func, data_create_func, &err_info);
       } else {
         do {
-          cmp_obj = param2_call(cmp_func, &hashelem->key, key, &err_info);
+          cmp_obj = param2_call(cmp_func, &hashelem->key, key);
           isit_int(cmp_obj);
           cmp = take_int(cmp_obj);
+          FREE_OBJECT(cmp_obj);
           if (cmp < 0) {
             if (hashelem->next_less == NULL) {
               hashelem->next_less = new_helem(key, data,
@@ -965,7 +1175,7 @@ listtype arguments;
               hashelem = hashelem->next_less;
             } /* if */
           } else if (cmp == 0) {
-            param3_call(data_copy_func, &hashelem->data, SYS_ASSIGN_OBJECT, data, &err_info);
+            param3_call(data_copy_func, &hashelem->data, SYS_ASSIGN_OBJECT, data);
             hashelem = NULL;
           } else {
             if (hashelem->next_greater == NULL) {
@@ -985,6 +1195,36 @@ listtype arguments;
       return(SYS_EMPTY_OBJECT);
     } /* if */
   } /* hsh_incl */
+
+
+
+#ifdef ANSI_C
+
+objecttype hsh_keys (listtype arguments)
+#else
+
+objecttype hsh_keys (arguments)
+listtype arguments;
+#endif
+
+  {
+    hashtype hash1;
+    objecttype key_create_func;
+    objecttype key_destr_func;
+    objecttype key_cmp_func;
+    arraytype key_array;
+    errinfotype err_info = NO_ERROR;
+
+  /* hsh_keys */
+    isit_hash(arg_1(arguments));
+    hash1 = take_hash(arg_1(arguments));
+    key_create_func = take_reference(arg_2(arguments));
+    key_destr_func = take_reference(arg_3(arguments));
+    key_cmp_func = take_reference(arg_4(arguments));
+    key_array = keys_hash(hash1, key_create_func, key_destr_func,
+        key_cmp_func, &err_info);
+    return(bld_array_temp(key_array));
+  } /* hsh_keys */
 
 
 
@@ -1022,7 +1262,6 @@ listtype arguments;
     helemtype result_hashelem;
     objecttype cmp_obj;
     int cmp;
-    errinfotype err_info = NO_ERROR;
     objecttype result;
 
   /* hsh_refidx */
@@ -1039,9 +1278,10 @@ listtype arguments;
       result_hashelem = NULL;
       hashelem = hash1->table[hashcode & hash1->mask];
       while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key, &err_info);
+        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
+        FREE_OBJECT(cmp_obj);
         if (cmp < 0) {
           hashelem = hashelem->next_less;
         } else if (cmp == 0) {

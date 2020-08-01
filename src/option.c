@@ -110,6 +110,9 @@ int start;
               option.compilation_info = FALSE;
               option.linecount_info = FALSE;
               break;
+            case 's':
+              option.catch_signals = FALSE;
+              break;
             case 't':
               if (opt[2] != '\0') {
                 option.exec_trace_level = &opt[2];

@@ -18,45 +18,26 @@
 /*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
 /*  MA 02111-1307 USA                                               */
 /*                                                                  */
-/*  Module: Library                                                 */
-/*  File: seed7/src/hshlib.h                                        */
+/*  Module: General                                                 */
+/*  File: seed7/src/arrutl.h                                        */
 /*  Changes: 2005  Thomas Mertes                                    */
-/*  Content: All primitive actions for hash types.                  */
+/*  Content: Procedures to maintain objects of type arraytype.      */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-objecttype hsh_contains (listtype);
-objecttype hsh_conv (listtype);
-objecttype hsh_cpy (listtype);
-objecttype hsh_create (listtype);
-objecttype hsh_destr (listtype);
-objecttype hsh_empty (listtype);
-objecttype hsh_excl (listtype);
-objecttype hsh_for_key (listtype);
-objecttype hsh_idx (listtype);
-objecttype hsh_idx2 (listtype);
-objecttype hsh_incl (listtype);
-objecttype hsh_keys (listtype);
-objecttype hsh_lng (listtype);
-objecttype hsh_refidx (listtype);
+void destroy_array (objecttype, memsizetype, objecttype);
+void create_array (objecttype, objecttype,
+	           memsizetype, objecttype, objecttype);
+void copy_array (objecttype, objecttype, memsizetype, objecttype);
+void qsort_array (objecttype, objecttype, objecttype);
 
 #else
 
-objecttype hsh_contains ();
-objecttype hsh_conv ();
-objecttype hsh_cpy ();
-objecttype hsh_create ();
-objecttype hsh_destr ();
-objecttype hsh_empty ();
-objecttype hsh_excl ();
-objecttype hsh_for_key ();
-objecttype hsh_idx ();
-objecttype hsh_idx2 ();
-objecttype hsh_incl ();
-objecttype hsh_keys ();
-objecttype hsh_lng ();
-objecttype hsh_refidx ();
+void destroy_array ();
+void create_array ();
+void copy_array ();
+void qsort_array ();
 
 #endif
