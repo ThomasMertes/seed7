@@ -34,6 +34,8 @@ objecttype hsh_create (listtype);
 objecttype hsh_destr (listtype);
 objecttype hsh_empty (listtype);
 objecttype hsh_excl (listtype);
+objecttype hsh_for (listtype);
+objecttype hsh_for_data_key (listtype);
 objecttype hsh_for_key (listtype);
 objecttype hsh_idx (listtype);
 objecttype hsh_idx2 (listtype);
@@ -41,6 +43,7 @@ objecttype hsh_incl (listtype);
 objecttype hsh_keys (listtype);
 objecttype hsh_lng (listtype);
 objecttype hsh_refidx (listtype);
+objecttype hsh_values (listtype);
 
 #else
 
@@ -51,6 +54,8 @@ objecttype hsh_create ();
 objecttype hsh_destr ();
 objecttype hsh_empty ();
 objecttype hsh_excl ();
+objecttype hsh_for ();
+objecttype hsh_for_data_key ();
 objecttype hsh_for_key ();
 objecttype hsh_idx ();
 objecttype hsh_idx2 ();
@@ -58,5 +63,6 @@ objecttype hsh_incl ();
 objecttype hsh_keys ();
 objecttype hsh_lng ();
 objecttype hsh_refidx ();
+objecttype hsh_values ();
 
 #endif

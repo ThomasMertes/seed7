@@ -60,8 +60,6 @@ listtype arguments;
     objecttype arr_variable;
     arraytype arr_to;
     arraytype arr_from;
-    objecttype data_create_func;
-    objecttype data_destr_func;
     memsizetype new_size;
     memsizetype arr_to_size;
     memsizetype arr_from_size;
@@ -72,11 +70,9 @@ listtype arguments;
     isit_array(arr_variable);
     is_variable(arr_variable);
     arr_to = take_array(arr_variable);
-    isit_array(arg_2(arguments));
-    arr_from = take_array(arg_2(arguments));
+    isit_array(arg_3(arguments));
+    arr_from = take_array(arg_3(arguments));
     arr_from_size = arr_from->max_position - arr_from->min_position + 1;
-    data_create_func = take_reference(arg_3(arguments));
-    data_destr_func  = take_reference(arg_4(arguments));
     if (arr_from_size != 0) {
       arr_to_size = arr_to->max_position - arr_to->min_position + 1;
       new_size = arr_to_size + arr_from_size;
@@ -85,22 +81,21 @@ listtype arguments;
       } /* if */
       COUNT3_ARRAY(arr_to_size, new_size);
       arr_variable->value.arrayvalue = arr_to;
-      if (TEMP2_OBJECT(arg_2(arguments))) {
+      if (TEMP_OBJECT(arg_3(arguments))) {
         memcpy(&arr_to->arr[arr_to_size], arr_from->arr,
             (SIZE_TYPE) (arr_from_size * sizeof(objectrecord)));
         arr_to->max_position += arr_from_size;
         FREE_ARRAY(arr_from, arr_from_size);
-        arg_2(arguments)->value.arrayvalue = NULL;
+        arg_3(arguments)->value.arrayvalue = NULL;
       } else {
-        create_array(&arr_to->arr[arr_to_size], arr_from->arr,
-            arr_from_size, data_create_func, data_destr_func);
-        if (fail_flag) {
+        if (!crea_array(&arr_to->arr[arr_to_size], arr_from->arr,
+            arr_from_size)) {
           if (!RESIZE_ARRAY(arr_to, new_size, arr_to_size)) {
             return(raise_exception(SYS_MEM_EXCEPTION));
           } /* if */
           COUNT3_ARRAY(new_size, arr_to_size);
           arr_variable->value.arrayvalue = arr_to;
-          return(NULL);
+          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
         } /* if */
         arr_to->max_position += arr_from_size;
       } /* if */
@@ -123,22 +118,19 @@ listtype arguments;
   {
     objecttype arr_arg;
     arraytype arr1;
-    objecttype data_create_func;
-    objecttype data_destr_func;
     memsizetype result_size;
     arraytype result_array;
+    objecttype result;
 
   /* arr_arrlit */
-    arr_arg = arg_1(arguments);
+    arr_arg = arg_3(arguments);
     isit_array(arr_arg);
-    arr1 = take_array(arr_arg);
-    if (TEMP2_OBJECT(arr_arg)) {
-      result_array = arr1;
-      INIT_CLASS_OF_TEMP2(arr_arg, INTOBJECT);
-      /* result = arr_arg;
+    if (TEMP_OBJECT(arr_arg)) {
+      result = arr_arg;
       result->type_of = NULL;
-      arg_1(arguments) = NULL; */
+      arg_3(arguments) = NULL;
     } else {
+      arr1 = take_array(arr_arg);
       result_size = arr1->max_position - arr1->min_position + 1;
       if (!ALLOC_ARRAY(result_array, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -146,16 +138,13 @@ listtype arguments;
       COUNT_ARRAY(result_size);
       result_array->min_position = 1;
       result_array->max_position = result_size;
-      data_create_func = take_reference(arg_2(arguments));
-      data_destr_func  = take_reference(arg_3(arguments));
-      create_array(result_array->arr, arr1->arr, result_size,
-          data_create_func, data_destr_func);
-      if (fail_flag) {
+      if (!crea_array(result_array->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result_array, result_size);
-        return(NULL);
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
+      result = bld_array_temp(result_array);
     } /* if */
-    return(bld_array_temp(result_array));
+    return(result);
   } /* arr_arrlit */
 
 
@@ -221,13 +210,11 @@ listtype arguments;
 
   {
     objecttype element;
-    objecttype data_create_func;
     memsizetype result_size;
     arraytype result;
 
   /* arr_baselit */
-    element = arg_1(arguments);
-    data_create_func = take_reference(arg_2(arguments));
+    element = arg_3(arguments);
     result_size = 1;
     if (!ALLOC_ARRAY(result, result_size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -235,21 +222,16 @@ listtype arguments;
     COUNT_ARRAY(result_size);
     result->min_position = 1;
     result->max_position = 1;
-    if (TEMP2_OBJECT(element)) {
-      CLEAR_TEMP2_FLAG(element);
+    if (TEMP_OBJECT(element)) {
+      CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
       memcpy(&result->arr[0], element, sizeof(objectrecord));
-      INIT_CLASS_OF_TEMP2(element, INTOBJECT);
-      /* FREE_OBJECT(element);
-	 arg_1(arguments) = NULL; */
+      FREE_OBJECT(element);
+      arg_3(arguments) = NULL;
     } else {
-      result->arr[0].entity = element->entity;
-      INIT_CLASS_OF_VAR(&result->arr[0], DECLAREDOBJECT);
-      result->arr[0].type_of = element->type_of;
-      param3_call(data_create_func, &result->arr[0], SYS_CREA_OBJECT, element);
-      if (fail_flag) {
+      if (!any_var_initialisation(&result->arr[0], element)) {
         FREE_ARRAY(result, result_size);
-        return(NULL);
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
     return(bld_array_temp(result));
@@ -420,27 +402,21 @@ listtype arguments;
     objecttype arr_from;
     arraytype arr_dest;
     arraytype arr_source;
-    objecttype data_create_func;
-    objecttype data_destr_func;
-    objecttype data_copy_func;
     memsizetype arr_dest_size;
     memsizetype arr_source_size;
     arraytype new_arr;
 
   /* arr_cpy */
     arr_to = arg_1(arguments);
-    arr_from = arg_2(arguments);
+    arr_from = arg_3(arguments);
     isit_array(arr_to);
     isit_array(arr_from);
     is_variable(arr_to);
     arr_dest = take_array(arr_to);
     arr_source = take_array(arr_from);
-    data_create_func = take_reference(arg_3(arguments));
-    data_destr_func  = take_reference(arg_4(arguments));
-    data_copy_func   = take_reference(arg_5(arguments));
-    if (TEMP2_OBJECT(arr_from)) {
+    if (TEMP_OBJECT(arr_from)) {
       arr_dest_size = arr_dest->max_position - arr_dest->min_position + 1;
-      destroy_array(arr_dest->arr, arr_dest_size, data_destr_func);
+      destr_array(arr_dest->arr, arr_dest_size);
       FREE_ARRAY(arr_dest, arr_dest_size);
       arr_to->value.arrayvalue = arr_source;
       arr_from->value.arrayvalue = NULL;
@@ -454,19 +430,17 @@ listtype arguments;
           COUNT_ARRAY(arr_source_size);
           new_arr->min_position = arr_source->min_position;
           new_arr->max_position = arr_source->max_position;
-          create_array(new_arr->arr, arr_source->arr, arr_source_size,
-              data_create_func, data_destr_func);
-          if (fail_flag) {
+          if (!crea_array(new_arr->arr, arr_source->arr, arr_source_size)) {
             FREE_ARRAY(new_arr, arr_source_size);
-            return(NULL);
+            return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
           } /* if */
           arr_dest_size = arr_dest->max_position - arr_dest->min_position + 1;
-          destroy_array(arr_dest->arr, arr_dest_size, data_destr_func);
+          destr_array(arr_dest->arr, arr_dest_size);
           FREE_ARRAY(arr_dest, arr_dest_size);
           arr_to->value.arrayvalue = new_arr;
         } /* if */
       } else {
-	copy_array(arr_dest->arr, arr_source->arr, arr_source_size, data_copy_func);
+        cpy_array(arr_dest->arr, arr_source->arr, arr_source_size);
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);
@@ -487,20 +461,16 @@ listtype arguments;
     objecttype arr_to;
     objecttype arr_from;
     arraytype arr_source;
-    objecttype data_create_func;
-    objecttype data_destr_func;
     memsizetype new_size;
     arraytype new_arr;
 
   /* arr_create */
     arr_to = arg_1(arguments);
-    arr_from = arg_2(arguments);
+    arr_from = arg_3(arguments);
     isit_array(arr_from);
     arr_source = take_array(arr_from);
-    data_create_func = take_reference(arg_3(arguments));
-    data_destr_func  = take_reference(arg_4(arguments));
     SET_CLASS_OF_OBJ(arr_to, ARRAYOBJECT);
-    if (TEMP2_OBJECT(arr_from)) {
+    if (TEMP_OBJECT(arr_from)) {
       arr_to->value.arrayvalue = arr_source;
       arr_from->value.arrayvalue = NULL;
     } else {
@@ -512,12 +482,10 @@ listtype arguments;
         COUNT_ARRAY(new_size);
         new_arr->min_position = arr_source->min_position;
         new_arr->max_position = arr_source->max_position;
-        create_array(new_arr->arr, arr_source->arr, new_size,
-            data_create_func, data_destr_func);
-        if (fail_flag) {
+        if (!crea_array(new_arr->arr, arr_source->arr, new_size)) {
           FREE_ARRAY(new_arr, new_size);
           arr_to->value.arrayvalue = NULL;
-          return(NULL);
+          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
         } /* if */
         arr_to->value.arrayvalue = new_arr;
       } /* if */
@@ -539,15 +507,13 @@ listtype arguments;
   {
     arraytype old_arr;
     memsizetype old_size;
-    objecttype data_destr_func;
 
   /* arr_destr */
     isit_array(arg_1(arguments));
     old_arr = take_array(arg_1(arguments));
-    data_destr_func = take_reference(arg_2(arguments));
     if (old_arr != NULL) {
       old_size = old_arr->max_position - old_arr->min_position + 1;
-      destroy_array(old_arr->arr, old_size, data_destr_func);
+      destr_array(old_arr->arr, old_size);
       FREE_ARRAY(old_arr, old_size);
       arg_1(arguments)->value.arrayvalue = NULL;
     } /* if */
@@ -593,8 +559,6 @@ listtype arguments;
   {
     arraytype arr1;
     objecttype element;
-    objecttype data_create_func;
-    objecttype data_destr_func;
     memsizetype arr1_size;
     memsizetype result_size;
     arraytype result;
@@ -602,12 +566,10 @@ listtype arguments;
   /* arr_extend */
     isit_array(arg_1(arguments));
     arr1 = take_array(arg_1(arguments));
-    element = arg_2(arguments);
-    data_create_func = take_reference(arg_3(arguments));
-    data_destr_func  = take_reference(arg_4(arguments));
+    element = arg_3(arguments);
     arr1_size = arr1->max_position - arr1->min_position + 1;
     result_size = arr1_size + 1;
-    if (TEMP2_OBJECT(arg_1(arguments))) {
+    if (TEMP_OBJECT(arg_1(arguments))) {
       result = arr1;
       if (!RESIZE_ARRAY(result, arr1_size, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -622,31 +584,22 @@ listtype arguments;
       COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position + 1;
-      create_array(result->arr, arr1->arr, arr1_size,
-          data_create_func, data_destr_func);
-      if (fail_flag) {
+      if (!crea_array(result->arr, arr1->arr, arr1_size)) {
         FREE_ARRAY(result, result_size);
-        return(NULL);
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
-    if (TEMP2_OBJECT(element)) {
-      CLEAR_TEMP2_FLAG(element);
+    if (TEMP_OBJECT(element)) {
+      CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
       memcpy(&result->arr[arr1_size], element, sizeof(objectrecord));
-      INIT_CLASS_OF_TEMP2(element, INTOBJECT);
-      /* FREE_OBJECT(element);
-	 arg_2(arguments) = NULL; */
+      FREE_OBJECT(element);
+      arg_3(arguments) = NULL;
     } else {
-      result->arr[arr1_size].entity = element->entity;
-      INIT_CLASS_OF_VAR(&result->arr[arr1_size], DECLAREDOBJECT);
-      result->arr[arr1_size].type_of = element->type_of;
-      param3_call(data_create_func, &result->arr[arr1_size], SYS_CREA_OBJECT, element);
-      if (fail_flag) {
-        fail_flag = FALSE;
+      if (!any_var_initialisation(&result->arr[arr1_size], element)) {
         destr_array(result->arr, arr1_size);
-        fail_flag = TRUE;
         FREE_ARRAY(result, result_size);
-        return(NULL);
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
     return(bld_array_temp(result));
@@ -666,16 +619,12 @@ listtype arguments;
   {
     objecttype element1;
     objecttype element2;
-    objecttype data_create_func;
-    objecttype data_destr_func;
     memsizetype result_size;
     arraytype result;
 
   /* arr_gen */
     element1 = arg_1(arguments);
-    element2 = arg_2(arguments);
-    data_create_func = take_reference(arg_3(arguments));
-    data_destr_func  = take_reference(arg_4(arguments));
+    element2 = arg_3(arguments);
     result_size = 2;
     if (!ALLOC_ARRAY(result, result_size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -683,41 +632,29 @@ listtype arguments;
     COUNT_ARRAY(result_size);
     result->min_position = 1;
     result->max_position = 2;
-    if (TEMP2_OBJECT(element1)) {
-      CLEAR_TEMP2_FLAG(element1);
+    if (TEMP_OBJECT(element1)) {
+      CLEAR_TEMP_FLAG(element1);
       SET_VAR_FLAG(element1);
       memcpy(&result->arr[0], element1, sizeof(objectrecord));
-      INIT_CLASS_OF_TEMP2(element1, INTOBJECT);
-      /* FREE_OBJECT(element1);
-	 arg_1(arguments) = NULL; */
+      FREE_OBJECT(element1);
+      arg_1(arguments) = NULL;
     } else {
-      result->arr[0].entity = element1->entity;
-      INIT_CLASS_OF_VAR(&result->arr[0], DECLAREDOBJECT);
-      result->arr[0].type_of = element1->type_of;
-      param3_call(data_create_func, &result->arr[0], SYS_CREA_OBJECT, element1);
-      if (fail_flag) {
+      if (!any_var_initialisation(&result->arr[0], element1)) {
         FREE_ARRAY(result, result_size);
-        return(NULL);
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
-    if (TEMP2_OBJECT(element2)) {
-      CLEAR_TEMP2_FLAG(element2);
+    if (TEMP_OBJECT(element2)) {
+      CLEAR_TEMP_FLAG(element2);
       SET_VAR_FLAG(element2);
       memcpy(&result->arr[1], element2, sizeof(objectrecord));
-      INIT_CLASS_OF_TEMP2(element2, INTOBJECT);
-      /* FREE_OBJECT(element2);
-	 arg_2(arguments) = NULL; */
+      FREE_OBJECT(element2);
+      arg_3(arguments) = NULL;
     } else {
-      result->arr[1].entity = element2->entity;
-      INIT_CLASS_OF_VAR(&result->arr[1], DECLAREDOBJECT);
-      result->arr[1].type_of = element2->type_of;
-      param3_call(data_create_func, &result->arr[1], SYS_CREA_OBJECT, element2);
-      if (fail_flag) {
-        fail_flag = FALSE;
-        destroy_array(&result->arr[0], 1, data_destr_func);
-        fail_flag = TRUE;
+      if (!any_var_initialisation(&result->arr[1], element2)) {
+        destr_array(result->arr, 1);
         FREE_ARRAY(result, result_size);
-        return(NULL);
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
     return(bld_array_temp(result));
@@ -989,8 +926,6 @@ listtype arguments;
 
   {
     objecttype arr_arg;
-    objecttype data_create_func;
-    objecttype data_destr_func;
     objecttype data_cmp_func;
     arraytype arr1;
     memsizetype result_size;
@@ -999,9 +934,7 @@ listtype arguments;
   /* arr_sort */
     arr_arg = arg_1(arguments);
     isit_array(arr_arg);
-    data_create_func = take_reference(arg_2(arguments));
-    data_destr_func  = take_reference(arg_3(arguments));
-    data_cmp_func    = take_reference(arg_4(arguments));
+    data_cmp_func    = take_reference(arg_2(arguments));
     if (TEMP2_OBJECT(arr_arg)) {
       result = take_array(arr_arg);
       arr_arg->value.arrayvalue = NULL;
@@ -1014,11 +947,9 @@ listtype arguments;
       COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position;
-      create_array(result->arr, arr1->arr, result_size,
-          data_create_func, data_destr_func);
-      if (fail_flag) {
+      if (!crea_array(result->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result, result_size);
-        return(NULL);
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
     qsort_array(result->arr,
@@ -1102,8 +1033,6 @@ listtype arguments;
   {
     inttype factor;
     objecttype element;
-    objecttype data_create_func;
-    objecttype data_destr_func;
     memsizetype position;
     objecttype elem_to;
     memsizetype result_size;
@@ -1112,9 +1041,7 @@ listtype arguments;
   /* arr_times */
     isit_int(arg_1(arguments));
     factor = take_int(arg_1(arguments));
-    element = arg_2(arguments);
-    data_create_func = take_reference(arg_3(arguments));
-    data_destr_func  = take_reference(arg_4(arguments));
+    element = arg_3(arguments);
     if (factor < 0) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
@@ -1127,53 +1054,30 @@ listtype arguments;
         result->max_position = result_size;
         elem_to = result->arr;
         if (result_size > 0) {
-	  /* printf("arr_times(%ld, ", factor);
-          trace1(element);
-          printf(")\n"); */
-          if (TEMP2_OBJECT(element)) {
-            CLEAR_TEMP2_FLAG(element);
+/* printf("arr_times: ");
+trace1(element);
+printf("\n"); */
+          if (TEMP_OBJECT(element)) {
+            CLEAR_TEMP_FLAG(element);
             SET_VAR_FLAG(element);
             memcpy(elem_to, element, sizeof(objectrecord));
-            INIT_CLASS_OF_TEMP2(element, INTOBJECT);
-            /* FREE_OBJECT(element);
-	       arg_2(arguments) = NULL; */
+            FREE_OBJECT(element);
+            arg_3(arguments) = NULL;
           } else {
-            elem_to->entity = element->entity;
-            INIT_CLASS_OF_VAR(elem_to, DECLAREDOBJECT);
-            elem_to->type_of = element->type_of;
-	    /* printf("a ");
-            trace1(data_create_func);
-            printf("\n");
-	    printf("b ");
-            trace1(elem_to);
-            printf("\n");
-	    printf("c ");
-            trace1(SYS_CREA_OBJECT);
-            printf("\n");
-	    printf("d ");
-            trace1(element);
-            printf("\n"); */
-            param3_call(data_create_func, elem_to, SYS_CREA_OBJECT, element);
-            if (fail_flag) {
+            if (!any_var_initialisation(elem_to, element)) {
               FREE_ARRAY(result, result_size);
-              return(NULL);
+              return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
             } /* if */
           } /* if */
           position = 1;
           while (position < result_size) {
-            elem_to[position].entity = elem_to->entity;
-            INIT_CLASS_OF_VAR(&elem_to[position], DECLAREDOBJECT);
-            elem_to[position].type_of = elem_to->type_of;
-	    param3_call(data_create_func, &elem_to[position], SYS_CREA_OBJECT, elem_to);
-            if (fail_flag) {
+            if (!any_var_initialisation(&elem_to[position], elem_to)) {
               /* When one create fails (mostly no memory) all elements */
               /* created up to this point must be destroyed to recycle */
               /* the memory correct. */
-              fail_flag = FALSE;
-              destroy_array(elem_to, position, data_destr_func);
-              fail_flag = TRUE;
+              destr_array(elem_to, position);
               FREE_ARRAY(result, result_size);
-              return(NULL);
+              return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
             } /* if */
             position++;
           } /* for */
@@ -1182,6 +1086,3 @@ listtype arguments;
       } /* if */
     } /* if */
   } /* arr_times */
-
-
-

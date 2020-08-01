@@ -744,38 +744,30 @@ const proc: process_arr_append (in ref_list: params, inout expr_type: c_expr) is
 
   local
     var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param2 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
     process_expr(params[1], c_param1);
-    c_param2.temp_num := c_param1.temp_num;
-    process_expr(params[2], c_param2);
-    if c_param2.temp_num <> 0 then
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
       c_expr.expr &:= "{\n";
       c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param2.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
       c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param2.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
       c_expr.expr &:= "arr_append(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_param2.expr;
-      c_expr.expr &:= ", ";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[4], c_expr);
+      c_expr.expr &:= c_param3.expr;
       c_expr.expr &:= ");\n";
       c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param2.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
       c_expr.expr &:= "}";
     else
       c_expr.expr &:= "arr_append(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_param2.expr;
-      c_expr.expr &:= ", ";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[4], c_expr);
+      c_expr.expr &:= c_param3.expr;
       c_expr.expr &:= ")";
     end if;
   end func;
@@ -794,10 +786,6 @@ const proc: process_arr_arrlit (in ref_list: params, inout expr_type: c_expr) is
     c_expr.expr &:= "(tmp_";
     c_expr.expr &:= str(c_expr.temp_num);
     c_expr.expr &:= "=arr_arrlit(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= "))";
   end func;
@@ -836,9 +824,7 @@ const proc: process_arr_baselit (in ref_list: params, inout expr_type: c_expr) i
     c_expr.expr &:= "(tmp_";
     c_expr.expr &:= str(c_expr.temp_num);
     c_expr.expr &:= "=arr_baselit(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_expr(params[3], c_expr);
     c_expr.expr &:= "))";
   end func;
 
@@ -892,62 +878,54 @@ const proc: process_arr_conv (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_arr_cpy (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_arr_cpy (in reference: procedure, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param2 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
     process_expr(params[1], c_param1);
-    c_param2.temp_num := c_param1.temp_num;
-    process_expr(params[2], c_param2);
-    if c_param2.temp_num <> 0 then
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
       c_expr.expr &:= "{\n";
       c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param2.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
       c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param2.temp_assigns;
-      c_expr.expr &:= "arr_cpy(";
+      c_expr.expr &:= c_param3.temp_assigns;
+      c_expr.expr &:= "o_";
+      create_name(procedure, c_expr);
+      c_expr.expr &:= "(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_param2.expr;
-      c_expr.expr &:= ", ";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[4], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[5], c_expr);
+      c_expr.expr &:= c_param3.expr;
       c_expr.expr &:= ");\n";
       c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param2.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
       c_expr.expr &:= "}";
     else
-      c_expr.expr &:= "arr_cpy(";
+      c_expr.expr &:= "o_";
+      create_name(procedure, c_expr);
+      c_expr.expr &:= "(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_param2.expr;
-      c_expr.expr &:= ", ";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[4], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[5], c_expr);
+      c_expr.expr &:= c_param3.expr;
       c_expr.expr &:= ")";
     end if;
   end func;
 
 
-const proc: process_arr_create (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_arr_create (in reference: procedure, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "arr_create(";
+    c_expr.expr &:= "o_";
+    create_name(procedure, c_expr);
+    c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -957,8 +935,6 @@ const proc: process_arr_destr (in ref_list: params, inout expr_type: c_expr) is 
   begin
     c_expr.expr &:= "arr_destr(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -1120,11 +1096,7 @@ const proc: process_arr_times (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= "=arr_times(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
     c_expr.expr &:= "))";
   end func;
 
@@ -5038,9 +5010,9 @@ const proc: process_action (in reference: procedure, in ref_list: params,
     elsif action_name = "ARR_CONV" then
       process_arr_conv(params, c_expr);
     elsif action_name = "ARR_CPY" then
-      process_arr_cpy(params, c_expr);
+      process_arr_cpy(procedure, params, c_expr);
     elsif action_name = "ARR_CREATE" then
-      process_arr_create(params, c_expr);
+      process_arr_create(procedure, params, c_expr);
     elsif action_name = "ARR_DESTR" then
       process_arr_destr(params, c_expr);
     elsif action_name = "ARR_EXTEND" then
@@ -6857,6 +6829,101 @@ const proc: process_dynamic_declaration (in reference: current_object,
   end func;
 
 
+const proc: create_func_addr(in type: arrayType, inout expr_type: c_expr) is func
+  local
+    var type: baseType is void;
+  begin
+(*
+    main_obj := sys_var(prog, "main");
+    baseType := base_type(arrayType);
+(ref baseType param) ::= (in baseType param)
+*)
+    c_expr.expr &:= "NULL";
+  end func;
+
+
+const proc: destroy_func_addr(in type: arrayType, inout expr_type: c_expr) is func
+  local
+    var type: baseType is void;
+  begin
+(*
+    main_obj := sys_var(prog, "main");
+    baseType := base_type(arrayType);
+(ref baseType param) ::= (in baseType param)
+*)
+    c_expr.expr &:= "NULL";
+  end func;
+
+
+const proc: copy_func_addr(in type: arrayType, inout expr_type: c_expr) is func
+  local
+    var type: baseType is void;
+  begin
+(*
+    main_obj := sys_var(prog, "main");
+    baseType := base_type(arrayType);
+(ref baseType param) ::= (in baseType param)
+*)
+    c_expr.expr &:= "NULL";
+  end func;
+
+
+const proc: process_arr_cpy_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+  begin
+    c_expr.expr &:= "/* ACTION ARR_CPY */\n\n";
+    c_expr.expr &:= "void o_";
+    create_name(current_object, c_expr);
+    params := params(current_object);
+    c_expr.expr &:= " (";
+    process_params(params, c_expr);
+    c_expr.expr &:= ")\n";
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= "arrCpy(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    create_func_addr(getType(params[1]), c_expr);
+    c_expr.expr &:= ", ";
+    destroy_func_addr(getType(params[1]), c_expr);
+    c_expr.expr &:= ", ";
+    copy_func_addr(getType(params[1]), c_expr);
+    c_expr.expr &:= ");";
+    c_expr.expr &:= "}\n\n";
+  end func;
+
+
+const proc: process_arr_create_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+  begin
+    c_expr.expr &:= "/* ACTION ARR_CREATE */\n\n";
+    c_expr.expr &:= "void o_";
+    create_name(current_object, c_expr);
+    params := params(current_object);
+    c_expr.expr &:= " (";
+    process_params(params, c_expr);
+    c_expr.expr &:= ")\n";
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= "arrCreate(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    create_func_addr(getType(params[1]), c_expr);
+    c_expr.expr &:= ", ";
+    destroy_func_addr(getType(params[1]), c_expr);
+    c_expr.expr &:= ");";
+    c_expr.expr &:= "}\n\n";
+  end func;
+
+
 const proc: process_action_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -6869,10 +6936,12 @@ const proc: process_action_declaration (in reference: current_object,
     if action_name = "PRC_DYNAMIC" then
       process_dynamic_declaration(current_object, c_expr);
       count_declarations;
+    elsif action_name = "ARR_CPY" then
+      process_arr_cpy_declaration(current_object, c_expr);
+      count_declarations;
     elsif action_name = "ARR_CREATE" then
-      c_expr.expr &:= "/* ACTION ";
-      c_expr.expr &:= action_name;
-      c_expr.expr &:= " */\n\n";
+      process_arr_create_declaration(current_object, c_expr);
+      count_declarations;
 (*
     else
       c_expr.expr &:= "/* ACTION ";
@@ -6993,15 +7062,17 @@ const proc: write_file_head is func
     c_prog << "  };\n";
     c_prog << "#define any_free(x)\n";
     c_prog << "stritype  act_str (void *a)                             {printf(\"act_str\\n\");}\n";
-    c_prog << "void      arr_append (arraytype a, arraytype b, void *c, void *d) {printf(\"arr_append\\n\");}\n";
-    c_prog << "arraytype arr_arrlit (arraytype a, void *b, void *c)    {printf(\"arr_arrlit\\n\");}\n";
+    c_prog << "void      arr_append (arraytype a, arraytype b)         {printf(\"arr_append\\n\");}\n";
+    c_prog << "arraytype arr_arrlit (arraytype a)                      {printf(\"arr_arrlit\\n\");}\n";
     c_prog << "arraytype arr_arrlit2 (inttype a, arraytype b)          {printf(\"arr_arrlit2\\n\");}\n";
-    c_prog << "arraytype arr_baselit (long a, void *b)                 {printf(\"arr_baselit\\n\");}\n";
+    c_prog << "arraytype arr_baselit (long a)                          {printf(\"arr_baselit\\n\");}\n";
     c_prog << "arraytype arr_baselit2 (inttype a, long b)              {printf(\"arr_baselit2\\n\");}\n";
     c_prog << "arraytype arr_cat (arraytype a, arraytype b)            {printf(\"arr_cat\\n\");}\n";
-    c_prog << "void      arr_cpy (arraytype a, arraytype b, void *c, void *d, void *e) {printf(\"arr_cpy\\n\");}\n";
-    c_prog << "void      arr_create (arraytype a, arraytype b, void *c, void *d) {printf(\"arr_create\\n\");}\n";
-    c_prog << "void      arr_destr (arraytype a, void *b)              {printf(\"arr_destr\\n\");}\n";
+    c_prog << "void      arrCpy (arraytype a, arraytype b, void *c, void *d, void *e) {printf(\"arrCpy\\n\");}\n";
+    c_prog << "void      arr_cpy (arraytype a, arraytype b)            {printf(\"arr_cpy\\n\");}\n";
+    c_prog << "void      arrCreate (arraytype a, arraytype b, void *c, void *d) {printf(\"arrCreate\\n\");}\n";
+    c_prog << "void      arr_create (arraytype a, arraytype b)         {printf(\"arr_create\\n\");}\n";
+    c_prog << "void      arr_destr (arraytype a)                       {printf(\"arr_destr\\n\");}\n";
     c_prog << "arraytype arr_extend (arraytype a, inttype b)           {printf(\"arr_extend\\n\");}\n";
     c_prog << "void      arr_free (arraytype a)                        {printf(\"arr_free\\n\");}\n";
     c_prog << "arraytype arr_gen (inttype a, inttype b)                {printf(\"arr_gen\\n\");}\n";
@@ -7009,7 +7080,7 @@ const proc: write_file_head is func
     c_prog << "arraytype arr_range (arraytype a, inttype b, inttype c) {printf(\"arr_range\\n\");}\n";
     c_prog << "arraytype arr_sort (arraytype a, void *b)               {printf(\"arr_sort\\n\");}\n";
     c_prog << "arraytype arr_tail (arraytype a, inttype b)             {printf(\"arr_tail\\n\");}\n";
-    c_prog << "arraytype arr_times (inttype a, long b, void *c, void *d) {printf(\"arr_times\\n\");}\n";
+    c_prog << "arraytype arr_times (inttype a, long b)                 {printf(\"arr_times\\n\");}\n";
     c_prog << "void      blnCpy (booltype *, booltype);\n";
     c_prog << "void      blnCreate (booltype *, booltype);\n";
     c_prog << "inttype   chrCmp (chartype, chartype);\n";

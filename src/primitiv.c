@@ -288,6 +288,8 @@ static primactrecord prim_act_table[] = {
     { "HSH_DESTR",         hsh_destr,         },
     { "HSH_EMPTY",         hsh_empty,         },
     { "HSH_EXCL",          hsh_excl,          },
+    { "HSH_FOR",           hsh_for,           },
+    { "HSH_FOR_DATA_KEY",  hsh_for_data_key,  },
     { "HSH_FOR_KEY",       hsh_for_key,       },
     { "HSH_IDX",           hsh_idx,           },
     { "HSH_IDX2",          hsh_idx2,          },
@@ -295,6 +297,7 @@ static primactrecord prim_act_table[] = {
     { "HSH_KEYS",          hsh_keys,          },
     { "HSH_LNG",           hsh_lng,           },
     { "HSH_REFIDX",        hsh_refidx,        },
+    { "HSH_VALUES",        hsh_values,        },
 
     { "INT_ABS",           int_abs,           },
     { "INT_ADD",           int_add,           },

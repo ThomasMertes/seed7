@@ -1,0 +1,81 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  scanner.s7i   Scanner functions                                 *)
+(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const set of char: letter_char is {'A' .. 'Z'} | {'a' .. 'z'};
+const set of char: digit_char is {'0' .. '9'};
+const set of char: alphanum_char is letter_char | digit_char;
+const set of char: special_char is
+    {'!', '$', '%', '&', '*', '+', ',', '-', '.', '/',
+     ':', ';', '<', '=', '>', '?', '@', '\\','^', '`',
+     '|', '~'};
+const set of char: extended_special_char is special_char | { '"', '#', ''' };
+const set of char: paren_char is {'(', ')', '[', ']', '{', '}'};
+const set of char: name_start_char is letter_char | {'_'};
+const set of char: name_char is letter_char | digit_char | {'_'};
+const set of char: white_space_char is {' ', '\t', '\n', '\r'};
+
+
+const func string: getSymbol (inout file: aFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while aFile.bufferChar in white_space_char do
+      aFile.bufferChar := getc(aFile);
+    end while;
+    case aFile.bufferChar of
+      when name_start_char:
+        symbol := str(aFile.bufferChar);
+        aFile.bufferChar := getc(aFile);
+        while aFile.bufferChar in name_char do
+          symbol &:= str(aFile.bufferChar);
+          aFile.bufferChar := getc(aFile);
+        end while;
+      when extended_special_char:
+        symbol := str(aFile.bufferChar);
+        aFile.bufferChar := getc(aFile);
+        while aFile.bufferChar in extended_special_char do
+          symbol &:= str(aFile.bufferChar);
+          aFile.bufferChar := getc(aFile);
+        end while;
+      when paren_char:
+        symbol := str(aFile.bufferChar);
+        aFile.bufferChar := getc(aFile);
+      when digit_char:
+        symbol := str(aFile.bufferChar);
+        aFile.bufferChar := getc(aFile);
+        while aFile.bufferChar in digit_char do
+          symbol &:= str(aFile.bufferChar);
+          aFile.bufferChar := getc(aFile);
+        end while;
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(aFile.bufferChar);
+        aFile.bufferChar := getc(aFile);
+    end case;
+  end func;

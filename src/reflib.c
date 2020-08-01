@@ -806,6 +806,7 @@ listtype arguments;
   {
     stritype str1;
     objecttype obj_variable;
+    ustritype name;
     identtype ident_found;
     objecttype result;
 
@@ -815,19 +816,23 @@ listtype arguments;
     obj_variable = arg_2(arguments);
     isit_reference(obj_variable);
     is_variable(obj_variable);
-    ident_found = get_ident((ustritype) str1->mem,
-        (unsigned int) str1->size);
-    if (ident_found == NULL ||
-        ident_found->entity == NULL ||
-        ident_found->entity->owner == NULL) {
+    name = (ustritype) cp_to_cstri(str1);
+    if (name == NULL) {
       result = raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      if (ident_found->entity->owner->obj != NULL) {
-        obj_variable->value.objvalue = ident_found->entity->owner->obj;
-        result = SYS_TRUE_OBJECT;
+      ident_found = get_ident(name, strlen(name));
+      if (ident_found == NULL ||
+          ident_found->entity == NULL ||
+          ident_found->entity->owner == NULL) {
+        result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        obj_variable->value.objvalue = ident_found->entity->syobject;
-        result = SYS_TRUE_OBJECT;
+        if (ident_found->entity->owner->obj != NULL) {
+          obj_variable->value.objvalue = ident_found->entity->owner->obj;
+          result = SYS_TRUE_OBJECT;
+        } else {
+          obj_variable->value.objvalue = ident_found->entity->syobject;
+          result = SYS_TRUE_OBJECT;
+        } /* if */
       } /* if */
     } /* if */
     return(result);

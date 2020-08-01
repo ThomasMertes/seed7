@@ -2050,6 +2050,7 @@
       length(A) Length of array
                   ( Type of result: <font color=red>integer</font>,
                     length(0 <font color=blue>times</font> TRUE) => 0 )
+      sort(A)   Sort array using the compare(<font color=red>array baseType</font>) function
     Statements:
       A &:= B   Append B to A
                   ( A &:= B => A := A & B )
@@ -2085,6 +2086,12 @@
       length(A) Number of elements in hashtable A
                   ( Type of result: <font color=red>integer</font>,
                     length(hashType.EMPTY_HASH) => 0 )
+      keys(A)   Unsorted array of keys of the hashtable A
+                  ( Type of result: <font color=red>array keyType</font> )
+      values(A) Unsorted array of valuess of the hashtable A
+                  ( Type of result: <font color=red>array baseType</font> )
+      flip(A)   Deliver a hash with keys and values flipped
+                  ( Type of result: <font color=red>hash [baseType] array keyType</font> )
     Statements:
       incl(A,B,C) Include element B to hashtable A
                   ( Type of argument B: <font color=red>keyType</font>,
@@ -2094,6 +2101,22 @@
       A @:= [B] C  Assign C to element B of hashtable A
                   ( Type of argument B: <font color=red>keyType</font>,
                     Type of argument C: <font color=red>baseType</font> )
+      <font color=blue>for</font> A <font color=blue>range</font> B <font color=blue>do</font>
+        C
+      <font color=blue>end for</font>   Unsorted loop over all values of a hash
+                  ( Type of argument A: <font color=red>baseType</font>,
+                    Type of argument C: <font color=red>proc</font> )
+      <font color=blue>for key</font> A <font color=blue>range</font> B <font color=blue>do</font>
+        C
+      <font color=blue>end for</font>   Unsorted loop over all keys of a hash
+                  ( Type of argument A: <font color=red>keyType</font>,
+                    Type of argument C: <font color=red>proc</font> )
+      <font color=blue>for</font> A <font color=blue>key</font> B <font color=blue>range</font> C <font color=blue>do</font>
+        D
+      <font color=blue>end for</font>   Unsorted loop over all values and keys of a hash
+                  ( Type of argument A: <font color=red>baseType</font>,
+                    Type of argument B: <font color=red>keyType</font>,
+                    Type of argument D: <font color=red>proc</font> )
 </pre><p></p>
 
 <a name="set"><b>5.9 set</b></a>
@@ -3034,7 +3057,7 @@
   use the following statements:
 </p><pre>
     info_file := open(<font color=maroon>"info.fil"</font>, <font color=maroon>"w"</font>);
-    writeln(info_file, <font color=maroon>"This is the first line of the info file."</font>;
+    writeln(info_file, <font color=maroon>"This is the first line of the info file."</font>);
     close(info_file);
 </pre><p>
   First the external file is opened for writing and then it is

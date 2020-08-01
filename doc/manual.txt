@@ -2050,6 +2050,7 @@ CONTENTS
       length(A) Length of array
                   ( Type of result: integer,
                     length(0 times TRUE) => 0 )
+      sort(A)   Sort array using the compare(array baseType) function
     Statements:
       A &:= B   Append B to A
                   ( A &:= B => A := A & B )
@@ -2085,6 +2086,12 @@ CONTENTS
       length(A) Number of elements in hashtable A
                   ( Type of result: integer,
                     length(hashType.EMPTY_HASH) => 0 )
+      keys(A)   Unsorted array of keys of the hashtable A
+                  ( Type of result: array keyType )
+      values(A) Unsorted array of valuess of the hashtable A
+                  ( Type of result: array baseType )
+      flip(A)   Deliver a hash with keys and values flipped
+                  ( Type of result: hash [baseType] array keyType )
     Statements:
       incl(A,B,C) Include element B to hashtable A
                   ( Type of argument B: keyType,
@@ -2094,6 +2101,22 @@ CONTENTS
       A @:= [B] C  Assign C to element B of hashtable A
                   ( Type of argument B: keyType,
                     Type of argument C: baseType )
+      for A range B do
+        C
+      end for   Unsorted loop over all values of a hash
+                  ( Type of argument A: baseType,
+                    Type of argument C: proc )
+      for key A range B do
+        C
+      end for   Unsorted loop over all keys of a hash
+                  ( Type of argument A: keyType,
+                    Type of argument C: proc )
+      for A key B range C do
+        D
+      end for   Unsorted loop over all values and keys of a hash
+                  ( Type of argument A: baseType,
+                    Type of argument B: keyType,
+                    Type of argument D: proc )
 
 
 5.9 set
@@ -3034,7 +3057,7 @@ CONTENTS
   use the following statements:
 
     info_file := open("info.fil", "w");
-    writeln(info_file, "This is the first line of the info file.";
+    writeln(info_file, "This is the first line of the info file.");
     close(info_file);
 
   First the external file is opened for writing and then it is

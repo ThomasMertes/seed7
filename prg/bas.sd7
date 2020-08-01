@@ -939,7 +939,11 @@ const func string: exec_str_primary (
     elsif symbol = "INKEY$" then
       symbol := get_symbol(line);
       flush(win);
-      result := str(busy_getc(KEYBOARD));
+      if keypressed(KEYBOARD) then
+        result := str(getc(KEYBOARD));
+      else
+        result := "";
+      end if;
       log << "INKEY$ -> ";
       log << literal(result);
       log << NL;
@@ -1000,7 +1004,7 @@ const func string: exec_str_primary (
         result := get_str_value(variable_name);
         log << variable_name;
         log << " is ";
-        log << result;
+        log << literal(result);
         log << NL;
         flush(log);
       else
@@ -1008,7 +1012,7 @@ const func string: exec_str_primary (
         log << "function ";
         log << function_name[func_num];
         log << " is ";
-        log << result;
+        log << literal(result);
         log << NL;
         flush(log);
       end if;
@@ -1259,7 +1263,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           result := 0.0;
       end block;
       log << "VAL(";
-      log << stri1;
+      log << literal(stri1);
       log << ")";
       log << NL;
       flush(log);
@@ -3256,9 +3260,8 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           string_var @:= [variable_name] param3;
           log << "LET ";
           log << variable_name;
-          log << "=\"";
-          log << param3;
-          log << "\"";
+          log << "=";
+          log << literal(param3);
           log << NL;
           flush(log);
         else

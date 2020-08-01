@@ -48,6 +48,7 @@ tch.sd7      The hitchhikers guide ...
 tet.sd7      Tetris game with text output                      
 tetg.sd7     Tetris game with graphical output                 
 wiz.sd7      Find treasures and fight monsters labyrinth game  
+wordcnt.sd7   Count the words in a file                        
 wrinum.sd7   Write numbers as english text                     
 wumpus.sd7   Hunt the Wumpus game                              
 
@@ -68,6 +69,7 @@ multiscr.s7i Demonstration for several file filters
 progs.s7i    Program handling support library                  
 rational.s7i Rational number support library                   
 reverse.s7i  Filter file which writes right to left on output  
+scanner.s7i  Scanner functions                                 
 screen.s7i   General text screen with random access            
 seed7_05.s7i Standard Seed7 library                            
 syntax.s7i   Syntax definition of the standard Seed7 library   

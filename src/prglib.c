@@ -340,6 +340,54 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype prg_getobj (listtype arguments)
+#else
+
+objecttype prg_getobj (arguments)
+listtype arguments;
+#endif
+
+  {
+    progtype currentProg;
+    stritype stri1;
+    ustritype name;
+    progrecord prog_backup;
+    identtype ident_found;
+    objecttype result;
+
+  /* prg_getobj */
+    isit_prog(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    currentProg = take_prog(arg_1(arguments));
+    stri1 = take_stri(arg_2(arguments));
+    name = (ustritype) cp_to_cstri(stri1);
+    if (name == NULL) {
+      result = raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      memcpy(&prog_backup, &prog, sizeof(progrecord));
+      memcpy(&prog, currentProg, sizeof(progrecord));
+      ident_found = get_ident(name, strlen(name));
+      if (ident_found == NULL ||
+          ident_found->entity == NULL ||
+          ident_found->entity->owner == NULL) {
+        result = raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        if (ident_found->entity->owner->obj != NULL) {
+          result = ident_found->entity->owner->obj;
+        } else {
+          result = ident_found->entity->syobject;
+        } /* if */
+      } /* if */
+      memcpy(&prog, &prog_backup, sizeof(progrecord));
+      free_cstri(name, stri1);
+    } /* if */
+    return(result);
+  } /* prg_getobj */
+
+
+
+#ifdef ANSI_C
+
 objecttype prg_name (listtype arguments)
 #else
 
