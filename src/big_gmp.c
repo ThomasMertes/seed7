@@ -494,7 +494,7 @@ booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
 
 
-static INLINE biginttype bigFromBytesBe (const memsizetype size,
+static INLINE biginttype bigFromByteBufferBe (const memsizetype size,
     const const_ustritype buffer, const booltype withSign)
 
   {
@@ -503,8 +503,8 @@ static INLINE biginttype bigFromBytesBe (const memsizetype size,
     unsigned int carry;
     biginttype result;
 
-  /* bigFromBytesBe */
-    /* printf("bigFromBytesBe(%lu, *, %d)\n", size, withSign); */
+  /* bigFromByteBufferBe */
+    /* printf("bigFromByteBufferBe(%lu, *, %d)\n", size, withSign); */
     ALLOC_BIG(result);
     mpz_init(result);
     if (withSign && size != 0 && buffer[0] >= 128) {
@@ -524,11 +524,11 @@ static INLINE biginttype bigFromBytesBe (const memsizetype size,
       mpz_import(result, (size_t) size, 1, 1, 0, 0, buffer);
     } /* if */
     return result;
-  } /* bigFromBytesBe */
+  } /* bigFromByteBufferBe */
 
 
 
-static INLINE biginttype bigFromBytesLe (const memsizetype size,
+static INLINE biginttype bigFromByteBufferLe (const memsizetype size,
     const const_ustritype buffer, const booltype withSign)
 
   {
@@ -537,8 +537,8 @@ static INLINE biginttype bigFromBytesLe (const memsizetype size,
     unsigned int carry;
     biginttype result;
 
-  /* bigFromBytesLe */
-    /* printf("bigFromBytesLe(%lu, *, %d)\n", size, withSign); */
+  /* bigFromByteBufferLe */
+    /* printf("bigFromByteBufferLe(%lu, *, %d)\n", size, withSign); */
     ALLOC_BIG(result);
     mpz_init(result);
     if (withSign && size != 0 && buffer[size - 1] >= 128) {
@@ -558,14 +558,14 @@ static INLINE biginttype bigFromBytesLe (const memsizetype size,
       mpz_import(result, (size_t) size, -1, 1, 0, 0, buffer);
     } /* if */
     return result;
-  } /* bigFromBytesLe */
+  } /* bigFromByteBufferLe */
 
 
 
 biginttype bigFromBStriBe (const const_bstritype bstri)
 
   { /* bigFromBStriBe */
-    return bigFromBytesBe(bstri->size, bstri->mem, TRUE);
+    return bigFromByteBufferBe(bstri->size, bstri->mem, TRUE);
   } /* bigFromBStriBe */
 
 
@@ -573,7 +573,7 @@ biginttype bigFromBStriBe (const const_bstritype bstri)
 biginttype bigFromBStriLe (const const_bstritype bstri)
 
   { /* bigFromBStriLe */
-    return bigFromBytesLe(bstri->size, bstri->mem, TRUE);
+    return bigFromByteBufferLe(bstri->size, bstri->mem, TRUE);
   } /* bigFromBStriLe */
 
 
@@ -713,7 +713,7 @@ biginttype bigImport (const const_ustritype buffer)
                      ((memsizetype) buffer[1]) << 16 |
                      ((memsizetype) buffer[2]) <<  8 |
                      ((memsizetype) buffer[3]);
-    return bigFromBytesBe(byteDigitCount, &buffer[4], TRUE);
+    return bigFromByteBufferBe(byteDigitCount, &buffer[4], TRUE);
   } /* bigImport */
 
 

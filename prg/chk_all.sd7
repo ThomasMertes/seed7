@@ -40,6 +40,8 @@ var boolean: checkAllFailed is FALSE;
 const string: chkint_output is "\n\
   \Integer literals with exponent work correct.\n\
   \Based integer literals work correct.\n\
+  \Conversion of integer to big endian byte string works correct.\n\
+  \Conversion of integer to little endian byte string works correct.\n\
   \-i is correct computed in the range -10 to 10.\n\
   \Addition works correct for selected values.\n\
   \a div b is integer division and a rem b is integer remainder:\n\

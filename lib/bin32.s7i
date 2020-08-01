@@ -59,16 +59,14 @@ const func bin32: (attr bin32) conv (in integer: anInt)        is action "INT_CO
  *  Convert to integer.
  *  @return the unchanged value as integer.
  *)
-const func integer: ord (in bin32: binValue) is
-  return integer conv binValue;
+const func integer: ord (in bin32: binValue)                   is action "INT_ORD";
 
 
 (**
  *  Convert to bin32.
  *  @return the unchanged value as bin32.
  *)
-const func bin32: bin32 (in integer: number) is
-  return bin32 conv number;
+const func bin32: bin32 (in integer: number)                   is action "INT_ORD";
 
 
 const bin32: (attr bin32) . value   is bin32(0);

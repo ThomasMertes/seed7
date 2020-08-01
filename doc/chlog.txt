@@ -1,3 +1,39 @@
+20130929:
+- The functions bStriLe, bytesLe, bStriBe and bytesBe have been
+  added to bytedata.s7i. This functions convert an integer to a
+  sequence of bytes.
+- The compiler has been improved to generate inline code for the
+  action STR_PUSH. This action is used when a character is appended
+  to a string (with the operator &:= ).
+- The function sendGet has been added to gethttp.s7i.
+- The functions str_yy_mm_dd and str_hh_mm_ss have been added to
+  time.s7i.
+- Checks for +:= and -:= have been added to chkbig.sd7.
+- Checks for bytesBe and bytesLe have been added to chkint.sd7.
+- Checks for & and &:= have been added to chkstr.sd7.
+- The function doLocalDeclsOfStatement has been added to the
+  compiler. This function is used to simplify the processing
+  of various statements.
+- The functions that process the statement actions BIG_GROW,
+  BIG_LSHIFT_ASSIGN, BIG_MULT_ASSIGN, BIG_RSHIFT_ASSIGN,
+  BIG_SHRINK, BLN_CPY, CHR_CPY, CHR_GROW, CHR_SHRINK, ENU_CPY,
+  FIL_CPY, FLT_CPY, FLT_DIV_ASSIGN, FLT_GROW, FLT_MULT_ASSIGN,
+  FLT_SHRINK, INT_AND_ASSIGN, INT_CPY, INT_GROW, INT_LSHIFT_ASSIGN,
+  INT_MULT_ASSIGN, INT_OR_ASSIGN, INT_RSHIFT_ASSIGN, INT_SHRINK,
+  INT_URSHIFT_ASSIGN, REF_CPY, RFL_INCL, SET_EXCL, SET_INCL,
+  SOC_CPY, STR_PUSH and TYP_CPY in the compiler have been
+  simplified.
+- The functions int_toBStriBe and int_toBStriLe have been added to
+  intlib.c.
+- The functions intToBStriBe and intToBStriLe have been added to
+  int_rtl.c
+- In big_rtl.c and big_gmp.c the functions bigFromBytesBe and
+  bigFromBytesLe have been renamed to bigFromByteBufferBe
+  respectively bigFromByteBufferLe.
+- The performance of the functions bst_cmp (in bstlib.c), bstCmp
+  (in bst_rtl.c) and strMult (in str_rtl.c) has been improved.
+- The macro 'unlikely' has been added to functions in bst_rtl.c.
+
 20130908:
 - The compiler has been improved to use charvalue instead of
   intvalue, when characters are initialized. Thanks go to Brian

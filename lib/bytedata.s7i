@@ -168,6 +168,50 @@ const func integer: bytesBe2Int (in string: byteStri) is func
 
 
 (**
+ *  Convert a [[integer]] into a little-endian [[bstring]].
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative ''number'' the most significant byte of the result
+ *  (the last byte) has an ordinal >= 128.
+ *  @return a string with the little-endian representation.
+ *)
+const func bstring: bStriLe (in integer: number)              is action "INT_TO_BSTRI_LE";
+
+
+(**
+ *  Convert a [[integer]] into a little-endian [[string]].
+ *  The result uses a twos-complement representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  For a negative ''number'' the most significant byte of the result
+ *  (the last byte) has an ordinal >= 128.
+ *  @return a string with the little-endian representation.
+ *)
+const func string: bytesLe (in integer: number) is
+  return str(bStriLe(number));
+
+
+(**
+ *  Convert a [[integer]] into a big-endian [[bstring]].
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative ''number'' the most significant byte of the result
+ *  (the first byte) has an ordinal >= 128.
+ *  @return a string with the big-endian representation.
+ *)
+const func bstring: bStriBe (in integer: number)              is action "INT_TO_BSTRI_BE";
+
+
+(**
+ *  Convert a [[integer]] into a big-endian [[string]].
+ *  The result uses a twos-complement representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  For a negative ''number'' the most significant byte of the result
+ *  (the first byte) has an ordinal >= 128.
+ *  @return a string with the big-endian representation.
+ *)
+const func string: bytesBe (in integer: number) is
+  return str(bStriBe(number));
+
+
+(**
  *  Convert a [[bstring]] (interpreted as little-endian) to a [[bigInteger]].
  *  The ''byteStri'' is interpreted as twos-complement representation
  *  with a base of 256. The result is negative when the most significant

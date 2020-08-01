@@ -24,9 +24,11 @@
 
 $ include "seed7_05.s7i";
   include "stdio.s7i";
+  include "bytedata.s7i";
 
 
 const integer: INT32_MIN is pred(-2147483647);
+const integer: INT64_MIN is pred(-9223372036854775807);
 
 
 const func string: striExpr (in string: stri) is
@@ -99,7 +101,7 @@ const proc: check_exponent_integer_literal is func
   end func;
 
 
-const proc: chack_based_integer_literal is func
+const proc: check_based_integer_literal is func
   local
     var boolean: okay is TRUE;
   begin
@@ -212,6 +214,326 @@ const proc: chack_based_integer_literal is func
       writeln("Based integer literals work correct.");
     else
       writeln(" ***** Based integer literals do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_bytesBe is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bytesBe(           INT64_MIN) <> "\128\\000\\000\\000\\000\\000\\000\\000\" or
+        bytesBe(  -72057594037927937) <> "\254\\255\\255\\255\\255\\255\\255\\255\" or
+        bytesBe(  -72057594037927936) <> "\255\\000\\000\\000\\000\\000\\000\\000\" or
+        bytesBe(  -36028797018963969) <> "\255\\127\\255\\255\\255\\255\\255\\255\" or
+        bytesBe(  -36028797018963968) <>      "\128\\000\\000\\000\\000\\000\\000\" or
+        bytesBe(    -281474976710657) <>      "\254\\255\\255\\255\\255\\255\\255\" or
+        bytesBe(    -281474976710656) <>      "\255\\000\\000\\000\\000\\000\\000\" or
+        bytesBe(    -140737488355329) <>      "\255\\127\\255\\255\\255\\255\\255\" or
+        bytesBe(    -140737488355328) <>           "\128\\000\\000\\000\\000\\000\" or
+        bytesBe(      -1099511627777) <>           "\254\\255\\255\\255\\255\\255\" or
+        bytesBe(      -1099511627776) <>           "\255\\000\\000\\000\\000\\000\" or
+        bytesBe(       -549755813889) <>           "\255\\127\\255\\255\\255\\255\" or
+        bytesBe(       -549755813888) <>                "\128\\000\\000\\000\\000\" or
+        bytesBe(         -4294967297) <>                "\254\\255\\255\\255\\255\" or
+        bytesBe(         -4294967296) <>                "\255\\000\\000\\000\\000\" or
+        bytesBe(         -2147483649) <>                "\255\\127\\255\\255\\255\" or
+        bytesBe(         -2147483648) <>                     "\128\\000\\000\\000\" or
+        bytesBe(           -16777217) <>                     "\254\\255\\255\\255\" or
+        bytesBe(           -16777216) <>                     "\255\\000\\000\\000\" or
+        bytesBe(            -8388609) <>                     "\255\\127\\255\\255\" or
+        bytesBe(            -8388608) <>                          "\128\\000\\000\" or
+        bytesBe(              -65537) <>                          "\254\\255\\255\" or
+        bytesBe(              -65536) <>                          "\255\\000\\000\" or
+        bytesBe(              -65281) <>                          "\255\\000\\255\" or
+        bytesBe(              -65280) <>                          "\255\\001\\000\" or
+        bytesBe(              -65025) <>                          "\255\\001\\255\" or
+        bytesBe(              -65024) <>                          "\255\\002\\000\" or
+        bytesBe(              -32770) <>                          "\255\\127\\254\" or
+        bytesBe(              -32769) <>                          "\255\\127\\255\" or
+        bytesBe(              -32768) <>                               "\128\\000\" or
+        bytesBe(              -32767) <>                               "\128\\001\" or
+        bytesBe(              -32514) <>                               "\128\\254\" or
+        bytesBe(              -32513) <>                               "\128\\255\" or
+        bytesBe(              -32512) <>                               "\129\\000\" or
+        bytesBe(              -32511) <>                               "\129\\001\" or
+        bytesBe(              -32258) <>                               "\129\\254\" or
+        bytesBe(              -32257) <>                               "\129\\255\" or
+        bytesBe(              -32256) <>                               "\130\\000\" or
+        bytesBe(              -32255) <>                               "\130\\001\" or
+        bytesBe(                -514) <>                               "\253\\254\" or
+        bytesBe(                -513) <>                               "\253\\255\" or
+        bytesBe(                -512) <>                               "\254\\000\" or
+        bytesBe(                -511) <>                               "\254\\001\" or
+        bytesBe(                -258) <>                               "\254\\254\" or
+        bytesBe(                -257) <>                               "\254\\255\" or
+        bytesBe(                -256) <>                               "\255\\000\" or
+        bytesBe(                -255) <>                               "\255\\001\" or
+        bytesBe(                -130) <>                               "\255\\126\" or
+        bytesBe(                -129) <>                               "\255\\127\" or
+        bytesBe(                -128) <>                                    "\128\" or
+        bytesBe(                -127) <>                                    "\129\" or
+        bytesBe(                  -2) <>                                    "\254\" or
+        bytesBe(                  -1) <>                                    "\255\" or
+        bytesBe(                   0) <>                                    "\000\" or
+        bytesBe(                   1) <>                                    "\001\" or
+        bytesBe(                   2) <>                                    "\002\" or
+        bytesBe(                 126) <>                                    "\126\" or
+        bytesBe(                 127) <>                                    "\127\" or
+        bytesBe(                 128) <>                               "\000\\128\" or
+        bytesBe(                 129) <>                               "\000\\129\" or
+        bytesBe(                 254) <>                               "\000\\254\" or
+        bytesBe(                 255) <>                               "\000\\255\" or
+        bytesBe(                 256) <>                               "\001\\000\" or
+        bytesBe(                 257) <>                               "\001\\001\" or
+        bytesBe(                 510) <>                               "\001\\254\" or
+        bytesBe(                 511) <>                               "\001\\255\" or
+        bytesBe(                 512) <>                               "\002\\000\" or
+        bytesBe(                 513) <>                               "\002\\001\" or
+        bytesBe(               32254) <>                               "\125\\254\" or
+        bytesBe(               32255) <>                               "\125\\255\" or
+        bytesBe(               32256) <>                               "\126\\000\" or
+        bytesBe(               32257) <>                               "\126\\001\" or
+        bytesBe(               32510) <>                               "\126\\254\" or
+        bytesBe(               32511) <>                               "\126\\255\" or
+        bytesBe(               32512) <>                               "\127\\000\" or
+        bytesBe(               32513) <>                               "\127\\001\" or
+        bytesBe(               32766) <>                               "\127\\254\" or
+        bytesBe(               32767) <>                               "\127\\255\" or
+        bytesBe(               32768) <>                          "\000\\128\\000\" or
+        bytesBe(               32769) <>                          "\000\\128\\001\" or
+        bytesBe(               65023) <>                          "\000\\253\\255\" or
+        bytesBe(               65024) <>                          "\000\\254\\000\" or
+        bytesBe(               65279) <>                          "\000\\254\\255\" or
+        bytesBe(               65280) <>                          "\000\\255\\000\" or
+        bytesBe(               65535) <>                          "\000\\255\\255\" or
+        bytesBe(               65536) <>                          "\001\\000\\000\" or
+        bytesBe(             8388607) <>                          "\127\\255\\255\" or
+        bytesBe(             8388608) <>                     "\000\\128\\000\\000\" or
+        bytesBe(            16777215) <>                     "\000\\255\\255\\255\" or
+        bytesBe(            16777216) <>                     "\001\\000\\000\\000\" or
+        bytesBe(          2147483647) <>                     "\127\\255\\255\\255\" or
+        bytesBe(          2147483648) <>                "\000\\128\\000\\000\\000\" or
+        bytesBe(          4294967295) <>                "\000\\255\\255\\255\\255\" or
+        bytesBe(          4294967296) <>                "\001\\000\\000\\000\\000\" or
+        bytesBe(        549755813887) <>                "\127\\255\\255\\255\\255\" or
+        bytesBe(        549755813888) <>           "\000\\128\\000\\000\\000\\000\" or
+        bytesBe(       1099511627775) <>           "\000\\255\\255\\255\\255\\255\" or
+        bytesBe(       1099511627776) <>           "\001\\000\\000\\000\\000\\000\" or
+        bytesBe(     140737488355327) <>           "\127\\255\\255\\255\\255\\255\" or
+        bytesBe(     140737488355328) <>      "\000\\128\\000\\000\\000\\000\\000\" or
+        bytesBe(     281474976710655) <>      "\000\\255\\255\\255\\255\\255\\255\" or
+        bytesBe(     281474976710656) <>      "\001\\000\\000\\000\\000\\000\\000\" or
+        bytesBe(   36028797018963967) <>      "\127\\255\\255\\255\\255\\255\\255\" or
+        bytesBe(   36028797018963968) <> "\000\\128\\000\\000\\000\\000\\000\\000\" or
+        bytesBe(   72057594037927935) <> "\000\\255\\255\\255\\255\\255\\255\\255\" or
+        bytesBe(   72057594037927936) <> "\001\\000\\000\\000\\000\\000\\000\\000\" or
+        bytesBe( 9223372036854775807) <> "\127\\255\\255\\255\\255\\255\\255\\255\" then
+      writeln("Conversion of integer to big endian byte string does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bytesBe(               258) <>                   "\1\\2\" or
+        bytesBe(             66051) <>                "\1\\2\\3\" or
+        bytesBe(          16909060) <>             "\1\\2\\3\\4\" or
+        bytesBe(        4328719365) <>          "\1\\2\\3\\4\\5\" or
+        bytesBe(     1108152157446) <>       "\1\\2\\3\\4\\5\\6\" or
+        bytesBe(   283686952306183) <>    "\1\\2\\3\\4\\5\\6\\7\" or
+        bytesBe( 72623859790382856) <> "\1\\2\\3\\4\\5\\6\\7\\8\" or
+        bytesBe(               513) <>                   "\2\\1\" or
+        bytesBe(            197121) <>                "\3\\2\\1\" or
+        bytesBe(          67305985) <>             "\4\\3\\2\\1\" or
+        bytesBe(       21542142465) <>          "\5\\4\\3\\2\\1\" or
+        bytesBe(     6618611909121) <>       "\6\\5\\4\\3\\2\\1\" or
+        bytesBe(  1976943448883713) <>    "\7\\6\\5\\4\\3\\2\\1\" or
+        bytesBe(578437695752307201) <> "\8\\7\\6\\5\\4\\3\\2\\1\" then
+      writeln("Conversion of integer to big endian byte string does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bytesBe(              -255) <>                   "\255\\1\" or
+        bytesBe(            -65278) <>                "\255\\1\\2\" or
+        bytesBe(         -16711165) <>             "\255\\1\\2\\3\" or
+        bytesBe(       -4278058236) <>          "\255\\1\\2\\3\\4\" or
+        bytesBe(    -1095182908411) <>       "\255\\1\\2\\3\\4\\5\" or
+        bytesBe(  -280366824553210) <>    "\255\\1\\2\\3\\4\\5\\6\" or
+        bytesBe(-71773907085621753) <> "\255\\1\\2\\3\\4\\5\\6\\7\" or
+        bytesBe(              -255) <>                   "\255\\1\" or
+        bytesBe(            -65023) <>                "\255\\2\\1\" or
+        bytesBe(         -16580095) <>             "\255\\3\\2\\1\" or
+        bytesBe(       -4227661311) <>          "\255\\4\\3\\2\\1\" or
+        bytesBe(    -1077969485311) <>       "\255\\5\\4\\3\\2\\1\" or
+        bytesBe(  -274856364801535) <>    "\255\\6\\5\\4\\3\\2\\1\" or
+        bytesBe(-70080650589044223) <> "\255\\7\\6\\5\\4\\3\\2\\1\" then
+      writeln("Conversion of integer to big endian byte string does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Conversion of integer to big endian byte string works correct.");
+    else
+      writeln(" ***** Conversion of integer to big endian byte string does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_bytesLe is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bytesLe(           INT64_MIN) <> "\000\\000\\000\\000\\000\\000\\000\\128\" or
+        bytesLe(  -72057594037927937) <> "\255\\255\\255\\255\\255\\255\\255\\254\" or
+        bytesLe(  -72057594037927936) <> "\000\\000\\000\\000\\000\\000\\000\\255\" or
+        bytesLe(  -36028797018963969) <> "\255\\255\\255\\255\\255\\255\\127\\255\" or
+        bytesLe(  -36028797018963968) <> "\000\\000\\000\\000\\000\\000\\128\"      or
+        bytesLe(    -281474976710657) <> "\255\\255\\255\\255\\255\\255\\254\"      or
+        bytesLe(    -281474976710656) <> "\000\\000\\000\\000\\000\\000\\255\"      or
+        bytesLe(    -140737488355329) <> "\255\\255\\255\\255\\255\\127\\255\"      or
+        bytesLe(    -140737488355328) <> "\000\\000\\000\\000\\000\\128\"           or
+        bytesLe(      -1099511627777) <> "\255\\255\\255\\255\\255\\254\"           or
+        bytesLe(      -1099511627776) <> "\000\\000\\000\\000\\000\\255\"           or
+        bytesLe(       -549755813889) <> "\255\\255\\255\\255\\127\\255\"           or
+        bytesLe(       -549755813888) <> "\000\\000\\000\\000\\128\"                or
+        bytesLe(         -4294967297) <> "\255\\255\\255\\255\\254\"                or
+        bytesLe(         -4294967296) <> "\000\\000\\000\\000\\255\"                or
+        bytesLe(         -2147483649) <> "\255\\255\\255\\127\\255\"                or
+        bytesLe(         -2147483648) <> "\000\\000\\000\\128\"                     or
+        bytesLe(           -16777217) <> "\255\\255\\255\\254\"                     or
+        bytesLe(           -16777216) <> "\000\\000\\000\\255\"                     or
+        bytesLe(            -8388609) <> "\255\\255\\127\\255\"                     or
+        bytesLe(            -8388608) <> "\000\\000\\128\"                          or
+        bytesLe(              -65537) <> "\255\\255\\254\"                          or
+        bytesLe(              -65536) <> "\000\\000\\255\"                          or
+        bytesLe(              -65281) <> "\255\\000\\255\"                          or
+        bytesLe(              -65280) <> "\000\\001\\255\"                          or
+        bytesLe(              -65025) <> "\255\\001\\255\"                          or
+        bytesLe(              -65024) <> "\000\\002\\255\"                          or
+        bytesLe(              -32770) <> "\254\\127\\255\"                          or
+        bytesLe(              -32769) <> "\255\\127\\255\"                          or
+        bytesLe(              -32768) <> "\000\\128\"                               or
+        bytesLe(              -32767) <> "\001\\128\"                               or
+        bytesLe(              -32514) <> "\254\\128\"                               or
+        bytesLe(              -32513) <> "\255\\128\"                               or
+        bytesLe(              -32512) <> "\000\\129\"                               or
+        bytesLe(              -32511) <> "\001\\129\"                               or
+        bytesLe(              -32258) <> "\254\\129\"                               or
+        bytesLe(              -32257) <> "\255\\129\"                               or
+        bytesLe(              -32256) <> "\000\\130\"                               or
+        bytesLe(              -32255) <> "\001\\130\"                               or
+        bytesLe(                -514) <> "\254\\253\"                               or
+        bytesLe(                -513) <> "\255\\253\"                               or
+        bytesLe(                -512) <> "\000\\254\"                               or
+        bytesLe(                -511) <> "\001\\254\"                               or
+        bytesLe(                -258) <> "\254\\254\"                               or
+        bytesLe(                -257) <> "\255\\254\"                               or
+        bytesLe(                -256) <> "\000\\255\"                               or
+        bytesLe(                -255) <> "\001\\255\"                               or
+        bytesLe(                -130) <> "\126\\255\"                               or
+        bytesLe(                -129) <> "\127\\255\"                               or
+        bytesLe(                -128) <> "\128\"                                    or
+        bytesLe(                -127) <> "\129\"                                    or
+        bytesLe(                  -2) <> "\254\"                                    or
+        bytesLe(                  -1) <> "\255\"                                    or
+        bytesLe(                   0) <> "\000\"                                    or
+        bytesLe(                   1) <> "\001\"                                    or
+        bytesLe(                   2) <> "\002\"                                    or
+        bytesLe(                 126) <> "\126\"                                    or
+        bytesLe(                 127) <> "\127\"                                    or
+        bytesLe(                 128) <> "\128\\000\"                               or
+        bytesLe(                 129) <> "\129\\000\"                               or
+        bytesLe(                 254) <> "\254\\000\"                               or
+        bytesLe(                 255) <> "\255\\000\"                               or
+        bytesLe(                 256) <> "\000\\001\"                               or
+        bytesLe(                 257) <> "\001\\001\"                               or
+        bytesLe(                 510) <> "\254\\001\"                               or
+        bytesLe(                 511) <> "\255\\001\"                               or
+        bytesLe(                 512) <> "\000\\002\"                               or
+        bytesLe(                 513) <> "\001\\002\"                               or
+        bytesLe(               32254) <> "\254\\125\"                               or
+        bytesLe(               32255) <> "\255\\125\"                               or
+        bytesLe(               32256) <> "\000\\126\"                               or
+        bytesLe(               32257) <> "\001\\126\"                               or
+        bytesLe(               32510) <> "\254\\126\"                               or
+        bytesLe(               32511) <> "\255\\126\"                               or
+        bytesLe(               32512) <> "\000\\127\"                               or
+        bytesLe(               32513) <> "\001\\127\"                               or
+        bytesLe(               32766) <> "\254\\127\"                               or
+        bytesLe(               32767) <> "\255\\127\"                               or
+        bytesLe(               32768) <> "\000\\128\\000\"                          or
+        bytesLe(               32769) <> "\001\\128\\000\"                          or
+        bytesLe(               65023) <> "\255\\253\\000\"                          or
+        bytesLe(               65024) <> "\000\\254\\000\"                          or
+        bytesLe(               65279) <> "\255\\254\\000\"                          or
+        bytesLe(               65280) <> "\000\\255\\000\"                          or
+        bytesLe(               65535) <> "\255\\255\\000\"                          or
+        bytesLe(               65536) <> "\000\\000\\001\"                          or
+        bytesLe(             8388607) <> "\255\\255\\127\"                          or
+        bytesLe(             8388608) <> "\000\\000\\128\\000\"                     or
+        bytesLe(            16777215) <> "\255\\255\\255\\000\"                     or
+        bytesLe(            16777216) <> "\000\\000\\000\\001\"                     or
+        bytesLe(          2147483647) <> "\255\\255\\255\\127\"                     or
+        bytesLe(          2147483648) <> "\000\\000\\000\\128\\000\"                or
+        bytesLe(          4294967295) <> "\255\\255\\255\\255\\000\"                or
+        bytesLe(          4294967296) <> "\000\\000\\000\\000\\001\"                or
+        bytesLe(        549755813887) <> "\255\\255\\255\\255\\127\"                or
+        bytesLe(        549755813888) <> "\000\\000\\000\\000\\128\\000\"           or
+        bytesLe(       1099511627775) <> "\255\\255\\255\\255\\255\\000\"           or
+        bytesLe(       1099511627776) <> "\000\\000\\000\\000\\000\\001\"           or
+        bytesLe(     140737488355327) <> "\255\\255\\255\\255\\255\\127\"           or
+        bytesLe(     140737488355328) <> "\000\\000\\000\\000\\000\\128\\000\"      or
+        bytesLe(     281474976710655) <> "\255\\255\\255\\255\\255\\255\\000\"      or
+        bytesLe(     281474976710656) <> "\000\\000\\000\\000\\000\\000\\001\"      or
+        bytesLe(   36028797018963967) <> "\255\\255\\255\\255\\255\\255\\127\"      or
+        bytesLe(   36028797018963968) <> "\000\\000\\000\\000\\000\\000\\128\\000\" or
+        bytesLe(   72057594037927935) <> "\255\\255\\255\\255\\255\\255\\255\\000\" or
+        bytesLe(   72057594037927936) <> "\000\\000\\000\\000\\000\\000\\000\\001\" or
+        bytesLe( 9223372036854775807) <> "\255\\255\\255\\255\\255\\255\\255\\127\" then
+      writeln("Conversion of integer to little endian byte string does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bytesLe(               258) <> "\2\\1\"                   or
+        bytesLe(             66051) <> "\3\\2\\1\"                or
+        bytesLe(          16909060) <> "\4\\3\\2\\1\"             or
+        bytesLe(        4328719365) <> "\5\\4\\3\\2\\1\"          or
+        bytesLe(     1108152157446) <> "\6\\5\\4\\3\\2\\1\"       or
+        bytesLe(   283686952306183) <> "\7\\6\\5\\4\\3\\2\\1\"    or
+        bytesLe( 72623859790382856) <> "\8\\7\\6\\5\\4\\3\\2\\1\" or
+        bytesLe(               513) <> "\1\\2\"                   or
+        bytesLe(            197121) <> "\1\\2\\3\"                or
+        bytesLe(          67305985) <> "\1\\2\\3\\4\"             or
+        bytesLe(       21542142465) <> "\1\\2\\3\\4\\5\"          or
+        bytesLe(     6618611909121) <> "\1\\2\\3\\4\\5\\6\"       or
+        bytesLe(  1976943448883713) <> "\1\\2\\3\\4\\5\\6\\7\"    or
+        bytesLe(578437695752307201) <> "\1\\2\\3\\4\\5\\6\\7\\8\" then
+      writeln("Conversion of integer to little endian byte string does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bytesLe(              -255) <> "\1\\255\"                   or
+        bytesLe(            -65278) <> "\2\\1\\255\"                or
+        bytesLe(         -16711165) <> "\3\\2\\1\\255\"             or
+        bytesLe(       -4278058236) <> "\4\\3\\2\\1\\255\"          or
+        bytesLe(    -1095182908411) <> "\5\\4\\3\\2\\1\\255\"       or
+        bytesLe(  -280366824553210) <> "\6\\5\\4\\3\\2\\1\\255\"    or
+        bytesLe(-71773907085621753) <> "\7\\6\\5\\4\\3\\2\\1\\255\" or
+        bytesLe(              -255) <> "\1\\255\"                   or
+        bytesLe(            -65023) <> "\1\\2\\255\"                or
+        bytesLe(         -16580095) <> "\1\\2\\3\\255\"             or
+        bytesLe(       -4227661311) <> "\1\\2\\3\\4\\255\"          or
+        bytesLe(    -1077969485311) <> "\1\\2\\3\\4\\5\\255\"       or
+        bytesLe(  -274856364801535) <> "\1\\2\\3\\4\\5\\6\\255\"    or
+        bytesLe(-70080650589044223) <> "\1\\2\\3\\4\\5\\6\\7\\255\" then
+      writeln("Conversion of integer to little endian byte string does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Conversion of integer to little endian byte string works correct.");
+    else
+      writeln(" ***** Conversion of integer to little endian byte string does not work correct.");
       writeln;
     end if;
   end func;
@@ -6263,7 +6585,9 @@ const proc: main is func
   begin
     writeln;
     check_exponent_integer_literal;
-    chack_based_integer_literal;
+    check_based_integer_literal;
+    check_bytesBe;
+    check_bytesLe;
     check_negation;
     check_add;
     check_division;

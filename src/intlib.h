@@ -77,6 +77,8 @@ objecttype int_shrink         (listtype arguments);
 objecttype int_sqrt           (listtype arguments);
 objecttype int_str            (listtype arguments);
 objecttype int_succ           (listtype arguments);
+objecttype int_toBStriBe      (listtype arguments);
+objecttype int_toBStriLe      (listtype arguments);
 objecttype int_urshift        (listtype arguments);
 objecttype int_urshift_assign (listtype arguments);
 objecttype int_value          (listtype arguments);

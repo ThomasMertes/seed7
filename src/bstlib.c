@@ -169,17 +169,15 @@ objecttype bst_cmp (listtype arguments)
       } else {
         result = 1;
       } /* if */
-    } else if (bstri1->size > bstri2->size) {
-      if (memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(uchartype)) >= 0) {
+    } else {
+      result = memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(uchartype));
+      if (result == 0) {
+        if (bstri1->size > bstri2->size) {
+          result = 1;
+        } /* if */
+      } else if (result > 0) {
         result = 1;
       } else {
-        result = -1;
-      } /* if */
-    } else {
-      result = memcmp(bstri1->mem, bstri2->mem, bstri1->size * sizeof(uchartype));
-      if (result > 0) {
-        result = 1;
-      } else if (result < 0) {
         result = -1;
       } /* if */
     } /* if */

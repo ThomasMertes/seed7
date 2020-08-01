@@ -613,12 +613,12 @@ int main (int argc, char **argv)
         puts("#define CHECK_FLOAT_DIV_BY_ZERO");
       } /* if */
     } /* if */
-    minusZero = -zero;
     if (nanValue1 == nanValue2 ||
         nanValue1 <  nanValue2 || nanValue1 >  nanValue2 ||
         nanValue1 <= nanValue2 || nanValue1 <= nanValue2) {
       puts("#define NAN_COMPARISON_WRONG");
     } /* if */
+    minusZero = -zero;
     if (zero_divide_triggers_signal ||
         memcmp(&negativeZero, &minusZero, sizeof(float)) != 0) {
       puts("#define USE_NEGATIVE_ZERO_BITPATTERN");

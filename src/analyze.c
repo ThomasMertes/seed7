@@ -582,11 +582,15 @@ progtype analyze_file (const const_stritype source_file_argument, uinttype optio
       if (add_extension) {
         cstri_expand(&source_name->mem[source_file_argument->size], ".sd7", 4);
       } /* if */
-      open_infile(source_name, options & WRITE_LIBRARY_NAMES, options & WRITE_LINE_NUMBERS, err_info);
+      open_infile(source_name,
+                  (options & WRITE_LIBRARY_NAMES) != 0,
+                  (options & WRITE_LINE_NUMBERS) != 0, err_info);
       if (*err_info == FILE_ERROR && add_extension) {
         *err_info = OKAY_NO_ERROR;
         source_name->size = name_len - 4;
-        open_infile(source_name, options & WRITE_LIBRARY_NAMES, options & WRITE_LINE_NUMBERS, err_info);
+        open_infile(source_name,
+                    (options & WRITE_LIBRARY_NAMES) != 0,
+                    (options & WRITE_LINE_NUMBERS) != 0, err_info);
       } /* if */
 #ifdef HAS_SYMLINKS
       source_name = followLink(source_name);

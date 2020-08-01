@@ -182,6 +182,12 @@ const func string: str_yyyy_mm_dd (in time: aTime, in string: delimiter) is
          aTime.day   lpad0 2;
 
 
+const func string: str_yy_mm_dd (in time: aTime, in string: delimiter) is
+  return aTime.year rem 100 lpad0 2 <& delimiter <&
+         aTime.month        lpad0 2 <& delimiter <&
+         aTime.day          lpad0 2;
+
+
 const func string: str_mm_dd_yy (in time: aTime, in string: delimiter) is
   return aTime.month        lpad0 2 <& delimiter <&
          aTime.day          lpad0 2 <& delimiter <&
@@ -215,6 +221,12 @@ const func string: str_d_m_yyyy (in time: aTime, in string: delimiter) is
 const func string: str_hh_mm (in time: aTime, in string: delimiter) is
   return aTime.hour   lpad0 2 <& delimiter <&
          aTime.minute lpad0 2;
+
+
+const func string: str_hh_mm_ss (in time: aTime, in string: delimiter) is
+  return aTime.hour   lpad0 2 <& delimiter <&
+         aTime.minute lpad0 2 <& delimiter <&
+         aTime.second lpad0 2;
 
 
 (**

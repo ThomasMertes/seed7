@@ -56,13 +56,13 @@ void bstAppend (bstritype *const bstri_to, const_bstritype bstri_from)
 
   /* bstAppend */
     bstri_dest = *bstri_to;
-    if (bstri_dest->size > MAX_BSTRI_LEN - bstri_from->size) {
+    if (unlikely(bstri_dest->size > MAX_BSTRI_LEN - bstri_from->size)) {
       /* number of bytes does not fit into memsizetype */
       raise_error(MEMORY_ERROR);
     } else {
       new_size = bstri_dest->size + bstri_from->size;
       REALLOC_BSTRI_SIZE_OK(new_bstri, bstri_dest, bstri_dest->size, new_size);
-      if (new_bstri == NULL) {
+      if (unlikely(new_bstri == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
         if (bstri_dest == bstri_from) {
@@ -89,13 +89,13 @@ bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2)
     bstritype result;
 
   /* bstCat */
-    if (bstri1->size > MAX_BSTRI_LEN - bstri2->size) {
+    if (unlikely(bstri1->size > MAX_BSTRI_LEN - bstri2->size)) {
       /* number of bytes does not fit into memsizetype */
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       result_size = bstri1->size + bstri2->size;
-      if (!ALLOC_BSTRI_SIZE_OK(result, result_size)) {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -128,17 +128,15 @@ inttype bstCmp (const const_bstritype bstri1, const const_bstritype bstri2)
       } else {
         result = 1;
       } /* if */
-    } else if (bstri1->size > bstri2->size) {
-      if (memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(uchartype)) >= 0) {
+    } else {
+      result = memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(uchartype));
+      if (result == 0) {
+        if (bstri1->size > bstri2->size) {
+          result = 1;
+        } /* if */
+      } else if (result > 0) {
         result = 1;
       } else {
-        result = -1;
-      } /* if */
-    } else {
-      result = memcmp(bstri1->mem, bstri2->mem, bstri1->size * sizeof(uchartype));
-      if (result > 0) {
-        result = 1;
-      } else if (result < 0) {
         result = -1;
       } /* if */
     } /* if */
@@ -172,7 +170,7 @@ void bstCpy (bstritype *const bstri_to, const const_bstritype bstri_from)
     bstri_dest = *bstri_to;
     new_size = bstri_from->size;
     if (bstri_dest->size != new_size) {
-      if (!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size)) {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size))) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
@@ -199,7 +197,7 @@ bstritype bstCreate (const const_bstritype bstri_from)
 
   /* bstCreate */
     new_size = bstri_from->size;
-    if (!ALLOC_BSTRI_SIZE_OK(result, new_size)) {
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, new_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
@@ -273,13 +271,13 @@ bstritype bstParse (const const_stritype stri)
 
   /* bstParse */
     len = stri->size;
-    if (!ALLOC_BSTRI_CHECK_SIZE(result, len)) {
+    if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, len))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = len;
       for (bstrelem = result->mem, strelem = stri->mem;
            len > 0; bstrelem++, strelem++, len--) {
-        if (*strelem >= 256) {
+        if (unlikely(*strelem >= 256)) {
           FREE_BSTRI(result, result->size);
           result = NULL;
           raise_error(RANGE_ERROR);
@@ -305,7 +303,7 @@ stritype bstStr (const const_bstritype bstri)
     stritype result;
 
   /* bstStr */
-    if (!ALLOC_STRI_CHECK_SIZE(result, bstri->size)) {
+    if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, bstri->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = bstri->size;

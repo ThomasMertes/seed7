@@ -1201,7 +1201,7 @@ const proc: check_string_comparisons is func
         compare("22",     "123")    <>  1 or
         compare("222",    "123")    <>  1 or
         compare("2222",   "123")    <>  1 then
-      writeln(" ***** STRING > STRING does not work correct");
+      writeln(" ***** compare(STRING, STRING) does not work correct");
       okay := FALSE;
     end if;
     if okay then
@@ -3580,7 +3580,67 @@ const proc: check_string_ops is func
         "abcdefg" & "hij" <> "abcdefghij" or
         "abcdefgh" & "ij" <> "abcdefghij" or
         "abcdefghi" & "j" <> "abcdefghij" or
-        "abcdefghij" & "" <> "abcdefghij" then
+        "abcdefghij" & "" <> "abcdefghij" or
+                 "ab"  &          "cd"  <> "abcd" or
+        striExpr("ab") &          "cd"  <> "abcd" or
+                 "ab"  & striExpr("cd") <> "abcd" or
+        striExpr("ab") & striExpr("cd") <> "abcd" or
+                 "ab"  &          "cd"  &          "ef"  <> "abcdef" or
+        striExpr("ab") &          "cd"  &          "ef"  <> "abcdef" or
+                 "ab"  & striExpr("cd") &          "ef"  <> "abcdef" or
+        striExpr("ab") & striExpr("cd") &          "ef"  <> "abcdef" or
+                 "ab"  &          "cd"  & striExpr("ef") <> "abcdef" or
+        striExpr("ab") &          "cd"  & striExpr("ef") <> "abcdef" or
+                 "ab"  & striExpr("cd") & striExpr("ef") <> "abcdef" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") <> "abcdef" or
+                 "ab"  &          "cd"  &          "ef"  &          "gh"  <> "abcdefgh" or
+        striExpr("ab") &          "cd"  &          "ef"  &          "gh"  <> "abcdefgh" or
+                 "ab"  & striExpr("cd") &          "ef"  &          "gh"  <> "abcdefgh" or
+        striExpr("ab") & striExpr("cd") &          "ef"  &          "gh"  <> "abcdefgh" or
+                 "ab"  &          "cd"  & striExpr("ef") &          "gh"  <> "abcdefgh" or
+        striExpr("ab") &          "cd"  & striExpr("ef") &          "gh"  <> "abcdefgh" or
+                 "ab"  & striExpr("cd") & striExpr("ef") &          "gh"  <> "abcdefgh" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") &          "gh"  <> "abcdefgh" or
+                 "ab"  &          "cd"  &          "ef"  & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") &          "cd"  &          "ef"  & striExpr("gh") <> "abcdefgh" or
+                 "ab"  & striExpr("cd") &          "ef"  & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") & striExpr("cd") &          "ef"  & striExpr("gh") <> "abcdefgh" or
+                 "ab"  &          "cd"  & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
+                 "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
+                 "ab"  &          "cd"  &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
+        striExpr("ab") &          "cd"  &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
+                 "ab"  & striExpr("cd") &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
+                 "ab"  &          "cd"  & striExpr("ef") &          "gh"  &          "ij"  <> "abcdefghij" or
+        striExpr("ab") &          "cd"  & striExpr("ef") &          "gh"  &          "ij"  <> "abcdefghij" or
+                 "ab"  & striExpr("cd") & striExpr("ef") &          "gh"  &          "ij"  <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") &          "gh"  &          "ij"  <> "abcdefghij" or
+                 "ab"  &          "cd"  &          "ef"  & striExpr("gh") &          "ij"  <> "abcdefghij" or
+        striExpr("ab") &          "cd"  &          "ef"  & striExpr("gh") &          "ij"  <> "abcdefghij" or
+                 "ab"  & striExpr("cd") &          "ef"  & striExpr("gh") &          "ij"  <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") &          "ef"  & striExpr("gh") &          "ij"  <> "abcdefghij" or
+                 "ab"  &          "cd"  & striExpr("ef") & striExpr("gh") &          "ij"  <> "abcdefghij" or
+        striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") &          "ij"  <> "abcdefghij" or
+                 "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") &          "ij"  <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") &          "ij"  <> "abcdefghij" or
+                 "ab"  &          "cd"  &          "ef"  &          "gh"  & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") &          "cd"  &          "ef"  &          "gh"  & striExpr("ij") <> "abcdefghij" or
+                 "ab"  & striExpr("cd") &          "ef"  &          "gh"  & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") &          "ef"  &          "gh"  & striExpr("ij") <> "abcdefghij" or
+                 "ab"  &          "cd"  & striExpr("ef") &          "gh"  & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") &          "cd"  & striExpr("ef") &          "gh"  & striExpr("ij") <> "abcdefghij" or
+                 "ab"  & striExpr("cd") & striExpr("ef") &          "gh"  & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") &          "gh"  & striExpr("ij") <> "abcdefghij" or
+                 "ab"  &          "cd"  &          "ef"  & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") &          "cd"  &          "ef"  & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
+                 "ab"  & striExpr("cd") &          "ef"  & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") &          "ef"  & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
+                 "ab"  &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
+                 "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" then
       writeln(" ***** STRING & STRING does not work correct");
       okay := FALSE;
     end if;
@@ -7312,49 +7372,79 @@ const proc: check_string_append is func
     stri := "123";
     stri &:= "456";
     if stri <> "123456" then
-      writeln(" ***** 'stri &:= \"456\"' does not work correct");
+      writeln(" ***** stri &:= \"456\" does not work correct");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri;
     if stri <> "12345678901234567890" then
-      writeln(" ***** 'stri &:= stri' does not work correct");
+      writeln(" ***** stri &:= stri does not work correct");
       okay := FALSE;
     end if;
     stri := "1234567890";
     do_append(stri, stri);
     if stri <> "12345678901234567890" then
-      writeln(" ***** 'stri &:= stri' does not work correct");
+      writeln(" ***** stri &:= stri does not work correct");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[2 ..];
     if stri <> "1234567890234567890" then
-      writeln(" ***** 'stri &:= stri[2 ..]' does not work correct");
+      writeln(" ***** stri &:= stri[2 ..] does not work correct");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[.. 9];
     if stri <> "1234567890123456789" then
-      writeln(" ***** 'stri &:= stri[.. 9]' does not work correct");
+      writeln(" ***** stri &:= stri[.. 9] does not work correct");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[2 .. 9];
     if stri <> "123456789023456789" then
-      writeln(" ***** 'stri &:= stri[2 .. 9]' does not work correct");
+      writeln(" ***** stri &:= stri[2 .. 9] does not work correct");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[2 len 8];
     if stri <> "123456789023456789" then
-      writeln(" ***** 'stri &:= stri[2 len 8]' does not work correct");
+      writeln(" ***** stri &:= stri[2 len 8] does not work correct");
       okay := FALSE;
     end if;
     stri2 := "1234567890";
     stri2 &:= stri2[2 ..][.. 8];
     if stri2 <> "123456789023456789" then
-      writeln(" ***** 'stri2 &:= stri2[2 ..][.. 8]' does not work correct");
+      writeln(" ***** stri2 &:= stri2[2 ..][.. 8] does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "12345";
+    stri &:= str('6');
+    if stri <> "123456" then
+      writeln(" ***** stri &:= str('6') does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "12345";
+    stri &:= str(chr(48));
+    if stri <> "123450" then
+      writeln(" ***** stri &:= str(chr(48)) does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "12345";
+    stri &:= '6';
+    if stri <> "123456" then
+      writeln(" ***** stri &:= '6' does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "12345";
+    stri &:= chr(48);
+    if stri <> "123450" then
+      writeln(" ***** stri &:= chr(48) does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "12345";
+    stri &:= stri[3];
+    if stri <> "123453" then
+      writeln(" ***** stri &:= stri[3] does not work correct");
       okay := FALSE;
     end if;
     if okay then

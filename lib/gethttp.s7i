@@ -34,6 +34,7 @@ include "charsets.s7i";
 
 var string: proxyServer is "";
 var integer: proxyHttpPort is 0;
+const integer: httpDefaultPort is 80;
 
 
 (**
@@ -47,7 +48,8 @@ const proc: setProxy (in string: serverName, in integer: portNumber) is func
 
 
 const proc: splitHttpLocation (in string: location, inout string: hostname,
-    inout integer: portNumber, inout string: path, inout string: params) is func
+    inout integer: portNumber, inout string: path, inout string: params,
+    in integer: defaultPortNumber) is func
   local
     var integer: slashPos is 0;
     var integer: questionMarkPos is 0;
@@ -86,7 +88,7 @@ const proc: splitHttpLocation (in string: location, inout string: hostname,
       portNumber := integer parse (hostname[succ(colonPos) ..]);
       hostname := hostname[.. pred(colonPos)];
     else
-      portNumber := 80;
+      portNumber := defaultPortNumber;
     end if;
   end func;
 
@@ -117,31 +119,42 @@ const func string: toHttpAscii (in string: stri) is func
   end func;
 
 
+const proc: sendGet (inout file: sock, in string: hostname, in string: path,
+    in string: params) is func
+  local
+    var string: address is "";
+  begin
+    address := "/" & path;
+    if params <> "" then
+      address &:= "?" & params;
+    end if;
+    # writeln("sendGet: ");
+    # writeln(literal(address));
+    # writeln("GET " <& address <& " HTTP/1.1");
+    # writeln("Host: " <& hostname);
+    # writeln("User-Agent: BlackHole");
+    # writeln(sock, "OPTIONS " <& address <& " HTTP/1.1");
+    writeln(sock, "GET " <& address <& " HTTP/1.1");
+    writeln(sock, "Host: " <& hostname);
+    writeln(sock, "User-Agent: BlackHole");
+    # writeln(sock, "Accept-Encoding: gzip");
+    # writeln(sock, "Accept-Encoding: gzip,deflate");
+    # writeln(sock, "Accept-Charset: utf-8");
+    writeln(sock);
+  end func;
+
+
 const func file: openHttp (in string: serverName, in integer: portNumber,
     in string: hostname, in string: path, in string: params) is func
   result
     var file: sock is STD_NULL;
-  local
-    var string: address is "";
   begin
     # writeln(literal(serverName) <& " " <& portNumber);
     # writeln(hostname <& ":" <& portNumber <& "/" <& path);
     # writeln("params=" <& params);
     sock := openInetSocket(serverName, portNumber);
     if sock <> STD_NULL then
-      address := "/" & path;
-      if params <> "" then
-        address &:= "?" & params;
-      end if;
-      # writeln(literal(address));
-      # writeln(sock, "OPTIONS " <& address <& " HTTP/1.1");
-      writeln(sock, "GET " <& address <& " HTTP/1.1");
-      writeln(sock, "Host: " <& hostname);
-      writeln(sock, "User-Agent: BlackHole");
-#     writeln(sock, "Accept-Encoding: gzip");
-#     writeln(sock, "Accept-Encoding: gzip,deflate");
-#     writeln(sock, "Accept-Charset: utf-8");
-      writeln(sock);
+      sendGet(sock, hostname, path, params);
     end if;
   end func;
 
@@ -156,7 +169,7 @@ const func file: openHttp (in string: serverName, in integer: serverPortNumber,
     var string: path is "";
     var string: params is "";
   begin
-    splitHttpLocation(location, hostname, portNumber, path, params);
+    splitHttpLocation(location, hostname, portNumber, path, params, httpDefaultPort);
     sock := openHttp(serverName, serverPortNumber, hostname, path, params);
   end func;
 
@@ -170,7 +183,7 @@ const func file: openHttp (in string: location) is func
     var string: path is "";
     var string: params is "";
   begin
-    splitHttpLocation(location, hostname, portNumber, path, params);
+    splitHttpLocation(location, hostname, portNumber, path, params, httpDefaultPort);
     sock := openHttp(hostname, portNumber, hostname, path, params);
   end func;
 
@@ -281,11 +294,13 @@ const func string: getHttpLocation (inout file: sock) is func
   begin
     line := getln(sock);
     while line <> "" do
-      # writeln(line);
+      # writeln(literal(line));
       if startsWith(line, "Location") then
         location := trim(line[succ(pos(line, ":")) ..]);
         if startsWith(location, "http:") then
           location := trim(location[6 ..]);
+        elsif startsWith(location, "https:") then
+          location := trim(location[7 ..]);
         end if;
         while startsWith(location, "/") do
           location := location[2 ..];
@@ -313,6 +328,7 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
       sock := openHttp(serverName, portNumber, location);
       if sock <> STD_NULL then
         statusCode := getHttpStatusCode(sock);
+        # writeln("statusCode: " <& statusCode);
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
           location := getHttpLocation(sock);
@@ -321,7 +337,7 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
           okay := FALSE;
           incr(repeatCount);
         end if;
-      end if
+      end if;
     until okay or repeatCount > 5;
     if sock <> STD_NULL then
       data := getHttp(sock);
@@ -355,6 +371,7 @@ const func string: getHttp (in string: url) is func
       end if;
       if sock <> STD_NULL then
         statusCode := getHttpStatusCode(sock);
+        # writeln("statusCode: " <& statusCode);
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
           location := getHttpLocation(sock);
@@ -363,7 +380,7 @@ const func string: getHttp (in string: url) is func
           okay := FALSE;
           incr(repeatCount);
         end if;
-      end if
+      end if;
     until okay or repeatCount > 5;
     if sock <> STD_NULL then
       data := getHttp(sock);

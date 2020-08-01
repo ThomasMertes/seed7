@@ -92,26 +92,6 @@ objecttype big_bit_length (listtype arguments)
 
 
 
-objecttype big_toBStriBe (listtype arguments)
-
-  { /* big_toBStriBe */
-    isit_bigint(arg_1(arguments));
-    return bld_bstri_temp(
-        bigToBStriBe(take_bigint(arg_1(arguments))));
-  } /* big_toBStriBe */
-
-
-
-objecttype big_toBStriLe (listtype arguments)
-
-  { /* big_toBStriLe */
-    isit_bigint(arg_1(arguments));
-    return bld_bstri_temp(
-        bigToBStriLe(take_bigint(arg_1(arguments))));
-  } /* big_toBStriLe */
-
-
-
 objecttype big_clit (listtype arguments)
 
   { /* big_clit */
@@ -881,6 +861,26 @@ objecttype big_succ (listtype arguments)
     return bld_bigint_temp(
         bigSucc(take_bigint(arg_1(arguments))));
   } /* big_succ */
+
+
+
+objecttype big_toBStriBe (listtype arguments)
+
+  { /* big_toBStriBe */
+    isit_bigint(arg_1(arguments));
+    return bld_bstri_temp(
+        bigToBStriBe(take_bigint(arg_1(arguments))));
+  } /* big_toBStriBe */
+
+
+
+objecttype big_toBStriLe (listtype arguments)
+
+  { /* big_toBStriLe */
+    isit_bigint(arg_1(arguments));
+    return bld_bstri_temp(
+        bigToBStriLe(take_bigint(arg_1(arguments))));
+  } /* big_toBStriLe */
 
 
 

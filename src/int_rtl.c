@@ -1090,3 +1090,103 @@ stritype intStrToBuffer (inttype number, stritype buffer)
     return buffer;
   } /* intStrToBuffer */
 #endif
+
+
+
+bstritype intToBStriBe (inttype number)
+
+  {
+    uchartype buffer[8];
+    int pos = 7;
+    bstritype result;
+
+  /* intToBStriBe */
+    /* printf("intToBStriBe(%016lx)\n", number); */
+    if (number > 0) {
+      do {
+        buffer[pos] = (uchartype) (number & 0xff);
+        number >>= 8;
+        pos--;
+      } while (number != 0);
+      if (buffer[pos + 1] <= 127) {
+        pos++;
+      } else {
+        buffer[pos] = 0;
+      } /* if */
+    } else if (number < 0) {
+      do {
+        buffer[pos] = (uchartype) (number & 0xff);
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+        number >>= 8;
+#else
+        number = ~(~number >> 8);
+#endif
+        pos--;
+      } while (number != -1);
+      if (buffer[pos + 1] >= 128) {
+        pos++;
+      } else {
+        buffer[pos] = 255;
+      } /* if */
+    } else {
+      buffer[7] = '\0';
+    } /* if */
+    if (!ALLOC_BSTRI_SIZE_OK(result, (memsizetype) (8 - pos))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = (memsizetype) (8 - pos);
+      memcpy(result->mem, &buffer[pos],
+             (memsizetype) (8 - pos) * sizeof(uchartype));
+    } /* if */
+    return result;
+  } /* intToBStriBe */
+
+
+
+bstritype intToBStriLe (inttype number)
+
+  {
+    uchartype buffer[8];
+    int pos = 0;
+    bstritype result;
+
+  /* intToBStriLe */
+    /* printf("intToBStriLe(%016lx)\n", number); */
+    if (number > 0) {
+      do {
+        buffer[pos] = (uchartype) (number & 0xff);
+        number >>= 8;
+        pos++;
+      } while (number != 0);
+      if (buffer[pos - 1] <= 127) {
+        pos--;
+      } else {
+        buffer[pos] = 0;
+      } /* if */
+    } else if (number < 0) {
+      do {
+        buffer[pos] = (uchartype) (number & 0xff);
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+        number >>= 8;
+#else
+        number = ~(~number >> 8);
+#endif
+        pos++;
+      } while (number != -1);
+      if (buffer[pos - 1] >= 128) {
+        pos--;
+      } else {
+        buffer[pos] = 255;
+      } /* if */
+    } else {
+      buffer[0] = '\0';
+    } /* if */
+    if (!ALLOC_BSTRI_SIZE_OK(result, (memsizetype) (pos + 1))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = (memsizetype) (pos + 1);
+      memcpy(result->mem, &buffer[0],
+             (memsizetype) (pos + 1) * sizeof(uchartype));
+    } /* if */
+    return result;
+  } /* intToBStriLe */

@@ -1352,7 +1352,12 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
     stritype result;
 
   /* strConcatN */
+    /* printf("strConcatN(%lu)\n", arraySize); */
     for (pos = 0; pos < arraySize; pos++) {
+      /* printf("arr[%lu]->size=%lu\n", pos, striArray[pos]->size);
+      printf("arr[%lu]=(%08lx) ", pos, striArray[pos]);
+      prot_stri(striArray[pos]);
+      printf("\n"); */
       if (unlikely(result_size > MAX_STRI_LEN - striArray[pos]->size)) {
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -1360,6 +1365,7 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
         result_size += striArray[pos]->size;
       } /* if */
     } /* for */
+    /* printf("result_size=%lu\n", result_size); */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -1371,6 +1377,9 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
         result_size += striArray[pos]->size;
       } /* for */
     } /* if */
+    /* printf("strConcatN -> (%08lx) ", result);
+    prot_stri(result);
+    printf("\n"); */
     return result;
   } /* strConcatN */
 
@@ -2331,7 +2340,13 @@ stritype strMult (const const_stritype stri, const inttype factor)
       result = NULL;
     } else {
       len = stri->size;
-      if (unlikely(len != 0 && (uinttype) factor > MAX_STRI_LEN / len)) {
+      if (unlikely(len == 0)) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 0;
+        } /* if */
+      } else if (unlikely((uinttype) factor > MAX_STRI_LEN / len)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -2340,14 +2355,13 @@ stritype strMult (const const_stritype stri, const inttype factor)
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
+          result_pointer = result->mem;
           if (len == 1) {
             ch = stri->mem[0];
-            result_pointer = result->mem;
             for (number = factor; number > 0; number--) {
               *result_pointer++ = ch;
             } /* for */
-          } else if (len != 0) {
-            result_pointer = result->mem;
+          } else {
             for (number = factor; number > 0; number--) {
               memcpy(result_pointer, stri->mem, len * sizeof(strelemtype));
               result_pointer += len;

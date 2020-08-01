@@ -60,3 +60,5 @@ stritype intStr (inttype number);
 #ifdef ALLOW_STRITYPE_SLICES
 stritype intStrToBuffer (inttype number, stritype buffer);
 #endif
+bstritype intToBStriBe (inttype number);
+bstritype intToBStriLe (inttype number);

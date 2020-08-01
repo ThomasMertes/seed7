@@ -49,9 +49,10 @@ static inttype fact[] = {
     1, 1, 2, 6, 24, 120, 720, 5040, 40320,
     362880, 3628800, 39916800, 479001600,
 #if INTTYPE_SIZE == 64
-    6227020800, 87178291200, 1307674368000, 20922789888000,
-    355687428096000, 6402373705728000, 121645100408832000,
-    2432902008176640000
+    INT_SUFFIX(6227020800), INT_SUFFIX(87178291200),
+    INT_SUFFIX(1307674368000), INT_SUFFIX(20922789888000),
+    INT_SUFFIX(355687428096000), INT_SUFFIX(6402373705728000),
+    INT_SUFFIX(121645100408832000), INT_SUFFIX(2432902008176640000)
 #endif
   };
 
@@ -1021,6 +1022,26 @@ objecttype int_succ (listtype arguments)
 
 
 
+objecttype int_toBStriBe (listtype arguments)
+
+  { /* int_toBStriBe */
+    isit_int(arg_1(arguments));
+    return bld_bstri_temp(
+        intToBStriBe(take_int(arg_1(arguments))));
+  } /* int_toBStriBe */
+
+
+
+objecttype int_toBStriLe (listtype arguments)
+
+  { /* int_toBStriLe */
+    isit_int(arg_1(arguments));
+    return bld_bstri_temp(
+        intToBStriLe(take_int(arg_1(arguments))));
+  } /* int_toBStriLe */
+
+
+
 #ifdef OUT_OF_ORDER
 objecttype int_uadd (listtype arguments)
 
@@ -1028,8 +1049,8 @@ objecttype int_uadd (listtype arguments)
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
     return bld_int_temp((inttype)
-	((uinttype) (take_int(arg_1(arguments))) +
-	 (uinttype) (take_int(arg_3(arguments)))));
+        ((uinttype) (take_int(arg_1(arguments))) +
+         (uinttype) (take_int(arg_3(arguments)))));
   } /* int_uadd */
 
 
@@ -1040,8 +1061,8 @@ objecttype int_umult (listtype arguments)
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
     return bld_int_temp((inttype)
-	((uinttype) (take_int(arg_1(arguments))) *
-	 (uinttype) (take_int(arg_3(arguments)))));
+        ((uinttype) (take_int(arg_1(arguments))) *
+         (uinttype) (take_int(arg_3(arguments)))));
   } /* int_umult */
 #endif
 
@@ -1084,8 +1105,8 @@ objecttype int_usbtr (listtype arguments)
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
     return bld_int_temp((inttype)
-	((uinttype) (take_int(arg_1(arguments))) -
-	 (uinttype) (take_int(arg_3(arguments)))));
+        ((uinttype) (take_int(arg_1(arguments))) -
+         (uinttype) (take_int(arg_3(arguments)))));
   } /* int_usbtr */
 #endif
 

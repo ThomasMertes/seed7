@@ -2345,6 +2345,23 @@ const proc: getAnyParamToTempAssigns (in reference: aParam, inout expr_type: c_e
   end func;
 
 
+const proc: doLocalDeclsOfStatement (in expr_type: statement, inout expr_type: c_expr) is func
+
+  begin
+    if statement.temp_num > 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(statement.temp_decls, c_expr);
+      AppendWithDiagnostic(statement.temp_assigns, c_expr);
+      AppendWithDiagnostic(statement.expr, c_expr);
+      AppendWithDiagnostic(statement.temp_frees, c_expr);
+      AppendWithDiagnostic(statement.result_free, c_expr);
+      c_expr.expr &:= "}\n";
+    else
+      AppendWithDiagnostic(statement.expr, c_expr);
+    end if;
+  end func;
+
+
 const func string: normalVariable (in reference: aParam, inout expr_type: c_expr) is func
 
   result
@@ -4389,14 +4406,24 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
   begin
     proc_type := getType(function);
     result_type := resultType(proc_type);
-    prepare_typed_result(result_type, c_expr);
-    temp_name := beginCastGenericToResultExpr(result_type, c_expr);
-    c_expr.result_expr &:= "arrRemove(&(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= "), ";
-    getStdParamToResultExpr(params[2], c_expr);
-    c_expr.result_expr &:= ")";
-    endCastGenericToResultExpr(result_type, temp_name, c_expr);
+    if valueIsAtHeap(result_type) then
+      prepare_typed_result(result_type, c_expr);
+      temp_name := beginCastGenericToResultExpr(result_type, c_expr);
+      c_expr.result_expr &:= "arrRemove(&(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= "), ";
+      getStdParamToResultExpr(params[2], c_expr);
+      c_expr.result_expr &:= ")";
+      endCastGenericToResultExpr(result_type, temp_name, c_expr);
+    else
+      temp_name := beginCastGeneric(result_type, c_expr);
+      c_expr.expr &:= "arrRemove(&(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= "), ";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ")";
+      endCastGeneric(result_type, temp_name, c_expr);
+    end if;
   end func;
 
 
@@ -4959,60 +4986,30 @@ const proc: process_const_big_grow (in reference: param1, in bigInteger: number,
     inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
     if number = -1_ then
       incr(countOptimizations);
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigDecr(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "));\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigDecr(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     elsif number = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore bigInteger +:= 0_; */\n";
     elsif number = 1_ then
       incr(countOptimizations);
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigIncr(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "));\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigIncr(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     else
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigGrow(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= bigIntegerLiteral(number);
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigGrow(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "), ";
+      statement.expr &:= bigIntegerLiteral(number);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -5021,41 +5018,17 @@ const proc: process_big_grow (in ref_list: params, inout expr_type: c_expr) is f
 
   local
     var reference: evaluatedParam is NIL;
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_grow(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
-      process_expr(params[1], c_param1);
-      c_param3.temp_num := c_param1.temp_num;
-      process_expr(params[3], c_param3);
-      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.result_decl, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigGrow(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      if c_param3.result_expr <> "" then
-        c_expr.expr &:= c_param3.result_intro;
-        c_expr.expr &:= c_param3.result_expr;
-        c_expr.expr &:= c_param3.result_finish;
-      else
-        c_expr.expr &:= c_param3.expr;
-      end if;
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.result_free, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigGrow(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      getAnyParamToExpr(params[3], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -5322,34 +5295,14 @@ const proc: process_big_lshift (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_big_lshift_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "bigLShiftAssign(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ");\n";
-    if has_temp_values(c_param3) then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    statement.expr := "bigLShiftAssign(&(";
+    process_expr(params[1], statement);
+    statement.expr &:= "), ";
+    getAnyParamToExpr(params[3], statement);
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -5571,27 +5524,17 @@ const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: 
     inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
+    var expr_type: statement is expr_type.value;
     var integer: log2base is 0;
   begin
     if number = 0_ then
       incr(countOptimizations);
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigCpy(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= bigIntegerLiteral(0_);
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigCpy(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "), ";
+      statement.expr &:= bigIntegerLiteral(0_);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     elsif number = 1_ then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore bigInteger *:= 1_; */\n";
@@ -5599,39 +5542,19 @@ const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: 
         2_ ** ord(log2(number)) = number then
       incr(countOptimizations);
       log2base := ord(log2(number));
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigLShiftAssign(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= integerLiteral(log2base);
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigLShiftAssign(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "), ";
+      statement.expr &:= integerLiteral(log2base);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     else
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigMultAssign(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= bigIntegerLiteral(number);
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigMultAssign(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "), ";
+      statement.expr &:= bigIntegerLiteral(number);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -5640,41 +5563,17 @@ const proc: process_big_mult_assign (in ref_list: params, inout expr_type: c_exp
 
   local
     var reference: evaluatedParam is NIL;
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_mult_assign(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
-      process_expr(params[1], c_param1);
-      c_param3.temp_num := c_param1.temp_num;
-      process_expr(params[3], c_param3);
-      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.result_decl, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigMultAssign(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      if c_param3.result_expr <> "" then
-        c_expr.expr &:= c_param3.result_intro;
-        c_expr.expr &:= c_param3.result_expr;
-        c_expr.expr &:= c_param3.result_finish;
-      else
-        c_expr.expr &:= c_param3.expr;
-      end if;
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.result_free, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigMultAssign(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      getAnyParamToExpr(params[3], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -5813,34 +5712,14 @@ const proc: process_big_rshift (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_big_rshift_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "bigRShiftAssign(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ");\n";
-    if has_temp_values(c_param3) then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    statement.expr := "bigRShiftAssign(&(";
+    process_expr(params[1], statement);
+    statement.expr &:= "), ";
+    getAnyParamToExpr(params[3], statement);
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -5880,60 +5759,30 @@ const proc: process_const_big_shrink (in reference: param1, in bigInteger: numbe
     inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
     if number = -1_ then
       incr(countOptimizations);
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigIncr(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "));\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigIncr(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     elsif number = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore bigInteger -:= 0_; */\n";
     elsif number = 1_ then
       incr(countOptimizations);
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigDecr(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "));\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigDecr(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     else
-      process_expr(param1, c_param1);
-      if has_temp_values(c_param1) then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigShrink(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= bigIntegerLiteral(number);
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param1) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigShrink(&(";
+      process_expr(param1, statement);
+      statement.expr &:= "), ";
+      statement.expr &:= bigIntegerLiteral(number);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -5942,41 +5791,17 @@ const proc: process_big_shrink (in ref_list: params, inout expr_type: c_expr) is
 
   local
     var reference: evaluatedParam is NIL;
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_shrink(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
-      process_expr(params[1], c_param1);
-      c_param3.temp_num := c_param1.temp_num;
-      process_expr(params[3], c_param3);
-      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.result_decl, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bigShrink(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      if c_param3.result_expr <> "" then
-        c_expr.expr &:= c_param3.result_intro;
-        c_expr.expr &:= c_param3.result_expr;
-        c_expr.expr &:= c_param3.result_finish;
-      else
-        c_expr.expr &:= c_param3.expr;
-      end if;
-      c_expr.expr &:= ");\n";
-      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.result_free, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "bigShrink(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      getAnyParamToExpr(params[3], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -6097,33 +5922,13 @@ const proc: process_bln_and (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_bln_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -6672,33 +6477,13 @@ const proc: process_chr_conv (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_chr_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -6737,29 +6522,13 @@ const proc: process_chr_ge (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_chr_grow (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "+=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "+=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -6865,29 +6634,13 @@ const proc: process_chr_pred (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_chr_shrink (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "-=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "-=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -8357,33 +8110,13 @@ const proc: process_enu_conv (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_enu_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -8481,33 +8214,13 @@ const proc: process_fil_close (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_fil_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -8881,33 +8594,13 @@ const proc: process_flt_cosh (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -9011,57 +8704,45 @@ const proc: process_const_flt_div_assign (in reference: param1, in float: diviso
     inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
+    var expr_type: statement is expr_type.value;
     var integer: temp_num is 0;
     var string: dividend is "";
   begin
     incr(countOptimizations);
-    process_expr(param1, c_param1);
-    temp_num := c_param1.temp_num;
-    if temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-    end if;
     if divisor = 0.0 and (FLOAT_ZERO_DIV_ERROR or CHECK_FLOAT_DIV_BY_ZERO) then
       if isNormalVariable(param1) then
-        dividend := "(" & c_param1.expr & ")";
+        dividend := normalVariable(param1, statement);
       else
-        if temp_num = 0 then
-          c_expr.expr &:= "{\n";
-        end if;
-        incr(temp_num);
-        dividend := "*tmp_" & str(temp_num);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "floattype ";
-        c_expr.expr &:= dividend;
-        c_expr.expr &:= "=&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ");\n";
+        incr(statement.temp_num);
+        dividend := "tmp_" & str(statement.temp_num);
+        statement.temp_decls &:= "floattype *";
+        statement.temp_decls &:= dividend;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= dividend;
+        statement.expr &:= "=&(";
+        process_expr(param1, statement);
+        statement.expr &:= ");\n";
+        dividend := "*" & dividend;
       end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= "=(isnan(";
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= ") || ";
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= "==0.0 ? NOT_A_NUMBER : (";
-      c_expr.expr &:= dividend;
+      statement.expr &:= dividend;
+      statement.expr &:= "=(isnan(";
+      statement.expr &:= dividend;
+      statement.expr &:= ") || ";
+      statement.expr &:= dividend;
+      statement.expr &:= "==0.0 ? NOT_A_NUMBER : (";
+      statement.expr &:= dividend;
       if isNegativeZero(divisor) then
-        c_expr.expr &:= "<0.0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY));\n";
+        statement.expr &:= "<0.0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY));\n";
       else
-        c_expr.expr &:= "<0.0 ? NEGATIVE_INFINITY : POSITIVE_INFINITY));\n";
+        statement.expr &:= "<0.0 ? NEGATIVE_INFINITY : POSITIVE_INFINITY));\n";
       end if;
+      doLocalDeclsOfStatement(statement, c_expr);
     else
-      setDiagnosticLine(c_expr);
-      process_expr(param1, c_expr);
-      c_expr.expr &:= "/=";
-      c_expr.expr &:= floatLiteral(divisor);
-      c_expr.expr &:= ";\n";
-    end if;
-    if temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
+      process_expr(param1, statement);
+      statement.expr &:= "/=";
+      statement.expr &:= floatLiteral(divisor);
+      statement.expr &:= ";\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -9070,9 +8751,7 @@ const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr
 
   local
     var reference: evaluatedParam is NIL;
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
-    var integer: temp_num is 0;
+    var expr_type: statement is expr_type.value;
     var string: dividend is "";
     var string: divisor is "";
   begin
@@ -9083,80 +8762,56 @@ const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr
         not isVar(getActionParameter(params[3], 2)) then
       process_const_flt_div_assign(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
     elsif CHECK_FLOAT_DIV_BY_ZERO then
-      process_expr(params[1], c_param1);
-      c_param3.temp_num := c_param1.temp_num;
-      process_expr(params[3], c_param3);
-      temp_num := c_param3.temp_num;
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
       if isNormalVariable(params[1]) then
-        dividend := "(" & c_param1.expr & ")";
+        dividend := normalVariable(params[1], statement);
       else
-        incr(temp_num);
-        dividend := "*tmp_" & str(temp_num);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "floattype ";
-        c_expr.expr &:= dividend;
-        c_expr.expr &:= "=&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ");\n";
+        incr(statement.temp_num);
+        dividend := "tmp_" & str(statement.temp_num);
+        statement.temp_decls &:= "floattype *";
+        statement.temp_decls &:= dividend;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= dividend;
+        statement.expr &:= "=&(";
+        process_expr(params[1], statement);
+        statement.expr &:= ");\n";
+        dividend := "*" & dividend;
       end if;
       if isNormalVariable(params[3]) then
-        divisor := "(" & c_param3.expr & ")";
+        divisor := normalVariable(params[3], statement);
       else
-        incr(temp_num);
-        divisor := "tmp_" & str(temp_num);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "floattype ";
-        c_expr.expr &:= divisor;
-        c_expr.expr &:= "=";
-        c_expr.expr &:= c_param3.expr;
-        c_expr.expr &:= ";\n";
+        incr(statement.temp_num);
+        divisor := "tmp_" & str(statement.temp_num);
+        statement.temp_decls &:= "floattype ";
+        statement.temp_decls &:= divisor;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= divisor;
+        statement.expr &:= "=";
+        process_expr(params[3], statement);
+        statement.expr &:= ";\n";
       end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= "=(";
-      c_expr.expr &:= divisor;
-      c_expr.expr &:= "==0.0 ? (isnan(";
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= ") || ";
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= "==0.0 ? NOT_A_NUMBER : ((";
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= "<0.0)==fltIsNegativeZero(";
-      c_expr.expr &:= divisor;
-      c_expr.expr &:= ") ? POSITIVE_INFINITY : NEGATIVE_INFINITY)) : ";
-      c_expr.expr &:= dividend;
-      c_expr.expr &:= " / ";
-      c_expr.expr &:= divisor;
-      c_expr.expr &:= ");\n";
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
+      statement.expr &:= dividend;
+      statement.expr &:= "=(";
+      statement.expr &:= divisor;
+      statement.expr &:= "==0.0 ? (isnan(";
+      statement.expr &:= dividend;
+      statement.expr &:= ") || ";
+      statement.expr &:= dividend;
+      statement.expr &:= "==0.0 ? NOT_A_NUMBER : ((";
+      statement.expr &:= dividend;
+      statement.expr &:= "<0.0)==fltIsNegativeZero(";
+      statement.expr &:= divisor;
+      statement.expr &:= ") ? POSITIVE_INFINITY : NEGATIVE_INFINITY)) : ";
+      statement.expr &:= dividend;
+      statement.expr &:= " / ";
+      statement.expr &:= divisor;
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     else
-      process_expr(params[1], c_param1);
-      c_param3.temp_num := c_param1.temp_num;
-      process_expr(params[3], c_param3);
-      if c_param3.temp_num <> 0 then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "/=";
-      c_expr.expr &:= c_param3.expr;
-      c_expr.expr &:= ";\n";
-      if c_param3.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      process_expr(params[1], statement);
+      statement.expr &:= "/=";
+      process_expr(params[3], statement);
+      statement.expr &:= ";\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -9331,29 +8986,13 @@ const proc: process_flt_ge (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_flt_grow (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "+=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "+=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -9621,29 +9260,13 @@ const proc: process_flt_mult (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_mult_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "*=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "*=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -9789,29 +9412,13 @@ const proc: process_flt_sci (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_flt_shrink (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "-=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "-=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -10541,33 +10148,13 @@ const proc: process_int_and (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_int_and_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "&=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "&=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -10614,33 +10201,13 @@ const proc: process_int_conv (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_int_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -10792,29 +10359,13 @@ const proc: process_int_ge (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_int_grow (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "+=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "+=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -10952,33 +10503,13 @@ const proc: process_int_lshift (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_int_lshift_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "<<=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "<<=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -11381,29 +10912,13 @@ const proc: process_int_mult (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_int_mult_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "*=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "*=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -11450,33 +10965,13 @@ const proc: process_int_ord (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_int_or_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "|=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "|=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -11898,73 +11393,45 @@ const proc: process_int_rshift (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_int_rshift_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
     var string: number_name is "";
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 or
-        not RSHIFT_DOES_SIGN_EXTEND then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      if not RSHIFT_DOES_SIGN_EXTEND then
-        if isNormalVariable(params[1]) then
-          number_name := "(" & c_param1.expr & ")";
-        else
-          incr(c_param3.temp_num);
-          number_name := "tmp_" & str(c_param3.temp_num);
-          c_expr.expr &:= "inttype *";
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= ";\n";
-        end if;
-      end if;
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
     if RSHIFT_DOES_SIGN_EXTEND then
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= ">>=";
-      if c_param3.result_expr <> "" then
-        c_expr.expr &:= c_param3.result_expr;
-      else
-        c_expr.expr &:= c_param3.expr;
-      end if;
-      c_expr.expr &:= ";\n";
+      process_expr(params[1], statement);
+      statement.expr &:= ">>=";
+      process_expr(params[3], statement);
+      statement.expr &:= ";\n";
     else
       (* Formula used: if (a<0) a= ~(~a>>b); else a>>=b; *)
-      if not isNormalVariable(params[1]) then
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= number_name;
-        c_expr.expr &:= "=&(";
-        process_expr(params[1], c_expr);
-        c_expr.expr &:= ");\n";
+      if isNormalVariable(params[1]) then
+        number_name := normalVariable(params[1], statement);
+      else
+        incr(statement.temp_num);
+        number_name := "tmp_" & str(statement.temp_num);
+        statement.temp_decls &:= "inttype *";
+        statement.temp_decls &:= number_name;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= number_name;
+        statement.expr &:= "=&(";
+        process_expr(params[1], statement);
+        statement.expr &:= ");\n";
         number_name := "*" & number_name;
       end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "if (";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= "<0) ";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= "= ~(~";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= " >> (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ")); else ";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= " >>= (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ");\n";
+      statement.expr &:= "if (";
+      statement.expr &:= number_name;
+      statement.expr &:= "<0) ";
+      statement.expr &:= number_name;
+      statement.expr &:= "= ~(~";
+      statement.expr &:= number_name;
+      statement.expr &:= " >> (";
+      process_expr(params[3], statement);
+      statement.expr &:= ")); else ";
+      statement.expr &:= number_name;
+      statement.expr &:= " >>= (";
+      process_expr(params[3], statement);
+      statement.expr &:= ");\n";
     end if;
-    if c_param3.temp_num <> 0 or
-        not RSHIFT_DOES_SIGN_EXTEND then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -11982,29 +11449,13 @@ const proc: process_int_sbtr (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_int_shrink (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "-=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "-=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -12054,6 +11505,26 @@ const proc: process_int_succ (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")+1";
+  end func;
+
+
+const proc: process_int_to_bstri_be (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "intToBStriBe(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_int_to_bstri_le (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "intToBStriLe(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -12113,55 +11584,29 @@ const proc: process_int_urshift (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_int_urshift_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
-    var integer: temp_num is 0;
-    var string: dest_name is "";
+    var expr_type: statement is expr_type.value;
+    var string: number_name is "";
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
     if isNormalVariable(params[1]) then
-      dest_name := c_param1.expr;
+      number_name := normalVariable(params[1], statement);
     else
-      temp_num := succ(c_param3.temp_num);
-      dest_name := "*tmp_" & str(temp_num);
-      if c_param3.temp_num = 0 then
-        c_expr.expr &:= "{\n";
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "inttype ";
-      c_expr.expr &:= dest_name;
-      c_expr.expr &:= "=&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= ");\n";
+      incr(statement.temp_num);
+      number_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "inttype *";
+      statement.temp_decls &:= number_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= number_name;
+      statement.expr &:= "=&(";
+      process_expr(params[1], statement);
+      statement.expr &:= ");\n";
     end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= dest_name;
-    c_expr.expr &:= "=(inttype)((uinttype)(";
-    c_expr.expr &:= dest_name;
-    c_expr.expr &:= ") >> (";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= "));\n";
-    if not isNormalVariable(params[1]) and c_param3.temp_num = 0 then
-      c_expr.expr &:= "}\n";
-    end if;
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    statement.expr &:= number_name;
+    statement.expr &:= "=(inttype)((uinttype)(";
+    statement.expr &:= number_name;
+    statement.expr &:= ") >> (";
+    process_expr(params[3], statement);
+    statement.expr &:= "));\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -12946,33 +12391,13 @@ const proc: process_ref_conv (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_ref_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -13758,31 +13183,15 @@ const proc: process_rfl_idx (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_rfl_incl (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param2 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
     compDataLibraryUsed := TRUE;
-    process_expr(params[1], c_param1);
-    c_param2.temp_num := c_param1.temp_num;
-    process_expr(params[2], c_param2);
-    if c_param2.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param2.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param2.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "rflIncl(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    c_expr.expr &:= c_param2.expr;
-    c_expr.expr &:= ");\n";
-    if c_param2.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param2.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    statement.expr := "rflIncl(&(";
+    process_expr(params[1], statement);
+    statement.expr &:= "), ";
+    process_expr(params[2], statement);
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -14375,104 +13784,82 @@ const proc: process_set_eq (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_inline_set_excl (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: inline_expr is expr_type.value;
+    var expr_type: statement is expr_type.value;
     var string: integer_name is "";
     var string: position_name is "";
     var string: set_name is "";
   begin
     if isNormalVariable(params[1]) then
-      set_name := normalVariable(params[1], inline_expr);
+      set_name := normalVariable(params[1], statement);
     else
-      incr(inline_expr.temp_num);
-      set_name := "tmp_" & str(inline_expr.temp_num);
-      inline_expr.temp_decls &:= "settype ";
-      inline_expr.temp_decls &:= set_name;
-      inline_expr.temp_decls &:= ";\n";
-      inline_expr.expr &:= set_name;
-      inline_expr.expr &:= "=";
-      process_expr(params[1], inline_expr);
-      inline_expr.expr &:= ";\n";
+      incr(statement.temp_num);
+      set_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "settype ";
+      statement.temp_decls &:= set_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= set_name;
+      statement.expr &:= "=";
+      process_expr(params[1], statement);
+      statement.expr &:= ";\n";
     end if;
     if isNormalVariable(params[2]) then
-      integer_name := normalVariable(params[2], inline_expr);
+      integer_name := normalVariable(params[2], statement);
     else
-      incr(inline_expr.temp_num);
-      integer_name := "tmp_" & str(inline_expr.temp_num);
-      inline_expr.temp_decls &:= "inttype ";
-      inline_expr.temp_decls &:= integer_name;
-      inline_expr.temp_decls &:= ";\n";
-      inline_expr.expr &:= integer_name;
-      inline_expr.expr &:= "=";
-      process_expr(params[2], inline_expr);
-      inline_expr.expr &:= ";\n";
+      incr(statement.temp_num);
+      integer_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "inttype ";
+      statement.temp_decls &:= integer_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= integer_name;
+      statement.expr &:= "=";
+      process_expr(params[2], statement);
+      statement.expr &:= ";\n";
     end if;
-    incr(inline_expr.temp_num);
-    position_name := "tmp_" & str(inline_expr.temp_num);
-    inline_expr.temp_decls &:= "inttype ";
-    inline_expr.temp_decls &:= position_name;
-    inline_expr.temp_decls &:= ";\n";
-    inline_expr.expr &:= position_name;
-    inline_expr.expr &:= "=bitset_pos(";
-    inline_expr.expr &:= integer_name;
-    inline_expr.expr &:= ");\n";
-    inline_expr.expr &:= "if (";
-    inline_expr.expr &:= position_name;
-    inline_expr.expr &:= ">=";
-    inline_expr.expr &:= set_name;
-    inline_expr.expr &:= "->min_position&&";
-    inline_expr.expr &:= position_name;
-    inline_expr.expr &:= "<=";
-    inline_expr.expr &:= set_name;
-    inline_expr.expr &:= "->max_position) {\n";
-    inline_expr.expr &:= set_name;
-    inline_expr.expr &:= "->bitset[(uinttype)(";
-    inline_expr.expr &:= position_name;
-    inline_expr.expr &:= "-";
-    inline_expr.expr &:= set_name;
-    inline_expr.expr &:= "->min_position)] &= ~((bitsettype) 1 << (((unsigned int) ";
-    inline_expr.expr &:= integer_name;
-    inline_expr.expr &:= ") & bitset_mask));\n";
-    inline_expr.expr &:= "}\n";
-    c_expr.expr &:= "{\n";
-    AppendWithDiagnostic(inline_expr.temp_decls, c_expr);
-    AppendWithDiagnostic(inline_expr.temp_assigns, c_expr);
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= inline_expr.expr;
-    AppendWithDiagnostic(inline_expr.temp_frees, c_expr);
-    c_expr.expr &:= "}\n";
+    incr(statement.temp_num);
+    position_name := "tmp_" & str(statement.temp_num);
+    statement.temp_decls &:= "inttype ";
+    statement.temp_decls &:= position_name;
+    statement.temp_decls &:= ";\n";
+    statement.expr &:= position_name;
+    statement.expr &:= "=bitset_pos(";
+    statement.expr &:= integer_name;
+    statement.expr &:= ");\n";
+    statement.expr &:= "if (";
+    statement.expr &:= position_name;
+    statement.expr &:= ">=";
+    statement.expr &:= set_name;
+    statement.expr &:= "->min_position&&";
+    statement.expr &:= position_name;
+    statement.expr &:= "<=";
+    statement.expr &:= set_name;
+    statement.expr &:= "->max_position) {\n";
+    statement.expr &:= set_name;
+    statement.expr &:= "->bitset[(uinttype)(";
+    statement.expr &:= position_name;
+    statement.expr &:= "-";
+    statement.expr &:= set_name;
+    statement.expr &:= "->min_position)] &= ~((bitsettype) 1 << (((unsigned int) ";
+    statement.expr &:= integer_name;
+    statement.expr &:= ") & bitset_mask));\n";
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
 const proc: process_set_excl (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param2 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
     if inlineFunctions then
       process_inline_set_excl(params, c_expr);
     else
-      process_expr(params[1], c_param1);
-      c_param2.temp_num := c_param1.temp_num;
-      process_expr(params[2], c_param2);
-      if c_param2.temp_num <> 0 then
-        c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param2.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param2.temp_assigns, c_expr);
-      end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "setExcl(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= c_param2.expr;
-      c_expr.expr &:= ");\n";
-      if c_param2.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param2.temp_frees, c_expr);
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr := "setExcl(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      process_expr(params[2], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -14520,30 +13907,14 @@ const proc: process_set_iconv (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_set_incl (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param2 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param2.temp_num := c_param1.temp_num;
-    process_expr(params[2], c_param2);
-    if c_param2.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param2.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param2.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "setIncl(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    c_expr.expr &:= c_param2.expr;
-    c_expr.expr &:= ");\n";
-    if c_param2.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param2.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    statement.expr := "setIncl(&(";
+    process_expr(params[1], statement);
+    statement.expr &:= "), ";
+    process_expr(params[2], statement);
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -14789,33 +14160,13 @@ const proc: process_soc_connect (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_soc_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -15027,6 +14378,69 @@ const proc: process_soc_write (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_const_inline_str_push (in reference: param1, in char: ch,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var string: stri_name is "";
+  begin
+    if isNormalVariable(param1) then
+      stri_name := normalVariable(param1, statement);
+    else
+      incr(statement.temp_num);
+      stri_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "stritype *";
+      statement.temp_decls &:= stri_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= stri_name;
+      statement.expr &:= "=&(";
+      process_expr(param1, statement);
+      statement.expr &:= ");\n";
+      stri_name := "*" & stri_name;
+    end if;
+    statement.expr &:= "if ((";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size == (";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->capacity) {\n";
+    statement.expr &:= "strPush(&(";
+    statement.expr &:= stri_name;
+    statement.expr &:= "), ";
+    statement.expr &:= c_literal(ch);
+    statement.expr &:= ");\n";
+    statement.expr &:= "} else {\n";
+    statement.expr &:= "(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->mem[(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size]=";
+    statement.expr &:= c_literal(ch);
+    statement.expr &:= ";\n";
+    statement.expr &:= "(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size++;\n";
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process_const_str_push (in reference: param1, in char: ch,
+    inout expr_type: c_expr) is func
+
+  begin
+    if inlineFunctions then
+      process_const_inline_str_push(param1, ch, c_expr);
+    else
+      c_expr.expr &:= "strPush(&(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= c_literal(ch);
+      c_expr.expr &:= ");\n";
+    end if;
+  end func;
+
+
 const proc: process_const_str_append (in reference: param1, in string: stri,
     inout expr_type: c_expr) is func
 
@@ -15037,11 +14451,7 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
       c_expr.expr &:= "/* append empty string */\n";
     elsif length(stri) = 1 then
       incr(countOptimizations);
-      c_expr.expr &:= "strPush(&(";
-      process_expr(param1, c_expr);
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= c_literal(stri[1]);
-      c_expr.expr &:= ");\n";
+      process_const_str_push(param1, stri[1], c_expr);
     else
       c_expr.expr &:= "strAppend(&(";
       process_expr(param1, c_expr);
@@ -15446,12 +14856,12 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ";\n";
         if TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "uinttype pos=(";
+          c_expr.expr &:= "uinttype pos=(uinttype)((";
         else
           c_expr.expr &:= "inttype pos=(";
         end if;
         c_expr.expr &:= c_param4.expr;
-        c_expr.expr &:= ")-1;\n";
+        c_expr.expr &:= ")-1);\n";
         c_expr.expr &:= "if (";
         if not TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= "pos<0 || ";
@@ -15521,12 +14931,12 @@ const proc: process_str_elemcpy (in reference: function, in ref_list: params, in
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ";\n";
         if TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "uinttype pos=(";
+          c_expr.expr &:= "uinttype pos=(uinttype)((";
         else
           c_expr.expr &:= "inttype pos=(";
         end if;
         c_expr.expr &:= c_param4.expr;
-        c_expr.expr &:= ")-1;\n";
+        c_expr.expr &:= ")-1);\n";
         c_expr.expr &:= "if (";
         if not TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= "pos<0 || ";
@@ -16406,12 +15816,12 @@ const proc: process_str_poscpy (in reference: function, in ref_list: params, ino
         c_expr.expr &:= c_param6.expr;
         c_expr.expr &:= ";\n";
         if TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "uinttype pos=(";
+          c_expr.expr &:= "uinttype pos=(uinttype)((";
         else
           c_expr.expr &:= "inttype pos=(";
         end if;
         c_expr.expr &:= c_param4.expr;
-        c_expr.expr &:= ")-1;\n";
+        c_expr.expr &:= ")-1);\n";
         c_expr.expr &:= "if (";
         if not TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= "pos<0 || ";
@@ -16445,36 +15855,80 @@ const proc: process_str_poscpy (in reference: function, in ref_list: params, ino
   end func;
 
 
+const proc: process_inline_str_push (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var string: stri_name is "";
+    var string: char_name is "";
+  begin
+    if isNormalVariable(params[1]) then
+      stri_name := normalVariable(params[1], statement);
+    else
+      incr(statement.temp_num);
+      stri_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "stritype *";
+      statement.temp_decls &:= stri_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= stri_name;
+      statement.expr &:= "=&(";
+      process_expr(params[1], statement);
+      statement.expr &:= ");\n";
+      stri_name := "*" & stri_name;
+    end if;
+    if isNormalVariable(params[3]) then
+      char_name := normalVariable(params[3], statement);
+    else
+      incr(statement.temp_num);
+      char_name := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "chartype ";
+      statement.temp_decls &:= char_name;
+      statement.temp_decls &:= ";\n";
+      statement.expr &:= char_name;
+      statement.expr &:= "=";
+      process_expr(params[3], statement);
+      statement.expr &:= ";\n";
+    end if;
+    statement.expr &:= "if ((";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size == (";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->capacity) {\n";
+    statement.expr &:= "strPush(&(";
+    statement.expr &:= stri_name;
+    statement.expr &:= "), ";
+    statement.expr &:= char_name;
+    statement.expr &:= ");\n";
+    statement.expr &:= "} else {\n";
+    statement.expr &:= "(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->mem[(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size]=";
+    statement.expr &:= char_name;
+    statement.expr &:= ";\n";
+    statement.expr &:= "(";
+    statement.expr &:= stri_name;
+    statement.expr &:= ")->size++;\n";
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process_str_push (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "strPush(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
+    if inlineFunctions then
+      process_inline_str_push(params, c_expr);
     else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ");\n";
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
+      statement.expr := "strPush(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      process_expr(params[3], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 
@@ -17128,33 +16582,13 @@ const proc: process_typ_cmp (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_typ_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -18247,6 +17681,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_str(params, c_expr);
       elsif action_name = "INT_SUCC" then
         process_int_succ(params, c_expr);
+      elsif action_name = "INT_TO_BSTRI_BE" then
+        process_int_to_bstri_be(params, c_expr);
+      elsif action_name = "INT_TO_BSTRI_LE" then
+        process_int_to_bstri_le(params, c_expr);
       elsif action_name = "INT_URSHIFT" then
         process_int_urshift(params, c_expr);
       elsif action_name = "INT_URSHIFT_ASSIGN" then
@@ -21509,6 +20947,7 @@ const proc: process_struct_declaration (in reference: current_object,
     var string: param_value is "";
     var string: init_expr is "";
   begin
+    declare_type_if_necessary(getType(current_object), c_expr);
     c_expr.expr &:= type_name(getType(current_object));
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
@@ -23719,6 +23158,8 @@ const proc: write_prototypes is func
     declareExtern("inttype     intSqrt (inttype);");
     declareExtern("stritype    intStr (inttype);");
     declareExtern("stritype    intStrToBuffer (inttype, stritype);");
+    declareExtern("bstritype   intToBStriBe (inttype);");
+    declareExtern("bstritype   intToBStriLe (inttype);");
     declareExtern("inttype     intValue (objreftype);");
     declareExtern("interfacetype itfCreate (const interfacetype);");
     declareExtern("chartype    kbdGetc (void);");
@@ -25454,11 +24895,12 @@ const proc: pass_2 (in string: source, in program: prog,
             write_signal_handlers;
             globalObjects := globalObjects(prog);
             if compileLibrary then
+              writeln("Compile library");
               for obj range globalObjects do
                 if endsWith(path(prog), file(obj)) then
                   process_object(obj);
                 else
-                  writeln(file(obj));
+                  noop; # writeln(file(obj));
                 end if;
               end for;
             else

@@ -5200,6 +5200,27 @@ const proc: chkGrow is func
     end if;
 
     big1 := 10_;
+    big1 +:= -1_;
+    if big1 <> 9_ then
+      writeln(" ***** 'big1 +:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 +:= 0_;
+    if big1 <> 10_ then
+      writeln(" ***** 'big1 +:= 0_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 +:= 1_;
+    if big1 <> 11_ then
+      writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
     big1 +:= big1;
     if big1 <> 20_ then
       writeln(" ***** 'big1 +:= big1' does not work correct.");
@@ -6060,6 +6081,27 @@ const proc: chkShrink is func
         testShrink( 2147483649_,  2147483648_) <>           1_ or
         testShrink( 2147483649_,  2147483649_) <>           0_ then
       writeln("Shrink of bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 -:= -1_;
+    if big1 <> 11_ then
+      writeln(" ***** 'big1 -:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 -:= 0_;
+    if big1 <> 10_ then
+      writeln(" ***** 'big1 -:= 0_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 -:= 1_;
+    if big1 <> 9_ then
+      writeln(" ***** 'big1 -:= 1_' does not work correct.");
       okay := FALSE;
     end if;
 
