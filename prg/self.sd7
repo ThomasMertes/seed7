@@ -22,9 +22,9 @@
 (********************************************************************)
 
 
-$ include "seed7_05.s7i";
+$ include "seed7_05.s7i"; include "stdio.s7i";
 const array string: prog is [](
-"$ include \"seed7_05.s7i\";",
+"$ include \"seed7_05.s7i\"; include \"stdio.s7i\";",
 "const array string: prog is [](",
 "const proc: main is func",
 "  local var integer: number is 0;",

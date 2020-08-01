@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 const integer: SIZE_LABY is 8;
 const integer: NUM_LEVELS is 8;

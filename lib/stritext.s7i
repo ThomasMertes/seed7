@@ -43,6 +43,10 @@ const func stritext: malloc (in stritext: aStritext) is func
   end func;
 
 
+(**
+ *  Open a 'stritext' with the given string array content.
+ *  @return the file opened.
+ *)
 const func file: openStritext (in array string: content) is func
   result
     var file: result is STD_NULL;
@@ -54,6 +58,9 @@ const func file: openStritext (in array string: content) is func
   end func;
 
 
+(**
+ *  Close a 'stritext'.
+ *)
 const proc: close (in stritext: aStritext) is noop;
 
 
@@ -116,7 +123,8 @@ const proc: backSpace (inout stritext: aStritext) is func
 
 
 (**
- *  Return a character read from 'aStritext'.
+ *  Read a character from 'aStritext'.
+ *  @return the character read.
  *)
 const func char: getc (inout stritext: aStritext) is func
   result
@@ -138,8 +146,8 @@ const func char: getc (inout stritext: aStritext) is func
 
 
 (**
- *  Return a string read with a maximum length 'leng' from
- *  'aStritext'.
+ *  Read a string with a maximum length 'leng' from 'aStritext'.
+ *  @return the string read.
  *)
 const func string: gets (inout stritext: aStritext, in var integer: leng) is func
   result
@@ -181,11 +189,11 @@ const func string: getwd (inout stritext: aStritext) is func
 
 
 (**
- *  Return a line read from 'aStritext'.
+ *  Read a line from 'aStritext'.
  *  A stritext works as if all lines end with '\n'.
- *  The line ending character is not copied into the string.
- *  When the function is left the inFile.bufferChar contains '\n' or
- *  EOF.
+ *  The line ending character is not copied into the string. When
+ *  the function is left the inFile.bufferChar contains '\n' or EOF.
+ *  @return the line read.
  *)
 const func string: getln (inout stritext: aStritext) is func
   result
@@ -203,10 +211,21 @@ const func string: getln (inout stritext: aStritext) is func
   end func;
 
 
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
 const func boolean: eof (in stritext: aStritext) is
   return aStritext.line > length(aStritext.content);
 
 
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *)
 const func boolean: hasNext (in stritext: aStritext) is
   return aStritext.line <= length(aStritext.content);
 

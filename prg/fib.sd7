@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 const func integer: fib (in integer: number) is func
   result

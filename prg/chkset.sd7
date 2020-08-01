@@ -23,6 +23,8 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
+
 
 const set of char: uc_letter_char is {'A' .. 'Z'};
 const set of char: lc_letter_char is {'a' .. 'z'};

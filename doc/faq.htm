@@ -17,6 +17,9 @@ Are Seed7 programs portable?
 <li><a href="#license"><b>
 Which license does Seed7 use?
 </b></a></li>
+<li><a href="#pascal_descendant"><b>
+Is Seed7 a descendant of Pascal?
+</b></a></li>
 <li><a href="#application_area"><b>
 What kind of programs can be written in Seed7?
 </b></a></li>
@@ -103,6 +106,9 @@ Is everything inherited from object?
 </b></a></li>
 <li><a href="#difference_overloading_oo"><b>
 What is the difference between overloading and object orientation?
+</b></a></li>
+<li><a href="#abstract_data_type"><b>
+What is an abstract data type?
 </b></a></li>
 <li><a href="#multiple_dispatch"><b>
 What is multiple dispatch?
@@ -194,13 +200,13 @@ programming languages:
 <li><!--  -  -->Declaration constructs for constant-, variable-, function-,
    parameter-, and other declarations are described in Seed7 (The user
    can change existing declaration constructs or invent new ones).</li>
-<li><!--  -  -->Templates use no special syntax. They are just functions with
+<li><!--  -  --><a href="#generics">Templates</a> use no special syntax. They are just functions with
    type parameters or a type result.</li>
-<li><!--  -  -->Seed7 has abstract data types. For example the types array, hash,
+<li><!--  -  -->Seed7 has <a href="#abstract_data_type">abstract data types</a>. For example the types array, hash,
    struct and set. They are not hard coded in the compiler, but are
-   templates written in Seed7. User defined abstract data types are
-   also possible.</li>
-<li><!--  -  -->The object orientation of Seed7 allows <a href="#multiple_dispatch">multiple dispatch</a>. That
+   abstract data types written in Seed7. User defined abstract data
+   types are also possible.</li>
+<li><!--  -  -->The <a href="#object_oriented">object orientation</a> of Seed7 allows <a href="#multiple_dispatch">multiple dispatch</a>. That
    means that a function or method is connected to more than one type.</li>
 <li><!--  -  -->Seed7 is a syntactically and semantically extensible language:
    Almost all of the Seed7 language (statements, operators,
@@ -301,6 +307,31 @@ programs.
 If you send me patches (I would be very pleased), it is assumed that you
 accept license changes from GPL to LGPL for parts of code which need to be
 in the runtime library to support compilation of Seed7 programs.
+</p></p>
+
+<p><br><a name="pascal_descendant"><h3>Is Seed7 a descendant of Pascal?
+</h3></a><hr><!-- ================================ -->
+<p>
+No, not really. The keywords and statements remind people of Pascal,
+but behind the surface there is much difference. Don't judge a book
+by its cover. Seed7 is neither limited to Pascal's features, nor is it
+implemented like Pascal. Notable differences are:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>Feature            </th><!-- | --><th> Standard Pascal             </th><!-- | --><th> Seed7</th></tr>
+  <!-- -------------------+-----------------------------+----------------------------- -->
+  <tr><td>syntax             </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined in a library</td></tr>
+  <tr><td>statements         </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined in a library</td></tr>
+  <tr><td>operators          </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined in a library</td></tr>
+  <tr><td>array              </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined as abstract data type</td></tr>
+  <tr><td>record / struct    </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined as abstract data type</td></tr>
+  <tr><td>hash table         </td><!-- | --><td> not in the standard library </td><!-- | --><td> defined as abstract data type</td></tr>
+  <tr><td>compiler target    </td><!-- | --><td> machine code or P-code      </td><!-- | --><td> C, compiled to machine code afterwards</td></tr>
+  <tr><td><a href="#generics">template</a>           </td><!-- | --><td> none                        </td><!-- | --><td> function with type parameters</td></tr>
+  <tr><td><a href="#abstract_data_type">abstract data type</a> </td><!-- | --><td> none                        </td><!-- | --><td> function with type result</td></tr>
+  <tr><td>object orientation </td><!-- | --><td> none                        </td><!-- | --><td> interfaces and multiple dispatch</td></tr>
+</table></dd></dl><p>
+Except for LL(1) parsing, no technology used by classical Pascal
+compilers could be used to implement Seed7.
 </p></p>
 
 <p><br><a name="application_area"><h3>What kind of programs can be written in Seed7?
@@ -575,26 +606,26 @@ The following options are recognized by hi:
 </p><ul>
   <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
   <li><b>-dx</b>  Set compile-time trace level to x. Where x is a string consisting
-         of the following characters:<ul>
-           <li><b>a</b> Trace primitive actions</li>
-           <li><b>c</b> Do action check</li>
-           <li><b>d</b> Trace dynamic calls</li>
-           <li><b>e</b> Trace exceptions and handlers</li>
-           <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
+       of the following characters:<ul>
+         <li><b>a</b> Trace primitive actions</li>
+         <li><b>c</b> Do action check</li>
+         <li><b>d</b> Trace dynamic calls</li>
+         <li><b>e</b> Trace exceptions and handlers</li>
+         <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
   <li><b>-i</b>   Show the identifier table after the analyzing phase.</li>
   <li><b>-m</b>   Use less memory during the analyzing phase.
-         If there is a "No more memory" error you can try this
-         option.</li>
+       If there is a "No more memory" error you can try this
+       option.</li>
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
-         statistics are suppressed.</li>
+       statistics are suppressed.</li>
   <li><b>-tx</b>  Set runtime trace level to x. Where x is a string consisting
-         of the following characters:<ul>
-           <li><b>a</b> Trace primitive actions</li>
-           <li><b>c</b> Do action check</li>
-           <li><b>d</b> Trace dynamic calls</li>
-           <li><b>e</b> Trace exceptions and handlers</li>
-           <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
+       of the following characters:<ul>
+         <li><b>a</b> Trace primitive actions</li>
+         <li><b>c</b> Do action check</li>
+         <li><b>d</b> Trace dynamic calls</li>
+         <li><b>e</b> Trace exceptions and handlers</li>
+         <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
   <li><b>-v</b>   Compile verbose. Write line numbers while analyzing.</li>
   <li><b>-x</b>   Execute even when the program contains errors.</li>
@@ -617,18 +648,18 @@ program is compiled and linked afterwards. The Seed7 compiler can be called with
 </pre><p>
 Possible options are
 </p><ul>
-  <li><b>-O</b> and <b>-O2</b> tell the C compiler to optimize.</li>
-  <li><b>-g</b> tells the C compiler to generate an executable with debug information.
-                This way the debugger will refer to Seed7 source files and line numbers.
-                To generate debug information which refers to the temporary C program
-                the option <b>-g-debug_c</b> can be used.</li>
+  <li><b>-O</b>  and <b>-O2</b> tell the C compiler to optimize.</li>
+  <li><b>-g</b>  tells the C compiler to generate an executable with debug information.
+      This way the debugger will refer to Seed7 source files and line numbers.
+      To generate debug information which refers to the temporary C program
+      the option <b>-g-debug_c</b> can be used.</li>
   <li><b>-te</b> generates code to trace exceptions. This option works in the same way
-                 as the interpreter option <b>-te</b>: Every exception will write a
-                 message to stdout and the user will be ask to continue (with enter) or
-                 to terminate (with * ).</li>
-  <li><b>-r</b> suppresses the generation of range checks for strings and arrays.</li>
-  <li><b>-e</b> generates code which sends a signal, when an uncaught exception occurs.
-                This option allows debuggers to handle uncaught Seed7 exceptions.</li>
+      as the interpreter option <b>-te</b>: Every exception will write a
+      message to stdout and the user will be ask to continue (with enter) or
+      to terminate (with * ).</li>
+  <li><b>-r</b>  suppresses the generation of range checks for strings and arrays.</li>
+  <li><b>-e</b>  generates code which sends a signal, when an uncaught exception occurs.
+      This option allows debuggers to handle uncaught Seed7 exceptions.</li>
 </ul></p></p>
 
 <p><br><a name="reserved_words"><h3>What are the reserved words of Seed7?
@@ -664,57 +695,57 @@ Pascal, Ada, C/C++, Java and many other compilers.
 </h3></a><hr><!-- ========================================================== -->
 <p>
 The C statements have some weaknesses which are avoided with the Seed7 statements:
+</p><ol>
+<li><!--  1.  --><p>The C if-statement
+</p><pre>
+    <font color=blue>if</font> (condition)
+      statement;
+</pre><p>
+  allows just one statement after the condition. By using the compound statement
+  it is possible to have several statements after the condition
+</p><pre>
+    <font color=blue>if</font> (condition) {
+      statement1;
+      statement2;
+    }
+</pre><p>
+  Adding or removing a statement in the second if-statement is always possible.
+  In the first if-statement you must add braces if you add a statement otherwise
+  you get an undesired effect. Adding statements to an if-statement is quite common.
 </p><p>
-<!--  1.  -->The C if-statement
+  Since both forms are legal and adding a statement to the first form can lead to
+  errors Seed7 closes this possible source of errors with its if-statement:
 </p><pre>
-      <font color=blue>if</font> (condition)
-        statement;
+    <font color=blue>if</font> condition <font color=blue>then</font>
+      statement
+    <font color=blue>end if</font>;
+</pre></li>
+<li><!--  2.  --><p>The following switch statement is formally correct but probably wrong
+</p><pre>
+    <font color=blue>switch</font> (number) {
+      <font color=blue>case</font> 1:
+      <font color=blue>case</font> 2:
+        result = 5;
+      <font color=blue>case</font> 3:
+      <font color=blue>case</font> 4:
+        result = 8;
+        <font color=blue>break</font>;
+      <font color=blue>default</font>:
+        result = 0;
+    }
 </pre><p>
-    allows just one statement after the condition. By using the compound statement
-    it is possible to have several statements after the condition
+  Forgetting break statements in a switch is another possible source of errors which
+  is avoided in Seed7:
 </p><pre>
-      <font color=blue>if</font> (condition) {
-        statement1;
-        statement2;
-      }
-</pre><p>
-    Adding or removing a statement in the second if-statement is always possible.
-    In the first if-statement you must add braces if you add a statement otherwise
-    you get an undesired effect. Adding statements to an if-statement is quite common.
-</p><p>
-    Since both forms are legal and adding a statement to the first form can lead to
-    errors Seed7 closes this possible source of errors with its if-statement:
-</p><pre>
-      <font color=blue>if</font> condition <font color=blue>then</font>
-        statement
-      <font color=blue>end if</font>;
-</pre><p>
-<!--  2.  -->The following switch statement is formally correct but probably wrong
-</p><pre>
-      <font color=blue>switch</font> (number) {
-        <font color=blue>case</font> 1:
-        <font color=blue>case</font> 2:
-          result = 5;
-        <font color=blue>case</font> 3:
-        <font color=blue>case</font> 4:
-          result = 8;
-          <font color=blue>break</font>;
-        <font color=blue>default</font>:
-          result = 0;
-      }
-</pre><p>
-    Forgetting break statements in a switch is another possible source of errors which
-    is avoided in Seed7:
-</p><pre>
-      <font color=blue>case</font> number <font color=blue>of</font>
-        <font color=blue>when</font> {1, 2}:
-          result = 5;
-        <font color=blue>when</font> {3, 4}:
-          result = 8;
-        <font color=blue>otherwise</font>:
-          result = 0;
-      <font color=blue>end case</font>;
-</pre></p>
+    <font color=blue>case</font> number <font color=blue>of</font>
+      <font color=blue>when</font> {1, 2}:
+        result = 5;
+      <font color=blue>when</font> {3, 4}:
+        result = 8;
+      <font color=blue>otherwise</font>:
+        result = 0;
+    <font color=blue>end case</font>;
+</pre></li></ol></p>
 
 <p><br><a name="everybody_invents_statements"><h3>Isn't the code unreadable if everybody invents new statements?
 </h3></a><hr><!-- ============================================================== -->
@@ -860,8 +891,8 @@ is that a type created at runtime cannot be used to define something in
 the program that is currently running.
 </p><p>
 Seed7 declarations are not executed at runtime. Functions with type parameters
-and type result are executed at compile-time. This is done in templates and
-abstract data types (both are executed at compile-time) .It is possible to have
+and type result are executed at compile-time. This is done in <a href="#generics">templates</a> and
+<a href="#abstract_data_type">abstract data types</a> (both are executed at compile-time) .It is possible to have
 type variables and type expressions at runtime but is not possible to declare
 objects with such a variable type for the program which currently runs. Such
 type variables and type expressions are used in the Seed7 compiler.
@@ -986,9 +1017,9 @@ to and from UTF-32. It is possible to read and write files with Latin-1,
 UTF-8 and UTF-16 encoding. Functions to deal with codepages and functions
 to convert between different Unicode encodings are also available.
 </p><p>
-Seed7 source code allows Unicode in <a href="manual/tokens.htm#Character_literals">char literals</a>, <a href="manual/tokens.htm#String_literals">string literals</a>, <a href="manual/tokens.htm#Comments">block comments</a> and <a href="manual/tokens.htm#Line_comments">line comments</a>.
-Interpreter and compiler assume that a Seed7 program is written with UTF-8
-encoding. Therefore a program editor with UTF-8 encoding should be used.
+Seed7 source code allows Unicode in <a href="manual/tokens.htm#Character_literals">char literals</a>, <a href="manual/tokens.htm#String_literals">string literals</a>, <a href="manual/tokens.htm#Comments">block comments</a>
+and <a href="manual/tokens.htm#Line_comments">line comments</a>. Interpreter and compiler assume that a Seed7 program is written
+with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
 </p></p>
 
 <p><br><a name="garbage_collection"><h3>Is there a garbage collection?
@@ -1017,7 +1048,8 @@ at compile time.
 </h3></a><hr><!-- ========================= -->
 <p>
 Yes, but object orientation is organized different compared to other object
-oriented languages. <a href="manual/objects.htm">Chapter 7 (Object orientation)</a> of the manual
+oriented languages. In a nutshell: It is based on interfaces and allows
+<a href="#multiple_dispatch">multiple dispatch</a>. <a href="manual/objects.htm">Chapter 7 (Object orientation)</a> of the manual
 contains a detailed description of the Seed7 object orientation.
 </p><p>
 An example of an object oriented type is <tt>'<font color=red>file</font>'</tt>. A <tt>'<font color=red>file</font>'</tt> describes references to
@@ -1040,7 +1072,7 @@ type of the file value can be seen as the class implementing the interface.
 <p>
 There can be several base types, each with their own hierarchy. In many object
 oriented languages the class <tt>'<font color=red>object</font>'</tt> is used as element of all container classes.
-Abstract data types provide a better and type safe solution for containers and
+<a href="#abstract_data_type">Abstract data types</a> provide a better and type safe solution for containers and
 other uses of the root class <tt>'<font color=red>object</font>'</tt>. Therefore a single rooted hierarchy is not
 needed.
 </p></p>
@@ -1054,6 +1086,31 @@ static types to decide. Dynamic dispatch uses the implementation type, which is 
 known at runtime, to decide. Besides this difference overloading resolution and
 dynamic dispatch both use the same approach to do the work: The types and the access
 rights of all parameters are used in the decision process.
+</p></p>
+
+<p><br><a name="abstract_data_type"><h3>What is an abstract data type?
+</h3></a><hr><!-- ============================== -->
+<p>
+An abstract data type defines, like every other type, a set of funtions to handle data.
+An abstract data type leaves, like an interface type from OO, the details of the
+data representation open. The difference between the two is:
+</p><ul>
+<li><!--  -  -->An interface type is resolved to an implementation type at runtime.</li>
+<li><!--  -  -->An abstract data type is resolved to a concrete type at compile-time,
+   when it is used.</li>
+</ul><p>
+Usually an abstract data type uses parameters to resolve to a concrete type.
+Examples of abstract data types are arrays, structs and hashes. An abstract array
+type needs element type and index type as parameters. E.g.:
+</p><pre>
+  array [integer] string
+</pre><p>
+Arrays are present in many programming languages, but they are usually hard-coded
+into the compiler / interpreter. Seed7 does not follow this direction. Instead it
+introduces abstract data types as common concept behind arrays, structs, hashes
+and other types. Like <a href="#generics">templates</a> abstract data types are implemented with functions
+that are executed at compile-time. In contrast to templates abstract data types return
+a type as result.
 </p></p>
 
 <p><br><a name="multiple_dispatch"><h3>What is multiple dispatch?
@@ -1174,7 +1231,7 @@ to <tt>'result'</tt>.
 <p><br><a name="container_classes"><h3>What container classes do exist?
 </h3></a><hr><!-- ================================ -->
 <p>
-Abstract data types are used to replace container classes. When using an
+<a href="#abstract_data_type">Abstract data types</a> are used to replace container classes. When using an
 abstract data type as container you have to specify the type of the element
 in the type declaration. Therefore abstract data types are always type safe.
 Typeless container classes with object elements do not exist. The only thing
@@ -1392,7 +1449,7 @@ example typeof(num).
 <p><br><a name="generics"><h3>Are there generics / templates?
 </h3></a><hr><!-- =============================== -->
 <p>
-The generics (templates) of Ada, C++ and Java use a special
+The generics (templates) of Ada, C++ and Java use special
 syntax. In Seed7 you get this functionality for free without
 special syntax or other magic.
 </p><p>

@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 
 var boolean: fired is FALSE;
@@ -65,7 +66,7 @@ const proc: read_number (in string: prompt, inout integer: number, inout boolean
       end if;
     until okay;
     if not eoln(IN) then
-      read(NL);
+      readln;
     end if;
   end func; (* read_number *)
 
@@ -141,7 +142,7 @@ const proc: state_of_the_nation (
       writeln("profits per acre ......." <& profits_per_acre lpad 6);
     end if;
     if destroyed_bushels > 0 then
-      writeln("destroyed by rats ......") <& destroyed_bushels lpad 6);
+      writeln("destroyed by rats ......" <& destroyed_bushels lpad 6);
     end if;
     writeln("stock of bushels corn .." <& stock_of_bushels lpad 6);
     if private_property > 0 then

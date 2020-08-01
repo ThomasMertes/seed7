@@ -32,30 +32,35 @@ const type: iniKeyValueType is hash [string] string;
 const type: iniDataType is hash [string] iniKeyValueType;
 
 
+(**
+ *  Returns a property value whose section and property name were given.
+ *  Returns "" when the section or the property name do not exist.
+ *  @return a property value or "", when section or property don't exist.
+ *)
 const func string: getParamValue (in iniDataType: iniData,
-    in string: sectionName, in string: paramName) is func
+    in string: sectionName, in string: propertyName) is func
   result
     var string: result is "";
   begin
     if sectionName in iniData then
-      if paramName in iniData[sectionName] then
-        result := iniData[sectionName][paramName];
+      if propertyName in iniData[sectionName] then
+        result := iniData[sectionName][propertyName];
       end if;
     end if;
   end func;
 
 
 const proc: getKeyValuePair (inout file: inFile,
-    inout string: paramName, inout string: paramValue) is func
+    inout string: propertyName, inout string: propertyValue) is func
   begin
     skipWhiteSpace(inFile);
-    paramName := getName(inFile);
+    propertyName := getName(inFile);
     skipWhiteSpace(inFile);
     if inFile.bufferChar = '=' then
       inFile.bufferChar := getc(inFile);
-      paramValue := getLine(inFile);
+      propertyValue := getLine(inFile);
     else
-      paramValue := "";
+      propertyValue := "";
       skipLine(inFile);
     end if;
   end func;
@@ -77,13 +82,16 @@ const func string: getIniSection (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads from the open INI file 'inFile' and returns its iniDataType value.
+ *)
 const func iniDataType: readIniFile (inout file: inFile) is func
   result
     var iniDataType: result is iniDataType.value;
   local
     var string: sectionName is "";
-    var string: paramName is "";
-    var string: paramValue is "";
+    var string: propertyName is "";
+    var string: propertyValue is "";
   begin
     inFile.bufferChar := getc(inFile);
     while inFile.bufferChar <> EOF do
@@ -94,16 +102,19 @@ const func iniDataType: readIniFile (inout file: inFile) is func
       elsif inFile.bufferChar = ';' then
         skipLineComment(inFile);
       elsif inFile.bufferChar <> EOF then
-        getKeyValuePair(inFile, paramName, paramValue);
+        getKeyValuePair(inFile, propertyName, propertyValue);
         if sectionName not in result then
           result @:= [sectionName] iniKeyValueType.value;
         end if;
-        result[sectionName] @:= [paramName] paramValue;
+        result[sectionName] @:= [propertyName] propertyValue;
       end if;
     end while;
   end func;
 
 
+(**
+ *  Reads an INI file with the given name and returns its iniDataType value.
+ *)
 const func iniDataType: readIniFile (in string: fileName) is func
   result
     var iniDataType: result is iniDataType.value;

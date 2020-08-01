@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 var integer: initial_try is 0;
 
@@ -332,7 +333,7 @@ const proc: round_computer_guesses is func
     writeln;
     writeln("Think of a four digit number (between 1000 and 9999).");
     writeln("Press ENTER if you have the number ");
-    read(NL);
+    readln;
     guesses := 0 times GUESS_REC;
     initial_try := rand(1000, 9999);
     current_try := initial_try;

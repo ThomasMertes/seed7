@@ -26,9 +26,12 @@
 (********************************************************************)
 
 
+include "stdio.s7i";
+
+
 (**
- *  Read the file with the given 'file_name' into a string and return
- *  the string.
+ *  Read the file with the given 'file_name' into a string.
+ *  @return a string with the file content, or "" when no file exists.
  *)
 const func string: getf (in string: file_name) is func
   result
@@ -63,11 +66,11 @@ const proc: putf (in string: file_name, in string: stri) is func
 
 
 (**
- *  Read the file with the name 'file_name' into an array of strings
- *  and return this string array.
+ *  Read the file with the name 'file_name' into an array of strings.
  *  The function accepts lines ending with LF or with CR LF. The line
  *  endings are not copied into the strings. The last line of the
  *  file needs not to be terminated with a LF.
+ *  @return a string array with the file content, or an empty array when no file exists.
  *)
 const func array string: readf (in string: file_name) is func
   result
@@ -86,8 +89,7 @@ const func array string: readf (in string: file_name) is func
 
 
 (**
- *  Write the string array 'data' to the file with the name
- *  'file_name'.
+ *  Write the string array 'data' to the file with the name 'file_name'.
  *  The elements of the array are written as lines to the file. The
  *  function uses LF as line ending and the last line is also
  *  terminated with a LF. If the file exists already, it is

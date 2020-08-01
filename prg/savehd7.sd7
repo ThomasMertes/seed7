@@ -23,6 +23,8 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
   include "keybd.s7i";
   include "bigint.s7i";
   include "bigfile.s7i";
@@ -260,14 +262,14 @@ const func boolean: confirmSave (inout stateType: state) is func
       writeln;
       writeln("Conditions to save the partition:");
       writeln("  Input file name:  " <& state.inFileName);
-      if fileExists(state.inFileName) then
+      if fileOpenSucceeds(state.inFileName) then
         state.inFileSize := bigFileSize(state.inFileName);
         writeln("  Input file size:  " <& state.inFileSize);
       else
         state.inFileSize := -1_;
       end if;
       writeln("  Output file name: " <& state.outFileName);
-      if fileExists(state.outFileName) then
+      if fileOpenSucceeds(state.outFileName) then
         outFileSize := bigFileSize(state.outFileName);
         writeln("  Output file size: " <& outFileSize);
       end if;
@@ -386,15 +388,15 @@ const func boolean: confirmSave (inout stateType: state) is func
           repeat
             write("  Output file name: ");
             state.outFileName := getln(IN);
-            if fileExists(state.outFileName) then
+            if fileOpenSucceeds(state.outFileName) then
               writeln("  ***** Output file already exists");
             end if;
-          until state.outFileName = "" or not fileExists(state.outFileName);
+          until state.outFileName = "" or not fileOpenSucceeds(state.outFileName);
           if state.outFileName <> "" then
             confirmed := confirmSave(state);
             if confirmed then
               saveState(state);
-              if not fileExists(state.stateFileName) then
+              if not fileOpenSucceeds(state.stateFileName) then
                 writeln("  ***** Unable to write state file: " <&
                     state.stateFileName);
                 confirmed := FALSE;

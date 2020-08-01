@@ -319,6 +319,10 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
   end func;
 
 
+(**
+ *  Get data specified by an URL using the HTTP protocol.
+ *  @return the string of data found, or "" when nothing was found.
+ *)
 const func string: getHttp (in string: url) is func
   result
     var string: result is "";

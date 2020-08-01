@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 
 const proc: hanoi (in integer: disk, in string: source, in string: dest, in string: via) is func

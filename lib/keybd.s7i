@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "file.s7i";
+include "null_file.s7i";
+
+
 const type: keyboard_file is subtype file;
 
 (* Procedures granted for every keyboard_file *)
@@ -69,14 +73,15 @@ type_implements_interface(console_keybd_file, keyboard_file);
 
 
 (**
- *  Return a character read from the console keyboard file.
+ *  Read a character from the console keyboard file.
+ *  @return the character read.
  *)
 const func char: getc (ref console_keybd_file param) is                           action "KBD_GETC";
 
 
 (**
- *  Return a string read with a maximum length from the console
- *  keyboard file.
+ *  Read a string with maximum length from the console keyboard file.
+ *  @return the string read.
  *)
 const func string: gets (ref console_keybd_file param, ref integer param) is      action "KBD_GETS";
 
@@ -153,13 +158,15 @@ type_implements_interface(graph_keybd_file, keyboard_file);
 
 
 (**
- *  Return a character read from the graphic keyboard file.
+ *  Read a character from the graphic keyboard file.
+ *  @return the character read.
  *)
 const func char: getc (ref graph_keybd_file param) is                           action "GKB_GETC";
 
 
 (**
- *  Get string with a maximum length from the graphic keyboard file.
+ *  Read a string with maximum length from the graphic keyboard file.
+ *  @return the string read.
  *)
 const func string: gets (ref graph_keybd_file param, ref integer param) is      action "GKB_GETS";
 

@@ -231,6 +231,7 @@ static primactrecord prim_act_table[] = {
     { "DCL_CONST",           dcl_const,           },
     { "DCL_ELEMENTS",        dcl_elements,        },
     { "DCL_FWD",             dcl_fwd,             },
+    { "DCL_FWDVAR",          dcl_fwdvar,          },
     { "DCL_GETFUNC",         dcl_getfunc          },
     { "DCL_GETOBJ",          dcl_getobj,          },
     { "DCL_GLOBAL",          dcl_global,          },

@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "stdio.s7i";
+
+
 var file: gtk_sock is socket.value;
 var boolean: gtk_logging is FALSE;
 

@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 const integer: THINK_INDICATOR_START_LEVEL is 2;
 
@@ -112,7 +113,7 @@ const proc: rules is func
     writeln("When you want to surrender just type q.");
     writeln;
     write("  Type RETURN to continue ");
-    read(NL);
+    readln;
     writeln;
   end func; (* rules *)
 
@@ -544,7 +545,7 @@ const proc: read_column (inout integer: column, inout boolean: okay) is func
         okay := TRUE;
       else
         if command <> '\n' then
-          read(NL);
+          readln;
           writeln(" *** Only letters between A and H are allowed as columns!");
         end if;
       end if;
@@ -565,13 +566,13 @@ const proc: read_line (inout integer: line, in integer: column, inout boolean: o
     if command >= '1' and command <= '8' then
       line := ord(command) - ord('1') + 2;
       if board[line][column] <> FREE_PLACE then
-        read(NL);
+        readln;
         writeln(" *** This field is not free!");
       else
         move_value(board, line, column, HUMAN, COMPUTER,
             sum, count);
         if count = 0 then
-          read(NL);
+          readln;
           writeln(" *** A line of stones of the other player must be enclosed!");
         else
           okay := TRUE;
@@ -581,7 +582,7 @@ const proc: read_line (inout integer: line, in integer: column, inout boolean: o
       if command = '\n' then
         writeln(" *** You must specify a line also!");
       else
-        read(NL);
+        readln;
         writeln(" *** Only digits between 1 and 8 are allowed as lines!");
       end if;
     end if;
@@ -603,7 +604,7 @@ const proc: read_move (inout integer: line, inout integer: column) is func
         read_line(line, column, okay);
         if okay then
           if getc(IN) <> '\n' then
-            read(NL);
+            readln;
             writeln(" *** Terminate the input with RETURN!");
             okay := FALSE;
           end if;
@@ -647,7 +648,7 @@ const proc: first_move is func
       if command = '\n' then
         command := ' ';
       else
-        read(NL);
+        readln;
       end if;
       if command = 'Q' then
         exit_program := TRUE;
@@ -754,7 +755,7 @@ const proc: start is func
     if answer = '\n' then
       answer := 'N';
     else
-      read(NL);
+      readln;
     end if;
     if answer = 'Q' then
       exit_program := TRUE;
@@ -769,7 +770,7 @@ const proc: start is func
         if answer = '\n' then
           answer := '0';
         else
-          read(NL);
+          readln;
         end if;
         if answer = 'Q' then
           exit_program := TRUE;

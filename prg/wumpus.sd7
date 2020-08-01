@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 const integer: PLAYER is 1;
 const integer: WUMPUS is 2;

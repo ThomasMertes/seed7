@@ -96,13 +96,17 @@ cards.s7i    Playing card pictures of a french deck
 cgi.s7i      Support for the Common Gateway Interface          
 charsets.s7i Codepages for various character sets              
 chartype.s7i Character type definitions                        
+color.s7i    Functions for color processing.                   
 complex.s7i  Complex support library                           
 dialog.s7i   Dialog support library                            
 dir.s7i      Read directorys as files                          
 draw.s7i     Graphic library                                   
 echo.s7i     Filter file which generates an echo of the input  
+enable_io.s7i Templates to enable file I/O for a given type.    
 encoding.s7i Encoding and decoding functions                   
+external_file.s7i s7i  Type to describe os files.                   
 field.s7i    Filter file which reads the input fieldwise       
+file.s7i     Interface file, describes sequential files.       
 float.s7i    Floating point support library                    
 font.s7i     Defines the font interface.                       
 getf.s7i     Read and write whole files into and from strings  
@@ -120,6 +124,8 @@ mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 math.s7i     Mathematical functions and constants              
 more.s7i     Filter file which shows another file screenwise   
 multiscr.s7i Demonstration for several file filters            
+null_file.s7i  Null file, base type for all files.              
+osfiles.s7i  Functions to handle operating system files.       
 pic16.s7i    Pictures in the size 16 x 16                      
 pic32.s7i    Pictures in the size 32 x 32                      
 pixmapfont.s7i   Defines pixmapFontType and the font cache.      
@@ -140,11 +146,13 @@ stdfont14.s7i  Standard bitmap font with capHeight 14.
 stdfont16.s7i  Standard bitmap font with capHeight 16.          
 stdfont18.s7i  Standard bitmap font with capHeight 18.          
 stdfont24.s7i  Standard bitmap font with capHeight 24.          
+stdio.s7i    Functions for input and output via files.         
 strifile.s7i string file library (uses a string)               
 stritext.s7i string text library (uses an array string)        
 syntax.s7i   Syntax definition of the standard Seed7 library   
 tar.s7i      Tar archive library                               
 tee.s7i      Filter file which emulates the tee functionality  
+text.s7i     Interface text, line/column oriented files.       
 time.s7i     Time library                                      
 upper.s7i    Filter file which turns characters to upper case  
 utf16.s7i    Read and write utf-16 files                       

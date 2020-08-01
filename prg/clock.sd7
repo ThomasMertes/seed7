@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
   include "time.s7i";
   include "keybd.s7i";
 

@@ -26,6 +26,15 @@
 (********************************************************************)
 
 
+(**
+ *  Encode a string with the Base64 encoding.
+ *  Base64 encodes a byte string as ASCII string. This is done by
+ *  taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with letters,
+ *  digits and the characters '+' and '/'.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
 const func string: toBase64 (in string: stri) is func
   result
     var string: result is "";
@@ -71,6 +80,11 @@ const func string: toBase64 (in string: stri) is func
   end func;
 
 
+(**
+ *  Decode a Base64 encoded string.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR When stri is not in Base64 format.
+ *)
 const func string: fromBase64 (in string: stri) is func
   result
     var string: result is "";
@@ -107,7 +121,7 @@ const func string: fromBase64 (in string: stri) is func
         index +:= 4;
       elsif stri[index] = '\n' then
         incr(index);
-      elsif stri[index] = '\r' or stri[succ(index)] = '\n' then
+      elsif stri[index] = '\r' and stri[succ(index)] = '\n' then
         index +:= 2;
       else
         raise RANGE_ERROR;
@@ -124,6 +138,15 @@ const func string: fromBase64 (in string: stri) is func
   end func;
 
 
+(**
+ *  Encode a string with the Quoted-printable encoding.
+ *  Quoted-printable encodes a byte string as ASCII string. This
+ *  is done by encoding printable ASCII characters except '=' as
+ *  themself. Other byte values are encoded with '=' followed by two
+ *  hexadecimal digits representing the byte's numeric value.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
 const func string: toQuotedPrintable (in string: stri) is func
   result
     var string: result is "";
@@ -174,6 +197,11 @@ const func string: toQuotedPrintable (in string: stri) is func
   end func;
 
 
+(**
+ *  Decode a quoted-printable encoded string.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR When stri is not in quoted-printable format.
+ *)
 const func string: fromQuotedPrintable (in string: stri) is func
   result
     var string: result is "";
@@ -203,6 +231,17 @@ const func string: fromQuotedPrintable (in string: stri) is func
   end func;
 
 
+(**
+ *  Encode a string with uuencoding.
+ *  Uuencode encodes a byte string as ASCII string. This is done
+ *  by taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with consecutive
+ *  ASCII characters starting from ' ' (which represents 0). Every
+ *  line starts with a radix-64 digit character indicating the number
+ *  of data bytes encoded on that line.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
 const func string: toUuencoded (in string: stri) is func
   result
     var string: result is "";
@@ -255,6 +294,11 @@ const func string: toUuencoded (in string: stri) is func
   end func;
 
 
+(**
+ *  Decode an uuencoded string.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR When stri is not in uuencoded format.
+ *)
 const func string: fromUuencoded (in string: stri) is func
   result
     var string: result is "";

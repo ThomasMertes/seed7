@@ -100,7 +100,8 @@ const func integer: gcd2 (in integer: numerator, in integer: denominator) is fun
 
 
 (**
- *  Return the given rational number.
+ *  Plus sign for rational numbers.
+ *  @return its operand unchanged.
  *)
 const func rational: + (in rational: rat) is func
   result
@@ -112,7 +113,8 @@ const func rational: + (in rational: rat) is func
 
 
 (**
- *  Return the negated value of a rational number.
+ *  Minus sign, negate a rational number.
+ *  @return the negated value of the number.
  *)
 const func rational: - (in rational: rat) is func
   result
@@ -124,7 +126,8 @@ const func rational: - (in rational: rat) is func
 
 
 (**
- *  Return the sum of two rational numbers.
+ *  Add two rational numbers.
+ *  @return the sum of the two numbers.
  *)
 const func rational: (in rational: rat1) + (in rational: rat2) is func
   result
@@ -140,7 +143,8 @@ const func rational: (in rational: rat1) + (in rational: rat2) is func
 
 
 (**
- *  Return the difference of two rational numbers.
+ *  Compute the subtraction of two rational numbers.
+ *  @return the difference of the two numbers.
  *)
 const func rational: (in rational: rat1) - (in rational: rat2) is func
   result
@@ -156,7 +160,8 @@ const func rational: (in rational: rat1) - (in rational: rat2) is func
 
 
 (**
- *  Return the product of two rational numbers.
+ *  Multiply two rational numbers.
+ *  @return the product of the two numbers.
  *)
 const func rational: (in rational: rat1) * (in rational: rat2) is func
   result
@@ -173,7 +178,9 @@ const func rational: (in rational: rat1) * (in rational: rat2) is func
 
 
 (**
- *  Return the quotient of two rational numbers.
+ *  Compute the division of two rational numbers.
+ *  @return the quotient of the division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
  *)
 const func rational: (in rational: rat1) / (in rational: rat2) is func
   result
@@ -289,8 +296,10 @@ const func boolean: (in rational: rat1) <> (in rational: rat2) is
 
 
 (**
- *  Returns -1, 0 or 1 if the first argument is considered to be
- *  respectively less than, equal to, or greater than the second.
+ *  Compare two rational numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
  *)
 const func integer: compare (in rational: rat1, in rational: rat2) is func
   result
@@ -307,7 +316,8 @@ const func integer: compare (in rational: rat1, in rational: rat2) is func
 
 
 (**
- *  Return the hash value of a rational.
+ *  Compute the hash value of a rational number.
+ *  @return the hash value.
  *)
 const func integer: hashCode (in rational: rat) is
   return rat.numerator * rat.denominator;
@@ -380,6 +390,7 @@ const func string: (in rational: rat1) digits (in integer: numDigits) is func
 
 (**
  *  Return the conversion of a string to a rational number.
+ *  @exception RANGE_ERROR When stri contains not a valid rational value.
  *)
 const func rational: (attr rational) parse (in var string: stri) is func
   result

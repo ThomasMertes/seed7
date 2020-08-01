@@ -76,7 +76,7 @@ const proc: main is func
           write(literal(stri1[index - 4 .. index + 4]));
           write("  ");
           write(literal(stri2[index - 4 .. index + 4]));
-          write(NL);
+          writeln;
         end if;
       end for;
     end if;

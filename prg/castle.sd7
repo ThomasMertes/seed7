@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "osfiles.s7i";
   include "float.s7i";
   include "draw.s7i";
   include "keybd.s7i";
@@ -1806,7 +1807,7 @@ const proc: loadGame is func
     var monsterType: monster_ident is NO_MONSTER;
     var itemType: item_ident is NO_ITEM;
   begin
-    if fileExists("castle.sav") then
+    if fileType("castle.sav") = FILE_REGULAR then
       if isOkay([]("Do you want to load a saved game.", "This will end the current game?")) then
         load_file := open("castle.sav", "r");
         for monster_ident range MIN_MONSTER to MAX_MONSTER do
@@ -1854,12 +1855,12 @@ const proc: saveGame is func
     var monsterType: monster_ident is NO_MONSTER;
     var itemType: item_ident is NO_ITEM;
   begin
-    if fileExists("castle.sav") then
+    if fileType("castle.sav") = FILE_REGULAR then
       if isOkay([]("Do you want to overwrite the", "game currently saved?")) then
         removeFile("castle.sav");
       end if;
     end if;
-    if not fileExists("castle.sav") then
+    if fileType("castle.sav") = FILE_ABSENT then
       save_file := open("castle.sav", "w");
       for monster_ident range MIN_MONSTER to MAX_MONSTER do
         writeln(save_file, monster[monster_ident].adjective);

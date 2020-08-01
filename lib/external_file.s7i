@@ -1,0 +1,275 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  external_file.s7i  Type to describe os files.                   *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "null_file.s7i";
+
+
+(* PRIMITIVE_FILE *)
+
+const type: PRIMITIVE_FILE is newtype;
+IN_PARAM_IS_VALUE(PRIMITIVE_FILE);
+
+const proc: (ref PRIMITIVE_FILE param) ::= (ref PRIMITIVE_FILE param)        is action "FIL_CREATE";
+const proc: destroy (ref PRIMITIVE_FILE param)                               is noop;
+const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param)       is action "FIL_CPY";
+
+const func boolean: (ref PRIMITIVE_FILE param) = (ref PRIMITIVE_FILE param)  is action "FIL_EQ";
+const func boolean: (ref PRIMITIVE_FILE param) <> (ref PRIMITIVE_FILE param) is action "FIL_NE";
+
+const func PRIMITIVE_FILE: _GENERATE_EMPTY_PRIMITIVE_FILE                    is action "FIL_EMPTY";
+const PRIMITIVE_FILE: (attr PRIMITIVE_FILE) . value                          is _GENERATE_EMPTY_PRIMITIVE_FILE;
+const PRIMITIVE_FILE: PRIMITIVE_NULL_FILE                                    is PRIMITIVE_FILE.value;
+
+const func PRIMITIVE_FILE: PRIMITIVE_INPUT  is action "FIL_IN";
+const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is action "FIL_OUT";
+const func PRIMITIVE_FILE: PRIMITIVE_ERROR  is action "FIL_ERR";
+
+const integer: IO_FULL_BUFFERING is 0;
+const integer: IO_LINE_BUFFERING is 1;
+const integer: IO_NO_BUFFERING   is 2;
+
+const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param)   is action "FIL_OPEN";
+const proc: setbuf (ref PRIMITIVE_FILE param, ref integer param, ref integer param) is action "FIL_SETBUF";
+const proc: close (ref PRIMITIVE_FILE param)                              is action "FIL_CLOSE";
+const func boolean: eof (ref PRIMITIVE_FILE param)                        is action "FIL_EOF";
+const func boolean: hasNext (ref PRIMITIVE_FILE param)                    is action "FIL_HAS_NEXT";
+const proc: flush (ref PRIMITIVE_FILE param)                              is action "FIL_FLUSH";
+const func char: getc (ref PRIMITIVE_FILE param)                          is action "FIL_GETC";
+const func string: gets (ref PRIMITIVE_FILE param, ref integer param)     is action "FIL_GETS";
+const func string: word_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_WORD_READ";
+const func string: line_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_LINE_READ";
+const proc: write (ref PRIMITIVE_FILE param, in string param)             is action "FIL_WRITE";
+const func integer: length (ref PRIMITIVE_FILE param)                     is action "FIL_LNG";
+const proc: seek (ref PRIMITIVE_FILE param, ref integer param)            is action "FIL_SEEK";
+const func integer: tell (ref PRIMITIVE_FILE param)                       is action "FIL_TELL";
+const func string: literal (ref PRIMITIVE_FILE param)                     is action "FIL_LIT";
+
+
+(* Set of operations for external_file *)
+
+const type: external_file is sub null_file struct
+    var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+    var string: name is "";
+  end struct;
+
+type_implements_interface(external_file, file);
+
+
+const func external_file: malloc (ref external_file: ext_file) is func
+  result
+    var external_file: result is external_file.value;
+  begin
+    result := ext_file;
+  end func;
+
+
+(**
+ *  Open an external_file.
+ *  @return the file opened, or STD_NULL if it could not be opened.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The 'mode' is not one of the allowed
+ *             values or 'path' does not use the standard path
+ *             representation or 'path' is not representable in the
+ *             system path type.
+ *)
+const func file: open (in string: fileName, in string: mode) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    open_file := PRIMITIVE_FILE_OPEN(fileName, mode);
+    if open_file <> PRIMITIVE_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := fileName;
+      result := malloc(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Close an external_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: close (ref external_file: aFile) is func
+  begin
+    close(aFile.ext_file);
+  end func;
+
+
+const proc: flush (ref external_file: aFile) is func
+  begin
+    flush(aFile.ext_file);
+  end func;
+
+
+(**
+ *  Write a string to an external_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ *)
+const proc: write (in external_file: aFile, in string: stri) is func
+  begin
+    write(aFile.ext_file, stri);
+  end func;
+
+
+const proc: writeln (in external_file: aFile) is func
+  begin
+    write(aFile.ext_file, "\n");
+  end func;
+
+
+const proc: backSpace (ref external_file: aFile) is func
+  begin
+    write(aFile.ext_file, "\b \b");
+  end func;
+
+
+(**
+ *  Read a character from an external_file.
+ *  @return the character read, or EOF at the end of the file.
+ *)
+const func char: getc (in external_file: aFile) is
+  return getc(aFile.ext_file);
+
+
+(**
+ *  Read a string with a maximum length from an external_file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: gets (in external_file: aFile, in integer: leng) is
+  return gets(aFile.ext_file, leng);
+
+
+(**
+ *  Read a word from an external_file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left the inFile.bufferChar contains ' ',
+ *  '\t', '\n' or EOF.
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: getwd (inout external_file: aFile) is
+  return word_read(aFile.ext_file, aFile.bufferChar);
+
+
+(**
+ *  Read a line from an external_file.
+ *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left the inFile.bufferChar contains '\n' or
+ *  EOF.
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: getln (inout external_file: aFile) is
+  return line_read(aFile.ext_file, aFile.bufferChar);
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (ref external_file: aFile) is
+  return eof(aFile.ext_file);
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *)
+const func boolean: hasNext (ref external_file: aFile) is
+  return hasNext(aFile.ext_file);
+
+
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file, or 0 if it cannot be obtained.
+ *  @exception RANGE_ERROR The file length is negative or does not
+ *             fit into an integer value.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func integer: length (ref external_file: aFile) is
+  return length(aFile.ext_file);
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: seek (ref external_file: aFile, in integer: pos) is func
+  begin
+    seek(aFile.ext_file, pos);
+  end func;
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position is negative or does not
+ *             fit into an integer value.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func integer: tell (ref external_file: aFile) is
+  return tell(aFile.ext_file);
+
+
+const func boolean: fileOpenSucceeds (in string: fileName) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var file: a_file is STD_NULL;
+  begin
+    a_file := open(fileName, "r");
+    if a_file <> STD_NULL then
+      close(a_file);
+      result := TRUE;
+    end if;
+  end func;

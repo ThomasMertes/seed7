@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 const boolean: true_const is TRUE;
 const boolean: false_const is FALSE;

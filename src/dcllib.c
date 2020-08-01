@@ -294,6 +294,57 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype dcl_fwdvar (listtype arguments)
+#else
+
+objecttype dcl_fwdvar (arguments)
+listtype arguments;
+#endif
+
+  {
+    typetype object_type;
+    objecttype name_expr;
+    objecttype current_object;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* dcl_fwdvar */
+    isit_type(arg_2(arguments));
+    object_type = take_type(arg_2(arguments));
+    name_expr = arg_4(arguments);
+#ifdef TRACE_DCL
+    printf("\ndecl var object_type = ");
+    trace1(object_type->match_obj);
+    printf("\ndecl var name_expr = ");
+    trace1(name_expr);
+    printf("\n");
+#endif
+    grow_stack(&err_info);
+    if (err_info == OKAY_NO_ERROR) {
+      current_object = entername(prog.declaration_root, name_expr, &err_info);
+      if (err_info == OKAY_NO_ERROR) {
+        current_object->type_of = object_type;
+        INIT_CATEGORY_OF_VAR(current_object, FORWARDOBJECT);
+      } /* if */
+      shrink_stack();
+    } /* if */
+#ifdef TRACE_DCL
+    printf("entity=%lu ", (unsigned long) GET_ENTITY(current_object));
+    printf("%lu ", (unsigned long) current_object);
+    printf("forward decl var current_object = ");
+    trace1(current_object);
+    printf("\n");
+#endif
+    if (err_info != OKAY_NO_ERROR) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      return(SYS_EMPTY_OBJECT);
+    } /* if */
+  } /* dcl_fwdvar */
+
+
+
+#ifdef ANSI_C
+
 objecttype dcl_getfunc (listtype arguments)
 #else
 

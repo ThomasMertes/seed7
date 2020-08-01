@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "null_file.s7i";
+include "osfiles.s7i";
+
+
 const type: dir_file is sub null_file struct
     var string: path is "";
     var array string: dir_array is 0 times "";

@@ -477,7 +477,14 @@ const proc: processCompressedBlock (in string: stri, inout integer: bytePos,
   end func;
 
 
-const func string: inflate (in string: stri) is func
+(**
+ *  Decompress a string that was compressed with DEFLATE.
+ *  DEFLATE is a compression algorithm that uses a combination of
+ *  the LZ77 algorithm and Huffman coding.
+ *  @return the decompressed string.
+ *  @exception RANGE_ERROR When compressedStri is not in DEFLATE format.
+ *)
+const func string: inflate (in string: compressedStri) is func
   result
     var string: result is "";
   local
@@ -486,7 +493,7 @@ const func string: inflate (in string: stri) is func
     var boolean: bfinal is FALSE;
   begin
     repeat
-      processCompressedBlock(stri, bytePos, bitPos, result, bfinal);
+      processCompressedBlock(compressedStri, bytePos, bitPos, result, bfinal);
     until bfinal;
   end func;
 
@@ -540,7 +547,15 @@ const proc: readGzipHeader (in string: stri, inout integer: bytePos) is func
   end func;
 
 
-const func string: gunzip (in string: stri) is func
+(**
+ *  Decompress a string that was compressed with gzip.
+ *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
+ *  a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  @return the decompressed string.
+ *  @exception RANGE_ERROR When compressedStri is not in gzip format.
+ *)
+const func string: gunzip (in string: compressedStri) is func
   result
     var string: result is "";
   local
@@ -548,10 +563,10 @@ const func string: gunzip (in string: stri) is func
     var integer: bitPos is 0;
     var boolean: bfinal is FALSE;
   begin
-    if stri[1 len 2] = "\31\\139\" then
-      readGzipHeader(stri, bytePos);
+    if compressedStri[1 len 2] = "\31\\139\" then
+      readGzipHeader(compressedStri, bytePos);
       repeat
-        processCompressedBlock(stri, bytePos, bitPos, result, bfinal);
+        processCompressedBlock(compressedStri, bytePos, bitPos, result, bfinal);
       until bfinal;
     end if;
   end func;
@@ -577,25 +592,33 @@ const func gunzipFile: malloc (in gunzipFile: aFile) is func
   end func;
 
 
-const func file: openGunzipFile (in string: compressed) is func
+(**
+ *  Open a 'gunzipFile' to decompress a compressed string.
+ *  @return the file opened.
+ *)
+const func file: openGunzipFile (in string: compressedStri) is func
   result
     var file: result is STD_NULL;
   local
     var gunzipFile: new_gunzipFile is gunzipFile.value;
   begin
-    if compressed[1 len 2] = "\31\\139\" then
-      new_gunzipFile.compressed := compressed;
+    if compressedStri[1 len 2] = "\31\\139\" then
+      new_gunzipFile.compressed := compressedStri;
       readGzipHeader(new_gunzipFile.compressed, new_gunzipFile.bytePos);
       result := malloc(new_gunzipFile);
     end if;
   end func;
 
 
+(**
+ *  Close a 'gunzipFile'.
+ *)
 const proc: close (in gunzipFile: aFile) is noop;
 
 
 (**
- *  Return a character read from 'aFile'.
+ *  Read a character from a 'gunzipFile'.
+ *  @return the character read.
  *)
 const func char: getc (inout gunzipFile: aFile) is func
   result
@@ -616,8 +639,8 @@ const func char: getc (inout gunzipFile: aFile) is func
 
 
 (**
- *  Return a string read with a maximum length 'leng' from
- *  'aFile'.
+ *  Read a string with maximum length from a 'gunzipFile'.
+ *  @return the string read.
  *)
 const func string: gets (inout gunzipFile: aFile, in var integer: leng) is func
   result
@@ -638,10 +661,21 @@ const func string: gets (inout gunzipFile: aFile, in var integer: leng) is func
   end func;
 
 
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
 const func boolean: eof (in gunzipFile: aFile) is
   return aFile.position > length(aFile.uncompressed) and aFile.bfinal;
 
 
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *)
 const func boolean: hasNext (inout gunzipFile: aFile) is func
   result
     var boolean: result is FALSE;
@@ -655,6 +689,11 @@ const func boolean: hasNext (inout gunzipFile: aFile) is func
   end func;
 
 
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file, or 0 if it cannot be obtained.
+ *)
 const func integer: length (inout gunzipFile: aFile) is func
   result
     var integer: result is 0;
@@ -667,16 +706,33 @@ const func integer: length (inout gunzipFile: aFile) is func
   end func;
 
 
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *)
 const proc: seek (inout gunzipFile: aFile, in integer: pos) is func
   begin
     aFile.position := pos;
   end func;
 
 
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *)
 const func integer: tell (in gunzipFile: aFile) is
   return aFile.position;
 
 
+(**
+ *  Open a 'gunzipFile' to decompress a compressed file.
+ *  The file is read into a string and 'openGunzipFile' is used to
+ *  open a 'gunzipFile'.
+ *  @return the file opened.
+ *)
 const func file: gunzip (inout file: aFile) is func
   result
     var file: result is STD_NULL;

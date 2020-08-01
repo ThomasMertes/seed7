@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "enable_io.s7i";
+
+
 const type: time is new object struct
     var integer: year is 0;
     var integer: month is 1;
@@ -77,15 +80,16 @@ const proc: SET_LOCAL_TZ (in integer param, in integer param, in integer param,
 
 
 (**
- *  Return TRUE if a given year is a leap year in the Gregorian
- *  calendar, FALSE otherwise.
+ *  Determine if a year is a leap year in the Gregorian calendar.
+ *  @return TRUE if the year is a leap year, FALSE otherwise.
  *)
 const func boolean: isLeapYear (in integer: year) is
   return (year rem 4 = 0 and year rem 100 <> 0) or year rem 400 = 0;
 
 
 (**
- *  Return the number of days in the 'year'.
+ *  Determine the number of days in a 'year'.
+ *  @return the number of days in the year.
  *)
 const func integer: daysInYear (in integer: year) is func
   result
@@ -100,7 +104,8 @@ const func integer: daysInYear (in integer: year) is func
 
 
 (**
- *  Return the number of days in the 'month' of the given 'year'.
+ *  Determine the number of days in the 'month' of the given 'year'.
+ *  @return the number of days in the month.
  *)
 const func integer: daysInMonth (in integer: year, in integer: month) is func
   result
@@ -125,7 +130,8 @@ const func integer: daysInMonth (in integer: year, in integer: month) is func
 
 
 (**
- *  Return time as string with ISO 8601 YYYY-MM-DD date format.
+ *  Convert a time to a string with ISO 8601 YYYY-MM-DD date format.
+ *  @return the string result of the conversion.
  *)
 const func string: strDate (in time: aTime) is
   return aTime.year  lpad0 4 <& "-" <&
@@ -134,7 +140,8 @@ const func string: strDate (in time: aTime) is
 
 
 (**
- *  Return time as string with ISO 8601 hh:mm:ss time format.
+ *  Convert a time to a string with ISO 8601 hh:mm:ss time format.
+ *  @return the string result of the conversion.
  *)
 const func string: strTime (in time: aTime) is func
   result
@@ -193,14 +200,14 @@ const func string: str_dd_mm_yyyy (in time: aTime, in string: delimiter) is
 
 
 const func string: str_d_m_yy (in time: aTime, in string: delimiter) is
-  return aTime.day   <& delimiter <&
-         aTime.month <& delimiter <&
+  return str(aTime.day)   <& delimiter <&
+         str(aTime.month) <& delimiter <&
          aTime.year  rem 100 lpad0 2;
 
 
 const func string: str_d_m_yyyy (in time: aTime, in string: delimiter) is
-  return aTime.day   <& delimiter <&
-         aTime.month <& delimiter <&
+  return str(aTime.day)   <& delimiter <&
+         str(aTime.month) <& delimiter <&
          aTime.year  lpad0 4;
 
 
@@ -210,7 +217,8 @@ const func string: str_hh_mm (in time: aTime, in string: delimiter) is
 
 
 (**
- *  Return the conversion of a time to a string.
+ *  Convert a time to a string.
+ *  @return the string result of the conversion.
  *)
 const func string: str (in time: aTime) is
   return strDate(aTime) <& " " <&
@@ -219,13 +227,14 @@ const func string: str (in time: aTime) is
 
 
 (**
- *  Return the conversion of a string in the ISO 8601 date format to
- *  a time.
+ *  Convert a string in the ISO 8601 date format to a time.
  *  The accepted ISO 8601 date formats are YYYY-MM, YYYY-MM-DD,
  *  YYYY-MM-DDTHH, YYYY-MM-DDTHH:MM, YYYY-MM-DDTHH:MM:SS
  *  Additionally a space is also allowed to seperate the date and the
  *  time representations: YYYY-MM-DD HH, YYYY-MM-DD HH:MM,
  *  YYYY-MM-DD HH:MM:SS
+ *  @return the time result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid time value.
  *)
 const func time: (attr time) parse (in var string: stri) is func
   result
@@ -383,8 +392,10 @@ const func boolean: (in time: tim1) > (in time: tim2) is
 
 
 (**
- *  Returns -1, 0 or 1 if the first argument is considered to be
- *  respectively less than, equal to, or greater than the second.
+ *  Compares two times.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
  *)
 const func integer: compare (in time: tim1, in time: tim2) is func
   result
@@ -423,7 +434,8 @@ const func integer: compare (in time: tim1, in time: tim2) is func
 
 
 (**
- *  Return a hash value for 'aTime'.
+ *  Compute the hash value of a time.
+ *  @return the hash value.
  *)
 const func integer: hashCode (in time: aTime) is
   return aTime.year + aTime.month + aTime.day +
@@ -1064,7 +1076,7 @@ const func string: str (in duration: aDuration) is func
   result
     var string: stri is "";
   begin
-    stri := getYears( aDuration)         <& "-" <&
+    stri := str(getYears(aDuration))     <& "-" <&
             getMonths(aDuration) lpad0 2 <& "-" <&
             getDays(  aDuration) lpad0 2 <& " " <&
             aDuration.hour       lpad0 2 <& ":" <&
@@ -1075,6 +1087,7 @@ const func string: str (in duration: aDuration) is func
 
 (**
  *  Return the conversion of a string to a duration.
+ *  @exception RANGE_ERROR When stri contains not a valid duration value.
  *)
 const func duration: (attr duration) parse (in var string: stri) is func
   result

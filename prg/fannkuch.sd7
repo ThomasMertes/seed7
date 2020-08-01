@@ -26,6 +26,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 const proc: fannkuch (in integer:n, inout integer:res, inout integer:res2) is func
   local

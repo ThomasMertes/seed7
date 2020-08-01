@@ -27,9 +27,18 @@
 
 
 include "chartype.s7i";
+include "file.s7i";
 
 
-const func string: replaceHexChars (in string: stri) is func
+(**
+ *  Decode a percent-encoded string.
+ *  Percent-encoding encodes a byte string as ASCII string. It uses
+ *  the percent sign ('%') followed by two hexadecimal digits to
+ *  encode characters that otherwise would not be allowed in an
+ *  URL. Allowed URL characters are encoded as themself.
+ *  @return the decoded string.
+ *)
+const func string: fromPercentEncoded (in string: stri) is func
   result
     var string: result is "";
   local
@@ -50,6 +59,17 @@ const func string: replaceHexChars (in string: stri) is func
   end func;
 
 
+(**
+ *  Read the CGI parameters from the given paramStri.
+ *  The parameter paramStri is assumed to consist of of name=value
+ *  pairs separated with ampersands. Name and value may be
+ *  percent-encoded. Both are decoded before they are entered into
+ *  the hash table. A CGI script can use the environment variable
+ *  QUERY_STRING as actual parameter for paramStri. Web servers
+ *  usually assign the URL part after the '?' character to
+ *  QUERY_STRING.
+ *  @return a hash table containing CGI parameters as key, value pairs.
+ *)
 const func hash [string] string: getCgiParameters (in string: paramStri) is func
   result
     var hash [string] string: result is (hash [string] string).value;
@@ -70,8 +90,8 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
         value := nameValuePair[succ(pos) ..];
         name := replace(name, "+", " ");
         value := replace(value, "+", " ");
-        name := replaceHexChars(name);
-        value := replaceHexChars(value);
+        name := fromPercentEncoded(name);
+        value := fromPercentEncoded(value);
         block
           name := utf8ToStri(name);
         exception
@@ -90,6 +110,12 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
   end func;
 
 
+(**
+ *  Read the CGI parameters from the given file inFile.
+ *  The standard input file IN can be used as actual parameter for
+ *  inFile.
+ *  @return a hash table containing CGI parameters as key, value pairs.
+ *)
 const func hash [string] string: getCgiParameters (inout file: inFile) is func
   result
     var hash [string] string: result is (hash [string] string).value;

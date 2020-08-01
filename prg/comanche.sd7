@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "osfiles.s7i";
   include "socket.s7i";
   include "shell.s7i";
   include "getf.s7i";

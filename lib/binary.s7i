@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "file.s7i";
+
+
 const func string: get_asciiz (in string: stri, inout integer: currPos) is func
   result
     var string: result is "";
@@ -41,6 +44,9 @@ const func string: get_asciiz (in string: stri, inout integer: currPos) is func
   end func;
 
 
+(**
+ *  Read two bytes from a file and return their little endian value.
+ *)
 const func integer: get_uint16_le (inout file: in_file) is func
   result
     var integer: number is 0;
@@ -53,6 +59,9 @@ const func integer: get_uint16_le (inout file: in_file) is func
   end func;
 
 
+(**
+ *  Read four bytes from a file and return their little endian value.
+ *)
 const func integer: get_uint32_le (inout file: in_file) is func
   result
     var integer: number is 0;
@@ -67,6 +76,9 @@ const func integer: get_uint32_le (inout file: in_file) is func
   end func;
 
 
+(**
+ *  Read two bytes from a file and return their big endian value.
+ *)
 const func integer: get_uint16_be (inout file: in_file) is func
   result
     var integer: number is 0;
@@ -79,6 +91,9 @@ const func integer: get_uint16_be (inout file: in_file) is func
   end func;
 
 
+(**
+ *  Read four bytes from a file and return their big endian value.
+ *)
 const func integer: get_uint32_be (inout file: in_file) is func
   result
     var integer: number is 0;

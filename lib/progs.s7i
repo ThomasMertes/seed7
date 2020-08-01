@@ -26,6 +26,11 @@
 (********************************************************************)
 
 
+include "bigint.s7i";
+include "float.s7i";
+include "external_file.s7i";
+
+
 const type: program is subtype object;
 
 const proc: (ref program param) ::= (ref program param)                 is action "PRG_CREATE";

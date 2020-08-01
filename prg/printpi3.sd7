@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 # Newtons formula for PI is:
 # PI / 2 = sum_n_from_0_to_inf(n! / (2 * n + 1)!!)

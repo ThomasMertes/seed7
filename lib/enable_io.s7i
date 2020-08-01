@@ -1,0 +1,130 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  enable_io.s7i Templates to enable file I/O for a given type.    *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "file.s7i";
+
+
+var file: IN is forward;
+var file: OUT is forward;
+
+
+const proc: enable_input (in type: aType) is func
+  begin
+    const proc: read (inout file: aFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getwd(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    const proc: readln (inout file: aFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getln(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    const proc: read (inout aType: aValue) is func
+      begin
+        read(IN, aValue);
+      end func;
+
+    const proc: readln (inout aType: aValue) is func
+      begin
+        readln(IN, aValue);
+      end func;
+
+  end func;
+
+const proc: enable_output (in type: aType) is func
+  begin
+    const proc: write (inout file: aFile, in aType: aValue) is func
+      begin
+        write(aFile, str(aValue));
+      end func;
+
+    const proc: writeln (inout file: aFile, in aType: aValue) is func
+      begin
+        write(aFile, str(aValue));
+        writeln(aFile);
+      end func;
+
+    const proc: write (in aType: aValue) is func
+      begin
+        write(OUT, aValue);
+      end func;
+
+    const proc: writeln (in aType: aValue) is func
+      begin
+        write(OUT, aValue);
+        writeln(OUT);
+      end func;
+
+    const func string: (in aType: aValue) lpad (in integer: leng) is
+      return str(aValue) lpad leng;
+
+    const func string: (in aType: aValue) rpad (in integer: leng) is
+      return str(aValue) rpad leng;
+
+    const func string: (in string: stri) <& (in aType: aValue) is
+      return stri & str(aValue);
+
+    const func string: (in aType: aValue) <& (in string: stri) is
+      return str(aValue) & stri;
+
+  end func;
+
+const proc: enable_io (in type: aType) is func
+  begin
+    enable_input(aType);
+    enable_output(aType);
+  end func;
+
+
+enable_io(char);
+enable_io(integer);
+enable_io(boolean);
+enable_io(bitset);
+# enable_output(type);
+# enable_output(ACTION);

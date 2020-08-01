@@ -1,3 +1,37 @@
+20110522:
+- FAQ answers, explaining that Seed7 is not a descendant of Pascal and
+  how Seed7 uses abstract data types, were added.
+- Documentation comments were added or improved in the files "bigfile.s7i",
+  "bigint.s7i", "bigrat.s7i", "binary.s7i", "cgi.s7i", "charsets.s7i",
+  "complex.s7i", "encoding.s7i", "float.s7i", "getf.s7i", "gzip.s7i",
+  "inifile.s7i", "keybd.s7i", "rational.s7i", "shell.s7i", "socket.s7i",
+  "strifile.s7i", "stritext.s7i", "time.s7i", "utf16.s7i", "utf8.s7i",
+  "fil_rtl.c" and "ut8_rtl.c".
+- The new libraries "color.s7i", "enable_io.s7i", "external_file.s7i",
+  "file.s7i", "null_file.s7i", "osfiles.s7i", "stdio.s7i", and "text.s7i"
+  were added. The contents of this libraries were extracted from the
+  "seed7_05.s7i" library. Programs, which need functionality from
+  "text.s7i", "osfiles.s7i" or "color.s7i", must now include them.
+- To keep basic compatibility, the "stdio.s7i" library is included from
+  "seed7_05.s7i", but in a future version this may change. To cope with
+  this change programs, which use standard I/O, should include "stdio.s7i".
+- The interpreter and the runtime library were improved to support forward
+  declarations of variables (the action DCL_FWDVAR is used for this purpose).
+- All usages of the function 'fileExists' and its definition in the
+  "seed7_05.s7i" library, were removed. The functions 'fileType' and
+  'fileOpenSucceeds' can be used as replacement.
+- Checks for 'sqrt' were added to the "chkbig.sd7" program.
+- The bigInteger 'sqrt' function was improved, to return 0_ for sqrt(0_)
+  instead of raising an exception.
+- The logic of 'null_file' and 'socket' was changed, such that the functions
+  'length', 'seek' and 'tell' raise FILE_ERROR (This files are not seekable).
+- The function 'replaceHexChars' in "cgi.s7i" was renamed to
+  'fromPercentEncoded'.
+- The function 'removeUtf16SurrogatePairs' in "charsets.s7i" was renamed
+  to 'replaceUtf16SurrogatePairs'.
+- The new function 'openSocket' was introduced in "socket.s7i".
+- Unnecessary definitions were removed from "graph.s7i".
+
 20110508:
 - FAQ answers about Seed7s application area, Unicode support, Seed7s
   closures and how the compiler implements them, were added.
@@ -201,7 +235,7 @@
 - The directory seed7/bin was introduced as place for executables and
   runtime libraries. This should allow installing Seed7 by adding the
   seed7/bin directory to the PATH. Additionally the environment variable
-  SEED7_LIBRARY can be defined to contain a path the the seed7/lib directory.
+  SEED7_LIBRARY can be defined to contain the path of the seed7/lib directory.
 - The performance of the str function (conversion to string), for integer and
   bigInteger values, was improved.
 - The standard bitmap fonts were improved to reduce the spacing between

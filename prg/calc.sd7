@@ -45,6 +45,7 @@ const proc: main is func
         \include \"rational.s7i\";\n\
         \include \"bigint.s7i\";\n\
         \include \"bigrat.s7i\";\n\
+        \include \"time.s7i\";\n\
         \\n\
         \const proc: main is func\n\
         \  begin\n\

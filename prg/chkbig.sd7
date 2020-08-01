@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
   include "bigint.s7i";
 
 
@@ -10092,6 +10093,85 @@ const proc: chkRShift is func
   end func;
 
 
+const proc: chkSqrt is func
+  local
+    var boolean: okay is TRUE;
+    var integer: rshift is 0;
+  begin
+    if  sqrt(                   0_) <>          0_ or
+        sqrt(                   1_) <>          1_ or
+        sqrt(                   2_) <>          1_ or
+        sqrt(                   3_) <>          1_ or
+        sqrt(                   4_) <>          2_ or
+        sqrt(                   5_) <>          2_ or
+        sqrt(                   8_) <>          2_ or
+        sqrt(                   9_) <>          3_ or
+        sqrt(                  15_) <>          3_ or
+        sqrt(                  16_) <>          4_ or
+        sqrt(                  24_) <>          4_ or
+        sqrt(                  25_) <>          5_ or
+        sqrt(                  35_) <>          5_ or
+        sqrt(                  36_) <>          6_ or
+        sqrt(                  48_) <>          6_ or
+        sqrt(                  49_) <>          7_ or
+        sqrt(                  63_) <>          7_ or
+        sqrt(                  64_) <>          8_ or
+        sqrt(                  80_) <>          8_ or
+        sqrt(                  81_) <>          9_ or
+        sqrt(                 128_) <>         11_ or
+        sqrt(                 129_) <>         11_ or
+        sqrt(                 255_) <>         15_ or
+        sqrt(                 256_) <>         16_ or
+        sqrt(                 257_) <>         16_ or
+        sqrt(                1000_) <>         31_ or
+        sqrt(               10000_) <>        100_ or
+        sqrt(               32767_) <>        181_ or
+        sqrt(               32768_) <>        181_ or
+        sqrt(               32769_) <>        181_ or
+        sqrt(               65535_) <>        255_ or
+        sqrt(               65536_) <>        256_ or
+        sqrt(               65537_) <>        256_ or
+        sqrt(              100000_) <>        316_ or
+        sqrt(             1000000_) <>       1000_ or
+        sqrt(            10000000_) <>       3162_ or
+        sqrt(           100000000_) <>      10000_ or
+        sqrt(          1000000000_) <>      31622_ or
+        sqrt(          2147483647_) <>      46340_ or
+        sqrt(          2147483648_) <>      46340_ or
+        sqrt(          2147483649_) <>      46340_ or
+        sqrt(          4294967295_) <>      65535_ or
+        sqrt(          4294967296_) <>      65536_ or
+        sqrt(          4294967297_) <>      65536_ or
+        sqrt(         10000000000_) <>     100000_ or
+        sqrt(        100000000000_) <>     316227_ or
+        sqrt(       1000000000000_) <>    1000000_ or
+        sqrt(      10000000000000_) <>    3162277_ or
+        sqrt(     100000000000000_) <>   10000000_ or
+        sqrt(    1000000000000000_) <>   31622776_ or
+        sqrt(   10000000000000000_) <>  100000000_ or
+        sqrt(  100000000000000000_) <>  316227766_ or
+        sqrt( 1000000000000000000_) <> 1000000000_ or
+        sqrt( 9223372030926249000_) <> 3037000498_ or
+        sqrt( 9223372030926249001_) <> 3037000499_ or
+        sqrt( 9223372036854775808_) <> 3037000499_ or
+        sqrt( 9223372036854775809_) <> 3037000499_ or
+        sqrt(10000000000000000000_) <> 3162277660_ or
+        sqrt(18446744073709551615_) <> 4294967295_ or
+        sqrt(18446744073709551616_) <> 4294967296_ or
+        sqrt(18446744073709551617_) <> 4294967296_ then
+      writeln("The bigInteger square root does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The bigInteger square root works correct.");
+    else
+      writeln(" ***** The bigInteger square root does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkConstants is func
   local
     var boolean: okay is TRUE;
@@ -10294,6 +10374,7 @@ const proc: main is func
     chkLowestSetBit;
     chkLShift;
     chkRShift;
+    chkSqrt;
     chkConstants;
     chkAssign;
     # testConversion(10);

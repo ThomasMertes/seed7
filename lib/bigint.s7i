@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "enable_io.s7i";
+
+
 (**
  *  The type 'bigInteger' consists of all integer numbers.
  *  The literals of the type 'bigInteger' are sequences of digits
@@ -38,8 +41,20 @@ const proc: destroy (ref bigInteger param)                              is actio
 const proc: (ref bigInteger param) ::= (ref bigInteger param)           is action "BIG_CREATE";
 IN_PARAM_IS_REFERENCE(bigInteger);
 
+
+(**
+ *  Plus sign for bigInteger numbers.
+ *  @return its operand unchanged.
+ *)
 const func bigInteger: + (ref bigInteger param)                         is action "BIG_PLUS";
+
+
+(**
+ *  Minus sign, negate a bigInteger number.
+ *  @return the negated value of the number.
+ *)
 const func bigInteger: - (ref bigInteger param)                         is action "BIG_MINUS";
+
 
 const proc: (inout bigInteger param) := (ref bigInteger param)          is action "BIG_CPY";
 const proc: (inout bigInteger param) +:= (ref bigInteger param)         is action "BIG_GROW";
@@ -47,13 +62,67 @@ const proc: (inout bigInteger param) -:= (ref bigInteger param)         is actio
 const proc: (inout bigInteger param) *:= (ref bigInteger param)         is action "BIG_MULT_ASSIGN";
 const proc: (inout bigInteger param) <<:= (ref integer param)           is action "BIG_LSHIFT_ASSIGN";
 const proc: (inout bigInteger param) >>:= (ref integer param)           is action "BIG_RSHIFT_ASSIGN";
+
+
+(**
+ *  Add two bigInteger numbers.
+ *  @return the sum of the two numbers.
+ *)
 const func bigInteger: (ref bigInteger param) + (ref bigInteger param)  is action "BIG_ADD";
+
+
+(**
+ *  Compute the subtraction of two bigInteger numbers.
+ *  @return the difference of the two numbers.
+ *)
 const func bigInteger: (ref bigInteger param) - (ref bigInteger param)  is action "BIG_SBTR";
+
+
+(**
+ *  Multiply two bigInteger numbers.
+ *  @return the product of the two numbers.
+ *)
 const func bigInteger: (ref bigInteger param) * (ref bigInteger param)  is action "BIG_MULT";
+
+
+(**
+ *  Computes an integer division of two bigInteger numbers.
+ *  This integer division is truncated towards zero.
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
 const func bigInteger: (in bigInteger param) div (in bigInteger param)  is action "BIG_DIV";
+
+
+(**
+ *  Computes the remainder of an integer division of two bigInteger numbers.
+ *  This is the reminder of integer division div.
+ *  A rem B is equivalent to A - (A div B) * B
+ *  @return the remainder of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
 const func bigInteger: (in bigInteger param) rem (in bigInteger param)  is action "BIG_REM";
+
+
+(**
+ *  Computes an integer modulo division of two bigInteger numbers.
+ *  This integer division is truncated towards negative infinity.
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
 const func bigInteger: (in bigInteger param) mdiv (in bigInteger param) is action "BIG_MDIV";
+
+
+(**
+ *  Computes the modulo of an integer division of two bigInteger numbers.
+ *  The modulo is the remainder of integer division mdiv.
+ *  A mod B is equivalent to A - (A mdiv B) * B
+ *  @return the modulo of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
 const func bigInteger: (in bigInteger param) mod (in bigInteger param)  is action "BIG_MOD";
+
+
 const func bigInteger: (ref bigInteger param) ** (ref integer param)    is action "BIG_IPOW";
 # const func bigInteger: (ref bigInteger param) ** (ref bigInteger param) is action "BIG_POW";
 const func bigInteger: (in bigInteger param) << (ref integer param)     is action "BIG_LSHIFT";
@@ -64,8 +133,23 @@ const func boolean: (ref bigInteger param) > (ref bigInteger param)     is actio
 const func boolean: (ref bigInteger param) <= (ref bigInteger param)    is action "BIG_LE";
 const func boolean: (ref bigInteger param) >= (ref bigInteger param)    is action "BIG_GE";
 const func boolean: (ref bigInteger param) <> (ref bigInteger param)    is action "BIG_NE";
+
+
+(**
+ *  Compare two bigInteger numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
 const func integer: compare (in bigInteger param, in bigInteger param)  is action "BIG_CMP";
+
+
+(**
+ *  Compute the hash value of a bigInteger number.
+ *  @return the hash value.
+ *)
 const func integer: hashCode (in bigInteger param)                      is action "BIG_HASHCODE";
+
 
 const func bigInteger: succ (in bigInteger param)                       is action "BIG_SUCC";
 const func bigInteger: pred (in bigInteger param)                       is action "BIG_PRED";
@@ -75,12 +159,23 @@ const func boolean: odd (in bigInteger param)                           is actio
 const func integer: ord (in bigInteger param)                           is action "BIG_ORD";
 const func bigInteger: gcd (in bigInteger param, in bigInteger param)   is action "BIG_GCD";
 const func bigInteger: (attr bigInteger) conv (in integer param)        is action "BIG_ICONV";
+
+(**
+ *  Return the conversion of an bigInteger to a string.
+ *)
 const func string: str (ref bigInteger param)                           is action "BIG_STR";
+
+(**
+ *  Convert a string to an bigInteger.
+ *  @return the bigInteger result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or contains not only digits.
+ *)
+const func bigInteger: (attr bigInteger) parse (in string param)        is action "BIG_PARSE";
+
 const func string: c_literal (in bigInteger param)                      is action "BIG_CLIT";
 const func bigInteger: rand (in bigInteger param, in bigInteger param)  is action "BIG_RAND";
 const func integer: bitLength (in bigInteger param)                     is action "BIG_BIT_LENGTH";
 const func integer: lowestSetBit (in bigInteger param)                  is action "BIG_LOWEST_SET_BIT";
-const func bigInteger: (attr bigInteger) parse (in string param)        is action "BIG_PARSE";
 
 const bigInteger: (attr bigInteger) . value                             is bigInteger parse "0";
 
@@ -94,7 +189,9 @@ FOR_DECLS(bigInteger);
 
 
 (**
- *  Return the integer square root of a bigInteger number.
+ *  Compute the integer square root of a bigInteger number.
+ *  @return the integer square root.
+ *  @exception NUMERIC_ERROR When number is negative.
  *)
 const func bigInteger: sqrt (in var bigInteger: number) is func
   result
@@ -108,16 +205,16 @@ const func bigInteger: sqrt (in var bigInteger: number) is func
         result := res2;
         res2 := (result + number div result) div 2_;
       until result <= res2;
-    else
+    elsif number <> 0_ then
       raise NUMERIC_ERROR;
     end if;
   end func;
 
 
 (**
- *  Return the modular multiplicative inverse of a modulo b.
- *  If a and b are not coprime (gcd(a, b) <> 1) the exception
- *  RANGE_ERROR is raised.
+ *  Compute the modular multiplicative inverse of a modulo b.
+ *  @return the modular multiplicative inverse.
+ *  @exception RANGE_ERROR If a and b are not coprime (gcd(a, b) <> 1).
  *)
 const func bigInteger: modInverse (in var bigInteger: a,
     in var bigInteger: b) is func

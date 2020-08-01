@@ -24,6 +24,8 @@
 
 $ info off;
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
   include "utf8.s7i";
 
 

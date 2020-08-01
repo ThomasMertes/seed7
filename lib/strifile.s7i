@@ -42,6 +42,10 @@ const func strifile: malloc (in strifile: aStrifile) is func
   end func;
 
 
+(**
+ *  Open a 'strifile' with the given string content.
+ *  @return the file opened.
+ *)
 const func file: openStrifile (in string: content) is func
   result
     var file: result is STD_NULL;
@@ -53,6 +57,9 @@ const func file: openStrifile (in string: content) is func
   end func;
 
 
+(**
+ *  Close a 'strifile'.
+ *)
 const proc: close (in strifile: aStrifile) is noop;
 
 
@@ -87,7 +94,8 @@ const proc: backSpace (inout strifile: aStrifile) is func
 
 
 (**
- *  Return a character read from 'aStrifile'.
+ *  Read a character from 'aStrifile'.
+ *  @return the character read.
  *)
 const func char: getc (inout strifile: aStrifile) is func
   result
@@ -103,8 +111,8 @@ const func char: getc (inout strifile: aStrifile) is func
 
 
 (**
- *  Return a string read with a maximum length 'leng' from
- *  'aStrifile'.
+ *  Read a string with maximum length from a 'aStrifile'.
+ *  @return the string read.
  *)
 const func string: gets (inout strifile: aStrifile, in var integer: leng) is func
   result
@@ -121,12 +129,13 @@ const func string: gets (inout strifile: aStrifile, in var integer: leng) is fun
 
 
 (**
- *  Return a word read from 'aStrifile'.
+ *  Read a word from 'aStrifile'.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", "\n", or EOF.
  *  The word ending characters are not copied into the string.
  *  When the function is left the inFile.bufferChar contains ' ',
  *  '\t', '\n' or EOF.
+ *  @return the word read.
  *)
 const func string: getwd (inout strifile: aStrifile) is func
   result
@@ -165,11 +174,11 @@ const func string: getwd (inout strifile: aStrifile) is func
 
 
 (**
- *  Return a line read from 'aStrifile'.
+ *  Read a line from 'aStrifile'.
  *  A strifile works as if all lines end with '\n'.
- *  The line ending character is not copied into the string.
- *  When the function is left the inFile.bufferChar contains '\n' or
- *  EOF.
+ *  The line ending character is not copied into the string. When
+ *  the function is left the inFile.bufferChar contains '\n' or EOF.
+ *  @return the line read.
  *)
 const func string: getln (inout strifile: aStrifile) is func
   result
@@ -190,23 +199,50 @@ const func string: getln (inout strifile: aStrifile) is func
   end func;
 
 
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
 const func boolean: eof (in strifile: aStrifile) is
   return aStrifile.position > length(aStrifile.content);
 
 
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *)
 const func boolean: hasNext (in strifile: aStrifile) is
   return aStrifile.position <= length(aStrifile.content);
 
 
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in characters.
+ *  @return the length of a file.
+ *)
 const func integer: length (in strifile: aStrifile) is
   return length(aStrifile.content);
 
 
+(**
+ *  Set the current file position.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *)
 const proc: seek (inout strifile: aStrifile, in integer: pos) is func
   begin
     aStrifile.position := pos;
   end func;
 
 
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *  @return the current file position.
+ *)
 const func integer: tell (in strifile: aStrifile) is
   return aStrifile.position;

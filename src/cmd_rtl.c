@@ -959,21 +959,21 @@ stritype name;
       } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
         result = relativeToProgramPath(programPath, "bin/", SEED7_LIB);
-	opt = NULL;
+        opt = NULL;
 #else
         opt = SEED7_LIB;
 #endif
       } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
         result = relativeToProgramPath(programPath, "bin/", COMP_DATA_LIB);
-	opt = NULL;
+        opt = NULL;
 #else
         opt = COMP_DATA_LIB;
 #endif
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
         result = relativeToProgramPath(programPath, "bin/", COMPILER_LIB);
-	opt = NULL;
+        opt = NULL;
 #else
         opt = COMPILER_LIB;
 #endif

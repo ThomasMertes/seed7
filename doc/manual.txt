@@ -7970,9 +7970,9 @@ ont color=blue>is "";
 
   Parameters:
     source
-        Name of the symbolic link to be created.
-    dest
         String to be contained in the symbolic link.
+    dest
+        Name of the symbolic link to be created.
     
   Possible exceptions:
     MEMORY_ERROR

@@ -1460,10 +1460,11 @@ const string: cp_1047 is "\
 
 
 (**
- *  Converts a string from a codepage encoding to UTF-32.
+ *  Convert a string with bytes from a codepage encoding to UTF-32.
  *  When the function is called 'stri' is assumed to be a string
- *  of bytes encoded with the specified codepage. When the function
- *  is left 'stri' contains an UTF-32 unicode string.
+ *  of bytes. The byte sequence in 'stri' is encoded with the
+ *  specified codepage. When the function is left 'stri' contains
+ *  an UTF-32 unicode string.
  *)
 const proc: conv2unicode (inout string: stri, in string: codepage) is func
   local
@@ -1476,10 +1477,12 @@ const proc: conv2unicode (inout string: stri, in string: codepage) is func
 
 
 (**
- *  Converts a string from an UTF-16BE encoding to UTF-32.
+ *  Convert a string with bytes in UTF-16BE encoding to UTF-32.
  *  When the function is called 'stri' is assumed to be a string
- *  of bytes encoded with UTF-16 in big endian byte order. When
- *  the function is left 'stri' contains an UTF-32 unicode string.
+ *  of bytes. The byte sequence in 'stri' is encoded with UTF-16
+ *  in big endian byte order.
+ *  @return 'stri' converted to normal (UTF-32) string.
+ *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
 const func string: utf16beToStri (in string: stri) is func
   result
@@ -1512,10 +1515,12 @@ const func string: utf16beToStri (in string: stri) is func
 
 
 (**
- *  Converts a string from an UTF-16LE encoding to UTF-32.
+ *  Convert a string with bytes in UTF-16LE encoding to UTF-32.
  *  When the function is called 'stri' is assumed to be a string
- *  of bytes encoded with UTF-16 in little endian byte order. When
- *  the function is left 'stri' contains an UTF-32 unicode string.
+ *  of bytes. The byte sequence in 'stri' is encoded with UTF-16
+ *  in little endian byte order.
+ *  @return 'stri' converted to normal (UTF-32) string.
+ *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
 const func string: utf16leToStri (in string: stri) is func
   result
@@ -1547,7 +1552,14 @@ const func string: utf16leToStri (in string: stri) is func
   end func;
 
 
-const func string: removeUtf16SurrogatePairs (in string: stri) is func
+(**
+ *  Return string where all surrogate pairs are replaced by single chars.
+ *  When the function is called 'stri' is assumed to be a string
+ *  of Unicode characters which may contain surrogate pairs.
+ *  @return 'stri' with all surrogate pairs replaced by single UTF-32 chars.
+ *  @exception RANGE_ERROR If an illegal surrogate pair is found.
+ *)
+const func string: replaceUtf16SurrogatePairs (in string: stri) is func
   result
     var string: result is "";
   local
@@ -1580,10 +1592,10 @@ const func string: removeUtf16SurrogatePairs (in string: stri) is func
 
 
 (**
- *  Converts a string from an UTF-7 encoding to UTF-32.
+ *  Convert a string from an UTF-7 encoding to UTF-32.
  *  When the function is called 'stri' is assumed to be a string
- *  of bytes encoded with UTF-7. When the function is left 'stri'
- *  contains an UTF-32 unicode string.
+ *  of bytes. The byte sequence in 'stri' is encoded with UTF-7.
+ *  @return 'stri' converted to normal (UTF-32) string.
  *)
 const func string: utf7ToStri (in string: stri) is func
   result
@@ -1650,7 +1662,7 @@ const func string: utf7ToStri (in string: stri) is func
           if accumulator <> 0 then
             raise RANGE_ERROR;
           else
-            result &:= removeUtf16SurrogatePairs(unicodeStri);
+            result &:= replaceUtf16SurrogatePairs(unicodeStri);
           end if;
         else
           result &:= "+";
@@ -1665,7 +1677,7 @@ const func string: utf7ToStri (in string: stri) is func
 
 
 (**
- *  Converts a string from a charset encoding to UTF-32.
+ *  Convert a string from a charset encoding to UTF-32.
  *  When the function is called 'stri' is assumed to be a string
  *  of bytes encoded with the specified charset. When the function
  *  is left 'stri' contains an UTF-32 unicode string. The
@@ -1760,6 +1772,7 @@ const proc: conv2unicodeByName (inout string: stri,
     elsif charset =     "UTF-7" then
       stri := utf7ToStri(stri);
     else
-      writeln("Unknown charset: " <& literal(charset));
+      # writeln("Unknown charset: " <& literal(charset));
+      raise RANGE_ERROR;
     end if;
   end func;

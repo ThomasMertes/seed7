@@ -24,6 +24,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
 
 const array string: keyword_table is [](
     "Can you", "Can I", "You are", "You're", "I don't", "I feel",

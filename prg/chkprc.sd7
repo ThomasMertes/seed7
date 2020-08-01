@@ -23,6 +23,8 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
+
 
 var boolean: global_loop_control is TRUE;
 

@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "enable_io.s7i";
   include "socket.s7i";
   include "gtkserver.s7i";
 

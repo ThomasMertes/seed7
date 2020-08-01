@@ -36,7 +36,8 @@ const type: complex is new object struct
 
 
 (**
- *  Return a complex number from its real and imaginary part.
+ *  Create a complex number from its real and imaginary part.
+ *  @return the created complex number.
  *)
 const func complex: complex (in float: re, in float: im) is func
   result
@@ -48,7 +49,8 @@ const func complex: complex (in float: re, in float: im) is func
 
 
 (**
- *  Return a complex number from its real part.
+ *  Create a complex number from its real part.
+ *  @return the created complex number.
  *)
 const func complex: complex (in float: re) is func
   result
@@ -60,7 +62,8 @@ const func complex: complex (in float: re) is func
 
 
 (**
- *  Return a complex number from polar coordinates.
+ *  Create a complex number from polar coordinates.
+ *  @return the created complex number.
  *)
 const func complex: polar (in float: magnitude, in float: angle) is func
   result
@@ -72,7 +75,8 @@ const func complex: polar (in float: magnitude, in float: angle) is func
 
 
 (**
- *  Return the conversion of an integer to a complex.
+ *  Convert an integer to a complex.
+ *  @return the result of the conversion.
  *)
 const func complex: (attr complex) conv (in integer: re) is func
   result
@@ -84,7 +88,8 @@ const func complex: (attr complex) conv (in integer: re) is func
 
 
 (**
- *  Return the conversion of a float to a complex.
+ *  Conversion a float to a complex.
+ *  @return the result of the conversion.
  *)
 const func complex: (attr complex) conv (in float: re) is func
   result
@@ -95,16 +100,25 @@ const func complex: (attr complex) conv (in float: re) is func
   end func;
 
 
+(**
+ *  Check if two complex values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
 const func boolean: (ref complex: num1) = (ref complex: num2) is
   return num1.re = num2.re and num1.im = num2.im;
 
 
+(**
+ *  Check if two complex values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
 const func boolean: (ref complex: num1) <> (ref complex: num2) is
   return num1.re <> num2.re or num1.im <> num2.im;
 
 
 (**
- *  Return the given complex number.
+ *  Plus sign for complex numbers.
+ *  @return its operand unchanged.
  *)
 const func complex: + (in complex: num1) is func
   result
@@ -116,7 +130,8 @@ const func complex: + (in complex: num1) is func
 
 
 (**
- *  Return the negated value of a complex number.
+ *  Minus sign, negate a complex number.
+ *  @return the negated value of the number.
  *)
 const func complex: - (in complex: num1) is func
   result
@@ -128,7 +143,8 @@ const func complex: - (in complex: num1) is func
 
 
 (**
- *  Return the conjugated value of a complex number.
+ *  Compute the conjugated value of a complex number.
+ *  @return the conjugated value of the number.
  *)
 const func complex: conj (in complex: num1) is func
   result
@@ -140,7 +156,8 @@ const func complex: conj (in complex: num1) is func
 
 
 (**
- *  Return the sum of two complex numbers.
+ *  Add two complex numbers.
+ *  @return the sum of the two numbers.
  *)
 const func complex: (in complex: num1) + (in complex: num2) is func
   result
@@ -152,7 +169,8 @@ const func complex: (in complex: num1) + (in complex: num2) is func
 
 
 (**
- *  Return the difference of two complex numbers.
+ *  Compute the subtraction of two complex numbers.
+ *  @return the difference of the two numbers.
  *)
 const func complex: (in complex: num1) - (in complex: num2) is func
   result
@@ -164,7 +182,8 @@ const func complex: (in complex: num1) - (in complex: num2) is func
 
 
 (**
- *  Return the product of two complex numbers.
+ *  Multiply two complex numbers.
+ *  @return the product of the two numbers.
  *)
 const func complex: (in complex: num1) * (in complex: num2) is func
   result
@@ -176,7 +195,8 @@ const func complex: (in complex: num1) * (in complex: num2) is func
 
 
 (**
- *  Return the quotient of two complex numbers.
+ *  Copmpute the division of two complex numbers.
+ *  @return the quotient of the division.
  *)
 const func complex: (in complex: num1) / (in complex: num2) is func
   result
@@ -281,8 +301,9 @@ const func complex: (in complex: num1) ** (in integer: int2) is func
 
 (**
  *  Compares two complex numbers in lexicographic order.
- *  Returns -1, 0 or 1 if the first argument is considered to be
- *  respectively less than, equal to, or greater than the second.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
  *)
 const func integer: compare (in complex: num1, in complex: num2) is func
   result
@@ -296,7 +317,8 @@ const func integer: compare (in complex: num1, in complex: num2) is func
 
 
 (**
- *  Return the hash value of a complex number.
+ *  Compute the hash value of a complex number.
+ *  @return the hash value.
  *)
 const func integer: hashCode (in complex: num) is
   return hashCode(num.re) + hashCode(num.im);
@@ -320,6 +342,7 @@ const func string: str (in complex: num) is func
 
 (**
  *  Return the conversion of a string to a complex.
+ *  @exception RANGE_ERROR When stri contains not a valid complex value.
  *)
 const func complex: (attr complex) parse (in string: stri) is func
   result

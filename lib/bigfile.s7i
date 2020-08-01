@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "bigint.s7i";
+include "external_file.s7i";
+
+
 const func bigInteger: bigFileSize (in string param) is action "CMD_BIG_FILESIZE";
 
 
@@ -45,20 +49,88 @@ const func bigInteger: bigTell (ref file param)         is DYNAMIC;
 
 (* null_file *)
 
-const bigInteger: bigLength (ref null_file param)            is 0_;
-const proc: seek (ref null_file param, ref bigInteger param) is noop;
-const bigInteger: bigTell (ref null_file param)              is 1_;
+
+(**
+ *  Obtain the length of a file.
+ *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  Derived types of null_file need to override this function.
+ *  @return nothing, because FILE_ERROR is always raised.
+ *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *             not seekable.
+ *)
+const func bigInteger: bigLength (ref null_file: aFile) is func
+  result
+    var bigInteger: result is 0_;
+  begin
+    raise FILE_ERROR;
+  end func;
+
+
+(**
+ *  Set the current file position.
+ *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  When a derived type is seekable it needs to override this function.
+ *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *             not seekable.
+ *)
+const proc: seek (ref null_file: aFile, ref bigInteger: pos) is func
+  begin
+    raise FILE_ERROR;
+  end func;
+
+
+(**
+ *  Obtain the current file position.
+ *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  When a derived type is seekable it needs to override this function.
+ *  @return nothing, because FILE_ERROR is always raised.
+ *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *             not seekable.
+ *)
+const func bigInteger: bigTell (ref null_file: aFile) is func
+  result
+    var bigInteger: result is 0_;
+  begin
+    raise FILE_ERROR;
+  end func;
 
 
 (* external_file *)
 
+
+(**
+ *  Determine the size of a file and return it as bigInteger.
+ *  @return the size of the given file.
+ *  @exception RANGE_ERROR The system file length cannot be converted
+ *             into a bigInteger.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
 const func bigInteger: bigLength (ref external_file: aFile) is
   return bigLength(aFile.ext_file);
 
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or cannot be
+ *             converted into a system file position.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
 const proc: seek (ref external_file: aFile, in bigInteger: pos) is func
   begin
     seek(aFile.ext_file, pos);
   end func;
 
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The system file position cannot be converted
+ *             into a bigInteger.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
 const func bigInteger: bigTell (ref external_file: aFile) is
   return bigTell(aFile.ext_file);

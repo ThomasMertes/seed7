@@ -1,0 +1,316 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  osfiles.s7i   Functions to handle operating system files.       *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "enable_io.s7i";
+
+
+const integer: FILE_ABSENT  is 0; # A component of path does not exist
+const integer: FILE_UNKNOWN is 1; # File exists but has an unknown type
+const integer: FILE_REGULAR is 2;
+const integer: FILE_DIR     is 3;
+const integer: FILE_CHAR    is 4;
+const integer: FILE_BLOCK   is 5;
+const integer: FILE_FIFO    is 6;
+const integer: FILE_SYMLINK is 7;
+const integer: FILE_SOCKET  is 8;
+
+const type: filePermission is new enum
+    EXEC_OTHER,
+    WRITE_OTHER,
+    READ_OTHER,
+    EXEC_GROUP,
+    WRITE_GROUP,
+    READ_GROUP,
+    EXEC_USER,
+    WRITE_USER,
+    READ_USER
+  end enum;
+
+const type: fileMode is set of filePermission;
+
+const func integer: (attr integer) conv (in fileMode: mode) is
+  return integer conv (bitset conv mode);
+
+const func fileMode: (attr fileMode) conv (in integer: int_mode) is
+  return fileMode conv (bitset conv int_mode);
+
+const func string: str (in fileMode: aFileMode) is func
+  result
+    var string: result is "";
+  local
+    const array [filePermission] string: name is
+        [filePermission] ("x", "w", "r", "x", "w", "r", "x", "w", "r");
+    var filePermission: aPermission is READ_USER;
+  begin
+    for aPermission range READ_USER downto EXEC_OTHER do
+      if aPermission in aFileMode then
+        result &:= name[aPermission];
+      else
+        result &:= "-";
+      end if;
+    end for;
+  end func;
+
+enable_output(fileMode);
+
+
+(**
+ *  Changes the current working directory of the calling process to
+ *  the specified directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'name' is not representable in the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: chdir (in string param) is                          action "CMD_CHDIR";
+
+
+(**
+ *  Creates a new directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'name'</tt> is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: mkdir (in string param) is                          action "CMD_MKDIR";
+
+
+(**
+ *  Determine the current working directory of the calling process
+ *  as absolute path.
+ *  @return The absolute path of the current working directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result 'string'.
+ *  @exception FILE_ERROR The system function returns an error.
+ *)
+const func string: getcwd is                                    action "CMD_GETCWD";
+
+
+(**
+ *  Determine the type of a file.
+ *  The function does follow symbolic links.
+ *  Therefore it never returns FILE_SYMLINK.
+ *  @return the type of the file.
+ *)
+const func integer: fileType (in string param) is               action "CMD_FILETYPE";
+
+
+(**
+ *  Determine the type of a file.
+ *  The function does not follow symbolic links.
+ *  Therefore it may return FILE_SYMLINK.
+ *  @return the type of the file.
+ *)
+const func integer: fileTypeSL (in string param) is             action "CMD_FILETYPE_SL";
+
+
+(**
+ *  Determine the file mode (permissions) of a file.
+ *  @return the file mode.
+ *)
+const func fileMode: fileMode (in string param) is              action "CMD_FILEMODE";
+
+
+(**
+ *  Change the file mode (permissions) of a file.
+ *)
+const proc: setFileMode (in string param, in fileMode param) is action "CMD_SET_FILEMODE";
+
+
+(**
+ *  Determine the size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path to the system path type.
+ *  @exception RANGE_ERROR The path is not representable in the system path type.
+ *  @exception RANGE_ERROR The file size is not representable as integer.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ *)
+const func integer: fileSize (in string param) is               action "CMD_FILESIZE";
+
+
+const func array string: read_dir (in string param) is          action "CMD_LS";
+
+
+(**
+ *  Remove a file or empty directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the system
+ *             path type.
+ *  @exception FILE_ERROR The file does not exist or a system function
+ *             returns an error.
+ *)
+const proc: removeFile (in string param) is                     action "CMD_REMOVE";
+
+
+(**
+ *  Removes a file independent of its file type.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the system
+ *             path type.
+ *  @exception FILE_ERROR The file does not exist or a system function
+ *             returns an error.
+ *)
+const proc: removeAnyFile (in string param) is                  action "CMD_REMOVE_ANY_FILE";
+
+
+(**
+ *  Copies a file or directory tree.
+ *  Permissions/mode, ownership and timestamps of the destination file
+ *  are determined independent of the corresponding source properties.
+ *  The destination file gets the permissions/mode defined by umask.
+ *  The user executing the program is the owner of the destination file.
+ *  The timestamps of the destination file are set to the current time.
+ *  Symbolic links in sourcePath are always followed.
+ *  Therefore 'copyFile' will never create a symbolic link.
+ *  Note that 'copyFile' does not preserve hard links (they are
+ *  resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert 'sourcePath'
+ *             or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' is not
+ *             representable in the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ *)
+const proc: copyFile (in string param, in string param) is      action "CMD_COPY_FILE";
+
+
+(**
+ *  Clone a file or directory tree.
+ *  Permissions/mode, ownership and timestamps of the original are
+ *  preserved. Symlinks are not followed. Instead the symlink is
+ *  copied. Note that 'cloneFile' does not preserve hard links (they
+ *  are resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert
+ *             'sourcePath' or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' is not
+ *             representable in the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ *)
+const proc: cloneFile (in string param, in string param) is     action "CMD_CLONE_FILE";
+
+
+(**
+ *  Move and rename a file or directory tree.
+ *  The function uses the C 'rename()' function. When 'rename()' fails
+ *  the file (or directory tree) is cloned with 'cloneFile' (which
+ *  preserves permissions/mode, ownership and timestamps) to the new
+ *  place and with the new name. When 'cloneFile' succeeds the original
+ *  file is deleted. When 'cloneFile' fails (no space on device or
+ *  other reason) all remains of the failed clone are removed. Note
+ *  that 'cloneFile' works for symbolic links but does not preserve
+ *  hard links (they are resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert 'sourcePath'
+ *             or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' is not
+ *             representable in the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ *)
+const proc: moveFile (in string param, in string param) is      action "CMD_MOVE";
+
+
+(**
+ *  Reads the destination of a symbolic link.
+ *  @return The destination refered by the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path to
+ *             the system path type or not enough memory to represent
+ *             the result string.
+ *  @exception RANGE_ERROR The path is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file described with the path does not
+ *             exist or is not a symbolic link.
+ *)
+const func string: readlink (in string param) is                action "CMD_READLINK";
+
+
+(**
+ *  Create a symbolic link.
+ *  The symbolic link 'dest' will refer to 'source' afterwards.
+ *  @param source String to be contained in the symbolic link.
+ *  @param dest Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert source or
+ *             dest to the system path type.
+ *  @exception RANGE_ERROR Source or dest is not representable in
+ *             the system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: symlink (in string: source, in string: dest) is     action "CMD_SYMLINK";
+
+
+const func string: configValue (in string param) is             action "CMD_CONFIG_VALUE";
+
+
+const func string: convDosPath (in string: path) is func
+  result
+    var string: result is "";
+  local
+    var integer: length is 0;
+  begin
+    # Path delimiter is slash
+    result := replace(path, "\\", "/");
+    # Convert drive letters to standard path
+    if (length(result) = 2 or (length(result) >= 3 and result[3] = '/')) and
+        result[2] = ':' and lower(result[1]) >= 'a' and lower(result[1]) <= 'z' then
+      result @:= [2] lower(result[1]);
+      result @:= [1] '/';
+    end if;
+    # Remove double slashes
+    repeat
+      length := length(result);
+      result := replace(result, "//", "/");
+    until length(result) = length;
+    # Remove slash at end of path
+    while result <> "/" and endsWith(result, "/") do
+      result := result[.. pred(length(result))];
+    end while;
+  end func;
+
+
+const func string: toStdPath (in string: path) is func
+  result
+    var string: result is "";
+  local
+    var integer: length is 0;
+  begin
+    result := path;
+    # Remove double slashes
+    repeat
+      length := length(result);
+      result := replace(result, "//", "/");
+    until length(result) = length;
+    # Remove slash at end of path
+    while result <> "/" and endsWith(result, "/") do
+      result := result[.. pred(length(result))];
+    end while;
+  end func;

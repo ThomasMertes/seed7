@@ -26,9 +26,14 @@
 (********************************************************************)
 
 
+include "stdio.s7i";
 include "graph.s7i";
 include "math.s7i";
 include "binary.s7i";
+include "text.s7i";
+include "color.s7i";
+include "float.s7i";
+include "math.s7i";
 
 
 var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;

@@ -235,6 +235,7 @@ $ syntax expr: .const.(). : .(expr).is.(expr) is  -> 40;
 $ syntax expr: .const.(). : .(expr).is.forward is -> 40;
 $ syntax expr: .var.(). : .(expr).is.(expr) is    -> 40;
 $ syntax expr: .var.(). : .(expr).is.default is   -> 40;
+$ syntax expr: .var.(). : .(expr).is.forward is   -> 40;
 $ syntax expr: .include.() is                     -> 40;
 $ syntax expr: .elem.(). : .(expr).is.(expr) is   -> 40;
 

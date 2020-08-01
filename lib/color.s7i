@@ -1,0 +1,125 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  color.s7i     Functions for color processing.                   *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: color is new struct
+    var integer: red_part is 0;
+    var integer: green_part is 0;
+    var integer: blue_part is 0;
+  end struct;
+
+
+(**
+ *  Check if two color values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
+const func boolean: (in color: col1) = (in color: col2) is
+  return col1.red_part = col2.red_part and
+         col1.green_part = col2.green_part and
+         col1.blue_part = col2.blue_part;
+
+
+(**
+ *  Check if two color values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
+const func boolean: (in color: col1) <> (in color: col2) is
+  return col1.red_part <> col2.red_part or
+         col1.green_part <> col2.green_part or
+         col1.blue_part <> col2.blue_part;
+
+
+const func color: (in color: col1) + (in color: col2) is func
+  result
+    var color: result is color.value;
+  begin
+    result.red_part :=   (col1.red_part   + col2.red_part)   div 2;
+    result.green_part := (col1.green_part + col2.green_part) div 2;
+    result.blue_part :=  (col1.blue_part  + col2.blue_part)  div 2;
+  end func;
+
+
+(**
+ *  Create a color value from the red, green and blue parts.
+ *  @return the created color value.
+ *)
+const func color: color (in integer: red, in integer: green, in integer: blue) is func
+  result
+    var color: result is color.value;
+  begin
+    result.red_part := red;
+    result.green_part := green;
+    result.blue_part := blue;
+  end func;
+
+
+(**
+ *  Create a gray color value from the brightness.
+ *  @return the created color value.
+ *)
+const func color: gray (in integer: brightness) is func
+  result
+    var color: result is color.value;
+  begin
+    result.red_part := brightness;
+    result.green_part := brightness;
+    result.blue_part := brightness;
+  end func;
+
+
+(**
+ *  Compares two colors.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in color: col1, in color: col2) is func
+  result
+    var integer: result is 0;
+  begin
+    if col1.red_part < col2.red_part then
+      result := -1;
+    elsif col1.red_part > col2.red_part then
+      result := 1;
+    elsif col1.green_part < col2.green_part then
+      result := -1;
+    elsif col1.green_part > col2.green_part then
+      result := 1;
+    elsif col1.blue_part < col2.blue_part then
+      result := -1;
+    elsif col1.blue_part > col2.blue_part then
+      result := 1;
+    end if;
+  end func;
+
+
+(**
+ *  Compute the hash value of a color.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in color: col) is
+  return col.red_part + col.green_part + col.blue_part;

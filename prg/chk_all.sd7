@@ -23,6 +23,8 @@
 
 
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
   include "shell.s7i";
 
 const string: OBJECT_FILE_EXTENSION is     configValue("OBJECT_FILE_EXTENSION");
@@ -104,6 +106,7 @@ const string: chkbig_output is "\n\
   \The bigInteger lowestSetBit function works correct.\n\
   \The bigInteger << and <<:= works correct.\n\
   \The bigInteger >> and >>:= works correct.\n\
+  \The bigInteger square root works correct.\n\
   \The bigInteger constants work correct.\n\
   \BigInteger assignment works correct.\n";
 

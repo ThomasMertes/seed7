@@ -1,0 +1,66 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  text.s7i      Interface text, line/column oriented files.       *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "file.s7i";
+include "color.s7i";
+
+
+const type: text is subtype file;
+
+(* Procedures and Elements granted for every text *)
+
+# const proc: write (inout text param, in string param) is DYNAMIC;
+# const proc: write (inout text param, in char param) is DYNAMIC;
+# const proc: writeln (inout text param) is DYNAMIC;
+# const proc: backSpace (ref text param) is DYNAMIC;
+const func integer: height (ref text param) is DYNAMIC;
+const func integer: width (ref text param) is DYNAMIC;
+const func integer: line (ref text param) is DYNAMIC;
+const func integer: column (ref text param) is DYNAMIC;
+const proc: clear (inout text param) is DYNAMIC;
+const proc: clear (in text param, in integer param, in integer param,
+    in integer param, in integer param) is DYNAMIC;
+const proc: v_scroll (inout text param, in integer param) is DYNAMIC;
+const proc: v_scroll (inout text param, in integer param, in integer param,
+    in integer param, in integer param, in integer param) is DYNAMIC;
+const proc: h_scroll (ref text param, in integer param) is DYNAMIC;
+const proc: h_scroll (ref text param, in integer param, in integer param,
+    in integer param, in integer param, in integer param) is DYNAMIC;
+const proc: color (inout text param, in color param) is DYNAMIC;
+const proc: color (inout text param, in color param, in color param) is DYNAMIC;
+const proc: setPos (inout text param, in integer param, in integer param) is DYNAMIC;
+const proc: setPosXY (inout text param, in integer param, in integer param) is DYNAMIC;
+const proc: setLine (ref text param, ref integer param) is DYNAMIC;
+const proc: setColumn (ref text param, ref integer param) is DYNAMIC;
+const proc: setXY (ref text param, ref integer param, ref integer param) is DYNAMIC;
+const proc: flush (inout text param) is DYNAMIC;
+const proc: cursor (ref text param, ref boolean param) is DYNAMIC;
+const proc: cursor_on (ref text param) is DYNAMIC;
+const proc: cursor_off (ref text param) is DYNAMIC;
+const proc: box (ref text param) is DYNAMIC;
+const proc: clear_box (ref text param) is DYNAMIC;

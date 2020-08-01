@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "bigint.s7i";
+
+
 const type: bigRational is new object struct
     var bigInteger: numerator is 0_;
     var bigInteger: denominator is 1_;
@@ -52,7 +55,8 @@ const proc: reduce (inout bigRational: rat) is func
 
 
 (**
- *  Return the given bigRational number.
+ *  Plus sign for bigRational numbers.
+ *  @return its operand unchanged.
  *)
 const func bigRational: + (in bigRational: rat) is func
   result
@@ -64,7 +68,8 @@ const func bigRational: + (in bigRational: rat) is func
 
 
 (**
- *  Return the negated value of a bigRational number.
+ *  Minus sign, negate a bigRational number.
+ *  @return the negated value of the number.
  *)
 const func bigRational: - (in bigRational: rat) is func
   result
@@ -76,7 +81,8 @@ const func bigRational: - (in bigRational: rat) is func
 
 
 (**
- *  Return the sum of two bigRational numbers.
+ *  Add two bigRational numbers.
+ *  @return the sum of the two numbers.
  *)
 const func bigRational: (in bigRational: rat1) + (in bigRational: rat2) is func
   result
@@ -92,7 +98,8 @@ const func bigRational: (in bigRational: rat1) + (in bigRational: rat2) is func
 
 
 (**
- *  Return the difference of two bigRational numbers.
+ *  Compute the subtraction of two bigRational numbers.
+ *  @return the difference of the two numbers.
  *)
 const func bigRational: (in bigRational: rat1) - (in bigRational: rat2) is func
   result
@@ -108,7 +115,8 @@ const func bigRational: (in bigRational: rat1) - (in bigRational: rat2) is func
 
 
 (**
- *  Return the product of two bigRational numbers.
+ *  Multiply two bigRational numbers.
+ *  @return the product of the two numbers.
  *)
 const func bigRational: (in bigRational: rat1) * (in bigRational: rat2) is func
   result
@@ -125,7 +133,9 @@ const func bigRational: (in bigRational: rat1) * (in bigRational: rat2) is func
 
 
 (**
- *  Return the quotient of two bigRational numbers.
+ *  Compute the division of two bigRational numbers.
+ *  @return the quotient of the division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
  *)
 const func bigRational: (in bigRational: rat1) / (in bigRational: rat2) is func
   result
@@ -167,8 +177,7 @@ const proc: (inout bigRational: rat1) -:= (in bigRational: rat2) is func
 
 
 (**
- *  Multiply the bigRational number rat1 by rat2 and assign the
- *  result to rat1.
+ *  Multiply the bigRational number rat1 by rat2 and assign the result to rat1.
  *)
 const proc: (inout bigRational: rat1) *:= (in bigRational: rat2) is func
   begin
@@ -241,8 +250,10 @@ const func boolean: (in bigRational: rat1) <> (in bigRational: rat2) is
 
 
 (**
- *  Returns -1, 0 or 1 if the first argument is considered to be
- *  respectively less than, equal to, or greater than the second.
+ *  Compare two bigRational numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
  *)
 const func integer: compare (in bigRational: rat1, in bigRational: rat2) is func
   result
@@ -259,7 +270,8 @@ const func integer: compare (in bigRational: rat1, in bigRational: rat2) is func
 
 
 (**
- *  Return the hash value of a bigRational.
+ *  Compute the hash value of a bigRational number.
+ *  @return the hash value.
  *)
 const func integer: hashCode (in bigRational: rat) is
   return hashCode(rat.numerator) * hashCode(rat.denominator);
@@ -344,6 +356,7 @@ const func string: (in bigRational: rat1) digits (in integer: numDigits) is func
 
 (**
  *  Return the conversion of a string to a bigRational number.
+ *  @exception RANGE_ERROR When stri contains not a valid bigRational value.
  *)
 const func bigRational: (attr bigRational) parse (in var string: stri) is func
   result

@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "null_file.s7i";
+include "enable_io.s7i";
+
+
 const type: socketAddress is newtype;
 IN_PARAM_IS_REFERENCE(socketAddress);
 
@@ -38,20 +42,23 @@ const socketAddress: (attr socketAddress) . value                           is _
 const func integer: addrFamily (in socketAddress param)                     is action "SOC_ADDR_FAMILY";
 
 (**
- *  Return an internet socket address of a port at a host.
+ *  Create an internet socket address of a port at a host.
+ *  @return the internet socket address.
  *)
 const func socketAddress: inetSocketAddress (in string param,
                                              in integer param)              is action "SOC_INET_ADDR";
 
 
 (**
- *  Return an internet socket address of a port at localhost.
+ *  Create an internet socket address of a port at localhost.
+ *  @return the internet socket address.
  *)
 const func socketAddress: inetSocketAddress (in integer param)              is action "SOC_INET_LOCAL_ADDR";
 
 
 (**
- *  Return an internet listener socket address of a port at localhost.
+ *  Create an internet listener socket address of a port at localhost.
+ *  @return the internet listener socket address.
  *)
 const func socketAddress: inetListenerAddress (in integer param)            is action "SOC_INET_SERV_ADDR";
 
@@ -119,17 +126,16 @@ const func socket: malloc (in socket: sock) is func
 
 
 (**
- *  Return a connected internet socket file at a port at localhost.
+ *  Return a connected socket file for the given address.
+ *  @return the socket file opened, or STD_NULL if it could not be opened.
  *)
-const func file: openInetSocket (in integer: portNumber) is func
+const func file: openSocket (in socketAddress: address) is func
   result
     var file: result is STD_NULL;
   local
-    var socketAddress: address is socketAddress.value;
     var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
     var socket: new_socket is socket.value;
   begin
-    address := inetSocketAddress(portNumber);
     open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
     if open_socket <> PRIMITIVE_NULL_SOCKET then
       new_socket.addr := address;
@@ -141,25 +147,19 @@ const func file: openInetSocket (in integer: portNumber) is func
 
 
 (**
- *  Return a connected internet socket file at a port at 'hostName'.
+ *  Return a connected internet socket file at a port at localhost.
+ *  @return the socket file opened, or STD_NULL if it could not be opened.
  *)
-const func file: openInetSocket (in string: hostName, in integer: portNumber) is func
-  result
-    var file: result is STD_NULL;
-  local
-    var socketAddress: address is socketAddress.value;
-    var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
-    var socket: new_socket is socket.value;
-  begin
-    address := inetSocketAddress(hostName, portNumber);
-    open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
-    if open_socket <> PRIMITIVE_NULL_SOCKET then
-      new_socket.addr := address;
-      connect(open_socket, new_socket.addr);
-      new_socket.sock := open_socket;
-      result := malloc(new_socket);
-    end if;
-  end func;
+const func file: openInetSocket (in integer: portNumber) is
+  return openSocket(inetSocketAddress(portNumber));
+
+
+(**
+ *  Return a connected internet socket file at a port at 'hostName'.
+ *  @return the socket file opened, or STD_NULL if it could not be opened.
+ *)
+const func file: openInetSocket (in string: hostName, in integer: portNumber) is
+  return openSocket(inetSocketAddress(hostName, portNumber));
 
 
 (**
@@ -205,76 +205,65 @@ const proc: backSpace (in socket: aSocket) is func
 
 
 (**
- *  Return a character read from 'aSocket'.
+ *  Read a character from 'aSocket'.
+ *  @return the character read.
  *)
 const func char: getc (in socket: aSocket) is
   return getc(aSocket.sock);
 
 
 (**
- *  Return a string read with a maximum length 'leng' from 'aSocket'.
+ *  Read a string with a maximum length 'leng' from 'aSocket'.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: gets (in socket: aSocket, in integer: leng) is
   return gets(aSocket.sock, leng);
 
 
 (**
- *  Return a word read from 'aSocket'.
+ *  Read a word from 'aSocket'.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left the aSocket.bufferChar contains ' ',
  *  '\t', '\n' or EOF.
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: getwd (inout socket: aSocket) is
   return word_read(aSocket.sock, aSocket.bufferChar);
 
 
 (**
- *  Return a line read from 'aSocket'.
+ *  Read a line from 'aSocket'.
  *  The function accepts lines ending with "\n", "\r\n" or EOF.
- *  The line ending characters are not copied into the string.
- *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left the aSocket.bufferChar contains '\n' or
- *  EOF.
+ *  The line ending characters are not copied into the string. That
+ *  means that the "\r" of a "\r\n" sequence is silently removed. When
+ *  the function is left the aSocket.bufferChar contains '\n' or EOF.
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: getln (inout socket: aSocket) is
   return line_read(aSocket.sock, aSocket.bufferChar);
 
 
 (**
- *  Return TRUE if the end-of-file indicator is set, FALSE otherwise.
- *  @return FALSE since a socket never reaches end-of-file.
+ *  Determine the end-of-file indicator.
+ *  @return FALSE, since a socket never reaches end-of-file.
  *)
 const func boolean: eof (in socket: aSocket) is
   return FALSE; # eof(aSocket.sock);
 
 
 (**
- *  Return FALSE if 'getc' would return EOF, TRUE otherwise.
- *  @return TRUE since the next 'getc' will never return EOF.
+ *  Determine if at least one character can be read successfully.
+ *  @return TRUE, since the next 'getc' will never return EOF.
  *)
 const func boolean: hasNext (in socket: aSocket) is
   return TRUE; # hasNext(aSocket.sock);
-
-
-(**
- *  Return the length of a socket.
- *)
-const func integer: length (in socket: aSocket) is
-  return 0; # length(aSocket.sock);
-
-
-const proc: seek (in socket: aSocket, in integer: pos) is func
-  begin
-    # seek(aSocket.sock, pos);
-    noop;
-  end func;
-
-
-const func integer: tell (in socket: aSocket) is
-  return 0; # tell(aSocket.sock);
 
 
 (* Operations for the listener *)
@@ -286,7 +275,8 @@ const type: listener is new struct
 
 
 (**
- *  Return a bound internet listener at a port at localhost.
+ *  Create a bound internet listener at a port at localhost.
+ *  @return the bound internet listener.
  *)
 const func listener: openInetListener (in integer: portNumber) is func
   result
@@ -315,7 +305,8 @@ const proc: listen (in listener: aListener, in integer: backlog) is func
 
 
 (**
- *  Return a new accepted connection socket on a 'aListener'.
+ *  Create a new accepted connection socket on a 'aListener'.
+ *  @return the accepted connection socket.
  *)
 const func file: accept (in listener: aListener) is func
   result

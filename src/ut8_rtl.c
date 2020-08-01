@@ -259,6 +259,11 @@ errinfotype *err_info;
 
 
 
+/**
+ *  Read a character from an UTF-8 file.
+ *  @return the character read, or EOF at the end of the file.
+ *  @exception RANGE_ERROR - The file contains an illegal encoding.
+ */
 #ifdef ANSI_C
 
 chartype ut8Getc (filetype aFile)
@@ -430,7 +435,7 @@ filetype aFile;
 
 
 /**
- *  Return a string with 'length' characters read from an UTF-8 file.
+ *  Read a string with 'length' characters from an UTF-8 file.
  *  In order to work reasonable good for the common case (reading
  *  just some characters) memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
@@ -441,6 +446,9 @@ filetype aFile;
  *  for a regular file but not for a pipe). If this fails a third
  *  strategy is used. In this case a smaller block is requested. This
  *  block is filled with data, resized and filled in a loop.
+ *  @return the string read.
+ *  @exception RANGE_ERROR - The length is negative or the file
+ *             contains an illegal encoding.
  */
 #ifdef ANSI_C
 
@@ -621,6 +629,16 @@ chartype *termination_char;
 
 
 
+/**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  When the file position would be in the middle of an UTF-8 encoded
+ *  character the position is advanced to the beginning of the next
+ *  UTF-8 character.
+ *  @exception RANGE_ERROR - The file position is negative or zero.
+ *  @exception FILE_ERROR - The system function returns an error.
+ */
 #ifdef ANSI_C
 
 void ut8Seek (filetype aFile, inttype file_position)

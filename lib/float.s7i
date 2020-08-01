@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "enable_io.s7i";
+
+
 const type: float is          subtype object;
 $ system "float" is float;
 
@@ -35,18 +38,56 @@ IN_PARAM_IS_VALUE(float);
 
 const float: (attr float) . value is 0.0;
 
+
+(**
+ *  Plus sign for float numbers.
+ *  @return its operand unchanged.
+ *)
 const func float: + (ref float param) is                           action "FLT_PLUS";
+
+
+(**
+ *  Minus sign, negate a float number.
+ *  @return the negated value of the number.
+ *)
 const func float: - (ref float param) is                           action "FLT_MINUS";
+
 
 const proc: (inout float param) := (ref float param) is            action "FLT_CPY";
 const proc: (inout float param) +:= (ref float param) is           action "FLT_GROW";
 const proc: (inout float param) -:= (ref float param) is           action "FLT_SHRINK";
 const proc: (inout float param) *:= (ref float param) is           action "FLT_MULT_ASSIGN";
 const proc: (inout float param) /:= (ref float param) is           action "FLT_DIV_ASSIGN";
+
+
+(**
+ *  Add two float numbers.
+ *  @return the sum of the two numbers.
+ *)
 const func float: (ref float param) + (ref float param) is         action "FLT_ADD";
+
+
+(**
+ *  Compute the subtraction of two float numbers.
+ *  @return the difference of the two numbers.
+ *)
 const func float: (ref float param) - (ref float param) is         action "FLT_SBTR";
+
+
+(**
+ *  Multiply two float numbers.
+ *  @return the product of the two numbers.
+ *)
 const func float: (ref float param) * (ref float param) is         action "FLT_MULT";
+
+
+(**
+ *  Compute the division of two float numbers.
+ *  @return the quotient of the division.
+ *)
 const func float: (ref float param) / (ref float param) is         action "FLT_DIV";
+
+
 const func float: (ref float param) ** (ref integer param) is      action "FLT_IPOW";
 const func float: (ref float param) ** (ref float param) is        action "FLT_POW";
 const func string: (ref float param) digits (ref integer param) is action "FLT_DGTS";
@@ -61,14 +102,17 @@ const func float: (attr float) cast (in integer param) is          action "FLT_I
 
 
 (**
- *  Returns -1, 0 or 1 if the first argument is considered to be
- *  respectively less than, equal to, or greater than the second.
+ *  Compare two float numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
  *)
 const func integer: compare (in float param, in float param) is    action "FLT_CMP";
 
 
 (**
- *  Return a hash value for a float.
+ *  Compute the hash value of a float number.
+ *  @return the hash value.
  *)
 const func integer: hashCode (in float param) is                   action "FLT_HASHCODE";
 
@@ -80,19 +124,23 @@ const func string: str (ref float param) is                        action "FLT_S
 
 
 (**
- *  Return the conversion of a string to a float.
+ *  Convert a string to a float.
+ *  @return the float result of the conversion.
+ *  @exception RANGE_ERROR When the string contains not a float literal.
  *)
 const func float: (attr float) parse (in string param) is          action "FLT_PARSE";
 
 
 (**
- *  Return the conversion of an integer to a float.
+ *  Convert an integer to a float.
+ *  @return the float result of the conversion.
  *)
 const func float: flt (ref integer param) is                       action "FLT_IFLT";
 
 
 (**
- *  Return the conversion of an integer to a float.
+ *  Convert an integer to a float.
+ *  @return the float result of the conversion.
  *)
 const func float: (attr float) conv (ref integer param) is         action "FLT_ICONV";
 
@@ -125,7 +173,9 @@ const func string: literal (ref float param) is                    action "FLT_S
 
 
 (**
- *  Return a random number in the range [A, B].
+ *  Compute pseudo-random number in the range [A, B].
+ *  @return the computed pseudo-random number.
+ *  @exception RANGE_ERROR The range is empty
  *)
 const func float: rand (ref float param, ref float param) is       action "FLT_RAND";
 

@@ -25,6 +25,8 @@
 $ info off;
 $ message "Compiling the compiler ...";
 $ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
   include "scanstri.s7i";
   include "bigint.s7i";
   include "float.s7i";

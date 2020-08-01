@@ -75,14 +75,20 @@ const func popen_file: malloc (in popen_file: aPipe) is func
   end func;
 
 
-const func file: popen (in string: command, in string: access) is func
+(**
+ *  Executes a command, which uses Latin-1 encoding, and opens a pipe to it.
+ *  A pipe can only be opened with the modes "r" and "w".
+ *  @return the file opened, or STD_NULL if it could not be opened.
+ *  @exception RANGE_ERROR An illegal mode was used.
+ *)
+const func file: popen (in string: command, in string: mode) is func
   result
     var file: result is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var popen_file: new_file is popen_file.value;
   begin
-    open_file := PRIMITIVE_FILE_POPEN(command, access);
+    open_file := PRIMITIVE_FILE_POPEN(command, mode);
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;
@@ -111,14 +117,20 @@ const func popen8_file: malloc (in popen8_file: aPipe) is func
   end func;
 
 
-const func file: popen8 (in string: command, in string: access) is func
+(**
+ *  Executes a command, which uses UTF-8 encoding, and opens a pipe to it.
+ *  A pipe can only be opened with the modes "r" and "w".
+ *  @return the pipe file opened, or STD_NULL if it could not be opened.
+ *  @exception RANGE_ERROR An illegal mode was used.
+ *)
+const func file: popen8 (in string: command, in string: mode) is func
   result
     var file: result is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var popen8_file: new_file is popen8_file.value;
   begin
-    open_file := PRIMITIVE_FILE_POPEN(command, access);
+    open_file := PRIMITIVE_FILE_POPEN(command, mode);
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;

@@ -26,6 +26,8 @@
 (********************************************************************)
 
 
+include "stdio.s7i";
+include "osfiles.s7i";
 include "time.s7i";
 include "getf.s7i";
 include "gzip.s7i";

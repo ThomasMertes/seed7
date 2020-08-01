@@ -610,6 +610,15 @@ filetype aFile;
 
 
 
+/**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 #ifdef ANSI_C
 
 void filBigSeek (filetype aFile, const const_biginttype big_position)
@@ -640,6 +649,15 @@ biginttype big_position;
 
 
 
+/**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position cannot be converted to
+ *             an bigInteger value.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 #ifdef ANSI_C
 
 biginttype filBigTell (filetype aFile)
@@ -687,7 +705,7 @@ filetype aFile;
 
 
 /**
- *  Return a string with 'length' characters read from 'aFile'.
+ *  Read a string with 'length' characters from 'aFile'.
  *  In order to work reasonable good for the common case (reading
  *  just some characters) memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
@@ -698,6 +716,7 @@ filetype aFile;
  *  for a regular file but not for a pipe). If this fails a third
  *  strategy is used. In this case a smaller block is requested. This
  *  block is filled with data, resized and filled in a loop.
+ *  @return the string read.
  */
 #ifdef ANSI_C
 
@@ -961,6 +980,13 @@ filetype aFile;
 
 
 
+/**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file, or 0 if it cannot be obtained.
+ *  @exception RANGE_ERROR The file length is negative or does not
+ *             fit in an integer value.
+ */
 #ifdef ANSI_C
 
 inttype filLng (filetype aFile)
@@ -1009,11 +1035,12 @@ filetype aFile;
  *  NULL.
  *  @return return a filetype value when fopen() succeeds, or NULL
  *          when fopen() fails or when the file is a directory.
- *  @raise MEMORY_ERROR when there is not enough memory to convert
- *         the path to the system path type.
- *  @raise RANGE_ERROR when 'mode' is not one of the allowed values
- *         or 'path' is not representable in the system path type or
- *         when a backslash \ is used as path delimiter.
+ *  @exception MEMORY_ERROR There is not enough memory to convert
+ *             the path to the system path type.
+ *  @exception RANGE_ERROR The 'mode' is not one of the allowed
+ *             values or 'path' does not use the standard path
+ *             representation or 'path' is not representable in the
+ *             system path type.
  */
 #ifdef ANSI_C
 
@@ -1177,6 +1204,13 @@ stritype stri;
 
 
 
+/**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 #ifdef ANSI_C
 
 void filSeek (filetype aFile, inttype file_position)
@@ -1219,6 +1253,15 @@ inttype size;
 
 
 
+/**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position is negative or does not
+ *             fit in an integer value.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 #ifdef ANSI_C
 
 inttype filTell (filetype aFile)

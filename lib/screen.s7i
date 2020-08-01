@@ -26,6 +26,12 @@
 (********************************************************************)
 
 
+include "null_file.s7i";
+include "text.s7i";
+include "enable_io.s7i";
+include "color.s7i";
+
+
 const type: screen_file is sub null_file struct
   end struct;
 

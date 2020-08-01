@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "null_file.s7i";
+include "text.s7i";
+
+
 const type: window_file is sub null_file struct
     var text: out_file is STD_NULL;
     var integer: upper_border is 0;
@@ -305,7 +309,7 @@ const proc: write (inout window_file: window_fil, in char: ch) is func
       setPos(window_fil.out_file,
           window_fil.upper_border + window_fil.curr_line - 1,
           window_fil.left_border + window_fil.curr_column - 1);
-      write(window_fil.out_file, ch);
+      write(window_fil.out_file, str(ch));
     end if;
     incr(window_fil.curr_column);
   end func;

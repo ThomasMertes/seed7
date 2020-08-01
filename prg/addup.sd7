@@ -23,14 +23,15 @@
 
 
 $ include "seed7_05.s7i";
-include "keybd.s7i";
-include "echo.s7i";
-include "line.s7i";
-include "reverse.s7i";
-include "upper.s7i";
-include "lower.s7i";
-include "tee.s7i";
-include "more.s7i";
+  include "stdio.s7i";
+  include "keybd.s7i";
+  include "echo.s7i";
+  include "line.s7i";
+  include "reverse.s7i";
+  include "upper.s7i";
+  include "lower.s7i";
+  include "tee.s7i";
+  include "more.s7i";
 
 var boolean: quit is FALSE;
 

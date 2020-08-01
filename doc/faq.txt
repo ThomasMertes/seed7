@@ -19,8 +19,8 @@ programming languages:
    type parameters or a type result.
  - Seed7 has abstract data types. For example the types array, hash,
    struct and set. They are not hard coded in the compiler, but are
-   templates written in Seed7. User defined abstract data types are
-   also possible.
+   abstract data types written in Seed7. User defined abstract data
+   types are also possible.
  - The object orientation of Seed7 allows multiple dispatch. That
    means that a function or method is connected to more than one type.
  - Seed7 is a syntactically and semantically extensible language:
@@ -122,6 +122,31 @@ programs.
 If you send me patches (I would be very pleased), it is assumed that you
 accept license changes from GPL to LGPL for parts of code which need to be
 in the runtime library to support compilation of Seed7 programs.
+
+
+Is Seed7 a descendant of Pascal?
+================================
+
+No, not really. The keywords and statements remind people of Pascal,
+but behind the surface there is much difference. Don't judge a book
+by its cover. Seed7 is neither limited to Pascal's features, nor is it
+implemented like Pascal. Notable differences are:
+
+  Feature            | Standard Pascal             | Seed7
+  -------------------+-----------------------------+-----------------------------
+  syntax             | hard-coded in the compiler  | defined in a library
+  statements         | hard-coded in the compiler  | defined in a library
+  operators          | hard-coded in the compiler  | defined in a library
+  array              | hard-coded in the compiler  | defined as abstract data type
+  record / struct    | hard-coded in the compiler  | defined as abstract data type
+  hash table         | not in the standard library | defined as abstract data type
+  compiler target    | machine code or P-code      | C, compiled to machine code afterwards
+  template           | none                        | function with type parameters
+  abstract data type | none                        | function with type result
+  object orientation | none                        | interfaces and multiple dispatch
+
+Except for LL(1) parsing, no technology used by classical Pascal
+compilers could be used to implement Seed7.
 
 
 What kind of programs can be written in Seed7?
@@ -396,26 +421,26 @@ The following options are recognized by hi:
 
   -a   Analyze only and suppress the execution phase.
   -dx  Set compile-time trace level to x. Where x is a string consisting
-         of the following characters:
-           a Trace primitive actions
-           c Do action check
-           d Trace dynamic calls
-           e Trace exceptions and handlers
-           h Trace heap size (in combination with 'a')
+       of the following characters:
+         a Trace primitive actions
+         c Do action check
+         d Trace dynamic calls
+         e Trace exceptions and handlers
+         h Trace heap size (in combination with 'a')
   -d   Equivalent to -da
   -i   Show the identifier table after the analyzing phase.
   -m   Use less memory during the analyzing phase.
-         If there is a "No more memory" error you can try this
-         option.
+       If there is a "No more memory" error you can try this
+       option.
   -q   Compile quiet. Line and file information and compilation
-         statistics are suppressed.
+       statistics are suppressed.
   -tx  Set runtime trace level to x. Where x is a string consisting
-         of the following characters:
-           a Trace primitive actions
-           c Do action check
-           d Trace dynamic calls
-           e Trace exceptions and handlers
-           h Trace heap size (in combination with 'a')
+       of the following characters:
+         a Trace primitive actions
+         c Do action check
+         d Trace dynamic calls
+         e Trace exceptions and handlers
+         h Trace heap size (in combination with 'a')
   -t   Equivalent to -ta
   -v   Compile verbose. Write line numbers while analyzing.
   -x   Execute even when the program contains errors.
@@ -438,18 +463,18 @@ program is compiled and linked afterwards. The Seed7 compiler can be called with
 
 Possible options are
 
-  -O and -O2 tell the C compiler to optimize.
-  -g tells the C compiler to generate an executable with debug information.
-                This way the debugger will refer to Seed7 source files and line numbers.
-                To generate debug information which refers to the temporary C program
-                the option -g-debug_c can be used.
+  -O  and -O2 tell the C compiler to optimize.
+  -g  tells the C compiler to generate an executable with debug information.
+      This way the debugger will refer to Seed7 source files and line numbers.
+      To generate debug information which refers to the temporary C program
+      the option -g-debug_c can be used.
   -te generates code to trace exceptions. This option works in the same way
-                 as the interpreter option -te: Every exception will write a
-                 message to stdout and the user will be ask to continue (with enter) or
-                 to terminate (with * ).
-  -r suppresses the generation of range checks for strings and arrays.
-  -e generates code which sends a signal, when an uncaught exception occurs.
-                This option allows debuggers to handle uncaught Seed7 exceptions.
+      as the interpreter option -te: Every exception will write a
+      message to stdout and the user will be ask to continue (with enter) or
+      to terminate (with * ).
+  -r  suppresses the generation of range checks for strings and arrays.
+  -e  generates code which sends a signal, when an uncaught exception occurs.
+      This option allows debuggers to handle uncaught Seed7 exceptions.
 
 
 What are the reserved words of Seed7?
@@ -488,53 +513,53 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
 
  1. The C if-statement
 
-      if (condition)
-        statement;
+    if (condition)
+      statement;
 
-    allows just one statement after the condition. By using the compound statement
-    it is possible to have several statements after the condition
+  allows just one statement after the condition. By using the compound statement
+  it is possible to have several statements after the condition
 
-      if (condition) {
-        statement1;
-        statement2;
-      }
+    if (condition) {
+      statement1;
+      statement2;
+    }
 
-    Adding or removing a statement in the second if-statement is always possible.
-    In the first if-statement you must add braces if you add a statement otherwise
-    you get an undesired effect. Adding statements to an if-statement is quite common.
+  Adding or removing a statement in the second if-statement is always possible.
+  In the first if-statement you must add braces if you add a statement otherwise
+  you get an undesired effect. Adding statements to an if-statement is quite common.
 
-    Since both forms are legal and adding a statement to the first form can lead to
-    errors Seed7 closes this possible source of errors with its if-statement:
+  Since both forms are legal and adding a statement to the first form can lead to
+  errors Seed7 closes this possible source of errors with its if-statement:
 
-      if condition then
-        statement
-      end if;
+    if condition then
+      statement
+    end if;
 
  2. The following switch statement is formally correct but probably wrong
 
-      switch (number) {
-        case 1:
-        case 2:
-          result = 5;
-        case 3:
-        case 4:
-          result = 8;
-          break;
-        default:
-          result = 0;
-      }
+    switch (number) {
+      case 1:
+      case 2:
+        result = 5;
+      case 3:
+      case 4:
+        result = 8;
+        break;
+      default:
+        result = 0;
+    }
 
-    Forgetting break statements in a switch is another possible source of errors which
-    is avoided in Seed7:
+  Forgetting break statements in a switch is another possible source of errors which
+  is avoided in Seed7:
 
-      case number of
-        when {1, 2}:
-          result = 5;
-        when {3, 4}:
-          result = 8;
-        otherwise:
-          result = 0;
-      end case;
+    case number of
+      when {1, 2}:
+        result = 5;
+      when {3, 4}:
+        result = 8;
+      otherwise:
+        result = 0;
+    end case;
 
 
 Isn't the code unreadable if everybody invents new statements?
@@ -807,9 +832,9 @@ to and from UTF-32. It is possible to read and write files with Latin-1,
 UTF-8 and UTF-16 encoding. Functions to deal with codepages and functions
 to convert between different Unicode encodings are also available.
 
-Seed7 source code allows Unicode in char literals, string literals, block comments and line comments.
-Interpreter and compiler assume that a Seed7 program is written with UTF-8
-encoding. Therefore a program editor with UTF-8 encoding should be used.
+Seed7 source code allows Unicode in char literals, string literals, block comments
+and line comments. Interpreter and compiler assume that a Seed7 program is written
+with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
 
 
 Is there a garbage collection?
@@ -838,7 +863,8 @@ Is Seed7 object oriented?
 =========================
 
 Yes, but object orientation is organized different compared to other object
-oriented languages. Chapter 7 (Object orientation) of the manual
+oriented languages. In a nutshell: It is based on interfaces and allows
+multiple dispatch. Chapter 7 (Object orientation) of the manual
 contains a detailed description of the Seed7 object orientation.
 
 An example of an object oriented type is 'file'. A 'file' describes references to
@@ -875,6 +901,31 @@ static types to decide. Dynamic dispatch uses the implementation type, which is 
 known at runtime, to decide. Besides this difference overloading resolution and
 dynamic dispatch both use the same approach to do the work: The types and the access
 rights of all parameters are used in the decision process.
+
+
+What is an abstract data type?
+==============================
+
+An abstract data type defines, like every other type, a set of funtions to handle data.
+An abstract data type leaves, like an interface type from OO, the details of the
+data representation open. The difference between the two is:
+
+ - An interface type is resolved to an implementation type at runtime.
+ - An abstract data type is resolved to a concrete type at compile-time,
+   when it is used.
+
+Usually an abstract data type uses parameters to resolve to a concrete type.
+Examples of abstract data types are arrays, structs and hashes. An abstract array
+type needs element type and index type as parameters. E.g.:
+
+  array [integer] string
+
+Arrays are present in many programming languages, but they are usually hard-coded
+into the compiler / interpreter. Seed7 does not follow this direction. Instead it
+introduces abstract data types as common concept behind arrays, structs, hashes
+and other types. Like templates abstract data types are implemented with functions
+that are executed at compile-time. In contrast to templates abstract data types return
+a type as result.
 
 
 What is multiple dispatch?
@@ -1213,7 +1264,7 @@ example typeof(num).
 Are there generics / templates?
 ===============================
 
-The generics (templates) of Ada, C++ and Java use a special
+The generics (templates) of Ada, C++ and Java use special
 syntax. In Seed7 you get this functionality for free without
 special syntax or other magic.
 
