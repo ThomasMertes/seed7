@@ -159,7 +159,8 @@ const string: chkstr_output is "\n\
   \join(string) works correct.\n\
   \String assignment works correct.\n\
   \String append works correct.\n\
-  \@:= for strings works correct.\n";
+  \@:= for strings works correct.\n\
+  \String for loops work correct.\n";
 
 const string: chkprc_output is "\n\
   \If statements work correct.\n\

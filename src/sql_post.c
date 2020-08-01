@@ -94,6 +94,7 @@ typedef struct {
 typedef struct {
     uintType     usage_count;
     sqlFuncType  sqlFunc;
+    intType      driver;
     PGconn      *connection;
     boolType     integerDatetimes;
     uintType     nextStmtNum;
@@ -455,7 +456,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       PQclear(preparedStmt->execute_result);
     } /* if */
     deallocate_result = PQdeallocate(preparedStmt->connection, preparedStmt->stmtName);
-    if (deallocate_result == NULL) {
+    if (unlikely(deallocate_result == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       if (PQresultStatus(deallocate_result) != PGRES_COMMAND_OK) {
@@ -581,7 +582,12 @@ static const char *nameOfBufferType (Oid buffer_type)
 
 
 
-static striType processBindVarsInStatement (const const_striType sqlStatementStri,
+/**
+ *  Process the bind variables in a statement string.
+ *  Literals and comments are processed to avoid the misinterpretation
+ *  of question marks (?).
+ */
+static striType processStatementStri (const const_striType sqlStatementStri,
     errInfoType *err_info)
 
   {
@@ -591,7 +597,9 @@ static striType processBindVarsInStatement (const const_striType sqlStatementStr
     unsigned int varNum = MIN_BIND_VAR_NUM;
     striType processed;
 
-  /* processBindVarsInStatement */
+  /* processStatementStri */
+    logFunction(printf("processStatementStri(\"%s\")\n",
+                       striAsUnquotedCStri(sqlStatementStri)););
     if (unlikely(sqlStatementStri->size > MAX_STRI_LEN / MAX_BIND_VAR_SIZE ||
                  !ALLOC_STRI_SIZE_OK(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE))) {
       *err_info = MEMORY_ERROR;
@@ -599,60 +607,73 @@ static striType processBindVarsInStatement (const const_striType sqlStatementStr
     } else {
       while (pos < sqlStatementStri->size && *err_info == OKAY_NO_ERROR) {
         ch = sqlStatementStri->mem[pos];
-        /* printf("%c", ch); */
         if (ch == '?') {
           if (varNum > MAX_BIND_VAR_NUM) {
-            logError(printf("processBindVarsInStatement: Too many variables\n"););
+            logError(printf("processStatementStri: Too many variables\n"););
             *err_info = RANGE_ERROR;
             FREE_STRI(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
             processed = NULL;
           } else {
-            processed->mem[destPos] = '$';
-            destPos++;
+            processed->mem[destPos++] = '$';
             if (varNum >= 1000) {
-              processed->mem[destPos] = '0' + ( varNum / 1000);
-              destPos++;
+              processed->mem[destPos++] = '0' + ( varNum / 1000);
             } /* if */
             if (varNum >= 100) {
-              processed->mem[destPos] = '0' + ((varNum /  100) % 10);
-              destPos++;
+              processed->mem[destPos++] = '0' + ((varNum /  100) % 10);
             } /* if */
             if (varNum >= 10) {
-              processed->mem[destPos] = '0' + ((varNum /   10) % 10);
-              destPos++;
+              processed->mem[destPos++] = '0' + ((varNum /   10) % 10);
             } /* if */
-            processed->mem[destPos] = '0' + ( varNum         % 10);
-            destPos++;
+            processed->mem[destPos++] = '0' + ( varNum         % 10);
             varNum++;
           } /* if */
           pos++;
         } else if (ch == '\'') {
-          processed->mem[destPos] = '\'';
-          destPos++;
+          processed->mem[destPos++] = '\'';
           pos++;
           while (pos < sqlStatementStri->size && (ch = sqlStatementStri->mem[pos]) != '\'') {
-            /* printf("%c", ch); */
-            processed->mem[destPos] = ch;
-            destPos++;
+            processed->mem[destPos++] = ch;
             pos++;
           } /* while */
           if (pos < sqlStatementStri->size) {
-            /* printf("%c", ch); */
-            processed->mem[destPos] = '\'';
-            destPos++;
+            processed->mem[destPos++] = '\'';
             pos++;
           } /* if */
+        } else if (ch == '/') {
+          pos++;
+          if (pos >= sqlStatementStri->size || sqlStatementStri->mem[pos] != '*') {
+            processed->mem[destPos++] = ch;
+          } else {
+            pos++;
+            do {
+              while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '*') {
+                pos++;
+              } /* while */
+              pos++;
+            } while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '/');
+            pos++;
+          } /* if */
+        } else if (ch == '-') {
+          pos++;
+          if (pos >= sqlStatementStri->size || sqlStatementStri->mem[pos] != '-') {
+            processed->mem[destPos++] = ch;
+          } else {
+            pos++;
+            while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '\n') {
+              pos++;
+            } /* while */
+          } /* if */
         } else {
-          processed->mem[destPos] = ch;
-          destPos++;
+          processed->mem[destPos++] = ch;
           pos++;
         } /* if */
       } /* while */
       processed->size = destPos;
-      /* printf("\n"); */
     } /* if */
+    logFunction(printf("processStatementStri --> \"%s\"\n",
+                       striAsUnquotedCStri(processed)););
     return processed;
-  } /* processBindVarsInStatement */
+  } /* processStatementStri */
 
 
 
@@ -749,18 +770,27 @@ static errInfoType setupParameters (PGresult *describe_result, preparedStmtType 
   /* setupParameters */
     logFunction(printf("setupParameters\n"););
     num_params = PQnparams(describe_result);
-    if (num_params < 0) {
+    if (unlikely(num_params < 0)) {
       dbInconsistent("setupParameters", "PQnparams");
       logError(printf("setupParameters: PQnparams returns negative number: %d\n",
                       num_params););
       err_info = DATABASE_ERROR;
+    } else if (num_params == 0) {
+      /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
+      preparedStmt->param_array_size = 0;
+      preparedStmt->param_array = NULL;
+      preparedStmt->paramTypes = NULL;
+      preparedStmt->paramValues = NULL;
+      preparedStmt->paramLengths = NULL;
+      preparedStmt->paramFormats = NULL;
     } else {
       preparedStmt->param_array_size = (memSizeType) num_params;
-      if (!ALLOC_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size) ||
+      if (unlikely(
+          !ALLOC_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramValues, cstriType, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramLengths, int, preparedStmt->param_array_size) ||
-          !ALLOC_TABLE(preparedStmt->paramFormats, int, preparedStmt->param_array_size)) {
+          !ALLOC_TABLE(preparedStmt->paramFormats, int, preparedStmt->param_array_size))) {
         if (preparedStmt->param_array != NULL) {
           FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
         } /* if */
@@ -840,7 +870,7 @@ static errInfoType setupParametersAndResult (preparedStmtType preparedStmt)
   /* setupParametersAndResult */
     logFunction(printf("setupParametersAndResult\n"););
     describe_result = PQdescribePrepared(preparedStmt->connection, preparedStmt->stmtName);
-    if (describe_result == NULL) {
+    if (unlikely(describe_result == NULL)) {
       err_info = MEMORY_ERROR;
     } else {
       if (PQresultStatus(describe_result) != PGRES_COMMAND_OK) {
@@ -1246,6 +1276,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     cstriType decimalNumber;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1259,32 +1290,33 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(int16Type *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(int16Type *) param->buffer =
               (int16Type) htons((uint16Type) bigToInt16(value, &err_info));
           break;
         case INT4OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(int32Type *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(int32Type *) param->buffer =
               (int32Type) htonl((uint32Type) bigToInt32(value, &err_info));
           break;
         case INT8OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(int64Type *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(int64Type *) param->buffer =
               (int64Type) htonll((uint64Type) bigToInt64(value, &err_info));
           break;
         case FLOAT4OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(float *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(float *) param->buffer =
               htonf((float) bigIntToDouble(value));
           break;
         case FLOAT8OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(double *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(double *) param->buffer =
               htond(bigIntToDouble(value));
           break;
         case NUMERICOID:
@@ -1293,11 +1325,12 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           decimalNumber = (cstriType) bigIntToDecimal(value, &length, &err_info);
           if (likely(decimalNumber != NULL)) {
             if (unlikely(length > INT_MAX)) {
+              /* It is not possible to cast length to int. */
               free(decimalNumber);
               err_info = MEMORY_ERROR;
             } else {
-              free(preparedStmt->param_array[pos - 1].buffer);
-              preparedStmt->param_array[pos - 1].buffer = decimalNumber;
+              free(param->buffer);
+              param->buffer = decimalNumber;
               preparedStmt->paramValues[pos - 1] = decimalNumber;
               preparedStmt->paramLengths[pos - 1] = (int) length;
               preparedStmt->paramFormats[pos - 1] = 0;
@@ -1315,7 +1348,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBigInt */
@@ -1327,6 +1360,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     cstriType decimalNumber;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1341,17 +1375,18 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(float *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(float *) param->buffer =
               htonf((float) bigRatToDouble(numerator, denominator));
           break;
         case FLOAT8OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(double *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(double *) param->buffer =
               htond(bigRatToDouble(numerator, denominator));
           break;
         case NUMERICOID:
@@ -1359,11 +1394,12 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
               DEFAULT_DECIMAL_SCALE, &length, &err_info);
           if (likely(decimalNumber != NULL)) {
             if (unlikely(length > INT_MAX)) {
+              /* It is not possible to cast length to int. */
               free(decimalNumber);
               err_info = MEMORY_ERROR;
             } else {
-              free(preparedStmt->param_array[pos - 1].buffer);
-              preparedStmt->param_array[pos - 1].buffer = decimalNumber;
+              free(param->buffer);
+              param->buffer = decimalNumber;
               preparedStmt->paramValues[pos - 1] = decimalNumber;
               preparedStmt->paramLengths[pos - 1] = (int) length;
               preparedStmt->paramFormats[pos - 1] = 0;
@@ -1381,7 +1417,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBigRat */
@@ -1392,6 +1428,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBool */
@@ -1403,35 +1440,35 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(int16Type *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(int16Type *) param->buffer =
               (int16Type) htons((uint16Type) value);
           break;
         case INT4OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(int32Type *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(int32Type *) param->buffer =
               (int32Type) htonl((uint32Type) value);
           break;
         case INT8OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(int64Type *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(int64Type *) param->buffer =
               (int64Type) htonll((uint64Type) value);
           break;
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
-          free(preparedStmt->param_array[pos - 1].buffer);
-          if (unlikely((preparedStmt->param_array[pos - 1].buffer =
-                        (cstriType) malloc(2)) == NULL)) {
+          free(param->buffer);
+          if (unlikely((param->buffer = (cstriType) malloc(2)) == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
-            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-            ((char *) preparedStmt->paramValues[pos - 1])[0] = (char) ('0' + value);
-            ((char *) preparedStmt->paramValues[pos - 1])[1] = '\0';
+            preparedStmt->paramValues[pos - 1] = param->buffer;
+            param->buffer[0] = (char) ('0' + value);
+            param->buffer[1] = '\0';
             preparedStmt->paramLengths[pos - 1] = 1;
             preparedStmt->paramFormats[pos - 1] = 0;
           } /* if */
@@ -1447,7 +1484,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBool */
@@ -1458,6 +1495,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBStri */
@@ -1469,23 +1507,25 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case BYTEAOID:
         case BPCHAROID:
         case VARCHAROID:
-          if (unlikely(bstri->size > ULONG_MAX)) {
+          if (unlikely(bstri->size > INT_MAX)) {
+            /* It is not possible to cast bstri->size to int. */
             err_info = MEMORY_ERROR;
           } else {
-            free(preparedStmt->param_array[pos - 1].buffer);
-            if (unlikely((preparedStmt->param_array[pos - 1].buffer =
-                          (cstriType) malloc(bstri->size + NULL_TERMINATION_LEN)) == NULL)) {
+            free(param->buffer);
+            if (unlikely((param->buffer = (cstriType) malloc(
+                              bstri->size + NULL_TERMINATION_LEN)) == NULL)) {
               err_info = MEMORY_ERROR;
             } else {
-              preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-              memcpy(preparedStmt->paramValues[pos - 1], bstri->mem, bstri->size);
-              preparedStmt->paramValues[pos - 1][bstri->size] = '\0';
+              preparedStmt->paramValues[pos - 1] = param->buffer;
+              memcpy(param->buffer, bstri->mem, bstri->size);
+              param->buffer[bstri->size] = '\0';
               preparedStmt->paramLengths[pos - 1] = (int) bstri->size;
               preparedStmt->paramFormats[pos - 1] = 1;
             } /* if */
@@ -1502,7 +1542,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBStri */
@@ -1515,6 +1555,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     int64Type microsecDuration;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1538,11 +1579,12 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INTERVALOID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+          preparedStmt->paramValues[pos - 1] = param->buffer;
           microsecDuration = ((((int64Type) hour) * 60 +
                                 (int64Type) minute) * 60 +
                                 (int64Type) second) * 1000000 +
@@ -1553,15 +1595,15 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+            *(int64Type *) param->buffer =
                 (int64Type) htonll((uint64Type) microsecDuration);
           } else {
-           *(double *) preparedStmt->paramValues[pos - 1] =
+            *(double *) param->buffer =
                 htond((double) microsecDuration / 1000000.0);
           } /* if */
-          *(int32Type *) &preparedStmt->paramValues[pos - 1][8] =
+          *(int32Type *) &param->buffer[8] =
               (int32Type) htonl((uint32Type) day);
-          *(int32Type *) &preparedStmt->paramValues[pos - 1][12] =
+          *(int32Type *) &param->buffer[12] =
               (int32Type) htonl((uint32Type) (12 * year + month));
           break;
         default:
@@ -1575,7 +1617,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindDuration */
@@ -1586,6 +1628,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindFloat */
@@ -1597,16 +1640,17 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(float *) preparedStmt->paramValues[pos - 1] = htonf((float) value);
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(float *) param->buffer = htonf((float) value);
           break;
         case FLOAT8OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(double *) preparedStmt->paramValues[pos - 1] = htond(value);
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(double *) param->buffer = htond(value);
           break;
         default:
           logError(printf("sqlBindFloat: Parameter " FMT_D " has the unknown type %s.\n",
@@ -1619,7 +1663,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindFloat */
@@ -1630,6 +1674,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindInt */
@@ -1641,6 +1686,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
@@ -1651,8 +1697,8 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
                             pos, value));
             err_info = RANGE_ERROR;
           } else {
-            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-            *(int16Type *) preparedStmt->paramValues[pos - 1] =
+            preparedStmt->paramValues[pos - 1] = param->buffer;
+            *(int16Type *) param->buffer =
                 (int16Type) htons((uint16Type) value);
           } /* if */
           break;
@@ -1663,35 +1709,35 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
                             pos, value));
             err_info = RANGE_ERROR;
           } else {
-            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-            *(int32Type *) preparedStmt->paramValues[pos - 1] =
+            preparedStmt->paramValues[pos - 1] = param->buffer;
+            *(int32Type *) param->buffer =
                 (int32Type) htonl((uint32Type) value);
           } /* if */
           break;
         case INT8OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(int64Type *) preparedStmt->paramValues[pos - 1] =
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(int64Type *) param->buffer =
               (int64Type) htonll((uint64Type) value);
           break;
         case FLOAT4OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(float *) preparedStmt->paramValues[pos - 1] = htonf((float) value);
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(float *) param->buffer = htonf((float) value);
           break;
         case FLOAT8OID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
-          *(double *) preparedStmt->paramValues[pos - 1] = htond((double) value);
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          *(double *) param->buffer = htond((double) value);
           break;
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
-          free(preparedStmt->param_array[pos - 1].buffer);
-          if (unlikely((preparedStmt->param_array[pos - 1].buffer =
-                        (cstriType) malloc(INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)) == NULL)) {
+          free(param->buffer);
+          if (unlikely((param->buffer = (cstriType) malloc(
+                            INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)) == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
-            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+            preparedStmt->paramValues[pos - 1] = param->buffer;
             preparedStmt->paramLengths[pos - 1] =
-                (int) sprintf(preparedStmt->paramValues[pos - 1], FMT_D, value);
+                (int) sprintf(param->buffer, FMT_D, value);
             preparedStmt->paramFormats[pos - 1] = 0;
           } /* if */
           break;
@@ -1706,7 +1752,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindInt */
@@ -1742,6 +1788,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     cstriType stri8;
     cstriType resized_stri8;
     memSizeType length;
@@ -1756,6 +1803,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
@@ -1772,6 +1820,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           if (unlikely(stri8 == NULL)) {
             err_info = MEMORY_ERROR;
           } else if (unlikely(length > INT_MAX)) {
+            /* It is not possible to cast length to int. */
             free(stri8);
             err_info = MEMORY_ERROR;
           } else {
@@ -1779,8 +1828,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
             if (likely(resized_stri8 != NULL)) {
               stri8 = resized_stri8;
             } /* if */
-            free(preparedStmt->param_array[pos - 1].buffer);
-            preparedStmt->param_array[pos - 1].buffer = stri8;
+            free(param->buffer);
+            param->buffer = stri8;
             preparedStmt->paramValues[pos - 1] = stri8;
             preparedStmt->paramLengths[pos - 1] = (int) length;
             preparedStmt->paramFormats[pos - 1] = 1;
@@ -1790,10 +1839,10 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           if (unlikely(stri->size > INT_MAX)) {
             err_info = MEMORY_ERROR;
           } else {
-            free(preparedStmt->param_array[pos - 1].buffer);
-            if (likely((preparedStmt->param_array[pos - 1].buffer =
-                          stri_to_cstri(stri, &err_info)) != NULL)) {
-              preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+            free(param->buffer);
+            if (likely((param->buffer =
+                            stri_to_cstri(stri, &err_info)) != NULL)) {
+              preparedStmt->paramValues[pos - 1] = param->buffer;
               preparedStmt->paramLengths[pos - 1] = (int) stri->size;
               preparedStmt->paramFormats[pos - 1] = 1;
             } /* if */
@@ -1810,7 +1859,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindStri */
@@ -1824,6 +1873,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    bindDataType param;
     int64Type timestamp;
     int32Type zone;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1849,19 +1899,20 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
+      param = &preparedStmt->param_array[pos - 1];
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case DATEOID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+          preparedStmt->paramValues[pos - 1] = param->buffer;
           timestamp = timToTimestamp(year, month, day, 0, 0, 0, 0, 0);
           timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) / (24 * 60 * 60);
           /* printf("DATEOID timestamp: " FMT_D64 "\n", timestamp); */
-          *(int32Type *) preparedStmt->paramValues[pos - 1] =
+          *(int32Type *) param->buffer =
               (int32Type) htonl((uint32Type) timestamp);
           break;
         case TIMEOID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+          preparedStmt->paramValues[pos - 1] = param->buffer;
           timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
                                      micro_second, 0);
           /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
@@ -1873,15 +1924,15 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+            *(int64Type *) param->buffer =
                 (int64Type) htonll((uint64Type) timestamp);
           } else {
-            *(double *) preparedStmt->paramValues[pos - 1] =
+            *(double *) param->buffer =
                 htond((double) timestamp / 1000000.0);
           } /* if */
           break;
         case TIMETZOID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+          preparedStmt->paramValues[pos - 1] = param->buffer;
           timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
                                      micro_second, 0);
           /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
@@ -1893,18 +1944,18 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+            *(int64Type *) param->buffer =
                 (int64Type) htonll((uint64Type) timestamp);
           } else {
-            *(double *) preparedStmt->paramValues[pos - 1] =
+            *(double *) param->buffer =
                 htond((double) timestamp / 1000000.0);
           } /* if */
           /* printf("zone: " FMT_D32 "\n", (int32Type) (-time_zone * 60)); */
           zone = (int32Type) htonl((uint32Type) (-time_zone * 60));
-          *(int64Type *) &preparedStmt->paramValues[pos - 1][8] = zone;
+          *(int64Type *) &param->buffer[8] = zone;
           break;
         case TIMESTAMPOID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+          preparedStmt->paramValues[pos - 1] = param->buffer;
           timestamp = timToTimestamp(year, month, day, hour, minute, second,
                                      micro_second, 0);
           /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
@@ -1916,15 +1967,15 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+            *(int64Type *) param->buffer =
                 (int64Type) htonll((uint64Type) timestamp);
           } else {
-            *(double *) preparedStmt->paramValues[pos - 1] =
+            *(double *) param->buffer =
                 htond((double) timestamp / 1000000.0);
           } /* if */
           break;
         case TIMESTAMPTZOID:
-          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+          preparedStmt->paramValues[pos - 1] = param->buffer;
           timestamp = timToTimestamp(year, month, day, hour, minute, second,
                                      micro_second, time_zone);
           /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
@@ -1936,10 +1987,10 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+            *(int64Type *) param->buffer =
                 (int64Type) htonll((uint64Type) timestamp);
           } else {
-            *(double *) preparedStmt->paramValues[pos - 1] =
+            *(double *) param->buffer =
                 htond((double) timestamp / 1000000.0);
           } /* if */
           break;
@@ -1954,7 +2005,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       } else {
         preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
+        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindTime */
@@ -1976,6 +2027,7 @@ static void sqlClose (databaseType database)
     } /* if */
     logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
+
 
 
 static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
@@ -2547,6 +2599,15 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
+            case INT2OID:
+              columnValue = (floatType) (int16Type) ntohs(*(uint16Type *) buffer);
+              break;
+            case INT4OID:
+              columnValue = (floatType) (int32Type) ntohl(*(uint32Type *) buffer);
+              break;
+            case INT8OID:
+              columnValue = (floatType) (int64Type) ntohll(*(uint64Type *) buffer);
+              break;
             case FLOAT4OID:
               columnValue = ntohf(*(float *) buffer);
               break;
@@ -3106,7 +3167,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      statementStri = processBindVarsInStatement(sqlStatementStri, &err_info);
+      statementStri = processStatementStri(sqlStatementStri, &err_info);
       if (statementStri == NULL) {
         preparedStmt = NULL;
       } else {
@@ -3114,7 +3175,8 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
         if (unlikely(query == NULL)) {
           preparedStmt = NULL;
         } else {
-          if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+          if (unlikely(!ALLOC_RECORD(preparedStmt, preparedStmtRecord,
+                                     count.prepared_stmt))) {
             err_info = MEMORY_ERROR;
           } else {
             memset(preparedStmt, 0, sizeof(preparedStmtRecord));
@@ -3122,7 +3184,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
             db->nextStmtNum++;
             sprintf(preparedStmt->stmtName, "prepstat_" FMT_U, preparedStmt->stmtNum);
             prepare_result = PQprepare(db->connection, preparedStmt->stmtName, query, 0, NULL);
-            if (prepare_result == NULL) {
+            if (unlikely(prepare_result == NULL)) {
               FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
               err_info = MEMORY_ERROR;
               preparedStmt = NULL;
@@ -3325,7 +3387,7 @@ databaseType sqlOpenPost (const const_striType dbName,
             db.connection = PQsetdbLogin(host, NULL /* pgport */,
                 NULL /* pgoptions */, NULL /* pgtty */,
                 databaseName, user8, password8);
-            if (db.connection == NULL) {
+            if (unlikely(db.connection == NULL)) {
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
                               "\"%s\", \"%s\", \"%s\") returns NULL\n",
                               host, databaseName, user8, password8););

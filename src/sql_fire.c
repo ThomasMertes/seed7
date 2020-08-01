@@ -61,6 +61,7 @@
 typedef struct {
     uintType      usage_count;
     sqlFuncType   sqlFunc;
+    intType       driver;
     isc_db_handle connection;
     isc_tr_handle trans_handle;
   } dbRecord, *dbType;
@@ -83,6 +84,15 @@ typedef struct {
     boolType        fetchFinished;
   } preparedStmtRecord, *preparedStmtType;
 
+typedef struct {
+    memSizeType fileName8Length;
+    cstriType fileName8;
+    memSizeType user8Length;
+    const_cstriType user8;
+    memSizeType password8Length;
+    const_cstriType password8;
+} loginRecord, *loginType;
+
 static sqlFuncType sqlFunc = NULL;
 
 static char isc_tbp[] = {isc_tpb_version3, isc_tpb_write,
@@ -96,115 +106,123 @@ static char type_item[] = {isc_info_sql_stmt_type};
 
 #ifdef FIRE_DLL
 
-typedef ISC_STATUS (*tp_isc_attach_database) (ISC_STATUS *status_vector,
-                                              short db_name_length,
-                                              char *db_name,
-                                              isc_db_handle *db_handle,
-                                              short parm_buffer_length,
-                                              char *parm_buffer);
-typedef ISC_STATUS (*tp_isc_blob_info) (ISC_STATUS *status_vector,
-                                        isc_blob_handle *blob_handle,
-                                        short item_list_buffer_length,
-                                        char *item_list_buffer,
-                                        short result_buffer_length,
-                                        char *result_buffer);
-typedef ISC_STATUS (*tp_isc_close_blob) (ISC_STATUS *status_vector,
-                                         isc_blob_handle *blob_handle);
-typedef ISC_STATUS (*tp_isc_commit_transaction) (ISC_STATUS *status_vector,
-                                                 isc_tr_handle *trans_handle);
-typedef ISC_STATUS (*tp_isc_create_blob2) (ISC_STATUS *status_vector,
-                                           isc_db_handle *db_handle,
-                                           isc_tr_handle *trans_handle,
-                                           isc_blob_handle *blob_handle,
-                                           ISC_QUAD *blob_id,
-                                           short bpb_length,
-                                           char *bpb_address);
-typedef ISC_STATUS (*tp_isc_create_database) (ISC_STATUS *status_vector,
-                                              short db_name_length,
-                                              char *db_name,
-                                              isc_db_handle *db_handle,
-                                              short parm_buffer_length,
-                                              char *parm_buffer,
-                                              short db_type);
-typedef void (*tp_isc_decode_sql_date) (ISC_DATE *ib_date,
-                                        void *tm_date);
-typedef void (*tp_isc_decode_sql_time) (ISC_TIME *ib_time,
-                                        void *tm_date);
-typedef void (*tp_isc_decode_timestamp) (ISC_TIMESTAMP *ib_date,
-                                         void *tm_date);
-typedef ISC_STATUS (*tp_isc_detach_database) (ISC_STATUS *status_vector,
-                                              isc_db_handle *db_handle);
-typedef ISC_STATUS (*tp_isc_dsql_allocate_statement) (ISC_STATUS *status_vector,
+#ifndef ISC_EXPORT
+#if defined(_WIN32)
+#define ISC_EXPORT __stdcall
+#else
+#define ISC_EXPORT
+#endif
+#endif
+
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_attach_database) (ISC_STATUS *status_vector,
+                                                         short db_name_length,
+                                                         char *db_name,
+                                                         isc_db_handle *db_handle,
+                                                         short parm_buffer_length,
+                                                         char *parm_buffer);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_blob_info) (ISC_STATUS *status_vector,
+                                                   isc_blob_handle *blob_handle,
+                                                   short item_list_buffer_length,
+                                                   char *item_list_buffer,
+                                                   short result_buffer_length,
+                                                   char *result_buffer);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_close_blob) (ISC_STATUS *status_vector,
+                                                    isc_blob_handle *blob_handle);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_commit_transaction) (ISC_STATUS *status_vector,
+                                                            isc_tr_handle *trans_handle);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_create_blob2) (ISC_STATUS *status_vector,
                                                       isc_db_handle *db_handle,
-                                                      isc_stmt_handle *stmt_handle);
-typedef ISC_STATUS (*tp_isc_dsql_describe) (ISC_STATUS *status_vector,
-                                            isc_stmt_handle *stmt_handle,
-                                            unsigned short da_version,
-                                            XSQLDA *xsqlda);
-typedef ISC_STATUS (*tp_isc_dsql_describe_bind) (ISC_STATUS *status_vector,
-                                                 isc_stmt_handle *stmt_handle,
-                                                 unsigned short da_version,
-                                                 XSQLDA *xsqlda);
-typedef ISC_STATUS (*tp_isc_dsql_execute2) (ISC_STATUS *status_vector,
-                                            isc_tr_handle *trans_handle,
-                                            isc_stmt_handle *stmt_handle,
-                                            unsigned short da_version,
-                                            XSQLDA *in_xsqlda,
-                                            XSQLDA *out_xsqlda);
-typedef ISC_STATUS (*tp_isc_dsql_fetch) (ISC_STATUS *status_vector,
-                                         isc_stmt_handle *stmt_handle,
-                                         unsigned short da_version,
-                                         XSQLDA *xsqlda);
-typedef ISC_STATUS (*tp_isc_dsql_free_statement) (ISC_STATUS *status_vector,
-                                                  isc_stmt_handle *stmt_handle,
-                                                  unsigned short option);
-typedef ISC_STATUS (*tp_isc_dsql_prepare) (ISC_STATUS *status_vector,
-                                           isc_tr_handle *trans_handle,
-                                           isc_stmt_handle *stmt_handle,
-                                           unsigned short length,
-                                           char *statement,
-                                           unsigned short dialect,
-                                           XSQLDA *xsqlda);
-typedef ISC_STATUS (*tp_isc_dsql_sql_info) (ISC_STATUS *status_vector,
-                                            isc_stmt_handle *stmt_handle,
-                                            unsigned short item_length,
-                                            char *items,
-                                            unsigned short buffer_length,
-                                            char *buffer);
-typedef void (*tp_isc_encode_sql_date) (void *tm_date,
-                                        ISC_DATE *ib_date);
-typedef void (*tp_isc_encode_sql_time) (void *tm_date,
-                                        ISC_TIME *ib_time);
-typedef void (*tp_isc_encode_timestamp) (void *tm_date,
-                                         ISC_TIMESTAMP *ib_timestamp);
-typedef ISC_STATUS (*tp_isc_get_segment) (ISC_STATUS *status_vector,
-                                          isc_blob_handle *blob_handle,
-                                          unsigned short *actual_seg_length,
-                                          unsigned short seg_buffer_length,
-                                          char *seg_buffer);
-typedef ISC_STATUS (*tp_isc_interprete) (char *buffer, ISC_STATUS **status_vector);
-typedef ISC_STATUS (*tp_isc_open_blob2) (ISC_STATUS *status_vector,
-                                         isc_db_handle *db_handle,
-                                         isc_tr_handle *trans_handle,
-                                         isc_blob_handle *blob_handle,
-                                         ISC_QUAD *blob_id,
-                                         short bpb_length,
-                                         char *bpb_address);
-typedef ISC_INT64 (*tp_isc_portable_integer) (char *buffer,
-                                              short length);
-typedef ISC_STATUS (*tp_isc_print_status) (ISC_STATUS *status_vector);
-typedef ISC_STATUS (*tp_isc_put_segment) (ISC_STATUS *status_vector,
-                                          isc_blob_handle *blob_handle,
-                                          unsigned short seg_buffer_length,
-                                          char *seg_buffer);
-typedef ISC_STATUS (*tp_isc_rollback_transaction) (ISC_STATUS *status_vector,
-                                                   isc_tr_handle *trans_handle);
-typedef ISC_STATUS (*tp_isc_start_transaction) (ISC_STATUS *status_vector,
-                                                isc_tr_handle *trans_handle,
-                                                short db_handle_count,
-                                                isc_db_handle *db_handle,
-                                                unsigned short tpb_length,
-                                                char *tpb_address);
+                                                      isc_tr_handle *trans_handle,
+                                                      isc_blob_handle *blob_handle,
+                                                      ISC_QUAD *blob_id,
+                                                      short bpb_length,
+                                                      char *bpb_address);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_create_database) (ISC_STATUS *status_vector,
+                                                         short db_name_length,
+                                                         char *db_name,
+                                                         isc_db_handle *db_handle,
+                                                         short parm_buffer_length,
+                                                         char *parm_buffer,
+                                                         short db_type);
+typedef void (ISC_EXPORT *tp_isc_decode_sql_date) (ISC_DATE *ib_date,
+                                                   void *tm_date);
+typedef void (ISC_EXPORT *tp_isc_decode_sql_time) (ISC_TIME *ib_time,
+                                                   void *tm_date);
+typedef void (ISC_EXPORT *tp_isc_decode_timestamp) (ISC_TIMESTAMP *ib_date,
+                                                    void *tm_date);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_detach_database) (ISC_STATUS *status_vector,
+                                                         isc_db_handle *db_handle);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_allocate_statement) (ISC_STATUS *status_vector,
+                                                                 isc_db_handle *db_handle,
+                                                                 isc_stmt_handle *stmt_handle);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_describe) (ISC_STATUS *status_vector,
+                                                       isc_stmt_handle *stmt_handle,
+                                                       unsigned short da_version,
+                                                       XSQLDA *xsqlda);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_describe_bind) (ISC_STATUS *status_vector,
+                                                            isc_stmt_handle *stmt_handle,
+                                                            unsigned short da_version,
+                                                            XSQLDA *xsqlda);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_execute2) (ISC_STATUS *status_vector,
+                                                       isc_tr_handle *trans_handle,
+                                                       isc_stmt_handle *stmt_handle,
+                                                       unsigned short da_version,
+                                                       XSQLDA *in_xsqlda,
+                                                       XSQLDA *out_xsqlda);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_fetch) (ISC_STATUS *status_vector,
+                                                    isc_stmt_handle *stmt_handle,
+                                                    unsigned short da_version,
+                                                    XSQLDA *xsqlda);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_free_statement) (ISC_STATUS *status_vector,
+                                                             isc_stmt_handle *stmt_handle,
+                                                             unsigned short option);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_prepare) (ISC_STATUS *status_vector,
+                                                      isc_tr_handle *trans_handle,
+                                                      isc_stmt_handle *stmt_handle,
+                                                      unsigned short length,
+                                                      char *statement,
+                                                      unsigned short dialect,
+                                                      XSQLDA *xsqlda);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_sql_info) (ISC_STATUS *status_vector,
+                                                       isc_stmt_handle *stmt_handle,
+                                                       unsigned short item_length,
+                                                       char *items,
+                                                       unsigned short buffer_length,
+                                                       char *buffer);
+typedef void (ISC_EXPORT *tp_isc_encode_sql_date) (void *tm_date,
+                                                   ISC_DATE *ib_date);
+typedef void (ISC_EXPORT *tp_isc_encode_sql_time) (void *tm_date,
+                                                   ISC_TIME *ib_time);
+typedef void (ISC_EXPORT *tp_isc_encode_timestamp) (void *tm_date,
+                                                    ISC_TIMESTAMP *ib_timestamp);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_get_segment) (ISC_STATUS *status_vector,
+                                                     isc_blob_handle *blob_handle,
+                                                     unsigned short *actual_seg_length,
+                                                     unsigned short seg_buffer_length,
+                                                     char *seg_buffer);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_interprete) (char *buffer, ISC_STATUS **status_vector);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_open_blob2) (ISC_STATUS *status_vector,
+                                                    isc_db_handle *db_handle,
+                                                    isc_tr_handle *trans_handle,
+                                                    isc_blob_handle *blob_handle,
+                                                    ISC_QUAD *blob_id,
+                                                    short bpb_length,
+                                                    char *bpb_address);
+typedef ISC_INT64 (ISC_EXPORT *tp_isc_portable_integer) (char *buffer,
+                                                         short length);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_print_status) (ISC_STATUS *status_vector);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_put_segment) (ISC_STATUS *status_vector,
+                                                     isc_blob_handle *blob_handle,
+                                                     unsigned short seg_buffer_length,
+                                                     char *seg_buffer);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_rollback_transaction) (ISC_STATUS *status_vector,
+                                                              isc_tr_handle *trans_handle);
+typedef ISC_STATUS (ISC_EXPORT *tp_isc_start_transaction) (ISC_STATUS *status_vector,
+                                                           isc_tr_handle *trans_handle,
+                                                           short db_handle_count,
+                                                           isc_db_handle *db_handle,
+                                                           unsigned short tpb_length,
+                                                           char *tpb_address);
 
 static tp_isc_attach_database         ptr_isc_attach_database;
 static tp_isc_blob_info               ptr_isc_blob_info;
@@ -594,6 +612,9 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
     logFunction(printf("setupParameters\n"););
     err_info = assign_in_sqlda(preparedStmt);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
+      preparedStmt->param_array = NULL;
+    } else if (preparedStmt->in_sqlda->sqld == 0) {
+      /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
       preparedStmt->param_array = NULL;
     } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
                                      bindDataRecord,
@@ -986,7 +1007,7 @@ static memSizeType getBlobLength (isc_blob_handle blob_handle, errInfoType *err_
       *err_info = DATABASE_ERROR;
       totalLength = 0;
     } if (unlikely(totalLength > MAX_MEMSIZETYPE)) {
-      /* TotalLength is not representable as memSizeType. */
+      /* It is not possible to cast totalLength to memSizeType. */
       /* Memory with this length cannot be allocated. */
       *err_info = MEMORY_ERROR;
       totalLength = 0;
@@ -1239,6 +1260,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     striType decimalNumber;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1252,86 +1274,101 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-        case SQL_SHORT:
-          *(int16Type *) sqlvar->sqldata = bigToInt16(value, &err_info);
-          break;
-        case SQL_LONG:
-          *(int32Type *) sqlvar->sqldata = bigToInt32(value, &err_info);
-          break;
-        case SQL_INT64:
-          /* printf("sqlBindBigInt: scale: %hd\n", sqlvar->sqlscale); */
-          if (sqlvar->sqlscale == 0) {
-            *(int64Type *) sqlvar->sqldata = bigToInt64(value, &err_info);
-          } else {
-            *(int64Type *) sqlvar->sqldata = bigIntToScaledInt64(value,
-                -sqlvar->sqlscale, &err_info);
-          } /* if */
-          break;
-        case SQL_FLOAT:
-          *(float *) sqlvar->sqldata = (float) bigIntToDouble(value);
-          break;
-        case SQL_DOUBLE:
-          *(double *) sqlvar->sqldata = bigIntToDouble(value);
-          break;
-        case SQL_TEXT:
-          decimalNumber = bigStr(value);
-          if (decimalNumber == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            if (unlikely(sqlvar->sqllen < decimalNumber->size)) {
-              logError(printf("sqlBindBigInt: Parameter " FMT_D ": "
-                              "Decimal representation of %s longer than allowed (%hd).\n",
-                              pos, striAsUnquotedCStri(decimalNumber),
-                              sqlvar->sqllen););
-              err_info = RANGE_ERROR;
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindBigInt", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindBigInt: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+          case SQL_SHORT:
+            *(int16Type *) sqlvar->sqldata = bigToInt16(value, &err_info);
+            break;
+          case SQL_LONG:
+            *(int32Type *) sqlvar->sqldata = bigToInt32(value, &err_info);
+            break;
+          case SQL_INT64:
+            /* printf("sqlBindBigInt: scale: %hd\n", sqlvar->sqlscale); */
+            if (sqlvar->sqlscale == 0) {
+              *(int64Type *) sqlvar->sqldata = bigToInt64(value, &err_info);
             } else {
-              memcpy_from_strelem((ustriType) sqlvar->sqldata,
-                  decimalNumber->mem, decimalNumber->size);
-              memset(&sqlvar->sqldata[decimalNumber->size], ' ',
-                  (memSizeType) sqlvar->sqllen - decimalNumber->size);
+              *(int64Type *) sqlvar->sqldata = bigIntToScaledInt64(value,
+                  -sqlvar->sqlscale, &err_info);
             } /* if */
-            FREE_STRI(decimalNumber, decimalNumber->size);
-          } /* if */
-          break;
-        case SQL_VARYING:
-          decimalNumber = bigStr(value);
-          if (decimalNumber == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            if (unlikely(sqlvar->sqllen < decimalNumber->size)) {
-              logError(printf("sqlBindBigInt: Parameter " FMT_D ": "
-                              "Decimal representation of %s longer than allowed (%hd).\n",
-                              pos, striAsUnquotedCStri(decimalNumber),
-                              sqlvar->sqllen););
-              err_info = RANGE_ERROR;
+            break;
+          case SQL_FLOAT:
+            *(float *) sqlvar->sqldata = (float) bigIntToDouble(value);
+            break;
+          case SQL_DOUBLE:
+            *(double *) sqlvar->sqldata = bigIntToDouble(value);
+            break;
+          case SQL_TEXT:
+            decimalNumber = bigStr(value);
+            if (decimalNumber == NULL) {
+              err_info = MEMORY_ERROR;
             } else {
-              *(int16Type *) sqlvar->sqldata =
-                  (int16Type) decimalNumber->size;
-              memcpy_from_strelem((ustriType)
-                  &sqlvar->sqldata[sizeof(uint16Type)],
-                  decimalNumber->mem, decimalNumber->size);
-              memset(&sqlvar->sqldata[sizeof(uint16Type) + decimalNumber->size],
-                  '\0', (memSizeType) sqlvar->sqllen - decimalNumber->size);
+              if (unlikely(sqlvar->sqllen < decimalNumber->size)) {
+                logError(printf("sqlBindBigInt: Parameter " FMT_D ": "
+                                "Decimal representation of %s longer than allowed (%hd).\n",
+                                pos, striAsUnquotedCStri(decimalNumber),
+                                sqlvar->sqllen););
+                err_info = RANGE_ERROR;
+              } else {
+                memcpy_from_strelem((ustriType) sqlvar->sqldata,
+                    decimalNumber->mem, decimalNumber->size);
+                memset(&sqlvar->sqldata[decimalNumber->size], ' ',
+                    (memSizeType) sqlvar->sqllen - decimalNumber->size);
+              } /* if */
+              FREE_STRI(decimalNumber, decimalNumber->size);
             } /* if */
-            FREE_STRI(decimalNumber, decimalNumber->size);
-          } /* if */
-          break;
-        default:
-          logError(printf("sqlBindBigInt: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+            break;
+          case SQL_VARYING:
+            decimalNumber = bigStr(value);
+            if (decimalNumber == NULL) {
+              err_info = MEMORY_ERROR;
+            } else {
+              if (unlikely(sqlvar->sqllen < decimalNumber->size)) {
+                logError(printf("sqlBindBigInt: Parameter " FMT_D ": "
+                                "Decimal representation of %s longer than allowed (%hd).\n",
+                                pos, striAsUnquotedCStri(decimalNumber),
+                                sqlvar->sqllen););
+                err_info = RANGE_ERROR;
+              } else {
+                *(int16Type *) sqlvar->sqldata =
+                    (int16Type) decimalNumber->size;
+                memcpy_from_strelem((ustriType)
+                    &sqlvar->sqldata[sizeof(uint16Type)],
+                    decimalNumber->mem, decimalNumber->size);
+                memset(&sqlvar->sqldata[sizeof(uint16Type) + decimalNumber->size],
+                    '\0', (memSizeType) sqlvar->sqllen - decimalNumber->size);
+              } /* if */
+              FREE_STRI(decimalNumber, decimalNumber->size);
+            } /* if */
+            break;
+          default:
+            logError(printf("sqlBindBigInt: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
+            err_info = RANGE_ERROR;
+            break;
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1345,6 +1382,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1358,35 +1396,50 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-        case SQL_INT64:
-          /* printf("sqlBindBigRat: scale: %hd\n", sqlvar->sqlscale); */
-          *(int64Type *) sqlvar->sqldata = bigRatToScaledInt64(numerator, denominator,
-              -sqlvar->sqlscale, &err_info);
-          break;
-        case SQL_FLOAT:
-          *(float *) sqlvar->sqldata =
-              (float) bigRatToDouble(numerator, denominator);;
-          break;
-        case SQL_DOUBLE:
-          *(double *) sqlvar->sqldata =
-              bigRatToDouble(numerator, denominator);
-          break;
-        default:
-          logError(printf("sqlBindBigRat: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindBigRat", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindBigRat: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+          case SQL_INT64:
+            /* printf("sqlBindBigRat: scale: %hd\n", sqlvar->sqlscale); */
+            *(int64Type *) sqlvar->sqldata = bigRatToScaledInt64(numerator, denominator,
+                -sqlvar->sqlscale, &err_info);
+            break;
+          case SQL_FLOAT:
+            *(float *) sqlvar->sqldata =
+                (float) bigRatToDouble(numerator, denominator);;
+            break;
+          case SQL_DOUBLE:
+            *(double *) sqlvar->sqldata =
+                bigRatToDouble(numerator, denominator);
+            break;
+          default:
+            logError(printf("sqlBindBigRat: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
+            err_info = RANGE_ERROR;
+            break;
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1399,6 +1452,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1411,48 +1465,63 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-        case SQL_BOOLEAN:
-        case SQL_SHORT:
-          *(int16Type *) sqlvar->sqldata = (int16Type) value;
-          break;
-        case SQL_LONG:
-          *(int32Type *) sqlvar->sqldata = (int32Type) value;
-          break;
-        case SQL_INT64:
-          /* printf("sqlBindBool: scale: %hd\n", sqlvar->sqlscale); */
-          if (unlikely(sqlvar->sqlscale != 0)) {
-            logError(printf("sqlBindBool: Parameter " FMT_D ": "
-                            "The scale of a boolean field must be 0.\n", pos););
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindBool", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindBool: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+          case SQL_BOOLEAN:
+          case SQL_SHORT:
+            *(int16Type *) sqlvar->sqldata = (int16Type) value;
+            break;
+          case SQL_LONG:
+            *(int32Type *) sqlvar->sqldata = (int32Type) value;
+            break;
+          case SQL_INT64:
+            /* printf("sqlBindBool: scale: %hd\n", sqlvar->sqlscale); */
+            if (unlikely(sqlvar->sqlscale != 0)) {
+              logError(printf("sqlBindBool: Parameter " FMT_D ": "
+                              "The scale of a boolean field must be 0.\n", pos););
+              err_info = RANGE_ERROR;
+            } else {
+              *(int64Type *) sqlvar->sqldata = (int64Type) value;
+            } /* if */
+            break;
+          case SQL_TEXT:
+            if (unlikely(sqlvar->sqllen != 1)) {
+              logError(printf("sqlBindBool: Parameter " FMT_D ": "
+                              "The size of a boolean field must be 1.\n", pos););
+              err_info = RANGE_ERROR;
+            } else {
+              ((char *) sqlvar->sqldata)[0] = (char) ('0' + value);
+            } /* if */
+           break;
+          default:
+            logError(printf("sqlBindBool: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
             err_info = RANGE_ERROR;
-          } else {
-            *(int64Type *) sqlvar->sqldata = (int64Type) value;
-          } /* if */
-          break;
-        case SQL_TEXT:
-          if (unlikely(sqlvar->sqllen != 1)) {
-            logError(printf("sqlBindBool: Parameter " FMT_D ": "
-                            "The size of a boolean field must be 1.\n", pos););
-            err_info = RANGE_ERROR;
-          } else {
-            ((char *) sqlvar->sqldata)[0] = (char) ('0' + value);
-          } /* if */
-         break;
-        default:
-          logError(printf("sqlBindBool: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+            break;
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1465,6 +1534,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1477,53 +1547,68 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-        case SQL_BLOB:
-          err_info = putBlob(preparedStmt, bstri, sqlvar);
-          break;
-        case SQL_TEXT:
-          if (unlikely(sqlvar->sqllen < bstri->size)) {
-            logError(printf("sqlBindBStri(*, " FMT_D ", \"%s\"): "
-                            "Bstring longer than allowed (%hd).\n",
-                            pos, bstriAsUnquotedCStri(bstri),
-                            sqlvar->sqllen););
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindBStri", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindBStri: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+          case SQL_BLOB:
+            err_info = putBlob(preparedStmt, bstri, sqlvar);
+            break;
+          case SQL_TEXT:
+            if (unlikely(sqlvar->sqllen < bstri->size)) {
+              logError(printf("sqlBindBStri(*, " FMT_D ", \"%s\"): "
+                              "Bstring longer than allowed (%hd).\n",
+                              pos, bstriAsUnquotedCStri(bstri),
+                              sqlvar->sqllen););
+              err_info = RANGE_ERROR;
+            } else {
+              memcpy(sqlvar->sqldata, bstri->mem, bstri->size);
+              memset(&sqlvar->sqldata[bstri->size], ' ',
+                     (memSizeType) sqlvar->sqllen - bstri->size);
+            } /* if */
+            break;
+          case SQL_VARYING:
+            if (unlikely(sqlvar->sqllen < bstri->size)) {
+              logError(printf("sqlBindBStri(*, " FMT_D ", \"%s\"): "
+                              "Bstring longer than allowed (%hd).\n",
+                              pos, bstriAsUnquotedCStri(bstri),
+                              sqlvar->sqllen););
+              err_info = RANGE_ERROR;
+            } else {
+              *(int16Type *) sqlvar->sqldata = (int16Type) bstri->size;
+              memcpy(&sqlvar->sqldata[sizeof(uint16Type)],
+                     bstri->mem, bstri->size);
+              memset(&sqlvar->sqldata[sizeof(uint16Type) + bstri->size],
+                     '\0', (memSizeType) sqlvar->sqllen - bstri->size);
+            } /* if */
+            break;
+          default:
+            logError(printf("sqlBindBStri: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
             err_info = RANGE_ERROR;
-          } else {
-            memcpy(sqlvar->sqldata, bstri->mem, bstri->size);
-            memset(&sqlvar->sqldata[bstri->size], ' ',
-                   (memSizeType) sqlvar->sqllen - bstri->size);
-          } /* if */
-          break;
-        case SQL_VARYING:
-          if (unlikely(sqlvar->sqllen < bstri->size)) {
-            logError(printf("sqlBindBStri(*, " FMT_D ", \"%s\"): "
-                            "Bstring longer than allowed (%hd).\n",
-                            pos, bstriAsUnquotedCStri(bstri),
-                            sqlvar->sqllen););
-            err_info = RANGE_ERROR;
-          } else {
-            *(int16Type *) sqlvar->sqldata = (int16Type) bstri->size;
-            memcpy(&sqlvar->sqldata[sizeof(uint16Type)],
-                   bstri->mem, bstri->size);
-            memset(&sqlvar->sqldata[sizeof(uint16Type) + bstri->size],
-                   '\0', (memSizeType) sqlvar->sqllen - bstri->size);
-          } /* if */
-          break;
-        default:
-          logError(printf("sqlBindBStri: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+            break;
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1538,6 +1623,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     struct tm tm_time;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1562,49 +1648,64 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-          case SQL_TIMESTAMP:
-            tm_time.tm_year = (int) year;
-            tm_time.tm_mon  = (int) month;
-            tm_time.tm_mday = (int) day;
-            tm_time.tm_hour = (int) hour;
-            tm_time.tm_min  = (int) minute;
-            tm_time.tm_sec  = (int) second;
-            isc_encode_timestamp(&tm_time, (ISC_TIMESTAMP *) sqlvar->sqldata);
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindDuration", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindDuration: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+            case SQL_TIMESTAMP:
+              tm_time.tm_year = (int) year;
+              tm_time.tm_mon  = (int) month;
+              tm_time.tm_mday = (int) day;
+              tm_time.tm_hour = (int) hour;
+              tm_time.tm_min  = (int) minute;
+              tm_time.tm_sec  = (int) second;
+              isc_encode_timestamp(&tm_time, (ISC_TIMESTAMP *) sqlvar->sqldata);
+              break;
+            case SQL_TYPE_TIME:
+              tm_time.tm_year = (int) year;
+              tm_time.tm_mon  = (int) month;
+              tm_time.tm_mday = (int) day;
+              tm_time.tm_hour = (int) hour;
+              tm_time.tm_min  = (int) minute;
+              tm_time.tm_sec  = (int) second;
+              isc_encode_sql_time(&tm_time, (ISC_TIME *) sqlvar->sqldata);
+              break;
+            case SQL_TYPE_DATE:
+              tm_time.tm_year = (int) year;
+              tm_time.tm_mon  = (int) month;
+              tm_time.tm_mday = (int) day;
+              tm_time.tm_hour = (int) hour;
+              tm_time.tm_min  = (int) minute;
+              tm_time.tm_sec  = (int) second;
+              isc_encode_sql_date(&tm_time, (ISC_DATE *) sqlvar->sqldata);
+              break;
+          default:
+            logError(printf("sqlBindDuration: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
+            err_info = RANGE_ERROR;
             break;
-          case SQL_TYPE_TIME:
-            tm_time.tm_year = (int) year;
-            tm_time.tm_mon  = (int) month;
-            tm_time.tm_mday = (int) day;
-            tm_time.tm_hour = (int) hour;
-            tm_time.tm_min  = (int) minute;
-            tm_time.tm_sec  = (int) second;
-            isc_encode_sql_time(&tm_time, (ISC_TIME *) sqlvar->sqldata);
-            break;
-          case SQL_TYPE_DATE:
-            tm_time.tm_year = (int) year;
-            tm_time.tm_mon  = (int) month;
-            tm_time.tm_mday = (int) day;
-            tm_time.tm_hour = (int) hour;
-            tm_time.tm_min  = (int) minute;
-            tm_time.tm_sec  = (int) second;
-            isc_encode_sql_date(&tm_time, (ISC_DATE *) sqlvar->sqldata);
-            break;
-        default:
-          logError(printf("sqlBindDuration: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1617,6 +1718,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1629,28 +1731,43 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-        case SQL_FLOAT:
-          *(float *) sqlvar->sqldata = (float) value;
-          break;
-        case SQL_DOUBLE:
-          *(double *) sqlvar->sqldata = (double) value;
-          break;
-        default:
-          logError(printf("sqlBindFloat: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindFloat", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindFloat: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+          case SQL_FLOAT:
+            *(float *) sqlvar->sqldata = (float) value;
+            break;
+          case SQL_DOUBLE:
+            *(double *) sqlvar->sqldata = (double) value;
+            break;
+          default:
+            logError(printf("sqlBindFloat: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
+            err_info = RANGE_ERROR;
+            break;
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1663,6 +1780,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     char decimalInt[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     int decimalLength;
@@ -1677,88 +1795,103 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-        case SQL_SHORT:
-          if (unlikely(value < INT16TYPE_MIN || value > INT16TYPE_MAX)) {
-            logError(printf("sqlBindInt: Parameter " FMT_D ": "
-                            FMT_D " does not fit into a 16-bit integer.\n",
-                            pos, value));
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindInt", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindInt: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+          case SQL_SHORT:
+            if (unlikely(value < INT16TYPE_MIN || value > INT16TYPE_MAX)) {
+              logError(printf("sqlBindInt: Parameter " FMT_D ": "
+                              FMT_D " does not fit into a 16-bit integer.\n",
+                              pos, value));
+              err_info = RANGE_ERROR;
+            } else {
+              *(int16Type *) sqlvar->sqldata = (int16Type) value;
+            } /* if */
+            break;
+          case SQL_LONG:
+            if (unlikely(value < INT32TYPE_MIN || value > INT32TYPE_MAX)) {
+              logError(printf("sqlBindInt: Parameter " FMT_D ": "
+                              FMT_D " does not fit into a 32-bit integer.\n",
+                              pos, value));
+              err_info = RANGE_ERROR;
+            } else {
+              *(int32Type *) sqlvar->sqldata = (int32Type) value;
+            } /* if */
+            break;
+          case SQL_INT64:
+            /* printf("sqlBindInt: scale: %hd\n", sqlvar->sqlscale); */
+            if (sqlvar->sqlscale == 0) {
+              *(int64Type *) sqlvar->sqldata = value;
+            } else {
+              *(int64Type *) sqlvar->sqldata = intToScaledInt64(value,
+                  -sqlvar->sqlscale, &err_info);
+            } /* if */
+            break;
+          case SQL_FLOAT:
+            *(float *) sqlvar->sqldata = (float) value;
+            break;
+          case SQL_DOUBLE:
+            *(double *) sqlvar->sqldata = (double) value;
+            break;
+          case SQL_TEXT:
+            decimalLength = sprintf(decimalInt, FMT_D, value);
+            if (unlikely(sqlvar->sqllen < decimalLength)) {
+              logError(printf("sqlBindInt: Parameter " FMT_D ": "
+                              "Decimal representation of " FMT_D
+                              " longer than allowed (%hd).\n",
+                              pos, value, sqlvar->sqllen););
+              err_info = RANGE_ERROR;
+            } else {
+              memcpy(sqlvar->sqldata, decimalInt, (memSizeType) decimalLength);
+              memset(&sqlvar->sqldata[decimalLength], ' ',
+                  (memSizeType) sqlvar->sqllen - (memSizeType) decimalLength);
+            } /* if */
+            break;
+          case SQL_VARYING:
+            decimalLength = sprintf(decimalInt, FMT_D, value);
+            if (unlikely(sqlvar->sqllen < decimalLength)) {
+              logError(printf("sqlBindInt: Parameter " FMT_D ": "
+                              "Decimal representation of " FMT_D
+                              " longer than allowed (%hd).\n",
+                              pos, value, sqlvar->sqllen););
+              err_info = RANGE_ERROR;
+            } else {
+              *(int16Type *) sqlvar->sqldata = (int16Type) decimalLength;
+              memcpy(&sqlvar->sqldata[sizeof(uint16Type)], decimalInt,
+                  (memSizeType) decimalLength);
+              memset(&sqlvar->sqldata[sizeof(uint16Type) + (memSizeType) decimalLength],
+                  '\0', (memSizeType) sqlvar->sqllen -
+                  (memSizeType) decimalLength);
+            } /* if */
+            break;
+          default:
+            logError(printf("sqlBindInt: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
             err_info = RANGE_ERROR;
-          } else {
-            *(int16Type *) sqlvar->sqldata = (int16Type) value;
-          } /* if */
-          break;
-        case SQL_LONG:
-          if (unlikely(value < INT32TYPE_MIN || value > INT32TYPE_MAX)) {
-            logError(printf("sqlBindInt: Parameter " FMT_D ": "
-                            FMT_D " does not fit into a 32-bit integer.\n",
-                            pos, value));
-            err_info = RANGE_ERROR;
-          } else {
-            *(int32Type *) sqlvar->sqldata = (int32Type) value;
-          } /* if */
-          break;
-        case SQL_INT64:
-          /* printf("sqlBindInt: scale: %hd\n", sqlvar->sqlscale); */
-          if (sqlvar->sqlscale == 0) {
-            *(int64Type *) sqlvar->sqldata = value;
-          } else {
-            *(int64Type *) sqlvar->sqldata = intToScaledInt64(value,
-                -sqlvar->sqlscale, &err_info);
-          } /* if */
-          break;
-        case SQL_FLOAT:
-          *(float *) sqlvar->sqldata = (float) value;
-          break;
-        case SQL_DOUBLE:
-          *(double *) sqlvar->sqldata = (double) value;
-          break;
-        case SQL_TEXT:
-          decimalLength = sprintf(decimalInt, FMT_D, value);
-          if (unlikely(sqlvar->sqllen < decimalLength)) {
-            logError(printf("sqlBindInt: Parameter " FMT_D ": "
-                            "Decimal representation of " FMT_D
-                            " longer than allowed (%hd).\n",
-                            pos, value, sqlvar->sqllen););
-            err_info = RANGE_ERROR;
-          } else {
-            memcpy(sqlvar->sqldata, decimalInt, (memSizeType) decimalLength);
-            memset(&sqlvar->sqldata[decimalLength], ' ',
-                (memSizeType) sqlvar->sqllen - (memSizeType) decimalLength);
-          } /* if */
-          break;
-        case SQL_VARYING:
-          decimalLength = sprintf(decimalInt, FMT_D, value);
-          if (unlikely(sqlvar->sqllen < decimalLength)) {
-            logError(printf("sqlBindInt: Parameter " FMT_D ": "
-                            "Decimal representation of " FMT_D
-                            " longer than allowed (%hd).\n",
-                            pos, value, sqlvar->sqllen););
-            err_info = RANGE_ERROR;
-          } else {
-            *(int16Type *) sqlvar->sqldata = (int16Type) decimalLength;
-            memcpy(&sqlvar->sqldata[sizeof(uint16Type)], decimalInt,
-                (memSizeType) decimalLength);
-            memset(&sqlvar->sqldata[sizeof(uint16Type) + (memSizeType) decimalLength],
-                '\0', (memSizeType) sqlvar->sqllen -
-                (memSizeType) decimalLength);
-          } /* if */
-          break;
-        default:
-          logError(printf("sqlBindInt: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+            break;
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1771,7 +1904,9 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindNull */
     logFunction(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D ")\n",
@@ -1782,14 +1917,29 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      if (sqlvar->sqltype & 1) {
-        *sqlvar->sqlind = -1;
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindNull", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindNull: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
       } /* if */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
-      preparedStmt->param_array[pos - 1].bound = TRUE;
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        if (sqlvar->sqltype & 1) {
+          *sqlvar->sqlind = -1;
+        } /* if */
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindNull */
 
@@ -1799,6 +1949,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     cstriType stri8;
     memSizeType length;
@@ -1813,59 +1964,74 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
                       pos, preparedStmt->in_sqlda->sqld););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-        case SQL_TEXT:
-          stri8 = stri_to_cstri8_buf(stri, &length);
-          if (unlikely(stri8 == NULL)) {
-            err_info = MEMORY_ERROR;
-          } else {
-            if (unlikely(sqlvar->sqllen < length)) {
-              logError(printf("sqlBindStri(*, " FMT_D ", \"%s\"): "
-                              "UTF-8 length (" FMT_U_MEM ") longer than allowed (%hd).\n",
-                              pos, striAsUnquotedCStri(stri), length, sqlvar->sqllen););
-              err_info = RANGE_ERROR;
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindStri", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindStri: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+          case SQL_TEXT:
+            stri8 = stri_to_cstri8_buf(stri, &length);
+            if (unlikely(stri8 == NULL)) {
+              err_info = MEMORY_ERROR;
             } else {
-              memcpy(sqlvar->sqldata, stri8, length);
-              memset(&sqlvar->sqldata[length], ' ',
-                     (memSizeType) sqlvar->sqllen - length);
+              if (unlikely(sqlvar->sqllen < length)) {
+                logError(printf("sqlBindStri(*, " FMT_D ", \"%s\"): "
+                                "UTF-8 length (" FMT_U_MEM ") longer than allowed (%hd).\n",
+                                pos, striAsUnquotedCStri(stri), length, sqlvar->sqllen););
+                err_info = RANGE_ERROR;
+              } else {
+                memcpy(sqlvar->sqldata, stri8, length);
+                memset(&sqlvar->sqldata[length], ' ',
+                       (memSizeType) sqlvar->sqllen - length);
+              } /* if */
+              free(stri8);
             } /* if */
-            free(stri8);
-          } /* if */
-          break;
-        case SQL_VARYING:
-          stri8 = stri_to_cstri8_buf(stri, &length);
-          if (unlikely(stri8 == NULL)) {
-            err_info = MEMORY_ERROR;
-          } else {
-            if (unlikely(sqlvar->sqllen < length)) {
-              logError(printf("sqlBindStri(*, " FMT_D ", \"%s\"): "
-                              "UTF-8 length (" FMT_U_MEM ") longer than allowed (%hd).\n",
-                              pos, striAsUnquotedCStri(stri), length, sqlvar->sqllen););
-              err_info = RANGE_ERROR;
+            break;
+          case SQL_VARYING:
+            stri8 = stri_to_cstri8_buf(stri, &length);
+            if (unlikely(stri8 == NULL)) {
+              err_info = MEMORY_ERROR;
             } else {
-              *(int16Type *) sqlvar->sqldata = (int16Type) length;
-              memcpy(&sqlvar->sqldata[sizeof(uint16Type)], stri8, length);
-              memset(&sqlvar->sqldata[sizeof(uint16Type) + length], '\0',
-                     (memSizeType) sqlvar->sqllen - length);
+              if (unlikely(sqlvar->sqllen < length)) {
+                logError(printf("sqlBindStri(*, " FMT_D ", \"%s\"): "
+                                "UTF-8 length (" FMT_U_MEM ") longer than allowed (%hd).\n",
+                                pos, striAsUnquotedCStri(stri), length, sqlvar->sqllen););
+                err_info = RANGE_ERROR;
+              } else {
+                *(int16Type *) sqlvar->sqldata = (int16Type) length;
+                memcpy(&sqlvar->sqldata[sizeof(uint16Type)], stri8, length);
+                memset(&sqlvar->sqldata[sizeof(uint16Type) + length], '\0',
+                       (memSizeType) sqlvar->sqllen - length);
+              } /* if */
+              free(stri8);
             } /* if */
-            free(stri8);
-          } /* if */
-          break;
-        default:
-          logError(printf("sqlBindStri: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+            break;
+          default:
+            logError(printf("sqlBindStri: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
+            err_info = RANGE_ERROR;
+            break;
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -1881,6 +2047,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    ISC_STATUS status_vector[20];
     XSQLVAR *sqlvar;
     struct tm tm_time;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1907,51 +2074,66 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-      /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
-      switch (sqlvar->sqltype & ~1) {
-          case SQL_TIMESTAMP:
-            tm_time.tm_year = (int) year - 1900;
-            tm_time.tm_mon  = (int) month - 1;
-            tm_time.tm_mday = (int) day;
-            tm_time.tm_hour = (int) hour;
-            tm_time.tm_min  = (int) minute;
-            tm_time.tm_sec  = (int) second;
-            isc_encode_timestamp(&tm_time, (ISC_TIMESTAMP *) sqlvar->sqldata);
-            ((ISC_TIMESTAMP *) sqlvar->sqldata)->timestamp_time += (ISC_TIME) micro_second / 100;
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely((isc_dsql_free_statement(status_vector,
+                                              &preparedStmt->ppStmt,
+                                              DSQL_close),
+                      status_vector[0] == 1 && status_vector[1] != 0))) {
+          setDbErrorMsg("sqlBindTime", "isc_dsql_free_statement",
+                        status_vector);
+          logError(printf("sqlBindTime: isc_dsql_free_statement error:\n%s\n",
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
+        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        switch (sqlvar->sqltype & ~1) {
+            case SQL_TIMESTAMP:
+              tm_time.tm_year = (int) year - 1900;
+              tm_time.tm_mon  = (int) month - 1;
+              tm_time.tm_mday = (int) day;
+              tm_time.tm_hour = (int) hour;
+              tm_time.tm_min  = (int) minute;
+              tm_time.tm_sec  = (int) second;
+              isc_encode_timestamp(&tm_time, (ISC_TIMESTAMP *) sqlvar->sqldata);
+              ((ISC_TIMESTAMP *) sqlvar->sqldata)->timestamp_time += (ISC_TIME) micro_second / 100;
+              break;
+            case SQL_TYPE_TIME:
+              tm_time.tm_year = (int) year - 1900;
+              tm_time.tm_mon  = (int) month - 1;
+              tm_time.tm_mday = (int) day;
+              tm_time.tm_hour = (int) hour;
+              tm_time.tm_min  = (int) minute;
+              tm_time.tm_sec  = (int) second;
+              isc_encode_sql_time(&tm_time, (ISC_TIME *) sqlvar->sqldata);
+              *(ISC_TIME *) sqlvar->sqldata += (ISC_TIME) micro_second / 100;
+              break;
+            case SQL_TYPE_DATE:
+              tm_time.tm_year = (int) year - 1900;
+              tm_time.tm_mon  = (int) month - 1;
+              tm_time.tm_mday = (int) day;
+              tm_time.tm_hour = (int) hour;
+              tm_time.tm_min  = (int) minute;
+              tm_time.tm_sec  = (int) second;
+              isc_encode_sql_date(&tm_time, (ISC_DATE *) sqlvar->sqldata);
+              break;
+          default:
+            logError(printf("sqlBindTime: Parameter " FMT_D " has the unknown type %s.\n",
+                            pos, nameOfSqlType(sqlvar->sqltype & ~1)););
+            err_info = RANGE_ERROR;
             break;
-          case SQL_TYPE_TIME:
-            tm_time.tm_year = (int) year - 1900;
-            tm_time.tm_mon  = (int) month - 1;
-            tm_time.tm_mday = (int) day;
-            tm_time.tm_hour = (int) hour;
-            tm_time.tm_min  = (int) minute;
-            tm_time.tm_sec  = (int) second;
-            isc_encode_sql_time(&tm_time, (ISC_TIME *) sqlvar->sqldata);
-            *(ISC_TIME *) sqlvar->sqldata += (ISC_TIME) micro_second / 100;
-            break;
-          case SQL_TYPE_DATE:
-            tm_time.tm_year = (int) year - 1900;
-            tm_time.tm_mon  = (int) month - 1;
-            tm_time.tm_mday = (int) day;
-            tm_time.tm_hour = (int) hour;
-            tm_time.tm_min  = (int) minute;
-            tm_time.tm_sec  = (int) second;
-            isc_encode_sql_date(&tm_time, (ISC_DATE *) sqlvar->sqldata);
-            break;
-        default:
-          logError(printf("sqlBindTime: Parameter " FMT_D " has the unknown type %s.\n",
-                          pos, nameOfSqlType(sqlvar->sqltype & ~1)););
-          err_info = RANGE_ERROR;
-          break;
-      } /* switch */
+        } /* switch */
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else {
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = 0;
         } /* if */
-        preparedStmt->executeSuccessful = FALSE;
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
@@ -2911,6 +3093,8 @@ static void sqlExecute (sqlStmtType sqlStatement)
           logError(printf("sqlExecute: isc_dsql_free_statement error:\n%s\n",
                           dbError.message););
           err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -3038,7 +3222,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
   {
     dbType db;
     cstriType query;
-    memSizeType query_length;
+    memSizeType queryLength;
     XSQLDA *out_sqlda;
     ISC_STATUS status_vector[20];
     char res_buffer[8];
@@ -3056,17 +3240,20 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      query = stri_to_cstri8_buf(sqlStatementStri, &query_length);
+      query = stri_to_cstri8_buf(sqlStatementStri, &queryLength);
       if (unlikely(query == NULL)) {
         err_info = MEMORY_ERROR;
         preparedStmt = NULL;
-      } else if (unlikely(query_length > UINT16TYPE_MAX)) {
-        logError(printf("sqlPrepare: Statement string too long.\n"););
-        err_info = RANGE_ERROR;
-        preparedStmt = NULL;
       } else {
-        if (unlikely((out_sqlda = (XSQLDA *) malloc(XSQLDA_LENGTH(1))) == NULL ||
-                     !ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt))) {
+        if (unlikely(queryLength > UINT16TYPE_MAX)) {
+          /* It is not possible to cast queryLength to unsigned short. */
+          logError(printf("sqlPrepare: Statement string too long (length = " FMT_U_MEM ")\n",
+                          queryLength););
+          err_info = RANGE_ERROR;
+          preparedStmt = NULL;
+        } else if (unlikely((out_sqlda = (XSQLDA *) malloc(XSQLDA_LENGTH(1))) == NULL ||
+                            !ALLOC_RECORD(preparedStmt, preparedStmtRecord,
+                                          count.prepared_stmt))) {
           if (out_sqlda != NULL) {
             free(out_sqlda);
           } /* if */
@@ -3095,7 +3282,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
           } else if ((isc_dsql_prepare(status_vector,
                                        &db->trans_handle,
                                        &preparedStmt->ppStmt,
-                                       (unsigned short) query_length,
+                                       (unsigned short) queryLength,
                                        query,
                                        3, /* dialect, indicates V6.0 functionalities */
                                        out_sqlda),
@@ -3265,26 +3452,109 @@ static boolType setupFuncTable (void)
 
 
 
+static errInfoType doAttach (loginType loginData, const_cstriType extension,
+    isc_db_handle *db_handle)
+
+  {
+    const const_cstriType charset = "UTF8";
+    memSizeType charset_length;
+    memSizeType extension_length;
+    memSizeType fileName8Length;
+    cstriType fileName8;
+    memSizeType dpb_buffer_length;
+    char *dpb_buffer;
+    short dpb_length;
+    char *dpb;
+    ISC_STATUS status_vector[20];
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* doAttach */
+    extension_length = strlen(extension);
+    if (loginData->fileName8Length < extension_length ||
+        memcmp(&loginData->fileName8[loginData->fileName8Length - extension_length],
+               extension, extension_length) != 0) {
+      fileName8Length = loginData->fileName8Length + extension_length;
+      if (unlikely(fileName8Length > 255 ||
+                   !ALLOC_CSTRI(fileName8, fileName8Length))) {
+        err_info = MEMORY_ERROR;
+      } else {
+        memcpy(fileName8, loginData->fileName8, loginData->fileName8Length);
+        memcpy(&fileName8[loginData->fileName8Length], extension, extension_length);
+        fileName8[fileName8Length] = '\0';
+      } /* if */
+    } else {
+      fileName8Length = loginData->fileName8Length;
+      fileName8 = loginData->fileName8;
+    } /* if */
+    if (likely(err_info == OKAY_NO_ERROR)) {
+      charset_length = strlen(charset);
+      /* Assume that the setting bytes take less then 256 bytes space. */
+      dpb_buffer_length = fileName8Length + loginData->user8Length +
+          loginData->password8Length + charset_length + 256;
+      if (unlikely(!ALLOC_CSTRI(dpb_buffer, dpb_buffer_length))) {
+        err_info = MEMORY_ERROR;
+      } else {
+        /* Construct the database parameter buffer. */
+        dpb = dpb_buffer;
+        *dpb++ = isc_dpb_version1;
+        *dpb++ = isc_dpb_utf8_filename;
+        *dpb++ = (char) fileName8Length;
+        memcpy(dpb, fileName8, fileName8Length);
+        dpb += fileName8Length;
+        *dpb++ = isc_dpb_user_name;
+        *dpb++ = (char) loginData->user8Length;
+        memcpy(dpb, loginData->user8, loginData->user8Length);
+        dpb += loginData->user8Length;
+        *dpb++ = isc_dpb_password;
+        *dpb++ = (char) loginData->password8Length;
+        memcpy(dpb, loginData->password8, loginData->password8Length);
+        dpb += loginData->password8Length;
+        *dpb++ = isc_dpb_set_db_charset;
+        *dpb++ = (char) charset_length;
+        memcpy(dpb, charset, charset_length);
+        dpb += charset_length;
+#if 0
+        /* what does this? */
+        *dpb++ = isc_num_buffers;
+        *dpb++ = 1;
+        *dpb++ = 90;
+#endif
+        /* Add (unnecessary) null byte, to be on the safe side. */
+        *dpb = '\0';
+        dpb_length = (short) (dpb - dpb_buffer);
+        /* Set database handle to zero before attaching to a database. */
+        *db_handle = 0;
+        /* Attach to the database. */
+        isc_attach_database(status_vector, (short) fileName8Length,
+                            fileName8, db_handle, dpb_length, dpb_buffer);
+        if (status_vector[0] == 1 && status_vector[1] != 0) {
+          setDbErrorMsg("sqlOpenFire", "isc_attach_database",
+                        status_vector);
+          logError(printf("sqlOpenFire: isc_attach_database(*, \"%s\", ...  )"
+                          " user: \"%s\", password: \"%s\", error:\n%s\n",
+                          fileName8, loginData->user8, loginData->password8,
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } /* if */
+        UNALLOC_CSTRI(dpb_buffer, dpb_buffer_length);
+      } /* if */
+      if (fileName8 != loginData->fileName8) {
+        UNALLOC_CSTRI(fileName8, fileName8Length);
+      } /* if */
+    } /* if */
+    return err_info;
+  } /* doAttach */
+
+
+
 databaseType sqlOpenFire (const const_striType dbName,
     const const_striType user, const const_striType password)
 
   {
     striType fileName;
-    cstriType fileName8;
-    const strElemType dbExtension[] = {'.', 'f', 'd', 'b'};
-    const memSizeType extensionLength = sizeof(dbExtension) / sizeof(strElemType);
-    striType dbNameWithExtension = NULL;
-    const_cstriType user8;
-    const_cstriType password8;
-    const const_cstriType charset = "UTF8";
-    memSizeType fileName8_length;
-    memSizeType user8_length;
-    memSizeType password8_length;
-    memSizeType charset_length;
-    memSizeType dpb_buffer_length;
-    char *dpb_buffer;
-    short dpb_length;
-    char *dpb;
+    const const_cstriType extensions[] = {".fdb", ".gdb", ""};
+    unsigned int idx;
+    loginRecord loginData;
     isc_db_handle db_handle;
     isc_tr_handle trans_handle = 0; /* Set to zero for isc_start_transaction(). */
     ISC_STATUS status_vector[20];
@@ -3301,109 +3571,46 @@ databaseType sqlOpenFire (const const_striType dbName,
       err_info = FILE_ERROR;
       database = NULL;
     } else {
-      if (dbName->size < extensionLength ||
-          memcmp(&dbName->mem[dbName->size - extensionLength],
-                 dbExtension, sizeof(dbExtension)) != 0) {
-        if (unlikely(dbName->size > MAX_STRI_LEN - extensionLength ||
-                     !ALLOC_STRI_SIZE_OK(dbNameWithExtension,
-                                         dbName->size + extensionLength))) {
-          err_info = MEMORY_ERROR;
-          fileName = NULL;
-        } else {
-          dbNameWithExtension->size = dbName->size + extensionLength;
-          memcpy(dbNameWithExtension->mem, dbName->mem,
-                 dbName->size * sizeof(strElemType));
-          memcpy(&dbNameWithExtension->mem[dbName->size], dbExtension,
-                 sizeof(dbExtension));
-          fileName = cmdToOsPath(dbNameWithExtension);
-          FREE_STRI(dbNameWithExtension, dbNameWithExtension->size);
-        } /* if */
-      } else {
-        fileName = cmdToOsPath(dbName);
-      } /* if */
-      /* printf("fileName: ");
-         prot_stri(fileName);
-         printf("\n"); */
+      fileName = cmdToOsPath(dbName);
       if (fileName == NULL) {
-        /* err_info was set before. */
         database = NULL;
       } else {
-        fileName8 = stri_to_cstri8_buf(fileName, &fileName8_length);
-        if (unlikely(fileName8 == NULL)) {
+        loginData.fileName8 = stri_to_cstri8_buf(fileName, &loginData.fileName8Length);
+        if (unlikely(loginData.fileName8 == NULL)) {
           err_info = MEMORY_ERROR;
           database = NULL;
         } else {
-          user8 = stri_to_cstri8_buf(user, &user8_length);
-          if (unlikely(user8 == NULL)) {
+          loginData.user8 = stri_to_cstri8_buf(user, &loginData.user8Length);
+          if (unlikely(loginData.user8 == NULL)) {
             err_info = MEMORY_ERROR;
             database = NULL;
           } else {
-            password8 = stri_to_cstri8_buf(password, &password8_length);
-            if (unlikely(password8 == NULL)) {
+            loginData.password8 = stri_to_cstri8_buf(password, &loginData.password8Length);
+            if (unlikely(loginData.password8 == NULL)) {
               err_info = MEMORY_ERROR;
               database = NULL;
             } else {
-              if (fileName8_length > 255 || user8_length > 255 ||
-                  password8_length > 255) {
+              if (loginData.fileName8Length > 255 || loginData.user8Length > 255 ||
+                  loginData.password8Length > 255) {
                 logError(printf("sqlOpenFire: File name, user or password too long.\n"););
                 err_info = RANGE_ERROR;
                 database = NULL;
               } else {
-                charset_length = strlen(charset);
-                /* Assume that the setting bytes take less then 256 bytes space. */
-                dpb_buffer_length = fileName8_length + user8_length +
-                    password8_length + charset_length + 256;
-                if (unlikely(!ALLOC_CSTRI(dpb_buffer, dpb_buffer_length))) {
-                  err_info = MEMORY_ERROR;
+                idx = 0;
+                do {
+                  err_info = doAttach(&loginData, extensions[idx], &db_handle);
+                  idx++;
+                } while (err_info == DATABASE_ERROR &&
+                         idx < sizeof(extensions) / sizeof(cstriType));
+                if (unlikely(err_info != OKAY_NO_ERROR)) {
                   database = NULL;
                 } else {
-                  /* Construct the database parameter buffer. */
-                  dpb = dpb_buffer;
-                  *dpb++ = isc_dpb_version1;
-                  *dpb++ = isc_dpb_utf8_filename;
-                  *dpb++ = (char) fileName8_length;
-                  memcpy(dpb, fileName8, fileName8_length);
-                  dpb += fileName8_length;
-                  *dpb++ = isc_dpb_user_name;
-                  *dpb++ = (char) user8_length;
-                  memcpy(dpb, user8, user8_length);
-                  dpb += user8_length;
-                  *dpb++ = isc_dpb_password;
-                  *dpb++ = (char) password8_length;
-                  memcpy(dpb, password8, password8_length);
-                  dpb += password8_length;
-                  *dpb++ = isc_dpb_set_db_charset;
-                  *dpb++ = (char) charset_length;
-                  memcpy(dpb, charset, charset_length);
-                  dpb += charset_length;
-#if 0
-                  /* what does this? */
-                  *dpb++ = isc_num_buffers;
-                  *dpb++ = 1;
-                  *dpb++ = 90;
-#endif
-                  /* Add (unnecessary) null byte, to be on the safe side. */
-                  *dpb = '\0';
-                  dpb_length = (short) (dpb - dpb_buffer);
-                  /* Set database handle to zero before attaching to a database. */
-                  db_handle = 0;
-                  /* Attach to the database. */
-                  isc_attach_database(status_vector, (short) fileName8_length,
-                                      fileName8, &db_handle, dpb_length, dpb_buffer);
-                  if (status_vector[0] == 1 && status_vector[1] != 0) {
-                    setDbErrorMsg("sqlOpenFire", "isc_attach_database",
-                                  status_vector);
-                    logError(printf("sqlOpenFire: isc_attach_database(*, \"%s\", ...  )"
-                                    " user: \"%s\", password: \"%s\", error:\n%s\n",
-                                    fileName8, user8, password8, dbError.message););
-                    err_info = DATABASE_ERROR;
-                    database = NULL;
-                  } else if ((isc_start_transaction(status_vector,
-                                                    &trans_handle,
-                                                    1,
-                                                    &db_handle,
-                                                    (unsigned short) sizeof(isc_tbp),
-                                                    isc_tbp),
+                  if ((isc_start_transaction(status_vector,
+                                             &trans_handle,
+                                             1,
+                                             &db_handle,
+                                             (unsigned short) sizeof(isc_tbp),
+                                             isc_tbp),
                               status_vector[0] == 1 && status_vector[1] != 0)) {
                     setDbErrorMsg("sqlOpenFire", "isc_start_transaction",
                                   status_vector);
@@ -3425,14 +3632,13 @@ databaseType sqlOpenFire (const const_striType dbName,
                     database->connection = db_handle;
                     database->trans_handle = trans_handle;
                   } /* if */
-                  UNALLOC_CSTRI(dpb_buffer, dpb_buffer_length);
                 } /* if */
               } /* if */
-              free_cstri8(password8, password);
+              free_cstri8(loginData.password8, password);
             } /* if */
-            free_cstri8(user8, user);
+            free_cstri8(loginData.user8, user);
           } /* if */
-          free_cstri8(fileName8, fileName);
+          free_cstri8(loginData.fileName8, fileName);
         } /* if */
         strDestr(fileName);
       } /* if */

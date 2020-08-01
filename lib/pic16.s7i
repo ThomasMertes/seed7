@@ -52,8 +52,8 @@ const array string: book_pic is [](
   " RRRRRRRRRRRRRRR",
   "RRXXXXXXXXXXXXXR",
   "ORXGXXXXWXXXXGXR",
-  "ORXXXXWWWWWXXXXR",
-  "ORXXXXXXWXXXXXXR",
+  "ORXXXXWWXWWXXXXR",
+  "ORXXXXWWXWWXXXXR",
   "ORXGXXXXWXXXXGXR",
   "ORXXXXXXXXXXXXXR",
   "ORXWWXWXWXWXWWXR",
@@ -84,25 +84,6 @@ const array string: cancel_pic is [](
   "    RRRRRRRR    ",
   "      RRRR      ",
   "                ");
-
-
-const array string: clear_pic is [](
- "            bbX  ",
- "           XbbX  ",
- "           bbX   ",
- "          XbbX   ",
- "          XbX    ",
- "         XbbX    ",
- "         XbX     ",
- "        XbbX     ",
- "  bbbbb XbX      ",
- " bbbbbbXbbXb     ",
- " XYYXYbbXXbbbbbb ",
- " XYXYYXYXYYbbbbX ",
- "XYYXYXYYXYXYYXXYX",
- "XXXXXYYXYYXYXXYXX",
- "     XXXXXYYXYXX ",
- "          XXXXX  ");
 
 
 const array string: card_back_pic is [](
@@ -141,6 +122,25 @@ const array string: checkmark_pic is [](
   "   BBB BBB      ",
   "    BBBBB       ",
   "     BBBB       ");
+
+
+const array string: clear_pic is [](
+ "            bbX  ",
+ "           XbbX  ",
+ "           bbX   ",
+ "          XbbX   ",
+ "          XbX    ",
+ "         XbbX    ",
+ "         XbX     ",
+ "        XbbX     ",
+ "  bbbbb XbX      ",
+ " bbbbbbXbbXb     ",
+ " XYYXYbbXXbbbbbb ",
+ " XYXYYXYXYYbbbbX ",
+ "XYYXYXYYXYXYYXXYX",
+ "XXXXXYYXYYXYXXYXX",
+ "     XXXXXYYXYXX ",
+ "          XXXXX  ");
 
 
 const array string: crown_pic is [](

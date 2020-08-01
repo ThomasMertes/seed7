@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tar7.sd7      Tar archiving utility                             *)
-(*  Copyright (C) 1994, 2004, 2005, 2010  Thomas Mertes             *)
+(*  Copyright (C) 1994, 2004, 2005, 2010, 2012  Thomas Mertes       *)
+(*  Copyright (C) 2013, 2019  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -24,6 +25,7 @@
 
 $ include "seed7_05.s7i";
   include "tar_cmds.s7i";
+  include "console.s7i";
 
 
 const proc: main is func
@@ -37,6 +39,7 @@ const proc: main is func
     var array string: arg_list is 0 times "";
     var integer: index is 0;
   begin
+    OUT := STD_CONSOLE;
     if length(argv(PROGRAM)) >= 1 then
       option := argv(PROGRAM)[1];
       if option[1] = '-' then

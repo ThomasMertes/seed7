@@ -2182,12 +2182,13 @@ static void numericProperties (FILE *versionFile)
 
 
 
-static void determineMallocAlignment (FILE *versionFile)
+static void determineMallocProperties (FILE *versionFile)
 
   {
     int alignment = -1;
+    int mallocOf0ReturnsNull = -1;
 
-  /* determineMallocAlignment */
+  /* determineMallocProperties */
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                          "static const int alignmentTable[] = {\n"
                          "    6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,\n"
@@ -2218,7 +2219,22 @@ static void determineMallocAlignment (FILE *versionFile)
     } else {
       fprintf(versionFile, "#define MALLOC_ALIGNMENT %d\n", alignment);
     } /* if */
-  } /* determineMallocAlignment */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc, char *argv[])"
+                         "{\n"
+                         "  void *malloc_result;\n"
+                         "  malloc_result = malloc(0);\n"
+                         "  printf(\"%d\\n\", malloc_result == NULL);\n"
+                         "  return 0;"
+                         "}\n")) {
+      mallocOf0ReturnsNull = doTest();
+    } /* if */
+    if (mallocOf0ReturnsNull == -1) {
+      fprintf(logFile, "\n *** Unable to determine result of malloc(0).\n");
+    } else {
+      fprintf(versionFile, "#define MALLOC_OF_0_RETURNS_NULL %d\n", mallocOf0ReturnsNull);
+    } /* if */
+  } /* determineMallocProperties */
 
 
 
@@ -5216,7 +5232,7 @@ int main (int argc, char **argv)
     numericProperties(versionFile);
     fprintf(logFile, "Advanced settings: ");
     fflush(logFile);
-    determineMallocAlignment(versionFile);
+    determineMallocProperties(versionFile);
     if (compileAndLinkOk("#include<signal.h>\nint main(int argc, char *argv[]){\n"
                          "signal(SIGBUS,SIG_DFL); return 0;}\n")) {
       if (assertCompAndLnk("#include<stdlib.h>\n#include <stdio.h>\n#include<signal.h>\n"

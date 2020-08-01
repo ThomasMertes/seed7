@@ -1,3 +1,102 @@
+20190126:
+- The program db7.sd7 (Database Inspector 7) has been improved to
+  provide a list of tables and a possiblility to view table contents
+  from this list.
+- The program tar7.sd7 and the library tar.s7i have been improved to
+  support Unicode file names.
+- The function setupParameters() in sql_fire.c, sql_lite.c, sql_my.c,
+  sql_oci.c, sql_odbc.c and sql_post.c has been improved to avoid
+  calling malloc(0). Depending on the run-time library malloc(0) may
+  return NULL, which would wrongly trigger a MEMORY_ERROR. The
+  improvement recognizes this situation and avoids calling malloc(0).
+  Other places in the database drivers, where malloc(0) could be called
+  have been fixed also.
+- The database driver sql_fire.c has been improved:
+  - Now the cursor of a prepared statement is closed (with
+    isc_dsql_free_statement), when a parameter is bound to it.
+  - The opening of a database now appends the extensions .fdb and .gdb,
+    when trying to open the database.
+- The database driver sql_my.c has been improved:
+  - The function processEscapesInStatement has been renamed to
+    processStatementStri. Now it removes comments from the statement
+    string.
+  - The local variable 'param' has been introduced in the parameter
+    binding functions. This improves readablity by avoiding many
+    accesses to the param_array.
+  - The local variable 'columnData' has been introduced in the column
+    accessing functions. This improves readablity by avoiding many
+    accesses to the result_array.
+  - The function sqlColumnFloat has been improved to accept integer
+    fields with all sizes.
+- The database driver sql_oci.c has been improved:
+  - Now there is a check if all parameters of a prepared statement are
+    bound. This check takes place when a prepared statement is
+    executed.
+  - The function processBindVarsInStatement has been renamed to
+    processStatementStri. Now it removes comments from the statement
+    string and determines the number of bind parameters.
+  - The functions setupParameters and allParametersBound have been
+    added and the function resizeBindArray has been removed.
+  - The function getFloat has been improved to convert a SQLT NUMBER
+    to a double via the decimal representation.
+  - The bind functions have been improved to check, that a parameter
+    with the given index exists.
+  - The bind functions have been improved to allow that the same
+    parameter can be bound again with a different bind function (e.g.
+    as integer instead of a bigInteger).
+  - The function sqlBindStri has been improved to preserve trailing
+    blanks in a string.
+  - The local variable 'param' has been introduced in the parameter
+    binding functions. This improves readablity by avoiding many
+    accesses to the param_array.
+  - The local variable 'columnData' has been introduced in the column
+    accessing functions. This improves readablity by avoiding many
+    accesses to the result_array.
+- The database driver sql_odbc.c has been improved:
+  - The maximum number of concurrent activities is determined. If the
+    number of concurrent activities is limited the function
+    sqlExecute() fetches all results and stores them in a prefetch
+    buffer. This way several prepared statements can be used in
+    parallel even when the ODBC driver does not support concurrent
+    activities.
+  - The structure resultDescrRecord has been introduced. It contains
+    the result properties of a prepared statement column. The structure
+    resultDataRecord has been reduced to just contain the actual
+    data buffer and length of a result field.
+  - The functions freeFetchData, freeFetch, freePrefetched and
+    processStatementStri have been added. The function
+    processStatementStri removes comments from the statement string.
+    This avoids problems with some ODBC drivers.
+  - The functions bindResultColumn, bindResult, copyNonBlobBuffers,
+    moveBlobBuffers, copyFetchData, prefetchOne, prefetchAll and
+    doFetch have been added.
+  - Now the cursor of a prepared statement is closed (with
+    SQLFreeStmt), when a parameter is bound to it.
+  - The function sqlColumnFloat has been improved to accept integer
+    fields with all sizes.
+- The database driver sql_post.c has been improved:
+  - The function processBindVarsInStatement has been renamed to
+    processStatementStri. Now it removes comments from the statement
+    string.
+  - The local variable 'param' has been introduced in the parameter
+    binding functions. This improves readablity by avoiding many
+    accesses to the param_array.
+  - The function sqlColumnFloat has been improved to accept integer
+    fields with all sizes.
+- The example program chkdb.sd7 has been improved. Now it tests several
+  corner cases with empty databases, empty statements, comments and
+  literals. The tests with integer fields retrieve the fields now also
+  as floats.
+- Interpreter and compiler have been improved to support the new
+  actions SQL_DRIVER, STR_FOR_KEY and STR_FOR_VAR_KEY.
+- The library forloop.s7i has been improved to use the new actions
+  STR_FOR_KEY and STR_FOR_VAR_KEY.
+- Checks for string for loops have been added to chkstr.sd7.
+- The library sql_base.s7i has been improved to support the new
+  functions driver() and getTableNames(). The function getTableNames
+  returns a list of user table names.
+- The function sqlDriver has been added to sql_rtl.c.
+
 20190107:
 - A chapter about the handling of errors in interpreter and run-time
   library has been added to the manual.

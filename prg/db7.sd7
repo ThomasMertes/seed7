@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  db7.sd7       Database inspector with browser interface.        *)
-(*  Copyright (C) 2017  Thomas Mertes                               *)
+(*  Copyright (C) 2017 - 2019  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -30,15 +30,6 @@ $ include "seed7_05.s7i";
   include "sql_base.s7i";
 
 
-# Get list of tables:
-# SqLite:     SELECT name FROM sqlite_master WHERE type='table'
-# Odbc:       SELECT table_name FROM information_schema.tables
-# Postgresql: SELECT table_name FROM information_schema.tables
-# MySql:      SHOW TABLES
-# OCI:        select table_name from cat
-# Fire:       SELECT rdb$relation_name FROM rdb$relations WHERE rdb$view_blr IS NULL AND (rdb$system_flag IS NULL OR rdb$system_flag = 0)
-
-
 var submitButton: exit is submitButton(dialogColumn(image(createPixmap(exit_pic, 1, light_gray)) & label("Exit")));
 var submitButton: logout is submitButton(dialogColumn(image(createPixmap(on_off_pic, 1, light_gray)) & label("Logout")));
 
@@ -53,13 +44,12 @@ const func string: noCtrlChars (in string: stri) is func
   result
     var string: noCtrlChars is "";
   local
-    const set of char: ctrlChars is {'\0;' .. '\31;'} | {'\127;' .. '\160;'};
     var char: ch is ' ';
     var integer: index is 0;
   begin
     noCtrlChars := stri;
     for ch key index range stri do
-      if ch in ctrlChars then
+      if ch < ' ' or ch >= '\127;' and ch <= '\160;' then
         noCtrlChars @:= [index] '?';
       elsif ch = '\173;' then
         noCtrlChars @:= [index] '-';
@@ -89,7 +79,7 @@ const type: tableDataType is array array string;
 
 
 const func tableDataType: fetchLines (in sqlStatement: statement,
-    in integer: numLines) is func
+    in integer: numLines, in integer: maxWidth) is func
   result
     var tableDataType: tableData is 0 times 0 times "";
   local
@@ -102,7 +92,7 @@ const func tableDataType: fetchLines (in sqlStatement: statement,
     tableData := numLines times columnCount times "";
     for line range 1 to numLines until not fetch(statement) do
       for column range 1 to columnCount do
-        if failed(columnValue := noCtrlChars(column(statement, column, string))     ) and
+        if failed(columnValue :=             column(statement, column, string)      ) and
            failed(columnValue := str(        column(statement, column, integer))    ) and
            failed(columnValue := str(        column(statement, column, bigInteger)) ) and
            failed(columnValue := str(        column(statement, column, bigRational))) and
@@ -112,7 +102,11 @@ const func tableDataType: fetchLines (in sqlStatement: statement,
            failed(columnValue := str(        column(statement, column, boolean))    ) then
           columnValue := "";
         end if;
-        tableData[line][column] := columnValue;
+        if length(columnValue) > maxWidth then
+          tableData[line][column] := noCtrlChars(columnValue[.. maxWidth]) & "...";
+        else
+          tableData[line][column] := noCtrlChars(columnValue);
+        end if;
       end for;
     end for;
     tableData := tableData[.. pred(line)];
@@ -160,7 +154,8 @@ const proc: displayMessage (inout browserConnection: browser, in string: header,
 
 
 const proc: displayResult (inout browserConnection: browser,
-    in sqlStatement: statement, in string: command, in integer: numLines) is func
+    in sqlStatement: statement, in string: command, in integer: numLines,
+    in integer: maxWidth) is func
   local
     var submitButton: returnButton is submitButton(dialogColumn(image(createPixmap(return_pic, 1, light_gray)) & label("Return")));
     var submitButton: next is submitButton(dialogColumn(image(createPixmap(right_arrow_pic, 1, light_gray)) & label("Next")));
@@ -171,7 +166,7 @@ const proc: displayResult (inout browserConnection: browser,
     var webPage: resultWebPage is webPage.value;
   begin
     repeat
-      tableData := fetchLines(statement, numLines);
+      tableData := fetchLines(statement, numLines, maxWidth);
       columnHeaders := dialogSequenceBase.value;
       for column range 1 to columnCount(statement) do
         columnHeaders &:= label(columnName(statement, column));
@@ -183,9 +178,11 @@ const proc: displayResult (inout browserConnection: browser,
               image(readBmp("header3.bmp")) &
               header(1, "Database Inspector 7") &
               header(2, command) &
-              resultTable &
               vspace(20) &
-              dialogSequence(returnButton & next & logout & exit)
+              dialogSequence(returnButton & next & logout & exit) &
+              vspace(20) &
+              resultTable &
+              vspace(20)
             ));
       else
         resultWebPage := webForm("DB7",
@@ -193,11 +190,12 @@ const proc: displayResult (inout browserConnection: browser,
               image(readBmp("header3.bmp")) &
               header(1, "Database Inspector 7") &
               header(2, command) &
+              vspace(20) &
+              dialogSequence(returnButton & next & logout & exit) &
+              vspace(20) &
               resultTable &
               vspace(20) &
-              label("Nothing found.") &
-              vspace(20) &
-              dialogSequence(returnButton & next & logout & exit)
+              label("Nothing found.")
             ));
       end if;
       display(browser, resultWebPage);
@@ -205,8 +203,8 @@ const proc: displayResult (inout browserConnection: browser,
   end func;
 
 
-const proc: doExecute (inout browserConnection: browser,
-    in database: currDb, in var string: command, in integer: numLines) is func
+const proc: doExecute (inout browserConnection: browser, in database: currDb,
+    in var string: command, in integer: numLines, in integer: maxWidth) is func
   local
     const integer: width is 20;
     var sqlStatement: statement is sqlStatement.value;
@@ -228,7 +226,7 @@ const proc: doExecute (inout browserConnection: browser,
     end block;
     if not failed then
       if columnCount(statement) <> 0 then
-        displayResult(browser, statement, command, numLines);
+        displayResult(browser, statement, command, numLines, maxWidth);
       else
         displayMessage(browser, "Message", "Success.");
       end if;
@@ -236,12 +234,67 @@ const proc: doExecute (inout browserConnection: browser,
   end func;
 
 
+const proc: doCatalog (inout browserConnection: browser, in database: currDb) is func
+  local
+    var array string: tableNames is 0 times "";
+    var radioButton: tableRadioButton is radioButton.value;
+    var textField: numOfLines is textField("", 10);
+    var textField: maxColumnWidth is textField("", 10);
+    var integer: numLines is 10;
+    var integer: maxWidth is 50;
+    var submitButton: execute is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
+    var submitButton: returnButton is submitButton(dialogColumn(image(createPixmap(return_pic, 1, light_gray)) & label("Return")));
+    var resetButton: reset is resetButton(dialogColumn(image(createPixmap(reset_pic, 1, light_gray)) & label("Reset")));
+    var webPage: catalogWebPage is webPage.value;
+  begin
+    tableNames := sort(getTableNames(currDb, driver(currDb)));
+    tableRadioButton := radioButton(tableNames);
+    catalogWebPage := webForm("DB7",
+        dialogColumn(
+          image(readBmp("header3.bmp")) &
+          header(1, "Database Inspector 7") &
+          header(2, "Catalog") &
+          vspace(20) &
+          dialogSequence(execute & returnButton & reset & logout & exit) &
+          vspace(20) &
+          dialogSequence(label("Number of rows:") & numOfLines) &
+          vspace(20) &
+          dialogSequence(label("Maximum column width:") & maxColumnWidth) &
+          vspace(20) &
+          tableRadioButton
+        ));
+    repeat
+      numOfLines.content := str(numLines);
+      maxColumnWidth.content := str(maxWidth);
+      display(browser, catalogWebPage);
+      if not succeeds(numLines := integer parse (numOfLines.content)) then
+        displayMessage(browser, "Error", "Number of rows is not a number.");
+        execute.activated := FALSE;
+      end if;
+      if not succeeds(maxWidth := integer parse (maxColumnWidth.content)) then
+        displayMessage(browser, "Error", "Maximum column width is not a number.");
+        execute.activated := FALSE;
+      end if;
+      if numLines <= 0 then
+        displayMessage(browser, "Error", "Number of rows is less than or equal 0.");
+      elsif maxWidth <= 0 then
+        displayMessage(browser, "Error", "Maximum column width is less than or equal 0.");
+      elsif execute.activated then
+        doExecute(browser, currDb, "SELECT * FROM " & tableRadioButton.selected, numLines, maxWidth);
+      end if;
+    until returnButton.activated or logout.activated or exit.activated;
+  end func;
+
+
 const proc: doStatements (inout browserConnection: browser, in database: currDb) is func
   local
     var textField: select is textField("", 50);
     var textField: numOfLines is textField("", 10);
+    var textField: maxColumnWidth is textField("", 10);
     var integer: numLines is 10;
-    var submitButton: execute  is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
+    var integer: maxWidth is 50;
+    var submitButton: execute is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
+    var submitButton: catalog is submitButton(dialogColumn(image(createPixmap(book_pic, 1, light_gray)) & label("Catalog")));
     var resetButton: reset is resetButton(dialogColumn(image(createPixmap(reset_pic, 1, light_gray)) & label("Reset")));
     var webPage: selectWebPage is webPage.value;
   begin
@@ -254,22 +307,30 @@ const proc: doStatements (inout browserConnection: browser, in database: currDb)
           vspace(20) &
           dialogSequence(label("Number of rows:") & numOfLines) &
           vspace(20) &
-          dialogSequence(execute & reset & logout & exit)
+          dialogSequence(label("Maximum column width:") & maxColumnWidth) &
+          vspace(20) &
+          dialogSequence(execute & catalog & reset & logout & exit)
         ));
     repeat
       numOfLines.content := str(numLines);
+      maxColumnWidth.content := str(maxWidth);
       display(browser, selectWebPage);
-      block
-        numLines := integer parse (numOfLines.content);
-      exception
-        otherwise:
-          displayMessage(browser, "Error", "Number of rows is not a number.");
-          execute.activated := FALSE;
-      end block;
+      if not succeeds(numLines := integer parse (numOfLines.content)) then
+        displayMessage(browser, "Error", "Number of rows is not a number.");
+        execute.activated := FALSE;
+      end if;
+      if not succeeds(maxWidth := integer parse (maxColumnWidth.content)) then
+        displayMessage(browser, "Error", "Maximum column width is not a number.");
+        execute.activated := FALSE;
+      end if;
       if numLines <= 0 then
         displayMessage(browser, "Error", "Number of rows is less than or equal 0.");
+      elsif maxWidth <= 0 then
+        displayMessage(browser, "Error", "Maximum column width is less than or equal 0.");
+      elsif catalog.activated then
+        doCatalog(browser, currDb);
       elsif execute.activated then
-        doExecute(browser, currDb, select.content, numLines);
+        doExecute(browser, currDb, select.content, numLines, maxWidth);
       end if;
     until logout.activated or exit.activated;
   end func;

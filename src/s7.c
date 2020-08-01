@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -73,7 +73,7 @@ char *stack_base;
 memSizeType max_stack_size = 0;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2018 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2019 Thomas Mertes\n"
 
 
 

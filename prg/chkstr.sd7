@@ -12063,6 +12063,196 @@ const proc: check_string_assign_at is func
   end func;
 
 
+const proc: check_string_for is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var string: stri is "";
+    var integer: index is 0;
+    var integer: count is 0;
+    var char: ch is 'X';
+  begin
+    for ch range "" do
+      ok := FALSE;
+	end for;
+    for ch range stri do
+      ok := FALSE;
+	end for;
+
+	count := 0;
+    for ch range "X" do
+	  incr(count);
+      if ch <> 'X' then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 1 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    stri := "X";
+    for ch range stri do
+	  incr(count);
+      if ch <> 'X' then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 1 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    for ch range "abcdefghijklghijklmnopqxyz" do
+	  incr(count);
+      if ch <> "abcdefghijklghijklmnopqxyz"[count] then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 26 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    stri := "abcdefghijklghijklmnopqxyz";
+    for ch range stri do
+	  incr(count);
+      if ch <> "abcdefghijklghijklmnopqxyz"[count] then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 26 then
+      ok := FALSE;
+    end if;
+    if not ok then
+      writeln(" ***** for loops for strings do not work correct.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    for key index range "" do
+      ok := FALSE;
+	end for;
+    stri := "";
+    for key index range stri do
+      ok := FALSE;
+	end for;
+
+	count := 0;
+    for key index range "X" do
+	  incr(count);
+      if index <> 1 then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 1 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    stri := "X";
+    for key index range stri do
+	  incr(count);
+      if index <> 1 then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 1 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    for key index range "abcdefghijklghijklmnopqxyz" do
+	  incr(count);
+      if index <> count then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 26 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    stri := "abcdefghijklghijklmnopqxyz";
+    for key index range stri do
+	  incr(count);
+      if index <> count then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 26 then
+      ok := FALSE;
+    end if;
+    if not ok then
+      writeln(" ***** for key loops for strings do not work correct.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    for ch key index range "" do
+      ok := FALSE;
+	end for;
+    stri := "";
+    for ch key index range stri do
+      ok := FALSE;
+	end for;
+
+	count := 0;
+    for ch key index range "X" do
+	  incr(count);
+      if ch <> 'X' or index <> 1 then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 1 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    stri := "X";
+    for ch key index range stri do
+	  incr(count);
+      if ch <> 'X' or index <> 1 then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 1 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    for ch key index range "abcdefghijklghijklmnopqxyz" do
+	  incr(count);
+      if ch <> "abcdefghijklghijklmnopqxyz"[count] or index <> count then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 26 then
+      ok := FALSE;
+    end if;
+
+	count := 0;
+    stri := "abcdefghijklghijklmnopqxyz";
+    for ch key index range stri do
+	  incr(count);
+      if ch <> "abcdefghijklghijklmnopqxyz"[count] or index <> count then
+        ok := FALSE;
+      end if;
+	end for;
+    if count <> 26 then
+      ok := FALSE;
+    end if;
+    if not ok then
+      writeln(" ***** for var key loops for strings do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("String for loops work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   local
@@ -12086,4 +12276,5 @@ const proc: main is func
     check_string_assign;
     check_string_append;
     check_string_assign_at;
+    check_string_for;
   end func;

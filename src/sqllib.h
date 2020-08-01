@@ -54,6 +54,7 @@ objectType sql_create_db         (listType arguments);
 objectType sql_create_stmt       (listType arguments);
 objectType sql_destr_db          (listType arguments);
 objectType sql_destr_stmt        (listType arguments);
+objectType sql_driver            (listType arguments);
 objectType sql_empty_db          (listType arguments);
 objectType sql_empty_stmt        (listType arguments);
 objectType sql_eq_db             (listType arguments);

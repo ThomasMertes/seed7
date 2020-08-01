@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  tar.s7i       Tar archive library                               *)
 (*  Copyright (C) 1994, 2004, 2005, 2010, 2014  Thomas Mertes       *)
-(*  Copyright (C) 2016, 2017  Thomas Mertes                         *)
+(*  Copyright (C) 2016 - 2019  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -30,6 +30,7 @@
 include "stdio.s7i";
 include "time.s7i";
 include "filesys.s7i";
+include "unicode.s7i";
 
 
 const string: TMAGIC is "ustar";
@@ -189,7 +190,7 @@ const func integer: tarChksum (in string: stri) is func
   end func;
 
 
-const func tarHeader: (attr tarHeader) parse (in string: stri) is func
+const func tarHeader: tarHeader(in string: stri) is func
   result
     var tarHeader: header is tarHeader.value;
   begin
@@ -221,7 +222,7 @@ const func tarHeader: readHeadBlock (inout file: inFile) is func
   begin
     stri := gets(inFile, TAR_BLOCK_SIZE);
     if length(stri) = TAR_BLOCK_SIZE then
-      header := tarHeader parse stri;
+      header := tarHeader(stri);
       # The checksum is computed with an empty chksum field:
       header.chksumOkay :=
           tarChksum(stri[ .. 148] & ("" lpad 8) & stri[157 .. ]) = header.chksum;
@@ -232,35 +233,45 @@ const func tarHeader: readHeadBlock (inout file: inFile) is func
 
 const proc: readHead (inout file: inFile, inout tarHeader: header) is func
   local
-    var string: filePath is "";
-    var string: linkPath is "";
+    var string: filePath8 is "";
+    var string: linkPath8 is "";
   begin
     header := readHeadBlock(inFile);
     # showHeader(STD_OUT, header);
     while header.name = "././@LongLink" and header.magic = TMAGIC and
         (header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) do
       if header.typeflag = LONGNAMETYPE then
-        filePath := gets(inFile, header.size);
+        filePath8 := gets(inFile, header.size);
       else  # header.typeflag = LONGLINKTYPE
-        linkPath := gets(inFile, header.size);
+        linkPath8 := gets(inFile, header.size);
       end if;
       seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
       # seek(inFile, succ(succ((tell(inFile) - 2) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
       header := readHeadBlock(inFile);
       # showHeader(STD_OUT, header);
     end while;
-    if filePath <> "" then
-      header.filePath := filePath;
-    elsif header.prefix <> "" then
-      header.filePath := header.prefix & "/" & header.name;
-    else
-      header.filePath := header.name;
+    if filePath8 = "" then
+      if header.prefix <> "" then
+        filePath8 := header.prefix & "/" & header.name;
+      else
+        filePath8 := header.name;
+      end if;
     end if;
-    if linkPath <> "" then
-      header.linkPath := linkPath;
-    else
-      header.linkPath := header.linkname;
+    block
+      header.filePath := utf8ToStri(filePath8);
+    exception
+      catch RANGE_ERROR:
+        header.filePath := filePath8;
+    end block;
+    if linkPath8 = "" then
+      linkPath8 := header.linkname;
     end if;
+    block
+      header.linkPath := utf8ToStri(linkPath8);
+    exception
+      catch RANGE_ERROR:
+        header.linkPath := linkPath8;
+    end block;
     if endsWith(header.filePath, "/") and header.filePath <> "/" then
       header.filePath := header.filePath[.. pred(length(header.filePath))];
       header.filePathSuffix := "/";
@@ -293,14 +304,14 @@ const func tarHeader: readMinimumOfHeadBlock (inout file: inFile) is func
 
 const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is func
   local
-    var string: filePath is "";
+    var string: filePath8 is "";
   begin
     header := readMinimumOfHeadBlock(inFile);
     # showHeader(STD_OUT, header);
     while header.name = "././@LongLink" and header.magic = TMAGIC and
         (header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) do
       if header.typeflag = LONGNAMETYPE then
-        filePath := gets(inFile, header.size);
+        filePath8 := gets(inFile, header.size);
         seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
         # seek(inFile, succ(succ((tell(inFile) - 2) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
       else  # header.typeflag = LONGLINKTYPE
@@ -310,13 +321,19 @@ const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is f
       header := readMinimumOfHeadBlock(inFile);
       # showHeader(STD_OUT, header);
     end while;
-    if filePath <> "" then
-      header.filePath := filePath;
-    elsif header.prefix <> "" then
-      header.filePath := header.prefix & "/" & header.name;
-    else
-      header.filePath := header.name;
+    if filePath8 = "" then
+      if header.prefix <> "" then
+        filePath8 := header.prefix & "/" & header.name;
+      else
+        filePath8 := header.name;
+      end if;
     end if;
+    block
+      header.filePath := utf8ToStri(filePath8);
+    exception
+      catch RANGE_ERROR:
+        header.filePath := filePath8;
+    end block;
     if endsWith(header.filePath, "/") and header.filePath <> "/" then
       header.filePath := header.filePath[.. pred(length(header.filePath))];
     end if;
@@ -353,27 +370,23 @@ const func string: str (in tarHeader: header) is func
   end func;
 
 
-const proc: writeHeadBlock (inout file: outFile, in tarHeader: header) is func
-  begin
-    write(outFile, str(header));
-  end func;
-
-
 const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
   local
+    var string: filePath8 is "";
     var tarHeader: longNameHead is tarHeader.value;
     var integer: startPos is 0;
     var integer: slashPos is 0;
   begin
-    if header.filePath & header.filePathSuffix <> header.prefix & "/" & header.name then
-      if length(header.filePath) + length(header.filePathSuffix) > 100 then
-        if length(header.filePath) + length(header.filePathSuffix) <= 256 then
-          startPos := max(2, length(header.filePath) + length(header.filePathSuffix) - 100);
-          slashPos := pos(header.filePath, "/", startPos);
+    filePath8 := striToUtf8(header.filePath);
+    if filePath8 & header.filePathSuffix <> header.prefix & "/" & header.name then
+      if length(filePath8) + length(header.filePathSuffix) > 100 then
+        if length(filePath8) + length(header.filePathSuffix) <= 256 then
+          startPos := max(2, length(filePath8) + length(header.filePathSuffix) - 100);
+          slashPos := pos(filePath8, "/", startPos);
           if slashPos <> 0 then
             if slashPos <= 156 then  # Maximum prefix length is 155.
-              header.name := header.filePath[succ(slashPos) ..] & header.filePathSuffix;
-              header.prefix := header.filePath[.. pred(slashPos)];
+              header.name := filePath8[succ(slashPos) ..] & header.filePathSuffix;
+              header.prefix := filePath8[.. pred(slashPos)];
             else
               slashPos := 0;
             end if;
@@ -384,7 +397,7 @@ const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
           longNameHead.mode     := fileMode.value;
           longNameHead.uid      := 0;
           longNameHead.gid      := 0;
-          longNameHead.size     := length(header.filePath) + length(header.filePathSuffix);
+          longNameHead.size     := length(filePath8) + length(header.filePathSuffix);
           longNameHead.mtime    := 0;
           longNameHead.typeflag := LONGNAMETYPE;
           longNameHead.linkname := "";
@@ -395,17 +408,17 @@ const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
           longNameHead.devmajor := 0;
           longNameHead.devminor := 0;
           longNameHead.prefix   := "";
-          writeHeadBlock(outFile, longNameHead);
-          write(outFile, header.filePath);
+          write(outFile, str(longNameHead));
+          write(outFile, filePath8);
           write(outFile, header.filePathSuffix);
           write(outFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(longNameHead.size) mod TAR_BLOCK_SIZE);
-          header.name := (header.filePath & header.filePathSuffix)[.. 100];
+          header.name := (filePath8 & header.filePathSuffix)[.. 100];
         end if;
       else
-        header.name := header.filePath & header.filePathSuffix;
+        header.name := filePath8 & header.filePathSuffix;
       end if;
     end if;
-    writeHeadBlock(outFile, header);
+    write(outFile, str(header));
   end func;
 
 

@@ -70,6 +70,7 @@ databaseType sqlCreateDb (const databaseType db_from);
 sqlStmtType sqlCreateStmt (const sqlStmtType stmt_from);
 void sqlDestrDb (const databaseType old_db);
 void sqlDestrStmt (const sqlStmtType old_stmt);
+intType sqlDriver (databaseType database);
 intType sqlErrCode (void);
 striType sqlErrDbFunc (void);
 striType sqlErrLibFunc (void);

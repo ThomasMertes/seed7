@@ -334,7 +334,7 @@ void setupFiles (void)
       var fs = require('fs');
       /* FS.unmount('/'); */
       /* FS.mount(NODEFS, { root: 'c:/' }, '/root'); */
-      var workDir = process.cwd().replace(/\\\\/g, '/');
+      var workDir = process.cwd().replace(new RegExp("\\\\", "g"), '/');
       var mountPoint = '.';
       if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {
         workDir = '/' + workDir.charAt(0).toLowerCase() + workDir.substring(2);
@@ -356,7 +356,7 @@ void setupFiles (void)
       var workDir = process.cwd();
       // process.stdout.write(workDir);
       // process.stdout.write('\n');
-      workDir = workDir.replace(/\\\\/g, '/');
+      workDir = workDir.replace(new RegExp("\\\\", "g"), '/');
       // process.stdout.write(workDir);
       // process.stdout.write('\n');
       if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {

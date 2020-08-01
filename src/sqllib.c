@@ -540,6 +540,15 @@ objectType sql_destr_stmt (listType arguments)
 
 
 
+objectType sql_driver (listType arguments)
+
+  { /* sql_driver */
+    isit_database(arg_1(arguments));
+    return bld_int_temp(sqlDriver(take_database(arg_1(arguments))));
+  } /* sql_driver */
+
+
+
 objectType sql_empty_db (listType arguments)
 
   { /* sql_empty_db */

@@ -59,6 +59,7 @@
 typedef struct dbStruct {
     uintType     usage_count;
     sqlFuncType  sqlFunc;
+    intType      driver;
   } dbRecord, *dbType;
 
 typedef struct preparedStmtStruct {
@@ -1072,6 +1073,27 @@ void sqlDestrStmtGeneric (const genericType old_value)
 
 
 
+intType sqlDriver (databaseType database)
+
+  {
+    intType driver;
+
+  /* sqlDriver */
+    logFunction(printf("sqlDriver(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlDriver: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+      driver = 0;
+    } else {
+      driver = ((dbType) database)->driver;
+    } /* if */
+    logFunction(printf("sqlDriver --> " FMT_D "\n", driver););
+    return driver;
+  } /* sqlDriver */
+
+
+
 intType sqlErrCode (void)
 
   { /* sqlErrCode */
@@ -1280,6 +1302,9 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
         database = NULL;
         break;
     } /* switch */
+    if (database != NULL) {
+      ((dbType) database)->driver = driver;
+    } /* if */
     logFunction(printf("sqlOpen --> " FMT_U_MEM "\n",
                        (memSizeType) database););
     return database;

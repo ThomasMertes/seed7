@@ -68,6 +68,7 @@ typedef struct {
     unsigned long prog;
     unsigned long polldata;
     unsigned long prepared_stmt;
+    unsigned long fetch_data;
     unsigned long sql_func;
     unsigned long win;
     unsigned long database;
@@ -84,7 +85,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0};
+                   0, 0, 0, 0, 0, 0};
 #else
 EXTERN countType count;
 #endif

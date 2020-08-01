@@ -105,6 +105,8 @@ const database: (attr database) . value                        is _GENERATE_EMPT
 const func boolean: (in database: db1) = (in database: db2)    is action "SQL_EQ_DB";
 const func boolean: (in database: db1) <> (in database: db2)   is action "SQL_NE_DB";
 
+const func integer: DRIVER_NUM (in database: db)               is action "SQL_DRIVER";
+
 
 (**
  *  Abstract data type to store a prepared sql statement.
@@ -634,3 +636,34 @@ const func string: libFunction (DATABASE_ERROR)                                 
 const func string: dbFunction (DATABASE_ERROR)                                         is action "SQL_ERR_DB_FUNC";
 const func integer: errCode (DATABASE_ERROR)                                           is action "SQL_ERR_CODE";
 const func string: errMessage (DATABASE_ERROR)                                         is action "SQL_ERR_MESSAGE";
+
+
+const func dbCategory: driver (in database: db) is
+  return dbCategory conv DRIVER_NUM(db);
+
+
+const func array string: getTableNames (in database: currDb,
+    in dbCategory: databaseKind) is func
+  result
+    var array string: tableNames is 0 times "";
+  local
+    var string: getTableNames is "";
+    var sqlStatement: tableList is sqlStatement.value;
+    var string: tableName is "";
+  begin
+    case databaseKind of
+      when {DB_MYSQL}:      getTableNames := "show tables";
+      when {DB_SQLITE}:     getTableNames := "SELECT name FROM sqlite_master WHERE type='table'";
+      when {DB_POSTGRESQL}: getTableNames := "SELECT table_name FROM information_schema.tables WHERE table_schema='public'";
+      when {DB_OCI}:        getTableNames := "SELECT table_name FROM user_tables";
+      when {DB_ODBC}:       getTableNames := "SELECT table_name FROM information_schema.tables";
+      when {DB_FIRE}:       getTableNames := "SELECT rdb$relation_name FROM rdb$relations \
+                                             \WHERE rdb$view_blr IS NULL AND (rdb$system_flag IS NULL OR rdb$system_flag = 0)";
+    end case;
+    tableList := prepare(currDb, getTableNames);
+    execute(tableList);
+    while fetch(tableList) do
+      tableName := column(tableList, 1, string);
+      tableNames &:= tableName;
+    end while;
+  end func;

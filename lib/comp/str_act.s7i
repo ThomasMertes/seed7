@@ -35,6 +35,8 @@ const ACTION: STR_CPY         is action "STR_CPY";
 const ACTION: STR_ELEMCPY     is action "STR_ELEMCPY";
 const ACTION: STR_EQ          is action "STR_EQ";
 const ACTION: STR_FOR         is action "STR_FOR";
+const ACTION: STR_FOR_KEY     is action "STR_FOR_KEY";
+const ACTION: STR_FOR_VAR_KEY is action "STR_FOR_VAR_KEY";
 const ACTION: STR_GE          is action "STR_GE";
 const ACTION: STR_GT          is action "STR_GT";
 const ACTION: STR_HASHCODE    is action "STR_HASHCODE";
@@ -1058,6 +1060,82 @@ const proc: process (STR_FOR, in reference: function,
     statement.expr &:= index_name;
     statement.expr &:= "];\n";
     process_call_by_name_expr(params[6], statement);
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (STR_FOR_KEY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: size_name is "";
+    var string: index_name is "";
+    var string: stri_name is "";
+    var expr_type: statement is expr_type.value;
+  begin
+    size_name := defineTempVariable("memSizeType", "size_", statement);
+    index_name := defineTempVariable("memSizeType", "index_", statement);
+    statement.expr &:= "for (";
+    stri_name := getParameterAsVariable("const_striType", "stri_", params[5], statement);
+    statement.expr &:= size_name;
+    statement.expr &:= "=";
+    statement.expr &:= stri_name;
+    statement.expr &:= "->size,";
+    statement.expr &:= index_name;
+    statement.expr &:= "=0; ";
+    statement.expr &:= index_name;
+    statement.expr &:= "<";
+    statement.expr &:= size_name;
+    statement.expr &:= "; (";
+    statement.expr &:= index_name;
+    statement.expr &:= ")++) {\n";
+    process_expr(params[3], statement);
+    statement.expr &:= "= (intType)(";
+    statement.expr &:= index_name;
+    statement.expr &:= " + 1);\n";
+    process_call_by_name_expr(params[7], statement);
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (STR_FOR_VAR_KEY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: size_name is "";
+    var string: index_name is "";
+    var string: stri_name is "";
+    var expr_type: statement is expr_type.value;
+  begin
+    size_name := defineTempVariable("memSizeType", "size_", statement);
+    index_name := defineTempVariable("memSizeType", "index_", statement);
+    statement.expr &:= "for (";
+    stri_name := getParameterAsVariable("const_striType", "stri_", params[6], statement);
+    statement.expr &:= size_name;
+    statement.expr &:= "=";
+    statement.expr &:= stri_name;
+    statement.expr &:= "->size,";
+    statement.expr &:= index_name;
+    statement.expr &:= "=0; ";
+    statement.expr &:= index_name;
+    statement.expr &:= "<";
+    statement.expr &:= size_name;
+    statement.expr &:= "; (";
+    statement.expr &:= index_name;
+    statement.expr &:= ")++) {\n";
+    process_expr(params[2], statement);
+    statement.expr &:= "=";
+    statement.expr &:= stri_name;
+    statement.expr &:= "->mem[";
+    statement.expr &:= index_name;
+    statement.expr &:= "];\n";
+    process_expr(params[4], statement);
+    statement.expr &:= "= (intType)(";
+    statement.expr &:= index_name;
+    statement.expr &:= " + 1);\n";
+    process_call_by_name_expr(params[8], statement);
     statement.expr &:= "}\n";
     doLocalDeclsOfStatement(statement, c_expr);
   end func;

@@ -62,6 +62,7 @@
 typedef struct {
     uintType     usage_count;
     sqlFuncType  sqlFunc;
+    intType      driver;
     sqlite3     *connection;
   } dbRecord, *dbType;
 
@@ -353,6 +354,10 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
       logError(printf("setupParameters: Sqlite3_bind_parameter_count "
                       "returns negative column count: %d\n", param_count););
       err_info = DATABASE_ERROR;
+    } else if (param_count == 0) {
+      /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
+      preparedStmt->param_array_size = 0;
+      preparedStmt->param_array = NULL;
     } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
                                      bindDataRecord, (memSizeType) param_count))) {
       err_info = MEMORY_ERROR;
@@ -478,6 +483,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
         if (unlikely(decimal == NULL)) {
           raise_error(err_info);
         } else if (unlikely(length > INT_MAX)) {
+          /* It is not possible to cast length to int. */
           free(decimal);
           raise_error(MEMORY_ERROR);
         } else if (unlikely(sqlite3_bind_blob(preparedStmt->ppStmt,
@@ -584,6 +590,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           /* printf("precision: " FMT_U_MEM "\n", precision); */
           if (precision > DBL_DIG) {
             if (unlikely(length > INT_MAX)) {
+              /* It is not possible to cast length to int. */
               free(decimal);
               raise_error(MEMORY_ERROR);
             } else {
@@ -704,6 +711,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
         raise_error(err_info);
       } else if (unlikely(bstri->size > INT_MAX ||
                           !ALLOC_CSTRI(blob, bstri->size))) {
+        /* It is not possible to cast length to int or malloc() failed. */
         raise_error(MEMORY_ERROR);
       } else {
         memcpy(blob, bstri->mem, bstri->size);
@@ -1017,6 +1025,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
       } else if (unlikely((stri8 = stri_to_cstri8_buf(stri, &length)) == NULL)) {
         raise_error(MEMORY_ERROR);
       } else if (unlikely(length > INT_MAX)) {
+        /* It is not possible to cast length to int. */
         free_cstri8(stri8, stri);
         raise_error(MEMORY_ERROR);
       } else {
@@ -2064,7 +2073,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
   {
     dbType db;
     cstriType query;
-    memSizeType query_length;
+    memSizeType queryLength;
     int prepare_result;
     int column_count;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -2080,23 +2089,25 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      query = stri_to_cstri8_buf(sqlStatementStri, &query_length);
+      query = stri_to_cstri8_buf(sqlStatementStri, &queryLength);
       if (unlikely(query == NULL)) {
         err_info = MEMORY_ERROR;
         preparedStmt = NULL;
-      } else if (unlikely(query_length > INT_MAX)) {
-        logError(printf("sqlPrepare: Statement string too long.\n"););
-        err_info = RANGE_ERROR;
-        preparedStmt = NULL;
       } else {
-        if (unlikely(!ALLOC_RECORD(preparedStmt, preparedStmtRecord,
-                                   count.prepared_stmt))) {
+        if (unlikely(queryLength > INT_MAX)) {
+          /* It is not possible to cast queryLength to int. */
+          logError(printf("sqlPrepare: Statement string too long (length = " FMT_U_MEM ")\n",
+                          queryLength););
+          err_info = RANGE_ERROR;
+          preparedStmt = NULL;
+        } else if (unlikely(!ALLOC_RECORD(preparedStmt, preparedStmtRecord,
+                                          count.prepared_stmt))) {
           err_info = MEMORY_ERROR;
         } else {
           memset(preparedStmt, 0, sizeof(preparedStmtRecord));
           prepare_result = sqlite3_prepare(db->connection,
                                            query,
-                                           (int) query_length,
+                                           (int) queryLength,
                                            &preparedStmt->ppStmt,
                                            NULL);
           if (unlikely(prepare_result != SQLITE_OK)) {

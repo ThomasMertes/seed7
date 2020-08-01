@@ -146,31 +146,41 @@ void STDCALL mysql_close (MYSQL *sock);
 my_bool STDCALL mysql_commit (MYSQL *mysql);
 unsigned int STDCALL mysql_errno (MYSQL *mysql);
 const char *STDCALL mysql_error (MYSQL *mysql);
-MYSQL_FIELD *STDCALL mysql_fetch_field_direct (MYSQL_RES *res, unsigned int fieldnr);
+MYSQL_FIELD *STDCALL mysql_fetch_field_direct (MYSQL_RES *res,
+                                               unsigned int fieldnr);
 void STDCALL mysql_free_result (MYSQL_RES *result);
 MYSQL *STDCALL mysql_init (MYSQL *mysql);
 unsigned int STDCALL mysql_num_fields (MYSQL_RES *res);
-int STDCALL mysql_options (MYSQL *mysql,enum mysql_option option, const void *arg);
-MYSQL *STDCALL mysql_real_connect (MYSQL *mysql, const char *host,
+int STDCALL mysql_options (MYSQL *mysql,
+                           enum mysql_option option,
+                           const void *arg);
+MYSQL *STDCALL mysql_real_connect (MYSQL *mysql,
+                                   const char *host,
                                    const char *user,
                                    const char *passwd,
                                    const char *db,
                                    unsigned int port,
                                    const char *unix_socket,
                                    unsigned long clientflag);
-int STDCALL mysql_set_character_set (MYSQL *mysql, const char *csname);
-my_bool STDCALL mysql_stmt_bind_param (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
-my_bool STDCALL mysql_stmt_bind_result (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
+int STDCALL mysql_set_character_set (MYSQL *mysql,
+                                     const char *csname);
+my_bool STDCALL mysql_stmt_bind_param (MYSQL_STMT *stmt,
+                                       MYSQL_BIND *bnd);
+my_bool STDCALL mysql_stmt_bind_result (MYSQL_STMT *stmt,
+                                        MYSQL_BIND *bnd);
 my_bool STDCALL mysql_stmt_close (MYSQL_STMT *stmt);
 unsigned int STDCALL mysql_stmt_errno (MYSQL_STMT *stmt);
 const char *STDCALL mysql_stmt_error (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_execute (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_fetch (MYSQL_STMT *stmt);
-int STDCALL mysql_stmt_fetch_column (MYSQL_STMT *stmt, MYSQL_BIND *bnd,
+int STDCALL mysql_stmt_fetch_column (MYSQL_STMT *stmt,
+                                     MYSQL_BIND *bnd,
                                      unsigned int column,
                                      unsigned long offset);
 MYSQL_STMT *STDCALL mysql_stmt_init (MYSQL *mysql);
 unsigned long STDCALL mysql_stmt_param_count (MYSQL_STMT *stmt);
-int STDCALL mysql_stmt_prepare (MYSQL_STMT *stmt, const char *query, unsigned long length);
+int STDCALL mysql_stmt_prepare (MYSQL_STMT *stmt,
+                                const char *query,
+                                unsigned long length);
 MYSQL_RES *STDCALL mysql_stmt_result_metadata (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_store_result (MYSQL_STMT *stmt);

@@ -263,7 +263,7 @@ const proc: for (in integer: numRepeats) do
 
 
 (**
- *  For-loop which loops over the [[char|characters]] of a [[string]]
+ *  For-loop which loops over the [[char|characters]] of a [[string]].
  *)
 const proc: for (inout char: variable) range (in string: stri) do
               (in proc: statements)
@@ -275,12 +275,7 @@ const proc: for (inout char: variable) range (in string: stri) do
  *)
 const proc: for key (inout integer: keyVar) range (in string: stri) do
               (in proc: statements)
-            end for is func
-  begin
-    for keyVar range 1 to length(stri) do
-      statements;
-    end for;
-  end func;
+            end for is                                                      action "STR_FOR_KEY";
 
 
 (**
@@ -288,13 +283,7 @@ const proc: for key (inout integer: keyVar) range (in string: stri) do
  *)
 const proc: for (inout char: variable) key (inout integer: keyVar) range (in string: stri) do
               (in proc: statements)
-            end for is func
-  begin
-    for keyVar range 1 to length(stri) do
-      variable := stri[keyVar];
-      statements;
-    end for;
-  end func;
+            end for is                                                      action "STR_FOR_VAR_KEY";
 
 
 (**

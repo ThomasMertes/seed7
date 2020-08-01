@@ -53,6 +53,7 @@ const ACTION: SQL_CREATE_DB          is action "SQL_CREATE_DB";
 const ACTION: SQL_CREATE_STMT        is action "SQL_CREATE_STMT";
 const ACTION: SQL_DESTR_DB           is action "SQL_DESTR_DB";
 const ACTION: SQL_DESTR_STMT         is action "SQL_DESTR_STMT";
+const ACTION: SQL_DRIVER             is action "SQL_DRIVER";
 const ACTION: SQL_EMPTY_DB           is action "SQL_EMPTY_DB";
 const ACTION: SQL_EMPTY_STMT         is action "SQL_EMPTY_STMT";
 const ACTION: SQL_EQ_DB              is action "SQL_EQ_DB";
@@ -108,6 +109,7 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        sqlDestrDbGeneric (const genericType);");
     declareExtern(c_prog, "void        sqlDestrStmt (const sqlStmtType);");
     declareExtern(c_prog, "void        sqlDestrStmtGeneric (const genericType);");
+    declareExtern(c_prog, "intType     sqlDriver (databaseType);");
     declareExtern(c_prog, "intType     sqlErrCode (void);");
     declareExtern(c_prog, "striType    sqlErrDbFunc (void);");
     declareExtern(c_prog, "striType    sqlErrLibFunc (void);");
@@ -613,6 +615,16 @@ const proc: process (SQL_CPY_STMT, in reference: function,
       appendWithDiagnostic(c_param3.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
     end if;
+  end func;
+
+
+const proc: process (SQL_DRIVER, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "sqlDriver(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 

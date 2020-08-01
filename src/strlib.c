@@ -666,6 +666,9 @@ objectType str_eq (listType arguments)
 
 
 
+/**
+ *  For-loop which loops over the characters of a 'string'.
+ */
 objectType str_for (listType arguments)
 
   {
@@ -687,6 +690,65 @@ objectType str_for (listType arguments)
     } /* for */
     return SYS_EMPTY_OBJECT;
   } /* str_for */
+
+
+
+/**
+ *  For-loop which loops over the keys (indices) of a 'string'.
+ */
+objectType str_for_key (listType arguments)
+
+  {
+    objectType key_variable;
+    striType stri;
+    objectType statement;
+    memSizeType pos;
+
+  /* str_for_key */
+    key_variable = arg_3(arguments);
+    is_variable(key_variable);
+    isit_int(key_variable);
+    isit_stri(arg_5(arguments));
+    stri = take_stri(arg_5(arguments));
+    statement = arg_7(arguments);
+    for (pos = 0; pos < stri->size && !fail_flag; pos++) {
+      key_variable->value.intValue = (intType) (pos + 1);
+      evaluate(statement);
+    } /* for */
+    return SYS_EMPTY_OBJECT;
+  } /* str_for_key */
+
+
+
+/**
+ *  For-loop which loops over characters and keys (indices) of a 'string'.
+ */
+objectType str_for_var_key (listType arguments)
+
+  {
+    objectType for_variable;
+    objectType key_variable;
+    striType stri;
+    objectType statement;
+    memSizeType pos;
+
+  /* str_for_var_key */
+    for_variable = arg_2(arguments);
+    isit_char(for_variable);
+    is_variable(for_variable);
+    key_variable = arg_4(arguments);
+    is_variable(key_variable);
+    isit_int(key_variable);
+    isit_stri(arg_6(arguments));
+    stri = take_stri(arg_6(arguments));
+    statement = arg_8(arguments);
+    for (pos = 0; pos < stri->size && !fail_flag; pos++) {
+      for_variable->value.charValue = stri->mem[pos];
+      key_variable->value.intValue = (intType) (pos + 1);
+      evaluate(statement);
+    } /* for */
+    return SYS_EMPTY_OBJECT;
+  } /* str_for_var_key */
 
 
 

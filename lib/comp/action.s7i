@@ -1533,6 +1533,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SQL_CPY_DB, function, params, c_expr);
       when {"SQL_CPY_STMT"}:
         process(SQL_CPY_STMT, function, params, c_expr);
+      when {"SQL_DRIVER"}:
+        process(SQL_DRIVER, function, params, c_expr);
       when {"SQL_EQ_DB"}:
         process(SQL_EQ_DB, function, params, c_expr);
       when {"SQL_EQ_STMT"}:
@@ -1585,6 +1587,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(STR_EQ, function, params, c_expr);
       when {"STR_FOR"}:
         process(STR_FOR, function, params, c_expr);
+      when {"STR_FOR_KEY"}:
+        process(STR_FOR_KEY, function, params, c_expr);
+      when {"STR_FOR_VAR_KEY"}:
+        process(STR_FOR_VAR_KEY, function, params, c_expr);
       when {"STR_GE"}:
         process(STR_GE, function, params, c_expr);
       when {"STR_GT"}:

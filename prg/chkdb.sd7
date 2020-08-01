@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "bstring.s7i";
   include "time.s7i";
   include "duration.s7i";
+  include "console.s7i";
 
 
 const func boolean: raisesRangeError (ref proc: expression) is func
@@ -106,7 +107,7 @@ const func boolean: withRangeCheck (in dbCategory: databaseKind) is func
       when {DB_MYSQL}:      withRangeCheck := FALSE;
       when {DB_SQLITE}:     withRangeCheck := FALSE;
       when {DB_POSTGRESQL}: withRangeCheck := TRUE;
-      when {DB_OCI}:        withRangeCheck := TRUE;
+      when {DB_OCI}:        withRangeCheck := FALSE;
       when {DB_ODBC}:       withRangeCheck := TRUE;
       when {DB_FIRE}:       withRangeCheck := TRUE;
     end case;
@@ -398,17 +399,17 @@ const func char: maxChar1FieldCharacter (in dbCategory: databaseKind) is func
   end func;
 
 
-const func boolean: preserveSpacesAtCharFieldEnd (in dbCategory: databaseKind) is func
+const func boolean: charFieldPreservesTrailingSpaces (in dbCategory: databaseKind) is func
   result
-    var boolean: preserveSpacesAtCharFieldEnd is FALSE;
+    var boolean: charFieldPreservesTrailingSpaces is FALSE;
   begin
     case databaseKind of
-      when {DB_MYSQL}:      preserveSpacesAtCharFieldEnd := FALSE;
-      when {DB_SQLITE}:     preserveSpacesAtCharFieldEnd := TRUE;
-      when {DB_POSTGRESQL}: preserveSpacesAtCharFieldEnd := FALSE;
-      when {DB_OCI}:        preserveSpacesAtCharFieldEnd := FALSE;
-      when {DB_ODBC}:       preserveSpacesAtCharFieldEnd := FALSE;
-      when {DB_FIRE}:       preserveSpacesAtCharFieldEnd := FALSE;
+      when {DB_MYSQL}:      charFieldPreservesTrailingSpaces := FALSE;
+      when {DB_SQLITE}:     charFieldPreservesTrailingSpaces := TRUE;
+      when {DB_POSTGRESQL}: charFieldPreservesTrailingSpaces := FALSE;
+      when {DB_OCI}:        charFieldPreservesTrailingSpaces := FALSE;
+      when {DB_ODBC}:       charFieldPreservesTrailingSpaces := FALSE;
+      when {DB_FIRE}:       charFieldPreservesTrailingSpaces := FALSE;
     end case;
   end func;
 
@@ -495,7 +496,7 @@ const func string: timeType (in dbCategory: databaseKind) is func
       when {DB_MYSQL}:      timeType := "DATETIME";
       when {DB_SQLITE}:     timeType := "VARCHAR";
       when {DB_POSTGRESQL}: timeType := "TIMESTAMP";
-      when {DB_OCI}:        timeType := "TIMESTAMP_TZ";
+      when {DB_OCI}:        timeType := "TIMESTAMP WITH TIME ZONE";
       when {DB_ODBC}:       timeType := "DATETIME2";
       when {DB_FIRE}:       timeType := "TIMESTAMP";
     end case;
@@ -510,7 +511,7 @@ const func string: durationType (in dbCategory: databaseKind) is func
       when {DB_MYSQL}:      durationType := "DATETIME";
       when {DB_SQLITE}:     durationType := "VARCHAR(32)";
       when {DB_POSTGRESQL}: durationType := "INTERVAL";
-      when {DB_OCI}:        durationType := "INTERVAL";
+      when {DB_OCI}:        durationType := "INTERVAL DAY TO SECOND";
       when {DB_ODBC}:       durationType := "DATETIMEOFFSET"; # "INTERVAL DAY(3) TO SECOND(6)";
       when {DB_FIRE}:       durationType := "TIMESTAMP";
     end case;
@@ -691,7 +692,7 @@ const proc: DECL_INSERT (in type: elemType) is func
           succeedAction;
           state.okay := FALSE;
           if state.details then
-            writeln(" *** " <& anElement <& " did not trigger an exception.");
+            writeln(" *** Insert " <& anElement <& " did not trigger an exception.");
           end if;
         end if;
       end func;
@@ -792,17 +793,46 @@ const proc: insert (in database: testDb, inout testState: state,
 const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("testTable", "charField", FALSE);
+    var database: emptyDb is database.value;
   begin
     if state.details then
       writeln("testPrepareAndExecute");
     end if;
     block
+      execute(state.statement); # Executing an empty statement does nothing.
+      if  not raisesRangeError(bind(state.statement, 1, 1_)) or
+          not raisesRangeError(bind(state.statement, 1, 1_ / 1_)) or
+          not raisesRangeError(bind(state.statement, 1, TRUE)) or
+          not raisesRangeError(bind(state.statement, 1, bstring("x"))) or
+          not raisesRangeError(bind(state.statement, 1, duration("P1D"))) or
+          not raisesRangeError(bind(state.statement, 1, 1.0)) or
+          not raisesRangeError(bind(state.statement, 1, 1)) or
+          not raisesRangeError(bind(state.statement, 1, NULL)) or
+          not raisesRangeError(bind(state.statement, 1, "x")) or
+          not raisesRangeError(bind(state.statement, 1, time("2010-11-12 13:14:15.16"))) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Binding an empty statement succeeds.");
+        end if;
+      end if;
+      if not raisesRangeError(state.statement := prepare(emptyDb,
+                                  "CREATE TABLE " & state.tableName &
+                                  " (" & state.fieldName & " CHAR)")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Preparing with empty database succeeds.");
+        end if;
+      end if;
+
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
                                  " (" & state.fieldName & " CHAR)");
       execute(state.statement);
+
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
                                  " WHERE " & state.fieldName & " = ?");
       if not raisesDatabaseError(execute(state.statement)) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
         state.okay := FALSE;
         if state.details then
           writeln(" *** Omitted binding did not raise DATABASE_ERROR.");
@@ -820,35 +850,198 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
           writeln(" *** Binding of non-existing parameter did not raise RANGE_ERROR.");
         end if;
       end if;
-      bind(state.statement, 1, "x");
-      execute(state.statement);
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName & " WHERE " & state.fieldName & " = ?")) then
+      if raisesRangeError(bind(state.statement, 1, "x")) then
         state.okay := FALSE;
         if state.details then
-          writeln(" *** Preparing a statement before a fetch of a previous statement is done raises DATABASE_ERROR. (1)");
+          writeln(" *** Binding of existing parameter raises RANGE_ERROR.");
         end if;
       end if;
-      bind(state.statement, 1, "x");
+      if raisesDatabaseError(execute(state.statement)) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute select statement with bind variable raises DATABASE_ERROR.");
+        end if;
+      elsif fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Fetching data from an empty table succeeds.");
+        end if;
+      end if;
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                 " WHERE " & state.fieldName & " = 'x'");
       execute(state.statement);
-      execute(state.statement);
+      # Prepare next statement before the result of executed statement is fetched.
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName & " WHERE " & state.fieldName & " = ?")) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Preparing a statement before a fetch of a previous statement is done raises DATABASE_ERROR. (empty table)");
+        end if;
+      end if;
+
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES ('x')");
       execute(state.statement);
+
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
                                  " WHERE " & state.fieldName & " = ?");
       bind(state.statement, 1, "x");
       execute(state.statement);
-      (*
+      if not fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Cannot fetch data from table with one entry.");
+        end if;
+      elsif fetch(state.statement) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Can fetch two entries from table with one entry.)");
+        end if;
+      end if;
+
+      execute(state.statement);
+      # Execute a second time before fetching data from the first execute.
+      execute(state.statement);
+      if not fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Cannot fetch data from table with one entry, when executing again.");
+        end if;
+      elsif fetch(state.statement) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Can fetch two entries from table with one entry, when executing again.)");
+        end if;
+      end if;
+
+      # Bind and execute again.
+      bind(state.statement, 1, "x");
+      execute(state.statement);
+      if not fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Cannot fetch data from table with one entry.");
+        end if;
+      elsif fetch(state.statement) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Can fetch two entries from table with one entry.)");
+        end if;
+      end if;
+
+      execute(state.statement);
+      # Bind and execute again although a previous execute is not fetched.
+      bind(state.statement, 1, "x");
+      execute(state.statement);
+      if not fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Cannot fetch data from table with one entry.");
+        end if;
+      elsif fetch(state.statement) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Can fetch two entries from table with one entry.)");
+        end if;
+      end if;
+
+      # Prepare next statement before the result of executed statement is fetched.
+      execute(state.statement);
       if raisesDatabaseError(
           state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
                                      " WHERE " & state.fieldName & " = ?")) then
+        # Reset statement to make sure that the next prepare works:
+        state.statement := sqlStatement.value;
         state.okay := FALSE;
         if state.details then
-          writeln(" *** Preparing a statement before a fetch of a previous statement is done raises DATABASE_ERROR. (2)");
+          writeln(" *** Preparing a statement before a fetch of a previous statement is done raises DATABASE_ERROR. (non-empty table)");
         end if;
       end if;
-      *)
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = 'x' /* ? */")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Question mark in comment interpreted as parameter placeholder.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Question mark in comment interpreted as parameter placeholder.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = 'x' -- ? \n")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Question mark in line comment interpreted as parameter placeholder.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Question mark in line comment interpreted as parameter placeholder.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = /*'*/?/*'*/")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (1)");
+        end if;
+      elsif raisesRangeError(bind(state.statement, 1, "x")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Bind: Quotation characters in comments are interpreted as literal. (1)");
+        end if;
+      end if;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = /*'*/'\\'/*'*/")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (2)");
+        end if;
+      end if;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = '/*'")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Comment sequence in literal triggers error.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Comment sequence in literal triggers error.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
+
     exception
       catch RANGE_ERROR:
         state.okay := FALSE;
@@ -890,24 +1083,18 @@ const proc: testBooleanField (in database: testDb, in dbCategory: databaseKind) 
       execute(state.statement);
       insert(testDb, state, "NULL", expect &:= FALSE);
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                           " (" & state.fieldName & ") VALUES (?)");
+                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,  NULL,  expect &:= FALSE);
 
       insert(testDb, state,    "0", expect &:= FALSE);
       insert(testDb, state,    "1", expect &:=  TRUE);
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                           " (" & state.fieldName & ") VALUES (?)");
       insert(state, FALSE,  expect &:= FALSE);
       insert(state,  TRUE,  expect &:=  TRUE);
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,     0,  expect &:= FALSE);
       insert(state,     1,  expect &:=  TRUE);
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,     0_, expect &:= FALSE);
       insert(state,     1_, expect &:=  TRUE);
 
@@ -1014,6 +1201,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
     var integer: integerColumn is 0;
     var bigInteger: bigIntColumn is 0_;
     var bigRational: bigRatColumn is 0_/1_;
+    var float: floatColumn is 0.0;
     var integer: row is 1;
   begin
     if state.details then
@@ -1038,8 +1226,6 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
         insert(testDb, state, "-128", expect &:= -128);
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,   0, expect &:=   0);
       insert(state,   1, expect &:=   1);
       insert(state, 127, expect &:= 127);
@@ -1058,8 +1244,6 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
         end if;
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,   0_, expect &:=   0);
       insert(state,   1_, expect &:=   1);
       insert(state, 127_, expect &:= 127);
@@ -1078,8 +1262,6 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
         end if;
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state, FALSE, expect &:= 0);
       insert(state,  TRUE, expect &:= 1);
 
@@ -1129,6 +1311,21 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
           if state.details then
             writeln(" *** testInt8Field: Row: " <& row <&
                     " Expected NULL found bigRational " <& bigRatColumn);
+          end if;
+        end if;
+        floatColumn := column(state.statement, 1, float);
+        if floatColumn <> float(expect[row]) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testInt8Field: Row: " <& row <&
+                    " Expected " <& expect[row] <& " found float " <& floatColumn);
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testInt8Field: Row: " <& row <&
+                    " Expected NULL found float " <& floatColumn);
           end if;
         end if;
         if row > 2 and isNull(state.statement, 1) then
@@ -1169,6 +1366,7 @@ const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is
     var integer: integerColumn is 0;
     var bigInteger: bigIntColumn is 0_;
     var bigRational: bigRatColumn is 0_/1_;
+    var float: floatColumn is 0.0;
     var integer: row is 1;
   begin
     if state.details then
@@ -1189,8 +1387,6 @@ const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is
       insert(testDb, state,     "-1", expect &:=     -1);
       insert(testDb, state, "-32768", expect &:= -32768);
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,      0, expect &:=      0);
       insert(state,      1, expect &:=      1);
       insert(state,  32767, expect &:=  32767);
@@ -1201,8 +1397,6 @@ const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is
         insert(state, -32769, expect &:= -32769, RANGE_CHECK);
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,      0_, expect &:=      0);
       insert(state,      1_, expect &:=      1);
       insert(state,  32767_, expect &:=  32767);
@@ -1213,8 +1407,6 @@ const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is
         insert(state, -32769_, expect &:=  32769, RANGE_CHECK);
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state, FALSE, expect &:= 0);
       insert(state,  TRUE, expect &:= 1);
 
@@ -1264,6 +1456,21 @@ const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is
           if state.details then
             writeln(" *** testInt16Field: Row: " <& row <&
                     " Expected NULL found bigRational " <& bigRatColumn);
+          end if;
+        end if;
+        floatColumn := column(state.statement, 1, float);
+        if floatColumn <> float(expect[row]) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testInt16Field: Row: " <& row <&
+                    " Expected " <& expect[row] <& " found float " <& floatColumn);
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testInt16Field: Row: " <& row <&
+                    " Expected NULL found float " <& floatColumn);
           end if;
         end if;
         if row > 2 and isNull(state.statement, 1) then
@@ -1304,6 +1511,7 @@ const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is
     var integer: integerColumn is 0;
     var bigInteger: bigIntColumn is 0_;
     var bigRational: bigRatColumn is 0_/1_;
+    var float: floatColumn is 0.0;
     var integer: row is 1;
   begin
     if state.details then
@@ -1324,8 +1532,6 @@ const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is
       insert(testDb, state,          "-1", expect &:=          -1);
       insert(testDb, state, "-2147483648", expect &:= -2147483648);
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,           0, expect &:=           0);
       insert(state,           1, expect &:=           1);
       insert(state,     1048578, expect &:=     1048578); # Zero bytes in binary representation.
@@ -1337,8 +1543,6 @@ const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is
         insert(state, -2147483649, expect &:= -2147483649, RANGE_CHECK);
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,           0_, expect &:=           0);
       insert(state,           1_, expect &:=           1);
       insert(state,     1048578_, expect &:=     1048578); # Zero bytes in binary representation.
@@ -1350,8 +1554,6 @@ const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is
         insert(state, -2147483649_, expect &:= -2147483649, RANGE_CHECK);
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state, FALSE, expect &:= 0);
       insert(state,  TRUE, expect &:= 1);
 
@@ -1403,6 +1605,21 @@ const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is
                     " Expected NULL found bigRational " <& bigRatColumn);
           end if;
         end if;
+        floatColumn := column(state.statement, 1, float);
+        if floatColumn <> float(expect[row]) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testInt32Field: Row: " <& row <&
+                    " Expected " <& expect[row] <& " found float " <& floatColumn);
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testInt32Field: Row: " <& row <&
+                    " Expected NULL found float " <& floatColumn);
+          end if;
+        end if;
         if row > 2 and isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
@@ -1441,6 +1658,8 @@ const proc: testInt64Field (in database: testDb, in dbCategory: databaseKind) is
     var integer: integerColumn is 0;
     var bigInteger: bigIntColumn is 0_;
     var bigRational: bigRatColumn is 0_/1_;
+    var float: floatColumn is 0.0;
+    var string: floatAsString is "";
     var integer: row is 1;
   begin
     if state.details then
@@ -1457,34 +1676,64 @@ const proc: testInt64Field (in database: testDb, in dbCategory: databaseKind) is
 
       insert(testDb, state,                    "0", expect &:=                         0);
       insert(testDb, state,                    "1", expect &:=                         1);
+      insert(testDb, state,             "16777215", expect &:=                  16777215); # Maximum odd float
+      insert(testDb, state,             "16777216", expect &:=                  16777216);
+      insert(testDb, state,             "16777217", expect &:=                  16777217);
+      insert(testDb, state,     "9007199254740991", expect &:=          9007199254740991); # Maximum odd double
+      insert(testDb, state,     "9007199254740992", expect &:=          9007199254740992);
+      insert(testDb, state,     "9007199254740993", expect &:=          9007199254740993);
       insert(testDb, state,  "9223372036854775807", expect &:=       9223372036854775807);
       insert(testDb, state,                   "-1", expect &:=                        -1);
+      insert(testDb, state,            "-16777215", expect &:=                 -16777215); # Minimum odd float
+      insert(testDb, state,            "-16777216", expect &:=                 -16777216);
+      insert(testDb, state,            "-16777217", expect &:=                 -16777217);
+      insert(testDb, state,    "-9007199254740991", expect &:=         -9007199254740991); # Minimum odd double
+      insert(testDb, state,    "-9007199254740992", expect &:=         -9007199254740992);
+      insert(testDb, state,    "-9007199254740993", expect &:=         -9007199254740993);
       insert(testDb, state, "-9223372036854775808", expect &:= pred(-9223372036854775807));
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,                         0,  expect &:=                         0);
       insert(state,                         1,  expect &:=                         1);
+      insert(state,                  16777215,  expect &:=                  16777215); # Maximum odd float
+      insert(state,                  16777216,  expect &:=                  16777216);
+      insert(state,                  16777217,  expect &:=                  16777217);
       insert(state,                4297064452,  expect &:=                4297064452); # Zero bytes in binary representation.
+      insert(state,          9007199254740991,  expect &:=          9007199254740991); # Maximum odd double
+      insert(state,          9007199254740992,  expect &:=          9007199254740992);
+      insert(state,          9007199254740993,  expect &:=          9007199254740993);
       insert(state,       9223372036854775807,  expect &:=       9223372036854775807);
       insert(state,                        -1,  expect &:=                        -1);
+      insert(state,                 -16777215,  expect &:=                 -16777215); # Maximum odd float
+      insert(state,                 -16777216,  expect &:=                 -16777216);
+      insert(state,                 -16777217,  expect &:=                 -16777217);
+      insert(state,         -9007199254740991,  expect &:=         -9007199254740991); # Maximum odd double
+      insert(state,         -9007199254740992,  expect &:=         -9007199254740992);
+      insert(state,         -9007199254740993,  expect &:=         -9007199254740993);
       insert(state, pred(-9223372036854775807), expect &:= pred(-9223372036854775807));
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state,                    0_, expect &:=                         0);
       insert(state,                    1_, expect &:=                         1);
+      insert(state,             16777215_, expect &:=                  16777215); # Maximum odd float
+      insert(state,             16777216_, expect &:=                  16777216);
+      insert(state,             16777217_, expect &:=                  16777217);
       insert(state,           4297064452_, expect &:=                4297064452); # Zero bytes in binary representation.
+      insert(state,     9007199254740991_, expect &:=          9007199254740991); # Maximum odd double
+      insert(state,     9007199254740992_, expect &:=          9007199254740992);
+      insert(state,     9007199254740993_, expect &:=          9007199254740993);
       insert(state,  9223372036854775807_, expect &:=       9223372036854775807);
       insert(state,                   -1_, expect &:=                        -1);
+      insert(state,            -16777215_, expect &:=                 -16777215); # Maximum odd float
+      insert(state,            -16777216_, expect &:=                 -16777216);
+      insert(state,            -16777217_, expect &:=                 -16777217);
+      insert(state,    -9007199254740991_, expect &:=         -9007199254740991); # Maximum odd double
+      insert(state,    -9007199254740992_, expect &:=         -9007199254740992);
+      insert(state,    -9007199254740993_, expect &:=         -9007199254740993);
       insert(state, -9223372036854775808_, expect &:= pred(-9223372036854775807));
       if withRangeCheck(databaseKind) then
         insert(state,  9223372036854775808_, expect &:= 0, RANGE_CHECK); # No valid value to expect.
         insert(state, -9223372036854775809_, expect &:= 0, RANGE_CHECK); # No valid value to expect.
       end if;
 
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
       insert(state, FALSE, expect &:= 0);
       insert(state,  TRUE, expect &:= 1);
 
@@ -1536,6 +1785,26 @@ const proc: testInt64Field (in database: testDb, in dbCategory: databaseKind) is
                     " Expected NULL found bigRational " <& bigRatColumn);
           end if;
         end if;
+        floatAsString := str(float(str(expect[row])));
+        if endsWith(floatAsString, ".0") and
+            str(expect[row]) = floatAsString[.. length(floatAsString) - 2] then
+          # The expected value is representable as float.
+          floatColumn := column(state.statement, 1, float);
+          if floatColumn <> float(str(expect[row])) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt64Field 2: Row: " <& row <&
+                      " Expected " <& expect[row] <& " found float " <& floatColumn);
+            end if;
+          end if;
+          if row <= 2 and not isNull(state.statement, 1) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt64Field: Row: " <& row <&
+                      " Expected NULL found float " <& floatColumn);
+            end if;
+          end if;
+        end if;
         if row > 2 and isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
@@ -1578,10 +1847,10 @@ const proc: testBigIntField (in database: testDb, in dbCategory: databaseKind) i
     if state.details then
       writeln("testBigIntField: " <& databaseKind);
     end if;
-    state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
-                               " (" & state.fieldName & " " & bigIntType(databaseKind) & ")");
-    execute(state.statement);
     block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & bigIntType(databaseKind) & ")");
+      execute(state.statement);
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state,                      NULL,  expect &:=                    0_);
@@ -1595,8 +1864,7 @@ const proc: testBigIntField (in database: testDb, in dbCategory: databaseKind) i
       insert(state,       1234567890123456789,  expect &:=  1234567890123456789_);
       insert(state, pred(-9223372036854775807), expect &:= -9223372036854775808_);
       insert(state,       9223372036854775807,  expect &:=  9223372036854775807_);
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                           " (" & state.fieldName & ") VALUES (?)");
+
       insert(state,                    1_, expect &:=                    1_);
       insert(state,                    2_, expect &:=                    2_);
       insert(state,  -999999999999999999_, expect &:=  -999999999999999999_);
@@ -1635,10 +1903,10 @@ const proc: testBigIntField (in database: testDb, in dbCategory: databaseKind) i
         insert(state, -1000000000000000000000000000000000000000_, expect &:= -1000000000000000000000000000000000000000_);
         insert(state,  1000000000000000000000000000000000000000_, expect &:=  1000000000000000000000000000000000000000_);
       end if;
-      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                                 " (" & state.fieldName & ") VALUES (?)");
+
       insert(state, FALSE, expect &:= 0_);
       insert(state,  TRUE, expect &:= 1_);
+
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
       execute(state.statement);
       while fetch(state.statement) do
@@ -2781,11 +3049,11 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
       insert(testDb, state, "'\29;'",  expect &:= "\29;");
       insert(testDb, state, "'\30;'",  expect &:= "\30;");
       insert(testDb, state, "'\31;'",  expect &:= "\31;");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(testDb, state, "' '",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(testDb, state, "' '",   expect &:= "");
       end if;
       insert(testDb, state, "'!'",     expect &:= "!");
@@ -2870,11 +3138,11 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
       insert(state, "\29;",  expect &:= "\29;");
       insert(state, "\30;",  expect &:= "\30;");
       insert(state, "\31;",  expect &:= "\31;");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(state, " ",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(state, " ",   expect &:= "");
       end if;
       insert(state, "!",     expect &:= "!");
@@ -3008,11 +3276,11 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       insert(testDb, state, "'\t'",    expect &:= "\t");
       insert(testDb, state, "'\n'",    expect &:= "\n");
       insert(testDb, state, "'\e'",    expect &:= "\e");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(testDb, state, "' '",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(testDb, state, "' '",   expect &:= "");
       end if;
       insert(testDb, state, "'!'",     expect &:= "!");
@@ -3091,11 +3359,11 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       insert(state, "\t",    expect &:= "\t");
       insert(state, "\n",    expect &:= "\n");
       insert(state, "\e",    expect &:= "\e");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(state, " ",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(state, " ",   expect &:= "");
       end if;
       insert(state, "!",     expect &:= "!");
@@ -3250,11 +3518,11 @@ const proc: testCodePageField (in database: testDb, in integer: codePage,
       insert(testDb, state, "'\t'",    expect &:= "\t");
       insert(testDb, state, "'\n'",    expect &:= "\n");
       insert(testDb, state, "'\e'",    expect &:= "\e");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(testDb, state, "' '",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(testDb, state, "' '",   expect &:= "");
       end if;
       insert(testDb, state, "'!'",     expect &:= "!");
@@ -3349,11 +3617,11 @@ const proc: testCodePageField (in database: testDb, in integer: codePage,
       insert(state, "\t",    expect &:= "\t");
       insert(state, "\n",    expect &:= "\n");
       insert(state, "\e",    expect &:= "\e");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(state, " ",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(state, " ",   expect &:= "");
       end if;
       insert(state, "!",     expect &:= "!");
@@ -3519,35 +3787,92 @@ const proc: testChar1Field (in database: testDb, in dbCategory: databaseKind) is
         insert(testDb, state, "'\0;'", expect &:= "\0;");
       end if;
       insert(testDb, state, "'\1;'",   expect &:= "\1;");
-      insert(testDb, state, "'\b'",    expect &:= "\b");
-      insert(testDb, state, "'\t'",    expect &:= "\t");
-      insert(testDb, state, "'\n'",    expect &:= "\n");
-      insert(testDb, state, "'\e'",    expect &:= "\e");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      insert(testDb, state, "'\2;'",   expect &:= "\2;");
+      insert(testDb, state, "'\3;'",   expect &:= "\3;");
+      insert(testDb, state, "'\4;'",   expect &:= "\4;");
+      insert(testDb, state, "'\5;'",   expect &:= "\5;");
+      insert(testDb, state, "'\6;'",   expect &:= "\6;");
+      insert(testDb, state, "'\7;'",   expect &:= "\7;");
+      insert(testDb, state, "'\8;'",   expect &:= "\8;");
+      insert(testDb, state, "'\9;'",   expect &:= "\9;");
+      insert(testDb, state, "'\10;'",  expect &:= "\10;");
+      insert(testDb, state, "'\11;'",  expect &:= "\11;");
+      insert(testDb, state, "'\12;'",  expect &:= "\12;");
+      insert(testDb, state, "'\13;'",  expect &:= "\13;");
+      insert(testDb, state, "'\14;'",  expect &:= "\14;");
+      insert(testDb, state, "'\15;'",  expect &:= "\15;");
+      insert(testDb, state, "'\16;'",  expect &:= "\16;");
+      insert(testDb, state, "'\17;'",  expect &:= "\17;");
+      insert(testDb, state, "'\18;'",  expect &:= "\18;");
+      insert(testDb, state, "'\19;'",  expect &:= "\19;");
+      insert(testDb, state, "'\20;'",  expect &:= "\20;");
+      insert(testDb, state, "'\21;'",  expect &:= "\21;");
+      insert(testDb, state, "'\22;'",  expect &:= "\22;");
+      insert(testDb, state, "'\23;'",  expect &:= "\23;");
+      insert(testDb, state, "'\24;'",  expect &:= "\24;");
+      insert(testDb, state, "'\25;'",  expect &:= "\25;");
+      insert(testDb, state, "'\26;'",  expect &:= "\26;");
+      insert(testDb, state, "'\27;'",  expect &:= "\27;");
+      insert(testDb, state, "'\28;'",  expect &:= "\28;");
+      insert(testDb, state, "'\29;'",  expect &:= "\29;");
+      insert(testDb, state, "'\30;'",  expect &:= "\30;");
+      insert(testDb, state, "'\31;'",  expect &:= "\31;");
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(testDb, state, "' '",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(testDb, state, "' '",   expect &:= "");
       end if;
       insert(testDb, state, "'!'",     expect &:= "!");
       insert(testDb, state, "'\"'",    expect &:= "\"");
+      insert(testDb, state, "'#'",     expect &:= "#");
+      insert(testDb, state, "'$'",     expect &:= "$");
+      insert(testDb, state, "'%'",     expect &:= "%");
+      insert(testDb, state, "'&'",     expect &:= "&");
       insert(testDb, state, "''''",    expect &:= "'");
+      insert(testDb, state, "'('",     expect &:= "(");
+      insert(testDb, state, "')'",     expect &:= ")");
+      insert(testDb, state, "'*'",     expect &:= "*");
+      insert(testDb, state, "'+'",     expect &:= "+");
+      insert(testDb, state, "','",     expect &:= ",");
+      insert(testDb, state, "'-'",     expect &:= "-");
+      insert(testDb, state, "'.'",     expect &:= ".");
+      insert(testDb, state, "'/'",     expect &:= "/");
       insert(testDb, state, "'0'",     expect &:= "0");
       insert(testDb, state, "'1'",     expect &:= "1");
       insert(testDb, state, "'9'",     expect &:= "9");
+      insert(testDb, state, "':'",     expect &:= ":");
+      insert(testDb, state, "';'",     expect &:= ";");
+      insert(testDb, state, "'<'",     expect &:= "<");
+      insert(testDb, state, "'='",     expect &:= "=");
+      insert(testDb, state, "'>'",     expect &:= ">");
       insert(testDb, state, "'?'",     expect &:= "?");
-      insert(testDb, state, "'X'",     expect &:= "X");
+      insert(testDb, state, "'@'",     expect &:= "@");
+      insert(testDb, state, "'A'",     expect &:= "A");
+      insert(testDb, state, "'Z'",     expect &:= "Z");
+      insert(testDb, state, "'['",     expect &:= "[");
       insert(testDb, state, "'\\'",    expect &:= "\\");
+      insert(testDb, state, "']'",     expect &:= "]");
       insert(testDb, state, "'^'",     expect &:= "^");
+      insert(testDb, state, "'_'",     expect &:= "_");
       insert(testDb, state, "'`'",     expect &:= "`");
       insert(testDb, state, "'a'",     expect &:= "a");
+      insert(testDb, state, "'z'",     expect &:= "z");
+      insert(testDb, state, "'{'",     expect &:= "{");
+      insert(testDb, state, "'|'",     expect &:= "|");
+      insert(testDb, state, "'}'",     expect &:= "}");
       insert(testDb, state, "'~'",     expect &:= "~");
       insert(testDb, state, "'\127;'", expect &:= "\127;");
       if maxChar1FieldCharacter(databaseKind) >= '\255;' then
         insert(testDb, state, "'\160;'", expect &:= "\160;");
+        insert(testDb, state, "'¡'",     expect &:= "¡");
+        insert(testDb, state, "'¤'",     expect &:= "¤");
         insert(testDb, state, "'§'",     expect &:= "§");
+        insert(testDb, state, "'¬'",     expect &:= "¬");
+        insert(testDb, state, "'­'",     expect &:= "­");
         insert(testDb, state, "'µ'",     expect &:= "µ");
+        insert(testDb, state, "'¿'",     expect &:= "¿");
         insert(testDb, state, "'Ä'",     expect &:= "Ä");
         insert(testDb, state, "'×'",     expect &:= "×");
         insert(testDb, state, "'ß'",     expect &:= "ß");
@@ -3585,35 +3910,92 @@ const proc: testChar1Field (in database: testDb, in dbCategory: databaseKind) is
         insert(state, "\0;", expect &:= "\0;");
       end if;
       insert(state, "\1;",   expect &:= "\1;");
-      insert(state, "\b",    expect &:= "\b");
-      insert(state, "\t",    expect &:= "\t");
-      insert(state, "\n",    expect &:= "\n");
-      insert(state, "\e",    expect &:= "\e");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      insert(state, "\2;",   expect &:= "\2;");
+      insert(state, "\3;",   expect &:= "\3;");
+      insert(state, "\4;",   expect &:= "\4;");
+      insert(state, "\5;",   expect &:= "\5;");
+      insert(state, "\6;",   expect &:= "\6;");
+      insert(state, "\7;",   expect &:= "\7;");
+      insert(state, "\8;",   expect &:= "\8;");
+      insert(state, "\9;",   expect &:= "\9;");
+      insert(state, "\10;",  expect &:= "\10;");
+      insert(state, "\11;",  expect &:= "\11;");
+      insert(state, "\12;",  expect &:= "\12;");
+      insert(state, "\13;",  expect &:= "\13;");
+      insert(state, "\14;",  expect &:= "\14;");
+      insert(state, "\15;",  expect &:= "\15;");
+      insert(state, "\16;",  expect &:= "\16;");
+      insert(state, "\17;",  expect &:= "\17;");
+      insert(state, "\18;",  expect &:= "\18;");
+      insert(state, "\19;",  expect &:= "\19;");
+      insert(state, "\20;",  expect &:= "\20;");
+      insert(state, "\21;",  expect &:= "\21;");
+      insert(state, "\22;",  expect &:= "\22;");
+      insert(state, "\23;",  expect &:= "\23;");
+      insert(state, "\24;",  expect &:= "\24;");
+      insert(state, "\25;",  expect &:= "\25;");
+      insert(state, "\26;",  expect &:= "\26;");
+      insert(state, "\27;",  expect &:= "\27;");
+      insert(state, "\28;",  expect &:= "\28;");
+      insert(state, "\29;",  expect &:= "\29;");
+      insert(state, "\30;",  expect &:= "\30;");
+      insert(state, "\31;",  expect &:= "\31;");
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(state, " ",   expect &:= " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(state, " ",   expect &:= "");
       end if;
       insert(state, "!",     expect &:= "!");
       insert(state, "\"",    expect &:= "\"");
+      insert(state, "#",     expect &:= "#");
+      insert(state, "$",     expect &:= "$");
+      insert(state, "%",     expect &:= "%");
+      insert(state, "&",     expect &:= "&");
       insert(state, "'",     expect &:= "'");
+      insert(state, "(",     expect &:= "(");
+      insert(state, ")",     expect &:= ")");
+      insert(state, "*",     expect &:= "*");
+      insert(state, "+",     expect &:= "+");
+      insert(state, ",",     expect &:= ",");
+      insert(state, "-",     expect &:= "-");
+      insert(state, ".",     expect &:= ".");
+      insert(state, "/",     expect &:= "/");
       insert(state, "0",     expect &:= "0");
       insert(state, "1",     expect &:= "1");
       insert(state, "9",     expect &:= "9");
+      insert(state, ":",     expect &:= ":");
+      insert(state, ";",     expect &:= ";");
+      insert(state, "<",     expect &:= "<");
+      insert(state, "=",     expect &:= "=");
+      insert(state, ">",     expect &:= ">");
       insert(state, "?",     expect &:= "?");
-      insert(state, "X",     expect &:= "X");
+      insert(state, "@",     expect &:= "@");
+      insert(state, "A",     expect &:= "A");
+      insert(state, "Z",     expect &:= "Z");
+      insert(state, "[",     expect &:= "[");
       insert(state, "\\",    expect &:= "\\");
+      insert(state, "]",     expect &:= "]");
       insert(state, "^",     expect &:= "^");
+      insert(state, "_",     expect &:= "_");
       insert(state, "`",     expect &:= "`");
       insert(state, "a",     expect &:= "a");
+      insert(state, "z",     expect &:= "z");
+      insert(state, "{",     expect &:= "{");
+      insert(state, "|",     expect &:= "|");
+      insert(state, "}",     expect &:= "}");
       insert(state, "~",     expect &:= "~");
       insert(state, "\127;", expect &:= "\127;");
       if maxChar1FieldCharacter(databaseKind) >= '\255;' then
         insert(state, "\160;", expect &:= "\160;");
+        insert(state, "¡",     expect &:= "¡");
+        insert(state, "¤",     expect &:= "¤");
         insert(state, "§",     expect &:= "§");
+        insert(state, "¬",     expect &:= "¬");
+        insert(state, "­",     expect &:= "­");
         insert(state, "µ",     expect &:= "µ");
+        insert(state, "¿",     expect &:= "¿");
         insert(state, "Ä",     expect &:= "Ä");
         insert(state, "×",     expect &:= "×");
         insert(state, "ß",     expect &:= "ß");
@@ -3732,6 +4114,7 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
       insert(testDb, state, "'Š‹ŒŽ‘’“”•'",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(testDb, state, "'–—˜™š›œžŸ'",  expect &:= "–—˜™š›œžŸ");
       insert(testDb, state, "'" & "x" mult 32 & "'",  expect &:= "x" mult 32);
+      insert(testDb, state, "'A B'",        expect &:= "A B");
       if nullAllowedInStringLiteral(databaseKind) then
         insert(testDb, state, "'A\0;B'",    expect &:= "A\0;B");
       end if;
@@ -3752,12 +4135,14 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
       insert(testDb, state, "'ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß'",           expect &:= "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
       insert(testDb, state, "'àáâãäåæçèéêëìíîï'",           expect &:= "àáâãäåæçèéêëìíîï");
       insert(testDb, state, "'ðñòóôõö÷øùúûüýþÿ'",           expect &:= "ðñòóôõö÷øùúûüýþÿ");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(testDb, state, "'a '",       expect &:= "a ");
+        # insert(testDb, state, "'" & "b" mult 3999 & " '", expect &:= "b" mult 3999 & " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(testDb, state, "'a '",       expect &:= "a");
+        # insert(testDb, state, "'" & "b" mult 3999 & " '", expect &:= "b" mult 3999);
       end if;
  
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
@@ -3773,6 +4158,7 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
       insert(state, "Š‹ŒŽ‘’“”•",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(state, "–—˜™š›œžŸ",  expect &:= "–—˜™š›œžŸ");
       insert(state, "x" mult 32,  expect &:= "x" mult 32);
+      insert(state, "A B",        expect &:= "A B");
       if nullAllowedInString(databaseKind) then
         insert(state, "A\0;B",    expect &:= "A\0;B");
       end if;
@@ -3793,12 +4179,14 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
       insert(state, "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß",           expect &:= "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
       insert(state, "àáâãäåæçèéêëìíîï",           expect &:= "àáâãäåæçèéêëìíîï");
       insert(state, "ðñòóôõö÷øùúûüýþÿ",           expect &:= "ðñòóôõö÷øùúûüýþÿ");
-      if preserveSpacesAtCharFieldEnd(databaseKind) then
-        # Reading a char field preserves spaces at the end.
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
         insert(state, "a ",         expect &:= "a ");
+        # insert(state, "b" mult 3999 & " ",      expect &:= "b" mult 3999 & " ");
       else
-        # Reading a char field removes spaces at the end.
+        # Reading a char field removes trailing spaces.
         insert(state, "a ",         expect &:= "a");
+        # insert(state, "b" mult 3999 & " ",      expect &:= "b" mult 3999);
       end if;
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
@@ -3865,6 +4253,119 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
   end func;
 
 
+const proc: testCharField2 (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("charTest", "charField", TRUE);
+    var array string: expect is 0 times "";
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testCharField2: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " CHAR(32))");
+      execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= "");
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,         expect &:= "");
+
+      insert(testDb, state, "\"\"",           expect &:= "");
+      insert(testDb, state, "\"X\"",          expect &:= "X");
+      insert(testDb, state, "\"Ab2\"",        expect &:= "Ab2");
+      insert(testDb, state, "\"abcdefghij\"", expect &:= "abcdefghij");
+      insert(testDb, state, "\"ÄäÖöÜüß\"",    expect &:= "ÄäÖöÜüß");
+      insert(testDb, state, "\"€µ¹²³¼½«»¬\"", expect &:= "€µ¹²³¼½«»¬");
+      # Chars that are defined with differend ordinal in code page 1252:
+      insert(testDb, state, "\"€‚ƒ„…†‡ˆ‰\"",  expect &:= "€‚ƒ„…†‡ˆ‰");
+      insert(testDb, state, "\"Š‹ŒŽ‘’“”•\"",  expect &:= "Š‹ŒŽ‘’“”•");
+      insert(testDb, state, "\"–—˜™š›œžŸ\"",  expect &:= "–—˜™š›œžŸ");
+      insert(testDb, state, "\"" & "x" mult 32 & "\"",  expect &:= "x" mult 32);
+      insert(testDb, state, "\"A B\"",        expect &:= "A B");
+      if nullAllowedInStringLiteral(databaseKind) then
+        insert(testDb, state, "\"A\0;B\"",    expect &:= "A\0;B");
+      end if;
+      insert(testDb, state, "\"\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                            \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                            \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\"",
+                 expect &:= "\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                            \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                            \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;");
+      insert(testDb, state, "\" !\"\"#$%&'()*+,-./\"",         expect &:= " !\"#$%&'()*+,-./");
+      insert(testDb, state, "\"0123456789:;<=>?@\"",          expect &:= "0123456789:;<=>?@");
+      insert(testDb, state, "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"", expect &:= "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+      insert(testDb, state, "\"[\\]^_`{|}~\127;\"",           expect &:= "[\\]^_`{|}~\127;");
+      insert(testDb, state, "\"abcdefghijklmnopqrstuvwxyz\"", expect &:= "abcdefghijklmnopqrstuvwxyz");
+      insert(testDb, state, "\"\160;¡¢£¤¥¦§¨©ª«¬­®¯\"",       expect &:= "\160;¡¢£¤¥¦§¨©ª«¬­®¯");
+      insert(testDb, state, "\"°±²³´µ¶·¸¹º»¼½¾¿\"",           expect &:= "°±²³´µ¶·¸¹º»¼½¾¿");
+      insert(testDb, state, "\"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\"",           expect &:= "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ");
+      insert(testDb, state, "\"ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\"",           expect &:= "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+      insert(testDb, state, "\"àáâãäåæçèéêëìíîï\"",           expect &:= "àáâãäåæçèéêëìíîï");
+      insert(testDb, state, "\"ðñòóôõö÷øùúûüýþÿ\"",           expect &:= "ðñòóôõö÷øùúûüýþÿ");
+      if charFieldPreservesTrailingSpaces(databaseKind) then
+        # Reading a char field preserves trailing spaces.
+        insert(testDb, state, "\"a \"",       expect &:= "a ");
+        # insert(testDb, state, "\"" & "b" mult 3999 & " \"", expect &:= "b" mult 3999 & " ");
+      else
+        # Reading a char field removes trailing spaces.
+        insert(testDb, state, "\"a \"",       expect &:= "a");
+        # insert(testDb, state, "\"" & "b" mult 3999 & " \"", expect &:= "b" mult 3999);
+      end if;
+ 
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        stringColumn := column(state.statement, 1, string);
+        if stringColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testCharField2: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <&
+                    " found string " <& literal(stringColumn));
+            writeln("Expected length: " <& length(expect[row]));
+            writeln("Length found:    " <& length(stringColumn));
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testCharField2: Row: " <& row <&
+                    " Expected NULL found string " <& stringColumn);
+          end if;
+        end if;
+        if expect[row] <> "" and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testCharField2: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching char fields works okay.");
+    else
+      writeln(" *** Inserting and fetching char fields does not work okay.");
+    end if;
+  end func;
+
+
 const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("varcharTest", "varcharField", FALSE);
@@ -3895,6 +4396,7 @@ const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) 
       insert(testDb, state, "'Š‹ŒŽ‘’“”•'",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(testDb, state, "'–—˜™š›œžŸ'",  expect &:= "–—˜™š›œžŸ");
       insert(testDb, state, "'" & "x" mult 32 & "'",  expect &:= "x" mult 32);
+      insert(testDb, state, "'A B'",        expect &:= "A B");
       if nullAllowedInStringLiteral(databaseKind) then
         insert(testDb, state, "'A\0;B'",    expect &:= "A\0;B");
       end if;
@@ -3915,8 +4417,9 @@ const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) 
       insert(testDb, state, "'ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß'",           expect &:= "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
       insert(testDb, state, "'àáâãäåæçèéêëìíîï'",           expect &:= "àáâãäåæçèéêëìíîï");
       insert(testDb, state, "'ðñòóôõö÷øùúûüýþÿ'",           expect &:= "ðñòóôõö÷øùúûüýþÿ");
-      # Reading a varchar field preserves spaces at the end.
+      # Reading a varchar field preserves trailing spaces.
       insert(testDb, state, "'a '",         expect &:= "a ");
+      # insert(testDb, state, "'" & "b" mult 3999 & " '",     expect &:= "b" mult 3999 & " ");
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
@@ -3931,6 +4434,7 @@ const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) 
       insert(state, "Š‹ŒŽ‘’“”•",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(state, "–—˜™š›œžŸ",  expect &:= "–—˜™š›œžŸ");
       insert(state, "x" mult 32,  expect &:= "x" mult 32);
+      insert(state, "A B",        expect &:= "A B");
       if nullAllowedInString(databaseKind) then
         insert(state, "A\0;B",    expect &:= "A\0;B");
       end if;
@@ -3951,8 +4455,9 @@ const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) 
       insert(state, "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß",           expect &:= "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
       insert(state, "àáâãäåæçèéêëìíîï",           expect &:= "àáâãäåæçèéêëìíîï");
       insert(state, "ðñòóôõö÷øùúûüýþÿ",           expect &:= "ðñòóôõö÷øùúûüýþÿ");
-      # Reading a varchar field preserves spaces at the end.
+      # Reading a varchar field preserves trailing spaces.
       insert(state, "a ",         expect &:= "a ");
+      # insert(state, "b" mult 3999 & " ",          expect &:= "b" mult 3999 & " ");
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
@@ -4129,7 +4634,7 @@ const proc: testBlobField (in database: testDb, in dbCategory: databaseKind) is 
                     " Expected NULL found " <& stringColumn);
           end if;
         end if;
-        if row > 1 and isNull(state.statement, 1) then
+        if length(expect[row]) <> 0 and isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
             writeln(" *** testBlobField: Row: " <& row <&
@@ -4744,6 +5249,7 @@ const proc: testDb (in database: testDb, in dbCategory: databaseKind) is func
 
     # testFloatField2(testDb, databaseKind);
     # testBigRatField2(testDb, databaseKind);
+    # testCharField2(testDb, databaseKind);
     # testBlobField2(testDb, databaseKind);
     # testTimeField2(testDb, databaseKind);
     # testDurationField2(testDb, databaseKind);
@@ -4797,13 +5303,21 @@ const proc: testDatabase (in connectData: dbConnectData) is func
   begin
     writeln("Test " <& dbConnectData.dbName <& " with driver " <&
             dbConnectData.driver);
-    if failed(testDb := openDatabase(dbConnectData.driver,
-                                     dbConnectData.dbName,
-                                     dbConnectData.user,
-                                     dbConnectData.password)) then
-      writeln(" *** Cannot open database " <& dbConnectData.dbName <&
-            " with driver " <& dbConnectData.driver);
-    else
+    block
+      testDb := openDatabase(dbConnectData.driver,
+                             dbConnectData.dbName,
+                             dbConnectData.user,
+                             dbConnectData.password);
+    exception
+      catch DATABASE_ERROR:
+        writeln(" *** Cannot open database " <& dbConnectData.dbName <&
+                " with driver " <& dbConnectData.driver);
+        writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
+      otherwise:
+        writeln(" *** Cannot open database " <& dbConnectData.dbName <&
+                " with driver " <& dbConnectData.driver);
+    end block;
+    if testDb <> database.value then
       testDb(testDb, dbConnectData.databaseKind);
       close(testDb);
     end if;
@@ -4833,6 +5347,7 @@ const proc: main is func
     var string: databaseKindName is "";
     var connectData: dbConnectData is connectData.value;
   begin
+    OUT := STD_CONSOLE;
     if length(argv(PROGRAM)) = 0 or length(argv(PROGRAM)) > 5 then
       writeln("usage: chkdb driver [dbName [user [password [databaseKind]]]]");
       writeln("       chkdb all");

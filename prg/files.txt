@@ -31,6 +31,7 @@ clock2.sd7   Displays a digital clock with microseconds
 clock3.sd7   Analog Clock
 cmpfil.sd7   Compares two files in main memory
 comanche.sd7 Simple webserver for static and cgi pages.
+confval.sd7  Show config values of C compiler and runtime.
 db7.sd7      Database inspector with browser interface.
 diff7.sd7    Compare two files line by line.
 dirtst.sd7   Test reading a directory as file
