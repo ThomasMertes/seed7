@@ -291,6 +291,7 @@ COMPILING UNDER DOS WITH DJGPP
     copy external_file.s7i EXTERN~1.S7I
     copy clib_file.s7i CLIB_F~1.S7I
     copy enable_io.s7i ENABLE~1.S7i
+    copy graph_file.s7i GRAPH_~1.S7I
 
   Note that the DOS version of Seed7 currently does not support
   graphics, sockets, processes and databases.
@@ -1523,6 +1524,21 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   HAS_GETRLIMIT: TRUE, when the functions getrlimit() and
                  setrlimit() are available.
 
+  MEMCMP_RETURNS_SIGNUM: TRUE, when memcmp() returns only the
+                         values -1, 0 and 1.
+
+  HAS_WMEMCMP: TRUE, when the function wmemcmp() is available.
+
+  WMEMCMP_RETURNS_SIGNUM: TRUE, when wmemcmp() returns only the
+                          values -1, 0 and 1.
+
+  HAS_WMEMCHR: TRUE, when the function wmemchr() is available.
+
+  HAS_WMEMSET: TRUE, when the function wmemset() is available.
+
+  HAS_SETJMP: TRUE, when the functions setjmp() and
+              longjmp() are available.
+
   HAS_SIGSETJMP: TRUE, when the functions sigsetjmp() and
                  siglongjmp() are available. When it is FALSE the
                  functions setjmp() and longjmp() must be used
@@ -1611,6 +1627,10 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                             NaN this function must be defined and
                             it must return 1.
 
+  HAS_LOG2: TRUE, when the function log2() is available.
+
+  HAS_CBRT: TRUE, when the function cbrt() is available.
+
   NAN_COMPARISON_OKAY: TRUE, when comparisons between NaN and any
                        other value return FALSE. Comparison refers
                        to comparisons with  ==  <  >  <=  or  >= .
@@ -1622,6 +1642,9 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                     for a base of zero (0.0 or -0.0) and a negative
                     exponent.
 
+  POW_OF_NEGATIVE_OKAY: TRUE, when the pow() function works
+                        correct, when the base is negative.
+
   POW_OF_ONE_OKAY: TRUE, when the pow() function always returns
                    1.0 when the base is 1.0 (Even for an exponent
                    of NaN).
@@ -1631,8 +1654,30 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                     not 1.0 (pow(1.0, NaN) should return 1.0).
 
   POW_EXP_MINUS_INFINITY_OKAY: TRUE, when the pow() function works
-                               correct foa an exponent of minus
+                               correct for an exponent of minus
                                infinity.
+
+  LOG_OF_NAN_OKAY: TRUE, when log(NaN) returns NaN.
+
+  LOG_OF_ZERO_OKAY: TRUE, when log(0.0) returns minus infinity.
+
+  LOG_OF_NEGATIVE_OKAY: TRUE, when log() of a negative number
+                        returns NaN.
+
+  LOG10_OF_NAN_OKAY: TRUE, when log10(NaN) returns NaN.
+
+  LOG10_OF_ZERO_OKAY: TRUE, when log10(0.0) returns minus
+                      infinity.
+
+  LOG10_OF_NEGATIVE_OKAY: TRUE, when log10() of a negative number
+                          returns NaN.
+
+  LOG2_OF_NAN_OKAY: TRUE, when log2(NaN) returns NaN.
+
+  LOG2_OF_ZERO_OKAY: TRUE, when log2(0.0) returns minus infinity.
+
+  LOG2_OF_NEGATIVE_OKAY: TRUE, when log2() of a negative number
+                         returns NaN.
 
   FLOAT_ZERO_DIV_ERROR: Defined when the C compiler classifies a
                         floating point division by zero as fatal

@@ -416,8 +416,8 @@ const type: tarCatalogType is hash [string] tarHeader;
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access a TAR archive.
  *  File paths in a tar archive can be absolute (they start with a slash)
- *  or relative (they do not start with a slash). The tar file system
- *  does support the concept of a current working directory. The functions
+ *  or relative (they do not start with a slash). The tar file system does
+ *  not support the concept of a current working directory. The functions
  *  chdir and getcwd are not supported by the tar file system. Absolute
  *  and relative paths in a tar archive can be accessed directly.
  *  Since "/" is just a normal path in a tar archive the root path of a

@@ -296,19 +296,19 @@ striType getExecutablePath (const const_striType arg_0)
   {
     os_charType buffer[PATH_MAX];
     errInfoType err_info = OKAY_NO_ERROR;
-    striType result;
+    striType executablePath;
 
   /* getExecutablePath */
     if (unlikely(GetModuleFileNameW(NULL, buffer, PATH_MAX) == 0)) {
       raise_error(FILE_ERROR);
-      result = NULL;
+      executablePath = NULL;
     } else {
-      result = cp_from_os_path(buffer, &err_info);
-      if (unlikely(result == NULL)) {
+      executablePath = cp_from_os_path(buffer, &err_info);
+      if (unlikely(executablePath == NULL)) {
         raise_error(err_info);
       } /* if */
     } /* if */
-    return result;
+    return executablePath;
   } /* getExecutablePath */
 
 
@@ -383,22 +383,22 @@ void freeEnvironment (os_striType *environment)
 os_striType wgetenv (const const_os_striType name)
 
   {
-    memSizeType result_size;
-    os_striType result;
+    memSizeType value_size;
+    os_striType value;
 
   /* wgetenv */
-    result_size = GetEnvironmentVariableW(name, NULL, 0);
-    if (result_size == 0) {
-      result = NULL;
+    value_size = GetEnvironmentVariableW(name, NULL, 0);
+    if (value_size == 0) {
+      value = NULL;
     } else {
-      if (ALLOC_WSTRI(result, result_size - 1)) {
-        if (GetEnvironmentVariableW(name, result, result_size) != result_size - 1) {
-          FREE_OS_STRI(result);
-          result = NULL;
+      if (ALLOC_WSTRI(value, value_size - 1)) {
+        if (GetEnvironmentVariableW(name, value, value_size) != value_size - 1) {
+          FREE_OS_STRI(value);
+          value = NULL;
         } /* if */
       } /* if */
     } /* if */
-    return result;
+    return value;
   } /* wgetenv */
 #endif
 

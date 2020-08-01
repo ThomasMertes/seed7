@@ -391,6 +391,7 @@ const func boolean: canTakeAddress (in reference: an_expression) is func
     exprCategory := category(an_expression);
     if (exprCategory = INTOBJECT or
         exprCategory = CHAROBJECT or
+        exprCategory = CONSTENUMOBJECT or
         exprCategory = FLOATOBJECT) and
         not isVar(an_expression) then
       canTakeAddress := FALSE;

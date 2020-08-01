@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_dos.c     File functions which call the Dos API.            */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_unx.c                                       */
-/*  Changes: 2011  Thomas Mertes                                    */
+/*  Changes: 2011, 2018  Thomas Mertes                              */
 /*  Content: File functions which call the Dos API.                 */
 /*                                                                  */
 /********************************************************************/
@@ -38,6 +38,12 @@
 #include "string.h"
 #include "signal.h"
 #include "setjmp.h"
+#include "termios.h"
+#include "io.h"
+#include "fcntl.h"
+#if UNISTD_H_PRESENT
+#include "unistd.h"
+#endif
 #include "errno.h"
 
 #include "common.h"
@@ -138,5 +144,30 @@ void filPipe (fileType *inFile, fileType *outFile)
 
 void setupFiles (void)
 
-  { /* setupFiles */
+  {
+    struct termios term_descr;
+
+  /* setupFiles */
+    if (isatty(STDIN_FILENO)) {
+      if (tcgetattr(STDIN_FILENO, &term_descr) != 0) {
+        printf("setupFiles: tcgetattr(STDIN_FILENO, ...) failed:\n"
+               "errno=%d\nerror: %s\n",
+               errno, strerror(errno));
+      } else {
+        term_descr.c_cc[VEOL] = (cc_t) 3;
+        if (tcsetattr(STDIN_FILENO, TCSANOW, &term_descr) != 0) {
+          printf("setupFiles: tcsetattr(STDIN_FILENO, TCSANOW, VMIN=1) failed:\n"
+                 "errno=%d\nerror: %s\n",
+                 errno, strerror(errno));
+        } /* if */
+      } /* if */
+    } else {
+      setmode(STDIN_FILENO, O_BINARY);
+    } /* if */
+    if (!isatty(STDOUT_FILENO)) {
+      setmode(STDOUT_FILENO, O_BINARY);
+    } /* if */
+    if (!isatty(STDERR_FILENO)) {
+      setmode(STDERR_FILENO, O_BINARY);
+    } /* if */
   } /* setupFiles */

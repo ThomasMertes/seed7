@@ -1049,7 +1049,7 @@ boolType socHasNext (socketType inSocket)
   {
     unsigned char next_char;
     memSizeType bytes_received;
-    boolType result;
+    boolType hasNext;
 
   /* socHasNext */
     logFunction(printf("socHasNext(%d)\n", inSocket););
@@ -1057,13 +1057,13 @@ boolType socHasNext (socketType inSocket)
                                         cast_send_recv_data(&next_char), 1, MSG_PEEK);
     if (bytes_received != 1) {
       /* printf("socHasNext: bytes_received=%ld\n", (long int) bytes_received); */
-      result = FALSE;
+      hasNext = FALSE;
     } else {
       /* printf("socHasNext: next_char=%d\n", next_char); */
-      result = TRUE;
+      hasNext = TRUE;
     } /* if */
-    logFunction(printf("socHasNext(%d) --> %d\n", inSocket, result););
-    return result;
+    logFunction(printf("socHasNext(%d) --> %d\n", inSocket, hasNext););
+    return hasNext;
   } /* socHasNext */
 
 
@@ -1437,7 +1437,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
     int poll_result;
     unsigned char next_char;
     memSizeType bytes_received;
-    boolType result;
+    boolType inputReady;
 
   /* socInputReady */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ")\n",
@@ -1448,7 +1448,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
                       "seconds or micro_seconds not in allowed range.\n",
                       sock, seconds, micro_seconds););
       raise_error(RANGE_ERROR);
-      result = FALSE;
+      inputReady = FALSE;
     } else {
       pollFd[0].fd = (int) sock;
       pollFd[0].events = POLLIN;
@@ -1462,23 +1462,23 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
                         sock, timeout,
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
-        result = FALSE;
+        inputReady = FALSE;
       } else {
-        result = poll_result == 1 && (pollFd[0].revents & POLLIN);
-        if (result) {
+        inputReady = poll_result == 1 && (pollFd[0].revents & POLLIN);
+        if (inputReady) {
           /* Verify that it is really possible to read at least one character */
           bytes_received = (memSizeType) recv((os_socketType) sock,
                                               cast_send_recv_data(&next_char), 1, MSG_PEEK);
           if (bytes_received != 1) {
             /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
-            result = FALSE;
+            inputReady = FALSE;
           } /* if */
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ") --> %d\n",
-                       sock, seconds, micro_seconds, result););
-    return result;
+                       sock, seconds, micro_seconds, inputReady););
+    return inputReady;
   } /* socInputReady */
 
 #else
@@ -1494,7 +1494,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
     int select_result;
     unsigned char next_char;
     memSizeType bytes_received;
-    boolType result;
+    boolType inputReady;
 
   /* socInputReady */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ")\n",
@@ -1505,7 +1505,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
                       "seconds or micro_seconds not in allowed range.\n",
                       sock, seconds, micro_seconds););
       raise_error(RANGE_ERROR);
-      result = FALSE;
+      inputReady = FALSE;
     } else {
       FD_ZERO(&readfds);
       FD_SET((os_socketType) sock, &readfds);
@@ -1523,23 +1523,23 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
                         nfds, sock, seconds, micro_seconds,
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
-        result = FALSE;
+        inputReady = FALSE;
       } else {
-        result = FD_ISSET((os_socketType) sock, &readfds);
-        if (result) {
+        inputReady = FD_ISSET((os_socketType) sock, &readfds);
+        if (inputReady) {
           /* Verify that it is really possible to read at least one character */
           bytes_received = (memSizeType) recv((os_socketType) sock,
                                               cast_send_recv_data(&next_char), 1, MSG_PEEK);
           if (bytes_received != 1) {
             /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
-            result = FALSE;
+            inputReady = FALSE;
           } /* if */
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ") --> %d\n",
-                       sock, seconds, micro_seconds, result););
-    return result;
+                       sock, seconds, micro_seconds, inputReady););
+    return inputReady;
   } /* socInputReady */
 
 #endif

@@ -89,9 +89,6 @@ const ACTION: FLT_VALUE           is action "FLT_VALUE";
 const proc: flt_prototypes (inout file: c_prog) is func
 
   begin
-    if not ccConf.HAS_LOG2 then
-      writeln(c_prog, "#define LN2 0.693147180559945309417232121458176568075500134360255254120680009493393");
-    end if;
     if ccConf.HAS_EXP10 then
       declareExtern(c_prog, "double exp10(double x);");
     end if;
@@ -109,6 +106,17 @@ const proc: flt_prototypes (inout file: c_prog) is func
     writeln(c_prog, "#define     fltIsNegativeZeroMacro(number) (memcmp(&(number), &negativeZero, sizeof(floatType)) == 0)");
     if not ccConf.NAN_COMPARISON_OKAY then
       declareExtern(c_prog, "boolType    fltLe (floatType, floatType);");
+    end if;
+    if not ccConf.LOG_FUNCTION_OKAY then
+      declareExtern(c_prog, "floatType   fltLog (floatType);");
+    end if;
+    if not ccConf.LOG10_FUNCTION_OKAY then
+      declareExtern(c_prog, "floatType   fltLog10 (floatType);");
+    end if;
+    if not ccConf.LOG2_FUNCTION_OKAY then
+      declareExtern(c_prog, "floatType   fltLog2 (floatType);");
+    end if;
+    if not ccConf.NAN_COMPARISON_OKAY then
       declareExtern(c_prog, "boolType    fltLt (floatType, floatType);");
     end if;
     declareExtern(c_prog, "floatType   fltParse (const const_striType);");
@@ -1222,7 +1230,11 @@ const proc: process (FLT_LOG, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "log(";
+    if ccConf.LOG_FUNCTION_OKAY then
+      c_expr.expr &:= "log(";
+    else
+      c_expr.expr &:= "fltLog(";
+    end if;
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -1232,7 +1244,11 @@ const proc: process (FLT_LOG10, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "log10(";
+    if ccConf.LOG10_FUNCTION_OKAY then
+      c_expr.expr &:= "log10(";
+    else
+      c_expr.expr &:= "fltLog10(";
+    end if;
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -1242,15 +1258,13 @@ const proc: process (FLT_LOG2, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if ccConf.HAS_LOG2 then
+    if ccConf.LOG2_FUNCTION_OKAY then
       c_expr.expr &:= "log2(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "log(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ")/LN2";
+      c_expr.expr &:= "fltLog2(";
     end if;
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 

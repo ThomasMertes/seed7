@@ -81,7 +81,7 @@ void bstAppend (bstriType *const destination, const_bstriType extension)
         } /* if */
         COUNT3_BSTRI(new_bstri->size, new_size);
         memcpy(&new_bstri->mem[new_bstri->size], extension->mem,
-            (size_t) extension->size * sizeof(ucharType));
+            (size_t) extension->size);
         new_bstri->size = new_size;
         *destination = new_bstri     ;
       } /* if */
@@ -113,10 +113,8 @@ bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2)
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
-        memcpy(result->mem, bstri1->mem,
-            bstri1->size * sizeof(ucharType));
-        memcpy(&result->mem[bstri1->size], bstri2->mem,
-            bstri2->size * sizeof(ucharType));
+        memcpy(result->mem, bstri1->mem, bstri1->size);
+        memcpy(&result->mem[bstri1->size], bstri2->mem, bstri2->size);
       } /* if */
     } /* if */
     return result;
@@ -136,14 +134,27 @@ intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2)
     intType signumValue;
 
   /* bstCmp */
+#if MEMCMP_RETURNS_SIGNUM
     if (bstri1->size < bstri2->size) {
-      if (memcmp(bstri1->mem, bstri2->mem, bstri1->size * sizeof(ucharType)) <= 0) {
+      signumValue = memcmp(bstri1->mem, bstri2->mem, bstri1->size);
+      if (signumValue == 0) {
+        signumValue = -1;
+      } /* if */
+    } else {
+      signumValue = memcmp(bstri1->mem, bstri2->mem, bstri2->size);
+      if (signumValue == 0 && bstri1->size > bstri2->size) {
+        signumValue = 1;
+      } /* if */
+    } /* if */
+#else
+    if (bstri1->size < bstri2->size) {
+      if (memcmp(bstri1->mem, bstri2->mem, bstri1->size) <= 0) {
         signumValue = -1;
       } else {
         signumValue = 1;
       } /* if */
     } else {
-      signumValue = memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(ucharType));
+      signumValue = memcmp(bstri1->mem, bstri2->mem, bstri2->size);
       if (signumValue == 0) {
         if (bstri1->size > bstri2->size) {
           signumValue = 1;
@@ -154,6 +165,7 @@ intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2)
         signumValue = -1;
       } /* if */
     } /* if */
+#endif
     return signumValue;
   } /* bstCmp */
 
@@ -205,8 +217,7 @@ void bstCpy (bstriType *const dest, const const_bstriType source)
     /* behavior of memcpy() is undefined when source and */
     /* destination areas overlap (or are identical).     */
     /* Therefore memmove() is used instead of memcpy().  */
-    memmove(bstri_dest->mem, source->mem,
-        new_size * sizeof(ucharType));
+    memmove(bstri_dest->mem, source->mem, new_size);
   } /* bstCpy */
 
 
@@ -247,8 +258,7 @@ bstriType bstCreate (const const_bstriType source)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
-      memcpy(result->mem, source->mem,
-          (size_t) new_size * sizeof(ucharType));
+      memcpy(result->mem, source->mem, (size_t) new_size);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", bstriAsUnquotedCStri(result)););
     return result;

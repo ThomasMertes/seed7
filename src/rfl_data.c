@@ -327,7 +327,7 @@ void rflElemcpy (listType dest, intType position, objectType elem)
 boolType rflEq (const_listType list1, const_listType list2)
 
   {
-    boolType result;
+    boolType isEqual;
 
   /* rflEq */
     while (list1 != NULL && list2 != NULL &&
@@ -336,11 +336,11 @@ boolType rflEq (const_listType list1, const_listType list2)
       list2 = list2->next;
     } /* while */
     if (list1 == NULL && list2 == NULL) {
-      result = TRUE;
+      isEqual = TRUE;
     } else {
-      result = FALSE;
+      isEqual = FALSE;
     } /* if */
-    return result;
+    return isEqual;
   } /* rflEq */
 
 

@@ -2927,14 +2927,17 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">exp</span>(A)    Exponential function
       <span class="func">log</span>(A)    Natural logarithm
                   ( log(A) is okay for A > 0.0,
+                    log(1.0)  <b>&rArr;</b>  0.0,
                     log(0.0)  <b>&rArr;</b> -Infinity,
                     log(-1.0) <b>&rArr;</b>  NaN )
       <span class="func">log10</span>(A)  Base 10 logarithm
                   ( log10(A) is okay for A > 0.0,
+                    log10(1.0)  <b>&rArr;</b>  0.0,
                     log10(0.0)  <b>&rArr;</b> -Infinity,
                     log10(-1.0) <b>&rArr;</b>  NaN )
       <span class="func">log2</span>(A)  Base 2 logarithm
                   ( log2(A) is okay for A > 0.0,
+                    log2(1.0)  <b>&rArr;</b>  0.0,
                     log2(0.0)  <b>&rArr;</b> -Infinity,
                     log2(-1.0) <b>&rArr;</b>  NaN )
       <span class="func">sqrt</span>(A)   Square root

@@ -2017,6 +2017,18 @@ const proc: check_parse is func
       okay := FALSE;
     end if;
 
+    if  float parse  "9007199254740991.0" <>  9007199254740991.0 or
+        float parse "-9007199254740991.0" <> -9007199254740991.0 or
+        float parse  "9007199254740991.0" <>  9007199254740990.0 + 1.0 or
+        float parse "-9007199254740991.0" <> -9007199254740990.0 - 1.0 or
+        float parse striExpr( "9007199254740991.0") <>  9007199254740991.0 or
+        float parse striExpr("-9007199254740991.0") <> -9007199254740991.0 or
+        float parse striExpr( "9007199254740991.0") <>  9007199254740990.0 + 1.0 or
+        float parse striExpr("-9007199254740991.0") <> -9007199254740990.0 - 1.0 then
+      writeln(" ***** Parse operator for maximum or minimum odd value does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  float parse "1.0e-308" <> 1.0e-308 or
         float parse "1.0e-307" <> 1.0e-307 or
         float parse "1.0e-300" <> 1.0e-300 or
@@ -2031,7 +2043,10 @@ const proc: check_parse is func
         float parse "1.0e-100" <> 1.0e-100 or
         float parse "1.0e-99"  <> 1.0e-99  or
         float parse "1.0e-75"  <> 1.0e-75  or
+        float parse "1.0e-50"  <> 1.0e-50  or
         float parse "1.0e-25"  <> 1.0e-25  or
+        float parse "1.0e-20"  <> 1.0e-20  or
+        float parse "1.0e-15"  <> 1.0e-15  or
         float parse "1.0e-11"  <> 1.0e-11  or
         float parse "1.0e-10"  <> 1.0e-10  or
         float parse "1.0e-9"   <> 1.0e-9   or
@@ -2043,6 +2058,8 @@ const proc: check_parse is func
         float parse "1.0e9"    <> 1.0e9    or
         float parse "1.0e10"   <> 1.0e10   or
         float parse "1.0e11"   <> 1.0e11   or
+        float parse "1.0e15"   <> 1.0e15   or
+        float parse "1.0e20"   <> 1.0e20   or
         float parse "1.0e25"   <> 1.0e25   or
         float parse "1.0e50"   <> 1.0e50   or
         float parse "1.0e75"   <> 1.0e75   or
@@ -2073,7 +2090,10 @@ const proc: check_parse is func
         float parse striExpr("1.0e-100") <> 1.0e-100 or
         float parse striExpr("1.0e-99")  <> 1.0e-99  or
         float parse striExpr("1.0e-75")  <> 1.0e-75  or
+        float parse striExpr("1.0e-50")  <> 1.0e-50  or
         float parse striExpr("1.0e-25")  <> 1.0e-25  or
+        float parse striExpr("1.0e-20")  <> 1.0e-20  or
+        float parse striExpr("1.0e-15")  <> 1.0e-15  or
         float parse striExpr("1.0e-11")  <> 1.0e-11  or
         float parse striExpr("1.0e-10")  <> 1.0e-10  or
         float parse striExpr("1.0e-9")   <> 1.0e-9   or
@@ -2085,6 +2105,8 @@ const proc: check_parse is func
         float parse striExpr("1.0e9")    <> 1.0e9    or
         float parse striExpr("1.0e10")   <> 1.0e10   or
         float parse striExpr("1.0e11")   <> 1.0e11   or
+        float parse striExpr("1.0e15")   <> 1.0e15   or
+        float parse striExpr("1.0e20")   <> 1.0e20   or
         float parse striExpr("1.0e25")   <> 1.0e25   or
         float parse striExpr("1.0e50")   <> 1.0e50   or
         float parse striExpr("1.0e75")   <> 1.0e75   or
@@ -2119,7 +2141,10 @@ const proc: check_parse is func
         float parse str(1.0e-100) <> 1.0e-100 or
         float parse str(1.0e-99)  <> 1.0e-99  or
         float parse str(1.0e-75)  <> 1.0e-75  or
+        float parse str(1.0e-50)  <> 1.0e-50  or
         float parse str(1.0e-25)  <> 1.0e-25  or
+        float parse str(1.0e-20)  <> 1.0e-20  or
+        float parse str(1.0e-15)  <> 1.0e-15  or
         float parse str(1.0e-11)  <> 1.0e-11  or
         float parse str(1.0e-10)  <> 1.0e-10  or
         float parse str(1.0e-9)   <> 1.0e-9   or
@@ -2131,6 +2156,8 @@ const proc: check_parse is func
         float parse str(1.0e9)    <> 1.0e9    or
         float parse str(1.0e10)   <> 1.0e10   or
         float parse str(1.0e11)   <> 1.0e11   or
+        float parse str(1.0e15)   <> 1.0e15   or
+        float parse str(1.0e20)   <> 1.0e20   or
         float parse str(1.0e25)   <> 1.0e25   or
         float parse str(1.0e50)   <> 1.0e50   or
         float parse str(1.0e75)   <> 1.0e75   or
@@ -2161,7 +2188,10 @@ const proc: check_parse is func
         float parse str(floatExpr(1.0e-100)) <> 1.0e-100 or
         float parse str(floatExpr(1.0e-99))  <> 1.0e-99  or
         float parse str(floatExpr(1.0e-75))  <> 1.0e-75  or
+        float parse str(floatExpr(1.0e-50))  <> 1.0e-50  or
         float parse str(floatExpr(1.0e-25))  <> 1.0e-25  or
+        float parse str(floatExpr(1.0e-20))  <> 1.0e-20  or
+        float parse str(floatExpr(1.0e-15))  <> 1.0e-15  or
         float parse str(floatExpr(1.0e-11))  <> 1.0e-11  or
         float parse str(floatExpr(1.0e-10))  <> 1.0e-10  or
         float parse str(floatExpr(1.0e-9))   <> 1.0e-9   or
@@ -2173,6 +2203,8 @@ const proc: check_parse is func
         float parse str(floatExpr(1.0e9))    <> 1.0e9    or
         float parse str(floatExpr(1.0e10))   <> 1.0e10   or
         float parse str(floatExpr(1.0e11))   <> 1.0e11   or
+        float parse str(floatExpr(1.0e15))   <> 1.0e15   or
+        float parse str(floatExpr(1.0e20))   <> 1.0e20   or
         float parse str(floatExpr(1.0e25))   <> 1.0e25   or
         float parse str(floatExpr(1.0e50))   <> 1.0e50   or
         float parse str(floatExpr(1.0e75))   <> 1.0e75   or
@@ -2481,6 +2513,37 @@ const proc: check_parse is func
         str(  -123456789012345.0)                    <>   "-123456789012345.0" or
         str( -1234567890123450.0)                    <>  "-1234567890123450.0" or
         str(-12345678901234500.0)                    <> "-12345678901234500.0" or
+        str(1.0e-308) <> "0." & "0" mult 307 & "1" or
+        str(1.0e-307) <> "0." & "0" mult 306 & "1" or
+        str(1.0e-300) <> "0." & "0" mult 299 & "1" or
+        str(1.0e-275) <> "0." & "0" mult 274 & "1" or
+        str(1.0e-250) <> "0." & "0" mult 249 & "1" or
+        str(1.0e-225) <> "0." & "0" mult 224 & "1" or
+        str(1.0e-200) <> "0." & "0" mult 199 & "1" or
+        str(1.0e-175) <> "0." & "0" mult 174 & "1" or
+        str(1.0e-150) <> "0." & "0" mult 149 & "1" or
+        str(1.0e-125) <> "0." & "0" mult 124 & "1" or
+        str(1.0e-101) <> "0." & "0" mult 100 & "1" or
+        str(1.0e-100) <> "0." & "0" mult  99 & "1" or
+        str(1.0e-99)  <> "0." & "0" mult  98 & "1" or
+        str(1.0e-75)  <> "0." & "0" mult  74 & "1" or
+        str(1.0e-50)  <> "0." & "0" mult  49 & "1" or
+        str(1.0e-25)  <> "0." & "0" mult  24 & "1" or
+        str(1.0e-20)  <> "0.00000000000000000001" or
+        str(1.0e-15)  <> "0.000000000000001" or
+        str(1.0e-11)  <> "0.00000000001" or
+        str(1.0e-10)  <> "0.0000000001"  or
+        str(1.0e-9)   <> "0.000000001"   or
+        str(1.0e-2)   <> "0.01"   or
+        str(1.0e-1)   <> "0.1"    or
+        str(1.0e0)    <> "1.0"    or
+        str(1.0e1)    <> "10.0"   or
+        str(1.0e2)    <> "100.0"  or
+        str(1.0e9)    <> "1000000000.0"  or
+        str(1.0e10)   <> "10000000000.0"  or
+        str(1.0e11)   <> "100000000000.0"  or
+        str(1.0e15)   <> "1000000000000000.0"  or
+        str(1.0e20)   <> "100000000000000000000.0" or
         str(                0.0)  <>       "0.0" or
         str(               -0.0)  <>       "0.0" or
         str(                1.0)  <>       "1.0" or
@@ -2737,7 +2800,10 @@ const proc: check_parse is func
        (          1.0e-100  sci 1) <> "1.0e-100" or
        (          1.0e-99   sci 1) <> "1.0e-99"  or
        (          1.0e-75   sci 1) <> "1.0e-75"  or
+       (          1.0e-50   sci 1) <> "1.0e-50"  or
        (          1.0e-25   sci 1) <> "1.0e-25"  or
+       (          1.0e-20   sci 1) <> "1.0e-20"  or
+       (          1.0e-15   sci 1) <> "1.0e-15"  or
        (          1.0e-11   sci 1) <> "1.0e-11"  or
        (          1.0e-10   sci 1) <> "1.0e-10"  or
        (          1.0e-9    sci 1) <> "1.0e-9"   or
@@ -2749,6 +2815,8 @@ const proc: check_parse is func
        (          1.0e9     sci 1) <> "1.0e+9"   or
        (          1.0e10    sci 1) <> "1.0e+10"  or
        (          1.0e11    sci 1) <> "1.0e+11"  or
+       (          1.0e15    sci 1) <> "1.0e+15"  or
+       (          1.0e20    sci 1) <> "1.0e+20"  or
        (          1.0e25    sci 1) <> "1.0e+25"  or
        (          1.0e50    sci 1) <> "1.0e+50"  or
        (          1.0e75    sci 1) <> "1.0e+75"  or
@@ -2779,7 +2847,10 @@ const proc: check_parse is func
        (floatExpr(1.0e-100) sci 1) <> "1.0e-100" or
        (floatExpr(1.0e-99 ) sci 1) <> "1.0e-99"  or
        (floatExpr(1.0e-75 ) sci 1) <> "1.0e-75"  or
+       (floatExpr(1.0e-50 ) sci 1) <> "1.0e-50"  or
        (floatExpr(1.0e-25 ) sci 1) <> "1.0e-25"  or
+       (floatExpr(1.0e-20 ) sci 1) <> "1.0e-20"  or
+       (floatExpr(1.0e-15 ) sci 1) <> "1.0e-15"  or
        (floatExpr(1.0e-11 ) sci 1) <> "1.0e-11"  or
        (floatExpr(1.0e-10 ) sci 1) <> "1.0e-10"  or
        (floatExpr(1.0e-9  ) sci 1) <> "1.0e-9"   or
@@ -2791,6 +2862,8 @@ const proc: check_parse is func
        (floatExpr(1.0e9   ) sci 1) <> "1.0e+9"   or
        (floatExpr(1.0e10  ) sci 1) <> "1.0e+10"  or
        (floatExpr(1.0e11  ) sci 1) <> "1.0e+11"  or
+       (floatExpr(1.0e15  ) sci 1) <> "1.0e+15"  or
+       (floatExpr(1.0e20  ) sci 1) <> "1.0e+20"  or
        (floatExpr(1.0e25  ) sci 1) <> "1.0e+25"  or
        (floatExpr(1.0e50  ) sci 1) <> "1.0e+50"  or
        (floatExpr(1.0e75  ) sci 1) <> "1.0e+75"  or
@@ -9104,23 +9177,43 @@ const proc: check_nan is func
         not isNaN(asin(-1.1))        or
         not isNaN(asin(1.1))         or
         not isNaN(asin(Infinity))    or
-        not isNaN(asin(NaN))         or
-        not isNaN(acos(-Infinity))   or
+        not isNaN(asin(NaN))         then
+      writeln(" ***** NaN is not returned as error value for asin().");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(acos(-Infinity))   or
         not isNaN(acos(-1.1))        or
         not isNaN(acos(1.1))         or
         not isNaN(acos(Infinity))    or
-        not isNaN(acos(NaN))         or
-        not isNaN(sqrt(-Infinity))   or
+        not isNaN(acos(NaN))         then
+      writeln(" ***** NaN is not returned as error value for acos().");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(sqrt(-Infinity))   or
         not isNaN(sqrt(-1.0))        or
         not isNaN(sqrt(-FLOAT_MIN))  or
-        not isNaN(sqrt(NaN))         or
-        not isNaN(log(-Infinity))    or
-        not isNaN(log(-1.0))         or
-        not isNaN(log2(-Infinity))   or
-        not isNaN(log2(-1.0))        or
-        not isNaN(log10(-Infinity))  or
+        not isNaN(sqrt(NaN))         then
+      writeln(" ***** NaN is not returned as error value for sqrt().");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(log(-Infinity))    or
+        not isNaN(log(-1.0))         then
+      writeln(" ***** NaN is not returned as error value for log().");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(log2(-Infinity))   or
+        not isNaN(log2(-1.0))        then
+      writeln(" ***** NaN is not returned as error value for log2().");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(log10(-Infinity))  or
         not isNaN(log10(-1.0))       then
-      writeln(" ***** NaN is not returned as error value for math functions.");
+      writeln(" ***** NaN is not returned as error value for log10().");
       okay := FALSE;
     end if;
 

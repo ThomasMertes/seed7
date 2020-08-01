@@ -84,7 +84,7 @@ striType getExecutablePath (const const_striType arg_0)
 #endif
 #endif
     striType cwd;
-    striType result;
+    striType executablePath;
 
   /* getExecutablePath */
     logFunction(printf("getExecutablePath\n"););
@@ -92,38 +92,38 @@ striType getExecutablePath (const const_striType arg_0)
     readlink_result = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
     if (readlink_result != -1) {
       buffer[readlink_result] = '\0';
-      result = cp_from_os_path(buffer, &err_info);
-      if (unlikely(result == NULL)) {
+      executablePath = cp_from_os_path(buffer, &err_info);
+      if (unlikely(executablePath == NULL)) {
         logError(printf("getExecutablePath: cp_from_os_path failed.\n"););
         raise_error(err_info);
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
       } else {
         exeExtension = CSTRI_LITERAL_TO_STRI(EXECUTABLE_FILE_EXTENSION);
-        strAppendTemp(&result, exeExtension);
+        strAppendTemp(&executablePath, exeExtension);
 #endif
       } /* if */
     } else {
 #endif
       if (strChPos(arg_0, (charType) '/') == 0) {
-        result = examineSearchPath(arg_0);
+        executablePath = examineSearchPath(arg_0);
       } else if (arg_0->size >= 1 && arg_0->mem[0] == (charType) '/') {
-        result = strCreate(arg_0);
+        executablePath = strCreate(arg_0);
       } else {
         cwd = cmdGetcwd();
-        result = concatPath(cwd, arg_0);
+        executablePath = concatPath(cwd, arg_0);
         FREE_STRI(cwd, cwd->size);
       } /* if */
-      if (unlikely(result == NULL)) {
+      if (unlikely(executablePath == NULL)) {
         raise_error(MEMORY_ERROR);
 #if HAS_SYMBOLIC_LINKS
       } else {
-        result = followLink(result);
+        executablePath = followLink(executablePath);
 #endif
       } /* if */
 #if HAS_SYMBOLIC_LINKS
     } /* if */
 #endif
     logFunction(printf("getExecutablePath --> \"%s\"\n",
-                       striAsUnquotedCStri(result)););
-    return result;
+                       striAsUnquotedCStri(executablePath)););
+    return executablePath;
   } /* getExecutablePath */

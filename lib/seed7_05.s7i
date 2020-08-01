@@ -1055,10 +1055,10 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     const func integer: (attr integer) conv (in enumType: enum_val) is
       return ord(enum_val);
 
-    const func enumType: succ (ref enumType: enum_val) is
+    const func enumType: succ (in enumType: enum_val) is
       return enumType conv succ(ord(enum_val));
 
-    const func enumType: pred (ref enumType: enum_val) is
+    const func enumType: pred (in enumType: enum_val) is
       return enumType conv pred(ord(enum_val));
 
     const proc: incr (inout enumType: enum_val) is func

@@ -129,6 +129,11 @@ const func float: exp (in float: x)                            is action "FLT_EX
 
 (**
  *  Return the natural logarithm (base e) of x.
+ *   log(NaN)       returns NaN
+ *   log(1.0)       returns 0.0
+ *   log(Infinity)  returns Infinity
+ *   log(0.0)       returns -Infinity
+ *   log(X)         returns NaN        for X < 0.0
  *  @return the natural logarithm of x.
  *)
 const func float: log (in float: x)                            is action "FLT_LOG";
@@ -136,6 +141,11 @@ const func float: log (in float: x)                            is action "FLT_LO
 
 (**
  *  Returns the base 10 logarithm of x.
+ *   log10(NaN)       returns NaN
+ *   log10(1.0)       returns 0.0
+ *   log10(Infinity)  returns Infinity
+ *   log10(0.0)       returns -Infinity
+ *   log10(X)         returns NaN        for X < 0.0
  *  @return the base 10 logarithm of x.
  *)
 const func float: log10 (in float: x)                          is action "FLT_LOG10";
@@ -143,6 +153,11 @@ const func float: log10 (in float: x)                          is action "FLT_LO
 
 (**
  *  Returns the base 2 logarithm of x.
+ *   log2(NaN)       returns NaN
+ *   log2(1.0)       returns 0.0
+ *   log2(Infinity)  returns Infinity
+ *   log2(0.0)       returns -Infinity
+ *   log2(X)         returns NaN        for X < 0.0
  *  @return the base 2 logarithm of x.
  *)
 const func float: log2 (in float: x)                           is action "FLT_LOG2";
@@ -150,6 +165,10 @@ const func float: log2 (in float: x)                           is action "FLT_LO
 
 (**
  *  Returns the non-negative square root of x.
+ *   sqrt(NaN)       returns NaN
+ *   sqrt(0.0)       returns 0.0
+ *   sqrt(Infinity)  returns Infinity
+ *   sqrt(X)         returns NaN        for X < 0.0
  *  @return the square root of x.
  *)
 const func float: sqrt (in float: x)                           is action "FLT_SQRT";

@@ -1746,6 +1746,7 @@ intType strCompare (const const_striType stri1, const const_striType stri2)
     intType signumValue;
 
   /* strCompare */
+#if !HAS_WMEMCMP || WCHAR_T_SIZE != 32 || WMEMCMP_RETURNS_SIGNUM
     if (stri1->size < stri2->size) {
       signumValue = memcmp_strelem(stri1->mem, stri2->mem, stri1->size);
       if (signumValue == 0) {
@@ -1757,6 +1758,26 @@ intType strCompare (const const_striType stri1, const const_striType stri2)
         signumValue = 1;
       } /* if */
     } /* if */
+#else
+    if (stri1->size < stri2->size) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri1->size) <= 0) {
+        signumValue = -1;
+      } else {
+        signumValue = 1;
+      } /* if */
+    } else {
+      signumValue = memcmp_strelem(stri1->mem, stri2->mem, stri2->size);
+      if (signumValue == 0) {
+        if (stri1->size > stri2->size) {
+          signumValue = 1;
+        } /* if */
+      } else if (signumValue > 0) {
+        signumValue = 1;
+      } else {
+        signumValue = -1;
+      } /* if */
+    } /* if */
+#endif
     return signumValue;
   } /* strCompare */
 
@@ -3773,6 +3794,9 @@ rtlArrayType strSplit (const const_striType mainStri,
     rtlArrayType result_array;
 
   /* strSplit */
+    logFunction(printf("strSplit(\"%s\", ",
+                       striAsUnquotedCStri(mainStri));
+                printf("\"%s\")\n", striAsUnquotedCStri(delimiter)););
     if (likely(ALLOC_RTL_ARRAY(result_array, INITIAL_ARRAY_SIZE))) {
       result_array->min_position = 1;
       result_array->max_position = INITIAL_ARRAY_SIZE;

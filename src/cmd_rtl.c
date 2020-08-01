@@ -540,16 +540,17 @@ static void copy_any_file (const const_os_striType from_name,
       if (S_ISLNK(from_stat.st_mode)) {
 #if HAS_SYMBOLIC_LINKS
         /* printf("link size=%lu\n", from_stat.st_size); */
-        if (from_stat.st_size < 0 ||
-            (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN) {
+        if (unlikely(from_stat.st_size < 0 ||
+                     (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN)) {
           *err_info = RANGE_ERROR;
         } else {
-          if (!os_stri_alloc(link_destination, (memSizeType) from_stat.st_size)) {
+          if (unlikely(!os_stri_alloc(link_destination, 
+                                      (memSizeType) from_stat.st_size))) {
             *err_info = MEMORY_ERROR;
           } else {
             readlink_result = readlink(from_name, link_destination,
                                        (size_t) from_stat.st_size);
-            if (readlink_result != -1) {
+            if (unlikely(readlink_result != -1)) {
               link_destination[readlink_result] = '\0';
               /* printf("readlink_result=%lu\n", readlink_result);
                  printf("link=" FMT_S_OS "\n", link_destination); */
@@ -856,6 +857,10 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
     int putenv_result;
 
   /* setEnvironmentVariable */
+    logFunction(printf("setEnvironmentVariable(\"%s\", ",
+                       striAsUnquotedCStri(name));
+                printf("\"%s\", *)\n",
+                       striAsUnquotedCStri(value)););
     if (strChPos(name, (charType) '=') != 0) {
       logError(printf("setEnvironmentVariable(\"%s\", ",
                       striAsUnquotedCStri(name));
@@ -893,6 +898,7 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("setEnvironmentVariable -->\n"););
   } /* setEnvironmentVariable */
 
 #else
@@ -909,6 +915,10 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
     int saved_errno;
 
   /* setEnvironmentVariable */
+    logFunction(printf("setEnvironmentVariable(\"%s\", ",
+                       striAsUnquotedCStri(name));
+                printf("\"%s\", *)\n",
+                       striAsUnquotedCStri(value)););
     env_name = stri_to_os_stri(name, err_info);
     if (likely(env_name != NULL)) {
       env_value = stri_to_os_stri(value, err_info);
@@ -930,6 +940,7 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
       } /* if */
       os_stri_free(env_name);
     } /* if */
+    logFunction(printf("setEnvironmentVariable -->\n"););
   } /* setEnvironmentVariable */
 
 #endif
@@ -1067,8 +1078,7 @@ striType followLink (striType path)
     int number_of_links_followed = 5;
 
   /* followLink */
-    logFunction(printf("followLink(\"%s\")", striAsUnquotedCStri(path));
-                fflush(stdout););
+    logFunction(printf("followLink(\"%s\")\n", striAsUnquotedCStri(path)););
     if (cmdFileTypeSL(path) == FILE_SYMLINK) {
       startPath = path;
       path = cmdReadlink(startPath);
@@ -1086,7 +1096,7 @@ striType followLink (striType path)
         FREE_STRI(startPath, startPath->size);
       } /* if */
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(path)););
+    logFunction(printf("followLink --> \"%s\"\n", striAsUnquotedCStri(path)););
     return path;
   } /* followLink */
 #endif
@@ -1207,7 +1217,7 @@ void initEmulatedCwd (errInfoType *err_info)
         FREE_OS_STRI(os_cwd);
       } /* if */
     } /* if */
-    logFunction(printf("initEmulatedCwd(%d)\n", *err_info););
+    logFunction(printf("initEmulatedCwd(%d) -->\n", *err_info););
   } /* initEmulatedCwd */
 #endif
 
@@ -1567,8 +1577,6 @@ striType cmdConfigValue (const const_striType name)
       opt = HAS_EXP2 ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_EXP10") == 0) {
       opt = HAS_EXP10 ? "TRUE" : "FALSE";
-    } else if (strcmp(opt_name, "HAS_LOG2") == 0) {
-      opt = HAS_LOG2 ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_CBRT") == 0) {
       opt = HAS_CBRT ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
@@ -1591,6 +1599,12 @@ striType cmdConfigValue (const const_striType name)
       opt = POW_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "SQRT_FUNCTION_OKAY") == 0) {
       opt = SQRT_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "LOG_FUNCTION_OKAY") == 0) {
+      opt = LOG_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "LOG10_FUNCTION_OKAY") == 0) {
+      opt = LOG10_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "LOG2_FUNCTION_OKAY") == 0) {
+      opt = LOG2_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "FREXP_INFINITY_NAN_OKAY") == 0) {
       opt = FREXP_INFINITY_NAN_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
@@ -3330,6 +3344,8 @@ striType cmdShellEscape (const const_striType stri)
     striType result;
 
   /* cmdShellEscape */
+    logFunction(printf("cmdShellEscape(\"%s\")", striAsUnquotedCStri(stri));
+                fflush(stdout););
     if (unlikely(stri->size > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
                  !ALLOC_STRI_SIZE_OK(result, escSequenceMax * stri->size + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
@@ -3348,6 +3364,9 @@ striType cmdShellEscape (const const_striType stri)
             result->mem[outPos] = stri->mem[inPos];
             break;
           case '\0': case '\n':
+            logError(printf("cmdShellEscape: "
+                            "Illegal character in string ('\\" FMT_U32 ";').\n",
+                            stri->mem[inPos]););
             err_info = RANGE_ERROR;
             break;
           default:
@@ -3373,6 +3392,7 @@ striType cmdShellEscape (const const_striType stri)
         } /* if */
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* cmdShellEscape */
 
@@ -3407,6 +3427,8 @@ striType cmdShellEscape (const const_striType stri)
     striType result;
 
   /* cmdShellEscape */
+    logFunction(printf("cmdShellEscape(\"%s\")", striAsUnquotedCStri(stri));
+                fflush(stdout););
     if (unlikely(stri->size > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
                  !ALLOC_STRI_SIZE_OK(result, escSequenceMax * stri->size + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
@@ -3452,6 +3474,9 @@ striType cmdShellEscape (const const_striType stri)
             result->mem[outPos] = stri->mem[inPos];
             break;
           case '\0': case '\n': case '\r':
+            logError(printf("cmdShellEscape: "
+                            "Illegal character in string ('\\" FMT_U32 ";').\n",
+                            stri->mem[inPos]););
             err_info = RANGE_ERROR;
             break;
           default:
@@ -3504,6 +3529,7 @@ striType cmdShellEscape (const const_striType stri)
         } /* if */
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* cmdShellEscape */
 
@@ -3573,7 +3599,8 @@ striType cmdToOsPath (const const_striType standardPath)
     striType result;
 
   /* cmdToOsPath */
-    logFunction(printf("cmdToOsPath(\"%s\")\n", striAsUnquotedCStri(standardPath)););
+    logFunction(printf("cmdToOsPath(\"%s\")", striAsUnquotedCStri(standardPath));
+                fflush(stdout););
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #if FORBID_DRIVE_LETTERS
     if (unlikely(standardPath->size >= 2 &&
@@ -3592,6 +3619,9 @@ striType cmdToOsPath (const const_striType standardPath)
                  ((standardPath->mem[0] < 'a' || standardPath->mem[0] > 'z') &&
                   (standardPath->mem[0] < 'A' || standardPath->mem[0] > 'Z'))))) {
 #endif
+      logError(printf("cmdToOsPath: "
+                      "\"%s\" uses a drive letter or ends with slash.\n",
+                      striAsUnquotedCStri(standardPath)););
       err_info = RANGE_ERROR;
     } else {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
@@ -3599,6 +3629,9 @@ striType cmdToOsPath (const const_striType standardPath)
         /* Absolute path: Try to map the path to a drive letter */
         if (unlikely(standardPath->size == 1)) {
           /* "/"    cannot be mapped to a drive letter */
+          logError(printf("cmdToOsPath: "
+                          "\"%s\" cannot be mapped to a drive letter.\n",
+                          striAsUnquotedCStri(standardPath)););
           err_info = RANGE_ERROR;
         } else if (standardPath->mem[1] >= 'a' && standardPath->mem[1] <= 'z') {
           if (standardPath->size == 2) {
@@ -3613,6 +3646,9 @@ striType cmdToOsPath (const const_striType standardPath)
             } /* if */
           } else if (unlikely(standardPath->mem[2] != '/')) {
             /* "/cd"  cannot be mapped to a drive letter */
+            logError(printf("cmdToOsPath: "
+                            "\"%s\" cannot be mapped to a drive letter.\n",
+                            striAsUnquotedCStri(standardPath)););
             err_info = RANGE_ERROR;
           } else {
             /* "/c/d" is mapped to "c:/d" */
@@ -3629,6 +3665,9 @@ striType cmdToOsPath (const const_striType standardPath)
           } /* if */
         } else {
           /* "/C"  cannot be mapped to a drive letter */
+          logError(printf("cmdToOsPath: "
+                          "\"%s\" cannot be mapped to a drive letter.\n",
+                          striAsUnquotedCStri(standardPath)););
           err_info = RANGE_ERROR;
         } /* if */
       } else
@@ -3656,7 +3695,6 @@ striType cmdToOsPath (const const_striType standardPath)
       } /* for */
 #endif
     } /* if */
-    logFunction(printf("cmdToOsPath(\"%s\") --> ", striAsUnquotedCStri(standardPath));
-                printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* cmdToOsPath */

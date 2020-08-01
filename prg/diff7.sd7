@@ -160,25 +160,34 @@ const proc: diffContent (in string: content1, in string: content2) is func
 
 const proc: diff (in string: path1, in string: path2) is func
   local
+    var fileType: fileType1 is FILE_ABSENT;
+    var fileType: fileType2 is FILE_ABSENT;
     var string: currName is "";
     var string: fileContent1 is "";
     var string: fileContent2 is "";
   begin
-    if fileType(path1) = FILE_DIR and fileType(path2) = FILE_DIR then
-      for currName range readDir(path1) do
-        # writeln(currName);
-        diff(path1 & "/" & currName, path2 & "/" & currName);
-      end for;
-      for currName range readDir(path2) do
-        if fileType(path1 & "/" & currName) = FILE_ABSENT then
-          writeln(literal(path1 & "/" & currName) <& " missing");
-        end if;
-      end for;
-    elsif fileType(path1) = FILE_REGULAR then
-      if fileType(path2) = FILE_ABSENT then
+    fileType1 := fileType(path1);
+    fileType2 := fileType(path2);
+    if fileType1 = FILE_DIR then
+      if fileType2 <> FILE_DIR then
+        writeln(literal(path1) <& " is a directory");
+        writeln(literal(path2) <& " is not a directory");
+      else
+        for currName range readDir(path1) do
+          # writeln(currName);
+          diff(path1 & "/" & currName, path2 & "/" & currName);
+        end for;
+        for currName range readDir(path2) do
+          if fileType(path1 & "/" & currName) = FILE_ABSENT then
+            writeln(literal(path1 & "/" & currName) <& " missing");
+          end if;
+        end for;
+      end if;
+    elsif fileType1 = FILE_REGULAR then
+      if fileType2 = FILE_ABSENT then
         writeln(literal(path2) <& " missing");
-      elsif fileType(path2) <> FILE_REGULAR then
-        writeln(literal(path2) <& " not a regular file");
+      elsif fileType2 <> FILE_REGULAR then
+        writeln(literal(path2) <& " is not a regular file");
       else
         fileContent1 := getf(path1);
         fileContent2 := getf(path2);
@@ -200,6 +209,17 @@ const proc: diff (in string: path1, in string: path2) is func
             diffContent(fileContent1, fileContent2);
           end if;
         end if;
+      end if;
+    else
+      if fileType1 = FILE_ABSENT then
+        writeln(literal(path1) <& " missing");
+      else
+        writeln(literal(path1) <& " is not a regular file");
+      end if;
+      if fileType2 = FILE_ABSENT then
+        writeln(literal(path2) <& " missing");
+      elsif fileType2 <> FILE_REGULAR and fileType2 <> FILE_DIR then
+        writeln(literal(path2) <& " is not a regular file");
       end if;
     end if;
   end func;

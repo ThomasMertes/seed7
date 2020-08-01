@@ -83,7 +83,7 @@ const type: ccConfigType is new struct
     var boolean: NAN_COMPARISON_OKAY         is FALSE;
 
     (**
-     *  TRUE, when pow() works okay for a base of zero, one or NaN.
+     *  TRUE, when pow() works okay for a base of zero, one and NaN.
      *  If it is FALSE fltPow() should be used instead of pow().
      *)
     var boolean: POW_FUNCTION_OKAY           is FALSE;
@@ -93,6 +93,24 @@ const type: ccConfigType is new struct
      *  If it is FALSE fltSqrt() should be used instead of sqrt().
      *)
     var boolean: SQRT_FUNCTION_OKAY          is FALSE;
+
+    (**
+     *  TRUE, when log() works okay for zero, a negative values and NaN .
+     *  If it is FALSE fltLog() should be used instead of log().
+     *)
+    var boolean: LOG_FUNCTION_OKAY           is FALSE;
+
+    (**
+     *  TRUE, when log10() works okay for zero, a negative values and NaN .
+     *  If it is FALSE fltLog10() should be used instead of log10().
+     *)
+    var boolean: LOG10_FUNCTION_OKAY         is FALSE;
+
+    (**
+     *  TRUE, when log2() works okay for zero, a negative values and NaN .
+     *  If it is FALSE fltLog2() should be used instead of log2().
+     *)
+    var boolean: LOG2_FUNCTION_OKAY          is FALSE;
 
     (**
      *  TRUE, when frexp(Infinity, &exponent), frexp(-Infinity, &exponent)
@@ -155,11 +173,6 @@ const type: ccConfigType is new struct
      *  TRUE, when the C function exp10() is present.
      *)
     var boolean: HAS_EXP10                   is FALSE;
-
-    (**
-     *  TRUE, when the C function log2() is present.
-     *)
-    var boolean: HAS_LOG2                    is FALSE;
 
     (**
      *  TRUE, when the C function cbrt() is present.
@@ -575,6 +588,9 @@ const func ccConfigType: getBuiltInConfig is func
     conf.NAN_COMPARISON_OKAY        := boolean parse configValue("NAN_COMPARISON_OKAY");
     conf.POW_FUNCTION_OKAY          := boolean parse configValue("POW_FUNCTION_OKAY");
     conf.SQRT_FUNCTION_OKAY         := boolean parse configValue("SQRT_FUNCTION_OKAY");
+    conf.LOG_FUNCTION_OKAY          := boolean parse configValue("LOG_FUNCTION_OKAY");
+    conf.LOG10_FUNCTION_OKAY        := boolean parse configValue("LOG10_FUNCTION_OKAY");
+    conf.LOG2_FUNCTION_OKAY         := boolean parse configValue("LOG2_FUNCTION_OKAY");
     conf.FREXP_INFINITY_NAN_OKAY    := boolean parse configValue("FREXP_INFINITY_NAN_OKAY");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
     conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
@@ -583,7 +599,6 @@ const func ccConfigType: getBuiltInConfig is func
     conf.CHECK_INT_REM_ZERO_BY_ZERO := boolean parse configValue("CHECK_INT_REM_ZERO_BY_ZERO");
     conf.HAS_EXP2                   := boolean parse configValue("HAS_EXP2");
     conf.HAS_EXP10                  := boolean parse configValue("HAS_EXP10");
-    conf.HAS_LOG2                   := boolean parse configValue("HAS_LOG2");
     conf.HAS_CBRT                   := boolean parse configValue("HAS_CBRT");
     conf.CHECK_FLOAT_DIV_BY_ZERO    := boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
     conf.LIMITED_CSTRI_LITERAL_LEN  := boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");

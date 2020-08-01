@@ -895,8 +895,9 @@ void filBigSeek (fileType aFile, const const_bigIntType position)
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
     if (unlikely(file_position <= 0)) {
-      logError(printf("filBigSeek(%d, " FMT_D_OFF "): Position <= 0.\n",
-                      safe_fileno(aFile), file_position););
+      logError(printf("filBigSeek(%d, " FMT_D_OFF "): Position <= 0%s.\n",
+                      safe_fileno(aFile), file_position, file_position == 0 ?
+                          " or conversion from bigInteger failed" : ""););
       raise_error(RANGE_ERROR);
     } else if (unlikely(offsetSeek(aFile, file_position - 1, SEEK_SET) != 0)) {
       logError(printf("filBigSeek(%d, %s): "
@@ -1182,12 +1183,12 @@ boolType filHasNext (fileType inFile)
 
   {
     int next_char;
-    boolType result;
+    boolType hasNext;
 
   /* filHasNext */
     logFunction(printf("filHasNext(%d)\n", safe_fileno(inFile)););
     if (feof(inFile)) {
-      result = FALSE;
+      hasNext = FALSE;
     } else {
       next_char = getc(inFile);
       if (next_char != EOF) {
@@ -1196,18 +1197,18 @@ boolType filHasNext (fileType inFile)
                           "does not return '\\" FMT_U32 ";'.\n",
                           next_char, safe_fileno(inFile), next_char););
           raise_error(FILE_ERROR);
-          result = FALSE;
+          hasNext = FALSE;
         } else {
-          result = TRUE;
+          hasNext = TRUE;
         } /* if */
       } else {
         clearerr(inFile);
-        result = FALSE;
+        hasNext = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filHasNext(%d) --> %d\n",
-                       safe_fileno(inFile), result););
-    return result;
+                       safe_fileno(inFile), hasNext););
+    return hasNext;
   } /* filHasNext */
 
 
@@ -1217,13 +1218,13 @@ boolType filHasNextChkCtrlC (fileType inFile)
   {
     int file_no;
     int next_char;
-    boolType result;
+    boolType hasNext;
 
   /* filHasNextChkCtrlC */
     logFunction(printf("filHasNextChkCtrlC(%d)\n",
                        safe_fileno(inFile)););
     if (feof(inFile)) {
-      result = FALSE;
+      hasNext = FALSE;
     } else {
       file_no = fileno(inFile);
       if (file_no != -1 && isatty(file_no)) {
@@ -1238,18 +1239,18 @@ boolType filHasNextChkCtrlC (fileType inFile)
                           "does not return '\\" FMT_U32 ";'.\n",
                           next_char, safe_fileno(inFile), next_char););
           raise_error(FILE_ERROR);
-          result = FALSE;
+          hasNext = FALSE;
         } else {
-          result = TRUE;
+          hasNext = TRUE;
         } /* if */
       } else {
         clearerr(inFile);
-        result = FALSE;
+        hasNext = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filHasNextChkCtrlC(%d) --> %d\n",
-                       safe_fileno(inFile), result););
-    return result;
+                       safe_fileno(inFile), hasNext););
+    return hasNext;
   } /* filHasNextChkCtrlC */
 
 

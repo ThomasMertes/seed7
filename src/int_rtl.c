@@ -634,7 +634,7 @@ int uint32LeastSignificantBit (uint32Type number)
 
   /* uint32LeastSignificantBit */
     return MULTIPLY_DE_BRUIJN_BIT_POSITION[
-      ((uint32Type) ((number & -number) * UINT32_SUFFIX(0x077cb531))) >> 27];
+        (uint32Type) ((number & -number) * UINT32_SUFFIX(0x077cb531)) >> 27];
   } /* uint32LeastSignificantBit */
 
 

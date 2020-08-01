@@ -202,6 +202,7 @@ static arrayType strChSplit (const const_striType mainStri,
     if (unlikely(result_array == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("strChSplit -->\n"););
     return result_array;
   } /* strChSplit */
 
@@ -222,6 +223,9 @@ static arrayType strSplit (const const_striType mainStri,
     arrayType result_array;
 
   /* strSplit */
+    logFunction(printf("strChSplit(\"%s\", ",
+                       striAsUnquotedCStri(mainStri));
+                printf("\"%s\")\n", striAsUnquotedCStri(delimiter)););
     if (ALLOC_ARRAY(result_array, INITIAL_ARRAY_SIZE)) {
       result_array->min_position = 1;
       result_array->max_position = INITIAL_ARRAY_SIZE;
@@ -260,6 +264,7 @@ static arrayType strSplit (const const_striType mainStri,
     if (unlikely(result_array == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("strSplit -->\n"););
     return result_array;
   } /* strSplit */
 
@@ -447,6 +452,7 @@ objectType str_cmp (listType arguments)
     isit_stri(arg_2(arguments));
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_2(arguments));
+#if !HAS_WMEMCMP || WCHAR_T_SIZE != 32 || WMEMCMP_RETURNS_SIGNUM
     if (stri1->size < stri2->size) {
       signumValue = memcmp_strelem(stri1->mem, stri2->mem, stri1->size);
       if (signumValue == 0) {
@@ -458,6 +464,26 @@ objectType str_cmp (listType arguments)
         signumValue = 1;
       } /* if */
     } /* if */
+#else
+    if (stri1->size < stri2->size) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri1->size) <= 0) {
+        signumValue = -1;
+      } else {
+        signumValue = 1;
+      } /* if */
+    } else {
+      signumValue = memcmp_strelem(stri1->mem, stri2->mem, stri2->size);
+      if (signumValue == 0) {
+        if (stri1->size > stri2->size) {
+          signumValue = 1;
+        } /* if */
+      } else if (signumValue > 0) {
+        signumValue = 1;
+      } else {
+        signumValue = -1;
+      } /* if */
+    } /* if */
+#endif
     return bld_int_temp(signumValue);
   } /* str_cmp */
 

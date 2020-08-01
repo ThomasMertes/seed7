@@ -737,15 +737,15 @@ intType setHashCode (const const_setType set1)
   {
     memSizeType bitset_size;
     memSizeType bitset_index;
-    intType result;
+    intType hashCode;
 
   /* setHashCode */
-    result = 0;
+    hashCode = 0;
     bitset_size = bitsetSize(set1);
     for (bitset_index = 0; bitset_index < bitset_size; bitset_index++) {
-      result ^= (intType) set1->bitset[bitset_index];
+      hashCode ^= (intType) set1->bitset[bitset_index];
     } /* for */
-    return result;
+    return hashCode;
   } /* setHashCode */
 
 

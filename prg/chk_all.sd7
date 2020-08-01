@@ -424,6 +424,9 @@ const func boolean: checkCompiler (in string: progName, in string: option,
         writeln(" *** Linker errors with " <&
                 literal("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
                 " - see " <& literal("tmp1_" & progName & ".lerrs"));
+      else
+        writeln(" *** Compiler output:");
+        writeln(compilerOutput);
       end if;
       okay := FALSE;
     end if;
@@ -476,6 +479,9 @@ const func boolean: checkCompiler (in string: progName, in string: option,
           writeln(" *** Linker errors with " <&
               literal("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
               " - see " <& literal("tmp_" & progName & ".lerrs"));
+        else
+          writeln(" *** Compiler output:");
+          writeln(compilerOutput);
         end if;
         okay := FALSE;
       end if;

@@ -2423,6 +2423,7 @@ static void mapLongFileNamesToShort (os_striType path)
     os_striType dest;
 
   /* mapLongFileNamesToShort */
+    logFunction(printf("mapLongFileNamesToShort(\"" FMT_S_OS "\")\n", path););
     /* Start after the the colon of the device letter ( e.g.: A: ) */
     source = &path[PREFIX_LEN + 2];
     dest = source;
@@ -2437,6 +2438,7 @@ static void mapLongFileNamesToShort (os_striType path)
       } /* if */
     } /* while */
     *dest = '\0';
+    logFunction(printf("mapLongFileNamesToShort --> \"" FMT_S_OS "\"\n", path););
   } /* mapLongFileNamesToShort */
 #endif
 
@@ -2780,7 +2782,9 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
 #endif
     } /* if */
 #ifdef MAP_LONG_FILE_NAMES_TO_SHORT
-    mapLongFileNamesToShort(result);
+    if (result != NULL) {
+      mapLongFileNamesToShort(result);
+    } /* if */
 #endif
     logFunction(printf("cp_to_os_path(\"%s\", %d) --> \"" FMT_S_OS "\"\n",
                        striAsUnquotedCStri(std_path), *err_info, result););

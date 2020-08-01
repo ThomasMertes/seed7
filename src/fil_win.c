@@ -185,7 +185,7 @@ boolType filInputReady (fileType aFile)
     HANDLE fileHandle;
     os_fstat_struct stat_buf;
     DWORD totalBytesAvail;
-    boolType result;
+    boolType inputReady;
 
   /* filInputReady */
     logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
@@ -196,23 +196,23 @@ boolType filInputReady (fileType aFile)
                       safe_fileno(aFile), safe_fileno(aFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
-      result = FALSE;
+      inputReady = FALSE;
     } else if (unlikely(os_fstat(file_no, &stat_buf) != 0)) {
       logError(printf("filInputReady(%d): fstat(%d, *) failed:\n"
                       "errno=%d\nerror: %s\n",
                       safe_fileno(aFile), safe_fileno(aFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
-      result = FALSE;
+      inputReady = FALSE;
     } else {
       if (S_ISREG(stat_buf.st_mode)) {
-        result = TRUE;
+        inputReady = TRUE;
       } else if (S_ISCHR(stat_buf.st_mode)) {
         /* printf("read_buffer_empty(aFile)=%d\n", read_buffer_empty(aFile)); */
         if (!read_buffer_empty(aFile)) {
-          result = TRUE;
+          inputReady = TRUE;
         } else if (file_no == 0) {
-          result = stdinReady();
+          inputReady = stdinReady();
           /* printf("stdinReady()=%d\n", result); */
         } else {
           fileHandle = (HANDLE) _get_osfhandle(file_no);
@@ -222,15 +222,15 @@ boolType filInputReady (fileType aFile)
                             safe_fileno(aFile), safe_fileno(aFile),
                             errno, strerror(errno)););
             raise_error(FILE_ERROR);
-            result = FALSE;
+            inputReady = FALSE;
           } else {
-            result = WaitForSingleObject(fileHandle, 0) == WAIT_OBJECT_0;
+            inputReady = WaitForSingleObject(fileHandle, 0) == WAIT_OBJECT_0;
           } /* if */
         } /* if */
       } else if (S_ISFIFO(stat_buf.st_mode)) {
         /* printf("read_buffer_empty(aFile)=%d\n", read_buffer_empty(aFile)); */
         if (!read_buffer_empty(aFile)) {
-          result = TRUE;
+          inputReady = TRUE;
         } else {
           fileHandle = (HANDLE) _get_osfhandle(file_no);
           if (unlikely(fileHandle == (HANDLE) -1)) {
@@ -239,19 +239,19 @@ boolType filInputReady (fileType aFile)
                             safe_fileno(aFile), safe_fileno(aFile),
                             errno, strerror(errno)););
             raise_error(FILE_ERROR);
-            result = FALSE;
+            inputReady = FALSE;
           } else {
             if (PeekNamedPipe(fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
-              result = totalBytesAvail >= 1;
+              inputReady = totalBytesAvail >= 1;
             } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(aFile)) {
-              result = TRUE;
+              inputReady = TRUE;
             } else {
               logError(printf("filInputReady(%d): PeekNamedPipe(" FMT_U_MEM ", ...) failed:\n"
                               "errno=%d\nerror: %s\n",
                               safe_fileno(aFile), (memSizeType) fileHandle,
                               errno, strerror(errno)););
               raise_error(FILE_ERROR);
-              result = FALSE;
+              inputReady = FALSE;
             } /* if */
           } /* if */
         } /* if */
@@ -259,12 +259,12 @@ boolType filInputReady (fileType aFile)
         logError(printf("filInputReady(%d): Unknown file type %d.\n",
                         safe_fileno(aFile), stat_buf.st_mode & S_IFMT););
         raise_error(FILE_ERROR);
-        result = FALSE;
+        inputReady = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), result););
-    return result;
+                       safe_fileno(aFile), inputReady););
+    return inputReady;
   } /* filInputReady */
 
 

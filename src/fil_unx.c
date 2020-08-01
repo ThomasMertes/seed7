@@ -137,12 +137,12 @@ boolType filInputReady (fileType aFile)
     int file_no;
     struct pollfd pollFd[1];
     int poll_result;
-    boolType result;
+    boolType inputReady;
 
   /* filInputReady */
     logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
     if (!read_buffer_empty(aFile)) {
-      result = TRUE;
+      inputReady = TRUE;
     } else {
       file_no = fileno(aFile);
       if (unlikely(file_no == -1)) {
@@ -151,7 +151,7 @@ boolType filInputReady (fileType aFile)
                         safe_fileno(aFile), safe_fileno(aFile),
                         errno, strerror(errno)););
         raise_error(FILE_ERROR);
-        result = FALSE;
+        inputReady = FALSE;
       } else {
         /* printf("file_no=%d\n", file_no); */
         pollFd[0].fd = file_no;
@@ -163,18 +163,18 @@ boolType filInputReady (fileType aFile)
                           safe_fileno(aFile), safe_fileno(aFile),
                           errno, strerror(errno)););
           raise_error(FILE_ERROR);
-          result = FALSE;
+          inputReady = FALSE;
         } else {
           /* printf("poll_result=%d, pollFd[0].revents=%08x\n", poll_result, pollFd[0].revents);
           printf("POLLIN=%08x, POLLPRI=%08x, POLLERR=%08x, POLLHUP=%08x\n",
               POLLIN, POLLPRI, POLLERR, POLLHUP); */
-          result = poll_result == 1 && (pollFd[0].revents & (POLLIN | POLLHUP));
+          inputReady = poll_result == 1 && (pollFd[0].revents & (POLLIN | POLLHUP));
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), result););
-    return result;
+                       safe_fileno(aFile), inputReady););
+    return inputReady;
   } /* filInputReady */
 
 #else
@@ -188,7 +188,7 @@ boolType filInputReady (fileType aFile)
     int flags;
     int ch;
     int saved_errno;
-    boolType result;
+    boolType inputReady;
 
   /* filInputReady */
     logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
@@ -199,7 +199,7 @@ boolType filInputReady (fileType aFile)
                       safe_fileno(aFile), safe_fileno(aFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
-      result = FALSE;
+      inputReady = FALSE;
     } else {
       /* printf("file_no=%d\n", file_no); */
       flags = fcntl(file_no, F_GETFL);
@@ -210,21 +210,21 @@ boolType filInputReady (fileType aFile)
       if (ch == EOF) {
         if (feof(aFile)) {
           clearerr(aFile);
-          result = TRUE;
+          inputReady = TRUE;
         } else if (saved_errno == EAGAIN || saved_errno == EIO) {
-          result = FALSE;
+          inputReady = FALSE;
         } else {
-          result = TRUE;
+          inputReady = TRUE;
         } /* if */
       } else {
         ungetc(ch, aFile);
-        result = TRUE;
+        inputReady = TRUE;
       } /* if */
       fcntl(file_no, F_SETFL, flags);
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), result););
-    return result;
+                       safe_fileno(aFile), inputReady););
+    return inputReady;
   } /* filInputReady */
 #endif
 
@@ -239,7 +239,7 @@ boolType filInputReady (fileType aFile)
     fd_set readfds;
     struct timeval timeout;
     int select_result;
-    boolType result;
+    boolType inputReady;
 
   /* filInputReady */
     logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
@@ -250,7 +250,7 @@ boolType filInputReady (fileType aFile)
                       safe_fileno(aFile), safe_fileno(aFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
-      result = FALSE;
+      inputReady = FALSE;
     } else {
       FD_ZERO(&readfds);
       FD_SET(file_no, &readfds);
@@ -267,14 +267,14 @@ boolType filInputReady (fileType aFile)
                         safe_fileno(aFile), nfds, sock,
                         errno, strerror(errno)););
         raise_error(FILE_ERROR);
-        result = FALSE;
+        inputReady = FALSE;
       } else {
-        result = FD_ISSET(file_no, &readfds);
+        inputReady = FD_ISSET(file_no, &readfds);
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), result););
-    return result;
+                       safe_fileno(aFile), inputReady););
+    return inputReady;
   } /* filInputReady */
 #endif
 

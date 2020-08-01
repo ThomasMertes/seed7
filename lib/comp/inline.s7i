@@ -116,6 +116,7 @@ const proc: push_inline_func_param (in reference: formal_param,
     in reference: actual_param, inout expr_type: c_expr) is func
 
   local
+    var category: paramCategory is category.value;
     var reference: evaluatedParam is NIL;
     var type: param_type is void;
     var string: param_name is "";
@@ -123,7 +124,14 @@ const proc: push_inline_func_param (in reference: formal_param,
     var integer: temp_num is 0;
     var inlineParamData: paramData is inlineParamData.value;
   begin
-    if category(formal_param) <> SYMBOLOBJECT then
+    paramCategory := category(formal_param);
+    if paramCategory = TYPEOBJECT then
+      c_expr.expr &:= "/* attr t_";
+      c_expr.expr &:= str(typeNumber(getValue(formal_param, type)));
+      c_expr.expr &:= " ";
+      c_expr.expr &:= str(getValue(formal_param, type));
+      c_expr.expr &:= "*/\n";
+    elsif paramCategory <> SYMBOLOBJECT then
       param_type := getType(formal_param);
       c_expr.expr &:= diagnosticLine(formal_param);
       if isFunc(param_type) then
@@ -211,7 +219,7 @@ const proc: pop_inline_func_param (in reference: formal_param,
     var type: param_type is void;
   begin
     paramCategory := category(formal_param);
-    if paramCategory <> SYMBOLOBJECT then
+    if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
       param_type := getType(formal_param);
       if isFunc(param_type) then
         expr &:= diagnosticLine(formal_param);
@@ -362,6 +370,7 @@ const proc: push_inline_proc_param (in reference: formal_param,
     in reference: actual_param, inout expr_type: c_expr) is func
 
   local
+    var category: paramCategory is category.value;
     var reference: evaluatedParam is NIL;
     var type: param_type is void;
     var string: param_name is "";
@@ -369,7 +378,14 @@ const proc: push_inline_proc_param (in reference: formal_param,
     var expr_type: assign_decls is expr_type.value;
     var inlineParamData: paramData is inlineParamData.value;
   begin
-    if category(formal_param) <> SYMBOLOBJECT then
+    paramCategory := category(formal_param);
+    if paramCategory = TYPEOBJECT then
+      c_expr.expr &:= "/* attr t_";
+      c_expr.expr &:= str(typeNumber(getValue(formal_param, type)));
+      c_expr.expr &:= " ";
+      c_expr.expr &:= str(getValue(formal_param, type));
+      c_expr.expr &:= "*/\n";
+    elsif paramCategory <> SYMBOLOBJECT then
       param_type := getType(formal_param);
       if isFunc(param_type) then
         c_expr.temp_decls &:= diagnosticLine(formal_param);
@@ -467,7 +483,7 @@ const proc: pop_inline_proc_param (in reference: formal_param,
     var type: param_type is void;
   begin
     paramCategory := category(formal_param);
-    if paramCategory <> SYMBOLOBJECT then
+    if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
       param_type := getType(formal_param);
       if isFunc(param_type) then
         c_expr.expr &:= diagnosticLine(formal_param);

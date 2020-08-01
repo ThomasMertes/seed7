@@ -66,6 +66,9 @@
 #define FLT_SCI_ADDITIONAL_CHARS STRLEN("-1.e+")
 #define FLT_SCI_LEN (FLT_SCI_ADDITIONAL_CHARS + MAX_PRINTED_EXPONENT_DIGITS)
 
+/* Natural logarithm of 2: */
+#define LN2 0.693147180559945309417232121458176568075500134360255254120680009493393
+
 #if FLOAT_ZERO_DIV_ERROR
 const rtlValueUnion f_const[] =
 #if FLOATTYPE_DOUBLE
@@ -752,6 +755,154 @@ boolType fltLe (floatType number1, floatType number2)
 
 
 
+#if !LOG_FUNCTION_OKAY
+/**
+ *  Return the natural logarithm (base e) of x.
+ *   log(NaN)       returns NaN
+ *   log(1.0)       returns 0.0
+ *   log(Infinity)  returns Infinity
+ *   log(0.0)       returns -Infinity
+ *   log(X)         returns NaN        for X < 0.0
+ *  @return the natural logarithm of x.
+ */
+floatType fltLog (floatType number)
+
+  {
+    floatType logarithm;
+
+  /* fltLog */
+    logFunction(printf("fltLog(" FMT_E ")\n", number););
+#if !LOG_OF_NAN_OKAY
+    /* This is checked first on purpose. NaN should not be equal  */
+    /* to any value. E.g.: NaN == x should always return FALSE.   */
+    /* Beyond that NaN should not be equal to itself also. Some   */
+    /* C compilers do not compute comparisons with NaN correctly. */
+    /* As a consequence the NaN check is done first.              */
+    if (unlikely(os_isnan(number))) {
+      logarithm = number;
+    } else
+#endif
+#if !LOG_OF_ZERO_OKAY
+    if (unlikely(number == 0.0)) {
+      logarithm = NEGATIVE_INFINITY;
+    } else
+#endif
+#if !LOG_OF_NEGATIVE_OKAY
+    if (unlikely(number < 0.0)) {
+      logarithm = NOT_A_NUMBER;
+    } else
+#endif
+    {
+      logarithm = log(number);
+    } /* if */
+    logFunction(printf("fltLog(" FMT_E ") --> " FMT_E "\n",
+                number, logarithm););
+    return logarithm;
+  } /* fltLog */
+#endif
+
+
+
+#if !LOG10_FUNCTION_OKAY
+/**
+ *  Returns the base 10 logarithm of x.
+ *   log10(NaN)       returns NaN
+ *   log10(1.0)       returns 0.0
+ *   log10(Infinity)  returns Infinity
+ *   log10(0.0)       returns -Infinity
+ *   log10(X)         returns NaN        for X < 0.0
+ *  @return the base 10 logarithm of x.
+ */
+floatType fltLog10 (floatType number)
+
+  {
+    floatType logarithm;
+
+  /* fltLog10 */
+    logFunction(printf("fltLog10(" FMT_E ")\n", number););
+#if !LOG10_OF_NAN_OKAY
+    /* This is checked first on purpose. NaN should not be equal  */
+    /* to any value. E.g.: NaN == x should always return FALSE.   */
+    /* Beyond that NaN should not be equal to itself also. Some   */
+    /* C compilers do not compute comparisons with NaN correctly. */
+    /* As a consequence the NaN check is done first.              */
+    if (unlikely(os_isnan(number))) {
+      logarithm = number;
+    } else
+#endif
+#if !LOG10_OF_ZERO_OKAY
+    if (unlikely(number == 0.0)) {
+      logarithm = NEGATIVE_INFINITY;
+    } else
+#endif
+#if !LOG10_OF_NEGATIVE_OKAY
+    if (unlikely(number < 0.0)) {
+      logarithm = NOT_A_NUMBER;
+    } else
+#endif
+    {
+      logarithm = log10(number);
+    } /* if */
+    logFunction(printf("fltLog10(" FMT_E ") --> " FMT_E "\n",
+                number, logarithm););
+    return logarithm;
+  } /* fltLog10 */
+#endif
+
+
+
+#if !LOG2_FUNCTION_OKAY
+/**
+ *  Returns the base 2 logarithm of x.
+ *   log2(NaN)       returns NaN
+ *   log2(1.0)       returns 0.0
+ *   log2(Infinity)  returns Infinity
+ *   log2(0.0)       returns -Infinity
+ *   log2(X)         returns NaN        for X < 0.0
+ *  @return the base 2 logarithm of x.
+ */
+floatType fltLog2 (floatType number)
+
+  {
+    floatType logarithm;
+
+  /* fltLog2 */
+    logFunction(printf("fltLog2(" FMT_E ")\n", number););
+#if HAS_LOG2
+#if !LOG2_OF_NAN_OKAY
+    /* This is checked first on purpose. NaN should not be equal  */
+    /* to any value. E.g.: NaN == x should always return FALSE.   */
+    /* Beyond that NaN should not be equal to itself also. Some   */
+    /* C compilers do not compute comparisons with NaN correctly. */
+    /* As a consequence the NaN check is done first.              */
+    if (unlikely(os_isnan(number))) {
+      logarithm = number;
+    } else
+#endif
+#if !LOG2_OF_ZERO_OKAY
+    if (unlikely(number == 0.0)) {
+      logarithm = NEGATIVE_INFINITY;
+    } else
+#endif
+#if !LOG2_OF_NEGATIVE_OKAY
+    if (unlikely(number < 0.0)) {
+      logarithm = NOT_A_NUMBER;
+    } else
+#endif
+    {
+      logarithm = log2(number);
+    } /* if */
+#else
+    logarithm = fltLog(number) / LN2;
+#endif
+    logFunction(printf("fltLog2(" FMT_E ") --> " FMT_E "\n",
+                number, logarithm););
+    return logarithm;
+  } /* fltLog2 */
+#endif
+
+
+
 #if !NAN_COMPARISON_OKAY
 /**
  *  Check if 'number1' is less than 'number2'.
@@ -913,6 +1064,9 @@ floatType fltPow (floatType base, floatType exponent)
 
   {
     floatType power;
+#if !POW_OF_NEGATIVE_OKAY
+    floatType intPart;
+#endif
 
   /* fltPow */
     logFunction(printf("fltPow(" FMT_E ", " FMT_E ")\n", base, exponent););
@@ -952,6 +1106,11 @@ floatType fltPow (floatType base, floatType exponent)
           power = 0.0;
         } /* if */
       } /* if */
+    } else
+#endif
+#if !POW_OF_NEGATIVE_OKAY
+    if (unlikely(base < 0.0 && modf(exponent, &intPart) != 0.0)) {
+      power = NOT_A_NUMBER;
     } else
 #endif
 #if !POW_OF_ONE_OKAY

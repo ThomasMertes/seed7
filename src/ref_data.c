@@ -1020,8 +1020,7 @@ bstriType bstValue (const const_objectType aReference)
         raise_error(MEMORY_ERROR);
       } else {
         result->size = bstri->size;
-        memcpy(result->mem, bstri->mem,
-            (size_t) (result->size * sizeof(ucharType)));
+        memcpy(result->mem, bstri->mem, (size_t) (result->size));
       } /* if */
     } /* if */
     return result;

@@ -420,7 +420,7 @@ intType textwidth (striType stri,
 
 
 void textcolumns (striType stri, intType striwidth,
-    intType * cols, intType *rest)
+    intType *cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;

@@ -1439,6 +1439,7 @@ static void numericProperties (FILE *versionFile)
     int testResult;
     char buffer[8192];
     char computeValues[BUFFER_SIZE];
+    int has_log2;
     const char *os_isnan_definition = NULL;
 
   /* numericProperties */
@@ -1605,12 +1606,17 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define CAST_INT_TO_FLOAT_OKAY %d\n", doTest());
     } /* if */
-    fprintf(versionFile, "#define HAS_LOG2 %d\n",
+    has_log2 =
         compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
                                     "int main(int argc,char *argv[]){\n"
-                                    "double number = 2.0;\n"
-                                    "printf(\"%d\\n\", log2(number) == 1.0); return 0;}\n",
-                                    "", SYSTEM_LIBS) && doTest() == 1);
+                                    "float num1 = 2.0;\n"
+                                    "double num2 = 2.0;\n"
+                                    "printf(\"%d\\n\",\n"
+                                    "       log2(num1) == 1.0 &&\n"
+                                    "       log2(num2) == 1.0);\n"
+                                    "return 0;}\n",
+                                    "", SYSTEM_LIBS) && doTest() == 1;
+    fprintf(versionFile, "#define HAS_LOG2 %d\n", has_log2);
     fprintf(versionFile, "#define HAS_CBRT %d\n",
         compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
                                     "int main(int argc,char *argv[]){\n"
@@ -1924,6 +1930,11 @@ static void numericProperties (FILE *versionFile)
             "    pow(doubleNegativeZero, -1.0) == doubleMinusInf &&\n"
             "    pow(doubleNegativeZero, -2.0) == doublePlusInf &&\n"
             "    pow(doubleNegativeZero, -getMaxOddFloat(DBL_MANT_DIG)) == doubleMinusInf);\n"
+            "printf(\"#define POW_OF_NEGATIVE_OKAY %%d\\n\",\n"
+            "    os_isnan(pow(-2.0, -1.5)) &&\n"
+            "    os_isnan(pow(-1.5, -0.5)) &&\n"
+            "    os_isnan(pow(-1.0, 0.5)) &&\n"
+            "    os_isnan(pow(-0.5, 1.5)));\n"
             "printf(\"#define POW_OF_ONE_OKAY %%d\\n\",\n"
             "    pow(1.0, floatNanValue1) == 1.0 &&\n"
             "    pow(1.0, doubleNanValue1) == 1.0 &&\n"
@@ -1948,9 +1959,51 @@ static void numericProperties (FILE *versionFile)
             "    os_isnan(sqrt(-1.5)) &&\n"
             "    os_isnan(sqrt(-1.0)) &&\n"
             "    os_isnan(sqrt(-0.5)));\n"
+            "printf(\"#define LOG_OF_NAN_OKAY %%d\\n\",\n"
+            "    os_isnan(log(floatNanValue1)) &&\n"
+            "    os_isnan(log(doubleNanValue1)));\n"
+            "printf(\"#define LOG_OF_ZERO_OKAY %%d\\n\",\n"
+            "    log(floatZero) == floatMinusInf &&\n"
+            "    log(floatNegativeZero) == floatMinusInf &&\n"
+            "    log(doubleZero) == doubleMinusInf &&\n"
+            "    log(doubleNegativeZero) == doubleMinusInf);\n"
+            "printf(\"#define LOG_OF_NEGATIVE_OKAY %%d\\n\",\n"
+            "    os_isnan(log(floatMinusInf)) &&\n"
+            "    os_isnan(log(doubleMinusInf)) &&\n"
+            "    os_isnan(log(-1.0)));\n"
+            "printf(\"#define LOG10_OF_NAN_OKAY %%d\\n\",\n"
+            "    os_isnan(log10(floatNanValue1)) &&\n"
+            "    os_isnan(log10(doubleNanValue1)));\n"
+            "printf(\"#define LOG10_OF_ZERO_OKAY %%d\\n\",\n"
+            "    log10(floatZero) == floatMinusInf &&\n"
+            "    log10(floatNegativeZero) == floatMinusInf &&\n"
+            "    log10(doubleZero) == doubleMinusInf &&\n"
+            "    log10(doubleNegativeZero) == doubleMinusInf);\n"
+            "printf(\"#define LOG10_OF_NEGATIVE_OKAY %%d\\n\",\n"
+            "    os_isnan(log10(floatMinusInf)) &&\n"
+            "    os_isnan(log10(doubleMinusInf)) &&\n"
+            "    os_isnan(log10(-1.0)));\n"
+            "#if %d\n"
+            "printf(\"#define LOG2_OF_NAN_OKAY %%d\\n\",\n"
+            "    os_isnan(log2(floatNanValue1)) &&\n"
+            "    os_isnan(log2(doubleNanValue1)));\n"
+            "printf(\"#define LOG2_OF_ZERO_OKAY %%d\\n\",\n"
+            "    log2(floatZero) == floatMinusInf &&\n"
+            "    log2(floatNegativeZero) == floatMinusInf &&\n"
+            "    log2(doubleZero) == doubleMinusInf &&\n"
+            "    log2(doubleNegativeZero) == doubleMinusInf);\n"
+            "printf(\"#define LOG2_OF_NEGATIVE_OKAY %%d\\n\",\n"
+            "    os_isnan(log2(floatMinusInf)) &&\n"
+            "    os_isnan(log2(doubleMinusInf)) &&\n"
+            "    os_isnan(log2(-1.0)));\n"
+            "#else\n"
+            "fputs(\"#define LOG2_OF_NAN_OKAY 0\\n\", stdout);\n"
+            "fputs(\"#define LOG2_OF_ZERO_OKAY 0\\n\", stdout);\n"
+            "fputs(\"#define LOG2_OF_NEGATIVE_OKAY 0\\n\", stdout);\n"
+            "#endif\n"
             "{ char buffer[1024]; sprintf(buffer, \"%%1.1f\", floatNegativeZero);\n"
             "printf(\"#define PRINTS_NEGATIVE_ZERO %%d\\n\", buffer[0] == '-'); }\n"
-            "return 0;}\n", os_isnan_definition, computeValues);
+            "return 0;}\n", os_isnan_definition, computeValues, has_log2);
     if (assertCompAndLnkWithOptions(buffer, "", SYSTEM_LIBS)) {
       testOutputToVersionFile(versionFile);
     } /* if */
@@ -2636,17 +2689,24 @@ static void determineFseekFunctions (FILE *versionFile)
 
   /* determineFseekFunctions */
 #ifndef os_fseek
-    if (compileAndLinkOk("#include <stdio.h>\n"
+    if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{FILE *aFile;\n"
                          "int fseek_result = -1;\n"
-                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "off_t ftell_result = -1;\n"
+                         "char buffer1[10];\n"
+                         "char buffer2[10];\n"
+                         "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
                          "if (aFile != NULL) {\n"
-                         "  fseek_result = fseeko(aFile, (off_t) 0, SEEK_END);\n"
+                         "  fread(buffer1, 1, 10, aFile);\n"
+                         "  fseek_result = fseeko(aFile, (off_t) 0, SEEK_SET);\n"
+                         "  fread(buffer2, 1, 10, aFile);\n"
+                         "  ftell_result = ftello(aFile);\n"
                          "  fclose(aFile);\n"
                          "}\n"
-                         "printf(\"%d\\n\", fseek_result == 0);\n"
-                         "return 0;}\n")) {
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+                         "       memcmp(buffer1, buffer2, 10) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
       if (compileAndLinkOk("#include <stdio.h>\n"
                            "int main(int argc,char *argv[])\n"
                            "{printf(\"%d\\n\", sizeof(off_t));\n"
@@ -2675,36 +2735,48 @@ static void determineFseekFunctions (FILE *versionFile)
       } /* if */
     } /* if */
     if (os_fseek_stri == NULL &&
-        compileAndLinkOk("#include <stdio.h>\n"
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{FILE *aFile;\n"
                          "int fseek_result = -1;\n"
-                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "off64_t ftell_result = -1;\n"
+                         "char buffer1[10];\n"
+                         "char buffer2[10];\n"
+                         "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
                          "if (aFile != NULL) {\n"
-                         "  fseek_result = fseeko64(aFile, (off64_t) 0, SEEK_END);\n"
+                         "  fread(buffer1, 1, 10, aFile);\n"
+                         "  fseek_result = fseeko64(aFile, (off64_t) 0, SEEK_SET);\n"
+                         "  fread(buffer2, 1, 10, aFile);\n"
+                         "  ftell_result = ftello64(aFile);\n"
                          "  fclose(aFile);\n"
                          "}\n"
-                         "printf(\"%d\\n\", fseek_result == 0);\n"
-                         "return 0;}\n")) {
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+                         "       memcmp(buffer1, buffer2, 10) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
       os_off_t_size = 64;
       os_off_t_stri = "off64_t";
       os_fseek_stri = "fseeko64";
       os_ftell_stri = "ftello64";
     } /* if */
     if (os_fseek_stri == NULL &&
-        compileAndLinkOk("#include <stdio.h>\n"
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{FILE *aFile;\n"
                          "int fseek_result = -1;\n"
                          "__int64 ftell_result = -1;\n"
-                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "char buffer1[10];\n"
+                         "char buffer2[10];\n"
+                         "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
                          "if (aFile != NULL) {\n"
-                         "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_END);\n"
+                         "  fread(buffer1, 1, 10, aFile);\n"
+                         "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_SET);\n"
+                         "  fread(buffer2, 1, 10, aFile);\n"
                          "  ftell_result = _ftelli64(aFile);\n"
                          "  fclose(aFile);\n"
                          "}\n"
-                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result != -1);\n"
-                         "return 0;}\n")) {
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+                         "       memcmp(buffer1, buffer2, 10) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
       os_off_t_size = 64;
       os_off_t_stri = "__int64";
       os_fseek_stri = "_fseeki64";
@@ -2712,20 +2784,25 @@ static void determineFseekFunctions (FILE *versionFile)
     } /* if */
     if (os_fseek_stri == NULL) {
       sprintf(buffer,
-              "#include <stdio.h>\n"
+              "#include <stdio.h>\n#include <string.h>\n"
               "int main(int argc,char *argv[])\n"
               "{FILE *aFile;\n"
               "int fseek_result = -1;\n"
               "%s ftell_result = -1;\n"
-              "aFile = fopen(\"version.h\", \"r\");\n"
+              "char buffer1[10];\n"
+              "char buffer2[10];\n"
+              "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
               "if (aFile != NULL) {\n"
-              "  fseek_result = _fseeki64(aFile, (%s) 0, SEEK_END);\n"
+              "  fread(buffer1, 1, 10, aFile);\n"
+              "  fseek_result = _fseeki64(aFile, (%s) 0, SEEK_SET);\n"
+              "  fread(buffer2, 1, 10, aFile);\n"
               "  ftell_result = _ftelli64(aFile);\n"
               "  fclose(aFile);\n"
               "}\n"
-              "printf(\"%%d\\n\", fseek_result == 0 && ftell_result != -1);\n"
+              "printf(\"%%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+              "       memcmp(buffer1, buffer2, 10) == 0);\n"
               "return 0;}\n", int64TypeStri, int64TypeStri);
-      if (compileAndLinkOk(buffer)) {
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
         os_off_t_size = 64;
         os_off_t_stri = int64TypeStri;
         os_fseek_stri = "_fseeki64";
@@ -2733,21 +2810,26 @@ static void determineFseekFunctions (FILE *versionFile)
       } /* if */
     } /* if */
     if (os_fseek_stri == NULL &&
-        compileAndLinkOk("#include <stdio.h>\n"
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                          "extern int __cdecl _fseeki64(FILE *, __int64, int);\n"
                          "extern __int64 __cdecl _ftelli64(FILE *);\n"
                          "int main(int argc,char *argv[])\n"
                          "{FILE *aFile;\n"
                          "int fseek_result = -1;\n"
                          "__int64 ftell_result = -1;\n"
-                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "char buffer1[10];\n"
+                         "char buffer2[10];\n"
+                         "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
                          "if (aFile != NULL) {\n"
-                         "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_END);\n"
+                         "  fread(buffer1, 1, 10, aFile);\n"
+                         "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_SET);\n"
+                         "  fread(buffer2, 1, 10, aFile);\n"
                          "  ftell_result = _ftelli64(aFile);\n"
                          "  fclose(aFile);\n"
                          "}\n"
-                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result != -1);\n"
-                         "return 0;}\n")) {
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+                         "       memcmp(buffer1, buffer2, 10) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
       fputs("#define DEFINE_FSEEKI64_PROTOTYPE\n", versionFile);
       fputs("#define DEFINE_FTELLI64_PROTOTYPE\n", versionFile);
       os_off_t_size = 64;
@@ -2757,18 +2839,25 @@ static void determineFseekFunctions (FILE *versionFile)
     } /* if */
     if (os_fseek_stri == NULL) {
       sprintf(buffer,
-              "#include <stdio.h>\n"
+              "#include <stdio.h>\n#include <string.h>\n"
               "int main(int argc,char *argv[])\n"
               "{FILE *aFile;\n"
               "int fseek_result = -1;\n"
-              "aFile = fopen(\"version.h\", \"r\");\n"
+              "%s ftell_result = -1;\n"
+              "char buffer1[10];\n"
+              "char buffer2[10];\n"
+              "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
               "if (aFile != NULL) {\n"
-              "  fseek_result = _fseek64(aFile, (%s) 0, SEEK_END);\n"
+              "  fread(buffer1, 1, 10, aFile);\n"
+              "  fseek_result = _fseek64(aFile, (%s) 0, SEEK_SET);\n"
+              "  fread(buffer2, 1, 10, aFile);\n"
+              "  ftell_result = _ftell64(aFile);\n"
               "  fclose(aFile);\n"
               "}\n"
-              "printf(\"%%d\\n\", fseek_result == 0);\n"
-              "return 0;}\n", int64TypeStri);
-      if (compileAndLinkOk(buffer)) {
+              "printf(\"%%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+              "       memcmp(buffer1, buffer2, 10) == 0);\n"
+              "return 0;}\n", int64TypeStri, int64TypeStri);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
         os_off_t_size = 64;
         os_off_t_stri = int64TypeStri;
         os_fseek_stri = "_fseek64";
@@ -2776,17 +2865,24 @@ static void determineFseekFunctions (FILE *versionFile)
       } /* if */
     } /* if */
     if (os_fseek_stri == NULL &&
-        compileAndLinkOk("#include <stdio.h>\n"
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{FILE *aFile;\n"
                          "int fseek_result = -1;\n"
-                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "long ftell_result = -1;\n"
+                         "char buffer1[10];\n"
+                         "char buffer2[10];\n"
+                         "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
                          "if (aFile != NULL) {\n"
-                         "  fseek_result = fseek(aFile, (long) 0, SEEK_END);\n"
+                         "  fread(buffer1, 1, 10, aFile);\n"
+                         "  fseek_result = fseek(aFile, (long) 0, SEEK_SET);\n"
+                         "  fread(buffer2, 1, 10, aFile);\n"
+                         "  ftell_result = ftell(aFile);\n"
                          "  fclose(aFile);\n"
                          "}\n"
-                         "printf(\"%d\\n\", fseek_result == 0);\n"
-                         "return 0;}\n")) {
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+                         "       memcmp(buffer1, buffer2, 10) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
       sizeof_long = getSizeof("long");
       if (compileAndLinkOk("#include <stdio.h>\n"
                            "int main (int argc, char *argv[])\n"
@@ -3581,12 +3677,12 @@ static void determineOsFunctions (FILE *versionFile)
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{SetErrorMode(SEM_NOGPFAULTERRORBOX);\n"
-                         "printf(\"%d\\n\", fopen(\"version.h\", \"re\") != NULL);\n"
+                         "printf(\"%d\\n\", fopen(\"tst_vers.h\", \"re\") != NULL);\n"
                          "return 0;}\n")) {
       fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
     } else if (assertCompAndLnk("#include <stdio.h>\n"
                                 "int main(int argc,char *argv[])\n"
-                                "{printf(\"%d\\n\", fopen(\"version.h\", \"re\") != NULL);"
+                                "{printf(\"%d\\n\", fopen(\"tst_vers.h\", \"re\") != NULL);"
                                 "return 0;}\n")) {
       fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
     } /* if */
@@ -3595,7 +3691,7 @@ static void determineOsFunctions (FILE *versionFile)
                     "int main(int argc,char *argv[])\n"
                     "{FILE *aFile;int fd;\n"
                     "printf(\"%%d\\n\",\n"
-                    "(aFile = fopen(\"version.h\", \"r\")) != NULL &&\n"
+                    "(aFile = fopen(\"tst_vers.h\", \"r\")) != NULL &&\n"
                     "(fd = %s(aFile)) != -1 &&\n"
                     "fcntl(fd,F_SETFD,FD_CLOEXEC) == 0);\n"
                     "return 0;}\n", fileno);
@@ -4252,9 +4348,20 @@ static void determinePostgresDefines (FILE *versionFile,
         fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", pgTypeInclude);
       } else {
         fprintf(logFile, "\rPostgreSQL: %s not found in include directories.\n", pgTypeInclude);
+        pgTypeInclude = NULL;
+      } /* if */
+      sprintf(buffer, "#include <%s>\n"
+                      "int main(int argc,char *argv[]){"
+                      "return 0;}\n",
+                      postgresInclude);
+      if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
+        fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", postgresInclude);
+      } else {
+        fprintf(logFile, "\rPostgreSQL: %s not found in include directories.\n", postgresInclude);
+        postgresInclude = NULL;
       } /* if */
     } /* if */
-    if (postgresqlInclude == NULL &&
+    if ((postgresqlInclude == NULL || postgresInclude == NULL || pgTypeInclude == NULL) &&
         compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
                                     "int main(int argc,char *argv[]){"
                                     "PGconn *connection; return 0;}\n",
@@ -5009,12 +5116,35 @@ int main (int argc, char **argv)
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
     determineGetaddrlimit(versionFile);
+    fprintf(versionFile, "#define MEMCMP_RETURNS_SIGNUM %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "char stri1[3], stri2[3];\n"
+                         "strcpy(stri1, \"za\");\n"
+                         "strcpy(stri2, \"az\");\n"
+                         "printf(\"%d\\n\",\n"
+                         "       memcmp(stri1, stri2, 2) == 1 &&\n"
+                         "       memcmp(stri2, stri1, 2) == -1);\n"
+                         "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_WMEMCMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
                          "wchar_t str2[] = {0x0102, 0x0201, 0};\n"
                          "printf(\"%d\\n\", wmemcmp(str1, str2, 2) > 0);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define WMEMCMP_RETURNS_SIGNUM %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                         "#include <wchar.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
+                         "wchar_t str2[] = {0x0102, 0x0201, 0};\n"
+                         "wchar_t stri1[3], stri2[3];\n"
+                         "memcpy(stri1, str1, 2 * sizeof(wchar_t));\n"
+                         "memcpy(stri2, str2, 2 * sizeof(wchar_t));\n"
+                         "printf(\"%d\\n\",\n"
+                         "       wmemcmp(str1, str2, 2) == 1 &&\n"
+                         "       wmemcmp(str2, str1, 2) == -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_WMEMCHR %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"

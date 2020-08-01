@@ -216,7 +216,7 @@ const proc: processCommands (in makeDataType: makeData, inout ruleType: rule) is
           flush(STD_OUT);
         end if;
         if makeData.executeCommands then
-           commandStatus := processCommand(command);
+          commandStatus := processCommand(command);
           if commandStatus <> 0 and not (ignoreError or makeData.doIgnoreErrors) then
             writeln(" *** [" <& rule.name <& "] Error " <& commandStatus);
             raise FILE_ERROR;

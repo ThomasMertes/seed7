@@ -1,6 +1,53 @@
+20180821:
+- In fil_dos.c in the function setupFiles the handling of ctrl-c has
+  been improved such that ctrl-c is sent immediate (without the need to
+  press return afterwards). Additionally redirected stdin, stdout and
+  stderr files are switched to binary mode now.
+- In the compiler (in comp/const.s7i) the actions BIN_XOR, ENU_ICONV2,
+  ENU_ORD2, INT_ICONV1 and INT_ICONV3 have been added to the list of
+  special actions.
+- The batch files bin/call_gcc.bat and bin/call_ar.bat have been
+  improved to set environment variables with the command 'set'. This
+  is necessary to execute them successfully under Wine.
+- The description of log, log10 and log2 in the manual has been
+  improved.
+- In flt_rtl.c the functions fltLog, fltLog10 and fltLog2 have been
+  added. This functions are based on the original functions log(),
+  log10() and log2() and work according to IEEE 754.
+- The configuration values LOG_FUNCTION_OKAY, LOG10_FUNCTION_OKAY and
+  LOG2_FUNCTION_OKAY have been added to cc_conf.s7i.
+- The configuration value HAS_LOG2 has been removed from cc_conf.s7i.
+- The compiler (s7c) has been improved to use the functions fltLog,
+  fltLog10 and fltLog2.
+- In comp/inline.s7i the functions push_inline_func_param,
+  pop_inline_func_param, push_inline_proc_param and
+  pop_inline_proc_param have been improved to support inline functions
+  with 'attr' parameters.
+- The example program diff7.sd7 has been improved.
+- Documentation comments have been improved in math.s7i and tar.s7i.
+- In chkflt.sd7 the tests for the operators 'parse' and 'sci' and for
+  the function str() have been improved.
+- The program chkccomp.c has been improved to define the macros
+  POW_OF_NEGATIVE_OKAY, LOG_OF_NAN_OKAY, LOG_OF_ZERO_OKAY,
+  LOG_OF_NEGATIVE_OKAY, LOG10_OF_NAN_OKAY, LOG10_OF_ZERO_OKAY,
+  LOG10_OF_NEGATIVE_OKAY, LOG2_OF_NAN_OKAY, LOG2_OF_ZERO_OKAY,
+  LOG2_OF_NEGATIVE_OKAY, MEMCMP_RETURNS_SIGNUM and
+  WMEMCMP_RETURNS_SIGNUM.
+- In chkccomp.c the function determineFseekFunctions has been improved
+  to make tests that actually use fseek() and ftell().
+- Calls of logFunction have been added in cmd_rtl.c, str_rtl.c,
+  strlib.c and striutl.c.
+- In bstlib.c the function bst_cmp() has been improved to be based on
+  bstCmp().
+- The functions strCompare(), str_cmp() and bstCmp() have been
+  improved to use different code depending on MEMCMP_RETURNS_SIGNUM
+  and WMEMCMP_RETURNS_SIGNUM.
+- In s7c.sd7 the function canTakeAddress has been improved to return
+  FALSE for a CONSTENUMOBJECT.
+
 20180708:
 - The operating system DOS is supported (with DJGPP) again. The tests
-  have been done with Dosbox.
+  have been done with Dosbox and Dosemu.
 - In the compiler (in comp/const.s7i) the actions BIN_AND and BIN_OR
   have been added to the list of special actions. This way the
   functions rotLeft and rotRight (from bin32.s7i and bin64.s7i) are

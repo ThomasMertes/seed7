@@ -73,25 +73,25 @@ int fill_buf (void)
 #if !HAS_MMAP
     memSizeType chars_read;
 #endif
-    int result;
+    int ch;
 
   /* fill_buf */
     logFunction(printf("fill_buf\n"););
 #if HAS_MMAP
-    result = EOF;
+    ch = EOF;
 #else
     if (in_file.fil != NULL &&
         (chars_read = fread(in_file.start, 1,
         (size_t) in_file.buffer_size, in_file.fil)) != 0) {
       in_file.nextch = in_file.start;
       in_file.beyond = in_file.start + chars_read;
-      result = next_character();
+      ch = next_character();
     } else {
-      result = EOF;
+      ch = EOF;
     } /* if */
 #endif
-    logFunction(printf("fill_buf --> %d\n", result););
-    return result;
+    logFunction(printf("fill_buf --> %d\n", ch););
+    return ch;
   } /* fill_buf */
 #endif
 
@@ -475,7 +475,7 @@ striType get_file_name (fileNumType file_num)
   {
     static striType question_mark = NULL;
     register inFileType help_file;
-    striType result;
+    striType file_name;
 
   /* get_file_name */
     logFunction(printf("get_file_name(%u)\n", file_num););
@@ -484,16 +484,16 @@ striType get_file_name (fileNumType file_num)
       help_file = help_file->next;
     } /* while */
     if (help_file != NULL) {
-      result = help_file->name;
+      file_name = help_file->name;
     } else {
       if (question_mark == NULL) {
         question_mark = CSTRI_LITERAL_TO_STRI("?");
       } /* if */
-      result = question_mark;
+      file_name = question_mark;
     } /* if */
     logFunction(printf("get_file_name --> \"%s\"\n",
-                       striAsUnquotedCStri(result)););
-    return result;
+                       striAsUnquotedCStri(file_name)););
+    return file_name;
   } /* get_file_name */
 
 
@@ -502,7 +502,7 @@ const_ustriType get_file_name_ustri (fileNumType file_num)
 
   {
     inFileType help_file;
-    const_ustriType result;
+    const_ustriType file_name;
 
   /* get_file_name_ustri */
     logFunction(printf("get_file_name_ustri\n"););
@@ -511,10 +511,10 @@ const_ustriType get_file_name_ustri (fileNumType file_num)
       help_file = help_file->next;
     } /* while */
     if (help_file != NULL) {
-      result = help_file->name_ustri;
+      file_name = help_file->name_ustri;
     } else {
-      result = (const_ustriType) "?";
+      file_name = (const_ustriType) "?";
     } /* if */
     logFunction(printf("get_file_name_ustri -->\n"););
-    return result;
+    return file_name;
   } /* get_file_name_ustri */

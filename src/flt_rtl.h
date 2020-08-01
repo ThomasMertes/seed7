@@ -59,15 +59,36 @@ floatType fltIPow (floatType base, intType exponent);
 boolType fltIsNegativeZero (floatType number);
 #if !NAN_COMPARISON_OKAY
 boolType fltLe (floatType number1, floatType number2);
+#endif
+#if LOG_FUNCTION_OKAY
+#define fltLog(number) log(number)
+#else
+floatType fltLog (floatType number);
+#endif
+#if LOG10_FUNCTION_OKAY
+#define fltLog10(number) log10(number)
+#else
+floatType fltLog10 (floatType number);
+#endif
+#if LOG2_FUNCTION_OKAY
+#define fltLog2(number) log2(number)
+#else
+floatType fltLog2 (floatType number);
+#endif
+#if !NAN_COMPARISON_OKAY
 boolType fltLt (floatType number1, floatType number2);
 #endif
 floatType fltParse (const const_striType stri);
-#if !POW_FUNCTION_OKAY
+#if POW_FUNCTION_OKAY
+#define fltPow(base, exponent) pow(base, exponent)
+#else
 floatType fltPow (floatType base, floatType exponent);
 #endif
 floatType fltRand (floatType lower_limit, floatType upper_limit);
 striType fltSci (floatType number, intType precision);
-#if !SQRT_FUNCTION_OKAY
+#if SQRT_FUNCTION_OKAY
+#define fltSqrt(number) sqrt(number)
+#else
 floatType fltSqrt (floatType number);
 #endif
 striType fltStr (floatType number);

@@ -2781,14 +2781,17 @@ CONTENTS
       exp(A)    Exponential function
       log(A)    Natural logarithm
                   ( log(A) is okay for A > 0.0,
+                    log(1.0)  =>  0.0,
                     log(0.0)  => -Infinity,
                     log(-1.0) =>  NaN )
       log10(A)  Base 10 logarithm
                   ( log10(A) is okay for A > 0.0,
+                    log10(1.0)  =>  0.0,
                     log10(0.0)  => -Infinity,
                     log10(-1.0) =>  NaN )
       log2(A)  Base 2 logarithm
                   ( log2(A) is okay for A > 0.0,
+                    log2(1.0)  =>  0.0,
                     log2(0.0)  => -Infinity,
                     log2(-1.0) =>  NaN )
       sqrt(A)   Square root

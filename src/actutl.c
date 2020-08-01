@@ -71,14 +71,14 @@ static int actTableCmp (void const *strg1, void const *strg2)
 #endif
 
   {
-    int signumValue;
+    int comparison;
 
   /* actTableCmp */
     logFunction(printf("actTableCmp(\"%s\", \"%s\")\n",
                        strg1, ((actEntryType) strg2)->name););
-    signumValue = strcmp(strg1, ((actEntryType) strg2)->name);
-    logFunction(printf("actTableCmp --> %d\n", signumValue););
-    return signumValue;
+    comparison = strcmp(strg1, ((actEntryType) strg2)->name);
+    logFunction(printf("actTableCmp --> %d\n", comparison););
+    return comparison;
   } /* actTableCmp */
 #endif
 

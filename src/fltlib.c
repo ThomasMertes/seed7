@@ -52,9 +52,6 @@
 #define EXTERN
 #include "fltlib.h"
 
-/* Natural logarithm of 2: */
-#define LN2 0.693147180559945309417232121458176568075500134360255254120680009493393
-
 typedef union {
 #if FLOAT_SIZE == 32
   uint32Type bits;
@@ -792,10 +789,13 @@ objectType flt_le (listType arguments)
  */
 objectType flt_log (listType arguments)
 
-  { /* flt_log */
+  {
+    floatType logarithm;
+
+  /* flt_log */
     isit_float(arg_1(arguments));
-    return bld_float_temp(
-        log(take_float(arg_1(arguments))));
+    logarithm = fltLog(take_float(arg_1(arguments)));
+    return bld_float_temp(logarithm);
   } /* flt_log */
 
 
@@ -806,10 +806,13 @@ objectType flt_log (listType arguments)
  */
 objectType flt_log10 (listType arguments)
 
-  { /* flt_log10 */
+  {
+    floatType logarithm;
+
+  /* flt_log10 */
     isit_float(arg_1(arguments));
-    return bld_float_temp(
-        log10(take_float(arg_1(arguments))));
+    logarithm = fltLog10(take_float(arg_1(arguments)));
+    return bld_float_temp(logarithm);
   } /* flt_log10 */
 
 
@@ -820,14 +823,13 @@ objectType flt_log10 (listType arguments)
  */
 objectType flt_log2 (listType arguments)
 
-  { /* flt_log2 */
+  {
+    floatType logarithm;
+
+  /* flt_log2 */
     isit_float(arg_1(arguments));
-    return bld_float_temp(
-#if HAS_LOG2
-        log2(take_float(arg_1(arguments))));
-#else
-        log(take_float(arg_1(arguments))) / LN2);
-#endif
+    logarithm = fltLog2(take_float(arg_1(arguments)));
+    return bld_float_temp(logarithm);
   } /* flt_log2 */
 
 
@@ -1020,11 +1022,7 @@ objectType flt_pow (listType arguments)
   /* flt_pow */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if POW_FUNCTION_OKAY
-    power = pow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));
-#else
     power = fltPow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));
-#endif
     return bld_float_temp(power);
   } /* flt_pow */
 
@@ -1248,11 +1246,7 @@ objectType flt_sqrt (listType arguments)
 
   /* flt_sqrt */
     isit_float(arg_1(arguments));
-#if SQRT_FUNCTION_OKAY
-    squareRoot = sqrt(take_float(arg_1(arguments)));
-#else
     squareRoot = fltSqrt(take_float(arg_1(arguments)));
-#endif
     return bld_float_temp(squareRoot);
   } /* flt_sqrt */
 
