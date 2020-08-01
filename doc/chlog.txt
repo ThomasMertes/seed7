@@ -1,3 +1,30 @@
+20120304:
+- The "ftpserv.sd7" example program was improved to support the
+  commands RNFR and RNTO and to work correctly, when the listener
+  cannot open a passive data port.
+- The font support was improved, such that caching of character
+  pixmaps works.
+- Some characters in the standard bitmap fonts were added or
+  improved.
+- The functions 'socSend' and 'socSendto' in "soc_rtl.c" were
+  improved to work correctly under 64-bit systems.
+- The function 'fltSci' in "flt_rtl.c", was improved to avoid
+  a C compiler warning about the change of a constant value.
+- The function 'redraw' in "drw_x11.c" was changed, such that it
+  does not use a parameter of type 'XExposeEvent'.
+- The functions 'drwHeight', 'drwWidth', 'drwXPos' and 'drwYPos'
+  in "drw_x11.c" were improved to raise RANGE_ERROR when the
+  window does not exist.
+- The function 'handleExpose' was introduced in "gkb_x11.c", to
+  handle the job of calling 'redraw'.
+- The type 'unsigned int' was replaced by 'sysizetype' in
+  'findid.c', 'findid.h', 'identutl.c', 'identutl.h', 'literal.c',
+  'numlit.c', 'scanner.c' and 'symbol.h'.
+- Some improvements were done in 'prg_comp.c', 'reflib.c',
+  'analyze.c', 'exec.c', 'infile.c', 'info.c' and 'typlib.c' to
+  reduce the number of warnings.
+- Support for the unused action "ENU_SIZE" was removed.
+
 20120219:
 - A call of clearerr(stdin) was added to the function
   kbdKeyPressed() in the file "kbd_inf.c". This fixes a bug, which

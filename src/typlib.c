@@ -189,14 +189,14 @@ listtype arguments;
 #endif
 
   {
-    typetype old_type;
+    /* typetype old_type; */
 
   /* typ_destr */
 #ifdef TRACE_TYPLIB
     printf("BEGIN typ_destr\n");
 #endif
     isit_type(arg_1(arguments));
-    old_type = take_type(arg_1(arguments));
+    /* old_type = take_type(arg_1(arguments)); */
     /* printf("typ_destr "); trace1(old_type->match_obj); printf("\n"); */
 #ifdef TRACE_TYPLIB
     printf("END typ_destr\n");

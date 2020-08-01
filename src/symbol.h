@@ -33,7 +33,7 @@ typedef struct {
     symbolcategory sycategory;
     unsigned int syNumberInLine;
     ustritype name;
-    unsigned int name_length;
+    sysizetype name_length;
     inttype intvalue;
     biginttype bigintvalue;
     chartype charvalue;
@@ -65,7 +65,7 @@ void close_symbol (void);
 #else
 
 void extend_symb_length ();
-void extend_stri_length (void);
+void extend_stri_length ();
 void init_symbol ();
 void close_symbol ();
 

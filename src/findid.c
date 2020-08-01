@@ -55,12 +55,12 @@
 
 #ifdef ANSI_C
 
-static INLINE identtype id_generation (ustritype name, unsigned int length)
+static INLINE identtype id_generation (ustritype name, sysizetype length)
 #else
 
 static INLINE identtype id_generation (name, length)
 ustritype name;
-unsigned int length;
+sysizetype length;
 #endif
 
   {
@@ -83,11 +83,11 @@ unsigned int length;
 
 #ifdef ANSI_C
 
-void find_normal_ident (unsigned int length)
+void find_normal_ident (sysizetype length)
 #else
 
 void find_normal_ident (length)
-unsigned int length;
+sysizetype length;
 #endif
 
   {                                                             /*  0.62% */
@@ -166,7 +166,7 @@ errinfotype *err_info;
 #ifdef TRACE_FINDID
     printf("BEGIN put_ident\n");
 #endif
-    if ((ident_found = get_ident((const_ustritype) stri, strlen(stri))) == NULL) {
+    if ((ident_found = get_ident((const_ustritype) stri)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
 #ifdef TRACE_FINDID

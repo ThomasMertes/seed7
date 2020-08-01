@@ -234,6 +234,7 @@ typedef int                prior_type;
 typedef unsigned char      uchartype;
 typedef char *             cstritype;
 typedef unsigned char *    ustritype;
+typedef memsizetype        sysizetype;
 typedef FILE *             filetype;
 
 #ifdef OS_STRI_WCHAR

@@ -52,11 +52,11 @@
 
 #ifdef ANSI_C
 
-static void readdecimal (register unsigned int position)
+static void readdecimal (register sysizetype position)
 #else
 
 static void readdecimal (position)
-register unsigned int position;
+register sysizetype position;
 #endif
 
   {
@@ -183,7 +183,7 @@ static INLINE booltype readbased ()
 #endif
 
   {
-    register unsigned int position;
+    register sysizetype position;
     register int character;
     booltype okay;
 
@@ -344,7 +344,7 @@ static INLINE floattype readfloat ()
 #endif
 
   {
-    register unsigned int position;
+    register sysizetype position;
     floattype result;
 
   /* readfloat */

@@ -246,7 +246,7 @@ void scan_symbol ()
 
   {                                                             /*  1.89%  1.94% */
     register int character;
-    register unsigned int position;
+    register sysizetype position;
 
   /* scan_symbol */
 #ifdef TRACE_SCANNER

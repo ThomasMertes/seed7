@@ -331,7 +331,6 @@ static primactrecord prim_act_table[] = {
     { "ENU_ICONV2",              enu_iconv2,              },
     { "ENU_NE",                  enu_ne,                  },
     { "ENU_ORD2",                enu_ord2,                },
-    { "ENU_SIZE",                enu_size,                },
     { "ENU_VALUE",               enu_value,               },
 
     { "FIL_BIG_LNG",             fil_big_lng,             },

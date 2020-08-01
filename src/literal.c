@@ -619,7 +619,7 @@ static void lit_text ()
 
   {
     register int character;
-    register unsigned int position;
+    register sysizetype position;
     register booltype reading_string;
 
   /* lit_text */

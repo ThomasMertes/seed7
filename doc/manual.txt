@@ -8778,7 +8778,6 @@ ont color=blue>is "";
     ENU_ICONV2          enu_iconv2          (noop)
     ENU_NE              enu_ne              !=
     ENU_ORD2            enu_ord2            (noop)
-    ENU_SIZE            enu_size             
     ENU_VALUE           enu_value           enuValue
 
 13.11 Actions for the type PRIMITIVE_FILE

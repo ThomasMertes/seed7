@@ -651,10 +651,11 @@ inttype digits_precision;
 
   {
     char buffer[2001];
-    cstritype buffer_ptr;
+    const_cstritype buffer_ptr;
 #ifndef USE_VARIABLE_FORMATS
     char form_buffer[10];
 #endif
+    memsizetype startPos;
     memsizetype pos;
     memsizetype len;
     memsizetype after_zeros;
@@ -684,7 +685,7 @@ inttype digits_precision;
         sprintf(buffer, form[digits_precision], number);
       } /* if */
 #endif
-      buffer_ptr = buffer;
+      startPos = 0;
       if (buffer[0] == '-' && buffer[1] == '0') {
         /* All forms of -0 are converted to 0 */
         if (buffer[2] == '.') {
@@ -698,7 +699,7 @@ inttype digits_precision;
               pos++;
             } /* while */
             if (buffer[pos] == '\0') {
-              buffer_ptr++;
+              startPos++;
             } /* if */
           } /* if */
         } else if (buffer[2] == 'e' && buffer[4] == '0') {
@@ -707,27 +708,28 @@ inttype digits_precision;
             pos++;
           } /* while */
           if (buffer[pos] == '\0') {
-            buffer_ptr++;
+            startPos++;
           } /* if */
         } /* if */
       } /* if */
-      len = strlen(buffer_ptr);
-      if (len != 0) {
+      len = strlen(buffer);
+      if (len > startPos) {
         pos = len;
         do {
           pos--;
-        } while (pos > 0 && buffer_ptr[pos] != 'e');
+        } while (pos > startPos && buffer[pos] != 'e');
         pos += 2;
         after_zeros = pos;
-        while (buffer_ptr[after_zeros] == '0') {
+        while (buffer[after_zeros] == '0') {
           after_zeros++;
         } /* while */
-        if (buffer_ptr[after_zeros] == '\0') {
+        if (buffer[after_zeros] == '\0') {
           after_zeros--;
         } /* if */
-        memmove(&buffer_ptr[pos], &buffer_ptr[after_zeros],
+        memmove(&buffer[pos], &buffer[after_zeros],
             sizeof(char) * (len - after_zeros + 1));
       } /* if */
+      buffer_ptr = &buffer[startPos];
     } /* if */
     result = cstri_to_stri(buffer_ptr);
     if (result == NULL) {

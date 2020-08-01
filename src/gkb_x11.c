@@ -66,7 +66,7 @@ static rtlHashtype window_hash = NULL;
 
 #ifdef ANSI_C
 
-extern void redraw (XExposeEvent *xexpose);
+extern void redraw (wintype redraw_window, int xPos, int yPos, int width, int height);
 extern void doFlush (void);
 extern void flushBeforeRead (void);
 
@@ -148,6 +148,33 @@ Window xWin;
 
 
 
+#ifdef ANSI_C
+
+void handleExpose (XExposeEvent *xexpose)
+#else
+
+void handleExpose (xexpose)
+XExposeEvent *xexpose;
+#endif
+
+  {
+    wintype redraw_window;
+
+  /* handleExpose */
+#ifdef TRACE_KBD
+    printf("begin handleExpose\n");
+#endif
+    /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
+        xexpose->x, xexpose->y, xexpose->width, xexpose->height, xexpose->count); */
+    redraw_window = find_window(xexpose->window);
+    redraw(redraw_window, xexpose->x, xexpose->y, xexpose->width, xexpose->height);
+#ifdef TRACE_KBD
+    printf("end handleExpose\n");
+#endif
+  } /* handleExpose */
+
+
+
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
@@ -214,7 +241,7 @@ chartype gkbGetc ()
 #ifdef FLAG_EVENTS
         printf("Expose\n");
 #endif
-        redraw(&currentEvent.xexpose);
+        handleExpose(&currentEvent.xexpose);
         result = gkbGetc();
         break;
 
@@ -695,7 +722,7 @@ booltype processEvents ()
             } else {
               num_events--;
             } /* if */
-            redraw(&currentEvent.xexpose);
+            handleExpose(&currentEvent.xexpose);
             result = TRUE;
             break;
 #ifdef OUT_OF_ORDER

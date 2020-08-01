@@ -353,7 +353,7 @@ stritype syobjectName;
     } else {
       memcpy(&prog_backup, &prog, sizeof(progrecord));
       memcpy(&prog, aProg, sizeof(progrecord));
-      ident_found = get_ident((ustritype) name, strlen(name));
+      ident_found = get_ident((const_ustritype) name);
       if (ident_found == NULL ||
           ident_found->entity == NULL) {
         result = NULL;

@@ -28,6 +28,21 @@
 
 const type: pixmapHashType is hash [char] PRIMITIVE_WINDOW;
 
+const type: activeFont is sub object interface;
+
+const func font:              (in activeFont param).baseFont         is DYNAMIC;
+const varfunc font:           (inout activeFont param).baseFont      is DYNAMIC;
+const func pixmapHashType:    (in activeFont param).pixmap           is DYNAMIC;
+const varfunc pixmapHashType: (inout activeFont param).pixmap        is DYNAMIC;
+const func integer:           fontSize (in activeFont param)         is DYNAMIC;
+const func integer:           scale (in activeFont param)            is DYNAMIC;
+const func color:             foreground (in activeFont param)       is DYNAMIC;
+const func color:             background (in activeFont param)       is DYNAMIC;
+const func integer:           baseLineDelta (in activeFont param)    is DYNAMIC;
+const func integer:           line_delta (in activeFont param)       is DYNAMIC;
+const func integer:           column_delta (in activeFont param)     is DYNAMIC;
+const func integer:           characterSpacing (in activeFont param) is DYNAMIC;
+
 const type: pixmapFontType is new struct
     var pixmapHashType: pixmap is pixmapHashType.value;
     var font: baseFont is emptyFont.value;
@@ -41,12 +56,26 @@ const type: pixmapFontType is new struct
     var integer: characterSpacing is 0;
   end struct;
 
+type_implements_interface(pixmapFontType, activeFont);
+
+const activeFont: (attr activeFont).value is pixmapFontType.value;
+
 
 const func pixmapFontType: genPixmapFont (in font: aFont,
     in integer: fontSize, in integer: scale,
     in color: foreground, in color: background)                     is DYNAMIC;
 const func PRIMITIVE_WINDOW: getFontCharPixmap (in font: aFont,
-    inout pixmapFontType: pixmapFont, in char: ch)                  is DYNAMIC;
+    inout activeFont: actFont, in char: ch)                         is DYNAMIC;
+
+
+const func integer: fontSize (in pixmapFontType: actFont)         is return actFont.fontSize;
+const func integer: scale (in pixmapFontType: actFont)            is return actFont.scale;
+const func color:   foreground (in pixmapFontType: actFont)       is return actFont.foreground;
+const func color:   background (in pixmapFontType: actFont)       is return actFont.background;
+const func integer: baseLineDelta (in pixmapFontType: actFont)    is return actFont.baseLineDelta ;
+const func integer: line_delta (in pixmapFontType: actFont)       is return actFont.line_delta;
+const func integer: column_delta (in pixmapFontType: actFont)     is return actFont.column_delta;
+const func integer: characterSpacing (in pixmapFontType: actFont) is return actFont.characterSpacing;
 
 
 #
@@ -85,7 +114,7 @@ const func integer: compare (in fontKeyType: fontKey1, in fontKeyType: fontKey2)
     end if;
   end func;
 
-const type: fontCacheType is hash [fontKeyType] pixmapFontType;
+const type: fontCacheType is hash [fontKeyType] activeFont;
 
 var fontCacheType: fontCache is fontCacheType.value;
 
@@ -111,10 +140,10 @@ const func pixmapFontType: genPixmapFont (in fontProperties: properties,
   end func;
 
 
-const func pixmapFontType: getFont (in font: baseFont, in integer: fontSize,
+const func activeFont: getFont (in font: baseFont, in integer: fontSize,
     in integer: scale, in color: foreground, in color: background) is func
   result
-    var pixmapFontType: result is pixmapFontType.value;
+    var activeFont: result is activeFont.value;
   local
     var fontKeyType: fontKey is fontKeyType.value;
   begin
@@ -134,5 +163,5 @@ const func pixmapFontType: getFont (in font: baseFont, in integer: fontSize,
 
 
 const func PRIMITIVE_WINDOW: getFontCharPixmap (
-    inout pixmapFontType: pixmapFont, in char: ch) is
-  return getFontCharPixmap(pixmapFont.baseFont, pixmapFont, ch);
+    inout activeFont: actFont, in char: ch) is
+  return getFontCharPixmap(actFont.baseFont, actFont, ch);

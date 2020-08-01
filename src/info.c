@@ -104,9 +104,9 @@ void open_compilation_info ()
 #endif
 
   {
-    unsigned int new_name_length;
-    unsigned int curr_name_length;
-    unsigned int number;
+    memsizetype new_name_length;
+    memsizetype curr_name_length;
+    memsizetype number;
 
   /* open_compilation_info */
 #ifdef TRACE_INFILE

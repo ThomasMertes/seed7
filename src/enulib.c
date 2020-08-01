@@ -261,27 +261,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype enu_size (listtype arguments)
-#else
-
-objecttype enu_size (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype modu;
-    inttype size;
-
-  /* enu_size */
-    modu = arg_1(arguments);
-    size = sizeof(objectrecord);
-    return bld_int_temp(size);
-  } /* enu_size */
-
-
-
-#ifdef ANSI_C
-
 objecttype enu_value (listtype arguments)
 #else
 

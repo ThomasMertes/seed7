@@ -1602,6 +1602,7 @@ inttype flags;
 
   {
     bstritype buf;
+    memsizetype bytes_sent;
     inttype result;
 
   /* socSend */
@@ -1614,9 +1615,16 @@ inttype flags;
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = send(sock, cast_send_recv_data(buf->mem),
-                    cast_buffer_len(buf->size), flags);
+      bytes_sent = (memsizetype) send(sock, cast_send_recv_data(buf->mem),
+                                      cast_buffer_len(buf->size), flags);
       FREE_BSTRI(buf, buf->size);
+      if (unlikely(bytes_sent == (memsizetype) -1)) {
+        result = -1;
+      } else if (unlikely(bytes_sent > MAX_MEM_INDEX)) {
+        result = MAX_MEM_INDEX;
+      } else {
+        result = (inttype) bytes_sent;
+      } /* if */
     } /* if */
     return result;
   } /* socSend */
@@ -1638,6 +1646,7 @@ bstritype address;
 
   {
     bstritype buf;
+    memsizetype bytes_sent;
     inttype result;
 
   /* socSendto */
@@ -1650,11 +1659,18 @@ bstritype address;
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = sendto(sock, cast_send_recv_data(buf->mem),
-                      cast_buffer_len(buf->size), flags,
-                      (const struct sockaddr *) address->mem,
-                      (socklen_type) address->size);
+      bytes_sent = (memsizetype) sendto(sock, cast_send_recv_data(buf->mem),
+                                        cast_buffer_len(buf->size), flags,
+                                        (const struct sockaddr *) address->mem,
+                                        (socklen_type) address->size);
       FREE_BSTRI(buf, buf->size);
+      if (unlikely(bytes_sent == (memsizetype) -1)) {
+        result = -1;
+      } else if (unlikely(bytes_sent > MAX_MEM_INDEX)) {
+        result = MAX_MEM_INDEX;
+      } else {
+        result = (inttype) bytes_sent;
+      } /* if */
     } /* if */
     return result;
   } /* socSendto */

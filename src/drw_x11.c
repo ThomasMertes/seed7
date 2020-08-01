@@ -143,73 +143,77 @@ void remove_window ();
 
 #ifdef ANSI_C
 
-void redraw (XExposeEvent *xexpose)
+void redraw (wintype redraw_window, int xPos, int yPos, int width, int height)
 #else
 
-void redraw (xexpose)
-XExposeEvent *xexpose;
+void redraw (redraw_window, xPos, yPos, width, height)
+wintype redraw_window;
+int xPos;
+int yPos;
+int width;
+int height;
 #endif
 
   {
     x11_wintype expose_window;
-    int x, y, width, height;
+    int xClear, yClear, clearWidth, clearHeight;
 
   /* redraw */
 #ifdef TRACE_X11
     printf("begin redraw\n");
 #endif
-    /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
-        xexpose->x, xexpose->y, xexpose->width, xexpose->height, xexpose->count); */
-    expose_window = (x11_wintype) find_window(xexpose->window);
+    /* printf("redraw(%lx, %d, %d, %d, %d)\n",
+        redraw_window, xPos, yPos, width, height); */
+    expose_window = (x11_wintype) redraw_window;
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
        getchar(); */
     XCopyArea(mydisplay, expose_window->backup,
-        expose_window->window, mygc, xexpose->x, xexpose->y,
-        xexpose->width, xexpose->height, xexpose->x, xexpose->y);
-    /* printf("xexpose->x + xexpose->width=%d, to_width(expose_window)=%d\n",
-           xexpose->x + xexpose->width, to_width(expose_window));
-       printf("xexpose->y + xexpose->height=%d, to_height(expose_window)=%d\n",
-           xexpose->y + xexpose->height, to_height(expose_window)); */
-    if (xexpose->x + xexpose->width > to_width(expose_window)) {
+        expose_window->window, mygc, xPos, yPos,
+        width, height, xPos, yPos);
+    /* printf("xPos + width=%d, to_width(expose_window)=%d\n",
+           xPos + width, to_width(expose_window));
+       printf("yPos + height=%d, to_height(expose_window)=%d\n",
+           yPos + height, to_height(expose_window)); */
+    if (xPos + width > to_width(expose_window)) {
       XSetForeground(mydisplay, mygc, mybackground);
-      if (xexpose->x >= to_width(expose_window)) {
-        x = xexpose->x;
-        width = xexpose->width;
+      if (xPos >= to_width(expose_window)) {
+        xClear = xPos;
+        clearWidth = width;
       } else {
-        x = to_width(expose_window);
-        width = xexpose->x + xexpose->width - to_width(expose_window);
-        if (xexpose->y + xexpose->height > to_height(expose_window)) {
-          if (xexpose->y >= to_height(expose_window)) {
-            y = xexpose->y;
-            height = xexpose->height;
+        xClear = to_width(expose_window);
+        clearWidth = xPos + width - to_width(expose_window);
+        if (yPos + height > to_height(expose_window)) {
+          if (yPos >= to_height(expose_window)) {
+            yClear = yPos;
+            clearHeight = height;
           } else {
-            y = to_height(expose_window);
-            height = xexpose->y + xexpose->height - to_height(expose_window);
+            yClear = to_height(expose_window);
+            clearHeight = yPos + height - to_height(expose_window);
           } /* if */
           /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
-              xexpose->x, y, to_width(expose_window) - xexpose->x, height); */
+              xPos, yClear, to_width(expose_window) - xPos, clearHeight); */
           XFillRectangle(mydisplay, to_window(expose_window), mygc,
-              xexpose->x, y, to_width(expose_window) - xexpose->x, height);
+              xPos, yClear, to_width(expose_window) - xPos, clearHeight);
         } /* if */
       } /* if */
       /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
-          x, xexpose->y, width, xexpose->height); */
+          xClear, yPos, clearWidth, height); */
       XFillRectangle(mydisplay, to_window(expose_window), mygc,
-          x, xexpose->y, width, xexpose->height);
-    } else if (xexpose->y + xexpose->height > to_height(expose_window)) {
+          xClear, yPos, clearWidth, height);
+    } else if (yPos + height > to_height(expose_window)) {
       XSetForeground(mydisplay, mygc, mybackground);
-      if (xexpose->y >= to_height(expose_window)) {
-        y = xexpose->y;
-        height = xexpose->height;
+      if (yPos >= to_height(expose_window)) {
+        yClear = yPos;
+        clearHeight = height;
       } else {
-        y = to_height(expose_window);
-        height = xexpose->y + xexpose->height - to_height(expose_window);
+        yClear = to_height(expose_window);
+        clearHeight = yPos + height - to_height(expose_window);
       } /* if */
       /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
-          xexpose->x, y, xexpose->width, height); */
+          xPos, yClear, width, clearHeight); */
       XFillRectangle(mydisplay, to_window(expose_window), mygc,
-          xexpose->x, y, xexpose->width, height);
+          xPos, yClear, width, clearHeight);
     } /* if */
 #ifdef TRACE_X11
     printf("end redraw\n");
@@ -351,7 +355,9 @@ static void dra_init ()
 #endif
 
   {
+#ifdef OUT_OF_ORDER
     const_cstritype class_text;
+#endif
 
   /* dra_init */
 #ifdef TRACE_X11
@@ -366,6 +372,7 @@ static void dra_init ()
       /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
 
       default_visual = XDefaultVisual(mydisplay, myscreen);
+#ifdef OUT_OF_ORDER
       if (default_visual->c_class == PseudoColor) {
         class_text = "PseudoColor";
       } else if (default_visual->c_class == DirectColor) {
@@ -381,7 +388,6 @@ static void dra_init ()
       } else {
         class_text = "unknown";
       } /* if */
-#ifdef OUT_OF_ORDER
       printf("visualid:     %lX\n", (unsigned long) default_visual->visualid);
       printf("class:        %s\n",  class_text);
       printf("red_mask:     %08lx\n", default_visual->red_mask);
@@ -1157,11 +1163,13 @@ wintype actual_window;
     unsigned int width, height;
     unsigned int border_width;
     unsigned int depth;
-    Status status;
 
   /* drwHeight */
-    status = XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth);
+    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
+        &x, &y, &width, &height, &border_width, &depth) == 0) {
+      raise_error(RANGE_ERROR);
+      height = 0;
+    } /* if */
 #ifdef TRACE_X11
     printf("drwHeight(%lu) -> %u\n", actual_window, height);
 #endif
@@ -2461,13 +2469,15 @@ wintype actual_window;
     unsigned int width, height;
     unsigned int border_width;
     unsigned int depth;
-    Status status;
 
   /* drwWidth */
-    status = XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth);
+    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
+        &x, &y, &width, &height, &border_width, &depth) == 0) {
+      raise_error(RANGE_ERROR);
+      width = 0;
+    } /* if */
 #ifdef TRACE_X11
-    printf("drwWidth(%lu) -> %u\n", actual_window, height);
+    printf("drwWidth(%lu) -> %u\n", actual_window, width);
 #endif
     return (inttype) width;
   } /* drwWidth */
@@ -2489,11 +2499,13 @@ wintype actual_window;
     unsigned int width, height;
     unsigned int border_width;
     unsigned int depth;
-    Status status;
 
   /* drwXPos */
-    status = XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth);
+    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
+        &x, &y, &width, &height, &border_width, &depth) == 0) {
+      raise_error(RANGE_ERROR);
+      x = 0;
+    } /* if */
 #ifdef TRACE_X11
     printf("drwXPos(%lu) -> %d\n", actual_window, x);
 #endif
@@ -2517,11 +2529,13 @@ wintype actual_window;
     unsigned int width, height;
     unsigned int border_width;
     unsigned int depth;
-    Status status;
 
   /* drwYPos */
-    status = XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth);
+    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
+        &x, &y, &width, &height, &border_width, &depth) == 0) {
+      raise_error(RANGE_ERROR);
+      y = 0;
+    } /* if */
 #ifdef TRACE_X11
     printf("drwYPos(%lu) -> %d\n", actual_window, y);
 #endif

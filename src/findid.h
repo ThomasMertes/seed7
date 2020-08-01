@@ -40,7 +40,7 @@ EXTERN identtype current_ident;
 
 #ifdef ANSI_C
 
-void find_normal_ident (unsigned int length);
+void find_normal_ident (sysizetype length);
 void check_list_of_syntax_elements (const_listtype elem_list);
 void clean_idents (void);
 void write_idents (void);

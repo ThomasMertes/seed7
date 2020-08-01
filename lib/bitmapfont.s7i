@@ -189,8 +189,8 @@ const func PRIMITIVE_WINDOW: getFontCharPixmap (in bitmapFont: bmpFont,
 
 const proc: setFont (inout pixmapFontFile: fontFile, in bitmapFont: aFont) is func
   begin
-    fontFile.font := getFont(aFont, fontFile.font.fontSize,
-        fontFile.font.scale, fontFile.font.foreground, fontFile.font.background);
+    fontFile.font := getFont(aFont, fontSize(fontFile.font),
+        scale(fontFile.font), foreground(fontFile.font), background(fontFile.font));
   end func;
 
 

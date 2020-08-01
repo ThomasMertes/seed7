@@ -985,7 +985,7 @@ listtype arguments;
     if (name == NULL) {
       result = raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      ident_found = get_ident((ustritype) name, strlen(name));
+      ident_found = get_ident((const_ustritype) name);
       if (ident_found == NULL ||
           ident_found->entity == NULL ||
           ident_found->entity->owner == NULL) {

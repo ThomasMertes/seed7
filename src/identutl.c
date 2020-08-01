@@ -46,12 +46,12 @@
 
 #ifdef ANSI_C
 
-identtype new_ident (const_ustritype name, unsigned int length)
+identtype new_ident (const_ustritype name, sysizetype length)
 #else
 
 identtype new_ident (name, length)
 ustritype name;
-unsigned int length;
+sysizetype length;
 #endif
 
   {
@@ -97,7 +97,7 @@ identtype old_ident;
 #endif
 
   {
-    unsigned int length;
+    sysizetype length;
 
   /* free_ident */
 #ifdef TRACE_IDENTUTL
@@ -120,23 +120,24 @@ identtype old_ident;
 
 #ifdef ANSI_C
 
-identtype get_ident (const_ustritype name, unsigned int length)
+identtype get_ident (const_ustritype name)
 #else
 
-identtype get_ident (name, length)
+identtype get_ident (name)
 ustritype name;
-unsigned int length;
 #endif
 
   {
     register identtype ident_found;
     register int comparison;
     register booltype searching;
+    sysizetype length;
 
   /* get_ident */
 #ifdef TRACE_IDENTUTL
     printf("BEGIN get_ident\n");
 #endif
+    length = strlen((const_cstritype) name);
     if (length == 1 && (op_character(name[0]) ||
         char_class(name[0]) == LEFTPARENCHAR ||
         char_class(name[0]) == PARENCHAR)) {

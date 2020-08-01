@@ -1903,8 +1903,8 @@ stritype link_name;
     os_stat_struct link_stat;
     os_stritype link_destination;
     ssize_t readlink_result;
-#endif
     int path_info;
+#endif
     errinfotype err_info = OKAY_NO_ERROR;
     stritype result = NULL;
 
@@ -2486,8 +2486,8 @@ stritype dest_name;
 #ifdef HAS_SYMLINKS
     os_stritype os_source_name;
     os_stritype os_dest_name;
-#endif
     int path_info;
+#endif
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */

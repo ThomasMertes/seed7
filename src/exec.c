@@ -1072,7 +1072,6 @@ listtype expr_list;
     listtype actual_element;
     listtype *list_insert_place;
     objecttype element_value;
-    booltype value_dereferenced;
     objecttype match_result;
     objecttype result = NULL;
     errinfotype err_info = OKAY_NO_ERROR;
@@ -1099,7 +1098,6 @@ listtype expr_list;
       match_expr->value.listvalue = NULL;
       list_insert_place = &match_expr->value.listvalue;
       INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);
-      value_dereferenced = FALSE;
       actual_element = expr_list;
       while (actual_element != NULL) {
 /* printf("actual_element->obj ");
@@ -1114,7 +1112,6 @@ printf("\n"); */
           case VARENUMOBJECT:
           case INTERFACEOBJECT:
             element_value = actual_element->obj->value.objvalue;
-            value_dereferenced = TRUE;
             break;
           default:
             element_value = actual_element->obj;

@@ -35,7 +35,6 @@ objecttype enu_genlit (listtype arguments);
 objecttype enu_iconv2 (listtype arguments);
 objecttype enu_ne     (listtype arguments);
 objecttype enu_ord2   (listtype arguments);
-objecttype enu_size   (listtype arguments);
 objecttype enu_value  (listtype arguments);
 
 #else
@@ -48,7 +47,6 @@ objecttype enu_genlit ();
 objecttype enu_iconv2 ();
 objecttype enu_ne ();
 objecttype enu_ord2 ();
-objecttype enu_size ();
 objecttype enu_value ();
 
 #endif

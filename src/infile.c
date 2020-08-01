@@ -364,7 +364,7 @@ errinfotype *err_info;
   {
     const_cstritype source_file_name = "STRING";
     infiltype new_file;
-    unsigned int name_length;
+    memsizetype name_length;
     ustritype name_ustri;
     stritype in_name;
 
@@ -560,7 +560,7 @@ errinfotype *err_info;
     booltype found;
     memsizetype position;
     stritype curr_path;
-    unsigned int length;
+    memsizetype length;
     stritype stri;
 
   /* find_include_file */

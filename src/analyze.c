@@ -537,7 +537,7 @@ errinfotype *err_info;
 
   {
     stritype source_name;
-    unsigned int name_len;
+    memsizetype name_len;
     booltype add_extension;
     progtype resultProg;
 

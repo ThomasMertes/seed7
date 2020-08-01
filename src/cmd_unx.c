@@ -163,7 +163,6 @@ filetype *childStdout;
 #endif
 
   {
-    struct stristruct emptyStri;
     os_stritype os_command_stri;
     int childStdinPipes[2];
     int childStdoutPipes[2];
@@ -174,7 +173,6 @@ filetype *childStdout;
     pid_t pid;
 
   /* cmdPipe2 */
-    emptyStri.size = 0;
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -197,13 +195,13 @@ filetype *childStdout;
         memsizetype pos;
         argv = (os_stritype *) malloc(sizeof(os_stritype) * (arraySize + 2));
         argv[0] = os_command_stri;
-        fprintf(stderr, "argv[0]=%s\n", argv[0]);
+        /* fprintf(stderr, "argv[0]=%s\n", argv[0]); */
         for (pos = 0; pos < arraySize && err_info == OKAY_NO_ERROR; pos++) {
           argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.strivalue, &err_info);
-          fprintf(stderr, "argv[%d]=%s\n", pos + 1, argv[pos + 1]);
+          /* fprintf(stderr, "argv[%d]=%s\n", pos + 1, argv[pos + 1]); */
         } /* for */
         argv[arraySize + 1] = NULL;
-        fprintf(stderr, "argv[%d]=NULL\n", arraySize + 1);
+        /* fprintf(stderr, "argv[%d]=NULL\n", arraySize + 1); */
         close(childStdinPipes[0]); /* Not required for the child */
         close(childStdinPipes[1]);
         close(childStdoutPipes[0]);
@@ -242,14 +240,12 @@ rtlArraytype parameters;
 #endif
 
   {
-    struct stristruct emptyStri;
     os_stritype os_command_stri;
     int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
     pid_t pid;
 
   /* cmdStartProcess */
-    emptyStri.size = 0;
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

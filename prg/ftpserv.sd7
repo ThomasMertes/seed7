@@ -38,6 +38,8 @@ const type: ftpServerConnection is new struct
     var file: data is STD_NULL;
     var string: currentDirectory is "";
     var string: ownIpAddress is "";
+    var string: renameFromFile is "";
+    var boolean: renameFilePending is FALSE;
   end struct;
 
 const type: ftpConnectionHash is hash [file] ftpServerConnection;
@@ -75,9 +77,18 @@ const func file: openPassiveData (inout file: control, in string: ownIpAddress) 
   local
     var integer: dataPort is 0;
     var listener: dataPortListener is listener.value;
+    var boolean: listenerOpen is TRUE;
   begin
-    dataPort := rand(1024, 65535);
-    dataPortListener := openInetListener(dataPort);
+    repeat
+      dataPort := rand(1024, 65535);
+      block
+        dataPortListener := openInetListener(dataPort);
+        listenerOpen := TRUE;
+      exception
+        catch FILE_ERROR:
+          listenerOpen := FALSE;
+      end block;
+    until listenerOpen;
     listen(dataPortListener, 1);
     ftpResponse(control, "227 Entering Passive Mode (" <&
                      replace(ownIpAddress, ".", ",") <& "," <&
@@ -325,6 +336,9 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: reques
     var string: argument is "";
     var string: response is "";
   begin
+    if ftp.renameFilePending and not startsWith(request, "RNTO ") then
+      ftp.renameFilePending := FALSE;
+    end if;
     if startsWith(request, "USER ") then
       ftpResponse(ftp.control, "331 Please specify the password.");
     elsif startsWith(request, "PASS ") then
@@ -490,7 +504,7 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: reques
       block
         mkdir(argument);
         ftpResponse(ftp.control, "257 " <& toQuotedUtf8(argument) <&
-            "\" - Directory successfully created.");
+            " - Directory successfully created.");
       exception
         catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
       end block;
@@ -503,6 +517,23 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: reques
       exception
         catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
       end block;
+    elsif startsWith(request, "RNFR ") then
+      ftp.renameFromFile := getPathArgument(request[6 ..]);
+      ftp.renameFilePending := TRUE;
+      ftpResponse(ftp.control, "350 Requested file action pending further information.");
+    elsif startsWith(request, "RNTO ") then
+      argument := getPathArgument(request[6 ..]);
+      if ftp.renameFilePending then
+        chdir(ftp.currentDirectory);
+        block
+          moveFile(ftp.renameFromFile, argument);
+          ftpResponse(ftp.control, "250 Requested file action okay, completed.");
+        exception
+          catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
+        end block;
+      else
+        ftpResponse(ftp.control, "503 Bad sequence of commands.");
+      end if;
     elsif startsWith(request, "TYPE ") then
       if request[6 len 1] = "A" then
         ftpResponse(ftp.control, "200 Switching to ASCII mode.");
