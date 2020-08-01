@@ -30,7 +30,7 @@ const proc: main is func
   local
     var string: parameter is "";
     var ftpServer: ftpServ is ftpServer.value;
-    var fileSys: backendSys is osFiles;
+    var fileSys: backendSys is fileSys.value;
     var listener: aListener is listener.value;
     var file: existingConnection is STD_NULL;
     var file: newConnection is STD_NULL;

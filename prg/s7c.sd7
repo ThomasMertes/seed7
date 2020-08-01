@@ -5631,6 +5631,10 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
         if getValue(current_object, bitset) not in set_const_table then
           set_const_table @:= [getValue(current_object, bitset)] length(set_const_table);
         end if;
+      elsif objectCategory = WINOBJECT then
+        if getValue(current_object, PRIMITIVE_WINDOW) not in win_const_table then
+          win_const_table @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(win_const_table);
+        end if;
       elsif objectCategory = ARRAYOBJECT then
         if current_object not in const_table then
           const_table @:= [current_object] length(const_table);

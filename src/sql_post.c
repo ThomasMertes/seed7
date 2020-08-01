@@ -365,7 +365,7 @@ static PGresult *PQdeallocate (PGconn *conn, const char *stmtName)
   /* PQdeallocate */
     logFunction(printf("PQdeallocate(" FMT_X_MEM ", %s)\n",
                        (memSizeType) conn, stmtName););
-    length = STRLEN(deallocateCommand) + strlen(stmtName) + 1;
+    length = STRLEN(deallocateCommand) + strlen(stmtName) + NULL_TERMINATION_LEN;
     command = (char *) malloc(length);
     if (command == NULL) {
       deallocate_result = NULL;
@@ -1149,7 +1149,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
           } else {
             free(preparedStmt->paramValues[pos - 1]);
             if (unlikely((preparedStmt->paramValues[pos - 1] =
-                          (cstriType) malloc(bstri->size + 1)) == NULL)) {
+                          (cstriType) malloc(bstri->size + NULL_TERMINATION_LEN)) == NULL)) {
               raise_error(MEMORY_ERROR);
             } else {
               memcpy(preparedStmt->paramValues[pos - 1], bstri->mem, bstri->size);
@@ -1355,7 +1355,8 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
         case BPCHAROID:
         case VARCHAROID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(INTTYPE_DECIMAL_SIZE + 1);
+          preparedStmt->paramValues[pos - 1] =
+              (cstriType) malloc(INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN);
           preparedStmt->paramLengths[pos - 1] =
               (int) sprintf(preparedStmt->paramValues[pos - 1], FMT_D, value);
           preparedStmt->paramFormats[pos - 1] = 0;

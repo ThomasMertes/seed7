@@ -366,7 +366,7 @@ static void printError (SQLSMALLINT handleType, SQLHANDLE handle)
     } else if (bufferLength < 0 || bufferLength >= SQLSMALLINT_MAX) {
       printf(" *** SQLGetDiagRec: BufferLength not in allowed range: %hd\n", bufferLength);
     } else {
-      messageText = malloc((memSizeType) bufferLength + 1);
+      messageText = malloc((memSizeType) bufferLength + NULL_TERMINATION_LEN);
       if (messageText == NULL) {
         printf(" *** malloc failed\n");
       } else {
@@ -376,7 +376,7 @@ static void printError (SQLSMALLINT handleType, SQLHANDLE handle)
                           sqlState,
                           &nativeError,
                           messageText,
-                          (SQLSMALLINT) (bufferLength + 1),
+                          (SQLSMALLINT) (bufferLength + NULL_TERMINATION_LEN),
                           &bufferLength) != SQL_SUCCESS) {
           printf(" *** SQLGetDiagRec failed\n");
         } else {
@@ -1431,13 +1431,13 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
       /* prot_stri(stri);
          printf("\n"); */
       if (*buffer == NULL) {
-        if ((*buffer = malloc(stri->size + 1)) != NULL) {
-          *buffer_capacity = stri->size + 1;
+        if ((*buffer = malloc(stri->size + NULL_TERMINATION_LEN)) != NULL) {
+          *buffer_capacity = stri->size + NULL_TERMINATION_LEN;
         } /* if */
-      } else if (*buffer_capacity < stri->size + 1) {
+      } else if (*buffer_capacity < stri->size + NULL_TERMINATION_LEN) {
         free(*buffer);
-        if ((*buffer = malloc(stri->size + 1)) != NULL) {
-          *buffer_capacity = stri->size + 1;
+        if ((*buffer = malloc(stri->size + NULL_TERMINATION_LEN)) != NULL) {
+          *buffer_capacity = stri->size + NULL_TERMINATION_LEN;
         } /* if */
       } /* if */
       if (*buffer == NULL) {

@@ -884,12 +884,18 @@ static void numericSizes (FILE *versionFile)
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
     fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
     fprintf(versionFile, "#define CHAR_SIGNED %d\n",   isSignedType("char"));
+    /* The expression to check for BOOLTYPE below has been chosen, */
+    /* because lcc-win32 fails with boolean expressions of this kind. */
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                         "{_Bool flag = 1;return 0;}\n")) {
+                         "{int x = 0;\n"
+                         "_Bool flag = argc != -1 ? x++, (_Bool) 1:(_Bool) 0;\n"
+                         "return 0;}\n")) {
       fputs("#define BOOLTYPE _Bool\n", versionFile);
       fputs("#define BOOLTYPE_STRI \"_Bool\"\n", versionFile);
     } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                         "{bool flag = 1;return 0;}\n")) {
+                         "{int x = 0;\n"
+                         "bool flag = argc != -1 ? x++, (bool) 1:(bool) 0;\n"
+                         "return 0;}\n")) {
       fputs("#define BOOLTYPE bool\n", versionFile);
       fputs("#define BOOLTYPE_STRI \"bool\"\n", versionFile);
     } else {
@@ -1210,6 +1216,37 @@ static const char *determine_os_isnan_definition (const char *computeValues,
 
 
 
+static void defineTransferUnions (char * buffer)
+  
+  { /* defineTransferUnions */
+    strcat(buffer,
+           "union {\n"
+           "  ");
+    switch (getSizeof("float")) {
+      case 2: strcat(buffer, uint16TypeStri); break;
+      case 4: strcat(buffer, uint32TypeStri); break;
+      case 8: strcat(buffer, uint64TypeStri); break;
+    } /* switch */
+    strcat(buffer,
+           " i;\n"
+           "  float f;\n"
+           "} fltTransfer;\n");
+    strcat(buffer,
+           "union {\n"
+           "  ");
+    switch (getSizeof("double")) {
+      case 2: strcat(buffer, uint16TypeStri); break;
+      case 4: strcat(buffer, uint32TypeStri); break;
+      case 8: strcat(buffer, uint64TypeStri); break;
+    } /* switch */
+    strcat(buffer,
+           " i;\n"
+           "  double f;\n"
+           "} dblTransfer;\n");
+  } /* defineTransferUnions */
+
+
+
 static void numericProperties (FILE *versionFile)
 
   {
@@ -1330,10 +1367,20 @@ static void numericProperties (FILE *versionFile)
       fprintf(versionFile, "#define FMT_E_DBL \"%%1.%de\"\n", testResult - 1);
       fprintf(versionFile, "#define DOUBLE_STR_LARGE_NUMBER 1.0e%d\n", testResult);
     } /* if */
+    strcpy(buffer, "#include<stdio.h>\n"
+                   "int main(int argc,char *argv[]){\n"
+                   "int okay;\n");
+    defineTransferUnions(buffer);
+    strcat(buffer, "dblTransfer.f = 1.0/0.0;\n"
+                   "okay = dblTransfer.i == 0x7ff0000000000000;\n"
+                   "dblTransfer.f = -1.0/0.0;\n"
+                   "okay &= dblTransfer.i == 0xfff0000000000000;\n"
+                   "printf(\"%d\\n\", okay);return 0;}\n");
     if (!compileAndLinkOk("#include<stdio.h>\n"
                           "int main(int argc,char *argv[]){"
                           "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n"
+                          "#include<float.h>\n#include<signal.h>\n"
                           "void handleSig(int sig){puts(\"2\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
@@ -1341,7 +1388,10 @@ static void numericProperties (FILE *versionFile)
 #endif
                           "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\n"
                           "signal(SIGINT,handleSig);\n"
-                          "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
+                          "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") ||
+        doTest() == 2 ||
+        !compileAndLinkOk(buffer) ||
+        doTest() != 1) {
       fputs("#define FLOAT_ZERO_DIV_ERROR\n", versionFile);
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
@@ -1404,30 +1454,7 @@ static void numericProperties (FILE *versionFile)
                           "printf(\"%d\\n\",1.0/zero==0.0);return 0;}\n") || doTest() == 2) {
       fputs("#define CHECK_FLOAT_DIV_BY_ZERO 1\n", versionFile);
       fputs("#define USE_NEGATIVE_ZERO_BITPATTERN 1\n", versionFile);
-      strcat(computeValues,
-             "union {\n"
-             "  ");
-      switch (getSizeof("float")) {
-        case 2: strcat(computeValues, uint16TypeStri); break;
-        case 4: strcat(computeValues, uint32TypeStri); break;
-        case 8: strcat(computeValues, uint64TypeStri); break;
-      } /* switch */
-      strcat(computeValues,
-             " i;\n"
-             "  float f;\n"
-             "} fltTransfer;\n");
-      strcat(computeValues,
-             "union {\n"
-             "  ");
-      switch (getSizeof("double")) {
-        case 2: strcat(computeValues, uint16TypeStri); break;
-        case 4: strcat(computeValues, uint32TypeStri); break;
-        case 8: strcat(computeValues, uint64TypeStri); break;
-      } /* switch */
-      strcat(computeValues,
-             " i;\n"
-             "  double f;\n"
-             "} dblTransfer;\n");
+      defineTransferUnions(computeValues);
 #ifdef TURN_OFF_FP_EXCEPTIONS
       strcat(computeValues,
              "_control87(MCW_EM, MCW_EM);\n");
@@ -1780,7 +1807,12 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       testResult = doTest();
       if (testResult >= 2 && testResult < 100002) {
-        fprintf(versionFile, "#define PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION %d\n", testResult - 2);
+        testResult -= 2;
+#ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
+        fprintf(versionFile, "/* PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION %d */\n", testResult);
+        testResult = PRINTF_MAXIMUM_FLOAT_PRECISION;
+#endif
+        fprintf(versionFile, "#define PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION %d\n", testResult);
       } /* if */
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
@@ -1791,7 +1823,12 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       testResult = doTest();
       if (testResult >= 2 && testResult < 100002) {
-        fprintf(versionFile, "#define PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d\n", testResult - 2);
+        testResult -= 2;
+#ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
+        fprintf(versionFile, "/* PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d */\n", testResult);
+        testResult = PRINTF_MAXIMUM_FLOAT_PRECISION;
+#endif
+        fprintf(versionFile, "#define PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d\n", testResult);
       } /* if */
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n"
@@ -2217,20 +2254,20 @@ static void determineOsUtime (FILE *versionFile)
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <utime.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{struct utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
-                         "printf(\"%d\\n\",  &buf != NULL); return 0;}\n")) {
+                         "printf(\"%d\\n\", &buf != NULL); return 0;}\n")) {
       utime_include = "utime.h";
       os_utimbuf_struct_stri = "struct utimbuf";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <sys/utime.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{struct _utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
-                         "printf(\"%d\\n\",  &buf != NULL); return 0;}\n")) {
+                         "printf(\"%d\\n\", &buf != NULL); return 0;}\n")) {
       utime_include = "sys/utime.h";
       os_utimbuf_struct_stri = "struct _utimbuf";
       fputs("#define INCLUDE_SYS_UTIME\n", versionFile);
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <sys/utime.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{struct utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
-                         "printf(\"%d\\n\",  &buf != NULL); return 0;}\n")) {
+                         "printf(\"%d\\n\", &buf != NULL); return 0;}\n")) {
       utime_include = "sys/utime.h";
       os_utimbuf_struct_stri = "struct utimbuf";
       fputs("#define INCLUDE_SYS_UTIME\n", versionFile);
@@ -2273,7 +2310,8 @@ static void determineOsUtime (FILE *versionFile)
           fprintf(versionFile, "#define os_utime %s\n", os_utime_stri);
         } /* if */
       } else {
-        fprintf(logFile, "\n *** Cannot define os_utime.\n");
+        fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
+        fputs("#define os_utime alternate_utime\n", versionFile);
       } /* if */
     } /* if */
   } /* determineOsUtime */
@@ -2285,9 +2323,11 @@ static void determineOsWCharFunctions (FILE *versionFile)
 
   { /* determineOsWCharFunctions */
 #ifndef os_chdir
-    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wchdir(L\"..\") != -1);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\",\n"
+                                    "    _wchdir(L\"..\") != -1);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_chdir _wchdir\n", versionFile);
     } else {
       fprintf(logFile, "\n *** Cannot define os_chdir.\n");
@@ -2295,10 +2335,13 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_getcwd
-    if (compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n#include <direct.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{wchar_t buffer[1024];\n"
-                         "printf(\"%d\\n\", _wgetcwd(buffer, 1024) != NULL);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <wchar.h>\n"
+                                    "#include <direct.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{wchar_t buffer[1024];\n"
+                                    "printf(\"%d\\n\",\n"
+                                    "    _wgetcwd(buffer, 1024) != NULL);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define OS_GETCWD_MAX_BUFFER_SIZE INT_MAX\n", versionFile);
       fputs("#define os_getcwd(buf,size) _wgetcwd((buf),(int)(size))\n", versionFile);
     } else {
@@ -2307,9 +2350,11 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_mkdir
-    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wmkdir(L\"testdir\") != -1);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\",\n"
+                                    "    _wmkdir(L\"testdir\") != -1);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_mkdir(path,mode) _wmkdir(path)\n", versionFile);
     } else {
       fprintf(logFile, "\n *** Cannot define os_mkdir.\n");
@@ -2317,9 +2362,11 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_rmdir
-    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wrmdir(L\"testdir\") != -1);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\",\n"
+                                    "    _wrmdir(L\"testdir\") != -1);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_rmdir _wrmdir\n", versionFile);
     } else {
       fprintf(logFile, "\n *** Cannot define os_rmdir.\n");
@@ -2327,13 +2374,18 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_chmod
-    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wchmod(L\"testfile\",0777) != -1);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\",\n"
+                                    "    _wchmod(L\"testfile\",0777) != -1);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_chmod _wchmod\n", versionFile);
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n#include <io.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wchmod(L\"testfile\",0777) != -1);return 0;}\n")) {
+    } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n\n"
+                                           "#include <io.h>\n"
+                                           "int main(int argc,char *argv[])\n"
+                                           "{printf(\"%d\\n\",\n"
+                                           "    _wchmod(L\"testfile\",0777) != -1);\n"
+                                           "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define OS_CHMOD_INCLUDE_IO_H\n", versionFile);
       fputs("#define os_chmod _wchmod\n", versionFile);
     } else {
@@ -2348,9 +2400,10 @@ static void determineOsWCharFunctions (FILE *versionFile)
     determineOsUtime(versionFile);
 #endif
 #ifndef os_remove
-    if (compileAndLinkOk("#include <stdio.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wremove(L\"testfile\") != -1);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\", _wremove(L\"testfile\") != -1);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_remove _wremove\n", versionFile);
     } else {
       fprintf(logFile, "\n *** Cannot define os_remove.\n");
@@ -2358,9 +2411,11 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_rename
-    if (compileAndLinkOk("#include <stdio.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wrename(L\"testfile\", L\"newname\") == 0);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\",\n"
+                                    "    _wrename(L\"testfile\", L\"newname\") == 0);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_rename _wrename\n", versionFile);
     } else {
       fprintf(logFile, "\n *** Cannot define os_rename.\n");
@@ -2368,9 +2423,11 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_system
-    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wsystem(L\"pwd\") != -1);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\",\n"
+                                    "    _wsystem(L\"pwd\") != -1);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_system _wsystem\n", versionFile);
     } else {
       fprintf(logFile, "\n *** Cannot define os_system.\n");
@@ -2378,13 +2435,17 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_fopen
-    if (compileAndLinkOk("#include <stdio.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wfopen(L\"testfile\", L\"r\") != NULL);return 0;}\n")) {
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{printf(\"%d\\n\",\n"
+                                    "    _wfopen(L\"testfile\", L\"r\") != NULL);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_fopen _wfopen\n", versionFile);
-    } else if (compileAndLinkOk("#include <stdio.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", wfopen(L\"testfile\", L\"r\") != NULL);return 0;}\n")) {
+    } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                           "int main(int argc,char *argv[])\n"
+                                           "{printf(\"%d\\n\",\n"
+                                           "    wfopen(L\"testfile\", L\"r\") != NULL);\n"
+                                           "return 0;}\n", "", SYSTEM_LIBS)) {
       fputs("#define os_fopen wfopen\n", versionFile);
     } else {
       fprintf(logFile, "\n *** Cannot define os_fopen.\n");
@@ -2588,26 +2649,35 @@ static void determineMySqlDefines (FILE *versionFile,
       sprintf(includeOption, "-I\"%s/include\"", dbHome);
       /* fprintf(logFile, "includeOption=%s\n", includeOption); */
       if (compileAndLinkWithOptionsOk("#include \"stdlib.h\"\n#include \"mysql.h\"\n"
-                                      "int main(int argc,char *argv[]){return 0;}\n",
+                                      "int main(int argc,char *argv[]){"
+                                      "MYSQL *connection; return 0;}\n",
                                       includeOption, "")) {
         mySqlInclude = "mysql.h";
         fprintf(logFile, "\rMySql/MariaDb: %s found in %s/include\n", mySqlInclude, dbHome);
         appendOption(include_options, includeOption);
       } else {
+        sprintf(buffer, "%s/include/mysql.h", dbHome);
+        if (fileIsRegular(buffer)) {
+          fprintf(logFile, "\rMySql/MariaDb: The C compiler cannot include %s\n", buffer);
+        } /* if */
         mySqlInclude = NULL;
       } /* if */
-    } else {
+    } /* if */
+    if (mySqlInclude == NULL) {
       sprintf(buffer, "#include <%s>\n"
-                      "int main(int argc,char *argv[]){return 0;}\n", mySqlInclude);
+                      "int main(int argc,char *argv[]){"
+                      "MYSQL *connection; return 0;}\n", mySqlInclude);
       if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
         fprintf(logFile, "\rMySql/MariaDb: %s found in system include directory.\n", mySqlInclude);
         appendOption(include_options, includeOption);
       } else if (compileAndLinkWithOptionsOk("#include \"db_my.h\"\n"
-                                             "int main(int argc,char *argv[]){return 0;}\n",
+                                             "int main(int argc,char *argv[]){"
+                                             "MYSQL *connection; return 0;}\n",
                                              includeOption, "") ||
                  compileAndLinkWithOptionsOk("#define STDCALL\n"
                                              "#include \"db_my.h\"\n"
-                                             "int main(int argc,char *argv[]){return 0;}\n",
+                                             "int main(int argc,char *argv[]){"
+                                             "MYSQL *connection; return 0;}\n",
                                              includeOption, "")) {
         mySqlInclude = "db_my.h";
         fprintf(logFile, "\rMySql/MariaDb: %s found in Seed7 include directory.\n", mySqlInclude);
@@ -3009,7 +3079,8 @@ static void determinePostgresDefines (FILE *versionFile,
       sprintf(includeOption, "-I\"%s/include\"", dbHome);
       /* fprintf(logFile, "includeOption=%s\n", includeOption); */
       if (compileAndLinkWithOptionsOk("#include \"libpq-fe.h\"\n"
-                                      "int main(int argc,char *argv[]){return 0;}\n",
+                                      "int main(int argc,char *argv[]){"
+                                      "PGconn *connection; return 0;}\n",
                                       includeOption, "")) {
         postgresqlInclude = "libpq-fe.h";
         fprintf(logFile, "\rPostgreSQL: %s found in %s/include\n", postgresqlInclude, dbHome);
@@ -3023,22 +3094,33 @@ static void determinePostgresDefines (FILE *versionFile,
         extractPostgresOid(buffer);
         pgTypeInclude = "pg_type.h";
         fprintf(logFile, "\rPostgreSQL: %s found in Seed7 directory.\n", pgTypeInclude);
+      } else {
+        sprintf(buffer, "%s/include/libpq-fe.h", dbHome);
+        if (fileIsRegular(buffer)) {
+          fprintf(logFile, "\rPostgreSQL: The C compiler cannot include %s\n", buffer);
+        } /* if */
+        postgresqlInclude = NULL;
       } /* if */
-    } else if (compileAndLinkWithOptionsOk("#include <libpq-fe.h>\n"
-                                    "int main(int argc,char *argv[]){return 0;}\n",
+    } /* if */
+    if (postgresqlInclude == NULL &&
+        compileAndLinkWithOptionsOk("#include <libpq-fe.h>\n"
+                                    "int main(int argc,char *argv[]){"
+                                    "PGconn *connection; return 0;}\n",
                                     includeOption, "")) {
       postgresqlInclude = "libpq-fe.h";
       fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", postgresqlInclude);
       appendOption(include_options, includeOption);
       if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
-                                      "int main(int argc,char *argv[]){return 0;}\n",
+                                      "int main(int argc,char *argv[]){"
+                                      "return 0;}\n",
                                       includeOption, "")) {
         postgresInclude = "server/postgres.h";
         pgTypeInclude = "server/catalog/pg_type.h";
       } else {
         appendOption(includeOption, serverIncludeOption);
         if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
-                                        "int main(int argc,char *argv[]){return 0;}\n",
+                                        "int main(int argc,char *argv[]){"
+                                        "return 0;}\n",
                                         includeOption, "")) {
           appendOption(include_options, serverIncludeOption);
           postgresInclude = "server/postgres.h";
@@ -3049,7 +3131,8 @@ static void determinePostgresDefines (FILE *versionFile,
         } /* if */
       } /* if */
       sprintf(buffer, "#include <%s>\n#include <%s>\n"
-                      "int main(int argc,char *argv[]){return 0;}\n",
+                      "int main(int argc,char *argv[]){"
+                      "return 0;}\n",
                       postgresInclude, pgTypeInclude);
       if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
         fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", pgTypeInclude);
@@ -3059,9 +3142,12 @@ static void determinePostgresDefines (FILE *versionFile,
       } else {
         fprintf(logFile, "\rPostgreSQL: %s not found in include directories.\n", pgTypeInclude);
       } /* if */
-    } else if (compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
-                                           "", "")) {
+    } /* if */
+    if (postgresqlInclude == NULL &&
+        compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
+                                    "int main(int argc,char *argv[]){"
+                                    "PGconn *connection; return 0;}\n",
+                                    "", "")) {
       postgresqlInclude = "db_post.h";
       fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", postgresqlInclude);
     } /* if */
@@ -3291,7 +3377,8 @@ static void determineOciDefines (FILE *versionFile,
         if (fileIsRegular(incl_path)) {
           sprintf(includeOption, "-I%s%s", oracle_home, oci_incl_dir[incl_dir_idx]);
           if (compileAndLinkWithOptionsOk("#include \"oci.h\"\n"
-                                          "int main(int argc,char *argv[]){return 0;}\n",
+                                          "int main(int argc,char *argv[]){"
+                                          "OCIEnv *oci_environment; return 0;}\n",
                                           includeOption, "")) {
             ociInclude = "oci.h";
             fprintf(logFile, "\rOracle: %s found in %s%s\n",
@@ -3301,14 +3388,17 @@ static void determineOciDefines (FILE *versionFile,
         } /* if */
       } /* for */
     } else if (compileAndLinkWithOptionsOk("#include <oci.h>\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           "int main(int argc,char *argv[]){"
+                                           "OCIEnv *oci_environment; return 0;}\n",
                                            includeOption, "")) {
       ociInclude = "oci.h";
       fprintf(logFile, "\rOracle: %s found in system include directory.\n", ociInclude);
       appendOption(include_options, includeOption);
-    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"stdlib.h\"\n"
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                           "#include \"stdlib.h\"\n"
                                            "#include \"db_oci.h\"\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           "int main(int argc,char *argv[]){"
+                                           "OCIEnv *oci_environment; return 0;}\n",
                                            includeOption, "")) {
       ociInclude = "db_oci.h";
       fprintf(logFile, "\rOracle: %s found in Seed7 include directory.\n", ociInclude);

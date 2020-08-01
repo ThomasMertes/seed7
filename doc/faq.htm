@@ -610,12 +610,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2017-01-29 the number of lines is:
+than 200000 lines of Seed7. For version 2017-03-05 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">131527</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10302</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">137017</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">137663</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">131622</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10305</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">137364</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">138068</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -635,18 +635,22 @@ Details about this files can be found in the file <nobr><span class="lib">seed7/
 <p>
 Seed7 runs on the following operating systems:
 </p><ul>
-<li>Linux is supported out of the box (because the development is done using
-   Linux)</li>
+<li>Linux is supported with the following compilers:<ul>
+<li>gcc (the development is done using gcc under Linux)</li>
+<li>clang</li>
+<li>icc</li></ul></li>
 <li>Unix (I used Seed7 also under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)</li>
 <li>BSD (there is a <span class="link">FreeBSD port</span> and an <span class="link">OpenBSD port</span>)</li>
-<li>Windows is supported with several compilers:<ul>
+<li>Windows is supported with the following compilers:<ul>
 <li>MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
 <li>Cygwin GCC (the X11 graphics needs Cygwin/X)</li>
 <li>MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
 <li>BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
 <li>DOS (uses DJGPP. Sockets and graphics are currently not supported)</li>
-<li>Mac OS X</li>
+<li>Mac OS X is supported with the following compilers:<ul>
+<li>gcc</li>
+<li>clang</li></ul></li>
 </ul><p>
 For other operating systems it might be necessary to write driver modules for
 screen (=text console), graphics, time or other aspects of Seed7. The package

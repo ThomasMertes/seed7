@@ -69,6 +69,7 @@ $ include "seed7_05.s7i";
   include "math.s7i";
   include "bin32.s7i";
   include "bin64.s7i";
+  include "cli_cmds.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 const integer: TEXT_LINES is 25;
@@ -1764,7 +1765,6 @@ const func integer: keyboardScanCode (in char: current_key) is func
   end func;
 
 
-const func boolean: execCmd (inout string: symbol, inout string: line) is forward;
 const proc: execLines is forward;
 
 
@@ -6553,6 +6553,27 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: exec_files (inout string: symbol, inout string: line) is func
+  local
+    var string: filespec is "";
+    var string: unused_name is "";
+    var string: fileName is ""
+  begin
+    symbol := get_symbol(line);
+    if symbol <> "" then
+      filespec := exec_str_expr(symbol, line, unused_name);
+      for fileName range findMatchingFiles(convDosPath(filespec)) do
+        writeln(fileName);
+      end for;
+    else
+      for fileName range readDir(".") do
+        writeln(fileName);
+      end for;
+    end if;
+    writeln(log, "FILES " <& filespec);
+  end func;
+
+
 const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
@@ -8960,6 +8981,36 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
           otherwise:
             writeln(log, "**WAIT " <& index1 <& ", " <& index2 <& ", " <& index3);
         end case;
+      elsif symbol = "LOAD" then
+        symbol := get_symbol(line);
+        if isStringExpr(symbol) then
+          param1 := exec_str_expr(symbol, line, variable_name);
+          clearProgram;
+          if runOrChain("LOAD", param1) then
+            writeln(log, "load program finished");
+            line_marker;
+            writeln(log, "LOAD " <& literal(param1) <& " - " <&
+                length(prg) <& " LINES");
+            file_line_number := 0;
+            symbol := "";
+            line := "";
+          elsif on_error_label <> "" then
+            symbol := get_symbol(line);
+            error_code := 53; # File not found
+            line_marker;
+            writeln(log, error_code <& " LOAD " <& literal(param1) <&
+                " - FILE NOT FOUND - ON ERROR GOTO " <& on_error_label);
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
+          else
+            error_marker;
+            writeln(err, "LOAD " <& literal(param1) <& " - FILE NOT FOUND.");
+          end if;
+        else
+          error_marker;
+          writeln(err, "STRING EXPECTED FOR LOAD - FOUND " <& symbol <& ".");
+        end if;
       elsif symbol = "BLOAD" then
         exec_bload(symbol, line);
       elsif symbol = "LIST" then
@@ -8994,6 +9045,8 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         end if;
         writeln(log, "LIST " <& index1 <& "-" <& index2);
         listProg(win, index1, index2);
+      elsif symbol = "FILES" then
+        exec_files(symbol, line);
       elsif symbol = ":" then
         error_marker;
         writeln(err, "UNEXPECTED \":\" - IGNORED.");

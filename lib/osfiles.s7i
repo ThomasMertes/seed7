@@ -610,6 +610,34 @@ const proc: setMTime (inout osFileSys: fileSystem, in string: filePath,
 const func file: open (inout osFileSys: fileSystem, in string: filePath, in string: mode) is
   return open(filePath, mode);
 
+const func string: getFile (inout osFileSys: fileSystem, in string: filePath) is func
+  result
+    var string: data is "";
+  local
+    var file: workFile is STD_NULL;
+  begin
+    workFile := open(filePath, "r");
+    if workFile <> STD_NULL then
+      data := gets(workFile, length(workFile));
+      close(workFile);
+    else
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+const proc: putFile (inout osFileSys: fileSystem, in string: filePath, in string: stri) is func
+  local
+    var file: workFile is STD_NULL;
+  begin
+    if stri <> "" then
+      workFile := open(filePath, "w");
+      if workFile <> STD_NULL then
+        write(workFile, stri);
+        close(workFile);
+      end if;
+    end if;
+  end func;
+
 const func string: readlink (inout osFileSys: fileSystem, in string: filePath) is
   return readlink(filePath);
 

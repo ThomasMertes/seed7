@@ -377,8 +377,8 @@ const proc: optimize_str_append (in reference: dest, in reference: extension,
   end func;
 
 
-const proc: process (STR_APPEND, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_str_append (in reference: param1, in reference: param3,
+    inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
@@ -386,17 +386,17 @@ const proc: process (STR_APPEND, in reference: function,
     var expr_type: c_param3 is expr_type.value;
   begin
     if evaluate_const_expr >= 1 then
-      optimize_str_append(params[1], params[3], c_expr);
-    elsif getConstant(params[3], STRIOBJECT, evaluatedParam) then
-      process_const_str_append(params[1], getValue(evaluatedParam, string), c_expr);
+      optimize_str_append(param1, param3, c_expr);
+    elsif getConstant(param3, STRIOBJECT, evaluatedParam) then
+      process_const_str_append(param1, getValue(evaluatedParam, string), c_expr);
     else
-      process_expr(params[1], c_param1);
+      process_expr(param1, c_param1);
       c_param3.temp_num := c_param1.temp_num;
-      if isActionExpression(params[3], "CHR_STR") then
+      if isActionExpression(param3, "CHR_STR") then
         incr(countOptimizations);
-        process_expr(getActionParameter(params[3], 1), c_param3);
+        process_expr(getActionParameter(param3, 1), c_param3);
       else
-        process_expr(params[3], c_param3);
+        process_expr(param3, c_param3);
       end if;
       if has_temp_values(c_param3) then
         c_expr.expr &:= "{\n";
@@ -406,7 +406,7 @@ const proc: process (STR_APPEND, in reference: function,
         appendWithDiagnostic(c_param3.temp_assigns, c_expr);
       end if;
       setDiagnosticLine(c_expr);
-      if isActionExpression(params[3], "CHR_STR") then
+      if isActionExpression(param3, "CHR_STR") then
         c_expr.expr &:= "strPush(&(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= "), ";
@@ -429,6 +429,14 @@ const proc: process (STR_APPEND, in reference: function,
         c_expr.expr &:= "}\n";
       end if;
     end if;
+  end func;
+
+
+const proc: process (STR_APPEND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_str_append(params[1], params[3], c_expr);
   end func;
 
 
@@ -597,34 +605,61 @@ const proc: process (STR_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    prepareAnyParamTemporarys(params[1], c_param1, statement);
-    c_param3.prefer_result_expr := TRUE;
-    prepareAnyParamTemporarys(params[3], c_param3, statement);
-    if c_param3.result_expr <> "" then
-      if isNormalVariable(params[1]) then
-        statement.expr &:= "striType old_stri=";
+    if isActionExpression(params[3], "STR_CAT") and
+        getActionParameter(params[3], 1) = params[1] then
+      process_str_append(params[1], getActionParameter(params[3], 3), c_expr);
+    else
+      prepareAnyParamTemporarys(params[1], c_param1, statement);
+      if isActionExpression(params[3], "STR_HEAD") and
+          getActionParameter(params[3], 1) = params[1] then
         statement.expr &:= c_param1.expr;
-        statement.expr &:= ";\n";
+        statement.expr &:= "=strHeadTemp(";
         statement.expr &:= c_param1.expr;
-        statement.expr &:= "=";
-      else
-        statement.expr &:= "striType *stri_ptr=&(";
+        statement.expr &:= ", ";
+        process_expr(getActionParameter(params[3], 4), statement);
+        statement.expr &:= ");\n";
+      elsif isActionExpression(params[3], "STR_LOW") and
+          getActionParameter(params[3], 1) = params[1] then
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=strLowTemp(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ");\n";
-        statement.expr &:= "striType old_stri=*stri_ptr;\n";
-        statement.expr &:= "*stri_ptr=";
+      elsif isActionExpression(params[3], "STR_UP") and
+          getActionParameter(params[3], 1) = params[1] then
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=strUpTemp(";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ");\n";
+      else
+        c_param3.prefer_result_expr := TRUE;
+        prepareAnyParamTemporarys(params[3], c_param3, statement);
+        if c_param3.result_expr <> "" then
+          if isNormalVariable(params[1]) then
+            statement.expr &:= "striType old_stri=";
+            statement.expr &:= c_param1.expr;
+            statement.expr &:= ";\n";
+            statement.expr &:= c_param1.expr;
+            statement.expr &:= "=";
+          else
+            statement.expr &:= "striType *stri_ptr=&(";
+            statement.expr &:= c_param1.expr;
+            statement.expr &:= ");\n";
+            statement.expr &:= "striType old_stri=*stri_ptr;\n";
+            statement.expr &:= "*stri_ptr=";
+          end if;
+          statement.expr &:= c_param3.result_expr;
+          statement.expr &:= ";\n";
+          statement.expr &:= "strDestr(old_stri);\n";
+        else
+          statement.expr &:= "strCopy(&(";
+          statement.expr &:= c_param1.expr;
+          statement.expr &:= "), ";
+          statement.expr &:= c_param3.expr;
+          statement.expr &:= ");\n";
+        end if;
       end if;
-      statement.expr &:= c_param3.result_expr;
-      statement.expr &:= ";\n";
-      statement.expr &:= "strDestr(old_stri);\n";
-    else
-      statement.expr &:= "strCopy(&(";
-      statement.expr &:= c_param1.expr;
-      statement.expr &:= "), ";
-      statement.expr &:= c_param3.expr;
-      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
-    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -996,15 +1031,13 @@ const proc: process (STR_FOR, in reference: function,
   local
     var string: size_name is "";
     var string: index_name is "";
-    var string: char_name is "";
     var string: stri_name is "";
     var expr_type: statement is expr_type.value;
   begin
     size_name := defineTempVariable("memSizeType", "size_", statement);
     index_name := defineTempVariable("memSizeType", "index_", statement);
-    char_name := getParameterAsVariable("charType", "ch_", params[2], statement);
-    stri_name := getParameterAsVariable("const_striType", "stri_", params[4], statement);
     statement.expr &:= "for (";
+    stri_name := getParameterAsVariable("const_striType", "stri_", params[4], statement);
     statement.expr &:= size_name;
     statement.expr &:= "=";
     statement.expr &:= stri_name;
@@ -1017,7 +1050,7 @@ const proc: process (STR_FOR, in reference: function,
     statement.expr &:= "; (";
     statement.expr &:= index_name;
     statement.expr &:= ")++) {\n";
-    statement.expr &:= char_name;
+    process_expr(params[2], statement);
     statement.expr &:= "=";
     statement.expr &:= stri_name;
     statement.expr &:= "->mem[";

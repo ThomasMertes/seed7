@@ -804,6 +804,22 @@ objectType prc_if_elsif (listType arguments)
 
 
 
+objectType prc_if_noop (listType arguments)
+
+  {
+    objectType condition;
+
+  /* prc_if_noop */
+    isit_bool(arg_2(arguments));
+    condition = take_bool(arg_2(arguments));
+    if (condition != SYS_TRUE_OBJECT) {
+      evaluate(arg_4(arguments));
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_if_noop */
+
+
+
 objectType prc_include (listType arguments)
 
   {

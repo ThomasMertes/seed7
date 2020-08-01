@@ -282,7 +282,7 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
 int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
 
   {
-#if USE_UTIME_ORIG
+#if USE_UTIME_ORIG && defined os_utime_orig
     os_stat_struct stat_buf;
 #endif
     HANDLE filehandle;
@@ -296,7 +296,7 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
     logFunction(printf("alternate_utime(\"%ls\", "
                        "{actime=" FMT_T ", modtime=" FMT_T "})\n",
                        os_path, utime_buf->actime, utime_buf->modtime););
-#if USE_UTIME_ORIG
+#if USE_UTIME_ORIG && defined os_utime_orig
     result = os_utime_orig(os_path, utime_buf);
     logError(if (result != 0) {
                printf("alternate_utime: os_utime_orig(\"%ls\", ...) failed:\n"
@@ -363,7 +363,7 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
         } /* if */
         CloseHandle(filehandle);
       } /* if */
-#if USE_UTIME_ORIG
+#if USE_UTIME_ORIG && defined os_utime_orig
     } /* if */
 #endif
     logFunction(printf("alternate_utime --> %d\n", result););

@@ -1173,6 +1173,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_IF, function, params, c_expr);
       elsif action_name = "PRC_IF_ELSIF" then
         process(PRC_IF_ELSIF, function, params, c_expr);
+      elsif action_name = "PRC_IF_NOOP" then
+        process(PRC_IF_NOOP, function, params, c_expr);
       elsif action_name = "PRC_NOOP" then
         process(PRC_NOOP, function, params, c_expr);
       elsif action_name = "PRC_RAISE" then

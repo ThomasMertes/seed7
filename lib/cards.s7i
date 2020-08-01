@@ -1206,6 +1206,9 @@ const type: cardSuit is new enum
 const func string: str (in cardSuit: suit) is
   return [] ("clubs", "diamonds", "hearts", "spades") [succ(ord(suit))];
 
+const set of cardSuit: blackCardSuit is {clubs, spades};
+const set of cardSuit: redCardSuit is {diamonds, hearts};
+
 
 (**
  *  Describes the ranks of a french deck.

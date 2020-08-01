@@ -572,18 +572,18 @@ HOW TO USE THE GMP LIBRARY?
   Every makefile contains a line which defines the 'SYSTEM_LIBS'
   to be used when the 's7' interpreter is linked. E.g.:
 
-    SYSTEM_LIBS = -lm
+    SYSTEM_LIBS = -lm -ldl
 
   The next line starts with # (which means it is commented out)
   and additionally contains the command to add the gmp library:
 
-    # SYSTEM_LIBS = -lm -lgmp
+    # SYSTEM_LIBS = -lm -ldl -lgmp
 
   The old 'SYSTEM_LIBS' line needs to be commented out and the
   line which links also 'gmp' needs to be activated:
 
-    # SYSTEM_LIBS = -lm
-    SYSTEM_LIBS = -lm -lgmp
+    # SYSTEM_LIBS = -lm -ldl
+    SYSTEM_LIBS = -lm -ldl -lgmp
 
   There are also four lines which define which files contain
   the interface functions for bigInteger:

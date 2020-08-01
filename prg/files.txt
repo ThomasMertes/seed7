@@ -169,6 +169,7 @@ hashsetof.s7i Support for hashsets of a base type
 hmac.s7i     Hash-based message authentication code functions.
 html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
+http_response.s7i Support for HTTP responses.
 httpserv.s7i Support for HTTP server and HTTP requests.
 idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window

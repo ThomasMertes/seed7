@@ -11253,16 +11253,23 @@ const proc: check_string_assign is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
     var string: stri is "";
+    var string: stri2 is "";
   begin
     stri := "asdfghjkl";      ok := ok and stri = "asdfghjkl";
     stri := stri;             ok := ok and stri = "asdfghjkl";
     do_assign(stri, stri);    ok := ok and stri = "asdfghjkl";
     stri := stri[2 ..];       ok := ok and stri = "sdfghjkl";
+    stri2 := stri[.. 7];      ok := ok and stri2 = "sdfghjk";
     stri := stri[.. 7];       ok := ok and stri = "sdfghjk";
     stri := stri[2 .. 6];     ok := ok and stri = "dfghj";
     stri := stri[2 len 3];    ok := ok and stri = "fgh";
     stri := "asdfghjkl";      ok := ok and stri = "asdfghjkl";
     stri := stri[2 ..][.. 7]; ok := ok and stri = "sdfghjk";
+    stri := stri & "SDFGHJK"; ok := ok and stri = "sdfghjkSDFGHJK";
+    stri := "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
+    stri := lower(stri);      ok := ok and stri = "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz";
+    stri := "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
+    stri := upper(stri);      ok := ok and stri = "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ";
     if not ok then
       writeln(" ***** String assignment does not work correct.");
       okay := FALSE;

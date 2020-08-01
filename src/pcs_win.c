@@ -152,6 +152,17 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
         command_stri = os_command_stri;
       } /* if */
       /* fprintf(stderr, "\ncommand_stri=\"%ls\"\n", command_stri); */
+#ifdef USE_MODULE_NAME_FOR_CREATE_PROCESS
+      /* Pelles C cannot start the compiler (POCC.EXE) without this fix. */
+      {
+        os_charType *lastPathDelimiter;
+
+        lastPathDelimiter = os_stri_strrchr(command_stri, OS_PATH_DELIMITER);
+        if (lastPathDelimiter != NULL) {
+          command_stri = &lastPathDelimiter[1];
+        } /* if */
+      }
+#endif
       striSize = os_stri_strlen(command_stri);
       if (striSize > MAXIMUM_COMMAND_LINE_LENGTH - 2 ||
           &command_line[striSize] > beyondDest) {

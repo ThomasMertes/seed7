@@ -40,7 +40,7 @@ const integer: PHOTON_TORPEDOES    is 5;
 const integer: GALACTIC_RECORDS    is 6;
 
 const array string: description is [](
-   "Warp engines","Short range sensors","Long range sensors",
+    "Warp engines","Short range sensors","Long range sensors",
     "Phasers","Photon torpedoes","Galactic records");
 
 var integer: total_klingons is 0;

@@ -381,12 +381,19 @@ const proc:       if (in boolean: condition) then
                   (in ELSIF_PROC: elsifPart)
                   end if                               is action "PRC_IF_ELSIF";
 
+const proc:       if (in boolean: condition) then
+                  (in ELSIF_PROC: elsifPart)
+                  end if                               is action "PRC_IF_NOOP";
+
 const ELSIF_PROC: elsif (in boolean: condition) then
                     (in proc: statements)              is action "PRC_IF";
 
 const ELSIF_PROC: elsif (in boolean: condition) then
                     (in proc: statements)
                   (in ELSIF_PROC: elsifPart)           is action "PRC_IF_ELSIF";
+
+const ELSIF_PROC: elsif (in boolean: condition) then
+                  (in ELSIF_PROC: elsifPart)           is action "PRC_IF_NOOP";
 
 const ELSIF_PROC: else
                     (in void: elsePart)                is ELSIF_EMPTY;

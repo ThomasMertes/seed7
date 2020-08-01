@@ -25,6 +25,7 @@
 include "socket.s7i";
 include "listener.s7i";
 include "unicode.s7i";
+include "filesys.s7i";
 include "osfiles.s7i";
 include "time.s7i";
 include "bigfile.s7i";

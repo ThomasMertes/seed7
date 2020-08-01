@@ -59,10 +59,12 @@
 #define MAX_CSTRI_BUFFER_LEN 25
 #define IPOW_EXPONENTIATION_BY_SQUARING 1
 #define PRECISION_BUFFER_LEN 1000
-/* The 4 additional chars below are for: -1 . and \0. */
-#define FLT_DGTS_LEN DOUBLE_MAX_EXP10 + 4
-/* The 6 additional chars below are for: -1. e+ and \0. */
-#define FLT_SCI_LEN MAX_PRINTED_EXPONENT_DIGITS + 6
+/* The 3 additional chars below are for: "-1.". */
+#define FLT_DGTS_ADDITIONAL_CHARS STRLEN("-1.")
+#define FLT_DGTS_LEN (FLT_DGTS_ADDITIONAL_CHARS + DOUBLE_MAX_EXP10)
+/* The 5 additional chars below are for: "-1.e+". */
+#define FLT_SCI_ADDITIONAL_CHARS STRLEN("-1.e+")
+#define FLT_SCI_LEN (FLT_SCI_ADDITIONAL_CHARS + MAX_PRINTED_EXPONENT_DIGITS)
 
 #ifdef FLOAT_ZERO_DIV_ERROR
 const rtlValueUnion f_const[] =
@@ -376,11 +378,11 @@ void fltCpyGeneric (genericType *const dest, const genericType source)
 striType fltDgts (floatType number, intType precision)
 
   {
-    char buffer_1[PRECISION_BUFFER_LEN + FLT_DGTS_LEN];
+    char buffer_1[PRECISION_BUFFER_LEN + FLT_DGTS_LEN + NULL_TERMINATION_LEN];
     char *buffer = buffer_1;
     const_cstriType buffer_ptr;
-    /* The 5 additional chars below are for %1. f and \0. */
-    char form_buffer[INTTYPE_DECIMAL_SIZE + 5];
+    /* The 4 additional chars below are for "%1.f". */
+    char form_buffer[INTTYPE_DECIMAL_SIZE + STRLEN("%1.f") + NULL_TERMINATION_LEN];
     memSizeType pos;
     memSizeType len;
     striType result;
@@ -393,7 +395,8 @@ striType fltDgts (floatType number, intType precision)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else if (unlikely(precision > PRECISION_BUFFER_LEN &&
-                        !ALLOC_BYTES(buffer, precision + FLT_DGTS_LEN))) {
+                        ((uintType) precision > MAX_CSTRI_LEN - FLT_DGTS_LEN ||
+                        !ALLOC_CSTRI(buffer, (memSizeType) precision + FLT_DGTS_LEN)))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -423,11 +426,19 @@ striType fltDgts (floatType number, intType precision)
         } /* if */
 #endif
 #ifdef PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION
+        /* Some C run-time libraries do not have a fixed maximum   */
+        /* for the float precision of printf(). Instead the actual */
+        /* precision varies with each call of printf(). Up to a    */
+        /* precision of PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION       */
+        /* prinf() will always work ok.                            */
         if (precision > PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION) {
-          memset(&buffer[len], '0',
-                 (memSizeType) (precision - PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION));
-          len += (memSizeType) (precision - PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION);
-          buffer[len] = '\0';
+          pos = (memSizeType) (strchr(buffer, '.') - buffer);
+          if (precision >= len - pos) {
+            memSizeType numZeros = precision - (len - pos) + 1;
+            memset(&buffer[len], '0', numZeros);
+            len += numZeros;
+            buffer[len] = '\0';
+          } /* if */
         } /* if */
 #endif
         buffer_ptr = buffer;
@@ -450,7 +461,7 @@ striType fltDgts (floatType number, intType precision)
       } /* if */
       result = cstri_buf_to_stri(buffer_ptr, len);
       if (buffer != buffer_1) {
-        FREE_BYTES(buffer, precision + FLT_DGTS_LEN);
+        UNALLOC_CSTRI(buffer, (memSizeType) precision + FLT_DGTS_LEN);
       } /* if */
       if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
@@ -1006,11 +1017,11 @@ floatType fltRand (floatType low, floatType high)
 striType fltSci (floatType number, intType precision)
 
   {
-    char buffer_1[PRECISION_BUFFER_LEN + FLT_SCI_LEN];
+    char buffer_1[PRECISION_BUFFER_LEN + FLT_SCI_LEN + NULL_TERMINATION_LEN];
     char *buffer = buffer_1;
     const_cstriType buffer_ptr;
-    /* The 5 additional chars below are for %1. e and \0. */
-    char form_buffer[INTTYPE_DECIMAL_SIZE + 5];
+    /* The 4 additional chars below are for "%1.e". */
+    char form_buffer[INTTYPE_DECIMAL_SIZE + STRLEN("%1.e") + NULL_TERMINATION_LEN];
     memSizeType startPos;
     memSizeType pos;
     memSizeType len;
@@ -1025,7 +1036,8 @@ striType fltSci (floatType number, intType precision)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else if (unlikely(precision > PRECISION_BUFFER_LEN &&
-                        !ALLOC_BYTES(buffer, precision + FLT_SCI_LEN))) {
+                        ((uintType) precision > MAX_CSTRI_LEN - FLT_SCI_LEN ||
+                        !ALLOC_CSTRI(buffer, (memSizeType) precision + FLT_SCI_LEN)))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1055,13 +1067,19 @@ striType fltSci (floatType number, intType precision)
         } /* if */
 #endif
 #ifdef PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION
-        if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION) {
+        /* Some C run-time libraries do not have a fixed maximum   */
+        /* for the float precision of printf(). Instead the actual */
+        /* precision varies with each call of printf(). Up to a    */
+        /* precision of PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION       */
+        /* prinf() will always work ok.                            */
+        if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION &&
+            precision + FLT_SCI_LEN - (buffer[0] != '-') > len) {
+          memSizeType numZeros = precision +
+              FLT_SCI_LEN - (buffer[0] != '-') - len;
           pos = (memSizeType) (strchr(buffer, 'e') - buffer);
-          memmove(&buffer[pos + (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION)],
-                  &buffer[pos], len - pos + 1);
-          memset(&buffer[pos], '0',
-                 (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION));
-          len += (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION);
+          memmove(&buffer[pos + numZeros], &buffer[pos], len - pos + 1);
+          memset(&buffer[pos], '0', numZeros);
+          len += numZeros;
         } /* if */
 #endif
         startPos = 0;
@@ -1114,7 +1132,7 @@ striType fltSci (floatType number, intType precision)
       } /* if */
       result = cstri_buf_to_stri(buffer_ptr, len);
       if (buffer != buffer_1) {
-        FREE_BYTES(buffer, precision + FLT_SCI_LEN);
+        UNALLOC_CSTRI(buffer, (memSizeType) precision + FLT_SCI_LEN);
       } /* if */
       if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);

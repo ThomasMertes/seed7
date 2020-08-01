@@ -60,6 +60,7 @@ const func color: charColor (in char: ch, in color: background) is func
       when {'b'}: col := brown;
       when {'p'}: col := pink;
       when {'f'}: col := forestgreen;
+      when {'l'}: col := middle_blue;
       otherwise:  col := black;
     end case;
   end func;

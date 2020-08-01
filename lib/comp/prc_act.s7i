@@ -254,6 +254,65 @@ const proc: process (PRC_IF_ELSIF, in reference: function,
   end func;
 
 
+const proc: process_const_prc_if_noop (in boolean: condition, in reference: statement,
+    inout expr_type: c_expr) is func
+  local
+    var expr_type: c_statement is expr_type.value;
+  begin
+    incr(countOptimizations);
+    if condition then
+      c_expr.expr &:= "/* Optimized: elsif TRUE */\n";
+    else
+      c_expr.expr &:= "/* Optimized: elsif FALSE */ {\n";
+      process_expr(statement, c_statement);
+      process_statements(c_statement, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (PRC_IF_NOOP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_condition is expr_type.value;
+    var expr_type: c_else_part is expr_type.value;
+    var string: statementFile is "";
+    var integer: statementLine is 0;
+  begin
+    if getConstant(params[2], ENUMLITERALOBJECT, evaluatedParam) then
+      process_const_prc_if_noop(getValue(evaluatedParam, boolean),
+          params[4], c_expr);
+    else
+      process_expr(params[2], c_condition);
+      c_else_part.temp_num := c_condition.temp_num;
+      process_else(params[4], TRUE, c_else_part);
+      if c_else_part.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        appendWithDiagnostic(c_condition.temp_decls, c_expr);
+        appendWithDiagnostic(c_else_part.temp_decls, c_expr);
+        appendWithDiagnostic(c_condition.temp_assigns, c_expr);
+        appendWithDiagnostic(c_else_part.temp_assigns, c_expr);
+      end if;
+      statementFile := c_expr.currentFile;
+      statementLine := c_expr.currentLine;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (";
+      c_expr.expr &:= c_condition.expr;
+      c_expr.expr &:= ") { /* noop */ } ";
+      c_expr.expr &:= c_else_part.expr;
+      if c_else_part.temp_num <> 0 then
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        appendWithDiagnostic(c_condition.temp_frees, c_expr);
+        appendWithDiagnostic(c_else_part.temp_frees, c_expr);
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process (PRC_WHILE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

@@ -1,0 +1,268 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  http_response.s7i  Support for HTTP responses.                  *)
+(*  Copyright (C) 2009 - 2017  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "httpserv.s7i";
+include "filesys.s7i";
+include "shell.s7i";
+
+
+const type: httpResposeData is new struct
+    var string: htdocs is "";
+    var string: cgiBin is "";
+    var fileSys: backendSys is fileSys.value;
+  end struct;
+
+
+const func httpResposeData: httpResposeData (in string: htdocs, in string: cgiBin,
+    inout fileSys: backendSys) is func
+  result
+    var httpResposeData: responseData is httpResposeData.value;
+  begin
+    responseData.htdocs := htdocs;
+    responseData.cgiBin := cgiBin;
+    responseData.backendSys := backendSys;
+  end func;
+
+
+const proc: sendHttpResponse (inout file: sock, in string: content,
+    in var string: contentType, in array string: header) is func
+  local
+    var string: line is "";
+    var string: status is "";
+    var string: response is "";
+  begin
+    # writeln("sendHttpResponse: len=" <& length(content) <& " " <& contentType);
+    for line range header do
+      if startsWith(line, "Status") then
+        status := trim(line[succ(pos(line, ":")) ..]);
+      elsif startsWith(line, "Content-Type") then
+        contentType := trim(line[succ(pos(line, ":")) ..]);
+      end if;
+    end for;
+    if status = "" then
+      response &:= "HTTP/1.1 200 OK\r\n";
+    else
+      response &:= "HTTP/1.1 " <& status <& "\r\n";
+    end if;
+    response &:= "Server: Comanche\r\n";
+    # response &:= "Transfer-Encoding: identity\r\n";
+    response &:= "Cache-Control: max-age=259200\r\n";
+    if contentType <> "" then
+      response &:= "Content-Type: " <& contentType <& "\r\n";
+    elsif startsWith(content, "\137;PNG") then
+      response &:= "Content-Type: image/png\r\n";
+    elsif pos(content, "<html") = 0 then
+      response &:= "Content-Type: text/html\r\n";
+    else
+      response &:= "Content-Type: text/plain\r\n";
+    end if;
+    # writeln("Content-Length: " <& length(content));
+    response &:= "Content-Length: " <& length(content) <& "\r\n";
+    for line range header do
+      if not startsWith(line, "Content-Type") and
+          not startsWith(line, "Connection") then
+        response &:= line <& "\r\n";
+      end if;
+    end for;
+    response &:= "Connection: keep-alive\r\n";
+    response &:= "\r\n";
+    response &:= content;
+    block
+      write(sock, response);
+    exception
+      catch FILE_ERROR: close(sock);
+    end block;
+  end func;
+
+
+const proc: sendClientError (inout file: sock, in integer: statuscode,
+    in string: message, in string: explanation) is func
+  local
+    var string: response is "";
+    var string: htmlMessage is "";
+  begin
+    htmlMessage := "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n\
+                   \<html><head>\n\
+                   \<title>" <& statuscode <& " " <& message <& "</title>\n\
+                   \</head><body>\n\
+                   \<h1>" <& message <& "</h1>\n\
+                   \<p>" <& explanation <& "</p>\n\
+                   \<hr>\n\
+                   \<address>Comanche</address>\n\
+                   \</body></html>\n";
+    response &:= "HTTP/1.1 " <& statuscode <& " " <& message <& "\r\n";
+    response &:= "Server: Comanche\r\n";
+    response &:= "Transfer-Encoding: identity\r\n";
+    response &:= "Content-Length: " <& length(htmlMessage) <& "\r\n";
+    response &:= "Content-Type: text/html\r\n";
+    response &:= "\r\n";
+    response &:= htmlMessage;
+    write(sock, response);
+  end func;
+
+
+const func string: callCgi (in httpResposeData: responseData, in string: filePath,
+    in string: queryParams, in string: postParams, in string: cookies,
+    inout array string: header) is func
+  result
+    var string: response is "";
+  local
+    var string: cgiPath is "";
+    var string: tempName is "";
+    var file: cgiInput is STD_NULL;
+    var file: cgiOutput is STD_NULL;
+    var string: line is "";
+  begin
+    # writeln("CGI " <& filePath <& " " <& queryParams);
+    # writeln(postParams);
+    cgiPath := toStdPath(responseData.cgiBin & filePath[9 ..]);
+    setenv("QUERY_STRING", queryParams);
+    setenv("HTTP_COOKIE", cookies);
+    tempName := "cgiInput_" & str(rand(0, 99999));
+    cgiInput := open(tempName, "w");
+    writeln(cgiInput, postParams);
+    # writeln(cgiInput, "*");
+    # writeln(cgiInput, "*");
+    close(cgiInput);
+    if endsWith(cgiPath, ".sd7") then
+      cgiOutput := popen("./s7 -q " <& cgiPath & " < " & tempName, "r");
+    else
+      cgiOutput := popen(cgiPath & " < " & tempName, "r");
+    end if;
+    if cgiOutput <> STD_NULL then
+      line := getln(cgiOutput);
+      while line <> "" do
+        # writeln(line);
+        header &:= [] (line);
+        line := getln(cgiOutput);
+      end while;
+      # writeln;
+      response := gets(cgiOutput, 999999999);
+      # writeln(length(response));
+      # writeln(literal(response));
+      close(cgiOutput);
+      removeFile(tempName);
+    end if;
+    if response = "" then
+      header &:= "Status: 404 Not Found";
+      header &:= "Content-Type: text/html";
+      response := "<html><head>\n\
+                  \<title>CGI Error</title>\n\
+                  \</head><body>\n\
+                  \<h1>CGI Error</h1>\n\
+                  \<p>The requested CGI script " <& filePath <&
+                  " could not be executed or did not produce any output.</p>\n\
+                  \<p>Query params: " <& queryParams <& "</p>\n\
+                  \<p>Post params: " <& postParams <& "</p>\n\
+                  \<hr>\n\
+                  \<address>Comanche</address>\n\
+                  \</body></html>\n";
+    end if;
+  end func;
+
+
+const proc: processGet (inout httpResposeData: responseData,
+    inout httpRequest: request) is func
+  local
+    var string: filePath is "";
+    var string: cookies is "";
+    var array string: cgiHeader is 0 times "";
+    var string: buffer is "";
+    var string: contentType is "";
+  begin
+    # writeln("GET " <& request.path);
+    if "Cookie" in request.properties then
+      cookies := request.properties["Cookie"];
+    end if;
+    if startsWith(request.path, "/cgi-bin/") then
+      buffer := callCgi(responseData, request.path, request.queryStri,
+                        "", cookies, cgiHeader);
+      if buffer <> "" then
+        sendHttpResponse(request.sock, buffer, "", cgiHeader);
+      end if;
+    else
+      filePath := toStdPath(responseData.htdocs & "/" & request.path);
+      # writeln(literal(filePath));
+      if fileType(responseData.backendSys, filePath) = FILE_ABSENT then
+        if fileType(responseData.backendSys, filePath & ".html") <> FILE_ABSENT then
+          filePath &:= ".html";
+        elsif fileType(responseData.backendSys, filePath & ".htm") <> FILE_ABSENT then
+          filePath &:= ".htm";
+        end if;
+      elsif fileType(responseData.backendSys, filePath) = FILE_DIR then
+        if fileType(responseData.backendSys, filePath & "/index.html") <> FILE_ABSENT then
+          filePath &:= "/index.html";
+        elsif fileType(responseData.backendSys, filePath & "/index.htm") <> FILE_ABSENT then
+          filePath &:= "/index.htm";
+        end if;
+      end if;
+      if fileType(responseData.backendSys, filePath) = FILE_REGULAR then
+        buffer := getFile(responseData.backendSys, filePath);
+      else
+        buffer := "";
+      end if;
+      if buffer <> "" then
+        if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
+          contentType := "text/html";
+        end if;
+        sendHttpResponse(request.sock, buffer, contentType, 0 times "");
+      end if;
+    end if;
+    if buffer = "" then
+      sendClientError(request.sock, 404, "Not Found",
+          "The requested URL " <& request.path <&
+          " was not found on this server.");
+    end if;
+  end func;
+
+
+const proc: processPost (in httpResposeData: responseData,
+    inout httpRequest: request) is func
+  local
+    var string: cookies is "";
+    var array string: cgiHeader is 0 times "";
+    var string: buffer is "";
+  begin
+    # writeln("POST " <& request.path);
+    # writeln("queryStri: " <& request.queryStri);
+    # writeln("postParams: " <& request.body);
+    if "Cookie" in request.properties then
+      cookies := request.properties["Cookie"];
+    end if;
+    if startsWith(request.path, "/cgi-bin/") then
+      buffer := callCgi(responseData, request.path, request.queryStri,
+                        request.body, cookies, cgiHeader);
+    end if;
+    if buffer <> "" then
+      sendHttpResponse(request.sock, buffer, "", cgiHeader);
+    else
+      sendClientError(request.sock, 404, "Not Found",
+          "The requested URL " <& request.path <&
+          " was not found on this server.");
+    end if;
+  end func;

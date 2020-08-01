@@ -2162,8 +2162,8 @@ striType strHead (const const_striType stri, const intType stop)
 
   {
     memSizeType striSize;
-    memSizeType result_size;
-    striType result;
+    memSizeType headSize;
+    striType head;
 
   /* strHead */
     logFunction(printf("strHead(\"%s\", " FMT_D ")",
@@ -2172,25 +2172,25 @@ striType strHead (const const_striType stri, const intType stop)
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
       if (striSize <= (uintType) stop) {
-        result_size = striSize;
+        headSize = striSize;
       } else {
-        result_size = (memSizeType) stop;
+        headSize = (memSizeType) stop;
       } /* if */
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(head, headSize))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = result_size;
-        memcpy(result->mem, stri->mem, result_size * sizeof(strElemType));
+        head->size = headSize;
+        memcpy(head->mem, stri->mem, headSize * sizeof(strElemType));
       } /* if */
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(head, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = 0;
+        head->size = 0;
       } /* if */
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
-    return result;
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(head)););
+    return head;
   } /* strHead */
 
 
@@ -2207,8 +2207,8 @@ striType strHeadTemp (const striType stri, const intType stop)
 
   {
     memSizeType striSize;
-    memSizeType result_size;
-    striType result;
+    memSizeType headSize;
+    striType head;
 
   /* strHeadTemp */
     striSize = stri->size;
@@ -2216,37 +2216,49 @@ striType strHeadTemp (const striType stri, const intType stop)
       if (striSize <= (uintType) stop) {
         return stri;
       } else {
-        result_size = (memSizeType) stop;
+        headSize = (memSizeType) stop;
       } /* if */
     } else {
-      result_size = 0;
+      headSize = 0;
     } /* if */
 #ifdef WITH_STRI_CAPACITY
-    if (!SHRINK_REASON(stri, result_size)) {
-      COUNT3_STRI(striSize, result_size);
-      result = stri;
-      result->size = result_size;
+    if (!SHRINK_REASON(stri, headSize)) {
+      COUNT3_STRI(striSize, headSize);
+      head = stri;
+      head->size = headSize;
     } else {
-      result = shrinkStri(stri, result_size);
-      if (unlikely(result == NULL)) {
-        FREE_STRI(stri, stri->size);
+      head = shrinkStri(stri, headSize);
+      if (unlikely(head == NULL)) {
+        /* Theoretical shrinking a memory area should never fail.  */
+        /* For the strange case that it fails we keep stri intact  */
+        /* to avoid a heap corruption. Consider this expression:   */
+        /* aString = strHeadTemp(aString, anIndex);                */
+        /* In compiled programs the assignment to aString would be */
+        /* skipped because raise_error triggers a longjmp().       */
+        /* Therefore stri would keep the old value.                */
+        /* When shrinking a memory area fails with the expression: */
+        /* strHeadTemp(anExpression, anIndex)                      */
+        /* the result of anExpression is not freed (memory leak).  */
+        /* FREE_STRI(stri, stri->size); */
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT3_STRI(striSize, result_size);
-        result->size = result_size;
+        COUNT3_STRI(striSize, headSize);
+        head->size = headSize;
       } /* if */
     } /* if */
 #else
-    SHRINK_STRI(result, stri, striSize, result_size);
-    if (unlikely(result == NULL)) {
-      FREE_STRI(stri, stri->size);
+    SHRINK_STRI(head, stri, striSize, headSize);
+    if (unlikely(head == NULL)) {
+      /* Theoretical shrinking a memory area should never fail.  */
+      /* See above for a description of this situation.          */
+      /* FREE_STRI(stri, stri->size); */
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT3_STRI(striSize, result_size);
-      result->size = result_size;
+      COUNT3_STRI(striSize, headSize);
+      head->size = headSize;
     } /* if */
 #endif
-    return result;
+    return head;
   } /* strHeadTemp */
 
 
@@ -3897,8 +3909,8 @@ striType strTail (const const_striType stri, intType start)
 
   {
     memSizeType striSize;
-    memSizeType result_size;
-    striType result;
+    memSizeType tailSize;
+    striType tail;
 
   /* strTail */
     striSize = stri->size;
@@ -3906,8 +3918,8 @@ striType strTail (const const_striType stri, intType start)
       start = 1;
     } /* if */
     if ((uintType) start <= striSize && striSize >= 1) {
-      result_size = striSize - (memSizeType) start + 1;
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+      tailSize = striSize - (memSizeType) start + 1;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(tail, tailSize))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -3917,17 +3929,17 @@ striType strTail (const const_striType stri, intType start)
       /* large memory model (-AL). Note that the order of the   */
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
-      memcpy(result->mem, &stri->mem[start - 1],
-             result_size * sizeof(strElemType));
-      result->size = result_size;
+      memcpy(tail->mem, &stri->mem[start - 1],
+             tailSize * sizeof(strElemType));
+      tail->size = tailSize;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(tail, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = 0;
+        tail->size = 0;
       } /* if */
     } /* if */
-    return result;
+    return tail;
   } /* strTail */
 
 

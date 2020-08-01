@@ -39,6 +39,9 @@
 #include "sys/stat.h"
 #include "windows.h"
 #include "io.h"
+#ifdef OS_STRI_WCHAR
+#include "wchar.h"
+#endif
 #include "time.h"
 #include "errno.h"
 
@@ -55,7 +58,11 @@
 #define WINDOWS_TICK UINT64_SUFFIX(10000000)
 
 #ifdef DEFINE_OS_STAT_ORIG_PROTOTYPE
-extern C int __cdecl os_stat_orig (const_os_striType path, os_stat_struct *statBuf);
+#ifdef C_PLUS_PLUS
+extern "C" int __cdecl os_stat_orig (const_os_striType path, os_stat_struct *statBuf);
+#else
+extern int __cdecl os_stat_orig (const_os_striType path, os_stat_struct *statBuf);
+#endif
 #endif
 
 
@@ -86,6 +93,7 @@ static time_t fileTime2UnixTime (const FILETIME *fileTime)
 
 
 
+#ifdef os_stat_orig
 /**
  *  Undo the time adjustments done by a windows stat() function.
  *  The windows stat() functions (_wstati64, ...) return adjusted
@@ -139,6 +147,7 @@ static time_t correctAdjustedUnixTime (time_t time)
     } /* if */
     return fileTime2UnixTime(&fileTime);
   } /* correctAdjustedUnixTime */
+#endif
 
 
 /**

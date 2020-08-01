@@ -126,6 +126,8 @@ EXTERN stackAllocType   stack_alloc;
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef EMULATE_ROOT_CWD
+/* Assume that drive letters are used only with a backslash as path delimiter. */
+#define OS_PATH_DELIMITER '\\'
 extern const_os_striType current_emulated_cwd;
 #endif
 extern const os_charType emulated_root[];

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_rtl.c     Functions for the built-in bigInteger support.    */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2017  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -51,7 +51,7 @@
 #include "big_drv.h"
 
 
-#define KARATSUBA_THRESHOLD 32
+#define KARATSUBA_MULT_THRESHOLD 32
 #define KARATSUBA_SQUARE_THRESHOLD 32
 #define OCTAL_DIGIT_BITS 3
 
@@ -977,24 +977,19 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     if (negative) {
       unsigned_big = alloc_positive_copy_of_negative_big(big1);
-      unsigned_size = unsigned_big->size;
-      while (unsigned_size > 1 && unsigned_big->bigdigits[unsigned_size - 1] == 0) {
-        unsigned_size--;
-      } /* while */
     } else {
       unsigned_big = big1;
-      if (big1->size > 1 && big1->bigdigits[big1->size - 1] == 0) {
-        unsigned_size = big1->size - 1;
-      } else {
-        unsigned_size = big1->size;
-      } /* if */
     } /* if */
-    /* Unsigned_size is reduced to avoid a leading zero digit.        */
-    /* Except for the value 0 unsigned_big has no leading zero digit. */
     if (unlikely(unsigned_big == NULL)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
+      unsigned_size = unsigned_big->size;
+      /* Unsigned_size is reduced to avoid a leading zero digit.        */
+      /* Except for the value 0 unsigned_big has no leading zero digit. */
+      while (unsigned_size > 1 && unsigned_big->bigdigits[unsigned_size - 1] == 0) {
+        unsigned_size--;
+      } /* while */
       if (unlikely((MAX_STRI_LEN <= (MAX_MEMSIZETYPE - 1) / shift +
                                     (unsigned int) negative + 1 &&
                    unsigned_size > ((MAX_STRI_LEN - (unsigned int) negative - 1) *
@@ -2099,6 +2094,7 @@ static void uBigDigitAddTo (bigDigitType *const big1,  const memSizeType size1,
 
 
 
+#ifdef OUT_OF_ORDER
 static void uBigDigitMult (const bigDigitType *const factor1,
     const bigDigitType *const factor2, const memSizeType size,
     bigDigitType *const product)
@@ -2118,7 +2114,9 @@ static void uBigDigitMult (const bigDigitType *const factor1,
       pos2 = 0;
       do {
         prod = (doubleBigDigitType) factor1[pos2] * factor2[pos1 - pos2];
-        carry2 += carry > (doubleBigDigitType) ~prod ? 1 : 0;
+        if (unlikely(carry > (doubleBigDigitType) ~prod)) {
+          carry2++;
+        } /* if */
         carry += prod;
         pos2++;
       } while (pos2 <= pos1);
@@ -2131,7 +2129,9 @@ static void uBigDigitMult (const bigDigitType *const factor1,
       pos2 = pos1 - size + 1;
       do {
         prod = (doubleBigDigitType) factor1[pos2] * factor2[pos1 - pos2];
-        carry2 += carry > (doubleBigDigitType) ~prod ? 1 : 0;
+        if (unlikely(carry > (doubleBigDigitType) ~prod)) {
+          carry2++;
+        } /* if */
         carry += prod;
         pos2++;
       } while (pos2 < size);
@@ -2141,6 +2141,41 @@ static void uBigDigitMult (const bigDigitType *const factor1,
       carry2 >>= BIGDIGIT_SIZE;
     } /* for */
     product[pos1] = (bigDigitType) (carry & BIGDIGIT_MASK);
+  } /* uBigDigitMult */
+#endif
+
+
+
+static void uBigDigitMult (const bigDigitType *const factor1,
+    const bigDigitType *const factor2, const memSizeType size,
+    bigDigitType *const product)
+
+  {
+    memSizeType pos1;
+    memSizeType pos2;
+    doubleBigDigitType carry = 0;
+
+  /* uBigDigitMult */
+    pos2 = 0;
+    do {
+      carry += (doubleBigDigitType) factor1[0] * factor2[pos2];
+      product[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+      carry >>= BIGDIGIT_SIZE;
+      pos2++;
+    } while (pos2 < size);
+    product[size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    for (pos1 = 1; pos1 < size; pos1++) {
+      carry = 0;
+      pos2 = 0;
+      do {
+        carry += (doubleBigDigitType) product[pos1 + pos2] +
+            (doubleBigDigitType) factor1[pos1] * factor2[pos2];
+        product[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+        pos2++;
+      } while (pos2 < size);
+      product[pos1 + size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    } /* for */
   } /* uBigDigitMult */
 
 
@@ -2154,7 +2189,8 @@ static void uBigKaratsubaMult (const bigDigitType *const factor1,
     memSizeType sizeHi;
 
   /* uBigKaratsubaMult */
-    if (size < KARATSUBA_THRESHOLD) {
+    /* printf("uBigKaratsubaMult: size=" FMT_U_MEM "\n", size); */
+    if (size < KARATSUBA_MULT_THRESHOLD) {
       uBigDigitMult(factor1, factor2, size, product);
     } else {
       sizeHi = size >> 1;
@@ -2233,7 +2269,7 @@ static void uBigKaratsubaSquare (const bigDigitType *const big1,
     memSizeType sizeHi;
 
   /* uBigKaratsubaSquare */
-    logFunction(printf("uBigKaratsubaSquare: size=" FMT_U_MEM "\n", size););
+    /* printf("uBigKaratsubaSquare: size=" FMT_U_MEM "\n", size);); */
     if (size < KARATSUBA_SQUARE_THRESHOLD) {
       uBigDigitSquare(big1, size, square);
     } else {
@@ -2356,6 +2392,7 @@ static void uBigMultNegativeWithNegatedDigit (const const_bigIntType factor1,
 
 
 
+#ifdef OUT_OF_ORDER
 static void uBigMult (const_bigIntType factor1, const_bigIntType factor2,
     const bigIntType product)
 
@@ -2387,7 +2424,9 @@ static void uBigMult (const_bigIntType factor1, const_bigIntType factor2,
         pos2 = 0;
         do {
           prod = (doubleBigDigitType) factor1->bigdigits[pos2] * factor2->bigdigits[pos1 - pos2];
-          carry2 += carry > (doubleBigDigitType) ~prod ? 1 : 0;
+          if (unlikely(carry > (doubleBigDigitType) ~prod)) {
+            carry2++;
+          } /* if */
           carry += prod;
           pos2++;
         } while (pos2 <= pos1);
@@ -2400,7 +2439,9 @@ static void uBigMult (const_bigIntType factor1, const_bigIntType factor2,
         pos2 = pos1 - factor2->size + 1;
         do {
           prod = (doubleBigDigitType) factor1->bigdigits[pos2] * factor2->bigdigits[pos1 - pos2];
-          carry2 += carry > (doubleBigDigitType) ~prod ? 1 : 0;
+          if (unlikely(carry > (doubleBigDigitType) ~prod)) {
+            carry2++;
+          } /* if */
           carry += prod;
           pos2++;
         } while (pos2 <= pos1);
@@ -2413,7 +2454,9 @@ static void uBigMult (const_bigIntType factor1, const_bigIntType factor2,
         pos2 = pos1 - factor2->size + 1;
         do {
           prod = (doubleBigDigitType) factor1->bigdigits[pos2] * factor2->bigdigits[pos1 - pos2];
-          carry2 += carry > (doubleBigDigitType) ~prod ? 1 : 0;
+          if (unlikely(carry > (doubleBigDigitType) ~prod)) {
+            carry2++;
+          } /* if */
           carry += prod;
           pos2++;
         } while (pos2 < factor1->size);
@@ -2425,6 +2468,7 @@ static void uBigMult (const_bigIntType factor1, const_bigIntType factor2,
     } /* if */
     product->bigdigits[pos1] = (bigDigitType) (carry & BIGDIGIT_MASK);
   } /* uBigMult */
+#endif
 
 
 
@@ -2435,6 +2479,7 @@ static void uBigMult (const const_bigIntType factor1, const const_bigIntType fac
   {
     memSizeType pos1;
     memSizeType pos2;
+    memSizeType pos3;
     doubleBigDigitType carry;
     doubleBigDigitType carry2 = 0;
     doubleBigDigitType prod;
@@ -2462,7 +2507,9 @@ static void uBigMult (const const_bigIntType factor1, const const_bigIntType fac
         /* A subtraction can be replaced by adding the negated    */
         /* value: carry > DOUBLEBIGDIGIT_MASK + ~prod + 1. This   */
         /* can be simplified to carry > ~prod.                    */
-        carry2 += carry > ~prod ? 1 : 0;
+        if (unlikely(carry > (doubleBigDigitType) ~prod)) {
+          carry2++;
+        } /* if */
         carry += prod;
         pos2++;
       } while (pos2 < pos3);
@@ -2477,7 +2524,6 @@ static void uBigMult (const const_bigIntType factor1, const const_bigIntType fac
 
 
 
-#ifdef OUT_OF_ORDER
 static void uBigMult (const const_bigIntType factor1, const const_bigIntType factor2,
     const bigIntType product)
 
@@ -2508,7 +2554,6 @@ static void uBigMult (const const_bigIntType factor1, const const_bigIntType fac
       product->bigdigits[pos1 + factor2->size] = (bigDigitType) (carry & BIGDIGIT_MASK);
     } /* for */
   } /* uBigMult */
-#endif
 
 
 
@@ -2563,6 +2608,10 @@ static void bigMultAssign1 (bigIntType *const big_variable, bigDigitType factor_
 
 
 
+/**
+ *  Multiply two unsigned big integers with the Karatsuba multiplication.
+ *  @return the product or NULL, when there is not enough memory.
+ */
 static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
     const boolType negative)
 
@@ -2573,7 +2622,10 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
     bigIntType product;
 
   /* uBigMultK */
-    if (factor1->size >= KARATSUBA_THRESHOLD && factor2->size >= KARATSUBA_THRESHOLD) {
+    logFunction(printf("uBigMultK(size= " FMT_U_MEM ", size=" FMT_U_MEM ", *)\n",
+                       factor1->size, factor2->size););
+    if (factor1->size >= KARATSUBA_MULT_THRESHOLD &&
+        factor2->size >= KARATSUBA_MULT_THRESHOLD) {
       if (factor2->size > factor1->size) {
         help_big = factor1;
         factor1 = factor2;
@@ -2581,8 +2633,7 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
       } /* if */
       if (factor2->size << 1 <= factor1->size) {
         if (unlikely(!ALLOC_BIG_SIZE_OK(factor2_help, factor1->size - (factor1->size >> 1)))) {
-          raise_error(MEMORY_ERROR);
-          return NULL;
+          product = NULL;
         } else {
           factor2_help->size = factor1->size - (factor1->size >> 1);
           memcpy(factor2_help->bigdigits, factor2->bigdigits,
@@ -2590,12 +2641,11 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
           memset(&factor2_help->bigdigits[factor2->size], 0,
                  (size_t) (factor2_help->size - factor2->size) * sizeof(bigDigitType));
           factor2 = factor2_help;
-          if (unlikely(!ALLOC_BIG(product, (factor1->size >> 1) + (factor2->size << 1)))) {
-            raise_error(MEMORY_ERROR);
-          } else {
+          if (likely(ALLOC_BIG(product, (factor1->size >> 1) + (factor2->size << 1)))) {
             product->size = (factor1->size >> 1) + (factor2->size << 1);
             if (unlikely(!ALLOC_BIG(temp, factor1->size << 2))) {
-              raise_error(MEMORY_ERROR);
+              FREE_BIG(product, (factor1->size >> 1) + (factor2->size << 1));
+              product = NULL;
             } else {
               uBigKaratsubaMult(factor1->bigdigits, factor2->bigdigits,
                                 factor1->size >> 1, product->bigdigits, temp->bigdigits);
@@ -2618,8 +2668,7 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
         } /* if */
       } else {
         if (unlikely(!ALLOC_BIG_SIZE_OK(factor2_help, factor1->size))) {
-          raise_error(MEMORY_ERROR);
-          return NULL;
+          product = NULL;
         } else {
           factor2_help->size = factor1->size;
           memcpy(factor2_help->bigdigits, factor2->bigdigits,
@@ -2627,11 +2676,10 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
           memset(&factor2_help->bigdigits[factor2->size], 0,
                  (size_t) (factor2_help->size - factor2->size) * sizeof(bigDigitType));
           factor2 = factor2_help;
-          if (unlikely(!ALLOC_BIG(product, factor1->size << 1))) {
-            raise_error(MEMORY_ERROR);
-          } else {
+          if (likely(ALLOC_BIG(product, factor1->size << 1))) {
             if (unlikely(!ALLOC_BIG(temp, factor1->size << 2))) {
-              raise_error(MEMORY_ERROR);
+              FREE_BIG(product, factor1->size << 1);
+              product = NULL;
             } else {
               uBigKaratsubaMult(factor1->bigdigits, factor2->bigdigits,
                   factor1->size, product->bigdigits, temp->bigdigits);
@@ -2647,9 +2695,7 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
         } /* if */
       } /* if */
     } else {
-      if (unlikely(!ALLOC_BIG(product, factor1->size + factor2->size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
+      if (likely(ALLOC_BIG(product, factor1->size + factor2->size))) {
         product->size = factor1->size + factor2->size;
         uBigMult(factor1, factor2, product);
         if (negative) {
@@ -2658,11 +2704,16 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
         product = normalize(product);
       } /* if */
     } /* if */
+    logFunction(printf("uBigMultK -> size= " FMT_U_MEM "\n", product->size););
     return product;
   } /* uBigMultK */
 
 
 
+/**
+ *  Square an unsigned big integer with the Karatsuba multiplication.
+ *  @return the square or NULL, when there is not enough memory.
+ */
 static bigIntType uBigSquareK (const_bigIntType big1)
 
   {
@@ -2670,12 +2721,13 @@ static bigIntType uBigSquareK (const_bigIntType big1)
     bigIntType square;
 
   /* uBigSquareK */
+    logFunction(printf("uBigSquareK(size= " FMT_U_MEM ")\n",
+                       big1->size););
     if (big1->size >= KARATSUBA_SQUARE_THRESHOLD) {
-      if (unlikely(!ALLOC_BIG(square, big1->size << 1))) {
-        raise_error(MEMORY_ERROR);
-      } else {
+      if (likely(ALLOC_BIG(square, big1->size << 1))) {
         if (unlikely(!ALLOC_BIG(temp, big1->size << 2))) {
-          raise_error(MEMORY_ERROR);
+          FREE_BIG(square, big1->size << 1);
+          square = NULL;
         } else {
           uBigKaratsubaSquare(big1->bigdigits, big1->size,
               square->bigdigits, temp->bigdigits);
@@ -2685,139 +2737,15 @@ static bigIntType uBigSquareK (const_bigIntType big1)
         } /* if */
       } /* if */
     } else {
-      if (unlikely(!ALLOC_BIG(square, big1->size + big1->size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
+      if (likely(ALLOC_BIG(square, big1->size + big1->size))) {
         square->size = big1->size + big1->size;
         uBigDigitSquare(big1->bigdigits, big1->size, square->bigdigits);
         square = normalize(square);
       } /* if */
     } /* if */
+    logFunction(printf("uBigSquareK -> size= " FMT_U_MEM "\n", square->size););
     return square;
   } /* uBigSquareK */
-
-
-
-/**
- *  Returns the product of factor1 by factor2 for nonnegative big integers.
- *  The result is written into big_help (which is a scratch variable
- *  and is assumed to contain enough memory). Before returning the
- *  result the variable factor1 is assigned to big_help. This way it is
- *  possible to write number = uBigMultIntoHelp(number, base, &big_help).
- *  Note that the old number is in the scratch variable big_help
- *  afterwards.
- */
-static bigIntType uBigMultIntoHelp (const bigIntType factor1,
-    const const_bigIntType factor2, bigIntType *const big_help)
-
-  {
-    memSizeType pos1;
-    bigDigitType digit;
-    bigIntType product;
-
-  /* uBigMultIntoHelp */
-    logFunction(printf("uBigMultIntoHelp(factor1->size=" FMT_U_MEM
-                       ", factor2->size=" FMT_U_MEM ")\n",
-                       factor1->size, factor2->size););
-    product = *big_help;
-    uBigMult(factor1, factor2, product);
-    pos1 = factor1->size + factor2->size;
-    pos1--;
-    digit = product->bigdigits[pos1];
-    if (digit == 0) {
-      do {
-        pos1--;
-        digit = product->bigdigits[pos1];
-      } while (pos1 > 0 && digit == 0);
-      if (IS_NEGATIVE(digit)) {
-        pos1++;
-      } /* if */
-    } /* if */
-    pos1++;
-    product->size = pos1;
-    *big_help = factor1;
-    logFunction(printf("uBigMultIntoHelp(factor1->size=" FMT_U_MEM
-                       ", factor2->size=" FMT_U_MEM ") --> product->size=" FMT_U_MEM "\n",
-                       factor1->size, factor2->size, product->size););
-    return product;
-  } /* uBigMultIntoHelp */
-
-
-
-/**
- *  Returns the square of the nonnegative big integer big1. The square
- *  is written into big_help (which is a scratch variable and is
- *  assumed to contain enough memory). Before returning the square
- *  the variable big1 is assigned to big_help. This way it is possible
- *  to square a given base with base = uBigSquare(base, &big_help).
- *  Note that the old base is in the scratch variable big_help
- *  afterwards. This squaring algorithm takes into account that
- *  digit1 * digit2 + digit2 * digit1 == (digit1 * digit2) << 1.
- *  This reduces the number of multiplications approx. by factor 2.
- *  Unfortunately one bit more than sizeof(doubleBigDigitType) is
- *  needed to store the shifted product. Therefore extra effort is
- *  necessary to avoid an overflow.
- */
-static bigIntType uBigSquare (const bigIntType big1, bigIntType *big_help)
-
-  {
-    memSizeType pos1;
-    memSizeType pos2;
-    doubleBigDigitType carry;
-    doubleBigDigitType product;
-    bigDigitType digit;
-    bigIntType square;
-
-  /* uBigSquare */
-    logFunction(printf("uBigSquare(big1->size=" FMT_U_MEM ")\n", big1->size););
-    square = *big_help;
-    digit = big1->bigdigits[0];
-    carry = (doubleBigDigitType) digit * digit;
-    square->bigdigits[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
-    carry >>= BIGDIGIT_SIZE;
-    for (pos2 = 1; pos2 < big1->size; pos2++) {
-      product = (doubleBigDigitType) digit * big1->bigdigits[pos2];
-      carry += (product << 1) & BIGDIGIT_MASK;
-      square->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      carry += product >> (BIGDIGIT_SIZE - 1);
-    } /* for */
-    square->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
-    for (pos1 = 1; pos1 < big1->size; pos1++) {
-      digit = big1->bigdigits[pos1];
-      carry = (doubleBigDigitType) square->bigdigits[pos1 + pos1] +
-          (doubleBigDigitType) digit * digit;
-      square->bigdigits[pos1 + pos1] = (bigDigitType) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      for (pos2 = pos1 + 1; pos2 < big1->size; pos2++) {
-        product = (doubleBigDigitType) digit * big1->bigdigits[pos2];
-        carry += (doubleBigDigitType) square->bigdigits[pos1 + pos2] +
-            ((product << 1) & BIGDIGIT_MASK);
-        square->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        carry >>= BIGDIGIT_SIZE;
-        carry += product >> (BIGDIGIT_SIZE - 1);
-      } /* for */
-      square->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
-    } /* for */
-    pos1 = big1->size + big1->size;
-    pos1--;
-    digit = square->bigdigits[pos1];
-    if (digit == 0) {
-      do {
-        pos1--;
-        digit = square->bigdigits[pos1];
-      } while (pos1 > 0 && digit == 0);
-      if (IS_NEGATIVE(digit)) {
-        pos1++;
-      } /* if */
-    } /* if */
-    pos1++;
-    square->size = pos1;
-    *big_help = big1;
-    logFunction(printf("uBigSquare(big1->size=" FMT_U_MEM ") --> square->size=" FMT_U_MEM "\n",
-                       big1->size, square->size););
-    return square;
-  } /* uBigSquare */
 
 
 
@@ -2831,61 +2759,56 @@ static bigIntType uBigSquare (const bigIntType big1, bigIntType *big_help)
  *  with the result variable. This reduces the number of square
  *  operations to ld(exponent).
  */
-static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned int bit_size)
+static bigIntType bigIPowN (const bigDigitType base, intType exponent)
 
   {
-    memSizeType help_size;
     bigIntType square;
     bigIntType big_help;
     bigIntType power;
 
   /* bigIPowN */
-    logFunction(printf("bigIPowN(" FMT_U_DIG ", " FMT_D ", %u)\n",
-                       base, exponent, bit_size););
-    /* help_size = (bit_size * ((uintType) exponent) - 1) / BIGDIGIT_SIZE + 2; */
-    /* printf("help_sizeA=" FMT_U_MEM "\n", help_size); */
-    if (unlikely((uintType) exponent + 1 > MAX_BIG_LEN)) {
+    logFunction(printf("bigIPowN(" FMT_U_DIG ", " FMT_D ")\n",
+                       base, exponent););
+    if (unlikely(!ALLOC_BIG_SIZE_OK(square, 1))) {
       raise_error(MEMORY_ERROR);
       power = NULL;
+    } else if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
+      FREE_BIG(square, 1);
+      raise_error(MEMORY_ERROR);
     } else {
-      help_size = (memSizeType) ((uintType) exponent + 1);
-      /* printf("help_sizeB=" FMT_U_MEM "\n", help_size); */
-      if (unlikely(!ALLOC_BIG_SIZE_OK(square, help_size))) {
-        raise_error(MEMORY_ERROR);
-        power = NULL;
-      } else if (unlikely(!ALLOC_BIG_SIZE_OK(big_help, help_size))) {
-        FREE_BIG(square,  help_size);
-        raise_error(MEMORY_ERROR);
-        power = NULL;
-      } else if (unlikely(!ALLOC_BIG_SIZE_OK(power, help_size))) {
-        FREE_BIG(square,  help_size);
-        FREE_BIG(big_help,  help_size);
-        raise_error(MEMORY_ERROR);
+      square->size = 1;
+      square->bigdigits[0] = base;
+      power->size = 1;
+      if (exponent & 1) {
+        power->bigdigits[0] = base;
       } else {
-        square->size = 1;
-        square->bigdigits[0] = base;
-        if (exponent & 1) {
-          power->size = square->size;
-          memcpy(power->bigdigits, square->bigdigits,
-                 (size_t) square->size * sizeof(bigDigitType));
-        } else {
-          power->size = 1;
-          power->bigdigits[0] = 1;
-        } /* if */
-        exponent >>= 1;
-        while (exponent != 0) {
-          square = uBigSquare(square, &big_help);
+        power->bigdigits[0] = 1;
+      } /* if */
+      exponent >>= 1;
+      while (exponent != 0 && square != NULL && power != NULL) {
+        big_help = square;
+        square = uBigSquareK(square);
+        FREE_BIG(big_help, big_help->size);
+        if (square != NULL) {
           if (exponent & 1) {
-            power = uBigMultIntoHelp(power, square, &big_help);
+            big_help = power;
+            power = uBigMultK(power, square, FALSE);
+            FREE_BIG(big_help, big_help->size);
           } /* if */
           exponent >>= 1;
-        } /* while */
-        memset(&power->bigdigits[power->size], 0,
-               (size_t) (help_size - power->size) * sizeof(bigDigitType));
-        power->size = help_size;
-        power = normalize(power);
-        FREE_BIG(square, help_size);
-        FREE_BIG(big_help, help_size);
+        } /* if */
+      } /* while */
+      if (unlikely(square == NULL)) {
+        if (power != NULL) {
+          FREE_BIG(power, power->size);
+        } /* if */
+        raise_error(MEMORY_ERROR);
+        power = NULL;
+      } else {
+        FREE_BIG(square, square->size);
+        if (unlikely(power == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("bigIPowN --> power->size=" FMT_U_MEM "\n",
@@ -2939,7 +2862,7 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
           } /* if */
         } /* if */
       } else {
-        power = bigIPowN(base, exponent, bit_size);
+        power = bigIPowN(base, exponent);
         if (power != NULL) {
           if (negative) {
             negate_positive_big(power);
@@ -3287,7 +3210,7 @@ bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2)
       big1 = big2;
       big2 = help_big;
     } /* if */
-    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       pos = 0;
@@ -4377,7 +4300,6 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
 
   {
     boolType negative = FALSE;
-    memSizeType help_size;
     bigIntType square;
     bigIntType big_help;
     bigIntType power;
@@ -4404,57 +4326,60 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
       } /* if */
     } else if (base->size == 1) {
       power = bigIPow1(base->bigdigits[0], exponent);
-    } else if (unlikely((uintType) exponent + 1 > MAX_BIG_LEN / base->size)) {
+    } else if (unlikely(!ALLOC_BIG_CHECK_SIZE(square, base->size + 1))) {
       raise_error(MEMORY_ERROR);
       power = NULL;
+    } else if (unlikely(!ALLOC_BIG_CHECK_SIZE(power, base->size + 1))) {
+      FREE_BIG(square, base->size + 1);
+      raise_error(MEMORY_ERROR);
     } else {
-      help_size = base->size * (memSizeType) ((uintType) exponent + 1);
-      if (unlikely(!ALLOC_BIG_SIZE_OK(square, help_size))) {
-        raise_error(MEMORY_ERROR);
-        power = NULL;
-      } else if (unlikely(!ALLOC_BIG_SIZE_OK(big_help, help_size))) {
-        FREE_BIG(square,  help_size);
-        raise_error(MEMORY_ERROR);
-        power = NULL;
-      } else if (unlikely(!ALLOC_BIG_SIZE_OK(power, help_size))) {
-        FREE_BIG(square,  help_size);
-        FREE_BIG(big_help,  help_size);
-        raise_error(MEMORY_ERROR);
+      if (IS_NEGATIVE(base->bigdigits[base->size - 1])) {
+        negative = TRUE;
+        positive_copy_of_negative_big(square, base);
       } else {
-        if (IS_NEGATIVE(base->bigdigits[base->size - 1])) {
-          negative = TRUE;
-          positive_copy_of_negative_big(square, base);
-        } else {
-          square->size = base->size;
-          memcpy(square->bigdigits, base->bigdigits,
-                 (size_t) base->size * sizeof(bigDigitType));
-        } /* if */
-        if (exponent & 1) {
-          power->size = square->size;
-          memcpy(power->bigdigits, square->bigdigits,
-                 (size_t) square->size * sizeof(bigDigitType));
-        } else {
-          negative = FALSE;
-          power->size = 1;
-          power->bigdigits[0] = 1;
-        } /* if */
-        exponent >>= 1;
-        while (exponent != 0) {
-          square = uBigSquare(square, &big_help);
+        square->size = base->size;
+        memcpy(square->bigdigits, base->bigdigits,
+               (size_t) base->size * sizeof(bigDigitType));
+      } /* if */
+      if (exponent & 1) {
+        power->size = square->size;
+        memcpy(power->bigdigits, square->bigdigits,
+               (size_t) square->size * sizeof(bigDigitType));
+      } else {
+        negative = FALSE;
+        power->size = 1;
+        power->bigdigits[0] = 1;
+      } /* if */
+      exponent >>= 1;
+      while (exponent != 0 && square != NULL && power != NULL) {
+        big_help = square;
+        square = uBigSquareK(square);
+        FREE_BIG(big_help, big_help->size);
+        if (square != NULL) {
           if (exponent & 1) {
-            power = uBigMultIntoHelp(power, square, &big_help);
+            big_help = power;
+            power = uBigMultK(power, square, FALSE);
+            FREE_BIG(big_help, big_help->size);
           } /* if */
           exponent >>= 1;
-        } /* while */
-        memset(&power->bigdigits[power->size], 0,
-               (size_t) (help_size - power->size) * sizeof(bigDigitType));
-        power->size = help_size;
-        if (negative) {
-          negate_positive_big(power);
         } /* if */
-        power = normalize(power);
-        FREE_BIG(square, help_size);
-        FREE_BIG(big_help, help_size);
+      } /* while */
+      if (unlikely(square == NULL)) {
+        if (power != NULL) {
+          FREE_BIG(power, power->size);
+        } /* if */
+        raise_error(MEMORY_ERROR);
+        power = NULL;
+      } else {
+        FREE_BIG(square, square->size);
+        if (unlikely(power == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          if (negative) {
+            negate_positive_big(power);
+          } /* if */
+          power = normalize(power);
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("bigIPow --> %s (size=" FMT_U_MEM ")\n",
@@ -4699,7 +4624,7 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
         raise_error(NUMERIC_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, 1))) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 1;
@@ -4796,7 +4721,7 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
         raise_error(NUMERIC_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, 1))) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 1;
@@ -5501,6 +5426,9 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
     if (factor2_help != NULL) {
       FREE_BIG(factor2_help, factor2_help->size);
     } /* if */
+    if (unlikely(product == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
     logFunction(printf("bigMult --> %s\n", bigHexCStri(product)););
     return product;
   } /* bigMult */
@@ -5774,7 +5702,7 @@ bigIntType bigOr (const_bigIntType big1, const_bigIntType big2)
       big1 = big2;
       big2 = help_big;
     } /* if */
-    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       pos = 0;
@@ -6754,6 +6682,9 @@ bigIntType bigSquare (const_bigIntType big1)
     if (big1_help != NULL) {
       FREE_BIG(big1_help, big1_help->size);
     } /* if */
+    if (unlikely(square == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
     logFunction(printf("bigSquare --> %s\n", bigHexCStri(square)););
     return square;
   } /* bigSquare */
@@ -6794,18 +6725,18 @@ striType bigStr (const const_bigIntType big1)
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_BIG_CHECK_SIZE(unsigned_big, big1->size + 1))) {
+        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+          unsigned_big = alloc_positive_copy_of_negative_big(big1);
+        } else if (likely(ALLOC_BIG_SIZE_OK(unsigned_big, big1->size))) {
+          unsigned_big->size = big1->size;
+          memcpy(unsigned_big->bigdigits, big1->bigdigits,
+                 (size_t) big1->size * sizeof(bigDigitType));
+        } /* if */
+        if (unlikely(unsigned_big == NULL)) {
           FREE_STRI(result, result_size);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-            positive_copy_of_negative_big(unsigned_big, big1);
-          } else {
-            unsigned_big->size = big1->size;
-            memcpy(unsigned_big->bigdigits, big1->bigdigits,
-                   (size_t) big1->size * sizeof(bigDigitType));
-          } /* if */
           pos = result_size - 1;
           do {
             digit = uBigDivideByPowerOf10(unsigned_big);
@@ -6829,7 +6760,7 @@ striType bigStr (const const_bigIntType big1)
               } while (digit != 0);
             } /* if */
           } while (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0);
-          FREE_BIG(unsigned_big, big1->size + 1);
+          FREE_BIG(unsigned_big, big1->size);
           pos++;
           if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
             final_result_size = result_size - pos + 1;
@@ -7352,7 +7283,7 @@ bigIntType bigXor (const_bigIntType big1, const_bigIntType big2)
       big1 = big2;
       big2 = help_big;
     } /* if */
-    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       pos = 0;

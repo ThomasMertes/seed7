@@ -899,7 +899,11 @@ void drwFree (winType old_window)
                        (memSizeType) old_window,
                        old_window != NULL ? old_window->usage_count : (uintType) 0););
     if (is_pixmap(old_window)) {
-      XFreePixmap(mydisplay, to_window(old_window));
+      if (to_window(old_window) != 0) {
+        XFreePixmap(mydisplay, to_window(old_window));
+      } else {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } else {
       XDestroyWindow(mydisplay, to_window(old_window));
       if (to_backup(old_window) != 0) {
@@ -2117,6 +2121,8 @@ intType drwXPos (const_winType actual_window)
     unsigned int depth;
 
   /* drwXPos */
+    logFunction(printf("drwXPos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
     if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
                  &x, &y, &width, &height, &border_width, &depth) == 0)) {
       raise_error(RANGE_ERROR);
@@ -2139,6 +2145,8 @@ intType drwYPos (const_winType actual_window)
     unsigned int depth;
 
   /* drwYPos */
+    logFunction(printf("drwYPos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
     if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
                  &x, &y, &width, &height, &border_width, &depth) == 0)) {
       raise_error(RANGE_ERROR);

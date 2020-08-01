@@ -75,8 +75,6 @@ static const char null_byte_string_marker[] = "\\ *NULL_BYTE_STRING* ";
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef EMULATE_ROOT_CWD
-/* Assume that drive letters are used only with a backslash as path delimiter. */
-#define OS_PATH_DELIMITER '\\'
 const_os_striType current_emulated_cwd = NULL;
 #endif
 const os_charType emulated_root[] = {'/', '\0'};
