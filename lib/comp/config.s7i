@@ -40,6 +40,7 @@ var boolean: generate_c_plus_plus    is FALSE;
 
 var boolean: check_int_arithmetic_overflow is FALSE;
 var boolean: check_int_division_overflow   is FALSE;
+var boolean: check_int_abs_overflow        is FALSE;
 var boolean: check_int_shift_overflow      is FALSE;
 
 
@@ -48,10 +49,12 @@ const proc: setIntegerOverflowCheck (in boolean: check) is func
     if check then
       check_int_arithmetic_overflow := ccConf.OVERFLOW_SIGNAL = "";
       check_int_division_overflow := ccConf.TWOS_COMPLEMENT_INTTYPE;
+      check_int_abs_overflow := ccConf.TWOS_COMPLEMENT_INTTYPE;
       check_int_shift_overflow := TRUE;
     else
       check_int_arithmetic_overflow := FALSE;
       check_int_division_overflow := FALSE;
+      check_int_abs_overflow := FALSE;
       check_int_shift_overflow := FALSE;
     end if;
   end func;

@@ -80,12 +80,6 @@ const func file: openWindow (ref text: out_fil,
   end func;
 
 
-# The function open_window is deprecated. Use openWindow instead.
-const func file: open_window (ref text: out_fil,
-    in integer: upper, in integer: left, in integer: height, in integer: width) is
-  return openWindow(out_fil, upper, left, height, width);
-
-
 (**
  *  Get the height of 'out_fil'.
  *  @return the height of 'out_fil'.

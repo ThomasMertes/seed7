@@ -68,7 +68,14 @@ boolType filInputReady (fileType aFile)
       result = TRUE;
     } else {
       file_no = fileno(aFile);
-      if (file_no != -1) {
+      if (unlikely(file_no == -1)) {
+        logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(aFile), safe_fileno(aFile),
+                        errno, strerror(errno)););
+        raise_error(FILE_ERROR);
+        result = FALSE;
+      } else {
         /* printf("file_no=%d\n", file_no); */
         pollFd[0].fd = file_no;
         pollFd[0].events = POLLIN;
@@ -86,13 +93,6 @@ boolType filInputReady (fileType aFile)
               POLLIN, POLLPRI, POLLERR, POLLHUP); */
           result = poll_result == 1 && (pollFd[0].revents & (POLLIN | POLLHUP));
         } /* if */
-      } else {
-        logError(printf("filInputReady(%d): fileno(%d) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        safe_fileno(aFile), safe_fileno(aFile),
-                        errno, strerror(errno)););
-        raise_error(FILE_ERROR);
-        result = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
@@ -116,7 +116,14 @@ boolType filInputReady (fileType aFile)
   /* filInputReady */
     logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
     file_no = fileno(aFile);
-    if (file_no != -1) {
+    if (unlikely(file_no == -1)) {
+      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), safe_fileno(aFile),
+                      errno, strerror(errno)););
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } else {
       /* printf("file_no=%d\n", file_no); */
       flags = fcntl(file_no, F_GETFL);
       fcntl(file_no, F_SETFL, flags|O_NONBLOCK);
@@ -137,13 +144,6 @@ boolType filInputReady (fileType aFile)
         result = TRUE;
       } /* if */
       fcntl(file_no, F_SETFL, flags);
-    } else {
-      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
-                      errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-      result = FALSE;
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
                        safe_fileno(aFile), result););
@@ -167,7 +167,14 @@ boolType filInputReady (fileType aFile)
   /* filInputReady */
     logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
     file_no = fileno(aFile);
-    if (file_no != -1) {
+    if (unlikely(file_no == -1)) {
+      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), safe_fileno(aFile),
+                      errno, strerror(errno)););
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } else {
       FD_ZERO(&readfds);
       FD_SET(file_no, &readfds);
       nfds = (int) file_no + 1;
@@ -187,13 +194,6 @@ boolType filInputReady (fileType aFile)
       } else {
         result = FD_ISSET(file_no, &readfds);
       } /* if */
-    } else {
-      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
-                      errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-      result = FALSE;
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
                        safe_fileno(aFile), result););

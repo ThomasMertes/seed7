@@ -12404,6 +12404,8 @@ const proc: check_abs is func
     var boolean: okay is TRUE;
   begin
     if  abs(-9223372036854775807) <> 9223372036854775807 or
+        abs(         -4294967296) <>          4294967296 or
+        abs(         -4294967295) <>          4294967295 or
         abs(         -2147483648) <>          2147483648 or
         abs(         -2147483647) <>          2147483647 or
         abs(                  -1) <>                   1 or
@@ -12411,7 +12413,22 @@ const proc: check_abs is func
         abs(                   1) <>                   1 or
         abs(          2147483647) <>          2147483647 or
         abs(          2147483648) <>          2147483648 or
-        abs( 9223372036854775807) <> 9223372036854775807 then
+        abs(          4294967295) <>          4294967295 or
+        abs(          4294967296) <>          4294967296 or
+        abs( 9223372036854775807) <> 9223372036854775807 or
+        abs(intExpr(-9223372036854775807)) <> 9223372036854775807 or
+        abs(intExpr(         -4294967296)) <>          4294967296 or
+        abs(intExpr(         -4294967295)) <>          4294967295 or
+        abs(intExpr(         -2147483648)) <>          2147483648 or
+        abs(intExpr(         -2147483647)) <>          2147483647 or
+        abs(intExpr(                  -1)) <>                   1 or
+        abs(intExpr(                   0)) <>                   0 or
+        abs(intExpr(                   1)) <>                   1 or
+        abs(intExpr(          2147483647)) <>          2147483647 or
+        abs(intExpr(          2147483648)) <>          2147483648 or
+        abs(intExpr(          4294967295)) <>          4294967295 or
+        abs(intExpr(          4294967296)) <>          4294967296 or
+        abs(intExpr( 9223372036854775807)) <> 9223372036854775807 then
       writeln("The integer abs function does not work correct.");
       okay := FALSE;
     end if;

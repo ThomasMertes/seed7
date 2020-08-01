@@ -64,6 +64,7 @@ DIR *opendir (char *name)
     DIR *result;
 
   /* opendir */
+    logFunction(printf("opendir(%s);\n", name););
     name_len = strlen(name);
     if (name_len == 0 || name_len > sizeof(dir_name) - 5) {
       logError(printf("opendir(\"%s\"): Name too long "
@@ -71,7 +72,6 @@ DIR *opendir (char *name)
                       name, name_len, sizeof(dir_name) - 5););
       result = NULL;
     } else if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
-      /* printf("opendir(%s);\n", name); */
       memcpy(dir_name, name, name_len);
       if (name[name_len - 1] != '/' &&
           name[name_len - 1] != '\\') {
@@ -118,7 +118,7 @@ struct dirent *readdir (DIR *curr_dir)
     struct dirent *result;
 
   /* readdir */
-    /* printf("readdir();\n"); */
+    logFunction(printf("readdir\n"););
     result = &curr_dir->dir_entry;
     if (curr_dir->first_element) {
       /* printf("first\n"); */
@@ -148,6 +148,8 @@ struct dirent *readdir (DIR *curr_dir)
         result = NULL;
       } /* if */
     } /* if */
+    logFunction(printf("readdir --> %s\n",
+                       result == NULL ? "NULL" : result->d_name););
     return result;
   } /* readdir */
 
@@ -161,6 +163,7 @@ struct dirent *readdir (DIR *curr_dir)
 int closedir (DIR *curr_dir)
 
   { /* closedir */
+    logFunction(printf("closedir\n"););
     free(curr_dir);
     return 0;
   } /* closedir */

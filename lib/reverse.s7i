@@ -44,11 +44,6 @@ const func file: openReverse (in file: out_fil, in integer: lin_size) is func
   end func;
 
 
-# The function open_reverse is deprecated. Use openReverse instead.
-const func file: open_reverse (in file: out_fil, in integer: lin_size) is
-  return openReverse(out_fil, lin_size);
-
-
 (*
 const proc: page (ref reverse_file: reverse_fil) is func
   begin

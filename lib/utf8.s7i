@@ -101,11 +101,6 @@ const func file: openUtf8 (in string: path, in string: mode) is func
   end func;
 
 
-# The function open_utf8 is deprecated. Use openUtf8 instead.
-const func file: open_utf8 (in string: path, in string: mode) is
-  return openUtf8(path, mode);
-
-
 (**
  *  Write a string to an UTF-8 file.
  *  @exception FILE_ERROR A system function returns an error.

@@ -1341,7 +1341,7 @@ void trace_nodes (void)
       } /* if */
     } /* for */
     if (prog.declaration_root->symbol != NULL) {
-      strcpy(buffer, "");
+      buffer[0] = '\0';
       list_node_names(prog.declaration_root->symbol, buffer);
     } /* if */
     if (prog.declaration_root->inout_param != NULL) {

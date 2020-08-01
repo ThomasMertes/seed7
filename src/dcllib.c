@@ -176,7 +176,7 @@ objectType dcl_const (listType arguments)
     trace1(current_object);
     printf("\n");
 #endif
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return SYS_EMPTY_OBJECT;
@@ -211,7 +211,7 @@ objectType dcl_elements (listType arguments)
     /* printf("before pop_stack\n"); */
     pop_stack();
     /* printf("after pop_stack\n"); */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_reflist_temp(element_list);
@@ -255,7 +255,7 @@ objectType dcl_fwd (listType arguments)
     trace1(current_object);
     printf("\n");
 #endif
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return SYS_EMPTY_OBJECT;
@@ -299,7 +299,7 @@ objectType dcl_fwdvar (listType arguments)
     trace1(current_object);
     printf("\n");
 #endif
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return SYS_EMPTY_OBJECT;
@@ -334,7 +334,7 @@ objectType dcl_getfunc (listType arguments)
     trace1(object_found);
     printf("\n");
 #endif
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_reference_temp(object_found);
@@ -365,7 +365,7 @@ objectType dcl_getobj (listType arguments)
     trace1(object_found);
     printf("\n");
 #endif
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_reference_temp(object_found);
@@ -416,14 +416,14 @@ objectType dcl_in1var (listType arguments)
 /*    printf("decl in1var ");
     trace1(object_type->match_obj);
     printf(":\n"); */
-    if (ALLOC_OBJECT(created_object)) {
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
       created_object->value.objValue = NULL;
       return bld_param_temp(created_object);
-    } else {
-      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_in1var */
 
@@ -458,7 +458,7 @@ objectType dcl_in2var (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_param_temp(created_object);
@@ -479,7 +479,9 @@ objectType dcl_inout1 (listType arguments)
     /* printf("decl inout1 ");
        trace1(object_type->match_obj);
        printf(":\n"); */
-    if (ALLOC_OBJECT(created_object)) {
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
@@ -488,8 +490,6 @@ objectType dcl_inout1 (listType arguments)
          trace1(created_object);
          printf("\n"); */
       return bld_param_temp(created_object);
-    } else {
-      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_inout1 */
 
@@ -524,7 +524,7 @@ objectType dcl_inout2 (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_param_temp(created_object);
@@ -557,13 +557,13 @@ objectType dcl_param_attr (listType arguments)
       f_param_prototype = &param_object->type_of->other_f_param_prototype;
     } /* if */
     if (*f_param_prototype == NULL) {
-      if (ALLOC_OBJECT(result)) {
+      if (unlikely(!ALLOC_OBJECT(result))) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
         result->type_of = NULL;
         result->descriptor.property = NULL;
         INIT_CATEGORY_OF_OBJ(result, FORMPARAMOBJECT);
         result->value.objValue = param_object;
-      } else {
-        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       *f_param_prototype = result;
       f_param_object->value.objValue = NULL;
@@ -592,7 +592,9 @@ objectType dcl_ref1 (listType arguments)
     /* printf("decl ref1 ");
        trace1(object_type->match_obj);
        printf(":\n"); */
-    if (ALLOC_OBJECT(created_object)) {
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
@@ -601,8 +603,6 @@ objectType dcl_ref1 (listType arguments)
          trace1(created_object);
          printf(";\n"); */
       return bld_param_temp(created_object);
-    } else {
-      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_ref1 */
 
@@ -637,7 +637,7 @@ objectType dcl_ref2 (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_param_temp(created_object);
@@ -680,7 +680,9 @@ objectType dcl_val1 (listType arguments)
     /* printf("decl val1 ");
        trace1(object_type->match_obj);
        printf(":\n"); */
-    if (ALLOC_OBJECT(created_object)) {
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
@@ -689,8 +691,6 @@ objectType dcl_val1 (listType arguments)
          trace1(created_object);
          printf("\n"); */
       return bld_param_temp(created_object);
-    } else {
-      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_val1 */
 
@@ -725,7 +725,7 @@ objectType dcl_val2 (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_param_temp(created_object);
@@ -816,7 +816,7 @@ objectType dcl_var (listType arguments)
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return SYS_EMPTY_OBJECT;

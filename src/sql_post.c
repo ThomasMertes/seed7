@@ -166,29 +166,29 @@ typedef PGconn *(*tp_PQsetdbLogin) (const char *pghost, const char *pgport,
                                     const char *login, const char *pwd);
 typedef ConnStatusType (*tp_PQstatus) (const PGconn *conn);
 
-tp_PQclear              ptr_PQclear;
-tp_PQdescribePrepared   ptr_PQdescribePrepared;
-tp_PQerrorMessage       ptr_PQerrorMessage;
-tp_PQexec               ptr_PQexec;
-tp_PQexecPrepared       ptr_PQexecPrepared;
-tp_PQfinish             ptr_PQfinish;
-tp_PQfname              ptr_PQfname;
-tp_PQftype              ptr_PQftype;
-tp_PQgetisnull          ptr_PQgetisnull;
-tp_PQgetlength          ptr_PQgetlength;
-tp_PQgetvalue           ptr_PQgetvalue;
-tp_PQnfields            ptr_PQnfields;
-tp_PQnparams            ptr_PQnparams;
-tp_PQntuples            ptr_PQntuples;
-tp_PQparameterStatus    ptr_PQparameterStatus;
-tp_PQparamtype          ptr_PQparamtype;
-tp_PQprepare            ptr_PQprepare;
-tp_PQresStatus          ptr_PQresStatus;
-tp_PQresultErrorMessage ptr_PQresultErrorMessage;
-tp_PQresultStatus       ptr_PQresultStatus;
-tp_PQsetClientEncoding  ptr_PQsetClientEncoding;
-tp_PQsetdbLogin         ptr_PQsetdbLogin;
-tp_PQstatus             ptr_PQstatus;
+static tp_PQclear              ptr_PQclear;
+static tp_PQdescribePrepared   ptr_PQdescribePrepared;
+static tp_PQerrorMessage       ptr_PQerrorMessage;
+static tp_PQexec               ptr_PQexec;
+static tp_PQexecPrepared       ptr_PQexecPrepared;
+static tp_PQfinish             ptr_PQfinish;
+static tp_PQfname              ptr_PQfname;
+static tp_PQftype              ptr_PQftype;
+static tp_PQgetisnull          ptr_PQgetisnull;
+static tp_PQgetlength          ptr_PQgetlength;
+static tp_PQgetvalue           ptr_PQgetvalue;
+static tp_PQnfields            ptr_PQnfields;
+static tp_PQnparams            ptr_PQnparams;
+static tp_PQntuples            ptr_PQntuples;
+static tp_PQparameterStatus    ptr_PQparameterStatus;
+static tp_PQparamtype          ptr_PQparamtype;
+static tp_PQprepare            ptr_PQprepare;
+static tp_PQresStatus          ptr_PQresStatus;
+static tp_PQresultErrorMessage ptr_PQresultErrorMessage;
+static tp_PQresultStatus       ptr_PQresultStatus;
+static tp_PQsetClientEncoding  ptr_PQsetClientEncoding;
+static tp_PQsetdbLogin         ptr_PQsetdbLogin;
+static tp_PQstatus             ptr_PQstatus;
 
 #define PQclear              ptr_PQclear
 #define PQdescribePrepared   ptr_PQdescribePrepared
@@ -222,7 +222,7 @@ static boolType setupDll (const char *dllName)
     static void *dbDll = NULL;
 
   /* setupDll */
-    /* printf("setupDll(\"%s\")\n", dllName); */
+    logFunction(printf("setupDll(\"%s\")\n", dllName););
     if (dbDll == NULL) {
 #ifdef LIBINTL_DLL
       if (dllOpen(LIBINTL_DLL_PATH) != NULL || dllOpen(LIBINTL_DLL) != NULL) {
@@ -259,7 +259,7 @@ static boolType setupDll (const char *dllName)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("setupDll --> %d\n", dbDll != NULL); */
+    logFunction(printf("setupDll --> %d\n", dbDll != NULL););
     return dbDll != NULL;
   } /* setupDll */
 
@@ -357,20 +357,21 @@ static void sqlClose (databaseType database);
 static PGresult *PQdeallocate (PGconn *conn, const char *stmtName)
 
   {
-    const char *const deallocateCommand = "DEALLOCATE ";
+    const char deallocateCommand[] = "DEALLOCATE ";
     memSizeType length;
     char *command;
     PGresult *deallocate_result;
 
   /* PQdeallocate */
-    /* printf("PQdeallocate(%lx, %s)\n", conn, stmtName); */
-    length = strlen(deallocateCommand) + strlen(stmtName) + 1;
+    logFunction(printf("PQdeallocate(" FMT_X_MEM ", %s)\n",
+                       (memSizeType) conn, stmtName););
+    length = STRLEN(deallocateCommand) + strlen(stmtName) + 1;
     command = (char *) malloc(length);
     if (command == NULL) {
       deallocate_result = NULL;
     } else {
       strcpy(command, deallocateCommand);
-      strcat(command, stmtName);
+      strcpy(&command[STRLEN(deallocateCommand)], stmtName);
       deallocate_result = PQexec(conn, command);
       free(command);
     } /* if */
@@ -399,7 +400,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     static PGresult *deallocate_result;
 
   /* freePreparedStmt */
-    /* printf("begin freePreparedStmt(%lx)\n", (unsigned long) sqlStatement); */
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->paramTypes != NULL) {
       FREE_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size);
@@ -418,7 +420,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       PQclear(deallocate_result);
     } /* if */
     FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-    /* printf("end freePreparedStmt\n"); */
+    logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
 
 
@@ -430,7 +432,7 @@ static const char *nameOfBufferType (Oid buffer_type)
     const char *typeName;
 
   /* nameOfBufferType */
-    /* printf("nameOfBuffer(%d)\n", buffer_type); */
+    logFunction(printf("nameOfBufferType(%d)\n", buffer_type););
     switch (buffer_type) {
       case BOOLOID:             typeName = "BOOLOID"; break;
       case BYTEAOID:            typeName = "BYTEAOID"; break;
@@ -523,7 +525,7 @@ static const char *nameOfBufferType (Oid buffer_type)
         typeName = buffer;
         break;
     } /* switch */
-    /* printf("nameOfBufferType --> %s\n", typeName); */
+    logFunction(printf("nameOfBufferType --> %s\n", typeName););
     return typeName;
   } /* nameOfBufferType */
 
@@ -613,7 +615,7 @@ static void setupParameters (preparedStmtType preparedStmt,
     int param_number;
 
   /* setupParameters */
-    /* printf("begin setupParameters\n"); */
+    logFunction(printf("setupParameters\n"););
     describe_result = PQdescribePrepared(preparedStmt->connection, preparedStmt->stmtName);
     if (describe_result == NULL) {
       *err_info = MEMORY_ERROR;
@@ -658,7 +660,7 @@ static void setupParameters (preparedStmtType preparedStmt,
       } /* if */
       PQclear(describe_result);
     } /* if */
-    /* printf("end setupParameters\n"); */
+    logFunction(printf("setupParameters -->\n"););
   } /* setupParameters */
 
 
@@ -672,25 +674,25 @@ static void setupResult (preparedStmtType preparedStmt,
     /* int column_index; */
 
   /* setupResult */
-    /* printf("begin setupResult\n"); */
-      describe_result = PQdescribePrepared(preparedStmt->connection, preparedStmt->stmtName);
-      if (describe_result == NULL) {
-        *err_info = MEMORY_ERROR;
+    logFunction(printf("setupResult\n"););
+    describe_result = PQdescribePrepared(preparedStmt->connection, preparedStmt->stmtName);
+    if (describe_result == NULL) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      num_columns = PQnfields(describe_result);
+      if (num_columns < 0) {
+        *err_info = FILE_ERROR;
       } else {
-        num_columns = PQnfields(describe_result);
-        if (num_columns < 0) {
-          *err_info = FILE_ERROR;
-        } else {
-          preparedStmt->result_column_count = (memSizeType) num_columns;
-          /* for (column_index = 0; column_index < num_columns &&
-               *err_info == OKAY_NO_ERROR; column_index++) {
-            printf("Column %d name: %s\n", column_index + 1, PQfname(describe_result, column_index));
-            printf("Column %d type: %d\n", column_index + 1, PQftype(describe_result, column_index));
-          } */
-        } /* if */
-        PQclear(describe_result);
+        preparedStmt->result_column_count = (memSizeType) num_columns;
+        /* for (column_index = 0; column_index < num_columns &&
+             *err_info == OKAY_NO_ERROR; column_index++) {
+          printf("Column %d name: %s\n", column_index + 1, PQfname(describe_result, column_index));
+          printf("Column %d type: %d\n", column_index + 1, PQftype(describe_result, column_index));
+        } */
       } /* if */
-    /* printf("end setupResult\n"); */
+      PQclear(describe_result);
+    } /* if */
+    logFunction(printf("setupResult -->\n"););
   } /* setupResult */
 
 
@@ -744,9 +746,9 @@ static bigIntType getNumericBigInt (const unsigned char *buffer)
     numStruct.sign    = (buffer[4] & 0x40) != 0;
     if (numStruct.ndigits == 0) {
       bigIntValue = bigZero();
-    } else if (numStruct.weight < numStruct.ndigits - 1 ||
-               numStruct.rscale != 0 ||
-               numStruct.dscale != 0) {
+    } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
+                        numStruct.rscale != 0 ||
+                        numStruct.dscale != 0)) {
       logError(printf("getNumericBigInt: Number not integer\n"););
       raise_error(RANGE_ERROR);
       bigIntValue = NULL;
@@ -775,13 +777,8 @@ static bigIntType getNumericBigInt (const unsigned char *buffer)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("getNumericBigInt --> ");
-       if (bigIntValue == NULL) {
-         printf("NULL");
-       } else {
-         prot_stri_unquoted(bigStr(bigIntValue));
-       }
-       printf("\n"); */
+    logFunction(printf("getNumericBigInt --> %s\n",
+                       bigHexCStri(bigIntValue)););
     return bigIntValue;
   } /* getNumericBigInt */
 
@@ -855,7 +852,7 @@ static void getInterval (int64Type interval,
     intType *minute, intType *second, intType *micro_second)
 
   { /* getInterval */
-    /* printf("getInterval(" FMT_D64 ")\n", interval); */
+    logFunction(printf("getInterval(" FMT_D64 ")\n", interval););
     *micro_second = interval % 1000000;
     interval /= 1000000;
     *second = interval % 60;
@@ -882,7 +879,7 @@ static void getTimestamp (int64Type timestamp,
     intType dummy_micro_second;
 
   /* getTimestamp */
-    /* printf("getTimestamp(" FMT_D64 ")\n", timestamp); */
+    logFunction(printf("getTimestamp(" FMT_D64 ")\n", timestamp););
     *micro_second = timestamp % 1000000;
     if (timestamp < 0) {
       if (*micro_second != 0) {
@@ -893,12 +890,12 @@ static void getTimestamp (int64Type timestamp,
       timestamp /= 1000000;
     } /* if */
     /* printf("timestamp2000: " FMT_U64 "\n", timestamp); */
-    if (timestamp > TIME_T_MAX - SECONDS_1970_2000) {
+    if (unlikely(timestamp > TIME_T_MAX - SECONDS_1970_2000)) {
       raise_error(RANGE_ERROR);
     } else {
       timestamp += SECONDS_1970_2000;
       /* pprintf("timestamp1970: " FMT_U64 "\n", timestamp); */
-      if (!inTimeTRange(timestamp)) {
+      if (unlikely(!inTimeTRange(timestamp))) {
         raise_error(RANGE_ERROR);
       } else {
         timFromTimestamp((time_t) timestamp, year, month, day,
@@ -914,12 +911,13 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    cstriType decimalNumber;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBigInt */
-    /* printf("sqlBindBigInt(%lx, " FMT_D ", %s)\n",
-       (unsigned long) sqlStatement, pos, bigHexCStri(value)); */
+    logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s)\n",
+                       (memSizeType) sqlStatement, pos, bigHexCStri(value)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBigInt: pos: " FMT_D ", max pos: %lu.\n",
@@ -972,14 +970,14 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType)
-              bigIntToDecimal(value, &length, &err_info);
-          if (err_info != OKAY_NO_ERROR) {
+          decimalNumber = (cstriType) bigIntToDecimal(value, &length, &err_info);
+          if (unlikely(decimalNumber == NULL)) {
             raise_error(err_info);
-          } else if (length > INT_MAX) {
+          } else if (unlikely(length > INT_MAX)) {
             raise_error(MEMORY_ERROR);
           } else {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = decimalNumber;
             preparedStmt->paramLengths[pos - 1] = (int) length;
             preparedStmt->paramFormats[pos - 1] = 0;
           } /* if */
@@ -1002,13 +1000,14 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    cstriType decimalNumber;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBigRat */
-    /* printf("sqlBindBigRat(%lx, " FMT_D ", %s/%s)\n",
-       (unsigned long) sqlStatement, pos,
-       bigHexCStri(numerator), bigHexCStri(denominator)); */
+    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s)\n",
+                       (memSizeType) sqlStatement, pos,
+                       bigHexCStri(numerator), bigHexCStri(denominator)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: %lu.\n",
@@ -1035,12 +1034,15 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case NUMERICOID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType)
-              bigRatToDecimal(numerator, denominator, 1000, &length, &err_info);
-          if (err_info != OKAY_NO_ERROR) {
+          decimalNumber = (cstriType) bigRatToDecimal(numerator, denominator,
+                                                1000, &length, &err_info);
+          if (unlikely(decimalNumber == NULL)) {
             raise_error(err_info);
+          } else if (unlikely(length > INT_MAX)) {
+            raise_error(MEMORY_ERROR);
           } else {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = decimalNumber;
             preparedStmt->paramLengths[pos - 1] = (int) length;
             preparedStmt->paramFormats[pos - 1] = 0;
           } /* if */
@@ -1064,8 +1066,8 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
     preparedStmtType preparedStmt;
 
   /* sqlBindBool */
-    /* printf("sqlBindBool(%lx, " FMT_D ", %ld)\n",
-       (unsigned long) sqlStatement, pos, value); */
+    logFunction(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s)\n",
+                       (memSizeType) sqlStatement, pos, value ? "TRUE" : "FALSE"););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBool: pos: " FMT_D ", max pos: %lu.\n",
@@ -1128,10 +1130,8 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
     preparedStmtType preparedStmt;
 
   /* sqlBindBStri */
-    /* printf("sqlBindBStri(%lx, " FMT_D ", ",
-       (unsigned long) sqlStatement, pos);
-       prot_bstri(bstri);
-       printf(")\n"); */
+    logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
+                       (memSizeType) sqlStatement, pos, bstriAsUnquotedCStri(bstri)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBStri: pos: " FMT_D ", max pos: %lu.\n",
@@ -1144,11 +1144,12 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
         case BYTEAOID:
         case BPCHAROID:
         case VARCHAROID:
-          if (bstri->size > ULONG_MAX) {
+          if (unlikely(bstri->size > ULONG_MAX)) {
             raise_error(MEMORY_ERROR);
           } else {
             free(preparedStmt->paramValues[pos - 1]);
-            if ((preparedStmt->paramValues[pos - 1] = (cstriType) malloc(bstri->size + 1)) == NULL) {
+            if (unlikely((preparedStmt->paramValues[pos - 1] =
+                          (cstriType) malloc(bstri->size + 1)) == NULL)) {
               raise_error(MEMORY_ERROR);
             } else {
               memcpy(preparedStmt->paramValues[pos - 1], bstri->mem, bstri->size);
@@ -1179,22 +1180,27 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     preparedStmtType preparedStmt;
 
   /* sqlBindDuration */
-    /* printf("sqlBindDuration(%lx, %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld)\n",
-       sqlStatement, pos, year, month, day, hour, minute, second, micro_second); */
+    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       (memSizeType) sqlStatement, pos,
+                       year, month, day,
+                       hour, minute, second, micro_second););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: %lu.\n",
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
-    } else if (year < INT32TYPE_MIN || year > INT32TYPE_MAX || month < -12 || month > 12 ||
-               day < -31 || day > 31 || hour < -24 || hour > 24 || minute < -60 || minute > 60 ||
-               second < -60 || second > 60 || micro_second < -1000000 || micro_second > 1000000) {
+    } else if (unlikely(year < INT32TYPE_MIN || year > INT32TYPE_MAX || month < -12 || month > 12 ||
+                        day < -31 || day > 31 || hour < -24 || hour > 24 ||
+                        minute < -60 || minute > 60 || second < -60 || second > 60 ||
+                        micro_second < -1000000 || micro_second > 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
-    } else if (!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
-                  minute >= 0 && second >= 0 && micro_second >= 0) ||
-                 (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
-                  minute <= 0 && second <= 0 && micro_second <= 0))) {
+    } else if (unlikely(!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
+                           minute >= 0 && second >= 0 && micro_second >= 0) ||
+                          (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
+                           minute <= 0 && second <= 0 && micro_second <= 0)))) {
       logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
       raise_error(RANGE_ERROR);
     } else {
@@ -1208,6 +1214,16 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
+            int64Type interval;
+
+            interval = (((((((int64Type) year) * 365 +
+                             (int64Type) month) * 30 +
+                             (int64Type) day) * 24 +
+                             (int64Type) hour) * 60 +
+                             (int64Type) minute) * 60 +
+                             (int64Type) second) * 1000000 +
+                             (int64Type) micro_second;
+
             getInterval((int64Type) ntohll(*(uint64Type *) buffer),
                         year, month, day, hour, minute, second, micro_second);
           } else {
@@ -1234,8 +1250,8 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
     preparedStmtType preparedStmt;
 
   /* sqlBindFloat */
-    /* printf("sqlBindFloat(%lx, " FMT_D ", " FMT_E ")\n",
-       (unsigned long) sqlStatement, pos, value); */
+    logFunction(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E ")\n",
+                       (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindFloat: pos: " FMT_D ", max pos: %lu.\n",
@@ -1278,8 +1294,8 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
     preparedStmtType preparedStmt;
 
   /* sqlBindInt */
-    /* printf("sqlBindInt(%lx, " FMT_D ", " FMT_D ")\n",
-       (unsigned long) sqlStatement, pos, value); */
+    logFunction(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindInt: pos: " FMT_D ", max pos: %lu.\n",
@@ -1290,7 +1306,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
-          if (value < INT16TYPE_MIN || value > INT16TYPE_MAX) {
+          if (unlikely(value < INT16TYPE_MIN || value > INT16TYPE_MAX)) {
             raise_error(RANGE_ERROR);
           } else {
             free(preparedStmt->paramValues[pos - 1]);
@@ -1302,7 +1318,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           } /* if */
           break;
         case INT4OID:
-          if (value < INT32TYPE_MIN || value > INT32TYPE_MAX) {
+          if (unlikely(value < INT32TYPE_MIN || value > INT32TYPE_MAX)) {
             raise_error(RANGE_ERROR);
           } else {
             free(preparedStmt->paramValues[pos - 1]);
@@ -1363,8 +1379,8 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
     preparedStmtType preparedStmt;
 
   /* sqlBindNull */
-    /* printf("sqlBindNull(%lx, %d)\n",
-       (unsigned long) sqlStatement, pos); */
+    logFunction(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, pos););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindNull: pos: " FMT_D ", max pos: %lu.\n",
@@ -1391,10 +1407,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindStri */
-    /* printf("sqlBindStri(%lx, " FMT_D ", ",
-       (unsigned long) sqlStatement, pos);
-       prot_stri(stri);
-       printf(")\n"); */
+    logFunction(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
+                       (memSizeType) sqlStatement, pos, striAsUnquotedCStri(stri)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindStri: pos: " FMT_D ", max pos: %lu.\n",
@@ -1407,9 +1421,9 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
         case BPCHAROID:
         case VARCHAROID:
           stri8 = stri_to_cstri8_buf(stri, &length, &err_info);
-          if (stri8 == NULL) {
+          if (unlikely(stri8 == NULL)) {
             raise_error(err_info);
-          } else if (length > ULONG_MAX) {
+          } else if (unlikely(length > ULONG_MAX)) {
             free(stri8);
             raise_error(MEMORY_ERROR);
           } else {
@@ -1420,12 +1434,12 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           } /* if */
           break;
         case BYTEAOID:
-          if (stri->size > ULONG_MAX) {
+          if (unlikely(stri->size > ULONG_MAX)) {
             raise_error(MEMORY_ERROR);
           } else {
             free(preparedStmt->paramValues[pos - 1]);
             preparedStmt->paramValues[pos - 1] = stri_to_cstri(stri, &err_info);
-            if (preparedStmt->paramValues[pos - 1] == NULL) {
+            if (unlikely(preparedStmt->paramValues[pos - 1] == NULL)) {
               raise_error(err_info);
             } else {
               preparedStmt->paramLengths[pos - 1] = (int) stri->size;
@@ -1454,16 +1468,21 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     preparedStmtType preparedStmt;
 
   /* sqlBindTime */
-    /* printf("sqlBindTime(%lx, " FMT_D ", %ld, %ld, %ld, %ld, %ld, %ld, %ld)\n",
-       sqlStatement, pos, year, month, day, hour, minute, second, micro_second); */
+    logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       (memSizeType) sqlStatement, pos,
+                       year, month, day,
+                       hour, minute, second, micro_second););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindTime: pos: " FMT_D ", max pos: %lu.\n",
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
-    } else if (year <= INT16TYPE_MIN || year > INT16TYPE_MAX || month < 1 || month > 12 ||
-               day < 1 || day > 31 || hour < 0 || hour > 24 || minute < 0 || minute > 60 ||
-               second < 0 || second > 60 || micro_second < 0 || micro_second > 1000000) {
+    } else if (unlikely(year <= INT16TYPE_MIN || year > INT16TYPE_MAX || month < 1 || month > 12 ||
+                        day < 1 || day > 31 || hour < 0 || hour > 24 ||
+                        minute < 0 || minute > 60 || second < 0 || second > 60 ||
+                        micro_second < 0 || micro_second > 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
@@ -1500,7 +1519,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     bigIntType columnValue;
 
   /* sqlColumnBigInt */
-    /* printf("sqlColumnBigInt(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -1516,7 +1536,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
       if (isNull == 1) {
         /* printf("Column is NULL -> Use default value: 0\n"); */
         columnValue = bigZero();
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnBigInt: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
@@ -1525,7 +1545,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnBigInt: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
@@ -1556,7 +1576,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnBigInt --> %s\n", bigHexCStri(columnValue)); */
+    logFunction(printf("sqlColumnBigInt --> %s\n", bigHexCStri(columnValue)););
     return columnValue;
   } /* sqlColumnBigInt */
 
@@ -1572,7 +1592,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     Oid buffer_type;
 
   /* sqlColumnBigRat */
-    /* printf("sqlColumnBigRat(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *)\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -1588,7 +1609,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         /* printf("Column is NULL -> Use default value: 0\n"); */
         *numerator = bigZero();
         *denominator = bigFromInt32(1);
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnBigRat: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
@@ -1596,7 +1617,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnBigRat: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
@@ -1633,8 +1654,9 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnBigRat --> %s / %s\n",
-       bigHexCStri(*numerator), bigHexCStri(*denominator)); */
+    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s) -->\n",
+                       (memSizeType) sqlStatement, column,
+                       bigHexCStri(*numerator), bigHexCStri(*denominator)););
   } /* sqlColumnBigRat */
 
 
@@ -1650,7 +1672,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
     intType columnValue;
 
   /* sqlColumnBool */
-    /* printf("sqlColumnBool(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -1666,7 +1689,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
       if (isNull == 1) {
         /* printf("Column is NULL -> Use default value: 0\n"); */
         columnValue = 0;
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnBool: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
@@ -1675,7 +1698,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnBool: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
@@ -1700,7 +1723,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
               length = PQgetlength(preparedStmt->execute_result,
                                    preparedStmt->fetch_index,
                                    (int) column - 1);
-              if (length != 1) {
+              if (unlikely(length != 1)) {
                 logError(printf("sqlColumnBool: Column " FMT_D ": Length of column must be 1.\n",
                                 column););
                 raise_error(FILE_ERROR);
@@ -1719,13 +1742,13 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
               columnValue = 0;
               break;
           } /* switch */
-          if ((uintType) columnValue >= 2) {
+          if (unlikely((uintType) columnValue >= 2)) {
             raise_error(RANGE_ERROR);
           } /* if */
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnBool --> %d\n", columnValue != 0); */
+    logFunction(printf("sqlColumnBool --> %s\n", columnValue ? "TRUE" : "FALSE"););
     return columnValue != 0;
   } /* sqlColumnBool */
 
@@ -1740,10 +1763,11 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
     Oid buffer_type;
     int length;
     errInfoType err_info = OKAY_NO_ERROR;
-    bstriType bstri;
+    bstriType columnValue;
 
   /* sqlColumnBStri */
-    /* printf("sqlColumnBStri(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -1751,32 +1775,32 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
-      bstri = NULL;
+      columnValue = NULL;
     } else {
       isNull = PQgetisnull(preparedStmt->execute_result,
                            preparedStmt->fetch_index,
                            (int) column - 1);
       if (isNull == 1) {
         /* printf("Column is NULL -> Use default value: \"\"\n"); */
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri, 0))) {
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
           raise_error(MEMORY_ERROR);
         } else {
-          bstri->size = 0;
+          columnValue->size = 0;
         } /* if */
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnBStri: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
-        bstri = NULL;
+        columnValue = NULL;
       } else {
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnBStri: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
-          bstri = NULL;
+          columnValue = NULL;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
@@ -1785,16 +1809,16 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               length = PQgetlength(preparedStmt->execute_result,
                                    preparedStmt->fetch_index,
                                    (int) column - 1);
-              if (length < 0) {
+              if (unlikely(length < 0)) {
                 logError(printf("sqlColumnBStri: PQgetlength returns the length %d for column " FMT_D "\n",
                                 length, column););
                 raise_error(FILE_ERROR);
-                bstri = NULL;
-              } else if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(bstri, (memSizeType) length))) {
+                columnValue = NULL;
+              } else if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, (memSizeType) length))) {
                 raise_error(MEMORY_ERROR);
               } else {
-                memcpy(bstri->mem, buffer, (memSizeType) length);
-                bstri->size = (memSizeType) length;
+                memcpy(columnValue->mem, buffer, (memSizeType) length);
+                columnValue->size = (memSizeType) length;
               } /* if */
               break;
 #if 0
@@ -1805,14 +1829,14 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               length = PQgetlength(preparedStmt->execute_result,
                                    preparedStmt->fetch_index,
                                    (int) column - 1);
-              if (length < 0) {
+              if (unlikely(length < 0)) {
                 logError(printf("sqlColumnBStri: PQgetlength returns the length %d for column " FMT_D "\n",
                                 length, column););
                 raise_error(FILE_ERROR);
-                bstri = NULL;
+                columnValue = NULL;
               } else {
-                bstri = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
-                if (err_info != OKAY_NO_ERROR) {
+                columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
+                if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
                 } /* if */
               } /* if */
@@ -1821,17 +1845,17 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               length = PQgetlength(preparedStmt->execute_result,
                                    preparedStmt->fetch_index,
                                    (int) column - 1);
-              if (length < 0) {
+              if (unlikely(length < 0)) {
                 logError(printf("sqlColumnBStri: PQgetlength returns the length %d for column " FMT_D "\n",
                                 length, column););
                 raise_error(FILE_ERROR);
-                bstri = NULL;
+                columnValue = NULL;
               } else {
                 while (length > 0 && buffer[length - 1] == ' ') {
                   length--;
                 } /* if */
-                bstri = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
-                if (err_info != OKAY_NO_ERROR) {
+                columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
+                if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
                 } /* if */
               } /* if */
@@ -1841,16 +1865,14 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               logError(printf("sqlColumnBStri: Column " FMT_D " has the unknown type %s.\n",
                               column, nameOfBufferType(buffer_type)););
               raise_error(RANGE_ERROR);
-              bstri = NULL;
+              columnValue = NULL;
               break;
           } /* switch */
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnBStri --> ");
-       prot_bstri(bstri);
-       printf("\n"); */
-    return bstri;
+    logFunction(printf("sqlColumnBStri --> \"%s\"\n", bstriAsUnquotedCStri(columnValue)););
+    return columnValue;
   } /* sqlColumnBStri */
 
 
@@ -1866,7 +1888,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     Oid buffer_type;
 
   /* sqlColumnDuration */
-    /* printf("sqlColumnDuration(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *)\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -1887,7 +1910,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         *minute       = 0;
         *second       = 0;
         *micro_second = 0;
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnDuration: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
@@ -1895,7 +1918,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnDuration: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
@@ -1948,8 +1971,13 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-   /*  printf("sqlColumnDuration --> %d-%02d-%02d %02d:%02d:%02d\n",
-       *year, *month, *day, *hour, *minute, *second); */
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", "
+                                            F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                            F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                            F_D(06) ") -->\n",
+                       (memSizeType) sqlStatement, column,
+                       *year, *month, *day, *hour, *minute, *second,
+                       *micro_second););
   } /* sqlColumnDuration */
 
 
@@ -1964,7 +1992,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
     floatType columnValue;
 
   /* sqlColumnFloat */
-    /* printf("sqlColumnFloat(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -1980,7 +2009,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
       if (isNull == 1) {
         /* printf("Column is NULL -> Use default value: 0.0\n"); */
         columnValue = 0.0;
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnFloat: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
@@ -1989,7 +2018,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnFloat: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
@@ -2014,7 +2043,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnFloat --> %f\n", columnValue); */
+    logFunction(printf("sqlColumnFloat --> " FMT_E "\n", columnValue););
     return columnValue;
   } /* sqlColumnFloat */
 
@@ -2030,7 +2059,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
     intType columnValue;
 
   /* sqlColumnInt */
-    /* printf("sqlColumnInt(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -2046,7 +2076,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       if (isNull == 1) {
         /* printf("Column is NULL -> Use default value: 0\n"); */
         columnValue = 0;
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnInt: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
@@ -2055,7 +2085,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnInt: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
@@ -2086,7 +2116,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnInt --> " FMT_D "\n", columnValue); */
+    logFunction(printf("sqlColumnInt --> " FMT_D "\n", columnValue););
     return columnValue;
   } /* sqlColumnInt */
 
@@ -2101,10 +2131,11 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
     Oid buffer_type;
     int length;
     errInfoType err_info = OKAY_NO_ERROR;
-    striType stri;
+    striType columnValue;
 
   /* sqlColumnStri */
-    /* printf("sqlColumnStri(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -2112,28 +2143,28 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
-      stri = NULL;
+      columnValue = NULL;
     } else {
       isNull = PQgetisnull(preparedStmt->execute_result,
                            preparedStmt->fetch_index,
                            (int) column - 1);
       if (isNull == 1) {
         /* printf("Column is NULL -> Use default value: \"\"\n"); */
-        stri = strEmpty();
-      } else if (isNull != 0) {
+        columnValue = strEmpty();
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnStri: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
-        stri = NULL;
+        columnValue = NULL;
       } else {
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnStri: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
-          stri = NULL;
+          columnValue = NULL;
         } else {
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
@@ -2145,14 +2176,14 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               length = PQgetlength(preparedStmt->execute_result,
                                    preparedStmt->fetch_index,
                                    (int) column - 1);
-              if (length < 0) {
+              if (unlikely(length < 0)) {
                 logError(printf("sqlColumnStri: PQgetlength returns the length %d for column " FMT_D "\n",
                                 length, column););
                 raise_error(FILE_ERROR);
-                stri = NULL;
+                columnValue = NULL;
               } else {
-                stri = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
-                if (err_info != OKAY_NO_ERROR) {
+                columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
+                if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
                 } /* if */
               } /* if */
@@ -2161,17 +2192,17 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               length = PQgetlength(preparedStmt->execute_result,
                                    preparedStmt->fetch_index,
                                    (int) column - 1);
-              if (length < 0) {
+              if (unlikely(length < 0)) {
                 logError(printf("sqlColumnStri: PQgetlength returns the length %d for column " FMT_D "\n",
                                 length, column););
                 raise_error(FILE_ERROR);
-                stri = NULL;
+                columnValue = NULL;
               } else {
                 while (length > 0 && buffer[length - 1] == ' ') {
                   length--;
                 } /* if */
-                stri = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
-                if (err_info != OKAY_NO_ERROR) {
+                columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
+                if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
                 } /* if */
               } /* if */
@@ -2180,16 +2211,14 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               logError(printf("sqlColumnStri: Column " FMT_D " has the unknown type %s.\n",
                               column, nameOfBufferType(buffer_type)););
               raise_error(RANGE_ERROR);
-              stri = NULL;
+              columnValue = NULL;
               break;
           } /* switch */
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnStri --> ");
-       prot_stri(stri);
-       printf("\n"); */
-    return stri;
+    logFunction(printf("sqlColumnStri --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
+    return columnValue;
   } /* sqlColumnStri */
 
 
@@ -2206,7 +2235,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     Oid buffer_type;
 
   /* sqlColumnTime */
-    /* printf("sqlColumnTime(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *)\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -2229,7 +2259,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         *micro_second = 0;
         *time_zone    = 0;
         *is_dst       = 0;
-      } else if (isNull != 0) {
+      } else if (unlikely(isNull != 0)) {
         logError(printf("sqlColumnTime: Column " FMT_D ": PQgetisnull returns %d.\n",
                         column, isNull););
         raise_error(FILE_ERROR);
@@ -2237,7 +2267,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         buffer = PQgetvalue(preparedStmt->execute_result,
                             preparedStmt->fetch_index,
                             (int) column - 1);
-        if (buffer == NULL) {
+        if (unlikely(buffer == NULL)) {
           logError(printf("sqlColumnTime: Column " FMT_D ": PQgetvalue returns NULL.\n",
                           column););
           raise_error(FILE_ERROR);
@@ -2293,8 +2323,13 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-    /* printf("sqlColumnTime --> %d-%02d-%02d %02d:%02d:%02d.%06d %d\n",
-       *year, *month, *day, *hour, *minute, *second, *micro_second, *time_zone); */
+    logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", "
+                                        F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                        F_D(06) ", " FMT_D ", %d) -->\n",
+                       (memSizeType) sqlStatement, column,
+                       *year, *month, *day, *hour, *minute, *second,
+                       *micro_second, *time_zone, *is_dst););
   } /* sqlColumnTime */
 
 
@@ -2306,7 +2341,8 @@ static void sqlExecute (sqlStmtType sqlStatement)
     int num_tuples;
 
   /* sqlExecute */
-    /* printf("begin sqlExecute(%lx)\n", (unsigned long) sqlStatement); */
+    logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     preparedStmt->fetchOkay = FALSE;
     preparedStmt->execute_result = PQexecPrepared(preparedStmt->connection,
@@ -2316,7 +2352,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                                                   preparedStmt->paramLengths,
                                                   preparedStmt->paramFormats,
                                                   1);
-    if (preparedStmt->execute_result == NULL) {
+    if (unlikely(preparedStmt->execute_result == NULL)) {
       logError(printf("sqlExecute: PQexecPrepared returns NULL\n"););
       preparedStmt->executeSuccessful = FALSE;
       raise_error(MEMORY_ERROR);
@@ -2326,7 +2362,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
         preparedStmt->executeSuccessful = TRUE;
       } else if (preparedStmt->execute_status == PGRES_TUPLES_OK) {
         num_tuples = PQntuples(preparedStmt->execute_result);
-        if (num_tuples < 0) {
+        if (unlikely(num_tuples < 0)) {
           logError(printf("sqlExecute: PQntuples returns the number %d\n", num_tuples););
           preparedStmt->executeSuccessful = FALSE;
           raise_error(FILE_ERROR);
@@ -2352,7 +2388,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
-    /* printf("end sqlExecute\n"); */
+    logFunction(printf("sqlExecute -->\n"););
   } /* sqlExecute */
 
 
@@ -2363,9 +2399,10 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
     preparedStmtType preparedStmt;
 
   /* sqlFetch */
-    /* printf("begin sqlFetch(%lx)\n", (unsigned long) sqlStatement); */
+    logFunction(printf("sqlFetch(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (!preparedStmt->executeSuccessful) {
+    if (unlikely(!preparedStmt->executeSuccessful)) {
       logError(printf("sqlFetch: Execute was not successful\n"););
       preparedStmt->fetchOkay = FALSE;
       raise_error(FILE_ERROR);
@@ -2382,7 +2419,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
     } else {
       preparedStmt->fetchOkay = FALSE;
     } /* if */
-    /* printf("end sqlFetch --> %d\n", preparedStmt->fetchOkay); */
+    logFunction(printf("sqlFetch --> %d\n", preparedStmt->fetchOkay););
     return preparedStmt->fetchOkay;
   } /* sqlFetch */
 
@@ -2395,7 +2432,8 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
     boolType isNull;
 
   /* sqlIsNull */
-    /* printf("sqlIsNull(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlIsNull(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -2409,7 +2447,7 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
                            preparedStmt->fetch_index,
                            (int) column - 1);
     } /* if */
-    /* printf("sqlIsNull --> %d\n", isNull); */
+    logFunction(printf("sqlIsNull --> %s\n", isNull ? "TRUE" : "FALSE"););
     return isNull;
   } /* sqlIsNull */
 
@@ -2426,9 +2464,9 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
     preparedStmtType preparedStmt;
 
   /* sqlPrepare */
-    /* printf("begin sqlPrepare(database, ");
-       prot_stri(sqlStatementStri);
-       printf(")\n"); */
+    logFunction(printf("sqlPrepare(" FMT_U_MEM ", \"%s\")\n",
+                       (memSizeType) database,
+                       striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
     statementStri = processBindVarsInStatement(sqlStatementStri, &err_info);
     if (statementStri == NULL) {
@@ -2469,7 +2507,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
               if (err_info == OKAY_NO_ERROR) {
                 setupResult(preparedStmt, &err_info);
               } /* if */
-              if (err_info != OKAY_NO_ERROR) {
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
                 freePreparedStmt((sqlStmtType) preparedStmt);
                 preparedStmt = NULL;
               } /* if */
@@ -2481,10 +2519,11 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
       } /* if */
       FREE_STRI(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    /* printf("end sqlPrepare\n"); */
+    logFunction(printf("sqlPrepare --> " FMT_U_MEM "\n",
+                       (memSizeType) preparedStmt););
     return (sqlStmtType) preparedStmt;
   } /* sqlPrepare */
 
@@ -2497,10 +2536,11 @@ static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
     intType columnCount;
 
   /* sqlStmtColumnCount */
-    /* printf("sqlStmtColumnCount(%lx)\n", (unsigned long) sqlStatement); */
+    logFunction(printf("sqlStmtColumnCount(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     columnCount = (intType) preparedStmt->result_column_count;
-    /* printf("sqlStmtColumnCount --> %d\n", columnCount); */
+    logFunction(printf("sqlStmtColumnCount --> " FMT_D "\n", columnCount););
     return columnCount;
   } /* sqlStmtColumnCount */
 
@@ -2515,7 +2555,8 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
     striType name;
 
   /* sqlStmtColumnName */
-    /* printf("sqlStmtColumnName(%lx, " FMT_D ")\n", (unsigned long) sqlStatement, column); */
+    logFunction(printf("sqlStmtColumnName(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
@@ -2526,11 +2567,18 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
     } else {
       col_name = PQfname(preparedStmt->execute_result,
                          (int) column - 1);
-      name = cstri8_to_stri(col_name, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
-        raise_error(err_info);
+      if (unlikely(col_name == NULL)) {
+        raise_error(FILE_ERROR);
+        name = NULL;
+      } else {
+        name = cstri8_to_stri(col_name, &err_info);
+        if (unlikely(name == NULL)) {
+          raise_error(err_info);
+        } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("sqlStmtColumnName --> \"%s\"\n",
+                       striAsUnquotedCStri(name)););
     return name;
   } /* sqlStmtColumnName */
 
@@ -2595,13 +2643,10 @@ databaseType sqlOpenPost (const const_striType dbName,
     dbType database;
 
   /* sqlOpenPost */
-    /* printf("sqlOpenPost(");
-       prot_stri(dbName);
-       printf(", ");
-       prot_stri(user);
-       printf(", ");
-       prot_stri(password);
-       printf(")\n"); */
+    logFunction(printf("sqlOpenPost(\"%s\", ",
+                       striAsUnquotedCStri(dbName));
+                printf("\"%s\", ", striAsUnquotedCStri(user));
+                printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenPost: findDll() failed\n"););
       err_info = FILE_ERROR;
@@ -2673,9 +2718,11 @@ databaseType sqlOpenPost (const const_striType dbName,
         free_cstri8(dbName8, dbName);
       } /* if */
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
+    logFunction(printf("sqlOpenPost --> " FMT_U_MEM "\n",
+                       (memSizeType) database););
     return (databaseType) database;
   } /* sqlOpenPost */
 

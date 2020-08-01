@@ -365,7 +365,7 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
         intResult = 0;
       } else {
         if (negative) {
-          if (uintValue > (uintType) INTTYPE_MAX + 1) {
+          if (unlikely(uintValue > (uintType) INTTYPE_MAX + 1)) {
             logError(printf("getDecimalInt: Literal too small.\n"););
             raise_error(RANGE_ERROR);
             intResult = 0;
@@ -374,7 +374,7 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
             /* when the most negative intType value is negated.   */
             intResult = (intType) -uintValue;
           } /* if */
-        } else if (uintValue > (uintType) INTTYPE_MAX) {
+        } else if (unlikely(uintValue > (uintType) INTTYPE_MAX)) {
           logError(printf("getDecimalInt: Literal too big.\n"););
           raise_error(RANGE_ERROR);
           intResult = 0;

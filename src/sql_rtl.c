@@ -67,8 +67,8 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType value)
 
   { /* sqlBindBigInt */
-    logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", *)\n",
-                       (memSizeType) sqlStatement, pos););
+    logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s)\n",
+                       (memSizeType) sqlStatement, pos, bigHexCStri(value)););
     if (unlikely(sqlStatement == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigInt == NULL)) {
@@ -87,8 +87,9 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType numerator, const const_bigIntType denominator)
 
   { /* sqlBindBigRat */
-    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", *)\n",
-                       (memSizeType) sqlStatement, pos););
+    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s)\n",
+                       (memSizeType) sqlStatement, pos,
+                       bigHexCStri(numerator), bigHexCStri(denominator)););
     if (unlikely(sqlStatement == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigRat == NULL)) {
@@ -319,7 +320,10 @@ void sqlClose (databaseType database)
 
 bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlColumnBigInt */
+  {
+    bigIntType columnValue;
+
+  /* sqlColumnBigInt */
     logFunction(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
     if (unlikely(sqlStatement == NULL ||
@@ -329,10 +333,12 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
-      return NULL;
+      columnValue = NULL;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlColumnBigInt --> %s\n", bigHexCStri(columnValue)););
+    return columnValue;
   } /* sqlColumnBigInt */
 
 
@@ -354,6 +360,9 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigRat(sqlStatement, column,
           numerator, denominator);
     } /* if */
+    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s) -->\n",
+                       (memSizeType) sqlStatement, column,
+                       bigHexCStri(*numerator), bigHexCStri(*denominator)););
   } /* sqlColumnBigRat */
 
 
@@ -568,7 +577,8 @@ void sqlCpyDb (databaseType *const db_to, const databaseType db_from)
     dbType db_source;
 
   /* sqlCpyDb */
-    /* printf("sqlCpyStmt(%lu, %ld)\n", db_to, db_from); */
+    logFunction(printf("sqlCpyDb(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) db_to, (memSizeType) db_from););
     db_dest = (dbType) *db_to;
     db_source = (dbType) db_from;
     if (db_source != NULL) {
@@ -595,7 +605,8 @@ void sqlCpyStmt (sqlStmtType *const stmt_to, const sqlStmtType stmt_from)
     preparedStmtType statement_source;
 
   /* sqlCpyStmt */
-    /* printf("sqlCpyStmt(%lu, %ld)\n", stmt_to, stmt_from); */
+    logFunction(printf("sqlCpyStmt(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) stmt_to, (memSizeType) stmt_from););
     statement_dest = (preparedStmtType) *stmt_to;
     statement_source = (preparedStmtType) stmt_from;
     if (statement_source != NULL) {
@@ -618,6 +629,8 @@ void sqlCpyStmt (sqlStmtType *const stmt_to, const sqlStmtType stmt_from)
 databaseType sqlCreateDb (const databaseType db_from)
 
   { /* sqlCreateDb */
+    logFunction(printf("sqlCreateDb(" FMT_U_MEM ")\n",
+                       (memSizeType) db_from););
     if (db_from != NULL) {
       ((dbType) db_from)->usage_count++;
     } /* if */
@@ -629,6 +642,8 @@ databaseType sqlCreateDb (const databaseType db_from)
 sqlStmtType sqlCreateStmt (const sqlStmtType stmt_from)
 
   { /* sqlCreateStmt */
+    logFunction(printf("sqlCreateStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) stmt_from););
     if (stmt_from != NULL) {
       ((preparedStmtType) stmt_from)->usage_count++;
     } /* if */
@@ -643,6 +658,8 @@ void sqlDestrDb (const databaseType old_db)
     dbType old_database;
 
   /* sqlDestrDb */
+    logFunction(printf("sqlDestrDb(" FMT_U_MEM ")\n",
+                       (memSizeType) old_db););
     old_database = (dbType) old_db;
     if (old_database != NULL) {
       old_database->usage_count--;
@@ -663,6 +680,8 @@ void sqlDestrStmt (const sqlStmtType old_stmt)
     preparedStmtType old_statement;
 
   /* sqlDestrStmt */
+    logFunction(printf("sqlDestrStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) old_stmt););
     old_statement = (preparedStmtType) old_stmt;
     if (old_statement != NULL) {
       old_statement->usage_count--;
@@ -680,6 +699,8 @@ void sqlDestrStmt (const sqlStmtType old_stmt)
 void sqlExecute (sqlStmtType sqlStatement)
 
   { /* sqlExecute */
+    logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
     if (sqlStatement == NULL) {
       /* Do nothing */
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
@@ -688,37 +709,52 @@ void sqlExecute (sqlStmtType sqlStatement)
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute(sqlStatement);
     } /* if */
+    logFunction(printf("sqlExecute -->\n"););
   } /* sqlExecute */
 
 
 
 boolType sqlFetch (sqlStmtType sqlStatement)
 
-  { /* sqlFetch */
+  {
+    boolType fetchOkay;
+
+  /* sqlFetch */
+    logFunction(printf("sqlFetch(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
     if (sqlStatement == NULL) {
-      return FALSE;
+      fetchOkay = FALSE;
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch == NULL)) {
       raise_error(RANGE_ERROR);
-      return FALSE;
+      fetchOkay = FALSE;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch(sqlStatement);
+      fetchOkay = ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch(sqlStatement);
     } /* if */
+    logFunction(printf("sqlFetch --> %d\n", fetchOkay););
+    return fetchOkay;
   } /* sqlFetch */
 
 
 
 boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlIsNull */
+  {
+    boolType isNull;
+
+  /* sqlIsNull */
+    logFunction(printf("sqlIsNull(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     if (unlikely(sqlStatement == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull == NULL)) {
       raise_error(RANGE_ERROR);
-      return FALSE;
+      isNull = FALSE;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull(sqlStatement, column);
+      isNull = ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlIsNull --> %s\n", isNull ? "TRUE" : "FALSE"););
+    return isNull;
   } /* sqlIsNull */
 
 
@@ -730,7 +766,10 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
     databaseType database;
 
   /* sqlOpen */
-    /* printf("sqlOpen(" FMT_D ", ...)\n", driver); */
+    logFunction(printf("sqlOpen(" FMT_D ", \"%s\", ",
+                       driver, striAsUnquotedCStri(dbName));
+                printf("\"%s\", ", striAsUnquotedCStri(user));
+                printf("\"%s\")\n", striAsUnquotedCStri(password)););
     switch (driver) {
 #ifdef MYSQL_INCLUDE
       case 1:
@@ -758,11 +797,13 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
         break;
 #endif
       default:
-        /* printf("driver: " FMT_D "\n", driver); */
+        logError(printf("sqlOpen: unknown driver: " FMT_D "\n", driver););
         raise_error(RANGE_ERROR);
         database = NULL;
         break;
     } /* switch */
+    logFunction(printf("sqlOpen --> " FMT_U_MEM "\n",
+                       (memSizeType) database););
     return database;
   } /* sqlOpen */
 
@@ -770,43 +811,67 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
 
 sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 
-  { /* sqlPrepare */
+  {
+    sqlStmtType preparedStmt;
+
+  /* sqlPrepare */
+    logFunction(printf("sqlPrepare(" FMT_U_MEM ", \"%s\")\n",
+                       (memSizeType) database,
+                       striAsUnquotedCStri(sqlStatementStri)););
     if (unlikely(database == NULL ||
                  ((dbType) database)->sqlFunc == NULL ||
                  ((dbType) database)->sqlFunc->sqlPrepare == NULL)) {
       raise_error(RANGE_ERROR);
-      return NULL;
+      preparedStmt = NULL;
     } else {
-      return ((dbType) database)->sqlFunc->sqlPrepare(database, sqlStatementStri);
+      preparedStmt = ((dbType) database)->sqlFunc->sqlPrepare(database, sqlStatementStri);
     } /* if */
+    logFunction(printf("sqlPrepare --> " FMT_U_MEM "\n",
+                       (memSizeType) preparedStmt););
+    return preparedStmt;
   } /* sqlPrepare */
 
 
 
 intType sqlStmtColumnCount (sqlStmtType sqlStatement)
 
-  { /* sqlStmtColumnCount */
+  {
+    intType columnCount;
+
+  /* sqlStmtColumnCount */
+    logFunction(printf("sqlStmtColumnCount(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
     if (unlikely(sqlStatement == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount == NULL)) {
       raise_error(RANGE_ERROR);
-      return 0;
+      columnCount = 0;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount(sqlStatement);
+      columnCount = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount(sqlStatement);
     } /* if */
+    logFunction(printf("sqlStmtColumnCount --> " FMT_D "\n", columnCount););
+    return columnCount;
   } /* sqlStmtColumnCount */
 
 
 
 striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlStmtColumnName */
+  {
+    striType name;
+
+  /* sqlStmtColumnName */
+    logFunction(printf("sqlStmtColumnName(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
     if (unlikely(sqlStatement == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName == NULL)) {
       raise_error(RANGE_ERROR);
-      return NULL;
+      name = NULL;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName(sqlStatement, column);
+      name = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlStmtColumnName --> \"%s\"\n",
+                       striAsUnquotedCStri(name)););
+    return name;
   } /* sqlStmtColumnName */

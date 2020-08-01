@@ -64,10 +64,10 @@ const type: ray is new struct
 
     const func ray: ray (in vector3d: origin, in vector3d: direction) is func
       result
-        var ray: result is ray.value;
+        var ray: aRay is ray.value;
       begin
-        result.origin := origin;
-        result.direction := direction;
+        aRay.origin := origin;
+        aRay.direction := direction;
       end func;
 
 
@@ -96,11 +96,11 @@ const type: light is new struct
 
     const func light: light (in vector3d: pos, in color: colour, in boolean: castsShadows) is func
       result
-        var light: result is light.value;
+        var light: aLight is light.value;
       begin
-        result.pos := pos;
-        result.colour := colour;
-        result.castsShadows := castsShadows;
+        aLight.pos := pos;
+        aLight.colour := colour;
+        aLight.castsShadows := castsShadows;
       end func;
 
     const func vector3d: pos (in light: aLight) is
@@ -132,39 +132,39 @@ const type: surface is new struct
         in color: colour,
         in vector3d: normal) is func
       result
-        var surface: result is surface.value;
+        var surface: aSurface is surface.value;
       begin
-        result.ambient    := ambient;
-        result.diffuse    := diffuse;
-        result.specular   := specular;
-        result.specIndex  := specIndex;
-        result.reflect    := reflect;
-        result.colour     := colour;
-        result.normal     := normal;
+        aSurface.ambient    := ambient;
+        aSurface.diffuse    := diffuse;
+        aSurface.specular   := specular;
+        aSurface.specIndex  := specIndex;
+        aSurface.reflect    := reflect;
+        aSurface.colour     := colour;
+        aSurface.normal     := normal;
       end func;
 
     const func surface: dull (in color: aColor) is func
       result
-        var surface: result is surface.value;
+        var surface: aSurface is surface.value;
       begin
-        result.ambient    :=  0.6;
-        result.diffuse    :=  0.7;
-        result.specular   :=  0.0;
-        result.specIndex  :=  1.0;
-        result.reflect    :=  0.0;
-        result.colour     := aColor;
+        aSurface.ambient    :=  0.6;
+        aSurface.diffuse    :=  0.7;
+        aSurface.specular   :=  0.0;
+        aSurface.specIndex  :=  1.0;
+        aSurface.reflect    :=  0.0;
+        aSurface.colour     := aColor;
       end func;
 
     const func surface: shiny (in color: aColor) is func
       result
-        var surface: result is surface.value;
+        var surface: aSurface is surface.value;
       begin
-        result.ambient    :=  0.3;
-        result.diffuse    :=  0.2;
-        result.specular   :=  0.9;
-        result.specIndex  := 32.0;
-        result.reflect    :=  0.8;
-        result.colour     := aColor;
+        aSurface.ambient    :=  0.3;
+        aSurface.diffuse    :=  0.2;
+        aSurface.specular   :=  0.9;
+        aSurface.specIndex  := 32.0;
+        aSurface.reflect    :=  0.8;
+        aSurface.colour     := aColor;
       end func;
 
 
@@ -179,9 +179,9 @@ const type: baseRayTraceObject is new struct
 
     const func baseRayTraceObject: rayTraceObject (in surface: aSurface) is func
       result
-        var baseRayTraceObject: result is baseRayTraceObject.value;
+        var baseRayTraceObject: rayTraceObject is baseRayTraceObject.value;
       begin
-        result.aSurface := aSurface;
+        rayTraceObject.aSurface := aSurface;
       end func;
 
     const func surface: surfaceAt (in baseRayTraceObject: obj, in vector3d: vect) is
@@ -196,9 +196,9 @@ const type: intersect is new struct
 
     const func intersect: intersect (in float: t) is func
       result
-        var intersect: result is intersect.value;
+        var intersect: intersection is intersect.value;
       begin
-        result.t := t;
+        intersection.t := t;
       end func;
 
     const proc: setValue (inout intersect: intersection, in float: t, in boolean: enter, in rayTraceObject: obj) is func
@@ -222,16 +222,16 @@ const type: sphere is sub baseRayTraceObject struct
 
     const func sphere: sphere (in surface: aSurface, in vector3d: centre, in float: radius) is func
       result
-        var sphere: result is sphere.value;
+        var sphere: aSphere is sphere.value;
       begin
-        result.aSurface := aSurface;
-        result.centre := centre;
-        result.radius := radius;
+        aSphere.aSurface := aSurface;
+        aSphere.centre := centre;
+        aSphere.radius := radius;
       end func;
 
     const func boolean: intersect (in sphere: aSphere, in ray: aRay, inout intersect: hit) is func
       result
-        var boolean: result is TRUE;
+        var boolean: doesIntersect is TRUE;
       local
         var vector3d: v is vector3d.value;
         var float: b is 0.0;
@@ -243,23 +243,23 @@ const type: sphere is sub baseRayTraceObject struct
         b := dot(v, aRay.direction);
         disc := b * b - dot(v, v) + aSphere.radius * aSphere.radius;
         if disc <= 0.0 then
-          result := FALSE;
+          doesIntersect := FALSE;
         else
           disc := sqrt(disc);
           t2 := b + disc;
           if t2 <= 1.0e-9 then
-            result := FALSE;
+            doesIntersect := FALSE;
           else
             t1 := b - disc;
             if not isNaN(hit.t) and t1 >= hit.t and t2 >= hit.t then
-              result := FALSE;
+              doesIntersect := FALSE;
             else
               if t1 > 1.0e-9 then
                 setValue(hit, t1, TRUE, aSphere);
               else
                 setValue(hit, t2, FALSE, aSphere);
               end if;
-              result := TRUE;
+              doesIntersect := TRUE;
             end if;
           end if;
         end if;
@@ -283,16 +283,16 @@ const type: infinitePlane is sub baseRayTraceObject struct
 
     const func infinitePlane: infinitePlane (in surface: aSurface, in vector3d: centre, in vector3d: normal) is func
       result
-        var infinitePlane: result is infinitePlane.value;
+        var infinitePlane: aPlane is infinitePlane.value;
       begin
-        result.aSurface := aSurface;
-        result.centre := centre;
-        result.normal := unitVector(normal);
+        aPlane.aSurface := aSurface;
+        aPlane.centre := centre;
+        aPlane.normal := unitVector(normal);
       end func;
 
     const func boolean: intersect (in infinitePlane: plane, in ray: aRay, inout intersect: hit) is func
       result
-        var boolean: result is TRUE;
+        var boolean: doesIntersect is TRUE;
       local
         var float: cdotn is 0.0;
         var float: ddotn is 0.0;
@@ -301,16 +301,16 @@ const type: infinitePlane is sub baseRayTraceObject struct
         cdotn := dot(plane.centre, plane.normal);
         ddotn := dot(aRay.direction, plane.normal);
         if abs(ddotn) < 1.0e-9 then
-          result := FALSE;
+          doesIntersect := FALSE;
         else
           t := (cdotn - dot(aRay.origin, plane.normal)) / ddotn;
           if t <= 0.0 or (not isNaN(hit.t) and t >= hit.t) then
-            result := FALSE;
+            doesIntersect := FALSE;
           else
             #TRACE(plane);
             #writeln;
             setValue(hit, t, FALSE, plane);
-            result := TRUE;
+            doesIntersect := TRUE;
           end if;
         end if;
       end func;
@@ -340,28 +340,28 @@ const type: rayTraceCanvas is sub canvas struct
 
     const func boolean: intersect (in rayTraceCanvas: aCanvas, in ray: aRay, inout intersect: hit) is func
       result
-        var boolean: didHit is FALSE;
+        var boolean: doesIntersect is FALSE;
       local
         var rayTraceObject: obj is baseRayTraceObject.value;
       begin
         for obj range aCanvas.scene do
           if intersect(obj, aRay, hit) then
-            didHit := TRUE;
+            doesIntersect := TRUE;
           end if;
         end for;
       end func;
 
     const func boolean: shadow (in rayTraceCanvas: aCanvas, in ray: aRay, in float: ld) is func
       result
-        var boolean: result is FALSE;
+        var boolean: inShadow is FALSE;
       local
         var intersect: hit is intersect.value;
         var rayTraceObject: obj is baseRayTraceObject.value;
       begin
         hit := intersect(ld);
         for obj range aCanvas.scene do
-          if not result and intersect(obj, aRay, hit) then
-            result := TRUE;
+          if not inShadow and intersect(obj, aRay, hit) then
+            inShadow := TRUE;
           end if;
         end for;
       end func;
@@ -370,7 +370,7 @@ const type: rayTraceCanvas is sub canvas struct
 
     const func color: shade (in rayTraceCanvas: aCanvas, in ray: aRay, in intersect: hit, in float: depth) is func
       result
-        var color: result is color(0, 0, 0);
+        var color: shadeColor is color(0, 0, 0);
       local
         var vector3d: point is vector3d.value;
         var surface: surf is surface.value;
@@ -388,7 +388,7 @@ const type: rayTraceCanvas is sub canvas struct
         var color: transCol is color(0, 0, 0);
       begin
         if hit.obj = baseRayTraceObject.value then
-          result := aCanvas.backgroundCol;
+          shadeColor := aCanvas.backgroundCol;
         else
 
           point := aRay.origin + aRay.direction * hit.t;
@@ -441,24 +441,24 @@ const type: rayTraceCanvas is sub canvas struct
               add(spec, transCol * surf.reflect)
           end if;
 
-          # result := amb + diff + spec;
-          result := amb;
-          add(result, diff);
-          add(result, spec);
+          # shadeColor := amb + diff + spec;
+          shadeColor := amb;
+          add(shadeColor, diff);
+          add(shadeColor, spec);
         end if;
       end func;
 
     const func color: trace (in rayTraceCanvas: aCanvas, in ray: aRay, in float: depth) is func
       result
-        var color: result is color(0, 0, 0);
+        var color: traceColor is color(0, 0, 0);
       local
         var intersect: hit is intersect.value;
         var rayTraceObject: obj is baseRayTraceObject.value;
       begin
-        result := aCanvas.backgroundCol;
+        traceColor := aCanvas.backgroundCol;
         if intersect(aCanvas, aRay, hit) then
           obj := hit.obj;
-          result := shade(aCanvas, aRay, hit, depth);
+          traceColor := shade(aCanvas, aRay, hit, depth);
         end if;
       end func;
 

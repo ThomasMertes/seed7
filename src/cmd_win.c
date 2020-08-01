@@ -413,7 +413,8 @@ int wsetenv (const const_os_striType name, const const_os_striType value,
     int result;
 
   /* wsetenv */
-    /* printf("wsetenv(%ls, %ls, &d)\n", name, value, overwrite); */
+    logFunction(printf("wsetenv(\"" FMT_S_OS "\", \"" FMT_S_OS "\", &d)\n",
+                       name, value, overwrite););
     result = !SetEnvironmentVariableW(name, value);
     return result;
   } /* wsetenv */

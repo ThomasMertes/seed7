@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -116,8 +119,8 @@ objectType prc_begin (listType arguments)
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
-    if (err_info != OKAY_NO_ERROR ||
-        (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -254,6 +257,7 @@ objectType prc_case (listType arguments)
     listType err_arguments;
 
   /* prc_case */
+    logFunction(printf("prc_case\n"););
     switch_object = arg_2(arguments);
     when_objects = arg_4(arguments);
     current_when = when_objects;
@@ -291,11 +295,12 @@ objectType prc_case (listType arguments)
         current_when = NULL;
       } /* if */
     } /* while */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_with_arguments(prog.sys_var[err_info], err_arguments);
     } else if (when_statement != NULL) {
       evaluate(when_statement);
     } /* if */
+    logFunction(printf("prc_case -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* prc_case */
 
@@ -317,6 +322,7 @@ objectType prc_case_def (listType arguments)
     listType err_arguments;
 
   /* prc_case_def */
+    logFunction(printf("prc_case_def\n"););
     switch_object = arg_2(arguments);
     when_objects = arg_4(arguments);
     current_when = when_objects;
@@ -354,7 +360,7 @@ objectType prc_case_def (listType arguments)
         current_when = NULL;
       } /* if */
     } /* while */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_with_arguments(prog.sys_var[err_info], err_arguments);
     } else if (when_statement != NULL) {
       evaluate(when_statement);
@@ -362,33 +368,32 @@ objectType prc_case_def (listType arguments)
       default_statement = arg_7(arguments);
       evaluate(default_statement);
     } /* if */
+    logFunction(printf("prc_case_def -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* prc_case_def */
 
 
 
-#ifdef OUT_OF_ORDER
 objectType prc_case_hashset (listType arguments)
 
   {
     objectType switch_object;
-    intType switch_hashcode;
-    objectType cmp_func;
     objectType when_objects;
     objectType current_when;
     objectType when_values;
     objectType when_set;
     hashType hashMap_value;
-    objectType when_statement;
+    objectType when_statement = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
-    boolType searching;
+    listType err_arguments;
 
   /* prc_case_hashset */
-    searching = TRUE;
+    logFunction(printf("prc_case_hashset\n"););
     switch_object = arg_2(arguments);
     when_objects = arg_4(arguments);
     current_when = when_objects;
-    while (searching && current_when != NULL &&
+    err_arguments = arguments;
+    while (err_info == OKAY_NO_ERROR && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listValue->next->next->next->next != NULL) {
       when_values = arg_3(current_when->value.listValue);
@@ -397,30 +402,97 @@ objectType prc_case_hashset (listType arguments)
         isit_hash(when_set);
         hashMap_value = take_hash(when_set);
         if (TEMP_OBJECT(when_set)) {
-          when_values->type_of = NULL;
+          when_values->type_of = when_set->type_of;
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, HASHOBJECT);
           when_values->value.hashValue = hashMap_value;
         } /* if */
-      } else {
-        hashMap_value = take_hash(when_values);
       } /* if */
-      if (hsh_contains_element(hashMap_value, switch_object,
-          switch_hashcode, mp_func)) {
-        when_statement = arg_5(current_when->value.listValue);
-        evaluate(when_statement);
-        searching = FALSE;
-      } else {
-        if (current_when->value.listValue->next->next->next->next->next != NULL) {
-          current_when = arg_6(current_when->value.listValue);
+      if (do_in(switch_object, when_values, &err_info)) {
+        if (unlikely(when_statement != NULL)) {
+          err_info = ACTION_ERROR;
+          err_arguments = current_when->value.listValue->next;
         } else {
-          current_when = NULL;
+          when_statement = arg_5(current_when->value.listValue);
         } /* if */
       } /* if */
+      if (current_when->value.listValue->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when->value.listValue);
+      } else {
+        current_when = NULL;
+      } /* if */
     } /* while */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+    } else if (when_statement != NULL) {
+      evaluate(when_statement);
+    } /* if */
+    logFunction(printf("prc_case_hashset -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* prc_case_hashset */
-#endif
+
+
+
+objectType prc_case_hashset_def (listType arguments)
+
+  {
+    objectType switch_object;
+    objectType when_objects;
+    objectType default_statement;
+    objectType current_when;
+    objectType when_values;
+    objectType when_set;
+    hashType hashMap_value;
+    objectType when_statement = NULL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType err_arguments;
+
+  /* prc_case_hashset_def */
+    logFunction(printf("prc_case_hashset_def\n"););
+    switch_object = arg_2(arguments);
+    when_objects = arg_4(arguments);
+    current_when = when_objects;
+    err_arguments = arguments;
+    while (err_info == OKAY_NO_ERROR && current_when != NULL &&
+        CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
+        current_when->value.listValue->next->next->next->next != NULL) {
+      when_values = arg_3(current_when->value.listValue);
+      if (CATEGORY_OF_OBJ(when_values) != HASHOBJECT) {
+        when_set = exec_object(when_values);
+        isit_hash(when_set);
+        hashMap_value = take_hash(when_set);
+        if (TEMP_OBJECT(when_set)) {
+          when_values->type_of = when_set->type_of;
+          when_values->descriptor.property = NULL;
+          SET_CATEGORY_OF_OBJ(when_values, HASHOBJECT);
+          when_values->value.hashValue = hashMap_value;
+        } /* if */
+      } /* if */
+      if (do_in(switch_object, when_values, &err_info)) {
+        if (unlikely(when_statement != NULL)) {
+          err_info = ACTION_ERROR;
+          err_arguments = current_when->value.listValue->next;
+        } else {
+          when_statement = arg_5(current_when->value.listValue);
+        } /* if */
+      } /* if */
+      if (current_when->value.listValue->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when->value.listValue);
+      } else {
+        current_when = NULL;
+      } /* if */
+    } /* while */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+    } else if (when_statement != NULL) {
+      evaluate(when_statement);
+    } else {
+      default_statement = arg_7(arguments);
+      evaluate(default_statement);
+    } /* if */
+    logFunction(printf("prc_case_hashset_def -->\n"););
+    return SYS_EMPTY_OBJECT;
+  } /* prc_case_hashset_def */
 
 
 
@@ -723,7 +795,7 @@ objectType prc_include (listType arguments)
       find_include_file(include_file_name, &err_info);
       if (err_info == MEMORY_ERROR) {
         err_warning(OUT_OF_HEAP_SPACE);
-      } else if (err_info != OKAY_NO_ERROR) {
+      } else if (unlikely(err_info != OKAY_NO_ERROR)) {
         /* FILE_ERROR or RANGE_ERROR */
         err_stri(FILENOTFOUND, include_file_name);
       } else {
@@ -784,8 +856,8 @@ objectType prc_local (listType arguments)
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
-    if (err_info != OKAY_NO_ERROR ||
-        (block = new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL) {
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 (block = new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -1033,8 +1105,8 @@ objectType prc_return (listType arguments)
     printf("\n");
 #endif
     get_return_var(&return_var, return_type, &err_info);
-    if (err_info != OKAY_NO_ERROR ||
-        (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -1091,8 +1163,8 @@ objectType prc_return2 (listType arguments)
     printf("\n");
 #endif
     get_return_var(&return_var, return_type, &err_info);
-    if (err_info != OKAY_NO_ERROR ||
-        (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -1152,8 +1224,8 @@ objectType prc_varfunc (listType arguments)
       fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
-    if (err_info != OKAY_NO_ERROR ||
-        (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -1189,8 +1261,8 @@ objectType prc_varfunc2 (listType arguments)
       fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
-    if (err_info != OKAY_NO_ERROR ||
-        (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);

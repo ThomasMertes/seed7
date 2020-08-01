@@ -66,7 +66,21 @@ boolType filInputReady (fileType aFile)
   /* filInputReady */
     logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
     file_no = fileno(aFile);
-    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0) {
+    if (unlikely(file_no == -1)) {
+      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), safe_fileno(aFile),
+                      errno, strerror(errno)););
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } else if (unlikely(os_fstat(file_no, &stat_buf) != 0)) {
+      logError(printf("filInputReady(%d): fstat(%d, *) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), safe_fileno(aFile),
+                      errno, strerror(errno)););
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } else {
       if (S_ISREG(stat_buf.st_mode)) {
         result = TRUE;
       } else if (S_ISCHR(stat_buf.st_mode)) {
@@ -78,15 +92,15 @@ boolType filInputReady (fileType aFile)
           result = kbhit() != 0;
         } else {
           fileHandle = (HANDLE) _get_osfhandle(file_no);
-          if (fileHandle != (HANDLE) -1) {
-            result = WaitForSingleObject(fileHandle, 0) == WAIT_OBJECT_0;
-          } else {
+          if (unlikely(fileHandle == (HANDLE) -1)) {
             logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
                             "errno=%d\nerror: %s\n",
                             safe_fileno(aFile), safe_fileno(aFile),
                             errno, strerror(errno)););
             raise_error(FILE_ERROR);
             result = FALSE;
+          } else {
+            result = WaitForSingleObject(fileHandle, 0) == WAIT_OBJECT_0;
           } /* if */
         } /* if */
       } else if (S_ISFIFO(stat_buf.st_mode)) {
@@ -95,7 +109,14 @@ boolType filInputReady (fileType aFile)
           result = TRUE;
         } else {
           fileHandle = (HANDLE) _get_osfhandle(file_no);
-          if (fileHandle != (HANDLE) -1) {
+          if (unlikely(fileHandle == (HANDLE) -1)) {
+            logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            safe_fileno(aFile), safe_fileno(aFile),
+                            errno, strerror(errno)););
+            raise_error(FILE_ERROR);
+            result = FALSE;
+          } else {
             if (PeekNamedPipe(fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
               result = totalBytesAvail >= 1;
             } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(aFile)) {
@@ -108,13 +129,6 @@ boolType filInputReady (fileType aFile)
               raise_error(FILE_ERROR);
               result = FALSE;
             } /* if */
-          } else {
-            logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
-                            "errno=%d\nerror: %s\n",
-                            safe_fileno(aFile), safe_fileno(aFile),
-                            errno, strerror(errno)););
-            raise_error(FILE_ERROR);
-            result = FALSE;
           } /* if */
         } /* if */
       } else {
@@ -123,13 +137,6 @@ boolType filInputReady (fileType aFile)
         raise_error(FILE_ERROR);
         result = FALSE;
       } /* if */
-    } else {
-      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
-                      errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-      result = FALSE;
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
                        safe_fileno(aFile), result););
@@ -140,8 +147,30 @@ boolType filInputReady (fileType aFile)
 
 void setupFiles (void)
 
-  { /* setupFiles */
-    setmode(fileno(stdin), _O_BINARY);
-    setmode(fileno(stdout), _O_BINARY);
-    setmode(fileno(stderr), _O_BINARY);
+  {
+    HANDLE hConsole;
+    DWORD mode;
+
+  /* setupFiles */
+    /* Redirected files are set to _O_BINARY mode.       */
+    /* Only real console files are left in _O_TEXT mode. */
+    /* This way the ENTER key is translated to '\n'.     */
+    hConsole = GetStdHandle(STD_INPUT_HANDLE);
+    if (hConsole == INVALID_HANDLE_VALUE ||
+        GetFileType(hConsole) != FILE_TYPE_CHAR ||
+        GetConsoleMode(hConsole, &mode) == 0) {
+      setmode(fileno(stdin), _O_BINARY);
+    } /* if */
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hConsole == INVALID_HANDLE_VALUE ||
+        GetFileType(hConsole) != FILE_TYPE_CHAR ||
+        GetConsoleMode(hConsole, &mode) == 0) {
+      setmode(fileno(stdout), _O_BINARY);
+    } /* if */
+    hConsole = GetStdHandle(STD_ERROR_HANDLE);
+    if (hConsole == INVALID_HANDLE_VALUE ||
+        GetFileType(hConsole) != FILE_TYPE_CHAR ||
+        GetConsoleMode(hConsole, &mode) == 0) {
+      setmode(fileno(stderr), _O_BINARY);
+    } /* if */
   } /* setupFiles */

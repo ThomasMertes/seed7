@@ -1,3 +1,61 @@
+20150914:
+- The FAQ has been improved to explain the support for Unicode names
+  and how Unicode names are activated with a pragma.
+- The heap management for strings has been improved to determine the
+  maximum length of the free lists automatically at run-time. This
+  improves the runtime, when the compiler (s7c) compiles itself, by
+  2.7% (measured with gcc and valgrind). In many other situations
+  this optimization has also a positive effect.
+- The interpreter has been improved to allow experimental support
+  for case statements with a string decision expression.
+- The compiler has been improved to use the functions abs()
+  respectively labs() for the absolute value of an integer (when
+  overflow checking is switched off).
+- Tests for abs have been added to chkint.sd7.
+- The example program raytrace.sd7 has been improved to use result
+  variables with descriptive names.
+- The configuration values LONG_SIZE and BOOLTYPE have been added to
+  cc_conf.s7i.
+- Interpreter and compiler have been changed to use the type _Bool
+  or bool for boolean values, when one of them is available. This
+  allows some optimizations by the C compiler, since the possible
+  values are restricted to 0 and 1.
+- The deprecated functions open_utf8, open_utf16, open_echo,
+  open_line, open_tee, open_more, open_upper, open_lower,
+  open_reverse, open_window and open_field have been removed.
+  The replacement functions are openUtf8, openUtf16, openEcho,
+  openLine, openTee, openMore, openUpper, openLower, openReverse,
+  openWindow and openField.
+- The deprecated function removeAnyFile has been removed. The
+  replacement function is removeTree.
+- The macros 'likely' and 'unlikely' have been added to functions in
+  analyze.c, arrlib.c, biglib.c, bstlib.c, chrlib.c, cmdlib.c,
+  dcllib.c, drw_win.c, drw_x11.c, fillib.c, fil_unx.c, fil_win.c,
+  numutl.c, pollib.c, prclib.c, sql_lite.c, sql_my.c, sql_oci.c,
+  sql_odbc.c, sql_post.c and ut8_rtl.c.
+- The definition of the macro logFunction in common.h has been
+  improved to write the file name.
+- Calls of logFunction have been added to arrlib.c, prclib.c,
+  big_gmp.c, cmd_unx.c cmd_win.c dir_dos.c, dir_win.c, drw_win.c,
+  set_rtl.c, sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c, sql_post.c
+  and sql_rtl.c.
+- Checks for err_info != OKAY_NO_ERROR have been replaced by checks
+  for pointer variables beeing NULL in sql_lite.c, sql_my.c,
+  sql_oci.c, sql_odbc.c and sql_post.c. Since the address of
+  err_info is used this variable cannot be placed into a register.
+- Several variables have been changed to constants.
+- Several calls of strlen() have been replaced with calls of the
+  macro STRLEN() (STRLEN() computes the string size of a literal at
+  compile-time).
+- The files drw_win.c and tim_win.c have been improved to reduce the
+  number of C compiler warnings.
+- The function setupFiles in fil_win.c has been improved to set only
+  redirected files to _O_BINARY mode. Real console files are left in
+  _O_TEXT mode. This way the ENTER key is translated to '\n'.
+- The function freelistStatistic has been added to heaputl.c.
+- Several definitions have been changed to use a static storage
+  class.
+
 20150823:
 - The example program raytrace.sd7 has been added. This program is a
   raytracing demo.
@@ -27,8 +85,8 @@
   calls of strcat().
 - The function fix_capability in trm_inf.c has been improved to use
   fewer calls of strcat().
-- The function strLit in str_rtl.c has been improved to work
-  without calls of strlen().
+- The function strLit in str_rtl.c has been improved to work without
+  calls of strlen().
 - The functions calculate_output_length and print_stri in error.c
   have been improved to use fewer calls of strlen().
 - The function prot_os_stri has been removed from traceutl.c.
@@ -38,8 +96,8 @@
   soc_rtl.c, striutl.c and traceutl.c.
 - Checks for err_info != OKAY_NO_ERROR have been replaced by checks
   for pointer variables beeing NULL in cmd_win.c, dir_rtl.c,
-  fil_rtl.c, pcs_unx.c, pcs_win.c, striutl.c. Since references to
-  err_info are used this variable cannot be placed into a register.
+  fil_rtl.c, pcs_unx.c, pcs_win.c, striutl.c. Since the address of
+  err_info is used this variable cannot be placed into a register.
   The pointer variables used now can be placed into a register.
 - Variables in big_rtl.c, dir_rtl.c and striutl.c have been changed
   to constants.
@@ -321,8 +379,8 @@
   soc_rtl.c, str_rtl.c, tim_unx.c and ut8_rtl.c.
 
 20150419:
-- The library httpserv.s7i, which supports HTTP server HTTP requests,
-  has been added.
+- The library httpserv.s7i, which supports HTTP server and HTTP
+  requests, has been added.
 - The comanche webserver has been changed to use the library
   httpserv.s7i.
 - The example program which.sd7 has been added. This program locates

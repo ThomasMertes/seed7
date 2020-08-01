@@ -802,6 +802,18 @@ void numericSizes (FILE *versionFile)
     fprintf(versionFile, "#define TIME_T_SIZE %d\n",      8 * getSizeof("time_t"));
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
     fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
+                         "{_Bool flag = 1;return 0;}\n")) {
+      fputs("#define BOOLTYPE _Bool\n", versionFile);
+      fputs("#define BOOLTYPE_STRI \"_Bool\"\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
+                         "{bool flag = 1;return 0;}\n")) {
+      fputs("#define BOOLTYPE bool\n", versionFile);
+      fputs("#define BOOLTYPE_STRI \"bool\"\n", versionFile);
+    } else {
+      fputs("#define BOOLTYPE int\n", versionFile);
+      fputs("#define BOOLTYPE_STRI \"int\"\n", versionFile);
+    } /* if */
     if (sizeof_char == 1) {
       fputs("#define INT8TYPE signed char\n", versionFile);
       fputs("#define INT8TYPE_STRI \"signed char\"\n", versionFile);

@@ -42,11 +42,6 @@ const func file: openUpper (in file: aFile) is func
   end func;
 
 
-# The function open_upper is deprecated. Use openUpper instead.
-const func file: open_upper (in file: aFile) is
-  return openUpper(aFile);
-
-
 (*
 const proc: page (ref upper_file: upper_fil) is func
   begin

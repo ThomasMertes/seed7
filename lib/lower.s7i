@@ -42,11 +42,6 @@ const func file: openLower (in file: aFile) is func
   end func;
 
 
-# The function open_lower is deprecated. Use openLower instead.
-const func file: open_lower (in file: aFile) is
-  return openLower(aFile);
-
-
 (*
 const proc: page (ref lower_file: lower_fil) is func
   begin

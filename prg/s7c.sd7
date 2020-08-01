@@ -4844,7 +4844,7 @@ const proc: write_file_head is func
       writeln(c_prog, "typedef uint64Type doubleUintType;");
       writeln(c_prog, "#define inIntTypeRange(num) ((doubleIntType) (intType) (num) == (num))");
     end if;
-    writeln(c_prog, "typedef int boolType;");
+    writeln(c_prog, "typedef " <& ccConf.BOOLTYPE <& " boolType;");
     writeln(c_prog, "typedef int enumType;");
     if ccConf.FLOATTYPE_DOUBLE then
       writeln(c_prog, "typedef double floatType;");

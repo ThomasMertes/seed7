@@ -96,7 +96,7 @@ static void decrUsageCount (const genericType pollFile)
 
   /* decrUsageCount */
     do_destroy((objectType) (memSizeType) pollFile, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
   } /* decrUsageCount */

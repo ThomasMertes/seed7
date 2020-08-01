@@ -610,12 +610,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-08-23 the number of lines is:
+than 200000 lines of Seed7. For version 2015-09-14 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">125462</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10092</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">131022</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">130329</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">126001</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10119</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">131039</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">130351</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1442,6 +1442,15 @@ characters have multiple characters that map to them.
 Seed7 source code allows Unicode in <span class="link">char literals</span>, <span class="link">string literals</span>, <span class="link">block comments</span>
 and <span class="link">line comments</span>. Interpreter and <span class="link">compiler</span> assume that a Seed7 program is written
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
+</p><p>
+There is also support for Unicode names. The support for Unicode names
+is switch off by default and must be activated with the pragma:
+</p><pre class="indent">
+$ names unicode;
+</pre><p>
+This pragma allows variables with e.g. german umlauts or cyrillic letters.
+This way beginners can use variable and function names from their native
+language.
 </p></div>
 
 <div><br /><a name="faq_regular_expressions"><h3>Are there regular expressions?

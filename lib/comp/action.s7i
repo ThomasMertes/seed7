@@ -1121,6 +1121,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_CASE, function, params, c_expr);
       elsif action_name = "PRC_CASE_DEF" then
         process(PRC_CASE_DEF, function, params, c_expr);
+      elsif action_name = "PRC_CASE_HASHSET" then
+        process(PRC_CASE_HASHSET, function, params, c_expr);
+      elsif action_name = "PRC_CASE_HASHSET_DEF" then
+        process(PRC_CASE_HASHSET_DEF, function, params, c_expr);
       elsif action_name = "PRC_CPY" then
         process(PRC_CPY, function, params, c_expr);
       elsif action_name = "PRC_DYNAMIC" then

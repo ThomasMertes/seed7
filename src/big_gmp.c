@@ -145,7 +145,8 @@ cstriType bigHexCStri (const const_bigIntType big1)
       } /* if */
     } else {
       stri_ptr = " *NULL_BIGINT* ";
-      if (unlikely(!ALLOC_CSTRI(result, strlen(stri_ptr)))) {
+      result_size = STRLEN(" *NULL_BIGINT* ");
+      if (unlikely(!ALLOC_CSTRI(result, result_size))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -506,7 +507,8 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferBe */
-    /* printf("bigFromByteBufferBe(%lu, *, %d)\n", size, isSigned); */
+    logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", *, %d)\n",
+                       (memSizeType) size, isSigned););
     ALLOC_BIG(result);
     mpz_init(result);
     if (isSigned && size != 0 && buffer[0] >= 128) {
@@ -540,7 +542,8 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferLe */
-    /* printf("bigFromByteBufferLe(%lu, *, %d)\n", size, isSigned); */
+    logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", *, %d)\n",
+                       (memSizeType) size, isSigned););
     ALLOC_BIG(result);
     mpz_init(result);
     if (isSigned && size != 0 && buffer[size - 1] >= 128) {

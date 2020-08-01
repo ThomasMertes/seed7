@@ -152,7 +152,7 @@ static objectType toArrayType (rtlArrayType anRtlArray)
       result = NULL;
     } else {
       arraySize = arraySize(anRtlArray);
-      if (!ALLOC_ARRAY(anArray, arraySize)) {
+      if (unlikely(!ALLOC_ARRAY(anArray, arraySize))) {
         for (pos = 0; pos < arraySize; pos++) {
           strDestr(anRtlArray->arr[pos].value.striValue);
         } /* for */
@@ -619,7 +619,7 @@ objectType cmd_ls (listType arguments)
     if ((directory = dirOpen(dirPath)) != NULL) {
       result = read_dir(directory);
       dirClose(directory);
-      if (result == NULL) {
+      if (unlikely(result == NULL)) {
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } else {
         qsort((void *) result->arr, (size_t) arraySize(result),
@@ -878,7 +878,7 @@ objectType cmd_setSearchPath (listType arguments)
   /* cmd_setSearchPath */
     isit_array(arg_1(arguments));
     searchPath = gen_rtl_array(take_array(arg_1(arguments)));
-    if (searchPath == NULL) {
+    if (unlikely(searchPath == NULL)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       cmdSetSearchPath(searchPath);

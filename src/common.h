@@ -40,7 +40,7 @@
 #define C_PLUS_PLUS
 #endif
 
-typedef int boolType;
+typedef BOOLTYPE boolType;
 
 #ifdef FALSE
 #undef FALSE
@@ -365,10 +365,10 @@ typedef uint64Type         memSizeType;
 typedef int                priorityType;
 
 typedef unsigned char      ucharType;
-typedef char *             cstriType;
-typedef unsigned char *    ustriType;
+typedef char              *cstriType;
+typedef unsigned char     *ustriType;
 typedef memSizeType        sySizeType;
-typedef FILE *             fileType;
+typedef FILE              *fileType;
 typedef int                fileDesType;
 
 typedef uint16Type         wcharType;
@@ -384,8 +384,8 @@ typedef unsigned int       os_socketType;
 typedef int                os_socketType;
 #endif
 
-typedef const char *           const_cstriType;
-typedef const unsigned char *  const_ustriType;
+typedef const char            *const_cstriType;
+typedef const unsigned char   *const_ustriType;
 
 #define MAX_DIV_10 ((intType) (INTTYPE_MAX / 10))
 #define MAX_REM_10 ((intType) (INTTYPE_MAX % 10))
@@ -573,7 +573,7 @@ typedef struct {
     bigDigitType bigdigits[1];
   } bigIntRecord;
 
-typedef bigIntRecord             *bigIntType;
+typedef bigIntRecord       *bigIntType;
 typedef const bigIntRecord *const_bigIntType;
 
 
@@ -586,7 +586,7 @@ typedef const bigIntRecord *const_bigIntType;
 /*                                     */
 /***************************************/
 
-typedef mpz_ptr           bigIntType;
+typedef mpz_ptr     bigIntType;
 typedef mpz_srcptr  const_bigIntType;
 
 
@@ -596,7 +596,7 @@ typedef mpz_srcptr  const_bigIntType;
 /* Logging */
 
 #if LOG_FUNCTIONS_EVERYWHERE || (defined LOG_FUNCTIONS && LOG_FUNCTIONS)
-#define logFunction(logStatements) logStatements
+#define logFunction(logStatements) printf(__FILE__ ": "); logStatements
 #else
 #define logFunction(logStatements)
 #endif

@@ -68,13 +68,13 @@ objectType bst_append (listType arguments)
     bstr_from = take_bstri(arg_3(arguments));
     if (bstr_from->size != 0) {
       bstr_to_size = bstr_to->size;
-      if (bstr_to_size > MAX_BSTRI_LEN - bstr_from->size) {
+      if (unlikely(bstr_to_size > MAX_BSTRI_LEN - bstr_from->size)) {
         /* number of bytes does not fit into memSizeType */
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = bstr_to_size + bstr_from->size;
         REALLOC_BSTRI_SIZE_OK(new_bstr, bstr_to, bstr_to_size, new_size);
-        if (new_bstr == NULL) {
+        if (unlikely(new_bstr == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           if (bstr_to == bstr_from) {
@@ -111,14 +111,14 @@ objectType bst_cat (listType arguments)
     bstri1 = take_bstri(arg_1(arguments));
     bstri2 = take_bstri(arg_3(arguments));
     bstri1_size = bstri1->size;
-    if (bstri1_size > MAX_BSTRI_LEN - bstri2->size) {
+    if (unlikely(bstri1_size > MAX_BSTRI_LEN - bstri2->size)) {
       /* number of bytes does not fit into memSizeType */
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result_size = bstri1_size + bstri2->size;
       if (TEMP_OBJECT(arg_1(arguments))) {
         REALLOC_BSTRI_SIZE_OK(result, bstri1, bstri1_size, result_size);
-        if (result == NULL) {
+        if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           COUNT3_STRI(bstri1_size, result_size);
@@ -129,7 +129,7 @@ objectType bst_cat (listType arguments)
           return bld_bstri_temp(result);
         } /* if */
       } else {
-        if (!ALLOC_BSTRI_SIZE_OK(result, result_size)) {
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           result->size = result_size;
@@ -217,7 +217,7 @@ objectType bst_cpy (listType arguments)
               new_size * sizeof(ucharType));
         } /* if */
       } else {
-        if (!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size)) {
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           FREE_BSTRI(take_bstri(bstri_to), take_bstri(bstri_to)->size);
@@ -252,7 +252,7 @@ objectType bst_create (listType arguments)
     } else {
 /*    printf("bstri_create %d !!!\n", in_file.line); */
       new_size = take_bstri(bstri_from)->size;
-      if (!ALLOC_BSTRI_SIZE_OK(new_bstri, new_size)) {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(new_bstri, new_size))) {
         bstri_to->value.bstriValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
@@ -290,7 +290,7 @@ objectType bst_empty (listType arguments)
     bstriType result;
 
   /* bst_empty */
-    if (!ALLOC_BSTRI_SIZE_OK(result, 0)) {
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = 0;
@@ -368,10 +368,10 @@ objectType bst_idx (listType arguments)
     isit_int(arg_3(arguments));
     bstri = take_bstri(arg_1(arguments));
     position = take_int(arg_3(arguments));
-    if (position >= 1 && (uintType) position <= bstri->size) {
-      return bld_char_temp((charType) bstri->mem[position - 1]);
-    } else {
+    if (unlikely(position < 1 || (uintType) position > bstri->size)) {
       return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      return bld_char_temp((charType) bstri->mem[position - 1]);
     } /* if */
   } /* bst_idx */
 
@@ -390,7 +390,7 @@ objectType bst_lng (listType arguments)
     isit_bstri(arg_1(arguments));
     bstri = take_bstri(arg_1(arguments));
 #if POINTER_SIZE > INTTYPE_SIZE
-    if (bstri->size > MAX_MEM_INDEX) {
+    if (unlikely(bstri->size > MAX_MEM_INDEX)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
 #endif
@@ -466,12 +466,13 @@ objectType bst_value (listType arguments)
   /* bst_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
-        take_bstri(obj_arg) == NULL) {
+    if (unlikely(obj_arg == NULL ||
+        CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
+        take_bstri(obj_arg) == NULL)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       bstri = take_bstri(obj_arg);
-      if (!ALLOC_BSTRI_SIZE_OK(result, bstri->size)) {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, bstri->size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = bstri->size;

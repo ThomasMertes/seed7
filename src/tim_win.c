@@ -99,7 +99,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
       raise_error(RANGE_ERROR);
     } else {
       await_second = await_file_time.nanosecs100 / 10000000;
-      await_second -= time_zone * 60;
+      await_second = (uint64Type) ((int64Type) await_second - time_zone * 60);
 
       GetSystemTimeAsFileTime(&current_time.filetime);
       current_second = current_time.nanosecs100 / 10000000;
@@ -310,9 +310,9 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
         /* since alternate_utime will never be used this way. */
 #if TIME_T_SIGNED
         actime.nanosecs100 = (uint64Type) (
-            (int64Type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
+            (int64Type) utime_buf->actime + (int64Type) SECONDS_1601_1970) * 10000000;
         modtime.nanosecs100 = (uint64Type) (
-            (int64Type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+            (int64Type) utime_buf->modtime + (int64Type) SECONDS_1601_1970) * 10000000;
 #else
         actime.nanosecs100 = ((uint64Type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
         modtime.nanosecs100 = ((uint64Type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;

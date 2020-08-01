@@ -4120,7 +4120,7 @@ CONTENTS
     Relations:
       =, <>
     Functions:
-      open_window(F, A, B, C, D) Open a text
+      openWindow(F, A, B, C, D) Open a text
                   ( Type of argument A: integer,
                     Type of argument B: integer,
                     Type of argument C: integer,
@@ -5400,7 +5400,7 @@ CONTENTS
 
   For doing I/O to a window on the screen we write:
 
-    window1 := open_window(screen, 10, 10, 5, 60);
+    window1 := openWindow(screen, 10, 10, 5, 60);
     box(window1);
     setPos(window1, 3, 1);
     write(window1, "hello there");

@@ -327,7 +327,7 @@ void open_string (bstriType input_string, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info)
 
   {
-    const const_cstriType source_file_name = "STRING";
+    const char source_file_name[] = "STRING";
     inFileType new_file;
     memSizeType name_length;
     ustriType name_ustri;
@@ -343,7 +343,7 @@ void open_string (bstriType input_string, boolType write_library_names,
       if (!ALLOC_FILE(new_file)) {
         *err_info = MEMORY_ERROR;
       } else {
-        name_length = strlen(source_file_name);
+        name_length = STRLEN(source_file_name);
         if (!ALLOC_USTRI(name_ustri, name_length)) {
           *err_info = MEMORY_ERROR;
         } else if (!ALLOC_STRI_SIZE_OK(in_name, name_length)) {
@@ -465,7 +465,7 @@ striType get_file_name (fileNumType file_num)
 
   {
     static striType question_mark = NULL;
-    inFileType help_file;
+    register inFileType help_file;
     striType result;
 
   /* get_file_name */

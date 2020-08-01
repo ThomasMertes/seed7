@@ -87,6 +87,7 @@ striType getExecutablePath (const const_striType arg_0)
     striType result;
 
   /* getExecutablePath */
+    logFunction(printf("getExecutablePath\n"););
 #if HAS_SYMBOLIC_LINKS
     readlink_result = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
     if (readlink_result != -1) {
@@ -123,9 +124,8 @@ striType getExecutablePath (const const_striType arg_0)
 #if HAS_SYMBOLIC_LINKS
     } /* if */
 #endif
-    /* printf("getExecutablePath --> ");
-       prot_stri(result);
-       printf("\n"); */
+    logFunction(printf("getExecutablePath --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* getExecutablePath */
 

@@ -107,12 +107,12 @@ static inline const bitSetType *bitsetNonZero (register const bitSetType *bitset
     const memSizeType len)
 
   {
-    register memSizeType count;
+    register memSizeType blockCount;
 
   /* bitsetNonZero */
     if (len != 0) {
       bitset--;
-      count = (len + 31) >> 5;
+      blockCount = (len + 31) >> 5;
       switch (len & 31) {
         case  0: do { if (unlikely(* ++bitset != 0)) return bitset;
         case 31:      if (unlikely(* ++bitset != 0)) return bitset;
@@ -146,7 +146,7 @@ static inline const bitSetType *bitsetNonZero (register const bitSetType *bitset
         case  3:      if (unlikely(* ++bitset != 0)) return bitset;
         case  2:      if (unlikely(* ++bitset != 0)) return bitset;
         case  1:      if (unlikely(* ++bitset != 0)) return bitset;
-                } while (--count > 0);
+                } while (--blockCount > 0);
       } /* switch */
     } /* if */
     return NULL;
@@ -1383,6 +1383,11 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
     setType result;
 
   /* setSymdiff */
+    logFunction(printf("setSymdiff(\n");
+                prot_set(set1);
+                printf(",\n");
+                prot_set(set2);
+                printf(")\n"););
     if (set1->min_position < set2->min_position) {
       min_position = set1->min_position;
       start_position = set2->min_position;
@@ -1436,6 +1441,9 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
         } /* for */
       } /* if */
     } /* if */
+    logFunction(printf("setSymdiff --> ");
+                prot_set(result);
+                printf("\n"););
     return result;
   } /* setSymdiff */
 

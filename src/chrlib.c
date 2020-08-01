@@ -62,7 +62,7 @@ objectType chr_chr (listType arguments)
     isit_int(arg_1(arguments));
     number = take_int(arg_1(arguments));
 #if INTTYPE_SIZE == 64
-    if (number < INT32TYPE_MIN || number > INT32TYPE_MAX) {
+    if (unlikely(number < INT32TYPE_MIN || number > INT32TYPE_MAX)) {
       return raise_exception(SYS_RNG_EXCEPTION) ;
     } else {
       return bld_char_temp((charType) number);
@@ -416,7 +416,7 @@ objectType chr_str (listType arguments)
 
   /* chr_str */
     isit_char(arg_1(arguments));
-    if (!ALLOC_STRI_SIZE_OK(result, 1)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, 1))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = 1;
@@ -467,7 +467,8 @@ objectType chr_value (listType arguments)
   /* chr_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_char_temp(take_char(obj_arg));

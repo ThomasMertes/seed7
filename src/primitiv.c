@@ -637,6 +637,8 @@ static const primActRecord prim_act_table[] = {
     { "PRC_BLOCK_OTHERWISE",     prc_block_otherwise,     },
     { "PRC_CASE",                prc_case,                },
     { "PRC_CASE_DEF",            prc_case_def,            },
+    { "PRC_CASE_HASHSET",        prc_case_hashset,        },
+    { "PRC_CASE_HASHSET_DEF",    prc_case_hashset_def,    },
     { "PRC_CPY",                 prc_cpy,                 },
     { "PRC_CREATE",              prc_create,              },
     { "PRC_DECLS",               prc_decls,               },

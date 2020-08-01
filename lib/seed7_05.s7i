@@ -838,26 +838,30 @@ const func type: new interface is func
   result
     var type: interfaceType is void;
   begin
+    global
     interfaceType := newtype;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType param) ::= (ref interfaceType param)      is action "ITF_CREATE";
-    const proc: destroy (ref interfaceType param)                            is action "ITF_DESTR";
+    const proc: (ref interfaceType: dest) ::= (ref interfaceType: source)    is action "ITF_CREATE";
+    const proc: destroy (ref interfaceType: aValue)                          is action "ITF_DESTR";
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
-    const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
-    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
+    const func boolean: (in interfaceType: itf1) = (in interfaceType: itf2)  is action "ITF_EQ";
+    const func boolean: (in interfaceType: itf1) <> (in interfaceType: itf2) is action "ITF_NE";
+    end global;
   end func;
 
 const func type: sub (in type: baseType) interface is func
   result
     var type: interfaceType is void;
   begin
+    global
     interfaceType := subtype baseType;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType param) ::= (ref interfaceType param)      is action "ITF_CREATE";
-    const proc: destroy (ref interfaceType param)                            is action "ITF_DESTR";
+    const proc: (ref interfaceType: dest) ::= (ref interfaceType: source)    is action "ITF_CREATE";
+    const proc: destroy (ref interfaceType: aValue)                          is action "ITF_DESTR";
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
-    const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
-    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
+    const func boolean: (in interfaceType: itf1) = (in interfaceType: itf2)  is action "ITF_EQ";
+    const func boolean: (in interfaceType: itf1) <> (in interfaceType: itf2) is action "ITF_NE";
+    end global;
   end func;
 
 
@@ -913,6 +917,14 @@ const proc: CASE_DECLS (in type: aType) is func
                     (ref WHEN_PROC: whenPart)
                     otherwise : (ref proc: statements)
                   end case                                                      is action "PRC_CASE_DEF";
+    else
+      const proc: case (ref aType: decisionValue) of
+                    (ref WHEN_PROC: whenPart)
+                  end case                                                      is action "PRC_CASE_HASHSET";
+      const proc: case (ref aType: decisionValue) of
+                    (ref WHEN_PROC: whenPart)
+                    otherwise : (ref proc: statements)
+                  end case                                                      is action "PRC_CASE_HASHSET_DEF";
     end if;
     const proc: (ref WHEN_RESULT: dest) ::= enumlit                             is action "ENU_GENLIT";
     const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;

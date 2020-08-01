@@ -345,7 +345,7 @@ static inline void decl_any (nodeType objects)
         } /* if */
         set_fail_flag(FALSE);
         evaluate(decl_expression);
-        if (fail_flag) {
+        if (unlikely(fail_flag)) {
           err_object(EXCEPTION_RAISED, fail_value);
           set_fail_flag(FALSE);
         } /* if */

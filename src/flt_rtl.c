@@ -1076,21 +1076,23 @@ striType fltStr (floatType number)
 
   {
     char buffer[1024];
+    const_cstriType buffer_ptr;
     memSizeType len;
     striType result;
 
   /* fltStr */
     logFunction(printf("fltStr(" FMT_E ")\n", number););
     if (os_isnan(number)) {
-      strcpy(buffer, "NaN");
-      len = 3;
+      buffer_ptr = "NaN";
+      len = STRLEN("NaN");
     } else if (number == POSITIVE_INFINITY) {
-      strcpy(buffer, "Infinity");
-      len = 8;
+      buffer_ptr = "Infinity";
+      len = STRLEN("Infinity");
     } else if (number == NEGATIVE_INFINITY) {
-      strcpy(buffer, "-Infinity");
-      len = 9;
+      buffer_ptr = "-Infinity";
+      len = STRLEN("-Infinity");
     } else {
+      buffer_ptr = buffer;
 #ifdef FLOATTYPE_DOUBLE
       len = doubleToCharBuffer(number, DOUBLE_STR_LARGE_NUMBER,
                                DOUBLE_STR_FORMAT, buffer);
@@ -1103,7 +1105,7 @@ striType fltStr (floatType number)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = len;
-      memcpy_to_strelem(result->mem, (const_ustriType) buffer, len);
+      memcpy_to_strelem(result->mem, (const_ustriType) buffer_ptr, len);
     } /* if */
     logFunction(printf("fltStr(" FMT_E ") --> \"%s\"\n",
                        number, striAsUnquotedCStri(result)););

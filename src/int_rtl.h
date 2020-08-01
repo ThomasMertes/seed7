@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-extern const char lcDigits[];
-extern const char ucDigits[];
 extern const const_cstriType digitTable[];
 
 

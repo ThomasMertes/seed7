@@ -994,7 +994,8 @@ objectType big_value (listType arguments)
   /* big_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_bigint_temp(bigCreate(take_bigint(obj_arg)));

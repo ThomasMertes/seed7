@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -234,6 +237,9 @@ void rflElemcpy (listType list, intType position, objectType elem)
 
   { /* rflElemcpy */
     if (unlikely(position <= 0)) {
+      logError(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM"): "
+                      "Index <= 0.\n",
+                      (memSizeType) list, position, (memSizeType) elem););
       raise_error(RANGE_ERROR);
     } else {
       position--;
@@ -316,6 +322,8 @@ objectType rflIdx (const_listType list, intType position)
 
   /* rflIdx */
     if (unlikely(position <= 0)) {
+      logError(printf("rflIdx(" FMT_U_MEM ", " FMT_D "): Index <= 0.\n",
+                      (memSizeType) list, position););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {

@@ -91,7 +91,7 @@ typedef int16Type                signedDoubleBigDigitType;
 #define FMT_D_DIG2 FMT_D16
 #define FMT_U_DIG2 FMT_U16
 #define FMT_X_DIG2 FMT_X16
-const bigDigitType powerOfRadixInBigdigit[] = {
+static const bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 128, 243,  64, 125, 216,
     /*  7 */  49,  64,  81, 100, 121,
     /* 12 */ 144, 169, 196, 225,  16,
@@ -100,7 +100,7 @@ const bigDigitType powerOfRadixInBigdigit[] = {
     /* 27 */  27,  28,  29,  30,  31,
     /* 32 */  32,  33,  34,  35,  36
   };
-const uint8Type radixDigitsInBigdigit[] = {
+static const uint8Type radixDigitsInBigdigit[] = {
     /*  2 */  7,  5,  3,  3,  3,  2,  2,  2,  2,  2,
     /* 12 */  2,  2,  2,  2,  1,  1,  1,  1,  1,  1,
     /* 22 */  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -135,7 +135,7 @@ typedef int32Type                signedDoubleBigDigitType;
 #define FMT_D_DIG2 FMT_D32
 #define FMT_U_DIG2 FMT_U32
 #define FMT_X_DIG2 FMT_X32
-const bigDigitType powerOfRadixInBigdigit[] = {
+static const bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 32768, 59049, 16384, 15625, 46656,
     /*  7 */ 16807, 32768, 59049, 10000, 14641,
     /* 12 */ 20736, 28561, 38416, 50625,  4096,
@@ -144,7 +144,7 @@ const bigDigitType powerOfRadixInBigdigit[] = {
     /* 27 */ 19683, 21952, 24389, 27000, 29791,
     /* 32 */ 32768, 35937, 39304, 42875, 46656
   };
-const uint8Type radixDigitsInBigdigit[] = {
+static const uint8Type radixDigitsInBigdigit[] = {
     /*  2 */ 15, 10,  7,  6,  6,  5,  5,  5,  4,  4,
     /* 12 */  4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
     /* 22 */  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
@@ -179,7 +179,7 @@ typedef int64Type                signedDoubleBigDigitType;
 #define FMT_D_DIG2 FMT_D64
 #define FMT_U_DIG2 FMT_U64
 #define FMT_X_DIG2 FMT_X64
-const bigDigitType powerOfRadixInBigdigit[] = {
+static const bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 2147483648u, 3486784401u, 1073741824u, 1220703125u, 2176782336u,
     /*  7 */ 1977326743u, 1073741824u, 3486784401u, 1000000000u, 2357947691u,
     /* 12 */  429981696u,  815730721u, 1475789056u, 2562890625u,  268435456u,
@@ -188,7 +188,7 @@ const bigDigitType powerOfRadixInBigdigit[] = {
     /* 27 */  387420489u,  481890304u,  594823321u,  729000000u,  887503681u,
     /* 32 */ 1073741824u, 1291467969u, 1544804416u, 1838265625u, 2176782336u
   };
-const uint8Type radixDigitsInBigdigit[] = {
+static const uint8Type radixDigitsInBigdigit[] = {
     /*  2 */ 31, 20, 15, 13, 12, 11, 10, 10,  9,  9,
     /* 12 */  8,  8,  8,  8,  7,  7,  7,  7,  7,  7,
     /* 22 */  7,  7,  6,  6,  6,  6,  6,  6,  6,  6,
@@ -212,8 +212,8 @@ static const unsigned int digit_value[] = {
 
 
 #if DO_HEAP_STATISTIC
-size_t sizeof_bigDigitType = sizeof(bigDigitType);
-size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
+const size_t sizeof_bigDigitType = sizeof(bigDigitType);
+const size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
 #endif
 
 
@@ -357,10 +357,12 @@ cstriType bigHexCStri (const const_bigIntType big1)
     } else {
       if (big1 == NULL) {
         stri_ptr = " *NULL_BIGINT* ";
+        len = STRLEN(" *NULL_BIGINT* ");
       } else {
         stri_ptr = " *ZERO_SIZE_BIGINT* ";
+        len = STRLEN(" *ZERO_SIZE_BIGINT* ");
       } /* if */
-      if (unlikely(!ALLOC_CSTRI(result, strlen(stri_ptr)))) {
+      if (unlikely(!ALLOC_CSTRI(result, len))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {

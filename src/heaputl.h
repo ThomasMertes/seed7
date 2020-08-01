@@ -90,8 +90,8 @@ EXTERN countType count;
 #endif
 
 #ifdef USE_BIG_RTL_LIBRARY
-extern size_t sizeof_bigDigitType;
-extern size_t sizeof_bigIntRecord;
+extern const size_t sizeof_bigDigitType;
+extern const size_t sizeof_bigIntRecord;
 #endif
 extern size_t sizeof_pollRecord;
 extern size_t sizeof_winRecord;
@@ -355,23 +355,49 @@ EXTERN memSizeType hs;
 freeListElemType sflist[STRI_FREELIST_ARRAY_SIZE] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+#if WITH_ADJUSTED_STRI_FREELIST
+unsigned int sflist_allowed[STRI_FREELIST_ARRAY_SIZE] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#else
 unsigned int sflist_allowed[STRI_FREELIST_ARRAY_SIZE] = {
     160, 40, 40, 40, 40, 40, 40, 40, 40, 40,
     40, 40, 40, 40, 40, 40, 40, 40, 40, 40};
+#endif
 #else
 EXTERN freeListElemType sflist[STRI_FREELIST_ARRAY_SIZE];
 EXTERN unsigned int sflist_allowed[STRI_FREELIST_ARRAY_SIZE];
+EXTERN boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE];
 #endif
 
 #define POP_STRI_OK(len)    (len) < STRI_FREELIST_ARRAY_SIZE && sflist[len] != NULL
 #define PUSH_STRI_OK(var)   (var)->capacity < STRI_FREELIST_ARRAY_SIZE && sflist_allowed[(var)->capacity] > 0
 
 #define POP_STRI(var,len)   (var = (striType) sflist[len], sflist[len] = sflist[len]->next, sflist_allowed[len]++, TRUE)
-#define PUSH_STRI(var,len)  {CNT4_STRI(var,len) ((freeListElemType) var)->next = sflist[len]; sflist[len] = (freeListElemType) var; sflist_allowed[len]--; }
+#define PUSH_STRI(var,len)  { CNT4_STRI(var,len) ((freeListElemType) var)->next = sflist[len]; sflist[len] = (freeListElemType) var; sflist_allowed[len]--; }
+
+#if WITH_ADJUSTED_STRI_FREELIST
+#define ADJUST_ALLOWED_LEN(len)  (sflist_was_full[len] ? (sflist_was_full[len]=0, sflist_allowed[len] < 65536 ? sflist_allowed[len]<<=1 : 0) : 0)
+
+#define ALLOC_SFLIST_STRI(var,len)     (ADJUST_ALLOWED_LEN(len), HEAP_ALLOC_STRI(var, len))
+#define FREE_SFLIST_STRI(var,len)      { sflist_was_full[len]=1; HEAP_FREE_STRI(var, len); }
+
+#define POP_OR_ALLOC_STRI(var,len)     (sflist[len] != NULL ? POP_STRI(var, len) : ALLOC_SFLIST_STRI(var,len))
+#define PUSH_OR_FREE_STRI(var,len)     { if (sflist_allowed[len] > 0) PUSH_STRI(var, len) else FREE_SFLIST_STRI(var, len) }
+
+#define ALLOC_STRI_SIZE_OK(var,len)    ((len) < STRI_FREELIST_ARRAY_SIZE ? POP_OR_ALLOC_STRI(var,len) : HEAP_ALLOC_STRI(var, len))
+#define ALLOC_STRI_CHECK_SIZE(var,len) ((len) < STRI_FREELIST_ARRAY_SIZE ? POP_OR_ALLOC_STRI(var,len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
+#define FREE_STRI(var,len)  if ((var)->capacity < STRI_FREELIST_ARRAY_SIZE) PUSH_OR_FREE_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, len);
+
+#else
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var, len) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var, len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
 #define FREE_STRI(var,len)  if (PUSH_STRI_OK(var)) PUSH_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, len);
+#endif
 
 #else
 

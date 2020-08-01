@@ -50,11 +50,6 @@ const func file: openMore (in file: out_fil, in file: cmd_fil, in integer: pg_si
   end func;
 
 
-# The function open_more is deprecated. Use openMore instead.
-const func file: open_more (in file: out_fil, in file: cmd_fil, in integer: pg_size) is
-  return openMore(out_fil, cmd_fil, pg_size);
-
-
 const proc: page (inout more_file: more_fil) is func
   begin
     more_fil.active := TRUE;

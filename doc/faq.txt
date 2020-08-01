@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-08-23 the number of lines is:
+than 200000 lines of Seed7. For version 2015-09-14 the number of lines is:
 
-  125462  C source files (*.c)
-   10092  C header files (*.h)
-  131022  Seed7 source files (*.sd7)
-  130329  Seed7 library/include files (*.s7i)
+  126001  C source files (*.c)
+   10119  C header files (*.h)
+  131039  Seed7 source files (*.sd7)
+  130351  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1072,6 +1072,15 @@ characters have multiple characters that map to them.
 Seed7 source code allows Unicode in char literals, string literals, block comments
 and line comments. Interpreter and compiler assume that a Seed7 program is written
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
+
+There is also support for Unicode names. The support for Unicode names
+is switch off by default and must be activated with the pragma:
+
+  $ names unicode;
+
+This pragma allows variables with e.g. german umlauts or cyrillic letters.
+This way beginners can use variable and function names from their native
+language.
 
 
 Are there regular expressions?

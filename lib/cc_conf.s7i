@@ -249,12 +249,24 @@ const type: ccConfigType is new struct
     var integer: INT_MAX                    is 0;
 
     (**
+     *  Size of the type ''long'' in bits.
+     *)
+    var integer: LONG_SIZE                  is 0;
+
+    (**
      *  Maximum from the continuous range of integers that map to floats.
      *  All integers from -INT_RANGE_IN_FLOATTYPE_MAX to
      *  INT_RANGE_IN_FLOATTYPE_MAX can be converted to ''floatType''
      *  and back to ''intType" without loss.
      *)
     var integer: INT_RANGE_IN_FLOATTYPE_MAX is 0;
+
+    (**
+     *  Name of a type for the boolean values 0 and 1.
+     *  The runtime library and the compiler use a typedef to define
+     *  the type ''boolType'' with BOOLTYPE.
+     *)
+    var string: BOOLTYPE                    is "";
 
     (**
      *  Name of a signed integer type that is 32 bits wide.
@@ -522,7 +534,9 @@ const func ccConfigType: getBuiltInConfig is func
     conf.POINTER_SIZE               := integer parse configValue("POINTER_SIZE");
     conf.GENERIC_SIZE               := max({conf.INTTYPE_SIZE, conf.FLOATTYPE_SIZE, conf.POINTER_SIZE});
     conf.INT_SIZE                   := integer parse configValue("INT_SIZE");
+    conf.LONG_SIZE                  := integer parse configValue("LONG_SIZE");
     conf.INT_RANGE_IN_FLOATTYPE_MAX := integer parse configValue("INT_RANGE_IN_FLOATTYPE_MAX");
+    conf.BOOLTYPE                   := configValue("BOOLTYPE");
     conf.INT32TYPE                  := configValue("INT32TYPE");
     conf.UINT32TYPE                 := configValue("UINT32TYPE");
     conf.INT64TYPE                  := configValue("INT64TYPE");

@@ -185,6 +185,41 @@ void freeStriFreelist (void)
     sflist = NULL;
 #endif
   } /* freeStriFreelist */
+
+
+
+void freelistStatistic (void)
+
+  {
+    freeListElemType elem;
+#ifdef WITH_STRI_CAPACITY
+    memSizeType capacity;
+    unsigned int sflist_size[STRI_FREELIST_ARRAY_SIZE];
+#else
+    unsigned int sflist_size;
+#endif
+
+  /* freelistStatistic */
+#ifdef WITH_STRI_CAPACITY
+    for (capacity = 0; capacity < STRI_FREELIST_ARRAY_SIZE; capacity++) {
+      sflist_size[capacity] = sflist_allowed[capacity];
+      elem = sflist[capacity];
+      while (elem != NULL) {
+        elem = elem->next;
+        sflist_size[capacity]++;
+      } /* while */
+      printf("sflist_size[" FMT_U_MEM "]: %u\n", capacity, sflist_size[capacity]);
+    } /* for */
+#else
+    sflist_size = sflist_allowed;
+    elem = sflist;
+    while (elem != NULL) {
+      elem = elem->next;
+      sflist_size++;
+    } /* while */
+    printf("sflist_size: %u\n", sflist_size);
+#endif
+  } /* freelistStatistic */
 #endif
 
 

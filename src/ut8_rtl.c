@@ -300,7 +300,7 @@ charType ut8Getc (fileType inFile)
         if (character >= 0x80 && character <= 0xBF) {
           /* character range 128 to 191 (leading bits 10......) */
           result |= character & 0x3F;
-          if (result <= 0x7F) {
+          if (unlikely(result <= 0x7F)) {
             logError(printf("ut8Getc(%d): "
                             "Overlong encodings are illegal "
                             "('\\16#" FMT_X32 ";').\n",
@@ -329,7 +329,8 @@ charType ut8Getc (fileType inFile)
           character = getc(inFile);
           if (character >= 0x80 && character <= 0xBF) {
             result |= character & 0x3F;
-            if (result <= 0x7FF) {  /* (result >= 0xD800 && result <= 0xDFFF)) */
+            if (unlikely(result <= 0x7FF)) {
+              /* (result >= 0xD800 && result <= 0xDFFF)) */
               logError(printf("ut8Getc(%d): "
                               "Overlong encodings are illegal "
                               "('\\16#" FMT_X32 ";').\n",
@@ -369,7 +370,7 @@ charType ut8Getc (fileType inFile)
             character = getc(inFile);
             if (character >= 0x80 && character <= 0xBF) {
               result |= character & 0x3F;
-              if (result <= 0xFFFF) {
+              if (unlikely(result <= 0xFFFF)) {
                 logError(printf("ut8Getc(%d): "
                                 "Overlong encodings are illegal "
                                 "('\\16#" FMT_X32 ";').\n",
@@ -422,7 +423,7 @@ charType ut8Getc (fileType inFile)
               character = getc(inFile);
               if (character >= 0x80 && character <= 0xBF) {
                 result |= character & 0x3F;
-                if (result <= 0x1FFFFF) {
+                if (unlikely(result <= 0x1FFFFF)) {
                   logError(printf("ut8Getc(%d): "
                                   "Overlong encodings are illegal "
                                   "('\\16#" FMT_X32 ";').\n",
@@ -484,7 +485,7 @@ charType ut8Getc (fileType inFile)
                 character = getc(inFile);
                 if (character >= 0x80 && character <= 0xBF) {
                   result |= character & 0x3F;
-                  if (result <= 0x3FFFFFF) {
+                  if (unlikely(result <= 0x3FFFFFF)) {
                     logError(printf("ut8Getc(%d): "
                                     "Overlong encodings are illegal "
                                     "('\\16#" FMT_X32 ";').\n",
@@ -602,7 +603,7 @@ striType ut8Gets (fileType inFile, intType length)
             allocated_size = bytes_there;
           } /* if */
           /* printf("allocated_size=%lu\n", allocated_size); */
-          if (!ALLOC_STRI_CHECK_SIZE(result, allocated_size)) {
+          if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, allocated_size))) {
             /* printf("MAX_STRI_LEN=%lu, SIZ_STRI(MAX_STRI_LEN)=%lu\n",
                 MAX_STRI_LEN, SIZ_STRI(MAX_STRI_LEN)); */
             raise_error(MEMORY_ERROR);
@@ -621,7 +622,7 @@ striType ut8Gets (fileType inFile, intType length)
            have read enough or we reach EOF */
         result = read_and_alloc_utf8_stri(inFile, chars_requested, &num_of_chars_read, &err_info);
       } /* if */
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         if (result != NULL) {
           FREE_STRI(result, result->size);
         } /* if */
@@ -629,7 +630,7 @@ striType ut8Gets (fileType inFile, intType length)
         result = NULL;
       } else if (num_of_chars_read < result->size) {
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size, num_of_chars_read);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, result->size);
           raise_error(MEMORY_ERROR);
           result = NULL;
@@ -674,7 +675,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
 
   /* ut8LineRead */
     memlength = READ_STRI_INIT_SIZE;
-    if (!ALLOC_BSTRI_SIZE_OK(buffer, memlength)) {
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(buffer, memlength))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -684,7 +685,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_BSTRI_CHECK_SIZE(resized_buffer, buffer, memlength, newmemlength);
-          if (resized_buffer == NULL) {
+          if (unlikely(resized_buffer == NULL)) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -699,16 +700,16 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (ch == EOF && position == 0 && ferror(inFile)) {
+      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
         FREE_BSTRI(buffer, memlength);
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        if (!ALLOC_STRI_CHECK_SIZE(result, position)) {
+        if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, position))) {
           FREE_BSTRI(buffer, memlength);
           raise_error(MEMORY_ERROR);
         } else {
-          if (utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0) {
+          if (unlikely(utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0)) {
             FREE_BSTRI(buffer, memlength);
             FREE_STRI(result, position);
             raise_error(RANGE_ERROR);
@@ -716,7 +717,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
           } else {
             FREE_BSTRI(buffer, memlength);
             REALLOC_STRI_SIZE_OK(resized_result, result, position, result_size);
-            if (resized_result == NULL) {
+            if (unlikely(resized_result == NULL)) {
               FREE_STRI(result, position);
               raise_error(MEMORY_ERROR);
               result = NULL;
@@ -754,7 +755,7 @@ void ut8Seek (fileType aFile, intType position)
 
   /* ut8Seek */
     logFunction(printf("ut8Seek(%d, " FMT_D ")\n", safe_fileno(aFile), position););
-    if (position <= 0) {
+    if (unlikely(position <= 0)) {
       logError(printf("ut8Seek(%d, " FMT_D "): Position <= 0.\n",
                       safe_fileno(aFile), position););
       raise_error(RANGE_ERROR);
@@ -787,7 +788,7 @@ void ut8Seek (fileType aFile, intType position)
       while ((ch = getc(aFile)) != EOF &&
              ch >= 0x80 && ch <= 0xBF) ;
       if (ch != EOF) {
-        if (offsetSeek(aFile, (os_off_t) -1, SEEK_CUR) != 0) {
+        if (unlikely(offsetSeek(aFile, (os_off_t) -1, SEEK_CUR) != 0)) {
           logError(printf("ut8Seek(%d, " FMT_D "): "
                           "offsetSeek(%d, -1, SEEK_CUR) failed.\n"
                           "errno=%d\nerror: %s\n",
@@ -831,7 +832,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
 
   /* ut8WordRead */
     memlength = READ_STRI_INIT_SIZE;
-    if (!ALLOC_BSTRI_SIZE_OK(buffer, memlength)) {
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(buffer, memlength))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -845,7 +846,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_BSTRI_CHECK_SIZE(resized_buffer, buffer, memlength, newmemlength);
-          if (resized_buffer == NULL) {
+          if (unlikely(resized_buffer == NULL)) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -861,16 +862,16 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (ch == EOF && position == 0 && ferror(inFile)) {
+      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
         FREE_BSTRI(buffer, memlength);
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        if (!ALLOC_STRI_CHECK_SIZE(result, position)) {
+        if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, position))) {
           FREE_BSTRI(buffer, memlength);
           raise_error(MEMORY_ERROR);
         } else {
-          if (utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0) {
+          if (unlikely(utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0)) {
             FREE_BSTRI(buffer, memlength);
             FREE_STRI(result, position);
             raise_error(RANGE_ERROR);
@@ -878,7 +879,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
           } else {
             FREE_BSTRI(buffer, memlength);
             REALLOC_STRI_SIZE_OK(resized_result, result, position, result_size);
-            if (resized_result == NULL) {
+            if (unlikely(resized_result == NULL)) {
               FREE_STRI(result, position);
               raise_error(MEMORY_ERROR);
               result = NULL;
@@ -911,7 +912,7 @@ void ut8Write (fileType outFile, const const_striType stri)
 
   /* ut8Write */
 #if FWRITE_WRONG_FOR_READ_ONLY_FILES
-    if (stri->size > 0 && (outFile->flags & _F_WRIT) == 0) {
+    if (unlikely(stri->size > 0 && (outFile->flags & _F_WRIT) == 0)) {
       raise_error(FILE_ERROR);
       return;
     } /* if */
@@ -919,14 +920,14 @@ void ut8Write (fileType outFile, const const_striType stri)
     for (str = stri->mem, len = stri->size; len >= WRITE_STRI_BLOCK_SIZE;
         str += WRITE_STRI_BLOCK_SIZE, len -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, str, WRITE_STRI_BLOCK_SIZE);
-      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
+      if (unlikely(size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile))) {
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* for */
     if (len > 0) {
       size = stri_to_utf8(stri_buffer, str, len);
-      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
+      if (unlikely(size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile))) {
         raise_error(FILE_ERROR);
         return;
       } /* if */

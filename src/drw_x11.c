@@ -595,8 +595,8 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    if (!inIntRange(x - radius) || !inIntRange(y - radius) ||
-        !inIntRange(radius) || radius < 0) {
+    if (unlikely(!inIntRange(x - radius) || !inIntRange(y - radius) ||
+                 !inIntRange(radius) || radius < 0)) {
       raise_error(RANGE_ERROR);
     } else {
       XDrawArc(mydisplay, to_window(actual_window), mygc,
@@ -700,10 +700,10 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) src_window, (memSizeType) dest_window,
                        src_x, src_y, width, height, dest_x, dest_y););
-    if (!inIntRange(src_x) || !inIntRange(src_y) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        !inIntRange(dest_x) || !inIntRange(dest_y) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(src_x) || !inIntRange(src_y) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 !inIntRange(dest_x) || !inIntRange(dest_y) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else if (to_backup(src_window) != 0) {
       XCopyArea(mydisplay, to_backup(src_window), to_window(dest_window),
@@ -787,7 +787,7 @@ void drwFEllipse (const_winType actual_window,
   { /* drwFEllipse */
     logFunction(printf("drwFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, width, height););
-    if (width < 1 || height < 1) {
+    if (unlikely(width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
       XDrawArc(mydisplay, to_window(actual_window), mygc,
@@ -811,7 +811,7 @@ void drwPFEllipse (const_winType actual_window,
   { /* drwPFEllipse */
     logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, width, height););
-    if (width < 1 || height < 1) {
+    if (unlikely(width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -837,7 +837,7 @@ winType drwEmpty (void)
 
   /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
-    if (!ALLOC_RECORD(result, x11_winRecord, count.win)) {
+    if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(x11_winRecord));
@@ -883,12 +883,12 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
   /* drwGet */
     logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, left, upper, width, height););
-    if (!inIntRange(left) || !inIntRange(upper) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (!ALLOC_RECORD(result, x11_winRecord, count.win)) {
+    } else if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(x11_winRecord));
@@ -1004,8 +1004,8 @@ intType drwHeight (const_winType actual_window)
        actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
     if (is_pixmap(actual_window)) {
       height = to_height(actual_window);
-    } else if (XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth) == 0) {
+    } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
+                        &x, &y, &width, &height, &border_width, &depth) == 0)) {
       raise_error(RANGE_ERROR);
       height = 0;
     } /* if */
@@ -1024,15 +1024,15 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
 
   /* drwImage */
     logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
-    if (width < 1 || width > UINT_MAX ||
-        height < 1 || height > UINT_MAX) {
+    if (unlikely(width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       if (mydisplay == NULL) {
         dra_init();
       } /* if */
-      if (mydisplay == NULL) {
+      if (unlikely(mydisplay == NULL)) {
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1109,19 +1109,19 @@ winType drwNewPixmap (intType width, intType height)
 
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
-    if (!inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       if (mydisplay == NULL) {
         dra_init();
       } /* if */
-      if (mydisplay == NULL) {
+      if (unlikely(mydisplay == NULL)) {
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        if (!ALLOC_RECORD(result, x11_winRecord, count.win)) {
+        if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
           raise_error(MEMORY_ERROR);
         } else {
           memset(result, 0, sizeof(x11_winRecord));
@@ -1152,10 +1152,10 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
 
   /* drwNewBitmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
-    if (width < 1 || height < 1) {
+    if (unlikely(width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (!ALLOC_RECORD(result, x11_winRecord, count.win)) {
+    } else if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(x11_winRecord));
@@ -1191,20 +1191,20 @@ winType drwOpen (intType xPos, intType yPos,
     logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        xPos, yPos, width, height););
     result = NULL;
-    if (!inIntRange(xPos) || !inIntRange(yPos) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
       if (mydisplay == NULL) {
         dra_init();
       } /* if */
-      if (mydisplay == NULL) {
+      if (unlikely(mydisplay == NULL)) {
         logError(printf("drwOpen: dra_init() failed to open a display.\n"););
         raise_error(FILE_ERROR);
       } else {
         win_name = stri_to_cstri8(window_name, &err_info);
-        if (win_name == NULL) {
+        if (unlikely(win_name == NULL)) {
           logError(printf("drwOpen: stri_to_cstri8(\"%s\") failed:\n"
                           "err_info=%d\n",
                           striAsUnquotedCStri(window_name), err_info););
@@ -1310,15 +1310,15 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        xPos, yPos, width, height););
     result = NULL;
-    if (!inIntRange(xPos) || !inIntRange(yPos) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
       if (mydisplay == NULL) {
         dra_init();
       } /* if */
-      if (mydisplay == NULL) {
+      if (unlikely(mydisplay == NULL)) {
         raise_error(FILE_ERROR);
       } else {
         if (ALLOC_RECORD(result, x11_winRecord, count.win)) {
@@ -1466,16 +1466,16 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
   /* drwGenPointList */
     /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
     num_elements = arraySize(xyArray);
-    if (num_elements & 1) {
+    if (unlikely(num_elements & 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       len = num_elements >> 1;
-      if (len > MAX_BSTRI_LEN / sizeof(XPoint) || len > MAX_MEM_INDEX) {
+      if (unlikely(len > MAX_BSTRI_LEN / sizeof(XPoint) || len > MAX_MEM_INDEX)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(XPoint))) {
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(XPoint)))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = len * sizeof(XPoint);
@@ -2045,7 +2045,7 @@ void drwText (const_winType actual_window, intType x, intType y,
       strelem = stri->mem;
       len = stri->size;
       for (; len > 0; wstri++, strelem++, len--) {
-        if (*strelem >= 65536) {
+        if (unlikely(*strelem >= 65536)) {
           raise_error(RANGE_ERROR);
           return;
         } /* if */
@@ -2101,8 +2101,8 @@ intType drwWidth (const_winType actual_window)
        actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
     if (is_pixmap(actual_window)) {
       width = to_width(actual_window);
-    } else if (XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth) == 0) {
+    } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
+                        &x, &y, &width, &height, &border_width, &depth) == 0)) {
       raise_error(RANGE_ERROR);
       width = 0;
     } /* if */
@@ -2123,8 +2123,8 @@ intType drwXPos (const_winType actual_window)
     unsigned int depth;
 
   /* drwXPos */
-    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth) == 0) {
+    if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
+                 &x, &y, &width, &height, &border_width, &depth) == 0)) {
       raise_error(RANGE_ERROR);
       x = 0;
     } /* if */
@@ -2145,8 +2145,8 @@ intType drwYPos (const_winType actual_window)
     unsigned int depth;
 
   /* drwYPos */
-    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
-        &x, &y, &width, &height, &border_width, &depth) == 0) {
+    if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
+                 &x, &y, &width, &height, &border_width, &depth) == 0)) {
       raise_error(RANGE_ERROR);
       y = 0;
     } /* if */

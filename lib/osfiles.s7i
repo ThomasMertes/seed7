@@ -436,10 +436,6 @@ const proc: removeFile (in string: filePath)                 is action "CMD_REMO
 const proc: removeTree (in string: filePath)                 is action "CMD_REMOVE_TREE";
 
 
-# The function removeAnyFile is deprecated. Use removeTree instead.
-const proc: removeAnyFile (in string: filePath)              is action "CMD_REMOVE_TREE";
-
-
 (**
  *  Copy a file or directory tree.
  *  Permissions/mode, ownership and timestamps of the destination file

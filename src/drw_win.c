@@ -71,8 +71,8 @@ typedef struct {
     boolType hasTransparentPixel;
     UINT transparentPixel;
     boolType is_pixmap;
-    unsigned int width;
-    unsigned int height;
+    unsigned int width;  /* Always <= INT_MAX: Cast to int is safe. */
+    unsigned int height; /* Always <= INT_MAX: Cast to int is safe. */
     unsigned int brutto_width_delta;
     unsigned int brutto_height_delta;
     intType clear_col;
@@ -124,7 +124,7 @@ static void drawRectangle (win_winType actual_window,
   /* drawRectangle */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    if (current_pen == NULL || current_brush == NULL) {
+    if (unlikely(current_pen == NULL || current_brush == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(actual_window->hdc, current_pen);
@@ -217,12 +217,12 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               paint_window->width, paint_window->height); */
           if (rect.right >= 0 && (unsigned int) rect.right >= paint_window->width) {
             if (rect.left < 0 || (unsigned int) rect.left < paint_window->width) {
-              rect2.left = paint_window->width;
+              rect2.left = (LONG) paint_window->width;
             } else {
               rect2.left = rect.left;
             } /* if */
             if (rect.bottom >= 0 && (unsigned int) rect.bottom >= paint_window->height) {
-              rect2.bottom = paint_window->height - 1;
+              rect2.bottom = (LONG) paint_window->height - 1;
             } else {
               rect2.bottom = rect.bottom;
             } /* if */
@@ -234,7 +234,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           } /* if */
           if (rect.bottom >= 0 && (unsigned int) rect.bottom >= paint_window->height) {
             if (rect.top < 0 || (unsigned int) rect.top < paint_window->height) {
-              rect2.top = paint_window->height;
+              rect2.top = (LONG) paint_window->height;
             } else {
               rect2.top = rect.top;
             } /* if */
@@ -295,19 +295,19 @@ intType drwPointerXpos (const_winType actual_window)
     intType result;
 
   /* drwPointerXpos */
-    /* printf("begin drwPointerXpos\n"); */
-    if (GetCursorPos(&point) == 0) {
+    logFunction(printf("drwPointerXpos\n"););
+    if (unlikely(GetCursorPos(&point) == 0)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      if (ScreenToClient(to_hwnd(actual_window), &point) == 0) {
+      if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
         result = point.x;
       } /* if */
     } /* if */
-    /* printf("end drwPointerXpos --> %ld\n", result); */
+    logFunction(printf("drwPointerXpos --> " FMT_D "\n", result););
     return result;
   } /* drwPointerXpos */
 
@@ -320,19 +320,19 @@ intType drwPointerYpos (const_winType actual_window)
     intType result;
 
   /* drwPointerYpos */
-    /* printf("begin drwPointerYpos\n"); */
-    if (GetCursorPos(&point) == 0) {
+    logFunction(printf("drwPointerYpos\n"););
+    if (unlikely(GetCursorPos(&point) == 0)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      if (ScreenToClient(to_hwnd(actual_window), &point) == 0) {
+      if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
         result = point.y;
       } /* if */
     } /* if */
-    /* printf("end drwPointerYpos --> %ld\n", result); */
+    logFunction(printf("drwPointerYpos --> " FMT_D "\n", result););
     return result;
   } /* drwPointerYpos */
 
@@ -342,11 +342,11 @@ void drwArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle)
 
   {
-    float startAng, sweepAng;
+    FLOAT startAng, sweepAng;
 
   /* drwArc */
-    startAng = (startAngle * (360.0 / (2 * PI)));
-    sweepAng = (sweepAngle * (360.0 / (2 * PI)));
+    startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
+    sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
     AngleArc(to_hdc(actual_window), castToInt(x), castToInt(y),
              (unsigned) radius, startAng, sweepAng);
   } /* drwArc */
@@ -357,17 +357,17 @@ void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
   {
-    float startAng, sweepAng;
+    FLOAT startAng, sweepAng;
     HPEN old_pen;
     HPEN current_pen;
 
   /* drwPArc */
-    startAng = (startAngle * (360.0 / (2 * PI)));
-    sweepAng = (sweepAngle * (360.0 / (2 * PI)));
+    startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
+    sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    if (current_pen == NULL) {
+    if (unlikely(current_pen == NULL)) {
       raise_error(MEMORY_ERROR);
-    } else if (!inIntRange(x) || !inIntRange(x)) {
+    } else if (unlikely(!inIntRange(x) || !inIntRange(x))) {
       raise_error(RANGE_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -414,7 +414,7 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
   {
-    float startAng, sweepAng;
+    FLOAT startAng, sweepAng;
     HPEN old_pen;
     HPEN current_pen;
     HBRUSH old_brush;
@@ -422,13 +422,14 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
 
   /* drwPFArcPieSlice */
     if (sweepAngle != 0.0) {
-      startAng = (startAngle * (360.0 / (2 * PI)));
-      sweepAng = (sweepAngle * (360.0 / (2 * PI)));
+      startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
+      sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
       current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
       current_brush = CreateSolidBrush((COLORREF) col);
-      if (current_pen == NULL || current_brush == NULL) {
+      if (unlikely(current_pen == NULL || current_brush == NULL)) {
         raise_error(MEMORY_ERROR);
-      } else if (!inIntRange(x) || !inIntRange(x) || !inIntRange(radius) || radius < 0) {
+      } else if (unlikely(!inIntRange(x) || !inIntRange(x) ||
+                          !inIntRange(radius) || radius < 0)) {
         raise_error(RANGE_ERROR);
       } else {
         old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -488,7 +489,7 @@ void drwPCircle (const_winType actual_window,
   /* drwPCircle */
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    if (current_pen == NULL) {
+    if (unlikely(current_pen == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -521,14 +522,14 @@ void drwClear (winType actual_window, intType col)
     to_clear_col(actual_window) = col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    if (current_pen == NULL || current_brush == NULL) {
+    if (unlikely(current_pen == NULL || current_brush == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
       /* The main window is cleared with the real window size. */
       Rectangle(to_hdc(actual_window), 0, 0,
-          drwWidth(actual_window), drwHeight(actual_window));
+          (int) drwWidth(actual_window), (int) drwHeight(actual_window));
       SelectObject(to_hdc(actual_window), old_pen);
       SelectObject(to_hdc(actual_window), old_brush);
       if (to_backup_hdc(actual_window) != 0) {
@@ -555,10 +556,10 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) src_window, (memSizeType) dest_window,
                        src_x, src_y, width, height, dest_x, dest_y););
-    if (!inIntRange(src_x) || !inIntRange(src_y) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        !inIntRange(dest_x) || !inIntRange(dest_y) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(src_x) || !inIntRange(src_y) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 !inIntRange(dest_x) || !inIntRange(dest_y) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else if (to_backup_hdc(src_window) != 0) {
       BitBlt(to_hdc(dest_window), (int) dest_x, (int) dest_y, (int) width, (int) height,
@@ -600,7 +601,7 @@ void drwPFCircle (const_winType actual_window,
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    if (current_pen == NULL || current_brush == NULL) {
+    if (unlikely(current_pen == NULL || current_brush == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -644,7 +645,7 @@ void drwPFEllipse (const_winType actual_window,
   /* drwPFEllipse */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    if (current_pen == NULL || current_brush == NULL) {
+    if (unlikely(current_pen == NULL || current_brush == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -679,7 +680,7 @@ winType drwEmpty (void)
     if (init_called == 0) {
       dra_init();
     } /* if */
-    if (!ALLOC_RECORD(result, win_winRecord, count.win)) {
+    if (unlikely(!ALLOC_RECORD(result, win_winRecord, count.win))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(win_winRecord));
@@ -741,19 +742,19 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
   /* drwGet */
     logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, left, upper, width, height););
-    if (!inIntRange(left) || !inIntRange(upper) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (!ALLOC_RECORD(result, win_winRecord, count.win)) {
+    } else if (unlikely(!ALLOC_RECORD(result, win_winRecord, count.win))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(win_winRecord));
       result->usage_count = 1;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
       result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), (int) width, (int) height);
-      if (result->hBitmap == NULL) {
+      if (unlikely(result->hBitmap == NULL)) {
         free(result);
         result = NULL;
         raise_error(MEMORY_ERROR);
@@ -787,21 +788,21 @@ bstriType drwGetImage (const_winType actual_window)
     unsigned int xPos;
     unsigned int yPos;
     memSizeType result_size;
-    int32Type *image_data;
+    uint32Type *image_data;
     bstriType result;
 
   /* drwGetImage */
     logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) actual_window););
-    result_size = to_width(actual_window) * to_height(actual_window) * sizeof(int32Type);
+    result_size = to_width(actual_window) * to_height(actual_window) * sizeof(uint32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
-      image_data = (int32Type *) result->mem;
+      image_data = (uint32Type *) result->mem;
       for (yPos = 0; yPos < to_height(actual_window); yPos++) {
         for (xPos = 0; xPos < to_width(actual_window); xPos++) {
           image_data[yPos * to_width(actual_window) + xPos] =
-              (int32Type) GetPixel(to_hdc(actual_window), xPos, yPos);
+              (uint32Type) GetPixel(to_hdc(actual_window), (int) xPos, (int) yPos);
         } /* for */
       } /* for */
     } /* if */
@@ -825,12 +826,12 @@ intType drwHeight (const_winType actual_window)
     intType height;
 
   /* drwHeight */
-    /* printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
-    if (is_pixmap(actual_window)) {
+    logFunction(printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
+                       actual_window,
+                       actual_window != 0 ? actual_window->usage_count: 0););
+    if (is_pixmap(actual_window) ||
+        GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
       height = to_height(actual_window);
-    } else if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
-      height = (intType) to_height(actual_window);
     } else {
       height = (intType) ((unsigned int) (rect.bottom - rect.top) -
                          to_brutto_height_delta(actual_window));
@@ -852,8 +853,8 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
 
   /* drwImage */
     logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
-    if (width < 1 || width > INTTYPE_MAX ||
-        height < 1 || height > INTTYPE_MAX) {
+    if (unlikely(width < 1 || width > INTTYPE_MAX ||
+                 height < 1 || height > INTTYPE_MAX)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -903,7 +904,7 @@ void drwPLine (const_winType actual_window,
                        (memSizeType) actual_window, x1, y1, x2, y2, col););
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    if (current_pen == NULL) {
+    if (unlikely(current_pen == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -932,15 +933,15 @@ winType drwNewPixmap (intType width, intType height)
 
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
-    if (!inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       if (init_called == 0) {
         dra_init();
       } /* if */
-      if (!ALLOC_RECORD(result, win_winRecord, count.win)) {
+      if (unlikely(!ALLOC_RECORD(result, win_winRecord, count.win))) {
         raise_error(MEMORY_ERROR);
       } else {
         memset(result, 0, sizeof(win_winRecord));
@@ -1001,6 +1002,8 @@ winType drwOpen (intType xPos, intType yPos,
     intType width, intType height, const const_striType window_name)
 
   {
+    int brutto_width_delta;
+    int brutto_height_delta;
     char *win_name;
     HFONT std_font;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1009,10 +1012,14 @@ winType drwOpen (intType xPos, intType yPos,
   /* drwOpen */
     logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        xPos, yPos, width, height););
+    brutto_width_delta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
+    brutto_height_delta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
+        GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER);
     result = NULL;
-    if (!inIntRange(xPos) || !inIntRange(yPos) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
+                 brutto_width_delta < 0 || brutto_height_delta < 0 ||
+                 width < 1 || width > INT_MAX - brutto_width_delta ||
+                 height < 1 || height > INT_MAX - brutto_height_delta)) {
       raise_error(RANGE_ERROR);
     } else {
       if (init_called == 0) {
@@ -1020,7 +1027,7 @@ winType drwOpen (intType xPos, intType yPos,
       } /* if */
       if (init_called != 0) {
         win_name = stri_to_cstri8(window_name, &err_info);
-        if (win_name == NULL) {
+        if (unlikely(win_name == NULL)) {
           raise_error(err_info);
         } else {
           if (private_console()) {
@@ -1047,13 +1054,12 @@ winType drwOpen (intType xPos, intType yPos,
             printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
                 GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
 #endif
-            result->brutto_width_delta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
-            result->brutto_height_delta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
-                GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER);
+            result->brutto_width_delta = (unsigned int) brutto_width_delta;
+            result->brutto_height_delta = (unsigned int) brutto_height_delta;
             result->hWnd = CreateWindow(windowClass, win_name,
                 WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,
-                width + result->brutto_width_delta,
-                height + result->brutto_height_delta,
+                (int) width + brutto_width_delta,
+                (int) height + brutto_height_delta,
                 (HWND) NULL, (HMENU) NULL, NULL, NULL);
             enter_window((winType) result, result->hWnd);
             /* printf("hWnd=%lu\n", result->hWnd); */
@@ -1101,9 +1107,9 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        xPos, yPos, width, height););
     result = NULL;
-    if (!inIntRange(xPos) || !inIntRange(yPos) ||
-        !inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
       if (init_called == 0) {
@@ -1236,18 +1242,19 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
     bstriType result;
 
   /* drwGenPointList */
-    /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
+    logFunction(printf("drwGenPointList(" FMT_D " .. " FMT_D ")\n",
+                       xyArray->min_position, xyArray->max_position););
     num_elements = arraySize(xyArray);
-    if (num_elements & 1) {
+    if (unlikely(num_elements & 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       len = num_elements >> 1;
-      if (len > MAX_BSTRI_LEN / sizeof(POINT) || len > MAX_MEM_INDEX) {
+      if (unlikely(len > MAX_BSTRI_LEN / sizeof(POINT) || len > MAX_MEM_INDEX)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(POINT))) {
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(POINT)))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = len * sizeof(POINT);
@@ -1289,23 +1296,23 @@ void drwPolyLine (const_winType actual_window,
     npoints = point_list->size / sizeof(POINT);
     if (npoints >= 2) {
       current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-      if (current_pen == NULL) {
+      if (unlikely(current_pen == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
         old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-        MoveToEx(to_hdc(actual_window), x + points[0].x, y + points[0].y, NULL);
+        MoveToEx(to_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
         for (pos = 1; pos < npoints; pos ++) {
-          LineTo(to_hdc(actual_window), x + points[pos].x, y + points[pos].y);
+          LineTo(to_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
         } /* for */
-        SetPixel(to_hdc(actual_window), x + points[npoints - 1].x, y + points[npoints - 1].y, (COLORREF) col);
+        SetPixel(to_hdc(actual_window), (int) x + points[npoints - 1].x, (int) y + points[npoints - 1].y, (COLORREF) col);
         SelectObject(to_hdc(actual_window), old_pen);
         if (to_backup_hdc(actual_window) != 0) {
           old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-          MoveToEx(to_backup_hdc(actual_window), x + points[0].x, y + points[0].y, NULL);
+          MoveToEx(to_backup_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
           for (pos = 1; pos < npoints; pos ++) {
-            LineTo(to_backup_hdc(actual_window), x + points[pos].x, y + points[pos].y);
+            LineTo(to_backup_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
           } /* for */
-          SetPixel(to_backup_hdc(actual_window), x + points[npoints - 1].x, y + points[npoints - 1].y, (COLORREF) col);
+          SetPixel(to_backup_hdc(actual_window), (int) x + points[npoints - 1].x, (int) y + points[npoints - 1].y, (COLORREF) col);
           SelectObject(to_backup_hdc(actual_window), old_pen);
         } /* if */
         DeleteObject(current_pen);
@@ -1331,12 +1338,12 @@ void drwFPolyLine (const_winType actual_window,
     points = (POINT *) point_list->mem;
     npoints = point_list->size / sizeof(POINT);
     for (pos = 0; pos < npoints; pos ++) {
-      points[pos].x += castToInt(x);
-      points[pos].y += castToInt(y);
+      points[pos].x += (int) x;
+      points[pos].y += (int) y;
     } /* for */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    if (current_pen == NULL || current_brush == NULL || npoints > INT_MAX) {
+    if (unlikely(current_pen == NULL || current_brush == NULL || npoints > INT_MAX)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -1355,8 +1362,8 @@ void drwFPolyLine (const_winType actual_window,
       DeleteObject(current_brush);
     } /* if */
     for (pos = 0; pos < npoints; pos ++) {
-      points[pos].x -= castToInt(x);
-      points[pos].y -= castToInt(y);
+      points[pos].x -= (int) x;
+      points[pos].y -= (int) y;
     } /* for */
   } /* drwFPolyLine */
 
@@ -1378,10 +1385,10 @@ void drwPut (const_winType actual_window, const_winType pixmap,
       } else {
 #endif
         BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
-            (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
+               (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
         if (to_backup_hdc(actual_window) != 0) {
           BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
-              (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
+                 (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
         } /* if */
 #ifdef USE_TRANSPARENTBLT
       } /* if */
@@ -1430,7 +1437,7 @@ void drwPRect (const_winType actual_window,
 #endif
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    if (current_pen == NULL || current_brush == NULL) {
+    if (unlikely(current_pen == NULL || current_brush == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
@@ -1522,11 +1529,13 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
     /* printf("begin drwSetContent(%lu, %lu)\n",
         to_hwnd(actual_window), to_hwnd(pixmap)); */
     if (pixmap != NULL) {
-      BitBlt(to_hdc(actual_window), 0, 0, to_width(pixmap), to_height(pixmap),
-          to_hdc(pixmap), 0, 0, SRCCOPY);
+      BitBlt(to_hdc(actual_window), 0, 0,
+             (int) to_width(pixmap), (int) to_height(pixmap),
+             to_hdc(pixmap), 0, 0, SRCCOPY);
       if (to_backup_hdc(actual_window) != 0) {
-        BitBlt(to_backup_hdc(actual_window), 0, 0, to_width(pixmap), to_height(pixmap),
-            to_hdc(pixmap), 0, 0, SRCCOPY);
+        BitBlt(to_backup_hdc(actual_window), 0, 0,
+               (int) to_width(pixmap), (int) to_height(pixmap),
+               to_hdc(pixmap), 0, 0, SRCCOPY);
       } /* if */
     } /* if */
     /* printf("end drwSetContent(%lu, %lu)\n",
@@ -1568,8 +1577,8 @@ void drwText (const_winType actual_window, intType x, intType y,
     memSizeType len;
 
   /* drwText */
-    if (!inIntRange(x) || !inIntRange(y) ||
-        stri->size >= (unsigned int) INT_MAX) {
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 stri->size >= (unsigned int) INT_MAX)) {
       raise_error(RANGE_ERROR);
     } else if (unlikely(stri->size > MAX_WSTRI_LEN ||
                         !ALLOC_WSTRI(stri_buffer, stri->size))) {
@@ -1579,7 +1588,7 @@ void drwText (const_winType actual_window, intType x, intType y,
       strelem = stri->mem;
       len = stri->size;
       for (; len > 0; wstri++, strelem++, len--) {
-        if (*strelem >= 65536) {
+        if (unlikely(*strelem >= 65536)) {
           UNALLOC_WSTRI(stri_buffer, stri->size);
           raise_error(RANGE_ERROR);
           return;
@@ -1632,12 +1641,12 @@ intType drwWidth (const_winType actual_window)
     intType width;
 
   /* drwWidth */
-    /* printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
-    if (is_pixmap(actual_window)) {
+    logFunction(printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
+                       actual_window,
+                       actual_window != 0 ? actual_window->usage_count: 0););
+    if (is_pixmap(actual_window) ||
+        GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
       width = to_width(actual_window);
-    } else if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
-      width = (intType) to_width(actual_window);
     } else {
       width = (intType) ((unsigned int) (rect.right - rect.left) -
                         to_brutto_width_delta(actual_window));
@@ -1657,7 +1666,7 @@ intType drwXPos (const_winType actual_window)
     intType xPos;
 
   /* drwXPos */
-    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+    if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
       raise_error(RANGE_ERROR);
       xPos = 0;
     } else {
@@ -1681,7 +1690,7 @@ intType drwYPos (const_winType actual_window)
     intType yPos;
 
   /* drwYPos */
-    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+    if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
       raise_error(RANGE_ERROR);
       yPos = 0;
     } else {

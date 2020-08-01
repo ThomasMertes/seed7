@@ -66,6 +66,7 @@ DIR *opendir (const char *name)
     DIR *result;
 
   /* opendir */
+    logFunction(printf("opendir(%s);\n", name););
     name_len = strlen(name);
     if (name_len == 0 || name_len > sizeof(dir_name) - 5) {
       logError(printf("opendir(\"%s\"): Name too long "
@@ -73,7 +74,6 @@ DIR *opendir (const char *name)
                       name, name_len, sizeof(dir_name) - 5););
       result = NULL;
     } else if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
-      /* printf("opendir(%s);\n", name); */
       memcpy(dir_name, name, name_len);
       if (name[name_len - 1] != '/' &&
           name[name_len - 1] != '\\') {
@@ -114,7 +114,7 @@ struct dirent *readdir (DIR *curr_dir)
     struct dirent *result;
 
   /* readdir */
-    /* printf("readdir();\n"); */
+    logFunction(printf("readdir\n"););
     if (curr_dir->first_element) {
       /* printf("first\n"); */
       curr_dir->first_element = 0;
@@ -129,6 +129,8 @@ struct dirent *readdir (DIR *curr_dir)
       /* printf("end\n"); */
       result = NULL;
     } /* if */
+    logFunction(printf("readdir --> %s\n",
+                       result == NULL ? "NULL" : result->d_name););
     return result;
   } /* readdir */
 
@@ -142,6 +144,7 @@ struct dirent *readdir (DIR *curr_dir)
 int closedir (DIR *curr_dir)
 
   { /* closedir */
+    logFunction(printf("closedir\n"););
     FindClose(curr_dir->dir_handle);
     free(curr_dir);
     return 0;
@@ -164,6 +167,7 @@ WDIR *wopendir (const wchar_t *name)
     WDIR *result;
 
   /* wopendir */
+    logFunction(printf("wopendir(%ls);\n", name););
     name_len = wcslen(name);
     if (name_len == 0 ||
         name_len > sizeof(dir_name) / sizeof(wchar_t) - 5) {
@@ -172,7 +176,6 @@ WDIR *wopendir (const wchar_t *name)
                       name, name_len, sizeof(dir_name) / sizeof(wchar_t) - 5););
       result = NULL;
     } else if ((result = (WDIR *) malloc(sizeof(WDIR))) != NULL) {
-      /* printf("wopendir(%ls);\n", name); */
       memcpy(dir_name, name, name_len * sizeof(wchar_t));
       if (name[name_len - 1] != '/' &&
           name[name_len - 1] != '\\') {
@@ -216,7 +219,7 @@ struct wdirent *wreaddir (WDIR *curr_dir)
     struct wdirent *result;
 
   /* wreaddir */
-    /* printf("wreaddir();\n"); */
+    logFunction(printf("wreaddir\n"););
     if (curr_dir->first_element) {
       /* printf("first\n"); */
       curr_dir->first_element = 0;
@@ -231,6 +234,8 @@ struct wdirent *wreaddir (WDIR *curr_dir)
       /* printf("end\n"); */
       result = NULL;
     } /* if */
+    logFunction(printf("wreaddir --> %ls\n",
+                       result == NULL ? "NULL" : result->d_name););
     return result;
   } /* wreaddir */
 
@@ -244,6 +249,7 @@ struct wdirent *wreaddir (WDIR *curr_dir)
 int wclosedir (WDIR *curr_dir)
 
   { /* wclosedir */
+    logFunction(printf("wclosedir\n"););
     FindClose(curr_dir->dir_handle);
     free(curr_dir);
     return 0;

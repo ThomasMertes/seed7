@@ -70,8 +70,8 @@ const const_cstriType cstri_escape_sequence[] = {
     "\\031", "\\032", "\\033", "\\034", "\\035",
     "\\036", "\\037"};
 
-const char null_string_marker[]      = "\\ *NULL_STRING* ";
-const char null_byte_string_marker[] = "\\ *NULL_BYTE_STRING* ";
+static const char null_string_marker[]      = "\\ *NULL_STRING* ";
+static const char null_byte_string_marker[] = "\\ *NULL_BYTE_STRING* ";
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef EMULATE_ROOT_CWD

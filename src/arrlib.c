@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -128,7 +131,7 @@ objectType arr_append (listType arguments)
     memSizeType extension_size;
 
   /* arr_append */
-    /* printf("begin arr_append %lu\n", heapsize()); */
+    logFunction(printf("arr_append\n"););
     arr_variable = arg_1(arguments);
     isit_array(arr_variable);
     is_variable(arr_variable);
@@ -138,13 +141,13 @@ objectType arr_append (listType arguments)
     extension_size = arraySize(extension);
     if (extension_size != 0) {
       arr_to_size = arraySize(arr_to);
-      if (arr_to_size > MAX_ARR_LEN - extension_size ||
-          arr_to->max_position > (intType) (MAX_MEM_INDEX - extension_size)) {
+      if (unlikely(arr_to_size > MAX_ARR_LEN - extension_size ||
+                   arr_to->max_position > (intType) (MAX_MEM_INDEX - extension_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = arr_to_size + extension_size;
         new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
-        if (new_arr == NULL) {
+        if (unlikely(new_arr == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           COUNT3_ARRAY(arr_to_size, new_size);
@@ -162,10 +165,10 @@ objectType arr_append (listType arguments)
             if (arr_to == extension) {
               extension = new_arr;
             } /* if */
-            if (!crea_array(&new_arr->arr[arr_to_size], extension->arr,
-                extension_size)) {
+            if (unlikely(!crea_array(&new_arr->arr[arr_to_size], extension->arr,
+                                     extension_size))) {
               arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
-              if (arr_to == NULL) {
+              if (unlikely(arr_to == NULL)) {
                 return raise_exception(SYS_MEM_EXCEPTION);
               } /* if */
               COUNT3_ARRAY(new_size, arr_to_size);
@@ -178,7 +181,7 @@ objectType arr_append (listType arguments)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("end   arr_append %lu\n", heapsize()); */
+    logFunction(printf("arr_append -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* arr_append */
 
@@ -203,14 +206,14 @@ objectType arr_arrlit (listType arguments)
     } else {
       arr1 = take_array(arr_arg);
       result_size = arraySize(arr1);
-      if (result_size > MAX_MEM_INDEX) {
+      if (unlikely(result_size > MAX_MEM_INDEX)) {
         return raise_exception(SYS_RNG_EXCEPTION);
-      } else if (!ALLOC_ARRAY(result_array, result_size)) {
+      } else if (unlikely(!ALLOC_ARRAY(result_array, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result_array->min_position = 1;
         result_array->max_position = (intType) result_size;
-        if (!crea_array(result_array->arr, arr1->arr, result_size)) {
+        if (unlikely(!crea_array(result_array->arr, arr1->arr, result_size))) {
           FREE_ARRAY(result_array, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } else {
@@ -234,16 +237,21 @@ objectType arr_arrlit2 (listType arguments)
     objectType result;
 
   /* arr_arrlit2 */
-    /* printf("begin arr_arrlit2\n"); */
+    logFunction(printf("arr_arrlit2\n"););
     isit_int(arg_2(arguments));
     start_position = take_int(arg_2(arguments));
     arr_arg = arg_4(arguments);
     isit_array(arr_arg);
     arr1 = take_array(arr_arg);
     result_size = arraySize(arr1);
-    if (start_position < MIN_MEM_INDEX || start_position > MAX_MEM_INDEX ||
-        (result_size != 0 && start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
-        (result_size == 0 && start_position == MIN_MEM_INDEX)) {
+    if (unlikely(start_position < MIN_MEM_INDEX ||
+                 start_position > MAX_MEM_INDEX ||
+                 (result_size != 0 &&
+                  start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
+                 (result_size == 0 && start_position == MIN_MEM_INDEX))) {
+      logError(printf("arr_arrlit2(" FMT_D ", arr1 (size=" FMT_U_MEM ")): "
+                      "Minimal or maximal index out of range.\n",
+                      start_position, result_size););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (TEMP_OBJECT(arr_arg)) {
@@ -253,19 +261,19 @@ objectType arr_arrlit2 (listType arguments)
         result->type_of = NULL;
         arg_4(arguments) = NULL;
       } else {
-        if (!ALLOC_ARRAY(result_array, result_size)) {
+        if (unlikely(!ALLOC_ARRAY(result_array, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result_array->min_position = start_position;
         result_array->max_position = arrayMaxPos(start_position, result_size);
-        if (!crea_array(result_array->arr, arr1->arr, result_size)) {
+        if (unlikely(!crea_array(result_array->arr, arr1->arr, result_size))) {
           FREE_ARRAY(result_array, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
         result = bld_array_temp(result_array);
       } /* if */
     } /* if */
-    /* printf("end arr_arrlit2\n"); */
+    logFunction(printf("arr_arrlit2 -->\n"););
     return result;
   } /* arr_arrlit2 */
 
@@ -282,7 +290,7 @@ objectType arr_baselit (listType arguments)
   /* arr_baselit */
     element = arg_3(arguments);
     result_size = 1;
-    if (!ALLOC_ARRAY(result, result_size)) {
+    if (unlikely(!ALLOC_ARRAY(result, result_size))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     result->min_position = 1;
@@ -297,7 +305,8 @@ objectType arr_baselit (listType arguments)
       FREE_OBJECT(element);
       arg_3(arguments) = NULL;
     } else {
-      if (!arr_elem_initialisation(result_element_type, &result->arr[0], element)) {
+      if (unlikely(!arr_elem_initialisation(result_element_type,
+                                            &result->arr[0], element))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -321,7 +330,7 @@ objectType arr_baselit2 (listType arguments)
     start_position = take_int(arg_2(arguments));
     element = arg_4(arguments);
     result_size = 1;
-    if (!ALLOC_ARRAY(result, result_size)) {
+    if (unlikely(!ALLOC_ARRAY(result, result_size))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     result->min_position = start_position;
@@ -336,7 +345,8 @@ objectType arr_baselit2 (listType arguments)
       FREE_OBJECT(element);
       arg_4(arguments) = NULL;
     } else {
-      if (!arr_elem_initialisation(result_element_type, &result->arr[0], element)) {
+      if (unlikely(!arr_elem_initialisation(result_element_type,
+                                            &result->arr[0], element))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -369,27 +379,27 @@ objectType arr_cat (listType arguments)
     arr2 = take_array(arg_3(arguments));
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
-    if (arr1_size > MAX_ARR_LEN - arr2_size ||
-        arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size)) {
+    if (unlikely(arr1_size > MAX_ARR_LEN - arr2_size ||
+                 arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result_size = arr1_size + arr2_size;
       if (TEMP_OBJECT(arg_1(arguments))) {
         result = arr1;
         result = REALLOC_ARRAY(result, arr1_size, result_size);
-        if (result == NULL) {
+        if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         COUNT3_ARRAY(arr1_size, result_size);
         result->max_position = arrayMaxPos(result->min_position, result_size);
         arg_1(arguments)->value.arrayValue = NULL;
       } else {
-        if (!ALLOC_ARRAY(result, result_size)) {
+        if (unlikely(!ALLOC_ARRAY(result, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->min_position = arr1->min_position;
         result->max_position = arrayMaxPos(result->min_position, result_size);
-        if (!crea_array(result->arr, arr1->arr, arr1_size)) {
+        if (unlikely(!crea_array(result->arr, arr1->arr, arr1_size))) {
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
@@ -400,8 +410,8 @@ objectType arr_cat (listType arguments)
         FREE_ARRAY(arr2, arr2_size);
         arg_3(arguments)->value.arrayValue = NULL;
       } else {
-        if (!crea_array(&result->arr[arr1_size], arr2->arr,
-            arr2_size)) {
+        if (unlikely(!crea_array(&result->arr[arr1_size],
+                                 arr2->arr, arr2_size))) {
           destr_array(result->arr, arr1_size);
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -433,12 +443,12 @@ objectType arr_conv (listType arguments)
     } else {
       arr1 = take_array(arr_arg);
       result_size = arraySize(arr1);
-      if (!ALLOC_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position;
-      if (!crea_array(result->arr, arr1->arr, result_size)) {
+      if (unlikely(!crea_array(result->arr, arr1->arr, result_size))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -477,12 +487,13 @@ objectType arr_cpy (listType arguments)
       arr_source_size = arraySize(arr_source);
       if (arr_dest->min_position != arr_source->min_position ||
           arr_dest->max_position != arr_source->max_position) {
-        if (!ALLOC_ARRAY(new_arr, arr_source_size)) {
+        if (unlikely(!ALLOC_ARRAY(new_arr, arr_source_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           new_arr->min_position = arr_source->min_position;
           new_arr->max_position = arr_source->max_position;
-          if (!crea_array(new_arr->arr, arr_source->arr, arr_source_size)) {
+          if (unlikely(!crea_array(new_arr->arr,
+                                   arr_source->arr, arr_source_size))) {
             FREE_ARRAY(new_arr, arr_source_size);
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } /* if */
@@ -520,13 +531,14 @@ objectType arr_create (listType arguments)
       arr_from->value.arrayValue = NULL;
     } else {
       new_size = arraySize(arr_source);
-      if (!ALLOC_ARRAY(new_arr, new_size)) {
+      if (unlikely(!ALLOC_ARRAY(new_arr, new_size))) {
         arr_to->value.arrayValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_arr->min_position = arr_source->min_position;
         new_arr->max_position = arr_source->max_position;
-        if (!crea_array(new_arr->arr, arr_source->arr, new_size)) {
+        if (unlikely(!crea_array(new_arr->arr,
+                                 arr_source->arr, new_size))) {
           FREE_ARRAY(new_arr, new_size);
           arr_to->value.arrayValue = NULL;
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -566,7 +578,7 @@ objectType arr_empty (listType arguments)
     arrayType result;
 
   /* arr_empty */
-    if (!ALLOC_ARRAY(result, 0)) {
+    if (unlikely(!ALLOC_ARRAY(result, 0))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->min_position = 1;
@@ -592,27 +604,27 @@ objectType arr_extend (listType arguments)
     arr1 = take_array(arg_1(arguments));
     element = arg_3(arguments);
     arr1_size = arraySize(arr1);
-    if (arr1_size > MAX_ARR_LEN - 1 ||
-        arr1->max_position > (intType) (MAX_MEM_INDEX - 1)) {
+    if (unlikely(arr1_size > MAX_ARR_LEN - 1 ||
+                 arr1->max_position > (intType) (MAX_MEM_INDEX - 1))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result_size = arr1_size + 1;
       if (TEMP_OBJECT(arg_1(arguments))) {
         result = arr1;
         result = REALLOC_ARRAY(result, arr1_size, result_size);
-        if (result == NULL) {
+        if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         COUNT3_ARRAY(arr1_size, result_size);
         result->max_position++;
         arg_1(arguments)->value.arrayValue = NULL;
       } else {
-        if (!ALLOC_ARRAY(result, result_size)) {
+        if (unlikely(!ALLOC_ARRAY(result, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->min_position = arr1->min_position;
         result->max_position = arr1->max_position + 1;
-        if (!crea_array(result->arr, arr1->arr, arr1_size)) {
+        if (unlikely(!crea_array(result->arr, arr1->arr, arr1_size))) {
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
@@ -627,7 +639,8 @@ objectType arr_extend (listType arguments)
         FREE_OBJECT(element);
         arg_3(arguments) = NULL;
       } else {
-        if (!arr_elem_initialisation(result_element_type, &result->arr[arr1_size], element)) {
+        if (unlikely(!arr_elem_initialisation(result_element_type,
+                                              &result->arr[arr1_size], element))) {
           destr_array(result->arr, arr1_size);
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -652,7 +665,7 @@ objectType arr_gen (listType arguments)
     element1 = arg_1(arguments);
     element2 = arg_3(arguments);
     result_size = 2;
-    if (!ALLOC_ARRAY(result, result_size)) {
+    if (unlikely(!ALLOC_ARRAY(result, result_size))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     result->min_position = 1;
@@ -667,7 +680,8 @@ objectType arr_gen (listType arguments)
       FREE_OBJECT(element1);
       arg_1(arguments) = NULL;
     } else {
-      if (!arr_elem_initialisation(result_element_type, &result->arr[0], element1)) {
+      if (unlikely(!arr_elem_initialisation(result_element_type,
+                                            &result->arr[0], element1))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -679,7 +693,8 @@ objectType arr_gen (listType arguments)
       FREE_OBJECT(element2);
       arg_3(arguments) = NULL;
     } else {
-      if (!arr_elem_initialisation(result_element_type, &result->arr[1], element2)) {
+      if (unlikely(!arr_elem_initialisation(result_element_type,
+                                            &result->arr[1], element2))) {
         destr_array(result->arr, 1);
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -721,7 +736,7 @@ objectType arr_head (listType arguments)
         arg_1(arguments)->value.arrayValue = NULL;
         destr_array(&result->arr[result_size], length - result_size);
         resized_result = REALLOC_ARRAY(result, length, result_size);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           destr_array(result->arr, result_size);
           FREE_ARRAY(result, length);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -730,20 +745,23 @@ objectType arr_head (listType arguments)
         COUNT3_ARRAY(length, result_size);
         result->max_position = stop;
       } else {
-        if (!ALLOC_ARRAY(result, result_size)) {
+        if (unlikely(!ALLOC_ARRAY(result, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->min_position = arr1->min_position;
         result->max_position = stop;
-        if (!crea_array(result->arr, arr1->arr, result_size)) {
+        if (unlikely(!crea_array(result->arr, arr1->arr, result_size))) {
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
+      logError(printf("arr_head(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      if (!ALLOC_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_ARRAY(result, 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
@@ -769,16 +787,23 @@ objectType arr_idx (listType arguments)
     objectType result;
 
   /* arr_idx */
+    logFunction(printf("arr_idx\n"););
     isit_array(arg_1(arguments));
     isit_int(arg_3(arguments));
     arr1 = take_array(arg_1(arguments));
     position = take_int(arg_3(arguments));
-    if (position >= arr1->min_position && position <= arr1->max_position) {
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position)) {
+      logError(printf("arr_idx(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
+      result = raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       array_pointer = arr1->arr;
       if (TEMP_OBJECT(arg_1(arguments))) {
         /* The array will be destroyed after indexing. */
         /* A copy is necessary here to avoid a crash !!!!! */
-        if (!ALLOC_OBJECT(result)) {
+        if (unlikely(!ALLOC_OBJECT(result))) {
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
           memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectRecord));
@@ -799,12 +824,10 @@ objectType arr_idx (listType arguments)
         /* This is the normal case: The array will exist after indexing. */
         result = &array_pointer[position - arr1->min_position];
       } /* if */
-    } else {
-      result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    /* printf("arr_idx --> %08lx ", result);
-       trace1(result);
-       printf("\n"); */
+    logFunction(printf("arr_idx --> " F_U_MEM(08) " ", (memSizeType) result);
+                trace1(result);
+                printf("\n"););
     return result;
   } /* arr_idx */
 
@@ -878,20 +901,20 @@ objectType arr_push (listType arguments)
     memSizeType arr_to_size;
 
   /* arr_push */
-    /* printf("begin arr_push %lu\n", heapsize()); */
+    logFunction(printf("arr_push\n"););
     arr_variable = arg_1(arguments);
     isit_array(arr_variable);
     is_variable(arr_variable);
     arr_to = take_array(arr_variable);
     element = arg_3(arguments);
     arr_to_size = arraySize(arr_to);
-    if (arr_to_size > MAX_ARR_LEN - 1 ||
-        arr_to->max_position > (intType) (MAX_MEM_INDEX - 1)) {
+    if (unlikely(arr_to_size > MAX_ARR_LEN - 1 ||
+                 arr_to->max_position > (intType) (MAX_MEM_INDEX - 1))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       new_size = arr_to_size + 1;
       new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
-      if (new_arr == NULL) {
+      if (unlikely(new_arr == NULL)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         COUNT3_ARRAY(arr_to_size, new_size);
@@ -907,9 +930,10 @@ objectType arr_push (listType arguments)
           FREE_OBJECT(element);
           arg_3(arguments) = NULL;
         } else {
-          if (!arr_elem_initialisation(result_element_type, &new_arr->arr[arr_to_size], element)) {
+          if (unlikely(!arr_elem_initialisation(result_element_type,
+                                                &new_arr->arr[arr_to_size], element))) {
             arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
-            if (arr_to == NULL) {
+            if (unlikely(arr_to == NULL)) {
               return raise_exception(SYS_MEM_EXCEPTION);
             } /* if */
             COUNT3_ARRAY(new_size, arr_to_size);
@@ -921,7 +945,7 @@ objectType arr_push (listType arguments)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("end   arr_push %lu\n", heapsize()); */
+    logFunction(printf("arr_push -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* arr_push */
 
@@ -961,7 +985,7 @@ objectType arr_range (listType arguments)
         stop = arr1->max_position;
       } /* if */
       result_size = arraySize2(start, stop);
-      if (!ALLOC_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
@@ -976,16 +1000,19 @@ objectType arr_range (listType arguments)
         FREE_ARRAY(arr1, length);
         arg_1(arguments)->value.arrayValue = NULL;
       } else {
-        if (!crea_array(result->arr, &arr1->arr[start_idx],
-            result_size)) {
+        if (unlikely(!crea_array(result->arr,
+                                 &arr1->arr[start_idx], result_size))) {
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
+      logError(printf("arr_range(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      if (!ALLOC_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_ARRAY(result, 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
@@ -1013,14 +1040,21 @@ objectType arr_remove (listType arguments)
     objectType result;
 
   /* arr_remove */
+    logFunction(printf("arr_remove\n"););
     isit_array(arg_1(arguments));
     isit_int(arg_2(arguments));
     is_variable(arg_1(arguments));
     arr1 = take_array(arg_1(arguments));
     position = take_int(arg_2(arguments));
-    if (position >= arr1->min_position && position <= arr1->max_position) {
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position)) {
+      logError(printf("arr_remove(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
+      result = raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       array_pointer = arr1->arr;
-      if (!ALLOC_OBJECT(result)) {
+      if (unlikely(!ALLOC_OBJECT(result))) {
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
         memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectRecord));
@@ -1048,12 +1082,10 @@ objectType arr_remove (listType arguments)
           SET_TEMP_FLAG(result);
         } /* if */
       } /* if */
-    } else {
-      result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    /* printf("arr_remove --> ");
-       trace1(result);
-       printf("\n"); */
+    logFunction(printf("arr_remove --> " F_U_MEM(08) " ", (memSizeType) result);
+                trace1(result);
+                printf("\n"););
     return result;
   } /* arr_remove */
 
@@ -1078,12 +1110,12 @@ objectType arr_sort (listType arguments)
     } else {
       arr1 = take_array(arr_arg);
       result_size = arraySize(arr1);
-      if (!ALLOC_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position;
-      if (!crea_array(result->arr, arr1->arr, result_size)) {
+      if (unlikely(!crea_array(result->arr, arr1->arr, result_size))) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -1132,7 +1164,7 @@ objectType arr_subarr (listType arguments)
         len = arr1->max_position - start + 1;
       } /* if */
       result_size = (memSizeType) (uintType) (len);
-      if (!ALLOC_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
@@ -1147,16 +1179,19 @@ objectType arr_subarr (listType arguments)
         FREE_ARRAY(arr1, length);
         arg_1(arguments)->value.arrayValue = NULL;
       } else {
-        if (!crea_array(result->arr, &arr1->arr[start_idx],
-            result_size)) {
+        if (unlikely(!crea_array(result->arr,
+                                 &arr1->arr[start_idx], result_size))) {
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
+      logError(printf("arr_subarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start, len););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      if (!ALLOC_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_ARRAY(result, 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
@@ -1192,7 +1227,7 @@ objectType arr_tail (listType arguments)
         start = arr1->min_position;
       } /* if */
       result_size = arraySize2(start, arr1->max_position);
-      if (!ALLOC_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
@@ -1206,16 +1241,19 @@ objectType arr_tail (listType arguments)
         /* code to avoid destr_array:
         arr1->max_position = start - 1; */
       } else {
-        if (!crea_array(result->arr, &arr1->arr[start - arr1->min_position],
-            result_size)) {
+        if (unlikely(!crea_array(result->arr,
+                                 &arr1->arr[start - arr1->min_position], result_size))) {
           FREE_ARRAY(result, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
+      logError(printf("arr_tail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      if (!ALLOC_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_ARRAY(result, 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
@@ -1247,14 +1285,14 @@ objectType arr_times (listType arguments)
     isit_int(arg_1(arguments));
     factor = take_int(arg_1(arguments));
     element = arg_3(arguments);
-    if (factor < 0) {
+    if (unlikely(factor < 0)) {
       return raise_exception(SYS_RNG_EXCEPTION);
-    } else if ((uintType) factor > MAX_ARR_LEN ||
-               (uintType) factor > MAX_MEM_INDEX) {
+    } else if (unlikely((uintType) factor > MAX_ARR_LEN ||
+                        (uintType) factor > MAX_MEM_INDEX)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result_size = (memSizeType) (uintType) factor;
-      if (!ALLOC_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->min_position = 1;
@@ -1287,14 +1325,16 @@ objectType arr_times (listType arguments)
             FREE_OBJECT(element);
             arg_3(arguments) = NULL;
           } else {
-            if (!arr_elem_initialisation(result_element_type, elem_to, element)) {
+            if (unlikely(!arr_elem_initialisation(result_element_type,
+                                                  elem_to, element))) {
               FREE_ARRAY(result, result_size);
               return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
             } /* if */
           } /* if */
           position = 1;
           while (position < result_size) {
-            if (!arr_elem_initialisation(result_element_type, &elem_to[position], elem_to)) {
+            if (unlikely(!arr_elem_initialisation(result_element_type,
+                                                  &elem_to[position], elem_to))) {
               /* When one create fails (mostly no memory) all elements */
               /* created up to this point must be destroyed to recycle */
               /* the memory correct. */

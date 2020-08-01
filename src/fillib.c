@@ -542,7 +542,8 @@ objectType fil_value (listType arguments)
   /* fil_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_file_temp(take_file(obj_arg));

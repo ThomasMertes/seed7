@@ -168,27 +168,28 @@ static const int least_significant[] = {
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
   };
 
-const intType maxExponentOfBase[] = {
+static const intType maxExponentOfBase[] = {
     21, 22, 24, 27, 31, 39, 63,
     INTTYPE_MAX, INTTYPE_MAX, INTTYPE_MAX,
     62, 39, 31, 27, 24, 22, 20
   };
 
-const intType minBaseOfExponent[] = {
+static const intType minBaseOfExponent[] = {
     INTTYPE_MIN, INTTYPE_MIN,
     -INT_SUFFIX(3037000499), -2097152, -55108, -6208, -1448, -512, -234, -128,
     -78, -52, -38, -28, -22, -18, -15, -13, -11, -9, -8, -8, -7
   };
 
-const intType maxBaseOfExponent[] = {
+static const intType maxBaseOfExponent[] = {
     INTTYPE_MAX, INTTYPE_MAX,
     INT_SUFFIX(3037000499), 2097151, 55108, 6208, 1448,
     511, 234, 127, 78, 52, 38, 28, 22, 18, 15, 13, 11, 9, 8, 7, 7
 };
 
-const char lcDigits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-const char ucDigits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const const_cstriType digitTable[] = {lcDigits, ucDigits};
+const const_cstriType digitTable[] = {
+    "0123456789abcdefghijklmnopqrstuvwxyz",
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  };
 
 #if INTTYPE_SIZE == 32
 #define RAND_MULTIPLIER           1103515245

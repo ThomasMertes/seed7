@@ -220,10 +220,10 @@ intType refCatParse (striType category_name)
   /* refCatParse */
     name = stri_to_cstri(category_name, &err_info);
     if (unlikely(name == NULL)) {
-            logError(printf("refCatParse: stri_to_cstri(\"%s\", *) failed:\n"
-                            "err_info=%d\n",
-                            striAsUnquotedCStri(category_name),
-                            err_info););
+      logError(printf("refCatParse: stri_to_cstri(\"%s\", *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(category_name),
+                      err_info););
       raise_error(err_info);
       result = -1;
     } else {
@@ -365,6 +365,9 @@ objectType refItfToSct (const const_objectType obj_arg)
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
                  take_reference(obj_arg) == NULL)) {
+      logError(printf("refItfToSct(");
+               trace1(obj_arg);
+               printf("): Category is not INTERFACEOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -382,6 +385,7 @@ intType refLine (const const_objectType obj_arg)
 
   /* refLine */
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refLine(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = 0;
     } else if (HAS_POSINFO(obj_arg)) {
@@ -415,6 +419,9 @@ listType refLocalConsts (const const_objectType obj_arg)
     result = NULL;
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+      logError(printf("refLocalConsts(");
+               trace1(obj_arg);
+               printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
@@ -447,6 +454,9 @@ listType refLocalVars (const const_objectType obj_arg)
     result = NULL;
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+      logError(printf("refLocalVars(");
+               trace1(obj_arg);
+               printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
@@ -509,6 +519,7 @@ listType refParams (const const_objectType obj_arg)
   /* refParams */
     result = NULL;
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refParams(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
     } else {
       if (HAS_PROPERTY(obj_arg)) {
@@ -528,6 +539,9 @@ objectType refResini (const const_objectType obj_arg)
   /* refResini */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+      logError(printf("refResini(");
+               trace1(obj_arg);
+               printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -546,6 +560,9 @@ objectType refResult (const const_objectType obj_arg)
   /* refResult */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+      logError(printf("refResult(");
+               trace1(obj_arg);
+               printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -565,6 +582,9 @@ listType refSctToList (const const_objectType obj_arg)
   /* refSctToList */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != STRUCTOBJECT)) {
+      logError(printf("refSctToList(");
+               trace1(obj_arg);
+               printf("): Category is not STRUCTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -583,6 +603,8 @@ void refSetCategory (objectType obj_arg, intType aCategory)
 
   { /* refSetCategory */
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refSetCategory(NULL, " FMT_D "): Object is NULL.\n",
+                      aCategory););
       raise_error(RANGE_ERROR);
     } else {
       SET_CATEGORY_OF_OBJ(obj_arg, aCategory);
@@ -598,6 +620,8 @@ void refSetParams (objectType obj_arg, const_listType params)
 
   /* refSetParams */
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refSetParams(NULL, " FMT_U_MEM "): Object is NULL.\n",
+                      (memSizeType) params););
       raise_error(RANGE_ERROR);
     } else {
       if (HAS_PROPERTY(obj_arg)) {
@@ -620,6 +644,8 @@ void refSetType (objectType obj_arg, typeType any_type)
 
   { /* refSetType */
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refSetType(NULL, " FMT_U_MEM "): Object is NULL.\n",
+                      (memSizeType) any_type););
       raise_error(RANGE_ERROR);
     } else {
       obj_arg->type_of = any_type;
@@ -632,6 +658,8 @@ void refSetVar (objectType obj_arg, boolType var_flag)
 
   { /* refSetVar */
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refSetVar(NULL, %s): Object is NULL.\n",
+                      var_flag ? "TRUE" : "FALSE"););
       raise_error(RANGE_ERROR);
     } else if (var_flag) {
       SET_VAR_FLAG(obj_arg);
@@ -711,6 +739,7 @@ typeType refType (const const_objectType obj_arg)
   /* refType */
     if (unlikely(obj_arg == NULL ||
                  obj_arg->type_of == NULL)) {
+      logError(printf("refType(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -772,6 +801,9 @@ boolType blnValue (const_objectType obj_arg)
         } /* if */
       } /* if */
     } /* if */
+    logError(printf("blnValue(");
+             trace1(obj_arg);
+             printf("): Value neither TRUE nor FALSE.\n"););
     raise_error(RANGE_ERROR);
     return FALSE;
   } /* blnValue */
@@ -971,6 +1003,9 @@ objectType refValue (const const_objectType obj_arg)
                 CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT))) {
       return take_reference(obj_arg);
     } else {
+      logError(printf("refValue(");
+               trace1(obj_arg);
+               printf("): Category is not a reference object.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } /* if */
@@ -995,6 +1030,9 @@ listType rflValue (const const_objectType obj_arg)
         result = NULL;
       } /* if */
     } else {
+      logError(printf("rflValue(");
+               trace1(obj_arg);
+               printf("): Category is not a reference list object.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } /* if */
@@ -1021,6 +1059,9 @@ void rflSetValue (objectType list_to, listType list_from)
         list_to->value.listValue = help_list;
       } /* if */
     } else {
+      logError(printf("rflSetValue(");
+               trace1(list_to);
+               printf(", *): Category is not a reference list object.\n"););
       raise_error(RANGE_ERROR);
     } /* if */
   } /* rflSetValue */

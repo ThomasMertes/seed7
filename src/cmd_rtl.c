@@ -1379,6 +1379,8 @@ striType cmdConfigValue (const const_striType name)
 #else
         opt = S7_LIB_DIR;
 #endif
+      } else if (strcmp(opt_name, "BOOLTYPE") == 0) {
+        opt = BOOLTYPE_STRI;
       } else if (strcmp(opt_name, "INT32TYPE") == 0) {
         opt = INT32TYPE_STRI;
       } else if (strcmp(opt_name, "UINT32TYPE") == 0) {
@@ -1406,6 +1408,9 @@ striType cmdConfigValue (const const_striType name)
         opt = buffer;
       } else if (strcmp(opt_name, "INT_SIZE") == 0) {
         sprintf(buffer, "%d", INT_SIZE);
+        opt = buffer;
+      } else if (strcmp(opt_name, "LONG_SIZE") == 0) {
+        sprintf(buffer, "%d", LONG_SIZE);
         opt = buffer;
       } else if (strcmp(opt_name, "INT_RANGE_IN_FLOATTYPE_MAX") == 0) {
         sprintf(buffer, FMT_D, INT_RANGE_IN_FLOATTYPE_MAX);
@@ -1627,7 +1632,7 @@ rtlArrayType cmdEnvironment (void)
             } else {
               variableName = os_stri_to_stri(*nameStartPos, &err_info);
             } /* if */
-            if (err_info == OKAY_NO_ERROR) {
+            if (likely(variableName != NULL)) {
               environment_array = add_stri_to_array(variableName, environment_array,
                   &used_max_position, &err_info);
             } /* if */
