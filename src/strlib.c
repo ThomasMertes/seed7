@@ -256,24 +256,6 @@ static arraytype strSplit (const const_stritype main_stri,
 
 
 
-#ifdef OUT_OF_ORDER
-arraytype str1Split (stritype main_stri, stritype delimiter)
-
-  {
-    arraytype result;
-
-  /* str1Split */
-    if (delimiter->size == 1) {
-      result = strChSplit(main_stri, delimiter->mem[0]);
-    } else {
-      result = strSplit(main_stri, delimiter);
-    } /* if */
-    return result;
-  } /* str1Split */
-#endif
-
-
-
 /**
  *  Append the string 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated

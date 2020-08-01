@@ -71,13 +71,13 @@ static stritype readVolumeName (volumeListType *volumeList)
     int stat_result;
     os_DIR *directory;
     char buffer[2];
-    stritype result;
+    stritype volumeName;
 
   /* readVolumeName */
     os_path[1] = (os_chartype) ':';
     os_path[2] = (os_chartype) '\\';
     os_path[3] = (os_chartype) '\0';
-    result = NULL;
+    volumeName = NULL;
     do {
       while (volumeList->currentDrive < 26 &&
              (volumeList->driveBitmask & (uint32type) 1 << volumeList->currentDrive) == 0) {
@@ -96,13 +96,13 @@ static stritype readVolumeName (volumeListType *volumeList)
             os_closedir(directory);
             buffer[0] = (char) ((int) 'a' + volumeList->currentDrive);
             buffer[1] = '\0';
-            result = cstri_to_stri(buffer);
+            volumeName = cstri_to_stri(buffer);
           } /* if */
         } /* if */
         volumeList->currentDrive++;
       } /* if */
-    } while (result == NULL && volumeList->currentDrive < 26);
-    return result;
+    } while (volumeName == NULL && volumeList->currentDrive < 26);
+    return volumeName;
   } /* readVolumeName */
 
 
@@ -116,6 +116,10 @@ static void closeVolumeList (volumeListType *volumeList)
 
 
 
+/**
+ *  Close the given directory stream.
+ *  @param directory The directory stream to be closed.
+ */
 void dirClose (dirtype directory)
 
   { /* dirClose */
@@ -132,47 +136,74 @@ void dirClose (dirtype directory)
 
 
 
-dirtype dirOpen (const const_stritype file_name)
+/**
+ *  Open a directory stream corresponding to the directory path.
+ *  The directory stream is positioned at the first entry in the
+ *  directory.
+ *  @param path Path of the directory to be opened. The path must
+ *         use the standard path representation.
+ *  @return the directory stream opened, or NULL if it could not
+ *          be opened.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The 'path' does not use the standard
+ *             path representation or 'path' cannot be converted
+ *             to the system path type.
+ */
+dirtype dirOpen (const const_stritype path)
 
   {
     os_stritype os_path;
     int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
-    dirtype result;
+    dirtype directory;
 
   /* dirOpen */
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(path, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
-        result = (dirtype) openVolumeList();
+        directory = (dirtype) openVolumeList();
       } else {
 #endif
         raise_error(err_info);
-        result = NULL;
+        directory = NULL;
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       } /* if */
 #endif
     } else {
-      result = os_opendir(os_path);
+      directory = os_opendir(os_path);
       os_stri_free(os_path);
     } /* if */
-    return result;
+    return directory;
   } /* dirOpen */
 
 
 
+/**
+ *  Read the next file name from the given directory stream.
+ *  Consecutive calls return all file names in the directory.
+ *  The file names . and .. are skipped. Only filenames can be
+ *  read from the directory strem. Additional information must
+ *  be obtained with other calls. 
+ *  @param directory The directory stream from which file names
+ *         are read.
+ *  @return the file name read or NULL on reaching the end of the
+ *          directory stream or if an error occurred.
+ *  @exception MEMORY_ERROR Not enough memory to convert the file
+ *             name from the system path type.
+ */
 stritype dirRead (dirtype directory)
 
   {
     os_dirent_struct *current_entry;
     errinfotype err_info = OKAY_NO_ERROR;
-    stritype result;
+    stritype fileName;
 
   /* dirRead */
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     if (IS_VOLUME_LIST(directory)) {
-      result = readVolumeName((volumeListType *) directory);
+      fileName = readVolumeName((volumeListType *) directory);
     } else {
 #endif
       do {
@@ -181,12 +212,12 @@ stritype dirRead (dirtype directory)
           (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
            memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
       if (current_entry == NULL) {
-        result = NULL;
+        fileName = NULL;
       } else {
         /* printf("os_readdir() -> ");
            prot_os_stri(current_entry->d_name);
            printf("\n"); */
-        result = os_stri_to_stri(current_entry->d_name, &err_info);
+        fileName = os_stri_to_stri(current_entry->d_name, &err_info);
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
         } /* if */
@@ -194,5 +225,5 @@ stritype dirRead (dirtype directory)
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     } /* if */
 #endif
-    return result;
+    return fileName;
   } /* dirRead */

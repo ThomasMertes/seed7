@@ -1,3 +1,26 @@
+20140302:
+- The function setSockOpt and the constant SO_REUSEADDR have been
+  added to sockbase.s7i. Many thanks go to Domingo Alvarez Duarte
+  for pointing out that this functionality was missing.
+- The function openInetListener in listener.s7i has been improved
+  to succeed when the socket is reused (it calls setSockOpt with
+  SO_REUSEADDR now).
+- The functions opendir and wopendir in dir_win.c and the function
+  opendir in dir_dos.c have been improved to check for the maximum
+  path length supported by Windows and DOS.
+- The functions act_string and act_okay have been removed from
+  actutl.c.
+- The function exec_action in exec.c has been improved to use
+  get_primact instead of act_okay. This results in a significant
+  performance improvement in the case when WITH_ACTION_CHECK is
+  defined and the option -tc is used.
+- The function str1Split has been removed from strlib.c.
+- Documentation comments have been added to arr_rtl.c, arrutl.c,
+  cmd_unx.c, cmd_win.c, dir_dos.c, dir_rtl.c, dir_win.c, kbd_inf.c,
+  kbd_poll.c, scanner.c and ut8_rtl.c.
+- Interpreter and compiler have been improved to support the action
+  SOC_SET_OPT_BOOL.
+
 20140216:
 - A new numeric escape sequence for string literals has been
   introduced. A backslash followed by an integer literal and a

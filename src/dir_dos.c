@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  dir_dos.c     Directory functions which call the Dos API.       */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/dir_dos.c                                       */
-/*  Changes: 1993, 1994, 2008  Thomas Mertes                        */
+/*  Changes: 1993, 1994, 2008, 2014  Thomas Mertes                  */
 /*  Content: Directory access using DOS findfirst and findnext.     */
 /*                                                                  */
 /*  Implements opendir, readdir and closedir in the way it is       */
@@ -46,29 +46,34 @@
 
 
 
+/**
+ *  Opens a directory stream corresponding to the directory name.
+ *  The stream is positioned at the first entry in the directory.
+ *  @param name Name of the directory to be opened.
+ *  @return a pointer to the directory stream or NULL if the
+ *          directory stream could not be opened.
+ */
 DIR *opendir (char *name)
 
   {
     unsigned int name_len;
-    char dir_name[250];
+    char dir_name[260];
     DIR *result;
 
   /* opendir */
-    if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
-/*    printf("opendir(%s);\n", name); */
-      name_len = strlen(name);
-      if (name_len >= sizeof(dir_name) - 4) {
-        name_len = sizeof(dir_name) - 5;
-      } /* if */
+    name_len = strlen(name);
+    if (name_len == 0 || name_len > sizeof(dir_name) - 5) {
+      /* printf("opendir: Name too long %lu %lu\n", name_len, sizeof(dir_name) - 5); */
+      result = NULL;
+    } else if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
+      /* printf("opendir(%s);\n", name); */
       memcpy(dir_name, name, name_len);
       dir_name[name_len] = '\0';
-      if (name_len > 0) {
-        if (name[name_len - 1] != '/' &&
-            name[name_len - 1] != '\\') {
-          strcat(dir_name, "\\");
-        } /* if */
-        strcat(dir_name, "*.*");
+      if (name[name_len - 1] != '/' &&
+          name[name_len - 1] != '\\') {
+        strcat(dir_name, "\\");
       } /* if */
+      strcat(dir_name, "*.*");
 #ifdef DIR_WIN_DOS
       result->dir_handle = _findfirst(dir_name, &result->find_record);
       if (result->dir_handle != -1) {
@@ -76,11 +81,11 @@ DIR *opendir (char *name)
       if ( _dos_findfirst(dir_name, _A_ARCH | _A_SUBDIR,
           &result->find_record) == 0) {
 #endif
-/*      printf("==> OK\n");
+        /* printf("==> OK\n");
         printf(">%s<\n", result->find_record.name); */
         result->first_element = 1;
       } else {
-/*      printf("==> ERROR\n"); */
+        /* printf("==> ERROR\n"); */
         free(result);
         result = NULL;
       } /* if */
@@ -90,6 +95,17 @@ DIR *opendir (char *name)
 
 
 
+/**
+ *  Determine dirent structure representing the next directory entry.
+ *  The element d_name in the dirent structure gets the file name of
+ *  the next directory entry. Besides d_name the dirent structure
+ *  has no other elements.
+ *  @param curr_dir Directory stream from which the directory entry
+ *         is read.
+ *  @return a pointer to a dirent structure representing the next
+ *          directory entry. It returns NULL on reaching the end of
+ *          the directory stream or if an error occurred.
+ */
 struct dirent *readdir (DIR *curr_dir)
 
   {
@@ -97,10 +113,10 @@ struct dirent *readdir (DIR *curr_dir)
     struct dirent *result;
 
   /* readdir */
-/*  printf("readdir();\n"); */
+    /* printf("readdir();\n"); */
     result = &curr_dir->dir_entry;
     if (curr_dir->first_element) {
-/*    printf("first\n"); */
+      /* printf("first\n"); */
       curr_dir->first_element = 0;
       name_len = strlen(curr_dir->find_record.name);
       if (name_len >= sizeof(result->d_name)) {
@@ -108,7 +124,7 @@ struct dirent *readdir (DIR *curr_dir)
       } /* if */
       memcpy(result->d_name, curr_dir->find_record.name, name_len);
       result->d_name[name_len] = '\0';
-/*    printf(">%s<\n", result->d_name); */
+      /* printf(">%s<\n", result->d_name); */
     } else {
 #ifdef DIR_WIN_DOS
       if (_findnext(curr_dir->dir_handle, &curr_dir->find_record) == 0) {
@@ -121,9 +137,9 @@ struct dirent *readdir (DIR *curr_dir)
         } /* if */
         memcpy(result->d_name, curr_dir->find_record.name, name_len);
         result->d_name[name_len] = '\0';
-/*      printf(">%s<\n", result->d_name); */
+        /* printf(">%s<\n", result->d_name); */
       } else {
-/*      printf("end\n"); */
+        /* printf("end\n"); */
         result = NULL;
       } /* if */
     } /* if */
@@ -132,6 +148,11 @@ struct dirent *readdir (DIR *curr_dir)
 
 
 
+/**
+ *  Closes the given directory stream.
+ *  @param curr_dir The directory stream to be closed.
+ *  @return 0 on success.
+ */
 int closedir (DIR *curr_dir)
 
   { /* closedir */

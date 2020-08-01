@@ -52,6 +52,7 @@ objecttype soc_recv            (listtype arguments);
 objecttype soc_recvfrom        (listtype arguments);
 objecttype soc_send            (listtype arguments);
 objecttype soc_sendto          (listtype arguments);
+objecttype soc_setOptBool      (listtype arguments);
 objecttype soc_socket          (listtype arguments);
 objecttype soc_word_read       (listtype arguments);
 objecttype soc_write           (listtype arguments);

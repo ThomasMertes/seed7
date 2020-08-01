@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#define SOC_OPT_NONE      0
+#define SOC_OPT_REUSEADDR 1
+
+
 sockettype socAccept (sockettype sock, bstritype *address);
 inttype socAddrFamily (const const_bstritype address);
 stritype socAddrNumeric (const const_bstritype address);
@@ -53,6 +57,7 @@ inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype fl
 inttype socSend (sockettype sock, const const_stritype stri, inttype flags);
 inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
     const_bstritype address);
+void socSetOptBool (sockettype sock, inttype optname, booltype optval);
 sockettype socSocket (inttype domain, inttype type, inttype protocol);
 stritype socWordRead (sockettype sock, chartype *const terminationChar);
 void socWrite (sockettype sock, const const_stritype stri);

@@ -161,6 +161,15 @@ static void show_term_descr (struct termios *curr_term_descr)
 
 
 
+/**
+ *  Determine if two termios structs are equal.
+ *  Comparing with memcmp does not work correctly.
+ *  Struct termios has data at and after &c_cc[NCCS].
+ *  Therefore memcmp sees differences, even when the
+ *  official fields of struct termios are equal.
+ *  @return TRUE when the thow termios structs are equal,
+ *          FALSE otherwise.
+ */
 static booltype term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
 
   {
@@ -168,10 +177,6 @@ static booltype term_descr_equal (struct termios *term_descr1, struct termios *t
     booltype equal;
 
   /* term_descr_equal */
-    /* Comparing with memcmp does not work correctly.    */
-    /* Struct termios has data at and after &c_cc[NCCS]. */
-    /* Therefore memcmp sees differences, even when the  */
-    /* official fields of struct termios are equal.      */
     equal = term_descr1->c_iflag == term_descr2->c_iflag &&
             term_descr1->c_oflag == term_descr2->c_oflag &&
             term_descr1->c_cflag == term_descr2->c_cflag &&
@@ -186,6 +191,16 @@ static booltype term_descr_equal (struct termios *term_descr1, struct termios *t
 
 
 
+/**
+ *  Change the terminal attributes to 'new_term_descr'.
+ *  The function tcsetattr() returns success if any of the
+ *  requested changes could be successfully carried out.
+ *  When doing multiple changes it is necessary to check
+ *  with tcgetattr(), that all changes have been performed
+ *  successfully.
+ *  @return TRUE when the change of the attributes was successful,
+ *          FALSE otherwise.
+ */
 static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
 
   {
@@ -194,11 +209,6 @@ static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
     booltype succeeded = FALSE;
 
   /* tcset_term_descr */
-    /* The function tcsetattr() returns success if any of the */
-    /* requested changes could be successfully carried out.   */
-    /* When doing multiple changes it is necessary to check   */
-    /* with tcgetattr(), that all changes have been performed */
-    /* successfully.                                          */
     do {
       trial++;
       if (tcsetattr(file_no, TCSANOW, new_term_descr) == 0 &&
@@ -215,6 +225,16 @@ static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
 
 
 
+/**
+ *  Change the terminal attributes 'vmin' and 'vtime'.
+ *  The function tcsetattr() returns success if any of the
+ *  requested changes could be successfully carried out.
+ *  When doing multiple changes it is necessary to check
+ *  with tcgetattr(), that all changes have been performed
+ *  successfully.
+ *  @return TRUE when the change of the attributes was successful,
+ *          FALSE otherwise.
+ */
 static booltype tcset_vmin_vtime (int file_no, int vmin, int vtime)
 
   {
@@ -223,11 +243,6 @@ static booltype tcset_vmin_vtime (int file_no, int vmin, int vtime)
     booltype succeeded = FALSE;
 
   /* tcset_vmin_vtime */
-    /* The function tcsetattr() returns success if any of the */
-    /* requested changes could be successfully carried out.   */
-    /* When doing multiple changes it is necessary to check   */
-    /* with tcgetattr(), that all changes have been performed */
-    /* successfully.                                          */
     term_descr.c_cc[VMIN]  = (cc_t) vmin;
     term_descr.c_cc[VTIME] = (cc_t) vtime;
     do {

@@ -46,6 +46,3 @@ EXTERN acttabletype act_table;
 
 booltype find_action (const const_stritype action_name, acttype *action_found);
 primacttype get_primact (acttype action_searched);
-#ifdef WITH_ACTION_CHECK
-booltype act_okay (acttype action_searched);
-#endif

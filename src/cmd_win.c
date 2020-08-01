@@ -70,6 +70,22 @@ typedef int64type intptr_type;
 
 #if defined OS_STRI_WCHAR && !defined USE_WMAIN
 #ifdef DEFINE_COMMAND_LINE_TO_ARGV_W
+/**
+ *  Special handling of backslash characters for CommandLineToArgvW.
+ *  CommandLineToArgvW reads arguments in two modes. Inside and
+ *  outside quotation mode. The following rules apply when a
+ *  backslash is encountered:
+ *  * 2n backslashes followed by a quotation mark produce
+ *    n backslashes and a switch from inside to outside quotation
+ *    mode and vice versa. In this case the quotation mark is not
+ *    added to the argument.
+ *  * (2n) + 1 backslashes followed by a quotation mark produce
+ *    n backslashes followed by a quotation mark. In this case the
+ *    quotation mark is added to the argument and the quotation mode
+ +    is not changed.
+ *  * n backslashes not followed by a quotation mark simply produce
+ *    n backslashes.
+ */
 static void processBackslash (const_os_stritype *sourcePos, os_stritype *destPos)
 
   {
@@ -101,6 +117,8 @@ static void processBackslash (const_os_stritype *sourcePos, os_stritype *destPos
         /* and vice versa.                               */
       } /* if */
     } else {
+      /* N backslashes not followed by a quotation mark  */
+      /* simply produce n backslashes.                   */
       for (count = backslashCount; count > 0; count--) {
         **destPos = '\\';
         (*destPos)++;
@@ -110,6 +128,20 @@ static void processBackslash (const_os_stritype *sourcePos, os_stritype *destPos
 
 
 
+/**
+ *  Parse commandLine and generate an array of pointers to the arguments.
+ *  The parameter w_argc and the returned array of pointers (w_argv)
+ *  correspond to the parameters argc and argv of main().
+ *  The rules to recognize the first argument (the command) are
+ *  different from the rules to recognize the other (normal) arguments.
+ *  Arguments can be quoted or unquoted. Normal arguments (all except
+ *  the first argument) can consist of quoted and unquoted parts. The
+ *  quoted and unquoted parts that are concatenated to form one argument.
+ *  To handle quoted and unquoted parts the function works with two
+ *  modes: Inside and outside quotation mode.
+ *  @param w_argc Address to which the argument count is copied.
+ *  @return an array of pointers to the arguments of commandLine.
+ */
 static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_argc)
 
   {
@@ -118,26 +150,26 @@ static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_ar
     os_stritype destPos;
     os_stritype destBuffer;
     memsizetype argumentCount;
-    os_stritype *result;
+    os_stritype *w_argv;
 
   /* CommandLineToArgvW */
     command_line_size = os_stri_strlen(commandLine);
     argumentCount = 0;
-    result = (os_stritype *) malloc(command_line_size * sizeof(os_stritype *));
-    if (result != NULL) {
+    w_argv = (os_stritype *) malloc(command_line_size * sizeof(os_stritype *));
+    if (w_argv != NULL) {
       sourcePos = commandLine;
       while (*sourcePos == ' ') {
         sourcePos++;
       } /* while */
       if (*sourcePos == 0) {
-        result[0] = NULL;
+        w_argv[0] = NULL;
       } else {
         if (unlikely(!os_stri_alloc(destBuffer, command_line_size))) {
-          free(result);
-          result = NULL;
+          free(w_argv);
+          w_argv = NULL;
         } else {
           /* Set pointer to first char of first argument */
-          result[0] = destBuffer;
+          w_argv[0] = destBuffer;
           argumentCount = 1;
           destPos = destBuffer;
           if (*sourcePos == '"') {
@@ -163,7 +195,7 @@ static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_ar
               *destPos = 0;
               destPos++;
               /* Set pointer to first char of next argument */
-              result[argumentCount] = destPos;
+              w_argv[argumentCount] = destPos;
               argumentCount++;
             } /* if */
           } /* if */
@@ -207,19 +239,19 @@ static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_ar
                 *destPos = 0;
                 destPos++;
                 /* Set pointer to first char of next argument */
-                result[argumentCount] = destPos;
+                w_argv[argumentCount] = destPos;
                 argumentCount++;
               } /* if */
             } /* if */
           } /* while */
           /* Terminate the last argument */
           *destPos = 0;
-          result[argumentCount] = NULL;
+          w_argv[argumentCount] = NULL;
         } /* if */
       } /* if */
     } /* if */
     *w_argc = argumentCount;
-    return result;
+    return w_argv;
   } /* CommandLineToArgvW */
 
 
@@ -261,6 +293,11 @@ os_stritype *getUtf16Argv (int *w_argc)
 
 
 
+/**
+ *  Get the absolute path of the executable of the current process.
+ *  @param arg_0 Parameter argv[0] from the function main() as string.
+ *  @return the absolute path of the current process.
+ */
 stritype getExecutablePath (const const_stritype arg_0)
 
   {
@@ -341,6 +378,11 @@ volumeListType *openVolumeList (void)
 #endif
 
 
+
+/**
+ *  Create a command line string that can be used by CreateProcessW().
+ *  The command line string must be freed with os_stri_free().
+ */
 static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
     const const_rtlArraytype parameters, errinfotype *err_info)
 

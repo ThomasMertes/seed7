@@ -1593,6 +1593,28 @@ inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
 
 
 
+void socSetOptBool (sockettype sock, inttype optname, booltype optval)
+
+  { /* socSetOptBool */
+    switch (optname) {
+      case SOC_OPT_NONE:
+        break;
+      case SOC_OPT_REUSEADDR: {
+          int so_reuseaddr = optval;
+          if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
+                         (void *) &so_reuseaddr, sizeof(so_reuseaddr)) != 0) {
+            raise_error(FILE_ERROR);
+          } /* if */
+        }
+        break;
+      default:
+        raise_error(RANGE_ERROR);
+        break;
+    } /* switch */
+  } /* socSetOptBool */
+
+
+
 sockettype socSocket (inttype domain, inttype type, inttype protocol)
 
   {

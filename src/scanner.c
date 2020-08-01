@@ -126,6 +126,11 @@ static inline void scan_line_comment (void)
 
 
 
+/**
+ *  Accept an UTF-8 byte order mark at the beginning of a file.
+ *  UTF-16 byte order marks cause an error and the whole file is
+ *  skipped.
+ */
 void scan_byte_order_mark (void)
 
   {

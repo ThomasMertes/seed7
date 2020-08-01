@@ -2794,7 +2794,7 @@ CONTENTS
 
   Examples of string literals are:
 
-    ""   " "   "\""   "'"   "String"   "CAN\"T !"
+    ""   " "   "\""   "'"   "Gold"   "A\"B !"   "Euro: \8364;"   "CRLF\r\n"
 
   To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8

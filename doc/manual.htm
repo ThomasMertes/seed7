@@ -1894,7 +1894,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   which are at least 32 bits wide. An <a class="link" href="#tokens_Integer_literals">integer literal</a> is
   a sequence of digits which is taken to be decimal. The
   sequence of digits may be followed by the letter E or e
-  an optional + sign and a decimal exponent. Based numbers
+  an optional + sign and a decimal exponent. <a name="types_based_integer"></a>Based numbers
   can be specified when the sequence of digits is followed
   by the # character and a sequence of extended digits.
   The decimal number in front of the # character specifies
@@ -2843,7 +2843,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     <li>A backslash followed by an integer literal and a semicolon
       is interpreted as character with the specified ordinal number.
       Note that the integer literal is interpreted decimal unless
-      it is written as based integer.</li>
+      it is written as <a class="link" href="#types_based_integer">based integer</a>.</li>
 </ul><p>
   Examples of character literals are:
 </p><pre class="box">
@@ -2932,7 +2932,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 </ul><p>
   Examples of string literals are:
 </p><pre class="box">
-    <span class="stri">""</span>   <span class="stri">" "</span>   <span class="stri">"\""</span>   <span class="stri">"'"</span>   <span class="stri">"String"</span>   <span class="stri">"CAN\"T !"</span>
+    <span class="stri">""</span>   <span class="stri">" "</span>   <span class="stri">"\""</span>   <span class="stri">"'"</span>   <span class="stri">"Gold"</span>   <span class="stri">"A\"B !"</span>   <span class="stri">"Euro: \8364;"</span>   <span class="stri">"CRLF\r\n"</span>
 </pre><p>
   To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
@@ -6281,12 +6281,12 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 </p><ul>
     <li><tt><span class="func">busy_getc</span></tt>, which delivers the next character
       from the keyboard or <tt><a class="var" href="#file_KEY_NONE">KEY_NONE</a></tt> if no key has been pressed.</li>
-    <li><tt><span class="func">keypressed</span></tt>, which returns TRUE if a character
-      is available from the keyboard and FALSE otherwise.</li>
+    <li><tt><span class="func">keypressed</span></tt>, which returns <tt><span class="var">TRUE</span></tt> if a character
+      is available from the keyboard and <tt><span class="var">FALSE</span></tt> otherwise.</li>
 </ul><p>
   Note that <tt><span class="func">keypressed</span></tt> does not actually read a character. Reading
   must be done with a different function after <tt><span class="func">keypressed</span></tt> returns
-  TRUE. Both functions (<tt><span class="func">busy_getc</span></tt> and <tt><span class="func">keypressed</span></tt>) are useful
+  <tt><span class="var">TRUE</span></tt>. Both functions (<tt><span class="func">busy_getc</span></tt> and <tt><span class="func">keypressed</span></tt>) are useful
   when user input is allowed while some processing takes place.
   The following program uses <tt><span class="func">busy_getc</span>(<span class="var">KEYBOARD</span>)</tt> to display
   the time until a key is pressed:
@@ -7938,7 +7938,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 <p>
     An integer literal is a sequence of digits which is taken to
   be decimal. The sequence of digits may be followed by the letter
-  E or e an optional + sign and a decimal exponent. Based numbers
+  E or e an optional + sign and a decimal exponent. <a name="tokens_based_integer"></a>Based numbers
   can be specified when the sequence of digits is followed by
   the # character and a sequence of extended digits. The decimal
   number in front of the # character specifies the base of the
@@ -8037,7 +8037,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
     <li>A backslash followed by an integer literal and a semicolon
       is interpreted as character with the specified ordinal number.
       Note that the integer literal is interpreted decimal unless
-      it is written as based integer.</li>
+      it is written as <a class="link" href="#tokens_based_integer">based integer</a>.</li>
 </ul><p>
   Strings are implemented with length field and UTF-32 encoding.
   Strings are not <tt><span class="stri">'\0;'</span></tt> terminated and therefore can also contain

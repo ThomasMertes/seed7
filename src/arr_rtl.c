@@ -113,6 +113,11 @@ static void rtl_qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
 
 
 
+/**
+ *  Get the name of the program without path and extension.
+ *  @param arg_0 Parameter argv[0] from the function main() as string.
+ *  @return the name of the program.
+ */
 static stritype getProgramName (const const_stritype arg_0)
 
   {
@@ -146,6 +151,10 @@ static stritype getProgramName (const const_stritype arg_0)
 
 
 
+/**
+ *  Copy the arguments from argv to an array of strings.
+ *  @param argv Parameter from the function main().
+ */
 static rtlArraytype copyArgv (const int argc, const os_stritype *const argv)
 
   {
@@ -189,6 +198,18 @@ static rtlArraytype copyArgv (const int argc, const os_stritype *const argv)
 
 
 
+/**
+ *  Get the Seed7 argument vector of a program.
+ *  The name of the program is not part of the Seed7 argument vector.
+ *  @param argc Parameter from the function main().
+ *  @param argv Parameter from the function main().
+ *  @param arg_0 NULL or address to which argv[0] is copied.
+ *  @param programName NULL or address to which the program name
+ *         (without path and extension) is copied.
+ *  @param exePath NULL or address to which the absolute path of the
+ *         executable is copied (symbolic links of the path are resolved).
+ *  @return an array with the argument vector.
+ */
 #ifdef USE_WMAIN
 rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
     stritype *programName, stritype *exePath)

@@ -802,6 +802,7 @@ static primactrecord prim_act_table[] = {
     { "SOC_RECVFROM",            soc_recvfrom,            },
     { "SOC_SEND",                soc_send,                },
     { "SOC_SENDTO",              soc_sendto,              },
+    { "SOC_SET_OPT_BOOL",        soc_setOptBool,          },
     { "SOC_SOCKET",              soc_socket,              },
     { "SOC_WORD_READ",           soc_word_read,           },
     { "SOC_WRITE",               soc_write,               },

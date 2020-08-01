@@ -102,6 +102,16 @@ static inline void bytes_to_strelements (ustritype buffer, memsizetype bytes_in_
 
 
 
+/**
+ *  Read UTF-8 characters from 'inFile' into the allocated string.
+ *  Read until the string 'stri' is filled or 'inFile' reaches EOF.
+ *  @param inFile File from which UTF-8 encoded characters are read.
+ *  @param stri A allocated string for the requested number of chars.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  RANGE_ERROR when inFile contains illegal encodings.
+ *                  FILE_ERROR when a system function returns an error.
+ *  @return the actual number of characters read.
+ */
 static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype *err_info)
 
   {
@@ -148,6 +158,18 @@ static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype
 
 
 
+/**
+ *  Read up to 'chars_missing' UTF-8 characters from 'inFile'.
+ *  Read until 'chars_missing' characters are read or 'inFile' reaches EOF.
+ *  @param inFile File from which UTF-8 encoded characters are read.
+ *  @param chars_missing Maximum number of characters to be read.
+ *  @param num_of_chars_read Address to which the actual number of
+ *         characters read is assigned.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  RANGE_ERROR when inFile contains illegal encodings.
+ *                  FILE_ERROR when a system function returns an error.
+ *                  MEMORY_ERROR when there was not enough memory.
+ */
 static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_missing,
     memsizetype *num_of_chars_read, errinfotype *err_info)
 

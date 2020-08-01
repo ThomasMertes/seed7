@@ -14907,6 +14907,19 @@ const proc: process_soc_send (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_soc_set_opt_bool (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socSetOptBool(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_soc_socket (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -18722,6 +18735,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_recv(params, c_expr);
       elsif action_name = "SOC_SEND" then
         process_soc_send(params, c_expr);
+      elsif action_name = "SOC_SET_OPT_BOOL" then
+        process_soc_set_opt_bool(params, c_expr);
       elsif action_name = "SOC_SOCKET" then
         process_soc_socket(params, c_expr);
       elsif action_name = "SOC_WORD_READ" then
@@ -24043,6 +24058,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     socRecvfrom (sockettype, stritype *, inttype, inttype, bstritype *);");
     declareExtern("inttype     socSend (sockettype, const_stritype, inttype);");
     declareExtern("inttype     socSendto (sockettype, const_stritype, inttype, bstritype);");
+    declareExtern("void        socSetOptBool (sockettype, inttype, booltype);");
     declareExtern("sockettype  socSocket (inttype, inttype, inttype);");
     declareExtern("stritype    socWordRead (sockettype, chartype *);");
     declareExtern("void        socWrite (sockettype, const const_stritype);");

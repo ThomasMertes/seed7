@@ -653,7 +653,7 @@ static objecttype exec_action (const_objecttype act_object,
     } else {
 #ifdef WITH_ACTION_CHECK
       if (trace.check_actions) {
-        if (!act_okay(act_object->value.actvalue)) {
+        if (get_primact(act_object->value.actvalue) == &act_table.primitive[0]) {
           result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
               evaluated_act_params);
         } /* if */

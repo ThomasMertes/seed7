@@ -78,6 +78,7 @@ const func listener: openInetListener (in integer: portNumber) is func
     if open_socket <> PRIMITIVE_NULL_SOCKET then
       new_listener.addr := address;
       new_listener.service := service(address);
+      setSockOpt(open_socket, SO_REUSEADDR, TRUE);
       bind(open_socket, new_listener.addr);
       new_listener.sock := open_socket;
       addCheck(new_listener.checkedSocks, open_socket, POLLIN, STD_NULL);

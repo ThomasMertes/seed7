@@ -217,6 +217,13 @@ inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
 
 
 
+void socSetOptBool (sockettype sock, inttype optname, booltype optval)
+
+  { /* socSetOptBool */
+  } /* socSetOptBool */
+
+
+
 sockettype socSocket (inttype domain, inttype type, inttype protocol)
 
   { /* socSocket */

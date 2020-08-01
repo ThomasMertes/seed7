@@ -41,6 +41,13 @@
 
 
 
+/**
+ *  Generate temporary rtlArraytype array.
+ *  The elements of the original array are copied with assignments.
+ *  Create functions are not called. The result is intended to be
+ *  used for a call that requires an rtlArraytype array. 
+ *  The returned rtlArraytype array must be freed with FREE_RTL_ARRAY.
+ */
 rtlArraytype gen_rtl_array (arraytype anArray)
 
   {

@@ -141,7 +141,10 @@ const func integer: recvfrom (in PRIMITIVE_SOCKET: inSocket, inout string: stri,
 const func integer: send (in PRIMITIVE_SOCKET: outSocket, in string: stri,
                           in integer: flags)                                is action "SOC_SEND";
 const func integer: sendto (in PRIMITIVE_SOCKET: outSocket, in string: stri,
-                          in integer: flags, in socketAddress: address)     is action "SOC_SENDTO";
+                            in integer: flags, in socketAddress: address)   is action "SOC_SENDTO";
+const proc: setSockOpt (in PRIMITIVE_SOCKET: outSocket, in integer: optname,
+                        in boolean: optval)                                 is action "SOC_SET_OPT_BOOL";
+const integer: SO_REUSEADDR is 1;
 
 const func PRIMITIVE_SOCKET: PRIMITIVE_SOCKET (in integer: domain,
                                                in integer: sockType,

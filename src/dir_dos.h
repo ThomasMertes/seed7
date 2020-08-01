@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  dir_dos.h     Directory functions which call the Dos API.       */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

@@ -61,6 +61,11 @@
 
 
 
+/**
+ *  Get the absolute path of the executable of the current process.
+ *  @param arg_0 Parameter argv[0] from the function main() as string.
+ *  @return the absolute path of the current process.
+ */
 stritype getExecutablePath (const const_stritype arg_0)
 
   {
@@ -137,7 +142,7 @@ volumeListType *openVolumeList (void)
 
 
 
-void freeArgVector (os_stritype *argv)
+static void freeArgVector (os_stritype *argv)
 
   {
     memsizetype pos = 0;
@@ -152,7 +157,11 @@ void freeArgVector (os_stritype *argv)
 
 
 
-os_stritype *genArgVector (const const_stritype command,
+/**
+ *  Generate an argument vector that can be used by execv().
+ *  The argument vector must be freed with freeArgVector().
+ */
+static os_stritype *genArgVector (const const_stritype command,
     const const_rtlArraytype parameters, errinfotype *err_info)
 
   {

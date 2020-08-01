@@ -78,7 +78,7 @@ const proc: main is func
     var integer: copy_index is 0;
     var integer: width is 0;
     var integer: num_lines is 0;
-    var integer: num_columns is 6;
+    var integer: num_columns is 1;
     var integer: line is 0;
     var integer: column is 0;
     var integer: num2 is 0;
@@ -116,7 +116,11 @@ const proc: main is func
           width := length(names[index]);
         end if;
       end for;
-      num_columns := 80 div succ(width);
+      if width < 80 then
+        num_columns := 80 div succ(width);
+      else
+        width := 0;
+      end if;
       num2 := succ(pred(number_of_names) mod num_columns);
       if num2 = num_columns then
         decr(num2);

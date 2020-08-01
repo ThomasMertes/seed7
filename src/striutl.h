@@ -44,7 +44,7 @@ extern const_cstritype cstri_escape_sequence[];
 #ifdef USE_DUFFS_UNROLLING
 
 #define memcpy_to_strelem(dest,src,len) \
-  if (len != 0) { \
+    if (len != 0) { \
       register memsizetype pos = (len + 7) & ~(memsizetype) 7; \
       switch (len & 7) { \
         case 0: do { dest[pos - 1] = src[pos - 1]; \
@@ -131,7 +131,6 @@ extern os_chartype emulated_root[];
 #define PATH_IS_NORMAL        0
 #define PATH_IS_EMULATED_ROOT 1
 #define PATH_NOT_MAPPED       2
-
 
 
 memsizetype utf8_to_stri (strelemtype *const dest_stri, memsizetype *const dest_len,
