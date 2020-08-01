@@ -1,3 +1,19 @@
+20110816:
+- An explanation how the syntax of Seed7 is defined, was added to
+  the FAQ.
+- Documentation comments were added to "math.s7i", "shell.s7i"
+- A declaration of Euler's number was added to "math.s7i".
+- The function 'getCommandLineWord' was added to "scanstri.s7i".
+- The functions 'shell', 'cmd_sh', 'popen' and 'popen8' in
+  "shell.s7i" were improved to work correctly under the supported
+  operating systems, even when command and parameters contain
+  spaces.
+- The library "screen.s7i" was renamed to "console.s7i" and the
+  function 'open(SCREEN)' was renamed to 'open(CONSOLE)'.
+- The makefile "mk_bcc32.mak" was improved to work correctly for
+  version 6.71 of bcc32 (thank you to the anonymous google account
+  user, for posting his findings to the Seed7 forum).
+
 20110801:
 - The left and right shift operators for bigInteger were improved
   to work with negative shift counts. Left shifting with a negative
@@ -11,7 +27,7 @@
   window or pixmap) and 'pixelToColor' (convert a pixel value to a
   color).
 - The function 'newPixmap' in "draw.sd7" and the files "drw_x11.c"
-  and "drw_win.c" were improved to allow crating pixmaps, when no
+  and "drw_win.c" were improved to allow creating pixmaps, when no
   window was opened.
 - Documentation comments were added to "integer.s7i", "string.s7i"
   and "wrinum.s7i".

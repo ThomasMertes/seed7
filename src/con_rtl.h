@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_rtl.h     Primitive actions for screen output.              */
+/*  con_rtl.h     Primitive actions for console output.             */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,24 +23,24 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_rtl.h                                       */
+/*  File: seed7/src/con_rtl.h                                       */
 /*  Changes: 2007  Thomas Mertes                                    */
-/*  Content: Primitive actions for screen output.                   */
+/*  Content: Primitive actions for console output.                  */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-void scrHScroll (inttype, inttype, inttype, inttype, inttype);
-void scrSetpos (inttype, inttype);
-void scrVScroll (inttype, inttype, inttype, inttype, inttype);
-void scrWrite (const_stritype);
+void conHScroll (inttype, inttype, inttype, inttype, inttype);
+void conSetpos (inttype, inttype);
+void conVScroll (inttype, inttype, inttype, inttype, inttype);
+void conWrite (const_stritype);
 
 #else
 
-void scrHScroll ();
-void scrSetpos ();
-void scrVScroll ();
-void scrWrite ();
+void conHScroll ();
+void conSetpos ();
+void conVScroll ();
+void conWrite ();
 
 #endif

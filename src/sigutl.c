@@ -33,7 +33,7 @@
 
 #include "common.h"
 #include "kbd_drv.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -51,7 +51,7 @@ void shut_drivers ()
 
   { /* shut_drivers */
     kbdShut();
-    scrShut();
+    conShut();
     fflush(NULL);
   } /* shut_drivers */
 

@@ -27,37 +27,121 @@
 
 
 include "utf8.s7i";
+include "scanstri.s7i";
 
 
 (**
- *  Executes a program using the shell of the operating system.
- *  The comand string must contain the program name and an optional
- *  space separated list of parameters. The 'shell' function always
+ *  Use the shell to execute a ''command'' with ''parameters''.
+ *  The ''command'' string specifies the command to be executed.
+ *  When ''command'' contains a path it must use the standard path
+ *  representation (slashes are used as path delimiter and drive
+ *  letters like C: must be written as /c instead). ''Parameters''
+ *  specifies a space separated list of parameters. Parameters
+ *  which contain a space must be enclosed in double quotes
+ *  (E.g.: shell("aCommand", "\"par 1\" par2"); ). The commands
+ *  supported and the format of the ''parameters'' are not covered
+ *  by the description of the ''shell'' function. Due to the usage of
+ *  the operating system shell and external programs, it is hard to
+ *  write portable programs, which use the ''shell'' function.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters The space separated list of parameters for
+ *         the ''command'', or "" when there are no parameters.
+ *  @return the return code of the executed command or of the shell.
+ *)
+const func integer: shell (in string: command,
+                           in string: parameters) is action "CMD_SHELL";
+
+
+(**
+ *  Use the shell to execute a ''command'' with ''parameters''.
+ *  The ''command'' string specifies the command to be executed.
+ *  When ''command'' contains a path it must use the standard path
+ *  representation (slashes are used as path delimiter and drive
+ *  letters like C: must be written as /c instead). ''Parameters''
+ *  specifies a space separated list of parameters. Parameters
+ *  which contain a space must be enclosed in double quotes
+ *  (E.g.: cmd_sh("aCommand", "\"par 1\" par2"); ). The commands
+ *  supported and the format of the ''parameters'' are not covered
+ *  by the description of the ''cmd_sh'' function. Due to the usage of
+ *  the operating system shell and external programs, it is hard to
+ *  write portable programs, which use the ''cmd_sh'' function.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters The space separated list of parameters for
+ *         the ''command'', or "" when there are no parameters.
+ *)
+const proc: cmd_sh (in string: command, in string: parameters) is func
+  begin
+    ignore(shell(command, parameters));
+  end func;
+
+
+(**
+ *  Executes a command using the shell of the operating system.
+ *  The ''cmdAndParams'' string contains a command and an optional
+ *  space separated list of parameters. The ''shell'' function always
  *  uses slashes as path separator for the command path (independend
  *  of the operating system used). Spaces in the program name (or
  *  path) must be preceded by a backslash (E.g.: shell("do\\ it"); ).
- *  The first space without preceding backslash marks the end of the
- *  program name. Command parameters containing a space must be
- *  enclosed in double quotes (E.g.: shell("do_it \"par 1\" par2"); ).
- *  The commands supported and the path delimiters used in parameters
- *  of a specific command are not covered by the description of the
- *  'shell' function. Due to the usage of the operating system shell
- *  and of external programs it is hard to write portable programs
- *  which use the 'shell' function.
+ *  Alternatively the program name can also be enclosed in double
+ *  quotes (E.g.: shell("\"do it\""); ). Command parameters
+ *  containing a space must be enclosed in double quotes
+ *  (E.g.: shell("do_it \"par 1\" par2"); ). The commands supported
+ *  and the path delimiters used in parameters of a specific command
+ *  are not covered by the description of the ''shell'' function.
+ *  Due to the usage of the operating system shell and external
+ *  programs, it is hard to write portable programs, which use the
+ *  ''shell'' function.
  *  @return the return code of the executed command or of the shell.
  *)
-const func integer: shell (in string param)     is action "CMD_SHELL";
-
-const proc: cmd_sh (in string: command) is func
+const func integer: shell (in string: cmdAndParams) is func
+  result
+    var integer: result is 0;
+  local
+    var string: command is "";
+    var string: parameters is "";
   begin
-    ignore(shell(command));
+    parameters := cmdAndParams;
+    command := getCommandLineWord(parameters);
+    result := shell(command, parameters);
   end func;
 
-const func string: toOsPath (in string param)   is action "CMD_TO_OS_PATH";
+
+(**
+ *  Executes a command using the shell of the operating system.
+ *  The ''cmdAndParams'' string contains a command and an optional
+ *  space separated list of parameters. The ''cmd_sh'' function always
+ *  uses slashes as path separator for the command path (independend
+ *  of the operating system used). Spaces in the program name (or
+ *  path) must be preceded by a backslash (E.g.: cmd_sh("do\\ it"); ).
+ *  Alternatively the program name can also be enclosed in double
+ *  quotes (E.g.: cmd_sh("\"do it\""); ). Command parameters
+ *  containing a space must be enclosed in double quotes
+ *  (E.g.: cmd_sh("do_it \"par 1\" par2"); ). The commands supported
+ *  and the path delimiters used in parameters of a specific command
+ *  are not covered by the description of the ''cmd_sh'' function.
+ *  Due to the usage of the operating system shell and external
+ *  programs, it is hard to write portable programs, which use the
+ *  ''cmd_sh'' function.
+ *)
+const proc: cmd_sh (in string: cmdAndParams) is func
+  begin
+    ignore(shell(cmdAndParams));
+  end func;
+
+
+(**
+ *  Convert a standard path to the path of the operating system.
+ *  This function can prepare paths for the ''parameters'' of the
+ *  ''shell'' and ''cmd_sh'' function.
+ *  @return a string containing an operating system path.
+ *)
+const func string: toOsPath (in string: path)   is action "CMD_TO_OS_PATH";
 
 
 const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN
-    (in string param, in string param)          is action "FIL_POPEN";
+    (in string param, in string param, in string param) is action "FIL_POPEN";
 const proc: pclose (in PRIMITIVE_FILE param)    is action "FIL_PCLOSE";
 
 
@@ -81,14 +165,18 @@ const func popen_file: malloc (in popen_file: aPipe) is func
  *  @return the file opened, or STD_NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  *)
-const func file: popen (in string: command, in string: mode) is func
+const func file: popen (in string: cmdAndParams, in string: mode) is func
   result
     var file: result is STD_NULL;
   local
+    var string: command is "";
+    var string: parameters is "";
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var popen_file: new_file is popen_file.value;
   begin
-    open_file := PRIMITIVE_FILE_POPEN(command, mode);
+    parameters := cmdAndParams;
+    command := getCommandLineWord(parameters);
+    open_file := PRIMITIVE_FILE_POPEN(command, parameters, mode);
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;
@@ -123,14 +211,18 @@ const func popen8_file: malloc (in popen8_file: aPipe) is func
  *  @return the pipe file opened, or STD_NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  *)
-const func file: popen8 (in string: command, in string: mode) is func
+const func file: popen8 (in string: cmdAndParams, in string: mode) is func
   result
     var file: result is STD_NULL;
   local
+    var string: command is "";
+    var string: parameters is "";
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var popen8_file: new_file is popen8_file.value;
   begin
-    open_file := PRIMITIVE_FILE_POPEN(command, mode);
+    parameters := cmdAndParams;
+    command := getCommandLineWord(parameters);
+    open_file := PRIMITIVE_FILE_POPEN(command, parameters, mode);
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;
@@ -143,3 +235,30 @@ const proc: close (in popen8_file: aFile) is func
   begin
     pclose(aFile.ext_file);
   end func;
+
+
+(*
+const proc: pipe2 (in string: command, in array string: parameters,
+    inout PRIMITIVE_FILE: primitiveChildStdin,
+    inout PRIMITIVE_FILE: primitiveChildStdout) is action "CMD_PIPE2";
+
+
+const proc: pipe2 (in string: command, in array string: parameters,
+    inout file: childStdin, inout file: childStdout) is func
+  local
+    var PRIMITIVE_FILE: primitiveChildStdin is PRIMITIVE_NULL_FILE;
+    var PRIMITIVE_FILE: primitiveChildStdout is PRIMITIVE_NULL_FILE;
+    var external_file: new_ChildStdin is external_file.value;
+    var external_file: new_ChildStdout is external_file.value;
+  begin
+    pipe2(command, parameters, primitiveChildStdin, primitiveChildStdout);
+    if primitiveChildStdin <> PRIMITIVE_NULL_FILE then
+      new_ChildStdin.ext_file := primitiveChildStdin;
+      childStdin := malloc(new_ChildStdin);
+    end if;
+    if primitiveChildStdout <> PRIMITIVE_NULL_FILE then
+      new_ChildStdout.ext_file := primitiveChildStdout;
+      childStdout := malloc(new_ChildStdout);
+    end if;
+  end func;
+*)

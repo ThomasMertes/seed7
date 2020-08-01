@@ -53,6 +53,9 @@ Language
 <li><a href="#reserved_words"><b>
 What are the reserved words of Seed7?
 </b></a></li>
+<li><a href="#syntax"><b>
+How is the syntax of Seed7 defined?
+</b></a></li>
 <li><a href="#statements"><b>
 Why does Seed7 not use the C statements like C++ and Java?
 </b></a></li>
@@ -275,8 +278,8 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 <li><!--  -  --><a href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a text
    console or a graphic window under different operating systems
    always delivers the same character code.</li>
-<li><!--  -  -->A portable graphics library allows drawing, image operations,
-   windows manipulation and bitmap fonts. Events to redraw a window
+<li><!--  -  -->A <a href="libraries/draw.htm">portable graphics library</a> allows drawing, image operations,
+   windows manipulation and bitmap <a href="libraries/font.htm">fonts</a>. Events to redraw a window
    and other annoyances are managed in the graphics library.</li>
 <li><!--  -  -->Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
@@ -691,6 +694,36 @@ Java and C# compilers use an enumeration type to represent the reserved words.
 Since Seed7 allows user defined statements (which may introduce new keywords)
 it is not possible to hard code reserved words in the compiler as it is done in
 Pascal, Ada, C/C++, Java and many other compilers.
+</p></p>
+
+<p><br><a name="syntax"><h3>How is the syntax of Seed7 defined?
+</h3></a><hr><!-- =================================== -->
+<p>
+The syntax of Seed7 is described with the <a href="manual/syntax.htm">Seed7 Structured Syntax Description</a>
+(S7SSD). The S7SSD is similar to an Extended Backus-Naur Form (EBNF),
+but there are important differences. S7SSD does not distinguish between
+different nonterminal symbols. Instead it only knows one nonterminal
+symbol: <i>()</i> . S7SSD syntax rules do not define named nonterminal
+symbols (EBNF rules define named nonterminal symbols). S7SSD syntax
+rules are introduced with:
+</p><pre>
+  $ syntax
+</pre><p>
+S7SSD syntax rules define a pattern of terminal and nonterminal symbols
+separated by dots. A S7SSD syntax rule defines also a priority and
+associativity. The syntax of the + operator is:
+</p><pre>
+  $ syntax expr: .(). + .()   is -> 7;
+</pre><p>
+The syntax of statements and other constructs is defined as if they
+were also operators:
+</p><pre>
+  $ syntax expr: .while.().do.().end.while   is -> 25;
+</pre><p>
+S7SSD is a simple syntax description that can be used by humans and
+compilers/interpreters. The syntax of a Seed7 program is defined
+in the library "<a href="prg/syntax.htm">syntax.s7i</a>". When a Seed7 program is interpreted
+or compiled the syntax definitions are read from "syntax.s7i".
 </p></p>
 
 <p><br><a name="statements"><h3>Why does Seed7 not use the C statements like C++ and Java?

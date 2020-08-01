@@ -51,7 +51,7 @@ $ include "seed7_05.s7i";
   include "scanfile.s7i";
   include "scanstri.s7i";
   include "float.s7i";
-  include "screen.s7i";
+  include "console.s7i";
   include "draw.s7i";
   include "graph_file.s7i";
   include "window.s7i";
@@ -6526,7 +6526,7 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
         when  {0}: # Text mode
           # Some programs set screen to 0 and draw...
           # curr_win := PRIMITIVE_WINDOW.value;
-          scr := open(SCREEN);
+          scr := open(CONSOLE);
           win := open_window(scr, 1, 1, 35, 150);
           KEYBOARD := CONSOLE_KEYBOARD;
           OUT := win;
@@ -8742,7 +8742,7 @@ const proc: main is func
           writeln(log, "load_prog finished");
           prepare_loops;
           # list_prog;
-          scr := open(SCREEN);
+          scr := open(CONSOLE);
           cursor(scr, TRUE);
           win := open_window(scr, 1, 1, 35, 150);
           OUT := win;

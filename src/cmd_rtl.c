@@ -252,7 +252,7 @@ errinfotype *err_info;
         /* printf("before remove directory <%s>\n", dir_name); */
         if (os_rmdir(dir_name) != 0) {
           *err_info = FILE_ERROR;
-/*        printf("errno=%d\n", errno);
+          /* printf("errno=%d\n", errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
           printf("dir_name=\"%ls\"\n", dir_name); */
@@ -380,6 +380,11 @@ errinfotype *err_info;
           os_remove(to_name);
         } /* if */
       } else {
+        /* printf("errno=%d\n", errno);
+        printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+            EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+        printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d\n",
+            EFAULT, EISDIR, ENAMETOOLONG, ENODEV); */
         /* printf("cannot open destination file: %s\n", to_name); */
         fclose(from_file);
         *err_info = FILE_ERROR;
@@ -1304,6 +1309,7 @@ stritype file_name;
               EIO, ELOOP, ENAMETOOLONG, EOVERFLOW);
           printf("EBADF=%d  EFAULT=%d  ENOMEM=%d\n",
               EBADF, EFAULT, ENOMEM); */
+          /* printf("strlen(file_name)=%d\n", os_stri_strlen(os_path)); */
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */
@@ -2125,33 +2131,34 @@ inttype time_zone;
 
 #ifdef ANSI_C
 
-inttype cmdShell (const const_stritype command_stri)
+inttype cmdShell (const const_stritype command, const const_stritype parameters)
 #else
 
-inttype cmdShell (command_stri)
-stritype command_stri;
+inttype cmdShell (command, parameters)
+stritype command;
+stritype parameters;
 #endif
 
   {
-    os_stritype os_command_stri;
+    os_stritype os_command;
     errinfotype err_info = OKAY_NO_ERROR;
     inttype result;
 
   /* cmdShell */
-    os_command_stri = cp_to_command(command_stri, &err_info);
-    if (unlikely(os_command_stri == NULL)) {
+    os_command = cp_to_command(command, parameters, &err_info);
+    if (unlikely(os_command == NULL)) {
       raise_error(err_info);
       result = 0;
     } else {
-      /* printf("os_command_stri: \"%s\"\n", os_command_stri); */
-      result = (inttype) os_system(os_command_stri);
+      /* printf("os_command: \"%s\"\n", os_command); */
+      result = (inttype) os_system(os_command);
       /* if (result != 0) {
         printf("errno=%d\n", errno);
         printf("E2BIG=%d  ENOENT=%d  ENOEXEC=%d  ENOMEM=%d\n",
             E2BIG, ENOENT, ENOEXEC, ENOMEM);
         printf("result=%d\n", result);
       } */
-      os_stri_free(os_command_stri);
+      os_stri_free(os_command);
     } /* if */
     return result;
   } /* cmdShell */

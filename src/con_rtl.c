@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_rtl.c     Primitive actions for screen output.              */
+/*  con_rtl.c     Primitive actions for console output.             */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_rtl.c                                       */
+/*  File: seed7/src/con_rtl.c                                       */
 /*  Changes: 2007  Thomas Mertes                                    */
-/*  Content: Primitive actions for screen output.                   */
+/*  Content: Primitive actions for console output.                  */
 /*                                                                  */
 /********************************************************************/
 
@@ -37,11 +37,11 @@
 #include "common.h"
 #include "striutl.h"
 #include "heaputl.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN
-#include "scr_rtl.h"
+#include "con_rtl.h"
 
 
 static inttype cursor_line = 1;
@@ -51,11 +51,11 @@ static inttype cursor_column = 1;
 
 #ifdef ANSI_C
 
-void scrHScroll (inttype startlin, inttype startcol,
+void conHScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrHScroll (startlin, startcol, stoplin, stopcol, count)
+void conHScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -63,41 +63,41 @@ inttype stopcol;
 inttype count;
 #endif
 
-  { /* scrHScroll */
+  { /* conHScroll */
     if (count >= 0) {
-      scrLeftScroll(startlin, startcol, stoplin, stopcol, count);
+      conLeftScroll(startlin, startcol, stoplin, stopcol, count);
     } else {
-      scrRightScroll(startlin, startcol, stoplin, stopcol, -count);
+      conRightScroll(startlin, startcol, stoplin, stopcol, -count);
     } /* if */
-  } /* scrHScroll */
+  } /* conHScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrSetpos (inttype lin, inttype col)
+void conSetpos (inttype lin, inttype col)
 #else
 
-void scrSetpos (lin, col)
+void conSetpos (lin, col)
 inttype lin;
 inttype col;
 #endif
 
-  { /* scrSetpos */
+  { /* conSetpos */
     cursor_line = lin;
     cursor_column = col;
-    scrSetCursor(lin, col);
-  } /* scrSetpos */
+    conSetCursor(lin, col);
+  } /* conSetpos */
 
 
 
 #ifdef ANSI_C
 
-void scrVScroll (inttype startlin, inttype startcol,
+void conVScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrVScroll (startlin, startcol, stoplin, stopcol, count)
+void conVScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -105,36 +105,36 @@ inttype stopcol;
 inttype count;
 #endif
 
-  { /* scrVScroll */
+  { /* conVScroll */
     if (count >= 0) {
-      scrUpScroll(startlin, startcol, stoplin, stopcol, count);
+      conUpScroll(startlin, startcol, stoplin, stopcol, count);
     } else {
-      scrDownScroll(startlin, startcol, stoplin, stopcol, -count);
+      conDownScroll(startlin, startcol, stoplin, stopcol, -count);
     } /* if */
-  } /* scrVScroll */
+  } /* conVScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrWrite (const_stritype stri)
+void conWrite (const_stritype stri)
 #else
 
-void scrWrite (stri)
+void conWrite (stri)
 stritype stri;
 #endif
 
-  /* This function writes the string stri to the screen at the      */
+  /* This function writes the string stri to the console at the     */
   /* current position. The current position must be a legal         */
-  /* position of the screen. The string stri is not allowed to go   */
-  /* beyond the right border of the screen. All screen output       */
+  /* position of the console. The string stri is not allowed to go  */
+  /* beyond the right border of the console. All console output     */
   /* must be done with this function.                               */
 
-  { /* scrWrite */
+  { /* conWrite */
 #ifdef UTF32_STRINGS
     if (stri->size <= 256) {
       memsizetype size;
-#ifdef SCREEN_UTF8
+#ifdef CONSOLE_UTF8
       uchartype stri_buffer[MAX_UTF8_EXPANSION_FACTOR * 256];
 
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
@@ -144,24 +144,24 @@ stritype stri;
       stri_compress(stri_buffer, stri->mem, stri->size);
       size = stri->size;
 #endif
-      scrText(cursor_line, cursor_column, stri_buffer, size);
+      conText(cursor_line, cursor_column, stri_buffer, size);
     } else {
       bstritype bstri;
 
-#ifdef SCREEN_UTF8
+#ifdef CONSOLE_UTF8
       bstri = stri_to_bstri8(stri);
 #else
       bstri = stri_to_bstri(stri);
 #endif
       if (bstri != NULL) {
-        scrText(cursor_line, cursor_column, bstri->mem, bstri->size);
+        conText(cursor_line, cursor_column, bstri->mem, bstri->size);
         FREE_BSTRI(bstri, bstri->size);
       } /* if */
     } /* if */
 #else
-    scrText(cursor_line, cursor_column,
+    conText(cursor_line, cursor_column,
         stri->mem, stri->size);
 #endif
     cursor_column = cursor_column + stri->size;
-    scrSetCursor(cursor_line, cursor_column);
-  } /* scrWrite */
+    conSetCursor(cursor_line, cursor_column);
+  } /* conWrite */

@@ -530,7 +530,7 @@ errinfotype *err_info;
             ch = map_to_437_9472[*strelem - 9472];
           } else {
             switch (*strelem) {
-  	      case  402: ch = 159; break;
+              case  402: ch = 159; break;
               case 8319: ch = 252; break;
               case 8359: ch = 158; break;
               case 8729: ch = 249; break;
@@ -544,7 +544,7 @@ errinfotype *err_info;
               case 8976: ch = 169; break;
               case 8992: ch = 244; break;
               case 8993: ch = 245; break;
-  	      default:   ch = '?'; break;
+              default:   ch = '?'; break;
             } /* switch */
           } /* if */
           *os_stri = (os_chartype) ch;
@@ -569,7 +569,7 @@ errinfotype *err_info;
               case 8215: ch = 242; break;
               case 305:  ch = 213; break;
               case 402:  ch = 159; break;
-  	      default:   ch = '?'; break;
+              default:   ch = '?'; break;
             } /* switch */
           } /* if */
           *os_stri = (os_chartype) ch;
@@ -641,7 +641,7 @@ errinfotype *err_info;
         ch2 = wstri[1];
         if (likely(ch2 >= 0xDC00 && ch2 <= 0xDFFF)) {
           *stri = ((((strelemtype) ch1 - 0xD800) << 10) +
-	            ((strelemtype) ch2 - 0xDC00) + 0x10000);
+                    ((strelemtype) ch2 - 0xDC00) + 0x10000);
           wstri++;
           len--;
         } else {
@@ -1311,6 +1311,7 @@ errinfotype *err_info;
 
 
 
+#ifdef OUT_OF_ORDER
 /**
  *  Returns a command string suitable for the operating system shell.
  *  The string 'stri' is converted to os_stritype. The command part of
@@ -1367,7 +1368,7 @@ errinfotype *err_info;
         } else if (cmd[inPos] == '\\') {
           inPos++;
           if (cmd[inPos] == ' ') {
-#ifdef ESCAPE_SPACES_IN_COMMANDS
+#ifdef ESCAPE_SHELL_COMMANDS
               cmd[outPos] = '\\';
               outPos++;
 #else
@@ -1390,6 +1391,13 @@ errinfotype *err_info;
         memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
         cmd[0] = '"';
         cmd[outPos + 1] = '"';
+        if (os_stri_strchr(&cmd[outPos + 2], '\"') != NULL) {
+          outPos = os_stri_strlen(cmd);
+          memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
+          cmd[0] = '"';
+          cmd[outPos + 1] = '"';
+          cmd[outPos + 2] = '\0';
+        } /* if */
       } /* if */
 #ifdef TRACE_CP_TO_COMMAND
       for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
@@ -1399,6 +1407,146 @@ errinfotype *err_info;
 #endif
     } /* if */
     return cmd;
+  } /* cp_to_command */
+#endif
+
+
+
+#ifdef ANSI_C
+
+static void escape_command (const const_os_stritype inBuffer, os_stritype outBuffer,
+    errinfotype *err_info)
+#else
+
+static void escape_command (inBuffer, outBuffer, err_info)
+os_stritype inBuffer;
+os_stritype outBuffer;
+errinfotype *err_info;
+#endif
+
+  {
+    memsizetype inPos;
+    memsizetype outPos;
+    booltype quote_path;
+
+  /* escape_command */
+    quote_path = FALSE;
+    for (inPos = 0, outPos = 0; inBuffer[inPos] != '\0'; inPos++, outPos++) {
+      switch (inBuffer[inPos]) {
+#ifdef ESCAPE_SHELL_COMMANDS
+        case '\t': case ' ':  case '!':  case '\"': case '$':
+        case '&':  case '\'': case '(':  case ')':  case '*':
+        case ';':  case '<':  case '>':  case '?':  case '\\':
+        case '`':  case '|':
+          outBuffer[outPos] = '\\';
+          outPos++;
+          outBuffer[outPos] = inBuffer[inPos];
+          break;
+        case '\n':
+          *err_info = RANGE_ERROR;
+          break;
+#else
+        case ' ':  case '&':  case ',':  case ';':  case '=':
+        case '^':  case '~':  case 160:
+          quote_path = TRUE;
+          outBuffer[outPos] = inBuffer[inPos];
+          break;
+#endif
+#if PATH_DELIMITER != '/'
+        case '/':
+          outBuffer[outPos] = PATH_DELIMITER;
+          break;
+#endif
+        default:
+          outBuffer[outPos] = inBuffer[inPos];
+          break;
+      } /* switch */
+    } /* for */
+    if (quote_path) {
+      memmove(&outBuffer[1], outBuffer, sizeof(os_chartype) * outPos);
+      outBuffer[0] = '\"';
+      outBuffer[outPos + 1] = '\"';
+      outBuffer[outPos + 2] = '\0';
+    } else {
+      outBuffer[outPos] = '\0';
+    } /* if */
+  } /* escape_command */
+
+
+
+#ifdef ANSI_C
+
+os_stritype cp_to_command (const const_stritype commandPath,
+    const const_stritype parameters, errinfotype *err_info)
+#else
+
+os_stritype cp_to_command (commandPath, parameters, err_info)
+stritype commandPath;
+stritype parameters;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype os_commandPath;
+    os_stritype os_parameters;
+    memsizetype param_len;
+    memsizetype result_len;
+    os_stritype result;
+
+  /* cp_to_command */
+    os_commandPath = cp_to_os_path(commandPath, err_info);
+    if (unlikely(os_commandPath == NULL)) {
+      result = NULL;
+    } else {
+      os_parameters = stri_to_os_stri(parameters, err_info);
+      if (unlikely(os_parameters == NULL)) {
+        result = NULL;
+      } else {
+        param_len = os_stri_strlen(os_parameters);
+        if (unlikely(MAX_OS_STRI_SIZE - 4 < param_len ||
+                     os_stri_strlen(os_commandPath) > (MAX_OS_STRI_SIZE - 4 - param_len) >> 1)) {
+          *err_info = MEMORY_ERROR;
+          result = NULL;
+        } else {
+          result_len = 2 * os_stri_strlen(os_commandPath) +
+                       os_stri_strlen(os_parameters) + 4;
+          if (unlikely(!os_stri_alloc(result, result_len))) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            escape_command(os_commandPath, result, err_info);
+            if (*err_info != OKAY_NO_ERROR) {
+              os_stri_free(result);
+              result = NULL;
+            } else if (os_parameters[0] != '\0') {
+              result_len = os_stri_strlen(result);
+#ifndef ESCAPE_SHELL_COMMANDS
+              if (result[0] == '\"') {
+                memmove(&result[1], result, sizeof(os_chartype) * result_len);
+                result[0] = '\"';
+                result_len++;
+              } /* if */
+#endif
+              if (os_parameters[0] != ' ' && os_parameters[0] != '\0') {
+                result[result_len] = ' ';
+                result_len++;
+              } /* if */
+              memcpy(&result[result_len], os_parameters,
+                  sizeof(os_chartype) * (param_len + 1));
+#ifndef ESCAPE_SHELL_COMMANDS
+              if (result[0] == '\"' && result[1] == '\"') {
+                result_len = os_stri_strlen(result);
+                result[result_len] = '\"';
+                result[result_len + 1] = '\0';
+              } /* if */
+#endif
+            } /* if */
+          } /* if */
+        } /* if */
+        os_stri_free(os_parameters);
+      } /* if */
+      os_stri_free(os_commandPath);
+    } /* if */
+    return result;
   } /* cp_to_command */
 
 

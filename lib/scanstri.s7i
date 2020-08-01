@@ -294,8 +294,69 @@ const func string: getQuotedText (inout string: stri) is func
 
 
 (**
+ *  Read a space terminated command line word, from a 'string'.
+ *  Before reading the word it skips whitespace characters. A command
+ *  line word can consist of unquoted and quoted parts. A quoted part
+ *  is introduced with double quotes (") and ends with unescaped
+ *  double quotes. A \ (backslash) is used to escape characters that
+ *  would terminate the word respectively the quoted part. The
+ *  backslash is ignored and the character after it is added to the
+ *  word. To represent a backslash it must be doubled. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the terminating space. Examples:
+ *   stri := "a b c";        # getCommandLineWord(stri) returns "a"
+ *   stri := "a\\ b c";      # getCommandLineWord(stri) returns "a b"
+ *   stri := " a b c";       # getCommandLineWord(stri) returns "a"
+ *   stri := "\\ a b c";     # getCommandLineWord(stri) returns " a"
+ *   stri := "a\\\"b c";     # getCommandLineWord(stri) returns "a\"b"
+ *   stri := "a\" b\" c";    # getCommandLineWord(stri) returns "a b"
+ *   stri := "\"a b\" c";    # getCommandLineWord(stri) returns "a b"
+ *   stri := " \"a\" b c";   # getCommandLineWord(stri) returns "a"
+ *   stri := "\" a\" b c";   # getCommandLineWord(stri) returns " a"
+ *   stri := " \" a\" b c";  # getCommandLineWord(stri) returns " a"
+ *   stri := "\"a\\\"b\" c"; # getCommandLineWord(stri) returns "a\"b"
+ *   stri := "a\\\\b c";     # getCommandLineWord(stri) returns "a\\b"
+ *  @return the space terminated word (without terminating space).
+ *)
+const func string: getCommandLineWord (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] = ' ' do
+      incr(pos);
+    end while;
+    while pos <= leng and stri[pos] <> ' ' do
+      if stri[pos] = '"' then
+        incr(pos);
+        while pos <= leng and stri[pos] <> '"' do
+          if stri[pos] = '\\' and pos < leng then
+            incr(pos);
+          end if;
+          symbol &:= stri[pos];
+          incr(pos);
+        end while;
+        incr(pos);
+      else
+        while pos <= leng and stri[pos] <> ' ' and stri[pos] <> '"' do
+          if stri[pos] = '\\' and pos < leng then
+            incr(pos);
+          end if;
+          symbol &:= stri[pos];
+          incr(pos);
+        end while;
+      end if;
+    end while;
+    stri := stri[succ(pos) ..];
+  end func;
+
+
+(**
  *  Reads an escape sequence from 'stri' and appends it to 'symbol'.
- *  The function accepts escape sequences from character end string
+ *  The function accepts escape sequences from character and string
  *  literals. When the function is called it is assumed that stri[1]
  *  contains the introducing \ . When the function is left stri[1]
  *  contains the character after the escape sequence. The complete

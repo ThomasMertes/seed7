@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_drv.h     Prototypes for screen access functions.           */
+/*  con_drv.h     Prototypes for console access functions.          */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_drv.h                                       */
+/*  File: seed7/src/con_drv.h                                       */
 /*  Changes: 1990, 1991, 1992, 1993, 1994, 2005  Thomas Mertes      */
-/*  Content: Prototypes for screen access functions.                */
+/*  Content: Prototypes for console access functions.               */
 /*                                                                  */
 /********************************************************************/
 
@@ -39,40 +39,40 @@
 
 #ifdef ANSI_C
 
-int scrHeight (void);
-int scrWidth (void);
-void scrFlush (void);
-void scrCursor (booltype on);
-void scrSetCursor (inttype lin, inttype col);
-void scrText (inttype lin, inttype col, ustritype stri,
+int conHeight (void);
+int conWidth (void);
+void conFlush (void);
+void conCursor (booltype on);
+void conSetCursor (inttype lin, inttype col);
+void conText (inttype lin, inttype col, ustritype stri,
     memsizetype length);
-void scrClear (inttype startlin, inttype startcol,
+void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol);
-void scrUpScroll (inttype startlin, inttype startcol,
+void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count);
-void scrDownScroll (inttype startlin, inttype startcol,
+void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count);
-void scrLeftScroll (inttype startlin, inttype startcol,
+void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count);
-void scrRightScroll (inttype startlin, inttype startcol,
+void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count);
-void scrShut (void);
-int scrOpen (void);
+void conShut (void);
+int conOpen (void);
 
 #else
 
-int scrHeight ();
-int scrWidth ();
-void scrFlush ();
-void scrCursor ();
-void scrSetCursor ();
-void scrText ();
-void scrClear ();
-void scrUpScroll ();
-void scrDownScroll ();
-void scrLeftScroll ();
-void scrRightScroll ();
-void scrShut ();
-int scrOpen ();
+int conHeight ();
+int conWidth ();
+void conFlush ();
+void conCursor ();
+void conSetCursor ();
+void conText ();
+void conClear ();
+void conUpScroll ();
+void conDownScroll ();
+void conLeftScroll ();
+void conRightScroll ();
+void conShut ();
+int conOpen ();
 
 #endif

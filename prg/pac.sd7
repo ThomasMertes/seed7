@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-  include "screen.s7i";
+  include "console.s7i";
   include "window.s7i";
   include "keybd.s7i";
   include "float.s7i";
@@ -670,7 +670,7 @@ const proc: main is func
   begin (* main *)
     quit := FALSE;
     high_score := 0;
-    scr := open(SCREEN);
+    scr := open(CONSOLE);
     labyrinth := open_window(scr, 2, 2, 22, 39);
     info_sheet := open_window(scr, 2, 44, 22, 20);
     box(labyrinth);

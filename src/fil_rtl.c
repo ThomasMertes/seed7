@@ -1218,23 +1218,25 @@ filetype aFile;
 
 #ifdef ANSI_C
 
-filetype filPopen (const const_stritype command, const const_stritype mode)
+filetype filPopen (const const_stritype command,
+    const const_stritype parameters, const const_stritype mode)
 #else
 
-filetype filPopen (command, mode)
+filetype filPopen (command, parameters, mode)
 stritype command;
+stritype parameters;
 stritype mode;
 #endif
 
   {
-    os_stritype cmd;
+    os_stritype os_command;
     os_chartype os_mode[4];
     errinfotype err_info = OKAY_NO_ERROR;
     filetype result;
 
   /* filPopen */
-    cmd = cp_to_command(command, &err_info);
-    if (unlikely(cmd == NULL)) {
+    os_command = cp_to_command(command, parameters, &err_info);
+    if (unlikely(os_command == NULL)) {
       raise_error(err_info);
       result = NULL;
     } else {
@@ -1251,9 +1253,9 @@ stritype mode;
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-        result = os_popen(cmd, os_mode);
+        result = os_popen(os_command, os_mode);
       } /* if */
-      free_cstri(cmd, command);
+      os_stri_free(os_command);
     } /* if */
     return result;
   } /* filPopen */

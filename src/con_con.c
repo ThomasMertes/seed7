@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_con.c     Driver for conio screen access                    */
+/*  con_con.c     Driver for conio console access                   */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_con.c                                       */
+/*  File: seed7/src/con_con.c                                       */
 /*  Changes: 1994  Thomas Mertes                                    */
-/*  Content: Driver for conio screen access                         */
+/*  Content: Driver for conio console access                        */
 /*                                                                  */
 /********************************************************************/
 
@@ -37,7 +37,7 @@
 #include "conio.h"
 
 #include "common.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 #include "kbd_drv.h"
 
 
@@ -55,7 +55,7 @@
 
 static char currentattribute;
 static char outbuffer[SCRWIDTH];
-static booltype screen_initialized = FALSE;
+static booltype console_initialized = FALSE;
 static booltype cursor_on = FALSE;
 
 
@@ -350,120 +350,120 @@ inttype *rest;
 
 #ifdef ANSI_C
 
-int scrHeight (void)
+int conHeight (void)
 #else
 
-int scrHeight ()
+int conHeight ()
 #endif
 
-  { /* scrHeight */
+  { /* conHeight */
     return(SCRHEIGHT);
-  } /* scrHeight */
+  } /* conHeight */
 
 
 
 #ifdef ANSI_C
 
-int scrWidth (void)
+int conWidth (void)
 #else
 
-int scrWidth ()
+int conWidth ()
 #endif
 
-  { /* scrWidth */
+  { /* conWidth */
     return(SCRWIDTH);
-  } /* scrWidth */
+  } /* conWidth */
 
 
 
 #ifdef ANSI_C
 
-void scrFlush (void)
+void conFlush (void)
 #else
 
-void scrFlush ()
+void conFlush ()
 #endif
 
-  { /* scrFlush */
-  } /* scrFlush */
+  { /* conFlush */
+  } /* conFlush */
 
 
 
 #ifdef ANSI_C
 
-void scrCursor (booltype on)
+void conCursor (booltype on)
 #else
 
-void scrCursor (on)
+void conCursor (on)
 booltype on;
 #endif
 
-  { /* scrCursor */
+  { /* conCursor */
     cursor_on = on;
     if (on) {
       _setcursortype(_SOLIDCURSOR);
     } else {
       _setcursortype(_NOCURSOR);
     } /* if */
-  } /* scrCursor */
+  } /* conCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrSetCursor (inttype lin, inttype col)
+void conSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetCursor (lin, col)
+void conSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
 
-  /* Moves the system curser to the given place of the screen.      */
+  /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
-  { /* scrSetCursor */
+  { /* conSetCursor */
     gotoxy(col, lin);
-  } /* scrSetCursor */
+  } /* conSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrText (lin, col, stri, length)
+void conText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
 memsizetype length;
 #endif
 
-  /* This function writes the string stri to the screen at the      */
+  /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the screen. The string stri is not allowed to go   */
-  /* beyond the right border of the screen. All screen output       */
+  /* position of the console. The string stri is not allowed to go  */
+  /* beyond the right border of the console. All console output     */
   /* must be done with this function.                               */
 
-  { /* scrText */
+  { /* conText */
     memcpy(outbuffer, stri, length);
     outbuffer[length] = '\0';
-    scrSetCursor(lin, col);
+    conSetCursor(lin, col);
     cputs(outbuffer);
-  } /* scrText */
+  } /* conText */
 
 
 
 #ifdef ANSI_C
 
-void scrClear (inttype startlin, inttype startcol,
+void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
 #else
 
-void scrClear (startlin, startcol, stoplin, stopcol)
+void conClear (startlin, startcol, stoplin, stopcol)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -473,19 +473,19 @@ inttype stopcol;
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
 
-  { /* scrClear */
+  { /* conClear */
     clrscr();
-  } /* scrClear */
+  } /* conClear */
 
 
 
 #ifdef ANSI_C
 
-void scrUpScroll (inttype startlin, inttype startcol,
+void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrUpScroll (startlin, startcol, stoplin, stopcol, count)
+void conUpScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -498,18 +498,18 @@ inttype count;
   /* area are overwritten. At the lower end of the area blank lines */
   /* are inserted. Nothing is changed outside the area.             */
 
-  { /* scrUpScroll */
-  } /* scrUpScroll */
+  { /* conUpScroll */
+  } /* conUpScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrDownScroll (inttype startlin, inttype startcol,
+void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrDownScroll (startlin, startcol, stoplin, stopcol, count)
+void conDownScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -522,18 +522,18 @@ inttype count;
   /* area are overwritten. At the upper end of the area blank lines */
   /* are inserted. Nothing is changed outside the area.             */
 
-  { /* scrDownScroll */
-  } /* scrDownScroll */
+  { /* conDownScroll */
+  } /* conDownScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrLeftScroll (inttype startlin, inttype startcol,
+void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrLeftScroll (startlin, startcol, stoplin, stopcol, count)
+void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -546,18 +546,18 @@ inttype count;
   /* area are overwritten. At the right end of the area blank lines */
   /* are inserted. Nothing is changed outside the area.             */
 
-  { /* scrLeftScroll */
-  } /* scrLeftScroll */
+  { /* conLeftScroll */
+  } /* conLeftScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrRightScroll (inttype startlin, inttype startcol,
+void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrRightScroll (startlin, startcol, stoplin, stopcol, count)
+void conRightScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -570,46 +570,46 @@ inttype count;
   /* area are overwritten. At the left end of the area blank lines  */
   /* are inserted. Nothing is changed outside the area.             */
 
-  { /* scrRightScroll */
-  } /* scrRightScroll */
+  { /* conRightScroll */
+  } /* conRightScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrShut (void)
+void conShut (void)
 #else
 
-void scrShut ()
+void conShut ()
 #endif
 
-  { /* scrShut */
-    if (screen_initialized) {
+  { /* conShut */
+    if (console_initialized) {
       con_standardcolour();
-      scrCursor(TRUE);
-      scrClear(1, 1, 25, 80);
-      scrSetCursor(1, 24);
-      screen_initialized = FALSE;
+      conCursor(TRUE);
+      conClear(1, 1, 25, 80);
+      conSetCursor(1, 24);
+      console_initialized = FALSE;
     } /* if */
-  } /* scrShut */
+  } /* conShut */
 
 
 
 #ifdef ANSI_C
 
-int scrOpen (void)
+int conOpen (void)
 #else
 
-int scrOpen ()
+int conOpen ()
 #endif
 
-  /* Initializes and clears the screen.                             */
+  /* Initializes and clears the console.                            */
 
-  { /* scrOpen */
+  { /* conOpen */
     con_normalcolour();
-    scrClear(1, 1, 25, 80);
-    scrCursor(FALSE);
-    screen_initialized = TRUE;
-    atexit(scrShut);
+    conClear(1, 1, 25, 80);
+    conCursor(FALSE);
+    console_initialized = TRUE;
+    atexit(conShut);
     return(1);
-  } /* scrOpen */
+  } /* conOpen */

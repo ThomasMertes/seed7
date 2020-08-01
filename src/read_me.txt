@@ -857,15 +857,18 @@ THE VERSION.H FILE
                   characters. Instead Seed7 programs must always
                   use '/' as path delimiter.
 
-  ESCAPE_SPACES_IN_COMMANDS: Depending on the shell/os the C
-                             functions system() and popen() need
-                             to get processed shell commands.
-                             When the macro is defined, a
-                             backslash (\) is added before every
-                             space. When the macro is not
-                             defined (undef), the whole shell
-                             command is surrounded by double
-                             quotes (") when it contains a space.
+  ESCAPE_SHELL_COMMANDS: Depending on the shell/os the C
+                         functions system() and popen() need
+                         to get processed shell commands.
+                         When the macro is defined, a
+                         backslash (\) is added before the
+                         chars tab, space, !, ", $, &, ', (,
+                         ), *, ;, <, >, ?, \, `, and |. When
+                         the macro is not defined (undef),
+                         the whole shell command is surrounded
+                         by double quotes (") when it contains
+                         a space, &, comma, ;, =, ^, ~ or the
+                         non-breaking space.
 
   USE_BIG_RTL_LIBRARY: Defined when the big_rtl library is used
                        to implement the bigInteger functions.

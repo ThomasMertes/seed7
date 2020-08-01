@@ -49,6 +49,7 @@ typedef const_wstritype  const_os_stritype;
 #define os_stri_strlen   wcslen
 #define os_stri_strcpy   wcscpy
 #define os_stri_strcat   wcscat
+#define os_stri_strchr   wcschr
 #define os_stri_alloc    ALLOC_WSTRI
 #define os_stri_realloc  REALLOC_WSTRI
 #define os_stri_free     free
@@ -60,6 +61,7 @@ typedef const_cstritype  const_os_stritype;
 #define os_stri_strlen   strlen
 #define os_stri_strcpy   strcpy
 #define os_stri_strcat   strcat
+#define os_stri_strchr   strchr
 #define os_stri_alloc    ALLOC_CSTRI
 #define os_stri_realloc  REALLOC_CSTRI
 #define os_stri_free     free
@@ -82,7 +84,8 @@ stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info);
 stritype stri_to_standard_path (stritype stri);
 stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info);
 os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
-os_stritype cp_to_command (const_stritype stri, errinfotype *err_info);
+os_stritype cp_to_command (const const_stritype commandPath,
+    const const_stritype parameters, errinfotype *err_info);
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
 stritype relativeToProgramPath (const const_stritype basePath,
     const const_cstritype dir);

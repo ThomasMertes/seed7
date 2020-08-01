@@ -66,6 +66,8 @@ int wsetenv (const const_os_stritype name, const const_os_stritype value,
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList (void);
 #endif
+void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
+    filetype *childStdin, filetype *childStdout);
 
 #else
 
@@ -81,5 +83,6 @@ int wsetenv ();
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList ();
 #endif
+void cmdPipe2 ();
 
 #endif

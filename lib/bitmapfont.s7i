@@ -35,7 +35,7 @@ const type: fontPicType is hash [char] array string;
 
 
 (**
- *  Font implementation type for bitmap fonts.
+ *  [[font|Font]] implementation type for bitmap fonts.
  *  The following bitmap fonts are available:
  *  stdfont10.s7i, stdfont12.s7i, stdfont14.s7i, stdfont16.s7i,
  *  stdfont18.s7i, stdfont20.s7i, stdfont24.s7i
@@ -102,7 +102,7 @@ const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
 
 
 (**
- *  Create a pixmap from a pattern.
+ *  Create a pixmap from a ''pattern''.
  *  A ''pattern'' is a rectangular grid of characters. It encodes
  *  the pixels of a pixmap with characters. The space (' ') encodes
  *  a ''background'' pixel and any other character encodes a
@@ -138,8 +138,8 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
 
 (**
  *  Create a pixmap font from a bitmap font.
- *  The pixmap structure is set up and the pixmap for space (' ') is
- *  created. The pixmaps of other characters are created on demand
+ *  The pixmapFont structure is set up and the pixmap for space (' ')
+ *  is created. The pixmaps of other characters are created on demand
  *  with ''getFontCharPixmap''.
  *  @return the created pixmap font.
  *)
@@ -168,7 +168,7 @@ const func pixmapFontType: genPixmapFont (in bitmapFont: bmpFont,
 
 
 (**
- *  Get the pixmap of a given font and char.
+ *  Get the pixmap of a given ''bitmapFont'' and char.
  *  This function is used to create character pixmaps on demand.
  *  @return the pixmap of the character ''ch''.
  *)
@@ -195,7 +195,7 @@ const proc: setFont (inout pixmapFontFile: fontFile, in bitmapFont: aFont) is fu
 
 
 (**
- *  Determine the maximal column width of all chars in a fontPicType.
+ *  Determine the maximal column width of all chars in a ''fontPicType''.
  *  This is used as helper function when a font is defined.
  *  @return the maximal column width of all chars in ''fontPictures''.
  *)

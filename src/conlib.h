@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -19,36 +19,36 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
-/*  File: seed7/src/scrlib.h                                        */
+/*  File: seed7/src/conlib.h                                        */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: All primitive actions to do text screen output.        */
+/*  Content: All primitive actions to do text console output.       */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-objecttype scr_clear  (listtype arguments);
-objecttype scr_cursor (listtype arguments);
-objecttype scr_flush  (listtype arguments);
-objecttype scr_height (listtype arguments);
-objecttype scr_h_scl  (listtype arguments);
-objecttype scr_open   (listtype arguments);
-objecttype scr_setpos (listtype arguments);
-objecttype scr_v_scl  (listtype arguments);
-objecttype scr_width  (listtype arguments);
-objecttype scr_write  (listtype arguments);
+objecttype con_clear  (listtype arguments);
+objecttype con_cursor (listtype arguments);
+objecttype con_flush  (listtype arguments);
+objecttype con_height (listtype arguments);
+objecttype con_h_scl  (listtype arguments);
+objecttype con_open   (listtype arguments);
+objecttype con_setpos (listtype arguments);
+objecttype con_v_scl  (listtype arguments);
+objecttype con_width  (listtype arguments);
+objecttype con_write  (listtype arguments);
 
 #else
 
-objecttype scr_clear ();
-objecttype scr_cursor ();
-objecttype scr_flush ();
-objecttype scr_height ();
-objecttype scr_h_scl ();
-objecttype scr_open ();
-objecttype scr_setpos ();
-objecttype scr_v_scl ();
-objecttype scr_width ();
-objecttype scr_write ();
+objecttype con_clear ();
+objecttype con_cursor ();
+objecttype con_flush ();
+objecttype con_height ();
+objecttype con_h_scl ();
+objecttype con_open ();
+objecttype con_setpos ();
+objecttype con_v_scl ();
+objecttype con_width ();
+objecttype con_write ();
 
 #endif

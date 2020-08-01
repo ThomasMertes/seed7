@@ -25,7 +25,7 @@ COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(SEED7_LIB)
 CC = bcc32
-GET_CC_VERSION_INFO = bcc32.exe >
+GET_CC_VERSION_INFO = bcc32.exe -h>
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
 BIGINT_LIB = big_rtl
@@ -33,44 +33,44 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB = big_gmp
 
 # TERMINFO_OR_TERMCAP = USE_TERMINFO
-# SCREEN_OBJ = scr_inf.obj kbd_inf.obj trm_inf.obj
-# SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
+# CONSOLE_OBJ = con_inf.obj kbd_inf.obj trm_inf.obj
+# CONSOLE_SRC = con_inf.c kbd_inf.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
-# SCREEN_OBJ = scr_inf.obj kbd_inf.obj trm_cap.obj
-# SCREEN_SRC = scr_inf.c kbd_inf.c trm_cap.c
+# CONSOLE_OBJ = con_inf.obj kbd_inf.obj trm_cap.obj
+# CONSOLE_SRC = con_inf.c kbd_inf.c trm_cap.c
 # TERMINFO_OR_TERMCAP = USE_TERMINFO
-# SCREEN_OBJ = scr_inf.obj kbd_poll.obj trm_inf.obj
-# SCREEN_SRC = scr_inf.c kbd_poll.c trm_inf.c
+# CONSOLE_OBJ = con_inf.obj kbd_poll.obj trm_inf.obj
+# CONSOLE_SRC = con_inf.c kbd_poll.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
-# SCREEN_OBJ = scr_inf.obj kbd_poll.obj trm_cap.obj
-# SCREEN_SRC = scr_inf.c kbd_poll.c trm_cap.c
+# CONSOLE_OBJ = con_inf.obj kbd_poll.obj trm_cap.obj
+# CONSOLE_SRC = con_inf.c kbd_poll.c trm_cap.c
 
-# SCREEN_OBJ = scr_cur.obj
-# SCREEN_SRC = scr_cur.c
-# SCREEN_OBJ = scr_cap.obj
-# SCREEN_SRC = scr_cap.c
-# SCREEN_OBJ = scr_tcp.obj
-# SCREEN_SRC = scr_tcp.c
-# SCREEN_OBJ = scr_x11.obj
-# SCREEN_SRC = scr_x11.c
-SCREEN_OBJ = scr_win.obj
-SCREEN_SRC = scr_win.c
+# CONSOLE_OBJ = con_cur.obj
+# CONSOLE_SRC = con_cur.c
+# CONSOLE_OBJ = con_cap.obj
+# CONSOLE_SRC = con_cap.c
+# CONSOLE_OBJ = con_tcp.obj
+# CONSOLE_SRC = con_tcp.c
+# CONSOLE_OBJ = con_x11.obj
+# CONSOLE_SRC = con_x11.c
+CONSOLE_OBJ = con_win.obj
+CONSOLE_SRC = con_win.c
 
 MOBJ1 = hi.obj
 POBJ1 = runerr.obj option.obj primitiv.obj
-LOBJ1 = actlib.obj arrlib.obj biglib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj dcllib.obj drwlib.obj enulib.obj
-LOBJ2 = fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj prclib.obj prglib.obj reflib.obj
-LOBJ3 = rfllib.obj scrlib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj ut8lib.obj
+LOBJ1 = actlib.obj arrlib.obj biglib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj conlib.obj dcllib.obj drwlib.obj
+LOBJ2 = enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj prclib.obj prglib.obj
+LOBJ3 = reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj ut8lib.obj
 EOBJ1 = exec.obj doany.obj objutl.obj
 AOBJ1 = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj
 AOBJ2 = expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj
 AOBJ3 = error.obj infile.obj symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ1 = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj
 GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
-ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj
-ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
+ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj
+ROBJ2 = flt_rtl.obj hsh_rtl.obj int_rtl.obj kbd_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
 ROBJ3 = heaputl.obj striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj cmd_win.obj
+DOBJ1 = $(BIGINT_LIB).obj $(CONSOLE_OBJ) tim_win.obj cmd_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 DRAW_LIB_OBJ = drw_win.obj
@@ -79,19 +79,19 @@ COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2
 
 MSRC1 = hi.c
 PSRC1 = runerr.c option.c primitiv.c
-LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c dcllib.c drwlib.c enulib.c
-LSRC2 = fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c prclib.c prglib.c reflib.c
-LSRC3 = rfllib.c scrlib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
+LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
+LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c prclib.c prglib.c
+LSRC3 = reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
 ESRC1 = exec.c doany.c objutl.c
 ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
-RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
-RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
+RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
+RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c kbd_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c cmd_win.c
+DSRC1 = $(BIGINT_LIB).c $(CONSOLE_SRC) tim_win.c cmd_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 DRAW_LIB_SRC =  drw_win.c
@@ -199,7 +199,7 @@ version.h:
 	echo ^#define LIBRARY_FILE_EXTENSION ".lib" >> version.h
 	echo ^#define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo ^#define C_COMPILER "$(CC)" >> version.h
-	echo ^#define GET_CC_VERSION_INFO "bcc32.exe \076" >> version.h
+	echo ^#define GET_CC_VERSION_INFO "bcc32.exe -h\076" >> version.h
 	echo ^#define CC_OPT_DEBUG_INFO "-y -v" >> version.h
 	echo ^#define CC_OPT_NO_WARNINGS "-w-" >> version.h
 	echo ^#define REDIRECT_C_ERRORS "\076" >> version.h

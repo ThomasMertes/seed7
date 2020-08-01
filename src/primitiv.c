@@ -39,6 +39,7 @@
 #include "bstlib.h"
 #include "chrlib.h"
 #include "cmdlib.h"
+#include "conlib.h"
 #include "dcllib.h"
 #include "drwlib.h"
 #include "enulib.h"
@@ -53,7 +54,6 @@
 #include "prglib.h"
 #include "reflib.h"
 #include "rfllib.h"
-#include "scrlib.h"
 #include "sctlib.h"
 #include "setlib.h"
 #include "soclib.h"
@@ -216,6 +216,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_LS",              cmd_ls,              },
     { "CMD_MKDIR",           cmd_mkdir,           },
     { "CMD_MOVE",            cmd_move,            },
+    { "CMD_PIPE2",           cmd_pipe2,           },
     { "CMD_READLINK",        cmd_readlink,        },
     { "CMD_REMOVE",          cmd_remove,          },
     { "CMD_REMOVE_ANY_FILE", cmd_remove_any_file, },
@@ -226,6 +227,17 @@ static primactrecord prim_act_table[] = {
     { "CMD_SHELL",           cmd_shell,           },
     { "CMD_SYMLINK",         cmd_symlink,         },
     { "CMD_TO_OS_PATH",      cmd_to_os_path,      },
+
+    { "CON_CLEAR",           con_clear,           },
+    { "CON_CURSOR",          con_cursor,          },
+    { "CON_FLUSH",           con_flush,           },
+    { "CON_HEIGHT",          con_height,          },
+    { "CON_H_SCL",           con_h_scl,           },
+    { "CON_OPEN",            con_open,            },
+    { "CON_SETPOS",          con_setpos,          },
+    { "CON_V_SCL",           con_v_scl,           },
+    { "CON_WIDTH",           con_width,           },
+    { "CON_WRITE",           con_write,           },
 
     { "DCL_ATTR",            dcl_attr,            },
     { "DCL_CONST",           dcl_const,           },
@@ -652,17 +664,6 @@ static primactrecord prim_act_table[] = {
     { "RFL_TRACE",           rfl_trace,           },
     { "RFL_VALUE",           rfl_value,           },
 #endif
-
-    { "SCR_CLEAR",           scr_clear,           },
-    { "SCR_CURSOR",          scr_cursor,          },
-    { "SCR_FLUSH",           scr_flush,           },
-    { "SCR_HEIGHT",          scr_height,          },
-    { "SCR_H_SCL",           scr_h_scl,           },
-    { "SCR_OPEN",            scr_open,            },
-    { "SCR_SETPOS",          scr_setpos,          },
-    { "SCR_V_SCL",           scr_v_scl,           },
-    { "SCR_WIDTH",           scr_width,           },
-    { "SCR_WRITE",           scr_write,           },
 
     { "SCT_ALLOC",           sct_alloc,           },
     { "SCT_CAT",             sct_cat,             },

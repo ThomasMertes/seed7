@@ -25,7 +25,7 @@
 $ include "seed7_05.s7i";
   include "time.s7i";
   include "duration.s7i";
-  include "screen.s7i";
+  include "console.s7i";
   include "window.s7i";
   include "keybd.s7i";
 
@@ -579,7 +579,7 @@ const proc: main is func
   local
     var integer: level is 1;
   begin
-    scr := open(SCREEN);
+    scr := open(CONSOLE);
     win := open_window(scr, 2, 2, 21, 78);
     status := open_window(scr, 23, 2, 1, 78);
 

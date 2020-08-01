@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_win.c     Driver for windows screen access                  */
+/*  con_win.c     Driver for windows console access                 */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_win.c                                       */
+/*  File: seed7/src/con_win.c                                       */
 /*  Changes: 2005  Thomas Mertes                                    */
-/*  Content: Driver for windows screen access                       */
+/*  Content: Driver for windows console access                      */
 /*                                                                  */
 /********************************************************************/
 
@@ -38,7 +38,7 @@
 #include "conio.h"
 
 #include "common.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 #include "kbd_drv.h"
 
 
@@ -48,7 +48,7 @@
 #define SCRWIDTH 80
 
 static char currentattribute;
-static booltype screen_initialized = FALSE;
+static booltype console_initialized = FALSE;
 static booltype cursor_on = FALSE;
 
 
@@ -317,21 +317,21 @@ inttype *rest;
 
 #ifdef ANSI_C
 
-int scrHeight (void)
+int conHeight (void)
 #else
 
-int scrHeight ()
+int conHeight ()
 #endif
 
   {
     HANDLE hConsole;
-    CONSOLE_SCREEN_BUFFER_INFO scr_info;
+    CONSOLE_SCREEN_BUFFER_INFO con_info;
 
-  /* scrHeight */
+  /* conHeight */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
-      if (GetConsoleScreenBufferInfo(hConsole, &scr_info)) {
-        return(scr_info.dwSize.Y);
+      if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
+        return(con_info.dwSize.Y);
       } else {
         /* printf("GetConsoleScreenBufferInfo(%d, & ) ==> Error %d\n",
             hConsole, GetLastError()); */
@@ -342,27 +342,27 @@ int scrHeight ()
           hConsole, GetLastError()); */
       return(SCRHEIGHT);
     } /* if */
-  } /* scrHeight */
+  } /* conHeight */
 
 
 
 #ifdef ANSI_C
 
-int scrWidth (void)
+int conWidth (void)
 #else
 
-int scrWidth ()
+int conWidth ()
 #endif
 
   {
     HANDLE hConsole;
-    CONSOLE_SCREEN_BUFFER_INFO scr_info;
+    CONSOLE_SCREEN_BUFFER_INFO con_info;
 
-  /* scrWidth */
+  /* conWidth */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
-      if (GetConsoleScreenBufferInfo(hConsole, &scr_info)) {
-        return(scr_info.dwSize.X);
+      if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
+        return(con_info.dwSize.X);
       } else {
         /* printf("GetConsoleScreenBufferInfo(%d, & ) ==> Error %d\n",
             hConsole, GetLastError()); */
@@ -373,33 +373,33 @@ int scrWidth ()
           hConsole, GetLastError()); */
       return(SCRWIDTH);
     } /* if */
-  } /* scrWidth */
+  } /* conWidth */
 
 
 
 #ifdef ANSI_C
 
-void scrFlush (void)
+void conFlush (void)
 #else
 
-void scrFlush ()
+void conFlush ()
 #endif
 
-  { /* scrFlush */
-  } /* scrFlush */
+  { /* conFlush */
+  } /* conFlush */
 
 
 
 #ifdef ANSI_C
 
-void scrCursor (booltype on)
+void conCursor (booltype on)
 #else
 
-void scrCursor (on)
+void conCursor (on)
 booltype on;
 #endif
 
-  { /* scrCursor */
+  { /* conCursor */
     cursor_on = on;
 #ifdef OUT_OF_ORDER
     if (on) {
@@ -408,21 +408,21 @@ booltype on;
       _setcursortype(_NOCURSOR);
     } /* if */
 #endif
-  } /* scrCursor */
+  } /* conCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrSetCursor (inttype lin, inttype col)
+void conSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetCursor (lin, col)
+void conSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
 
-  /* Moves the system curser to the given place of the screen.      */
+  /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
@@ -430,7 +430,7 @@ inttype col;
     HANDLE hConsole;
     COORD position;
 
-  /* scrSetCursor */
+  /* conSetCursor */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       position.X = col - 1;
@@ -443,27 +443,27 @@ inttype col;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrSetCursor */
+  } /* conSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrText (lin, col, stri, length)
+void conText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
 memsizetype length;
 #endif
 
-  /* This function writes the string stri to the screen at the      */
+  /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the screen. The string stri is not allowed to go   */
-  /* beyond the right border of the screen. All screen output       */
+  /* position of the console. The string stri is not allowed to go  */
+  /* beyond the right border of the console. All console output     */
   /* must be done with this function.                               */
 
   {
@@ -471,7 +471,7 @@ memsizetype length;
     COORD position;
     DWORD numchars;
 
-  /* scrText */
+  /* conText */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       position.X = col - 1;
@@ -486,17 +486,17 @@ memsizetype length;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrText */
+  } /* conText */
 
 
 
 #ifdef ANSI_C
 
-void scrClear (inttype startlin, inttype startcol,
+void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
 #else
 
-void scrClear (startlin, startcol, stoplin, stopcol)
+void conClear (startlin, startcol, stoplin, stopcol)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -511,7 +511,7 @@ inttype stopcol;
     COORD position;
     DWORD numchars;
 
-  /* scrClear */
+  /* conClear */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     position.X = startcol - 1;
     position.Y = startlin - 1;
@@ -520,17 +520,17 @@ inttype stopcol;
           stopcol - startcol + 1, position, &numchars);
       position.Y++;
     } /* while */
-  } /* scrClear */
+  } /* conClear */
 
 
 
 #ifdef ANSI_C
 
-void scrUpScroll (inttype startlin, inttype startcol,
+void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrUpScroll (startlin, startcol, stoplin, stopcol, count)
+void conUpScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -549,7 +549,7 @@ inttype count;
     COORD destOrigin;
     CHAR_INFO fillChar;
 
-  /* scrUpScroll */
+  /* conUpScroll */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       scrollRect.Left   = startcol - 1;
@@ -565,17 +565,17 @@ inttype count;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrUpScroll */
+  } /* conUpScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrDownScroll (inttype startlin, inttype startcol,
+void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrDownScroll (startlin, startcol, stoplin, stopcol, count)
+void conDownScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -594,7 +594,7 @@ inttype count;
     COORD destOrigin;
     CHAR_INFO fillChar;
 
-  /* scrDownScroll */
+  /* conDownScroll */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       scrollRect.Left   = startcol - 1;
@@ -610,17 +610,17 @@ inttype count;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrDownScroll */
+  } /* conDownScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrLeftScroll (inttype startlin, inttype startcol,
+void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrLeftScroll (startlin, startcol, stoplin, stopcol, count)
+void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -639,7 +639,7 @@ inttype count;
     COORD destOrigin;
     CHAR_INFO fillChar;
 
-  /* scrLeftScroll */
+  /* conLeftScroll */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       scrollRect.Left   = startcol + count - 1;
@@ -655,17 +655,17 @@ inttype count;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrLeftScroll */
+  } /* conLeftScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrRightScroll (inttype startlin, inttype startcol,
+void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrRightScroll (startlin, startcol, stoplin, stopcol, count)
+void conRightScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -684,7 +684,7 @@ inttype count;
     COORD destOrigin;
     CHAR_INFO fillChar;
 
-  /* scrRightScroll */
+  /* conRightScroll */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       scrollRect.Left   = startcol - 1;
@@ -700,45 +700,45 @@ inttype count;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrRightScroll */
+  } /* conRightScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrShut (void)
+void conShut (void)
 #else
 
-void scrShut ()
+void conShut ()
 #endif
 
-  { /* scrShut */
-    if (screen_initialized) {
+  { /* conShut */
+    if (console_initialized) {
       con_standardcolour();
-      scrCursor(TRUE);
-      scrClear(1, 1, scrHeight(), scrWidth());
-      scrSetCursor(1, 24);
-      screen_initialized = FALSE;
+      conCursor(TRUE);
+      conClear(1, 1, conHeight(), conWidth());
+      conSetCursor(1, 24);
+      console_initialized = FALSE;
     } /* if */
-  } /* scrShut */
+  } /* conShut */
 
 
 
 #ifdef ANSI_C
 
-int scrOpen (void)
+int conOpen (void)
 #else
 
-int scrOpen ()
+int conOpen ()
 #endif
 
-  /* Initializes and clears the screen.                             */
+  /* Initializes and clears the console.                            */
 
-  { /* scrOpen */
+  { /* conOpen */
     con_normalcolour();
-    scrClear(1, 1, scrHeight(), scrWidth());
-    scrCursor(FALSE);
-    screen_initialized = TRUE;
-    atexit(scrShut);
+    conClear(1, 1, conHeight(), conWidth());
+    conCursor(FALSE);
+    console_initialized = TRUE;
+    atexit(conShut);
     return(1);
-  } /* scrOpen */
+  } /* conOpen */

@@ -38,7 +38,7 @@
 /* #include "term.h" */
 
 #include "common.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN

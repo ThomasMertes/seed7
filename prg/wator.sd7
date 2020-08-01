@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-  include "screen.s7i";
+  include "console.s7i";
   include "window.s7i";
   include "keybd.s7i";
   include "echo.s7i";
@@ -544,7 +544,7 @@ const proc: main is func
     var integer: newFishGraph is 0;
     var integer: newSharkGraph is 0;
   begin
-    # scr := open(SCREEN);
+    # scr := open(CONSOLE);
     screen(640, 480);
     clear(black);
     scr := open(curr_win);

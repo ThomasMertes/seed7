@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_dos.c     Driver for dos screen access                      */
+/*  con_wat.c     Driver for watcom console access                  */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_dos.c                                       */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Driver for dos screen access                           */
+/*  File: seed7/src/con_wat.c                                       */
+/*  Changes: 1994  Thomas Mertes                                    */
+/*  Content: Driver for watcom console access                       */
 /*                                                                  */
 /********************************************************************/
 
@@ -35,15 +35,18 @@
 #include "stdio.h"
 #include "string.h"
 #include "dos.h"
+#include "conio.h"
 
 #include "common.h"
 #include "kbd_drv.h"
 
 #undef EXTERN
 #define EXTERN
-#include "scr_drv.h"
+#include "con_drv.h"
 
-#define atexit(x)
+/* #define atexit(x) */
+
+#define int86(a,b,c) int386(a,b,c)
 
 
 #define SCRHEIGHT 25
@@ -69,12 +72,43 @@ typedef struct {
 static booltype monochrom;
 static screentype *current_screen;
 static char currentattribute;
-static lineofscreen outbuffer;
-static booltype screen_initialized = FALSE;
+static char outbuffer[SCRWIDTH];
+static booltype console_initialized = FALSE;
 static booltype cursor_on = FALSE;
 
 static unsigned char cursor_startline;
 static unsigned char cursor_endline;
+
+
+#ifdef MAP_TO_ISO
+static char MAP[] = {
+/*   0 */ '\000','\001','\002','\003','\004','\005','\006','\007','\010','\011',
+/*  10 */ '\012','\013','\014','\015','\016','\017','\020','\021','\022','\023',
+/*  20 */ '\024','\025','\026','\027','\030','\031','\032','\033','\034','\035',
+/*  30 */ '\036','\037',' ',   '!',   '\"',  '#',   '$',   '%',   '&',   '\'',
+/*  40 */ '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',   '0',   '1',
+/*  50 */ '2',   '3',   '4',   '5',   '6',   '7',   '8',   '9',   ':',   ';',
+/*  60 */ '<',   '=',   '>',   '?',   '@',   'A',   'B',   'C',   'D',   'E',
+/*  70 */ 'F',   'G',   'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
+/*  80 */ 'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',   'X',   'Y',
+/*  90 */ 'Z',   '[',   '\\',  ']',   '^',   '_',   '`',   'a',   'b',   'c',
+/* 100 */ 'd',   'e',   'f',   'g',   'h',   'i',   'j',   'k',   'l',   'm',
+/* 110 */ 'n',   'o',   'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
+/* 120 */ 'x',   'y',   'z',   '{',   '|',   '}',   '~',   '#',   ' ',   ' ',
+/* 130 */ ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',
+/* 140 */ ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',
+/* 150 */ ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',
+/* 160 */ ' ',   '≠',   'õ',   'ú',   '',   'ù',   '|',   '',   '\"',  '?',
+/* 170 */ '¶',   'Æ',   '™',   '-',   '?',   '?',   '¯',   'Ò',   '˝',   '?',
+/* 180 */ '\'',  'Ê',   '',   '˘',   ',',   '?',   'ß',   'Ø',   '¨',   '´',
+/* 190 */ '?',   '®',   '?',   '?',   '?',   '?',   'é',   'è',   'í',   'Ä',
+/* 200 */ '?',   'ê',   '?',   '?',   '?',   '?',   '?',   '?',   '?',   '•',
+/* 210 */ '?',   '?',   '?',   '?',   'ô',   '?',   '?',   '?',   '?',   '?',
+/* 220 */ 'ö',   '?',   '?',   '·',   'Ö',   '†',   'É',   '?',   'Ñ',   'Ü',
+/* 230 */ 'ë',   'á',   'ä',   'Ç',   'à',   'â',   'ç',   '°',   'å',   'ã',
+/* 240 */ 'Î',   '§',   'ï',   '¢',   'ì',   '?',   'î',   'ˆ',   '?',   'ó',
+/* 250 */ '£',   'ñ',   'Å',   '?',   '?',   'ò'};
+#endif
 
 
 static chartype map_from_437[] = {
@@ -123,9 +157,9 @@ static int map_key[] = {
 /* 104 */ K_ALT_F1, K_ALT_F2,  K_ALT_F3, K_ALT_F4,   K_ALT_F5, K_ALT_F6, K_ALT_F7, K_ALT_F8,
 /* 112 */ K_ALT_F9, K_ALT_F10, K_UNDEF,  K_CTL_LEFT, K_CTL_RIGHT, K_CTL_END, K_CTL_PGDN, K_CTL_HOME,
 /* 120 */ K_ALT_1,  K_ALT_2,   K_ALT_3,  K_ALT_4,    K_ALT_5, K_ALT_6, K_ALT_7, K_ALT_8,
-/* 128 */ K_ALT_9,  K_ALT_0,   K_UNDEF,  K_UNDEF,    K_CTL_PGUP, K_UNDEF, K_CTL_PGUP, K_UNDEF,
-/* 136 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_CTL_UP, K_UNDEF, K_UNDEF,
-/* 144 */ K_UNDEF,  K_CTL_DOWN, K_CTL_INS, K_CTL_DEL, K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
+/* 128 */ K_ALT_9,  K_ALT_0,   K_UNDEF,  K_UNDEF,    K_CTL_PGUP, K_UNDEF, K_UNDEF, K_UNDEF,
+/* 136 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
+/* 144 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
 /* 152 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
 /* 160 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_CTL_INS, K_CTL_DEL, K_UNDEF,
 /* 168 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
@@ -338,58 +372,58 @@ inttype *rest;
 
 #ifdef ANSI_C
 
-int scrHeight (void)
+int conHeight (void)
 #else
 
-int scrHeight ()
+int conHeight ()
 #endif
 
-  { /* scrHeight */
+  { /* conHeight */
     return(SCRHEIGHT);
-  } /* scrHeight */
+  } /* conHeight */
 
 
 
 #ifdef ANSI_C
 
-int scrWidth (void)
+int conWidth (void)
 #else
 
-int scrWidth ()
+int conWidth ()
 #endif
 
-  { /* scrWidth */
+  { /* conWidth */
     return(SCRWIDTH);
-  } /* scrWidth */
+  } /* conWidth */
 
 
 
 #ifdef ANSI_C
 
-void scrFlush (void)
+void conFlush (void)
 #else
 
-void scrFlush ()
+void conFlush ()
 #endif
 
-  { /* scrFlush */
-  } /* scrFlush */
+  { /* conFlush */
+  } /* conFlush */
 
 
 
 #ifdef ANSI_C
 
-void scrCursor (booltype on)
+void conCursor (booltype on)
 #else
 
-void scrCursor (on)
+void conCursor (on)
 booltype on;
 #endif
 
   {
     union REGS r;
 
-  /* scrCursor */
+  /* conCursor */
     cursor_on = on;
     if (on) {
       r.h.ah = (unsigned char) 1; /* set cursor type */
@@ -402,81 +436,72 @@ booltype on;
       r.h.cl = (unsigned char) 0;
       int86(0x10, &r, &r);
     } /* if */
-  } /* scrCursor */
+  } /* conCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrSetCursor (inttype lin, inttype col)
+void conSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetCursor (lin, col)
+void conSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
 
-  /* Moves the system curser to the given place of the screen.      */
+  /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
   {
     union REGS r;
 
-  /* scrSetCursor */
+  /* conSetCursor */
     r.h.ah = (unsigned char) 2; /* cursor addressing function */
     r.h.dh = (unsigned char) (lin - 1);
     r.h.dl = (unsigned char) (col - 1);
     r.h.bh = (unsigned char) 0; /* video page */
     int86(0x10, &r, &r);
-  } /* scrSetCursor */
+  } /* conSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrText (lin, col, stri, length)
+void conText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
 memsizetype length;
 #endif
 
-  /* This function writes the string stri to the screen at the      */
+  /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the screen. The string stri is not allowed to go   */
-  /* beyond the right border of the screen. All screen output       */
+  /* position of the console. The string stri is not allowed to go  */
+  /* beyond the right border of the console. All console output     */
   /* must be done with this function.                               */
 
-  {
-    inttype pos;
-
-  /* scrText */
-    for (pos = 0; pos < length; pos++) {
-#ifdef MAP_TO_ISO
-      outbuffer[pos].character = MAP[stri[pos] & 0xFF];
-#else
-      outbuffer[pos].character = stri[pos];
-#endif
-      outbuffer[pos].attribute = currentattribute;
-    } /* for */
-    memcpy(&current_screen->screen[lin - 1][col - 1],
-      outbuffer, 2 * length);
-  } /* scrText */
+  { /* conText */
+    memcpy(outbuffer, stri, length);
+    outbuffer[length] = '\0';
+    conSetCursor(lin, col);
+    cputs(outbuffer);
+  } /* conText */
 
 
 
 #ifdef ANSI_C
 
-void scrClear (inttype startlin, inttype startcol,
+void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
 #else
 
-void scrClear (startlin, startcol, stoplin, stopcol)
+void conClear (startlin, startcol, stoplin, stopcol)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -489,7 +514,7 @@ inttype stopcol;
   {
     union REGS r;
 
-  /* scrClear */
+  /* conClear */
     r.h.ah = (unsigned char) 6; /* scroll up code */
     r.h.al = (unsigned char) 0; /* clear screen code */
     r.h.ch = (unsigned char) (startlin - 1);
@@ -498,17 +523,17 @@ inttype stopcol;
     r.h.dl = (unsigned char) (stopcol - 1);
     r.h.bh = (unsigned char) currentattribute; /* blank line colour */
     int86(0x10, &r, &r);
-  } /* scrClear */
+  } /* conClear */
 
 
 
 #ifdef ANSI_C
 
-void scrUpScroll (inttype startlin, inttype startcol,
+void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrUpScroll (startlin, startcol, stoplin, stopcol, count)
+void conUpScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -524,7 +549,7 @@ inttype count;
   {
     union REGS r;
 
-  /* scrUpScroll */
+  /* conUpScroll */
     r.h.ah = (unsigned char) 6; /* scroll up code */
     r.h.al = (unsigned char) count;
     r.h.ch = (unsigned char) (startlin - 1);
@@ -533,17 +558,17 @@ inttype count;
     r.h.dl = (unsigned char) (stopcol - 1);
     r.h.bh = (unsigned char) 7; /* blank line is black */
     int86(0x10, &r, &r);
-  } /* scrUpScroll */
+  } /* conUpScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrDownScroll (inttype startlin, inttype startcol,
+void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrDownScroll (startlin, startcol, stoplin, stopcol, count)
+void conDownScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -559,7 +584,7 @@ inttype count;
   {
     union REGS r;
 
-  /* scrDownScroll */
+  /* conDownScroll */
     r.h.ah = (unsigned char) 7; /* scroll down code */
     r.h.al = (unsigned char) count;
     r.h.ch = (unsigned char) (startlin - 1);
@@ -568,17 +593,17 @@ inttype count;
     r.h.dl = (unsigned char) (stopcol - 1);
     r.h.bh = (unsigned char) 7; /* blank line is black */
     int86(0x10, &r, &r);
-  } /* scrDownScroll */
+  } /* conDownScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrLeftScroll (inttype startlin, inttype startcol,
+void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrLeftScroll (startlin, startcol, stoplin, stopcol, count)
+void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -597,7 +622,7 @@ inttype count;
     char *destination;
     char *source;
 
-  /* scrLeftScroll */
+  /* conLeftScroll */
     if (count > 0) {
       num_bytes = 2 * (stopcol - startcol - count + 1);
       source = (char *) &current_screen->
@@ -610,17 +635,17 @@ inttype count;
         destination += 160;
       } /* for */
     } /* if */
-  } /* scrLeftScroll */
+  } /* conLeftScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrRightScroll (inttype startlin, inttype startcol,
+void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrRightScroll (startlin, startcol, stoplin, stopcol, count)
+void conRightScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -639,7 +664,7 @@ inttype count;
     char *destination;
     char *source;
 
-  /* scrRightScroll */
+  /* conRightScroll */
     if (count > 0) {
       num_bytes = 2 * (stopcol - startcol - count + 1);
       source = (char *) &current_screen->
@@ -652,46 +677,46 @@ inttype count;
         destination += 160;
       } /* for */
     } /* if */
-  } /* scrRightScroll */
+  } /* conRightScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrShut (void)
+void conShut (void)
 #else
 
-void scrShut ()
+void conShut ()
 #endif
 
-  { /* scrShut */
-    if (screen_initialized) {
+  { /* conShut */
+    if (console_initialized) {
       standardcolour();
-      scrCursor(TRUE);
-      scrClear(1, 1, 25, 80);
-      scrSetCursor(1, 24);
-      screen_initialized = FALSE;
+      conCursor(TRUE);
+      conClear(1, 1, 25, 80);
+      conSetCursor(1, 24);
+      console_initialized = FALSE;
     } /* if */
-  } /* scrShut */
+  } /* conShut */
 
 
 
 #ifdef ANSI_C
 
-int scrOpen (void)
+int conOpen (void)
 #else
 
-int scrOpen ()
+int conOpen ()
 #endif
 
-  /* Initializes and clears the screen.                             */
+  /* Initializes and clears the console.                            */
 
   {
     union REGS r;
 
-  /* scrOpen */
+  /* conOpen */
     normalcolour();
-    scrClear(1, 1, 25, 80);
+    conClear(1, 1, 25, 80);
 
     /* Lowlevel request to find out the video state */
     r.h.ah = (unsigned char) 15; /* read video state */
@@ -708,8 +733,8 @@ int scrOpen ()
     int86(0x10, &r, &r);
     cursor_startline = r.h.ch;
     cursor_endline = r.h.cl;
-    scrCursor(FALSE);
-    screen_initialized = TRUE;
-    atexit(scrShut);
+    conCursor(FALSE);
+    console_initialized = TRUE;
+    atexit(conShut);
     return(1);
-  } /* scrOpen */
+  } /* conOpen */

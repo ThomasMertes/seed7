@@ -35,6 +35,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h" /*!!##*/
 #include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
@@ -45,6 +46,7 @@
 #include "dir_rtl.h"
 #include "str_rtl.h"
 #include "cmd_rtl.h"
+#include "cmd_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -536,6 +538,50 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_pipe2 (listtype arguments)
+#else
+
+objecttype cmd_pipe2 (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype childStdin_variable;
+    objecttype childStdout_variable;
+    arraytype parameters;
+    memsizetype arraySize;
+    rtlArraytype rtlParameters;
+    memsizetype pos;
+
+  /* cmd_pipe2 */
+    isit_stri(arg_1(arguments));
+    isit_array(arg_2(arguments));
+    parameters = take_array(arg_2(arguments));
+    childStdin_variable = arg_3(arguments);
+    isit_file(childStdin_variable);
+    childStdout_variable = arg_4(arguments);
+    isit_file(childStdout_variable);
+    arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+    if (!ALLOC_RTL_ARRAY(rtlParameters, arraySize)) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      rtlParameters->min_position = parameters->min_position;
+      rtlParameters->max_position = parameters->max_position;
+      for (pos = 0; pos < arraySize; pos++) {
+        rtlParameters->arr[pos].value.strivalue = parameters->arr[pos].value.strivalue;
+      } /* for */
+      cmdPipe2(take_stri(arg_1(arguments)), rtlParameters,
+               &childStdin_variable->value.filevalue,
+               &childStdout_variable->value.filevalue);
+      FREE_RTL_ARRAY(rtlParameters, arraySize);
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_pipe2 */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_readlink (listtype arguments)
 #else
 
@@ -699,8 +745,10 @@ listtype arguments;
 
   { /* cmd_shell */
     isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
     return(bld_int_temp(
-        cmdShell(take_stri(arg_1(arguments)))));
+        cmdShell(take_stri(arg_1(arguments)),
+                  take_stri(arg_2(arguments)))));
   } /* cmd_shell */
 
 

@@ -6472,6 +6472,8 @@ const proc: process_cmd_shell (in ref_list: params, inout expr_type: c_expr) is 
   begin
     c_expr.expr &:= "cmdShell(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -7644,6 +7646,8 @@ const proc: process_fil_popen (in ref_list: params, inout expr_type: c_expr) is 
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -17414,6 +17418,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     var category: functionCategory is category.value;
     var type: result_type is void;
     var ref_list: formal_params is ref_list.EMPTY;
+    var reference: result_object is NIL;
     var reference: obj is NIL;
     var boolean: first_element is TRUE;
   begin
@@ -17431,7 +17436,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     elsif functionCategory = BLOCKOBJECT then
       result_type := result_type(getType(function));
       formal_params := params(function);
-      if function in function_declared then
+      result_object := func_result(function);
+      if function in function_declared or result_object <> NIL then
         process_func_call(function, formal_params, params, c_expr);
       else
         process_inline(function, formal_params, params, c_expr);
@@ -20603,7 +20609,7 @@ const proc: write_prototypes is func
     declareExtern("void        cmdSetATime (const const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("void        cmdSetFileMode (const const_stritype, const const_settype);");
     declareExtern("void        cmdSetMTime (const const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
-    declareExtern("inttype     cmdShell (const const_stritype);");
+    declareExtern("inttype     cmdShell (const const_stritype, const const_stritype);");
     declareExtern("void        cmdSymlink (const_stritype, const_stritype);");
     declareExtern("stritype    cmdToOsPath (const const_stritype);");
     declareExtern("inttype     drwPointerXpos (const_wintype);");
@@ -20668,7 +20674,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     filLng (filetype);");
     declareExtern("filetype    filOpen (const const_stritype, const const_stritype);");
     declareExtern("void        filPclose (filetype);");
-    declareExtern("filetype    filPopen (const const_stritype, const const_stritype);");
+    declareExtern("filetype    filPopen (const const_stritype, const const_stritype, const const_stritype);");
     declareExtern("void        filPrint (const const_stritype);");
     declareExtern("void        filSeek (filetype, inttype);");
     declareExtern("void        filSetbuf (filetype, inttype, inttype);");
@@ -22348,9 +22354,10 @@ const proc: pass_3 (in string: source, in program: prog,
     var string: linkErrFile    is "";
     var string: tempExeFile    is "";
     var string: executableFile is "";
-    var string: options        is "";
     var string: compile_cmd    is "";
+    var string: compile_params is "";
     var string: link_cmd       is "";
+    var string: link_params    is "";
   begin
     if okay then
       writeln("Calling the C compiler ...");
@@ -22383,31 +22390,31 @@ const proc: pass_3 (in string: source, in program: prog,
       if fileType(objectFile) = FILE_REGULAR then
         removeFile(objectFile);
       end if;
-      options := " " & CC_OPT_NO_WARNINGS;
-      if "-O" in compiler_option then
-        options &:= " -O" & compiler_option["-O"];
-      end if;
-      if "-g" in compiler_option then
-        options &:= " " & CC_OPT_DEBUG_INFO;
-        if compiler_option["-g"] <> "" and compiler_option["-g"] <> "-debug_c" then
-          options &:= " " & compiler_option["-g"];
-        end if;
-      end if;
-      if CC_FLAGS <> "" then
-        options &:= " " & CC_FLAGS;
-      end if;
       if generate_c_plus_plus then
         compile_cmd := CPLUSPLUS_COMPILER;
       else
         compile_cmd := C_COMPILER;
       end if;
-      compile_cmd &:= options & " -c " & cSourceFile;
-      if REDIRECT_C_ERRORS <> "" then
-        compile_cmd &:= " " & REDIRECT_C_ERRORS & cErrorFile;
+      compile_params := " " & CC_OPT_NO_WARNINGS;
+      if "-O" in compiler_option then
+        compile_params &:= " -O" & compiler_option["-O"];
       end if;
-      writeln(compile_cmd);
+      if "-g" in compiler_option then
+        compile_params &:= " " & CC_OPT_DEBUG_INFO;
+        if compiler_option["-g"] <> "" and compiler_option["-g"] <> "-debug_c" then
+          compile_params &:= " " & compiler_option["-g"];
+        end if;
+      end if;
+      if CC_FLAGS <> "" then
+        compile_params &:= " " & CC_FLAGS;
+      end if;
+      compile_params &:= " -c " & cSourceFile;
+      if REDIRECT_C_ERRORS <> "" then
+        compile_params &:= " " & REDIRECT_C_ERRORS & cErrorFile;
+      end if;
+      writeln(compile_cmd <& compile_params);
       flush(OUT);
-      cmd_sh(compile_cmd);
+      cmd_sh(compile_cmd, compile_params);
       if fileType(cErrorFile) = FILE_REGULAR and
           fileSize(cErrorFile) = 0 then
         removeFile(cErrorFile);
@@ -22463,36 +22470,36 @@ const proc: pass_3 (in string: source, in program: prog,
               link_cmd := C_COMPILER;
             end if;
             if "-g" in compiler_option and LINKER_OPT_DEBUG_INFO <> "" then
-              link_cmd &:= " " & LINKER_OPT_DEBUG_INFO;
+              link_params &:= " " & LINKER_OPT_DEBUG_INFO;
             end if;
             if LINKER_FLAGS <> "" then
-              link_cmd &:= " " & LINKER_FLAGS;
+              link_params &:= " " & LINKER_FLAGS;
             end if;
             if LINKER_OPT_OUTPUT_FILE <> "" then
-              link_cmd &:= " " & LINKER_OPT_OUTPUT_FILE &
+              link_params &:= " " & LINKER_OPT_OUTPUT_FILE &
                   executableFile;
             end if;
-            link_cmd &:= " " & objectFile;
+            link_params &:= " " & objectFile;
             if compilerLibraryUsed then
-              link_cmd &:= " \"" & toOsPath(compiler_lib) & "\"";
+              link_params &:= " \"" & toOsPath(compiler_lib) & "\"";
             end if;
             if compDataLibraryUsed then
-              link_cmd &:= " \"" & toOsPath(comp_data_lib) & "\"";
+              link_params &:= " \"" & toOsPath(comp_data_lib) & "\"";
             end if;
             if drawLibraryUsed then
-              link_cmd &:= " \"" & toOsPath(draw_lib) & "\"";
+              link_params &:= " \"" & toOsPath(draw_lib) & "\"";
             end if;
-            link_cmd &:= " \"" & toOsPath(seed7_lib) & "\"";
+            link_params &:= " \"" & toOsPath(seed7_lib) & "\"";
             if drawLibraryUsed then
-              link_cmd &:= " " & SYSTEM_DRAW_LIBS;
+              link_params &:= " " & SYSTEM_DRAW_LIBS;
             end if;
-            link_cmd &:= " " & SYSTEM_LIBS;
+            link_params &:= " " & SYSTEM_LIBS;
             if REDIRECT_C_ERRORS <> "" then
-              link_cmd &:= " " & REDIRECT_C_ERRORS & linkErrFile;
+              link_params &:= " " & REDIRECT_C_ERRORS & linkErrFile;
             end if;
-            writeln(link_cmd);
+            writeln(link_cmd <& link_params);
             flush(OUT);
-            cmd_sh(link_cmd);
+            cmd_sh(link_cmd, link_params);
             if LINKER_OPT_OUTPUT_FILE = "" and
                 fileType(tempExeFile) = FILE_REGULAR then
               moveFile(tempExeFile, executableFile);

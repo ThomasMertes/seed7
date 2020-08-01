@@ -41,7 +41,7 @@
 #include "runerr.h"
 #include "kbd_rtl.h"
 #include "kbd_drv.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN

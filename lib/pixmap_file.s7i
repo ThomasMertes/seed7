@@ -99,7 +99,10 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
   end func;
 
 
-const proc: setFont (inout text param, in font param) is DYNAMIC;
+(**
+ *  Set the current font of ''aText'' to ''aFont''.
+ *)
+const proc: setFont (inout text: aText, in font: aFont) is DYNAMIC;
 
 
 const proc: cursor (ref pixmapFontFile: fontFile, ref boolean: active) is noop;

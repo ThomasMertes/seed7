@@ -508,6 +508,36 @@ it is not possible to hard code reserved words in the compiler as it is done in
 Pascal, Ada, C/C++, Java and many other compilers.
 
 
+How is the syntax of Seed7 defined?
+===================================
+
+The syntax of Seed7 is described with the Seed7 Structured Syntax Description
+(S7SSD). The S7SSD is similar to an Extended Backus-Naur Form (EBNF),
+but there are important differences. S7SSD does not distinguish between
+different nonterminal symbols. Instead it only knows one nonterminal
+symbol: () . S7SSD syntax rules do not define named nonterminal
+symbols (EBNF rules define named nonterminal symbols). S7SSD syntax
+rules are introduced with:
+
+  $ syntax
+
+S7SSD syntax rules define a pattern of terminal and nonterminal symbols
+separated by dots. A S7SSD syntax rule defines also a priority and
+associativity. The syntax of the + operator is:
+
+  $ syntax expr: .(). + .()   is -> 7;
+
+The syntax of statements and other constructs is defined as if they
+were also operators:
+
+  $ syntax expr: .while.().do.().end.while   is -> 25;
+
+S7SSD is a simple syntax description that can be used by humans and
+compilers/interpreters. The syntax of a Seed7 program is defined
+in the library "syntax.s7i". When a Seed7 program is interpreted
+or compiled the syntax definitions are read from "syntax.s7i".
+
+
 Why does Seed7 not use the C statements like C++ and Java?
 ==========================================================
 

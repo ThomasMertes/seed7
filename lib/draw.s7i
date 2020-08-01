@@ -618,14 +618,18 @@ const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is 
   end func;
 
 
-const func color: getPixelColor (inout PRIMITIVE_WINDOW: win,
+(**
+ *  Retrieve the color at pixel position (''x'', ''y'') from ''aWindow''.
+ *  @return the pixel color at position (''x'', ''y'').
+ *)
+const func color: getPixelColor (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y) is func
   result
     var color: col is color.value;
   local
     var pixel: pix is pixel.value;
   begin
-    pix := DRAW_GETPIXEL(win, x, y);
+    pix := DRAW_GETPIXEL(aWindow, x, y);
     DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
   end func;
 

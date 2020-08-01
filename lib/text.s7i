@@ -32,7 +32,7 @@ include "color.s7i";
 
 (**
  *  Interface type for line/column oriented [[file|files]].
- *  The text interface is implemented with [[screen|screen_file]],
+ *  The text interface is implemented with [[console|console_file]],
  *  [[graph_file]], [[window|window_file]], [[pixmap_file|pixmapFontFile]]
  *  and many other types.
  *)

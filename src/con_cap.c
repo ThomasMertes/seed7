@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_cap.c     Driver for termcap screen access                  */
+/*  con_cap.c     Driver for termcap console access                 */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_cap.c                                       */
+/*  File: seed7/src/con_cap.c                                       */
 /*  Changes: 1993, 1994  Thomas Mertes                              */
-/*  Content: Driver for termcap screen access                       */
+/*  Content: Driver for termcap console access                      */
 /*                                                                  */
 /********************************************************************/
 
@@ -37,7 +37,7 @@
 #include "termios.h"
 
 #include "common.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 
 
 /* #define atexit(x) */
@@ -132,7 +132,7 @@ cc_t erase_ch;
 
 booltype changes = FALSE;
 booltype keybd_initialized = FALSE;
-booltype screen_initialized = FALSE;
+booltype console_initialized = FALSE;
 booltype cursor_on = FALSE;
 
 
@@ -596,99 +596,99 @@ inttype *rest;
 
 #ifdef ANSI_C
 
-int scrHeight (void)
+int conHeight (void)
 #else
 
-int scrHeight ()
+int conHeight ()
 #endif
 
-  { /* scrHeight */
+  { /* conHeight */
     return(lines);
-  } /* scrHeight */
+  } /* conHeight */
 
 
 
 #ifdef ANSI_C
 
-int scrWidth (void)
+int conWidth (void)
 #else
 
-int scrWidth ()
+int conWidth ()
 #endif
 
-  { /* scrWidth */
+  { /* conWidth */
     return(columns);
-  } /* scrWidth */
+  } /* conWidth */
 
 
 
 #ifdef ANSI_C
 
-void scrFlush (void)
+void conFlush (void)
 #else
 
-void scrFlush ()
+void conFlush ()
 #endif
 
-  { /* scrFlush */
-  } /* scrFlush */
+  { /* conFlush */
+  } /* conFlush */
 
 
 
 #ifdef ANSI_C
 
-void scrCursor (booltype on)
+void conCursor (booltype on)
 #else
 
-void scrCursor (on)
+void conCursor (on)
 booltype on;
 #endif
 
-  { /* scrCursor */
+  { /* conCursor */
     cursor_on = on;
     changes = TRUE;
-  } /* scrCursor */
+  } /* conCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrSetCursor (inttype lin, inttype col)
+void conSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetCursor (lin, col)
+void conSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
 
-  /* Moves the system curser to the given place of the screen.      */
+  /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
-  { /* scrSetCursor */
+  { /* conSetCursor */
     putctl(tgoto(cursor_address, col - 1, lin - 1)); /* cursor motion */
     changes = TRUE;
-  } /* scrSetCursor */
+  } /* conSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrText (lin, col, stri, length)
+void conText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
 memsizetype length;
 #endif
 
-  /* This function writes the string stri to the screen at the      */
+  /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the screen. The string stri is not allowed to go   */
-  /* beyond the right border of the screen. All screen output       */
+  /* position of the console. The string stri is not allowed to go  */
+  /* beyond the right border of the console. All console output     */
   /* must be done with this function.                               */
 
   {
@@ -696,7 +696,7 @@ memsizetype length;
     int end_pos;
     unsigned char *new_line;
 
-  /* scrText */
+  /* conText */
     if (lin <= lines) {
       if (col + length - 1 <= columns) {
         end_pos = length - 1;
@@ -728,17 +728,17 @@ memsizetype length;
       fflush(stdout);
       changes = TRUE;
     } /* if */
-  } /* scrText */
+  } /* conText */
 
 
 
 #ifdef ANSI_C
 
-void scrClear (inttype startlin, inttype startcol,
+void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
 #else
 
-void scrClear (startlin, startcol, stoplin, stopcol)
+void conClear (startlin, startcol, stoplin, stopcol)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -753,7 +753,7 @@ inttype stopcol;
     int column;
     unsigned char *new_line;
 
-  /* scrClear */
+  /* conClear */
     if (startlin == 1 && stoplin == lines &&
         startcol == 1 && stopcol == columns && clear_screen != NULL) {
       putctl(clear_screen); /* clear screen */
@@ -785,17 +785,17 @@ inttype stopcol;
     } /* if */
     fflush(stdout);
     changes = TRUE;
-  } /* scrClear */
+  } /* conClear */
 
 
 
 #ifdef ANSI_C
 
-void scrUpScroll (inttype startlin, inttype startcol,
+void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrUpScroll (startlin, startcol, stoplin, stopcol, count)
+void conUpScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -815,7 +815,7 @@ inttype count;
     unsigned char *old_line;
     unsigned char *new_line;
 
-  /* scrUpScroll */
+  /* conUpScroll */
     if (insert_line == NULL || delete_line == NULL ||
         startcol != 1 || stopcol != columns) {
       for (line = startlin - 1; line < stoplin - count; line++) {
@@ -870,17 +870,17 @@ inttype count;
     } /* if */
     fflush(stdout);
     changes = TRUE;
-  } /* scrUpScroll */
+  } /* conUpScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrDownScroll (inttype startlin, inttype startcol,
+void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrDownScroll (startlin, startcol, stoplin, stopcol, count)
+void conDownScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -900,7 +900,7 @@ inttype count;
     unsigned char *old_line;
     unsigned char *new_line;
 
-  /* scrDownScroll */
+  /* conDownScroll */
     if (insert_line == NULL || delete_line == NULL ||
         startcol != 1 || stopcol != columns) {
       for (line = stoplin - 1; line >= startlin + count - 1; line--) {
@@ -956,17 +956,17 @@ inttype count;
     } /* if */
     fflush(stdout);
     changes = TRUE;
-  } /* scrDownScroll */
+  } /* conDownScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrLeftScroll (inttype startlin, inttype startcol,
+void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrLeftScroll (startlin, startcol, stoplin, stopcol, count)
+void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -987,7 +987,7 @@ inttype count;
     unsigned char *new_line;
     unsigned char *old_line;
 
-  /* scrLeftScroll */
+  /* conLeftScroll */
     if (0 && delete_character != NULL && (insert_character != NULL ||
         (enter_insert_mode != NULL && exit_insert_mode != NULL))) {
       putctl(tgoto(cursor_address, startcol - 1, startlin - 1)); /* cursor motion */
@@ -1073,17 +1073,17 @@ inttype count;
     } /* if */
     fflush(stdout);
     changes = TRUE;
-  } /* scrLeftScroll */
+  } /* conLeftScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrRightScroll (inttype startlin, inttype startcol,
+void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrRightScroll (startlin, startcol, stoplin, stopcol, count)
+void conRightScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -1104,7 +1104,7 @@ inttype count;
     unsigned char *new_line;
     unsigned char *old_line;
 
-  /* scrRightScroll */
+  /* conRightScroll */
     if (0 && delete_character != NULL && (insert_character != NULL ||
         (enter_insert_mode != NULL && exit_insert_mode != NULL))) {
       putctl(tgoto(cursor_address, stopcol - count, startlin - 1)); /* cursor motion */
@@ -1194,45 +1194,45 @@ inttype count;
     } /* if */
     fflush(stdout);
     changes = TRUE;
-  } /* scrRightScroll */
+  } /* conRightScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrShut (void)
+void conShut (void)
 #else
 
-void scrShut ()
+void conShut ()
 #endif
 
-  { /* scrShut */
-    if (screen_initialized) {
+  { /* conShut */
+    if (console_initialized) {
       putctl(tgoto(cursor_address, 0, lines - 1)); /* cursor motion */
       putctl(cursor_normal); /* cursor normal */
       putctl(clear_screen); /* clear screen */
       putctl(exit_ca_mode); /* end cursor addressing mode */
-      screen_initialized = FALSE;
+      console_initialized = FALSE;
     } /* if */
-  } /* scrShut */
+  } /* conShut */
 
 
 
 #ifdef ANSI_C
 
-int scrOpen (void)
+int conOpen (void)
 #else
 
-int scrOpen ()
+int conOpen ()
 #endif
 
-  /* Initializes and clears the screen.                             */
+  /* Initializes and clears the console.                            */
 
   {
     int line;
     int result = 0;
 
-  /* scrOpen */
+  /* conOpen */
     getcaps();
     if (lines < 0) {
       lines = 24;
@@ -1255,9 +1255,9 @@ int scrOpen ()
       normalcolour();
       cursor_on = FALSE;
       changes = TRUE;
-      screen_initialized = TRUE;
-      atexit(scrShut);
+      console_initialized = TRUE;
+      atexit(conShut);
       result = 1;
     } /* if */
     return(result);
-  } /* scrOpen */
+  } /* conOpen */

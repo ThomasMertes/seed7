@@ -102,6 +102,7 @@ charsets.s7i Codepages for various character sets
 chartype.s7i Character type definitions
 color.s7i    Functions for color processing
 complex.s7i  Complex support library
+console.s7i  Text implementation type for text console/window.
 dialog.s7i   Dialog support library
 dir.s7i      Implementation type to read directories as files
 draw.s7i     Portable graphic library
@@ -143,7 +144,6 @@ rational.s7i Rational number support library
 reverse.s7i  Filter file which writes right to left on output
 scanfile.s7i File scanner functions
 scanstri.s7i String scanner functions
-screen.s7i   Text implementation type for text screens/windows
 seed7_05.s7i Standard Seed7 library
 shell.s7i    Support for shell commands
 socket.s7i   File implementation type for OS sockets

@@ -69,7 +69,7 @@
 #include "cap_def.h"
 #endif
 
-#include "scr_drv.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -523,7 +523,7 @@ booltype kbdKeyPressed ()
       result = TRUE;
     } else {
       if (changes) {
-        scrFlush();
+        conFlush();
       } /* if */
       poll_fds[0].fd = fileno(stdin);
       poll_fds[0].events = POLLIN | POLLPRI;
@@ -560,7 +560,7 @@ chartype kbdGetc ()
       kbd_init();
     } /* if */
     if (changes) {
-      scrFlush();
+      conFlush();
     } /* if */
     fread_result = read(fileno(stdin), &buffer, 10);
 #ifdef TRACE_FKEYS
@@ -626,7 +626,7 @@ chartype kbdRawGetc ()
       result = ((chartype) last_key) & 0xFF;
     } else {
       if (changes) {
-        scrFlush();
+        conFlush();
       } /* if */
       result = getc(stdin);
     } /* if */

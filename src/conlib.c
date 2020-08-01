@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -19,9 +19,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
-/*  File: seed7/src/scrlib.c                                        */
+/*  File: seed7/src/conlib.c                                        */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: All primitive actions to do text screen output.        */
+/*  Content: All primitive actions to do text console output.       */
 /*                                                                  */
 /********************************************************************/
 
@@ -38,105 +38,105 @@
 #include "striutl.h"
 #include "objutl.h"
 #include "runerr.h"
-#include "scr_rtl.h"
-#include "scr_drv.h"
+#include "con_rtl.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN
-#include "scrlib.h"
+#include "conlib.h"
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_clear (listtype arguments)
+objecttype con_clear (listtype arguments)
 #else
 
-objecttype scr_clear (arguments)
+objecttype con_clear (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_clear */
+  { /* con_clear */
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_int(arg_4(arguments));
     isit_int(arg_5(arguments));
-    scrClear(take_int(arg_2(arguments)),
+    conClear(take_int(arg_2(arguments)),
         take_int(arg_3(arguments)),
         take_int(arg_4(arguments)),
         take_int(arg_5(arguments)));
     return(SYS_EMPTY_OBJECT);
-  } /* scr_clear */
+  } /* con_clear */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_cursor (listtype arguments)
+objecttype con_cursor (listtype arguments)
 #else
 
-objecttype scr_cursor (arguments)
+objecttype con_cursor (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_cursor */
+  { /* con_cursor */
     isit_bool(arg_2(arguments));
     if (take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT) {
-      scrCursor(TRUE);
+      conCursor(TRUE);
     } else if (take_bool(arg_2(arguments)) == SYS_FALSE_OBJECT) {
-      scrCursor(FALSE);
+      conCursor(FALSE);
     } else {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } /* if */
     return(SYS_EMPTY_OBJECT);
-  } /* scr_cursor */
+  } /* con_cursor */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_flush (listtype arguments)
+objecttype con_flush (listtype arguments)
 #else
 
-objecttype scr_flush (arguments)
+objecttype con_flush (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_flush */
-    scrFlush();
+  { /* con_flush */
+    conFlush();
     return(SYS_EMPTY_OBJECT);
-  } /* scr_flush */
+  } /* con_flush */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_height (listtype arguments)
+objecttype con_height (listtype arguments)
 #else
 
-objecttype scr_height (arguments)
+objecttype con_height (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_height */
-    return(bld_int_temp(scrHeight()));
-  } /* scr_height */
+  { /* con_height */
+    return(bld_int_temp(conHeight()));
+  } /* con_height */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_h_scl (listtype arguments)
+objecttype con_h_scl (listtype arguments)
 #else
 
-objecttype scr_h_scl (arguments)
+objecttype con_h_scl (arguments)
 listtype arguments;
 #endif
 
   {
     inttype scroll_amount;
 
-  /* scr_h_scl */
+  /* con_h_scl */
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_int(arg_4(arguments));
@@ -144,70 +144,70 @@ listtype arguments;
     isit_int(arg_6(arguments));
     scroll_amount = take_int(arg_6(arguments));
     if (scroll_amount >= 0) {
-      scrLeftScroll(take_int(arg_2(arguments)),
+      conLeftScroll(take_int(arg_2(arguments)),
           take_int(arg_3(arguments)),
           take_int(arg_4(arguments)),
           take_int(arg_5(arguments)),
           scroll_amount);
     } else {
-      scrRightScroll(take_int(arg_2(arguments)),
+      conRightScroll(take_int(arg_2(arguments)),
           take_int(arg_3(arguments)),
           take_int(arg_4(arguments)),
           take_int(arg_5(arguments)),
           -scroll_amount);
     } /* if */
     return(SYS_EMPTY_OBJECT);
-  } /* scr_h_scl */
+  } /* con_h_scl */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_open (listtype arguments)
+objecttype con_open (listtype arguments)
 #else
 
-objecttype scr_open (arguments)
+objecttype con_open (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_open */
-    scrOpen();
+  { /* con_open */
+    conOpen();
     return(SYS_EMPTY_OBJECT);
-  } /* scr_open */
+  } /* con_open */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_setpos (listtype arguments)
+objecttype con_setpos (listtype arguments)
 #else
 
-objecttype scr_setpos (arguments)
+objecttype con_setpos (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_setpos */
+  { /* con_setpos */
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
-    scrSetpos(take_int(arg_2(arguments)), take_int(arg_3(arguments)));
+    conSetpos(take_int(arg_2(arguments)), take_int(arg_3(arguments)));
     return(SYS_EMPTY_OBJECT);
-  } /* scr_setpos */
+  } /* con_setpos */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_v_scl (listtype arguments)
+objecttype con_v_scl (listtype arguments)
 #else
 
-objecttype scr_v_scl (arguments)
+objecttype con_v_scl (arguments)
 listtype arguments;
 #endif
 
   {
     inttype scroll_amount;
 
-  /* scr_v_scl */
+  /* con_v_scl */
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_int(arg_4(arguments));
@@ -215,49 +215,49 @@ listtype arguments;
     isit_int(arg_6(arguments));
     scroll_amount = take_int(arg_6(arguments));
     if (scroll_amount >= 0) {
-      scrUpScroll(take_int(arg_2(arguments)),
+      conUpScroll(take_int(arg_2(arguments)),
           take_int(arg_3(arguments)),
           take_int(arg_4(arguments)),
           take_int(arg_5(arguments)),
           scroll_amount);
     } else {
-      scrDownScroll(take_int(arg_2(arguments)),
+      conDownScroll(take_int(arg_2(arguments)),
           take_int(arg_3(arguments)),
           take_int(arg_4(arguments)),
           take_int(arg_5(arguments)),
           -scroll_amount);
     } /* if */
     return(SYS_EMPTY_OBJECT);
-  } /* scr_v_scl */
+  } /* con_v_scl */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_width (listtype arguments)
+objecttype con_width (listtype arguments)
 #else
 
-objecttype scr_width (arguments)
+objecttype con_width (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_width */
-    return(bld_int_temp(scrWidth()));
-  } /* scr_width */
+  { /* con_width */
+    return(bld_int_temp(conWidth()));
+  } /* con_width */
 
 
 
 #ifdef ANSI_C
 
-objecttype scr_write (listtype arguments)
+objecttype con_write (listtype arguments)
 #else
 
-objecttype scr_write (arguments)
+objecttype con_write (arguments)
 listtype arguments;
 #endif
 
-  { /* scr_write */
+  { /* con_write */
     isit_stri(arg_2(arguments));
-    scrWrite(take_stri(arg_2(arguments)));
+    conWrite(take_stri(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
-  } /* scr_write */
+  } /* con_write */

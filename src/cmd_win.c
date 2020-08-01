@@ -43,6 +43,7 @@
 #include "dir_drv.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "rtl_err.h"
@@ -417,17 +418,21 @@ filetype childStderr;
       } /* if */
     } /* if */
   } /* cmdStartProcess */
+#endif
 
 
 
 #ifdef ANSI_C
 
-void cmdPipe2 (stritype source_name, filetype *childStdin, filetype *childStdout)
+void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
+    filetype *childStdin, filetype *childStdout)
 #else
 
-void cmdPipe2 (source_name, dest_name)
-stritype source_name;
-stritype dest_name;
+void cmdPipe2 (command, parameters, childStdin, childStdout)
+stritype command;
+rtlArraytype parameters;
+filetype *childStdin;
+filetype *childStdout;
 #endif
 
   {
@@ -435,8 +440,10 @@ stritype dest_name;
     STARTUPINFO startupInfo;
 
   /* cmdPipe2 */
-    os_command_stri = cp_to_command(command_stri, &err_info);
-    startupInfo.dwFlags = STARTF_USESHOWWINDOW |STARTF_USESTDHANDLES;
+    raise_error(FILE_ERROR);
+#ifdef OUT_OF_ORDER
+    os_command_stri = cp_to_command(command, parameters, &err_info);
+    startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     startupInfo.wShowWindow = 0;
     startupInfo.hStdInput
     startupInfo.hStdOutput
@@ -451,6 +458,6 @@ stritype dest_name;
                    NULL /* lpCurrentDirectory */,
                    &startupInfo,
                    NULL /* lpProcessInformation */);
-    os_stri_free(os_path);
-  } /* cmdPipe2 */
+    os_stri_free(os_command_stri);
 #endif
+  } /* cmdPipe2 */

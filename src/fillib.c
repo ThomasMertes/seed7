@@ -470,8 +470,11 @@ listtype arguments;
   { /* fil_popen */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
+    isit_stri(arg_3(arguments));
     return(bld_file_temp(
-        filPopen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
+        filPopen(take_stri(arg_1(arguments)),
+                 take_stri(arg_2(arguments)),
+                 take_stri(arg_3(arguments)))));
   } /* fil_popen */
 
 

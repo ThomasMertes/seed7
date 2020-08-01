@@ -151,12 +151,13 @@ volumeListType *openVolumeList ()
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-void cmdStartProcess (stritype command_stri, filetype childStdin,
-    filetype childStdout, filetype childStderr)
+void cmdStartProcess (const const_stritype command, const const_stritype parameters,
+    filetype childStdin, filetype childStdout, filetype childStderr)
 #else
 
-void cmdStartProcess (command_stri, dest_name)
-stritype command_stri;
+void cmdStartProcess (command, parameters, childStdin, childStdout, childStderr)
+stritype command;
+stritype parameters;
 filetype childStdin;
 filetype childStdout;
 filetype childStderr;
@@ -182,7 +183,7 @@ filetype childStderr;
     if (childStdinFileno == -1 || childStdoutFileno == -1 || childStderrFileno == -1) {
       raise_error(RANGE_ERROR);
     } else {
-      os_command_stri = cp_to_command(command_stri, &err_info);
+      os_command_stri = cp_to_command(command, parameters, &err_info);
       if (os_command_stri == NULL) {
         raise_error(RANGE_ERROR);
       } else {
@@ -238,32 +239,38 @@ filetype childStderr;
       } /* if */
     } /* if */
   } /* cmdStartProcess */
+#endif
 
 
 
 #ifdef ANSI_C
 
-void cmdPipe2 (stritype source_name, filetype *childStdin, filetype *childStdout)
+void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
+    filetype *childStdin, filetype *childStdout)
 #else
 
-void cmdPipe2 (source_name, dest_name)
-stritype source_name;
-stritype dest_name;
+void cmdPipe2 (command, parameters, childStdin, childStdout)
+stritype command;
+rtlArraytype parameters;
+filetype *childStdin;
+filetype *childStdout;
 #endif
 
   {
+    struct stristruct emptyStri;
     os_stritype os_command_stri;
     int childStdinPipes[2];
     int childStdoutPipes[2];
     int savedStdin;
     int savedStdout;
+    errinfotype err_info = OKAY_NO_ERROR;
     pid_t pid;
 
   /* cmdPipe2 */
-    os_command_stri = cp_to_command(command_stri, &err_info);
+    emptyStri.size = 0;
+    os_command_stri = cp_to_command(command, &emptyStri, &err_info);
     if (os_command_stri == NULL) {
       raise_error(err_info);
-      result = 0;
     } else {
       pipe(childStdinPipes);
       pipe(childStdoutPipes);
@@ -275,7 +282,18 @@ stritype dest_name;
       dup2(childStdoutPipes[1], 1);  /* Make the write end of childStdoutPipes as stdout */
       pid = fork();
       if (pid == 0) {
-        char *argv[]={os_command_stri, 0};
+        os_stritype *argv;
+        memsizetype arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+        memsizetype pos;
+        argv = (os_stritype *) malloc(sizeof(os_stritype) * (arraySize + 2));
+        argv[0] = os_command_stri;
+        fprintf(stderr, "argv[0]=%s\n", argv[0]);
+        for (pos = 0; pos < arraySize && err_info == OKAY_NO_ERROR; pos++) {
+          argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.strivalue, &err_info);
+          fprintf(stderr, "argv[%d]=%s\n", pos + 1, argv[pos + 1]);
+        } /* for */
+        argv[arraySize + 1] = NULL;
+        fprintf(stderr, "argv[%d]=NULL\n", arraySize + 1);
         close(childStdinPipes[0]); /* Not required for the child */
         close(childStdinPipes[1]);
         close(childStdoutPipes[0]);
@@ -291,7 +309,6 @@ stritype dest_name;
         *childStdin  = fdopen(childStdinPipes[1], "w");
         *childStdout = fdopen(childStdoutPipes[0], "r");
       } /* if */
-      os_stri_free(os_path);
+      os_stri_free(os_command_stri);
     } /* if */
   } /* cmdPipe2 */
-#endif

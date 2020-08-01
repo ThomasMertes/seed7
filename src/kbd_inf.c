@@ -62,7 +62,7 @@
 #include "cap_def.h"
 #endif
 
-#include "scr_drv.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -690,7 +690,7 @@ booltype kbdKeyPressed ()
       result = TRUE;
     } else {
       if (changes) {
-        scrFlush();
+        conFlush();
       } /* if */
       term_descr.c_cc[VMIN] = 0;
       term_descr.c_cc[VTIME] = 0;
@@ -743,7 +743,7 @@ chartype kbdGetc ()
       result = last_key;
     } else {
       if (changes) {
-        scrFlush();
+        conFlush();
       } /* if */
       result = getc(stdin);
     } /* if */
@@ -774,7 +774,7 @@ chartype kbdRawGetc ()
       result = ((chartype) last_key) & 0xFF;
     } else {
       if (changes) {
-        scrFlush();
+        conFlush();
       } /* if */
       result = getc(stdin);
     } /* if */

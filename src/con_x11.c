@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_x11.c     Driver for X11 screen access                      */
+/*  con_x11.c     Driver for X11 text console access                */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_x11.c                                       */
+/*  File: seed7/src/con_x11.c                                       */
 /*  Changes: 1994 - 1999 Thomas Mertes                              */
-/*  Content: Driver for X11 screen access                           */
+/*  Content: Driver for X11 text console access                     */
 /*                                                                  */
 /********************************************************************/
 
@@ -33,6 +33,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "common.h"
 
@@ -42,7 +43,7 @@
 #include <X11/keysymdef.h>
 
 #include "kbd_drv.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 
 
 #define SCROLLBLOCKSIZE 50
@@ -1425,7 +1426,7 @@ inttype stopcol;
 #endif
 
   { /* textwidth */
-    return(txtwidth(stri->mem, stri->length, startcol - 1, stopcol - 1));
+    return(txtwidth(stri->mem, stri->size, startcol - 1, stopcol - 1));
   } /* textwidth */
 
 
@@ -1449,13 +1450,13 @@ inttype *rest;
   /* textcolumns */
     *cols = 0;
     width = 0;
-    while ((*cols < stri->length) &&
-        (width + actual_scaledfont->characters[stri->CHARS[*cols]].xwidth + actual_scaledfont->xDist <=
+    while ((*cols < stri->size) &&
+        (width + actual_scaledfont->characters[stri->mem[*cols]].xwidth + actual_scaledfont->xDist <=
         striwidth)) {
-      width = width + actual_scaledfont->characters[stri->CHARS[*cols]].xwidth + actual_scaledfont->xDist;
+      width = width + actual_scaledfont->characters[stri->mem[*cols]].xwidth + actual_scaledfont->xDist;
       (*cols)++;
     } /* while */
-    if (*cols >= stri->length) {
+    if (*cols >= stri->size) {
       while (width + actual_scaledfont->characters[' '].xwidth + actual_scaledfont->xDist <= striwidth) {
         width = width + actual_scaledfont->characters[' '].xwidth + actual_scaledfont->xDist;
         (*cols)++;
@@ -1468,75 +1469,75 @@ inttype *rest;
 
 #ifdef ANSI_C
 
-int scrHeight (void)
+int conHeight (void)
 #else
 
-int scrHeight ()
+int conHeight ()
 #endif
 
   {
     XWindowAttributes attribs;
 
-  /* scrHeight */
+  /* conHeight */
     XGetWindowAttributes(mydisplay, mywindow, &attribs);
     return(attribs.height/actual_scaledfont->yDiff);
-  } /* scrHeight */
+  } /* conHeight */
 
 
 
 #ifdef ANSI_C
 
-int scrWidth (void)
+int conWidth (void)
 #else
 
-int scrWidth ()
+int conWidth ()
 #endif
 
   {
     XWindowAttributes attribs;
 
-  /* scrWidth */
+  /* conWidth */
     XGetWindowAttributes(mydisplay, mywindow, &attribs);
     return(attribs.width);
-  } /* scrWidth */
+  } /* conWidth */
 
 
 
 #ifdef ANSI_C
 
-void scrFlush (void)
+void conFlush (void)
 #else
 
-void scrFlush ()
+void conFlush ()
 #endif
 
-  { /* scrFlush */
+  { /* conFlush */
     XFlush(mydisplay);
-  } /* scrFlush */
+  } /* conFlush */
 
 
 
 #ifdef ANSI_C
 
-void scrCursor (booltype on)
+void conCursor (booltype on)
 #else
 
-void scrCursor (on)
+void conCursor (on)
 booltype on;
 #endif
 
-  { /* scrCursor */
-  } /* scrCursor */
+  { /* conCursor */
+  } /* conCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrClear (inttype startlin, inttype startcol,
+void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
 #else
 
-void scrClear (startlin, startcol, stoplin, stopcol)
+void conClear (startlin, startcol, stoplin, stopcol)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -1546,7 +1547,7 @@ inttype stopcol;
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
 
-  { /* scrClear */
+  { /* conClear */
     XClearArea(mydisplay, mywindow,
         startcol - 1, actual_scaledfont->yDiff * (startlin - 1),
         stopcol - startcol + 1, actual_scaledfont->yDiff * (stoplin - startlin + 1),
@@ -1556,7 +1557,7 @@ inttype stopcol;
         startcol - 1, actual_scaledfont->yDiff * (startlin - 1),
         stopcol- 1, actual_scaledfont->yDiff * stoplin - 1);
 #endif
-  } /* scrClear */
+  } /* conClear */
 
 
 
@@ -1622,15 +1623,15 @@ inttype len;
 
 #ifdef ANSI_C
 
-void scrSetCursor (inttype lin, inttype col)
+void conSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetCursor (lin, col)
+void conSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
 
-  /* Moves the system curser to the given place of the screen.      */
+  /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
@@ -1638,36 +1639,36 @@ inttype col;
     int charxpos;
     int charypos;
 
-  /* scrSetCursor */
+  /* conSetCursor */
 #ifdef OUT_OF_ORDER
-    printf("BEGIN scrSetCursor(%d, %d)\n", lin, col);
+    printf("BEGIN conSetCursor(%d, %d)\n", lin, col);
     charxpos = col - 1;
     charypos = actual_scaledfont->yDiff * (lin - 1) + actual_scaledfont->yMax;
     XDrawLine(mydisplay, mywindow, mygc, charxpos, charypos,
         charxpos, charypos + actual_scaledfont->yDiff);
-    printf("END scrSetCursor(%d, %d)\n", lin, col);
+    printf("END conSetCursor(%d, %d)\n", lin, col);
 #endif
-  } /* scrSetCursor */
+  } /* conSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrText (lin, col, stri, length)
+void conText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
 memsizetype length;
 #endif
 
-  /* This function writes the string stri to the screen at the      */
+  /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the screen. The string stri is not allowed to go   */
-  /* beyond the right border of the screen. All screen output       */
+  /* position of the console. The string stri is not allowed to go  */
+  /* beyond the right border of the screen. All console output      */
   /* must be done with this function.                               */
 
   {
@@ -1678,12 +1679,12 @@ memsizetype length;
     charDefType *act_ch;
     polyLineType *act_polyline;
 
-  /* scrText */
+  /* conText */
 #ifdef TRACE_SCRWRITE
     { char buffer[256];
       memcpy(buffer, stri, length);
       buffer[length] = '\0';
-      printf("BEGIN scrText(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
+      printf("BEGIN conText(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
       fflush(stdout);
     }
 #endif
@@ -1767,21 +1768,21 @@ memsizetype length;
     { char buffer[256];
       memcpy(buffer, stri, length);
       buffer[length] = '\0';
-      printf("END scrText(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
+      printf("END conText(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
       fflush(stdout);
     }
 #endif
-  } /* scrText */
+  } /* conText */
 
 
 
 #ifdef ANSI_C
 
-void scrUpScroll (inttype startlin, inttype startcol,
+void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrUpScroll (startlin, startcol, stoplin, stopcol, count)
+void conUpScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -1798,7 +1799,7 @@ inttype count;
     int line1, line2;
     XImage *image;
 
-  /* scrUpScroll */
+  /* conUpScroll */
     line1 = actual_scaledfont->yDiff * (startlin + count - 1);
     line2 = actual_scaledfont->yDiff * stoplin - 1;
     XCopyArea(mydisplay, mywindow, mywindow, mygc,
@@ -1831,18 +1832,18 @@ inttype count;
       line1 = line1 + SCROLLBLOCKSIZE;
     } /* while */
 #endif
-    scrClear(stoplin - count + 1, startcol, stoplin, stopcol);
-  } /* scrUpScroll */
+    conClear(stoplin - count + 1, startcol, stoplin, stopcol);
+  } /* conUpScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrDownScroll (inttype startlin, inttype startcol,
+void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrDownScroll (startlin, startcol, stoplin, stopcol, count)
+void conDownScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -1859,7 +1860,7 @@ inttype count;
     int line1, line2;
     XImage *image;
 
-  /* scrDownScroll */
+  /* conDownScroll */
     line1 = actual_scaledfont->yDiff * (startlin - 1);
     line2 = actual_scaledfont->yDiff * (stoplin - count) - 1;
     XCopyArea(mydisplay, mywindow, mywindow, mygc,
@@ -1892,18 +1893,18 @@ inttype count;
       line2 = line2 - SCROLLBLOCKSIZE;
     } /* while */
 #endif
-    scrClear(startlin, startcol, startlin + count - 1, stopcol);
-  } /* scrDownScroll */
+    conClear(startlin, startcol, startlin + count - 1, stopcol);
+  } /* conDownScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrLeftScroll (inttype startlin, inttype startcol,
+void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrLeftScroll (startlin, startcol, stoplin, stopcol, count)
+void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -1916,18 +1917,18 @@ inttype count;
   /* area are overwritten. At the right end of the area blank lines */
   /* are inserted. Nothing is changed outside the area.             */
 
-  { /* scrLeftScroll */
-  } /* scrLeftScroll */
+  { /* conLeftScroll */
+  } /* conLeftScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrRightScroll (inttype startlin, inttype startcol,
+void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrRightScroll (startlin, startcol, stoplin, stopcol, count)
+void conRightScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -1940,8 +1941,8 @@ inttype count;
   /* area are overwritten. At the left end of the area blank lines  */
   /* are inserted. Nothing is changed outside the area.             */
 
-  { /* scrRightScroll */
-  } /* scrRightScroll */
+  { /* conRightScroll */
+  } /* conRightScroll */
 
 
 
@@ -1962,18 +1963,18 @@ static void x11_beep ()
 
 #ifdef ANSI_C
 
-void scrShut (void)
+void conShut (void)
 #else
 
-void scrShut ()
+void conShut ()
 #endif
 
-  { /* scrShut */
+  { /* conShut */
     if (screen_initialized) {
       XFreeGC(mydisplay, mygc);
       XDestroyWindow(mydisplay, mywindow);
     } /* if */
-  } /* scrShut */
+  } /* conShut */
 
 
 
@@ -2067,22 +2068,22 @@ int wide;
 
 #ifdef ANSI_C
 
-int scrOpen (void)
+int conOpen (void)
 #else
 
-int scrOpen ()
+int conOpen ()
 #endif
 
-  /* Initializes and clears the screen.                             */
+  /* Initializes and clears the console.                            */
 
   {
     char *home;
     char fontname[256];
     int result = 0;
 
-  /* scrOpen */
+  /* conOpen */
 #ifdef TRACE_INIT
-    printf("BEGIN scrOpen\n");
+    printf("BEGIN conOpen\n");
     fflush(stdout);
 #endif
     if ((mydisplay = XOpenDisplay("")) != NULL) {
@@ -2102,8 +2103,8 @@ int scrOpen ()
       } /* if */
     } /* if */
 #ifdef TRACE_INIT
-    printf("END scrOpen\n");
+    printf("END conOpen\n");
     fflush(stdout);
 #endif
     return(result);
-  } /* scrOpen */
+  } /* conOpen */

@@ -24,7 +24,7 @@
 
 $ include "seed7_05.s7i";
   include "stdio.s7i";
-  include "screen.s7i";
+  include "console.s7i";
   include "window.s7i";
   include "keybd.s7i";
 
@@ -526,7 +526,7 @@ const proc: shut_round is func
 
 const proc: init is func
   begin
-    scr := open(SCREEN);
+    scr := open(CONSOLE);
     status := open_window(scr, 2, 18, 1, 33);
     protocol := open_window(scr, 3, 2, 20, 14);
     box(status);

@@ -29,7 +29,7 @@
 include "echo.s7i";
 include "keybd.s7i";
 include "line.s7i";
-include "screen.s7i";
+include "console.s7i";
 include "window.s7i";
 include "tee.s7i";
 (* include "reverse.s7i"; *)
@@ -45,7 +45,7 @@ var file: OUT3 is STD_NULL;
 
 const proc: INIT_MULTI is func
   begin
-    SCR := open(SCREEN);
+    SCR := open(CONSOLE);
     OUT := open_window(SCR, 2, 2, 10, 78);
     OUT1 := open_window(SCR, 14, 30, 10, 50);
     OUT2 := open_window(SCR, 18, 2, 6, 25);

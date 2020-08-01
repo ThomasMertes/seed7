@@ -164,7 +164,8 @@ stritype filLit (filetype aFile);
 inttype filLng (filetype aFile);
 filetype filOpen (const const_stritype path, const const_stritype mode);
 void filPclose (filetype aFile);
-filetype filPopen (const const_stritype command, const const_stritype mode);
+filetype filPopen (const const_stritype command,
+    const const_stritype parameters, const const_stritype mode);
 void filPrint (const const_stritype stri);
 void filSeek (filetype aFile, inttype file_position);
 void filSetbuf (filetype aFile, inttype mode, inttype size);

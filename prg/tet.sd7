@@ -25,7 +25,7 @@
 $ include "seed7_05.s7i";
   include "time.s7i";
   include "duration.s7i";
-  include "screen.s7i";
+  include "console.s7i";
   include "window.s7i";
   include "keybd.s7i";
 
@@ -429,7 +429,7 @@ const proc: main is func
   local
     var char: ch is ' ';
   begin
-    scr := open(SCREEN);
+    scr := open(CONSOLE);
     field := open_window(scr, 3, 4, FIELD_HEIGHT, 2 * FIELD_WIDTH);
     info_sheet := open_window(scr, 3, 29, 20, 54);
     box(field);

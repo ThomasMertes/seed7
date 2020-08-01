@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  scr_cur.c     Driver for curses screen access                   */
+/*  con_cur.c     Driver for curses console access                  */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/scr_cur.c                                       */
+/*  File: seed7/src/con_cur.c                                       */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Driver for curses screen access                        */
+/*  Content: Driver for curses console access                       */
 /*                                                                  */
 /********************************************************************/
 
@@ -39,7 +39,7 @@
 #include "common.h"
 
 #include "kbd_drv.h"
-#include "scr_drv.h"
+#include "con_drv.h"
 
 
 #define MAP_CHARS
@@ -56,7 +56,7 @@ static booltype key_buffer_filled = FALSE;
 static int last_key;
 booltype changes = FALSE;
 static booltype scroll_allowed = FALSE;
-static booltype screen_initialized = FALSE;
+static booltype console_initialized = FALSE;
 static booltype cursor_on = FALSE;
 
 static booltype keybd_initialized = FALSE;
@@ -233,7 +233,7 @@ booltype kbdKeyPressed ()
       result = TRUE;
     } else {
       if (changes) {
-        scrFlush();
+        conFlush();
       } /* if */
       nodelay(stdscr, TRUE);
       last_key = getch();
@@ -269,7 +269,7 @@ chartype kbdGetc ()
       result = last_key;
     } else {
       if (changes) {
-        scrFlush();
+        conFlush();
       } /* if */
       nodelay(stdscr, FALSE);
       result = getch();
@@ -451,41 +451,41 @@ inttype *rest;
 
 #ifdef ANSI_C
 
-int scrHeight (void)
+int conHeight (void)
 #else
 
-int scrHeight ()
+int conHeight ()
 #endif
 
-  { /* scrHeight */
+  { /* conHeight */
     return(LINES);
-  } /* scrHeight */
+  } /* conHeight */
 
 
 
 #ifdef ANSI_C
 
-int scrWidth (void)
+int conWidth (void)
 #else
 
-int scrWidth ()
+int conWidth ()
 #endif
 
-  { /* scrWidth */
+  { /* conWidth */
     return(COLS);
-  } /* scrWidth */
+  } /* conWidth */
 
 
 
 #ifdef ANSI_C
 
-void scrFlush (void)
+void conFlush (void)
 #else
 
-void scrFlush ()
+void conFlush ()
 #endif
 
-  { /* scrFlush */
+  { /* conFlush */
 #ifdef A_UNDERLINE
     idlok(stdscr, scroll_allowed);
 #endif
@@ -495,70 +495,70 @@ void scrFlush ()
     refresh();
     scroll_allowed = FALSE;
     changes = FALSE;
-  } /* scrFlush */
+  } /* conFlush */
 
 
 
 #ifdef ANSI_C
 
-void scrCursor (booltype on)
+void conCursor (booltype on)
 #else
 
-void scrCursor (on)
+void conCursor (on)
 booltype on;
 #endif
 
-  { /* scrCursor */
+  { /* conCursor */
     cursor_on = on;
     changes = TRUE;
-  } /* scrCursor */
+  } /* conCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrSetCursor (inttype lin, inttype col)
+void conSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetCursor (lin, col)
+void conSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
 
-  /* Moves the system curser to the given place of the screen.      */
+  /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
-  { /* scrSetCursor */
+  { /* conSetCursor */
     move(lin - 1, col - 1);
     changes = TRUE;
-  } /* scrSetCursor */
+  } /* conSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrText (lin, col, stri, length)
+void conText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
 memsizetype length;
 #endif
 
-  /* This function writes the string stri to the screen at the      */
+  /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the screen. The string stri is not allowed to go   */
-  /* beyond the right border of the screen. All screen output       */
+  /* position of the console. The string stri is not allowed to go  */
+  /* beyond the right border of the console. All console output     */
   /* must be done with this function.                               */
 
   {
     inttype pos;
 
-  /* scrText */
+  /* conText */
     move(lin - 1, col - 1);
     for (pos = 0; pos < length; pos++) {
 #ifdef MAP_CHARS
@@ -568,17 +568,17 @@ memsizetype length;
 #endif
     } /* for */
     changes = TRUE;
-  } /* scrText */
+  } /* conText */
 
 
 
 #ifdef ANSI_C
 
-void scrClear (inttype startlin, inttype startcol,
+void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
 #else
 
-void scrClear (startlin, startcol, stoplin, stopcol)
+void conClear (startlin, startcol, stoplin, stopcol)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -591,7 +591,7 @@ inttype stopcol;
   {
     int lin, col;
 
-  /* scrClear */
+  /* conClear */
     for (lin = startlin - 1; lin < stoplin; lin++) {
       move(lin, startcol - 1);
       if (stopcol == COLS && currentattribute == 0) {
@@ -603,17 +603,17 @@ inttype stopcol;
       } /* if */
     } /* for */
     changes = TRUE;
-  } /* scrClear */
+  } /* conClear */
 
 
 
 #ifdef ANSI_C
 
-void scrUpScroll (inttype startlin, inttype startcol,
+void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrUpScroll (startlin, startcol, stoplin, stopcol, count)
+void conUpScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -632,7 +632,7 @@ inttype count;
     int column;
     int ch;
 
-  /* scrUpScroll */
+  /* conUpScroll */
     if (startcol != 1 || stopcol != COLS) {
       for (line = startlin - 1; line < stoplin - count; line++) {
         for (column = startcol - 1; column < stopcol; column++) {
@@ -657,20 +657,20 @@ inttype count;
       scroll_allowed = TRUE;
     } /* if */
 #ifdef OUT_OF_ORDER
-    scrFlush();
+    conFlush();
 #endif
     changes = TRUE;
-  } /* scrUpScroll */
+  } /* conUpScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrDownScroll (inttype startlin, inttype startcol,
+void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrDownScroll (startlin, startcol, stoplin, stopcol, count)
+void conDownScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -689,7 +689,7 @@ inttype count;
     int column;
     int ch;
 
-  /* scrDownScroll */
+  /* conDownScroll */
     if (startcol != 1 || stopcol != COLS) {
       for (line = stoplin - 1; line >= startlin + count - 1; line--) {
         for (column = startcol - 1; column < stopcol; column++) {
@@ -714,20 +714,20 @@ inttype count;
       scroll_allowed = TRUE;
     } /* if */
 #ifdef OUT_OF_ORDER
-    scrFlush();
+    conFlush();
 #endif
     changes = TRUE;
-  } /* scrDownScroll */
+  } /* conDownScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrLeftScroll (inttype startlin, inttype startcol,
+void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrLeftScroll (startlin, startcol, stoplin, stopcol, count)
+void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -744,7 +744,7 @@ inttype count;
     int number;
     int line;
 
-  /* scrLeftScroll */
+  /* conLeftScroll */
     for (line = startlin - 1; line < stoplin; line++) {
       move(line, startcol - 1);
       for (number = 1; number <= count; number++) {
@@ -756,20 +756,20 @@ inttype count;
       } /* for */
     } /* for */
 #ifdef OUT_OF_ORDER
-    scrFlush();
+    conFlush();
 #endif
     changes = TRUE;
-  } /* scrLeftScroll */
+  } /* conLeftScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrRightScroll (inttype startlin, inttype startcol,
+void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 #else
 
-void scrRightScroll (startlin, startcol, stoplin, stopcol, count)
+void conRightScroll (startlin, startcol, stoplin, stopcol, count)
 inttype startlin;
 inttype startcol;
 inttype stoplin;
@@ -786,7 +786,7 @@ inttype count;
     int number;
     int line;
 
-  /* scrRightScroll */
+  /* conRightScroll */
     for (line = startlin - 1; line < stoplin; line++) {
       move(line, stopcol - count);
       for (number = 1; number <= count; number++) {
@@ -798,47 +798,47 @@ inttype count;
       } /* for */
     } /* for */
 #ifdef OUT_OF_ORDER
-    scrFlush();
+    conFlush();
 #endif
     changes = TRUE;
-  } /* scrRightScroll */
+  } /* conRightScroll */
 
 
 
 #ifdef ANSI_C
 
-void scrShut (void)
+void conShut (void)
 #else
 
-void scrShut ()
+void conShut ()
 #endif
 
-  { /* scrShut */
-    if (screen_initialized) {
+  { /* conShut */
+    if (console_initialized) {
       erase();
       clearok(stdscr, TRUE);
       refresh();
       endwin();
-      screen_initialized = FALSE;
+      console_initialized = FALSE;
     } /* if */
-  } /* scrShut */
+  } /* conShut */
 
 
 
 #ifdef ANSI_C
 
-int scrOpen (void)
+int conOpen (void)
 #else
 
-int scrOpen ()
+int conOpen ()
 #endif
 
-  /* Initializes and clears the screen.                             */
+  /* Initializes and clears the console.                            */
 
   {
     int result = 0;
 
-  /* scrOpen */
+  /* conOpen */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -849,15 +849,15 @@ int scrOpen ()
       idlok(stdscr, FALSE);
 #endif
       cur_normalcolour();
-      scrClear(1, 1, LINES, COLS);
+      conClear(1, 1, LINES, COLS);
       noecho();
       cbreak();
       keypad(stdscr, TRUE);
       cursor_on = FALSE;
       changes = TRUE;
-      screen_initialized = TRUE;
-      atexit(scrShut);
+      console_initialized = TRUE;
+      atexit(conShut);
       result = 1;
     } /* if */
     return(result);
-  } /* scrOpen */
+  } /* conOpen */
