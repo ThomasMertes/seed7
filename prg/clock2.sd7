@@ -36,7 +36,7 @@ const proc: main is func
       last_time := time(NOW);
       write(last_time);
       write(" ");
-      write(replace(last_time.mycro_second lpad 6, " ", "0"));
+      write(last_time.mycro_second lpad0 6);
       write("\r");
       flush(OUT);
     end while;

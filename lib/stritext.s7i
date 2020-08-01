@@ -214,7 +214,7 @@ const func integer: length (in stritext: aStritext) is func
     var integer: line is 0;
   begin
     for line range 1 to length(aStritext.content) do
-      result +:= succ(length(aStritext.content[aStritext.line]));
+      result +:= succ(length(aStritext.content[line]));
     end for;
   end func;
 

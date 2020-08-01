@@ -603,6 +603,7 @@ errinfotype *err_info;
   {
     memsizetype stri_len;
     stritype stri;
+    arraytype resized_lib_path;
     memsizetype position;
 
   /* append_to_lib_path */
@@ -618,10 +619,13 @@ errinfotype *err_info;
       *err_info = MEMORY_ERROR;
     } else {
       COUNT_STRI(stri_len);
-      if (!RESIZE_ARRAY(lib_path, lib_path->max_position, lib_path->max_position + 1)) {
+      resized_lib_path = REALLOC_ARRAY(lib_path,
+          lib_path->max_position, lib_path->max_position + 1);
+      if (resized_lib_path == NULL) {
         FREE_STRI(stri, stri_len);
         *err_info = MEMORY_ERROR;
       } else {
+        lib_path = resized_lib_path;
         COUNT3_ARRAY(lib_path->max_position, lib_path->max_position + 1);
         stri->size = stri_len;
         for (position = 0; position < path->size; position++) {

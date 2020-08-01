@@ -1,7 +1,7 @@
 
   Seed7 program examples:
 addup.sd7    Game of adding numbers to reach a goal number     
-bas.sd7      Basic interpreter                                 
+bas7.sd7     Basic interpreter                                 
 bifurk.sd7   Display the bifurcation diagram                   
 calc.sd7     Calculator                                        
 carddemo.sd7 Demonstate the playing cards of the french deck   

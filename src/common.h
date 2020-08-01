@@ -145,12 +145,11 @@ typedef int errinfotype;
 #define MEMORY_ERROR  1
 #define NUMERIC_ERROR 2
 #define RANGE_ERROR   3
-#define IO_ERROR      4
+#define FILE_ERROR    4
 #define CREATE_ERROR  5
 #define DESTROY_ERROR 6
 #define COPY_ERROR    7
 #define IN_ERROR      8
-#define FILE_ERROR    9
 
 
 typedef struct setstruct     *settype;

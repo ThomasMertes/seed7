@@ -36,7 +36,7 @@ const type: complex is new object struct
 
 
 (**
- *  Create a complex number from its real and imaginary part.
+ *  Return a complex number from its real and imaginary part.
  *)
 const func complex: complex (in float: re, in float: im) is func
   result
@@ -44,6 +44,18 @@ const func complex: complex (in float: re, in float: im) is func
   begin
     result.re := re;
     result.im := im;
+  end func;
+
+
+(**
+ *  Return a complex number from polar coordinates.
+ *)
+const func complex: polar (in float: magnitude, in float: angle) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := magnitude * cos(angle);
+    result.im := magnitude * sin(angle);
   end func;
 
 
@@ -202,10 +214,30 @@ const func string: str (in complex: num) is func
   result
     var string: result is "";
   begin
-    if num.im < 0.0 then
-      result := str(num.re) & str(num.im) & "i";
+    result := str(num.im);
+    if result[1] = '-' then
+      result := str(num.re) & "i" &       result;
     else
-      result := str(num.re) & "+" & str(num.im) & "i";
+      result := str(num.re) & "i" & "+" & result;
+    end if;
+  end func;
+
+
+(**
+ *  Return the conversion of a string to a complex.
+ *)
+const func complex: (attr complex) parse (in string: stri) is func
+  result
+    var complex: result is complex.value;
+  local
+    var integer: iPos is 0;
+  begin
+    iPos := pos(stri, 'i');
+    if iPos <> 0 then
+      result.re := float parse (stri[.. pred(iPos)]);
+      result.im := float parse (stri[succ(iPos) ..]);
+    else
+      raise RANGE_ERROR;
     end if;
   end func;
 
@@ -219,9 +251,13 @@ const func string: (in complex: num) digits (in integer: numDigits) is func
   result
     var string: result is "";
   begin
-    if num.im < 0.0 then
-      result := num.re digits numDigits <& num.im digits numDigits <& "i";
+    result := num.im digits numDigits;
+    if result[1] = '-' then
+      result := num.re digits numDigits <& "i" <&        result;
     else
-      result := num.re digits numDigits <& "+" <& num.im digits numDigits <& "i";
+      result := num.re digits numDigits <& "i" <& "+" <& result;
     end if;
   end func;
+
+
+enable_io(complex);

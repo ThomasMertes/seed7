@@ -131,6 +131,7 @@ memsizetype *used_max_position;
 
   {
     stritype new_stri;
+    arraytype resized_work_array;
     memsizetype position;
 
   /* add_stri_to_array */
@@ -140,11 +141,13 @@ memsizetype *used_max_position;
       memcpy(new_stri->mem, stri_elems,
           (SIZE_TYPE) length * sizeof(strelemtype));
       if (*used_max_position >= work_array->max_position) {
-        if (!RESIZE_ARRAY(work_array, work_array->max_position,
-            work_array->max_position + 256)) {
+        resized_work_array = REALLOC_ARRAY(work_array,
+            work_array->max_position, work_array->max_position + 256);
+        if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
+          work_array = resized_work_array;
           COUNT3_ARRAY(work_array->max_position, work_array->max_position + 256);
           work_array->max_position += 256;
         } /* if */
@@ -185,6 +188,7 @@ chartype delimiter;
     strelemtype *search_end;
     strelemtype *found_pos;
     memsizetype pos;
+    arraytype resized_result_array;
     arraytype result_array;
 
   /* strChSplit */
@@ -207,8 +211,9 @@ chartype delimiter;
             (memsizetype) (search_end - search_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
-          if (!RESIZE_ARRAY(result_array, result_array->max_position,
-              used_max_position)) {
+          resized_result_array = REALLOC_ARRAY(result_array,
+              result_array->max_position, used_max_position);
+          if (resized_result_array == NULL) {
             for (pos = 0; pos < used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
@@ -216,6 +221,7 @@ chartype delimiter;
             FREE_ARRAY(result_array, result_array->max_position);
             result_array = NULL;
           } else {
+            result_array = resized_result_array;
             COUNT3_ARRAY(result_array->max_position, used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
@@ -250,6 +256,7 @@ stritype delimiter;
     strelemtype *search_end;
     strelemtype *found_pos;
     memsizetype pos;
+    arraytype resized_result_array;
     arraytype result_array;
 
   /* strSplit */
@@ -284,8 +291,9 @@ stritype delimiter;
             (memsizetype) (&main_stri->mem[main_stri->size] - segment_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
-          if (!RESIZE_ARRAY(result_array, result_array->max_position,
-              used_max_position)) {
+          resized_result_array = REALLOC_ARRAY(result_array,
+              result_array->max_position, used_max_position);
+          if (resized_result_array == NULL) {
             for (pos = 0; pos < used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
@@ -293,6 +301,7 @@ stritype delimiter;
             FREE_ARRAY(result_array, result_array->max_position);
             result_array = NULL;
           } else {
+            result_array = resized_result_array;
             COUNT3_ARRAY(result_array->max_position, used_max_position);
             result_array->max_position = used_max_position;
           } /* if */

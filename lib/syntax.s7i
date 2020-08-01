@@ -144,6 +144,7 @@ $ syntax expr: .().val.() is                      -> 16;
 $ syntax expr: .().digits.() is                   -> 16;
 $ syntax expr: .().lpad.() is                     -> 17;
 $ syntax expr: .().rpad.() is                     -> 17;
+$ syntax expr: .().lpad0.() is                    -> 17;
 $ syntax expr: .(). <& .() is                     -> 18;
 $ syntax expr: .(). << .() is                    <-  19;
 $ syntax expr: .(). >> .() is                    <-  19;

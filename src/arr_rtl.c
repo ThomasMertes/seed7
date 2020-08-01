@@ -140,7 +140,8 @@ rtlArraytype arr_from;
     if (arr_from_size != 0) {
       arr_to_size = arr_to->max_position - arr_to->min_position + 1;
       new_size = arr_to_size + arr_from_size;
-      if (!RESIZE_RTL_ARRAY(arr_to, arr_to_size, new_size)) {
+      arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
+      if (arr_to == NULL) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr_to_size, new_size);
@@ -301,7 +302,8 @@ rtlObjecttype element;
     arr1_size = arr1->max_position - arr1->min_position + 1;
     result_size = arr1_size + 1;
     result = arr1;
-    if (!RESIZE_RTL_ARRAY(result, arr1_size, result_size)) {
+    result = REALLOC_RTL_ARRAY(result, arr1_size, result_size);
+    if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } else {
       COUNT3_RTL_ARRAY(arr1_size, result_size);
@@ -356,6 +358,7 @@ inttype stop;
     memsizetype length;
     memsizetype result_size;
     memsizetype stop_idx;
+    rtlArraytype resized_arr1;
     rtlArraytype result;
 
   /* arrHead */
@@ -376,9 +379,11 @@ inttype stop;
           (SIZE_TYPE) (result_size * sizeof(rtlObjecttype)));
       memcpy(arr1->arr, &arr1->arr[stop_idx + 1],
           (SIZE_TYPE) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
-      if (!RESIZE_RTL_ARRAY(arr1, length, length - result_size)) {
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+      if (resized_arr1 = NULL) {
         raise_error(MEMORY_ERROR);
       } else {
+        arr1 = resized_arr1;
         COUNT3_RTL_ARRAY(length, length - result_size);
         arr1->max_position -= result_size;
       } /* if */
@@ -411,6 +416,7 @@ inttype stop;
     memsizetype result_size;
     memsizetype start_idx;
     memsizetype stop_idx;
+    rtlArraytype resized_arr1;
     rtlArraytype result;
 
   /* arrRange */
@@ -436,9 +442,11 @@ inttype stop;
           (SIZE_TYPE) (result_size * sizeof(rtlObjecttype)));
       memcpy(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
           (SIZE_TYPE) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
-      if (!RESIZE_RTL_ARRAY(arr1, length, length - result_size)) {
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+      if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
       } else {
+        arr1 = resized_arr1;
         COUNT3_RTL_ARRAY(length, length - result_size);
         arr1->max_position -= result_size;
       } /* if */
@@ -467,6 +475,7 @@ inttype position;
 
   {
     rtlArraytype arr1;
+    rtlArraytype resized_arr1;
     rtlObjecttype *array_pointer;
     memsizetype arr1_size;
     rtlGenerictype result;
@@ -481,12 +490,15 @@ inttype position;
           (arr1->max_position - position) * sizeof(rtlObjecttype));
       arr1->max_position--;
       arr1_size = arr1->max_position - arr1->min_position + 1;
-      if (!RESIZE_RTL_ARRAY(arr1, arr1_size + 1, arr1_size)) {
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size + 1, arr1_size);
+      if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
         result = NULL;
+      } else {
+        arr1 = resized_arr1;
+        COUNT3_RTL_ARRAY(arr1_size + 1, arr1_size);
+        *arr_to = arr1;
       } /* if */
-      COUNT3_RTL_ARRAY(arr1_size + 1, arr1_size);
-      *arr_to = arr1;
     } else {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -528,6 +540,7 @@ inttype start;
     memsizetype length;
     memsizetype result_size;
     memsizetype start_idx;
+    rtlArraytype resized_arr1;
     rtlArraytype result;
 
   /* arrTail */
@@ -546,9 +559,11 @@ inttype start;
       start_idx = start - arr1->min_position;
       memcpy(result->arr, &arr1->arr[start_idx],
           (SIZE_TYPE) (result_size * sizeof(rtlObjecttype)));
-      if (!RESIZE_RTL_ARRAY(arr1, length, length - result_size)) {
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+      if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
       } else {
+        arr1 = resized_arr1;
         COUNT3_RTL_ARRAY(length, length - result_size);
         arr1->max_position -= result_size;
       } /* if */

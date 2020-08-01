@@ -45,7 +45,7 @@ static cstritype sys_name[NUMBER_OF_SYSVARS] = {
     "memory_error",
     "numeric_error",
     "range_error",
-    "io_error",
+    "file_error",
     "illegal_action",
     "false",
     "true",

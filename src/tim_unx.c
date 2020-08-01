@@ -364,6 +364,62 @@ inttype time_zone;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+void timFromTimeType (time_t st_time,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
+#else
+
+void timFromTimeType (st_time,
+    year, month, day, hour, min, sec, mycro_sec, time_zone)
+time_t st_time;
+inttype *year;
+inttype *month;
+inttype *day;
+inttype *hour;
+inttype *min;
+inttype *sec;
+inttype *mycro_sec;
+inttype *time_zone;
+#endif
+
+  {
+    struct timeval time_val;
+    struct timezone this_time_zone;
+    struct tm *local_time;
+
+  /* timFromTimeType */
+#ifdef TRACE_TIM_UNX
+    printf("BEGIN timFromTimeType(%ld)\n", st_time);
+#endif
+    local_time = localtime(&st_time);
+    *year      = local_time->tm_year + 1900;
+    *month     = local_time->tm_mon + 1;
+    *day       = local_time->tm_mday;
+    *hour      = local_time->tm_hour;
+    *min       = local_time->tm_min;
+    *sec       = local_time->tm_sec;
+    *mycro_sec = 0;
+#ifdef GET_TIME_ZONE_ALWAYS
+    *time_zone = get_time_zone(time_val.tv_sec);
+#else
+    if (refresh_time_zone) {
+      local_time_zone = get_time_zone(time_val.tv_sec);
+      refresh_time_zone = FALSE;
+    } /* if */
+    *time_zone = local_time_zone;
+#endif
+#ifdef TRACE_TIM_UNX
+    printf("END timFromTimeType(%ld, %d, %d, %d, %d, %d, %d, %d, %d)\n",
+        st_time, *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+#endif
+  } /* timFromTimeType */
+#endif
+
+
+
 #ifdef ANSI_C
 
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,

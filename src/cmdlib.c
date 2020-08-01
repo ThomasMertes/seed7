@@ -73,98 +73,92 @@ char *strg2;
 
 #ifdef ANSI_C
 
-static arraytype read_dir (char *dir_name)
+static arraytype read_dir (DIR *directory)
 #else
 
-static arraytype read_dir (dir_name)
-char *dir_name;
+static arraytype read_dir (directory)
+DIR *directory;
 #endif
 
   {
     arraytype dir_array;
+    arraytype resized_dir_array;
     memsizetype max_array_size;
     memsizetype used_array_size;
     memsizetype position;
-    DIR *directory;
     struct dirent *current_entry;
     stritype str1;
     booltype okay;
 
   /* read_dir */
-/*  printf("opendir(%s);\n", dir_name);
-    fflush(stdout); */
-    if ((directory = opendir(dir_name)) != NULL) {
-      max_array_size = 256;
-      if (ALLOC_ARRAY(dir_array, max_array_size)) {
-        used_array_size = 0;
-        do {
-          current_entry = readdir(directory);
-/*        printf("$%ld$\n", (long) current_entry);
-          fflush(stdout); */
-        } while (current_entry != NULL &&
+    max_array_size = 256;
+    if (ALLOC_ARRAY(dir_array, max_array_size)) {
+      used_array_size = 0;
+      do {
+        current_entry = readdir(directory);
+/*      printf("$%ld$\n", (long) current_entry);
+        fflush(stdout); */
+      } while (current_entry != NULL &&
           (strcmp(current_entry->d_name, ".") == 0 ||
           strcmp(current_entry->d_name, "..") == 0));
-        okay = TRUE;
-        while (okay && current_entry != NULL) {
-          if (used_array_size >= max_array_size) {
-            if (!RESIZE_ARRAY(dir_array, max_array_size,
-                max_array_size + 256)) {
-              okay = FALSE;
-            } else {
-              COUNT3_ARRAY(max_array_size, max_array_size + 256);
-              max_array_size = max_array_size + 256;
-            } /* if */
-          } /* if */
-          if (okay) {
-#ifdef READDIR_UTF8
-            str1 = cstri8_to_stri(current_entry->d_name);
-            if (str1 == NULL) {
-              str1 = cstri_to_stri(current_entry->d_name);
-            } /* if */
-#else
-            str1 = cstri_to_stri(current_entry->d_name);
-#endif
-            if (str1 == NULL) {
-              okay = FALSE;
-            } else {
-              dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
-              dir_array->arr[(int) used_array_size].descriptor.property = NULL;
-              dir_array->arr[(int) used_array_size].value.strivalue = str1;
-              INIT_CATEGORY_OF_VAR(&dir_array->arr[(int) used_array_size],
-                  STRIOBJECT);
-              used_array_size++;
-              do {
-                current_entry = readdir(directory);
-              } while (current_entry != NULL &&
-                (strcmp(current_entry->d_name, ".") == 0 ||
-                strcmp(current_entry->d_name, "..") == 0));
-            } /* if */
-          } /* if */
-        } /* while */
-        if (okay) {
-          if (!RESIZE_ARRAY(dir_array, max_array_size,
-              used_array_size)) {
+      okay = TRUE;
+      while (okay && current_entry != NULL) {
+        if (used_array_size >= max_array_size) {
+          resized_dir_array = REALLOC_ARRAY(dir_array,
+              max_array_size, max_array_size + 256);
+          if (resized_dir_array == NULL) {
             okay = FALSE;
           } else {
-            COUNT3_ARRAY(max_array_size, used_array_size);
-            dir_array->min_position = 1;
-            dir_array->max_position = used_array_size;
+            dir_array = resized_dir_array;
+            COUNT3_ARRAY(max_array_size, max_array_size + 256);
+            max_array_size = max_array_size + 256;
           } /* if */
         } /* if */
-        if (!okay) {
-          for (position = 0; position < used_array_size; position++) {
-            FREE_STRI(dir_array->arr[(int) position].value.strivalue,
-                dir_array->arr[(int) position].value.strivalue->size);
-          } /* for */
-          FREE_ARRAY(dir_array, max_array_size);
-          dir_array = NULL;
+        if (okay) {
+#ifdef READDIR_UTF8
+          str1 = cstri8_to_stri(current_entry->d_name);
+          if (str1 == NULL) {
+            str1 = cstri_to_stri(current_entry->d_name);
+          } /* if */
+#else
+          str1 = cstri_to_stri(current_entry->d_name);
+#endif
+          if (str1 == NULL) {
+            okay = FALSE;
+          } else {
+            dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
+            dir_array->arr[(int) used_array_size].descriptor.property = NULL;
+            dir_array->arr[(int) used_array_size].value.strivalue = str1;
+            INIT_CATEGORY_OF_VAR(&dir_array->arr[(int) used_array_size],
+                STRIOBJECT);
+            used_array_size++;
+            do {
+              current_entry = readdir(directory);
+            } while (current_entry != NULL &&
+                (strcmp(current_entry->d_name, ".") == 0 ||
+                strcmp(current_entry->d_name, "..") == 0));
+          } /* if */
+        } /* if */
+      } /* while */
+      if (okay) {
+        resized_dir_array = REALLOC_ARRAY(dir_array,
+            max_array_size, used_array_size);
+        if (resized_dir_array == NULL) {
+          okay = FALSE;
+        } else {
+          dir_array = resized_dir_array;
+          COUNT3_ARRAY(max_array_size, used_array_size);
+          dir_array->min_position = 1;
+          dir_array->max_position = used_array_size;
         } /* if */
       } /* if */
-      closedir(directory);
-    } else {
-      if (ALLOC_ARRAY(dir_array, 0)) {
-        dir_array->min_position = 1;
-        dir_array->max_position = 0;
+      if (!okay) {
+        for (position = 0; position < used_array_size; position++) {
+          FREE_STRI(dir_array->arr[(int) position].value.strivalue,
+              dir_array->arr[(int) position].value.strivalue->size);
+        } /* for */
+        FREE_ARRAY(dir_array, max_array_size);
+        dir_array = NULL;
       } /* if */
     } /* if */
     return(dir_array);
@@ -284,6 +278,7 @@ listtype arguments;
   {
     stritype str1;
     cstritype dir_name;
+    DIR *directory;
     arraytype result;
 
   /* cmd_ls */
@@ -293,14 +288,21 @@ listtype arguments;
     if (dir_name == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      if ((result = read_dir(dir_name)) == NULL) {
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      if ((directory = opendir(dir_name)) != NULL) {
+        result = read_dir(directory);
+        closedir(directory);
+        free_cstri(dir_name, str1);
+        if (result == NULL) {
+          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        } else {
+          qsort((void *) result->arr,
+              (size_t) (result->max_position - result->min_position + 1),
+              sizeof(objectrecord), &cmp_mem);
+          return(bld_array_temp(result));
+        } /* if */
       } else {
         free_cstri(dir_name, str1);
-        qsort((void *) result->arr,
-            (size_t) (result->max_position - result->min_position + 1),
-            sizeof(objectrecord), &cmp_mem);
-        return(bld_array_temp(result));
+        return(raise_with_arguments(SYS_FIL_EXCEPTION, arguments));
       } /* if */
     } /* if */
   } /* cmd_ls */

@@ -361,8 +361,8 @@ CONTENTS
         writeln("hello world");
       end func;
 
-  The object 'main' is declared as constant and the object
-  'proc' is the type of 'main'. Declaring 'main' with the type
+  The object 'main' is declared as constant and 'proc'
+  is the type of 'main'. Declaring 'main' with the type
   'proc' makes a procedure out of it. The object 'main' gets a
 
     func ... end func

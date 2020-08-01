@@ -206,6 +206,31 @@ const func string: getLineComment (inout file: inFile) is func
 
 
 (**
+ *  Reads a sequence of digits from the 'inFile'.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the digits.
+ *  @return the digit sequence or "" when no digit was found.
+ *)
+const func string: getDigits (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar in digit_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in digit_char do
+        symbol &:= str(character);
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
  *  Reads a numeric literal from the 'inFile'.
  *  When the function is called it is assumed that the introducing
  *  digit is in inFile.bufferChar. When the function is left the
@@ -218,7 +243,7 @@ const func string: getNumber (inout file: inFile) is func
   local
     var char: character is ' ';
   begin
-    symbol &:= str(inFile.bufferChar);
+    symbol := str(inFile.bufferChar);
     character := getc(inFile);
     while character in digit_char do
       symbol &:= str(character);
@@ -327,7 +352,7 @@ const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
  *  @return the character literal including the introducing ' and
  *          the closing ' .
  *)
-const func string: getChar (inout file: inFile) is func
+const func string: getCharLiteral (inout file: inFile) is func
   result
     var string: symbol is "'";
   local
@@ -375,7 +400,7 @@ const func string: getChar (inout file: inFile) is func
  *  @return the string literal including the introducing " and the
  *          closing " .
  *)
-const func string: getString (inout file: inFile) is func
+const func string: getStringLiteral (inout file: inFile) is func
   result
     var string: symbol is "\"";
   local
@@ -414,11 +439,46 @@ const func string: getString (inout file: inFile) is func
 
 
 (**
+ *  Skips space characters from the 'inFile'.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar does not contain a space character.
+ *)
+const proc: skipSpace (inout file: inFile) is func
+  local
+    var char: ch is ' ';
+  begin
+    ch := inFile.bufferChar;
+    while ch = ' ' do
+      ch := getc(inFile);
+    end while;
+    inFile.bufferChar := ch;
+  end func;
+
+
+(**
+ *  Skips whitespace characters from the 'inFile'.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the
+ *  whitespace characters.
+ *)
+const proc: skipWhiteSpace (inout file: inFile) is func
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+  end func;
+
+
+(**
  *  Reads whitespace characters from the 'inFile'.
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
- *  left inFile.bufferChar does not contain a whitespace character.
- *  @return the string of whitespace characters.
+ *  left inFile.bufferChar contains the character after the
+ *  whitespace characters.
+ *  @return the string of whitespace characters or "" when no
+ *          whitespace character was found.
  *)
 const func string: getWhiteSpace (inout file: inFile) is func
   result
@@ -478,9 +538,9 @@ const func string: getSymbolOrComment (inout file: inFile) is func
       when digit_char:
         symbol := getNumber(inFile);
       when apostrophe_char:
-        symbol := getChar(inFile);
+        symbol := getCharLiteral(inFile);
       when quotation_char:
-        symbol := getString(inFile);
+        symbol := getStringLiteral(inFile);
       when sharp_char:
         symbol := getLineComment(inFile);
       when {EOF}:
@@ -540,9 +600,9 @@ const func string: getSymbol (inout file: inFile) is func
       when digit_char:
         symbol := getNumber(inFile);
       when apostrophe_char:
-        symbol := getChar(inFile);
+        symbol := getCharLiteral(inFile);
       when quotation_char:
-        symbol := getString(inFile);
+        symbol := getStringLiteral(inFile);
       when sharp_char:
         skipLineComment(inFile);
         symbol := getSymbol(inFile);
@@ -625,9 +685,9 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
       when digit_char:
         symbol := getNumber(inFile);
       when apostrophe_char:
-        symbol := getChar(inFile);
+        symbol := getCharLiteral(inFile);
       when quotation_char:
-        symbol := getString(inFile);
+        symbol := getStringLiteral(inFile);
       when sharp_char:
         symbol := getLineComment(inFile);
       when {EOF}:

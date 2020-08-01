@@ -629,6 +629,56 @@ const proc: division is func
   end func;
 
 
+const proc: check_str is func
+  local
+    var boolean: okay is TRUE;
+    var integer: n is 0;
+    var integer: k is 0;
+  begin
+    okay := TRUE;
+    if  str(-10001) <>  "-10001" or
+        str(-10000) <>  "-10000" or
+        str( -9999) <>   "-9999" or
+        str( -2000) <>   "-2000" or
+        str( -1001) <>   "-1001" or
+        str( -1000) <>   "-1000" or
+        str(  -999) <>    "-999" or
+        str(  -200) <>    "-200" or
+        str(  -101) <>    "-101" or
+        str(  -100) <>    "-100" or
+        str(   -99) <>     "-99" or
+        str(   -20) <>     "-20" or
+        str(   -11) <>     "-11" or
+        str(   -10) <>     "-10" or
+        str(    -9) <>      "-9" or
+        str(    -2) <>      "-2" or
+        str(    -1) <>      "-1" or
+        str(     0) <>       "0" or
+        str(     1) <>       "1" or
+        str(     2) <>       "2" or
+        str(     9) <>       "9" or
+        str(    10) <>      "10" or
+        str(    11) <>      "11" or
+        str(    20) <>      "20" or
+        str(    99) <>      "99" or
+        str(   100) <>     "100" or
+        str(   101) <>     "101" or
+        str(   200) <>     "200" or
+        str(   999) <>     "999" or
+        str(  1000) <>    "1000" or
+        str(  1001) <>    "1001" or
+        str(  2000) <>    "2000" or
+        str(  9999) <>    "9999" or
+        str( 10000) <>   "10000" or
+        str( 10001) <>   "10001" then
+      writeln(" ***** Integer str is not correct computed");
+    end if;
+    if okay then
+      writeln("Integer str does work correct");
+    end if;
+  end func;
+
+
 const proc: check_parse is func
   local
     var boolean: okay is TRUE;
@@ -679,6 +729,231 @@ const proc: check_parse is func
   end func;
 
 
+const proc: check_lpad0 is func
+  local
+    var boolean: okay is TRUE;
+    var integer: n is 0;
+    var integer: k is 0;
+  begin
+    okay := TRUE;
+    if (-10001 lpad0 0) <> "-10001" or
+       (-10000 lpad0 0) <> "-10000" or
+       ( -9999 lpad0 0) <>  "-9999" or
+       ( -2000 lpad0 0) <>  "-2000" or
+       ( -1001 lpad0 0) <>  "-1001" or
+       ( -1000 lpad0 0) <>  "-1000" or
+       (  -999 lpad0 0) <>   "-999" or
+       (  -200 lpad0 0) <>   "-200" or
+       (  -101 lpad0 0) <>   "-101" or
+       (  -100 lpad0 0) <>   "-100" or
+       (   -99 lpad0 0) <>    "-99" or
+       (   -20 lpad0 0) <>    "-20" or
+       (   -11 lpad0 0) <>    "-11" or
+       (   -10 lpad0 0) <>    "-10" or
+       (    -9 lpad0 0) <>     "-9" or
+       (    -2 lpad0 0) <>     "-2" or
+       (    -1 lpad0 0) <>     "-1" or
+       (     0 lpad0 0) <>      "0" or
+       (     1 lpad0 0) <>      "1" or
+       (     2 lpad0 0) <>      "2" or
+       (     9 lpad0 0) <>      "9" or
+       (    10 lpad0 0) <>     "10" or
+       (    11 lpad0 0) <>     "11" or
+       (    20 lpad0 0) <>     "20" or
+       (    99 lpad0 0) <>     "99" or
+       (   100 lpad0 0) <>    "100" or
+       (   101 lpad0 0) <>    "101" or
+       (   200 lpad0 0) <>    "200" or
+       (   999 lpad0 0) <>    "999" or
+       (  1000 lpad0 0) <>   "1000" or
+       (  1001 lpad0 0) <>   "1001" or
+       (  2000 lpad0 0) <>   "2000" or
+       (  9999 lpad0 0) <>   "9999" or
+       ( 10000 lpad0 0) <>  "10000" or
+       ( 10001 lpad0 0) <>  "10001" or
+       (-10001 lpad0 1) <> "-10001" or
+       (-10000 lpad0 1) <> "-10000" or
+       ( -9999 lpad0 1) <>  "-9999" or
+       ( -2000 lpad0 1) <>  "-2000" or
+       ( -1001 lpad0 1) <>  "-1001" or
+       ( -1000 lpad0 1) <>  "-1000" or
+       (  -999 lpad0 1) <>   "-999" or
+       (  -200 lpad0 1) <>   "-200" or
+       (  -101 lpad0 1) <>   "-101" or
+       (  -100 lpad0 1) <>   "-100" or
+       (   -99 lpad0 1) <>    "-99" or
+       (   -20 lpad0 1) <>    "-20" or
+       (   -11 lpad0 1) <>    "-11" or
+       (   -10 lpad0 1) <>    "-10" or
+       (    -9 lpad0 1) <>     "-9" or
+       (    -2 lpad0 1) <>     "-2" or
+       (    -1 lpad0 1) <>     "-1" or
+       (     0 lpad0 1) <>      "0" or
+       (     1 lpad0 1) <>      "1" or
+       (     2 lpad0 1) <>      "2" or
+       (     9 lpad0 1) <>      "9" or
+       (    10 lpad0 1) <>     "10" or
+       (    11 lpad0 1) <>     "11" or
+       (    20 lpad0 1) <>     "20" or
+       (    99 lpad0 1) <>     "99" or
+       (   100 lpad0 1) <>    "100" or
+       (   101 lpad0 1) <>    "101" or
+       (   200 lpad0 1) <>    "200" or
+       (   999 lpad0 1) <>    "999" or
+       (  1000 lpad0 1) <>   "1000" or
+       (  1001 lpad0 1) <>   "1001" or
+       (  2000 lpad0 1) <>   "2000" or
+       (  9999 lpad0 1) <>   "9999" or
+       ( 10000 lpad0 1) <>  "10000" or
+       ( 10001 lpad0 1) <>  "10001" or
+       (-10001 lpad0 2) <> "-10001" or
+       (-10000 lpad0 2) <> "-10000" or
+       ( -9999 lpad0 2) <>  "-9999" or
+       ( -2000 lpad0 2) <>  "-2000" or
+       ( -1001 lpad0 2) <>  "-1001" or
+       ( -1000 lpad0 2) <>  "-1000" or
+       (  -999 lpad0 2) <>   "-999" or
+       (  -200 lpad0 2) <>   "-200" or
+       (  -101 lpad0 2) <>   "-101" or
+       (  -100 lpad0 2) <>   "-100" or
+       (   -99 lpad0 2) <>    "-99" or
+       (   -20 lpad0 2) <>    "-20" or
+       (   -11 lpad0 2) <>    "-11" or
+       (   -10 lpad0 2) <>    "-10" or
+       (    -9 lpad0 2) <>     "-9" or
+       (    -2 lpad0 2) <>     "-2" or
+       (    -1 lpad0 2) <>     "-1" or
+       (     0 lpad0 2) <>     "00" or
+       (     1 lpad0 2) <>     "01" or
+       (     2 lpad0 2) <>     "02" or
+       (     9 lpad0 2) <>     "09" or
+       (    10 lpad0 2) <>     "10" or
+       (    11 lpad0 2) <>     "11" or
+       (    20 lpad0 2) <>     "20" or
+       (    99 lpad0 2) <>     "99" or
+       (   100 lpad0 2) <>    "100" or
+       (   101 lpad0 2) <>    "101" or
+       (   200 lpad0 2) <>    "200" or
+       (   999 lpad0 2) <>    "999" or
+       (  1000 lpad0 2) <>   "1000" or
+       (  1001 lpad0 2) <>   "1001" or
+       (  2000 lpad0 2) <>   "2000" or
+       (  9999 lpad0 2) <>   "9999" or
+       ( 10000 lpad0 2) <>  "10000" or
+       ( 10001 lpad0 2) <>  "10001" or
+       (-10001 lpad0 3) <> "-10001" or
+       (-10000 lpad0 3) <> "-10000" or
+       ( -9999 lpad0 3) <>  "-9999" or
+       ( -2000 lpad0 3) <>  "-2000" or
+       ( -1001 lpad0 3) <>  "-1001" or
+       ( -1000 lpad0 3) <>  "-1000" or
+       (  -999 lpad0 3) <>   "-999" or
+       (  -200 lpad0 3) <>   "-200" or
+       (  -101 lpad0 3) <>   "-101" or
+       (  -100 lpad0 3) <>   "-100" or
+       (   -99 lpad0 3) <>    "-99" or
+       (   -20 lpad0 3) <>    "-20" or
+       (   -11 lpad0 3) <>    "-11" or
+       (   -10 lpad0 3) <>    "-10" or
+       (    -9 lpad0 3) <>    "-09" or
+       (    -2 lpad0 3) <>    "-02" or
+       (    -1 lpad0 3) <>    "-01" or
+       (     0 lpad0 3) <>    "000" or
+       (     1 lpad0 3) <>    "001" or
+       (     2 lpad0 3) <>    "002" or
+       (     9 lpad0 3) <>    "009" or
+       (    10 lpad0 3) <>    "010" or
+       (    11 lpad0 3) <>    "011" or
+       (    20 lpad0 3) <>    "020" or
+       (    99 lpad0 3) <>    "099" or
+       (   100 lpad0 3) <>    "100" or
+       (   101 lpad0 3) <>    "101" or
+       (   200 lpad0 3) <>    "200" or
+       (   999 lpad0 3) <>    "999" or
+       (  1000 lpad0 3) <>   "1000" or
+       (  1001 lpad0 3) <>   "1001" or
+       (  2000 lpad0 3) <>   "2000" or
+       (  9999 lpad0 3) <>   "9999" or
+       ( 10000 lpad0 3) <>  "10000" or
+       ( 10001 lpad0 3) <>  "10001" or
+       (-10001 lpad0 4) <> "-10001" or
+       (-10000 lpad0 4) <> "-10000" or
+       ( -9999 lpad0 4) <>  "-9999" or
+       ( -2000 lpad0 4) <>  "-2000" or
+       ( -1001 lpad0 4) <>  "-1001" or
+       ( -1000 lpad0 4) <>  "-1000" or
+       (  -999 lpad0 4) <>   "-999" or
+       (  -200 lpad0 4) <>   "-200" or
+       (  -101 lpad0 4) <>   "-101" or
+       (  -100 lpad0 4) <>   "-100" or
+       (   -99 lpad0 4) <>   "-099" or
+       (   -20 lpad0 4) <>   "-020" or
+       (   -11 lpad0 4) <>   "-011" or
+       (   -10 lpad0 4) <>   "-010" or
+       (    -9 lpad0 4) <>   "-009" or
+       (    -2 lpad0 4) <>   "-002" or
+       (    -1 lpad0 4) <>   "-001" or
+       (     0 lpad0 4) <>   "0000" or
+       (     1 lpad0 4) <>   "0001" or
+       (     2 lpad0 4) <>   "0002" or
+       (     9 lpad0 4) <>   "0009" or
+       (    10 lpad0 4) <>   "0010" or
+       (    11 lpad0 4) <>   "0011" or
+       (    20 lpad0 4) <>   "0020" or
+       (    99 lpad0 4) <>   "0099" or
+       (   100 lpad0 4) <>   "0100" or
+       (   101 lpad0 4) <>   "0101" or
+       (   200 lpad0 4) <>   "0200" or
+       (   999 lpad0 4) <>   "0999" or
+       (  1000 lpad0 4) <>   "1000" or
+       (  1001 lpad0 4) <>   "1001" or
+       (  2000 lpad0 4) <>   "2000" or
+       (  9999 lpad0 4) <>   "9999" or
+       ( 10000 lpad0 4) <>  "10000" or
+       ( 10001 lpad0 4) <>  "10001" or
+       (-10001 lpad0 5) <> "-10001" or
+       (-10000 lpad0 5) <> "-10000" or
+       ( -9999 lpad0 5) <>  "-9999" or
+       ( -2000 lpad0 5) <>  "-2000" or
+       ( -1001 lpad0 5) <>  "-1001" or
+       ( -1000 lpad0 5) <>  "-1000" or
+       (  -999 lpad0 5) <>  "-0999" or
+       (  -200 lpad0 5) <>  "-0200" or
+       (  -101 lpad0 5) <>  "-0101" or
+       (  -100 lpad0 5) <>  "-0100" or
+       (   -99 lpad0 5) <>  "-0099" or
+       (   -20 lpad0 5) <>  "-0020" or
+       (   -11 lpad0 5) <>  "-0011" or
+       (   -10 lpad0 5) <>  "-0010" or
+       (    -9 lpad0 5) <>  "-0009" or
+       (    -2 lpad0 5) <>  "-0002" or
+       (    -1 lpad0 5) <>  "-0001" or
+       (     0 lpad0 5) <>  "00000" or
+       (     1 lpad0 5) <>  "00001" or
+       (     2 lpad0 5) <>  "00002" or
+       (     9 lpad0 5) <>  "00009" or
+       (    10 lpad0 5) <>  "00010" or
+       (    11 lpad0 5) <>  "00011" or
+       (    20 lpad0 5) <>  "00020" or
+       (    99 lpad0 5) <>  "00099" or
+       (   100 lpad0 5) <>  "00100" or
+       (   101 lpad0 5) <>  "00101" or
+       (   200 lpad0 5) <>  "00200" or
+       (   999 lpad0 5) <>  "00999" or
+       (  1000 lpad0 5) <>  "01000" or
+       (  1001 lpad0 5) <>  "01001" or
+       (  2000 lpad0 5) <>  "02000" or
+       (  9999 lpad0 5) <>  "09999" or
+       ( 10000 lpad0 5) <>  "10000" or
+       ( 10001 lpad0 5) <>  "10001" then
+      writeln(" ***** Integer lpad0 is not correct computed");
+    end if;
+    if okay then
+      writeln("Integer lpad0 does work correct");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -698,5 +973,7 @@ const proc: main is func
     check_power;
     check_sqrt;
     check_log2;
+    check_str;
     check_parse;
+    check_lpad0;
   end func;

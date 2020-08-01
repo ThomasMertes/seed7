@@ -123,11 +123,11 @@ var float: localSiderealTime is 0.0;
 (* Trigonometric functions for degrees *)
 
 
-const func float: degree (in float: x) is
+const func float: toDegrees (in float: x) is
   return x * radianToDegrees;
 
 
-const func float: radian (in float: x) is
+const func float: toRadians (in float: x) is
   return x * degreesToRadian;
 
 
@@ -143,20 +143,20 @@ const func float: tanD (in float: x) is
   return tan(x * degreesToRadian);
 
 
-const func float: atanD (in float: x) is
-  return atan(x) * radianToDegrees;
-
-
-const func float: atan2D (in float: y, in float: x) is
-  return atan2(y, x) * radianToDegrees;
-
-
 const func float: asinD (in float: x) is
   return asin(x) * radianToDegrees;
 
 
 const func float: acosD (in float: x) is
   return acos(x) * radianToDegrees;
+
+
+const func float: atanD (in float: x) is
+  return atan(x) * radianToDegrees;
+
+
+const func float: atan2D (in float: y, in float: x) is
+  return atan2(y, x) * radianToDegrees;
 
 
 const func float: frac (in float: x) is
@@ -398,19 +398,19 @@ const proc: showTime is func
     writeln(win, str_time(gmTime));
     greenwichMeanSiderealTime := calculateGreenwichMeanSiderealTime(gmTime);
     write(win, "greenwichSiderealTime = ");
-    write(win, str2(trunc(greenwichMeanSiderealTime)));
+    write(win, trunc(greenwichMeanSiderealTime) lpad0 2);
     write(win, ":");
-    write(win, str2(minutes(greenwichMeanSiderealTime)));
+    write(win, minutes(greenwichMeanSiderealTime) lpad0 2);
     write(win, ":");
-    writeln(win, str2(seconds(greenwichMeanSiderealTime)));
+    writeln(win, seconds(greenwichMeanSiderealTime) lpad0 2);
     localSiderealTime := greenwichMeanSiderealTime - posAtEarth.longitude / 15.0;
     hoursToRange(localSiderealTime);
     write(win, "localSiderealTime     = ");
-    write(win, str2(trunc(localSiderealTime)));
+    write(win, trunc(localSiderealTime) lpad0 2);
     write(win, ":");
-    write(win, str2(minutes(localSiderealTime)));
+    write(win, minutes(localSiderealTime) lpad0 2);
     write(win, ":");
-    write(win, str2(seconds(localSiderealTime)));
+    write(win, seconds(localSiderealTime) lpad0 2);
   end func; (* showTime *)
 
 
@@ -430,7 +430,7 @@ const func heliocentricPlanetType: locatePositionOfPlanetInItsOrbitalPlane (
     planet.longitudeOfPerihelion := planetDescr.longitudeOfPerihelion +
         planetDescr.longitudeOfPerihelionPerCentury * (julianDay(aTime) - julianDayOfEpoch) / 36525.0;
     planet.meanAnomaly := planet.meanLongitude - planet.longitudeOfPerihelion;
-    planet.trueAnomaly := degree(anomaly(radian(planet.meanAnomaly), planet.eccentricity));
+    planet.trueAnomaly := toDegrees(anomaly(toRadians(planet.meanAnomaly), planet.eccentricity));
     planet.heliocentricLongitude := planet.trueAnomaly + planet.longitudeOfPerihelion;
     degreesToRange(planet.heliocentricLongitude);
     planet.radiusVector := planetDescr.axis * (1.0 - planet.eccentricity * planet.eccentricity) /

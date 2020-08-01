@@ -1,3 +1,22 @@
+20080120:
+- Optimisations for the string functions =, <>, stri[num], &, upper, lower, pos, rpos, split
+  and for the array indexing were added to the compiler (comp.sd7).
+- Documentation comments were added to bigint.s7i, draw.s7i, bas7.sd7 and mahjong.sd7.
+- The bas.sd7 (basic interpreter) example program was improved and renamed to bas7.sd7.
+- The functions polar, parse, str and digits were added or improved in complex.s7i.
+- The read_dir, chdir, mkdir functions were improved to raise FILE_ERROR on failure.
+- The functions open_dir and open_dir_path of the dir.s7i library were changed to return
+  STD_NULL when the directory does not exist.
+- The functions getDigits, skipSpace, skipWhiteSpace were added to the scanner.s7i library.
+- The digits function for the type float was improved to never return -0 .
+- The new lpad0 operator was added to convert integers to strings with leading zeros.
+- The time conversion functions str_yyyy_mm_dd, str_mm_dd_yy, str_mm_dd_yyyy, str_d_m_yy and
+  str_d_m_yyyy were added to the time.s7i library.
+- Checks were added to the chkint.sd7 and chkstr.sd7 example programs.
+- The code to handle a failing realloc for arrays was improved.
+- Bugs in the compiler, with str_append and with val or ref parameters as result in the
+  return statement, were fixed.
+
 20080106:
 - Documentation comments were added to the functions of the librarys bigint.s7i,
   bigrat.s7i, complex.s7i, float.s7i, getf.s7i, keybd.s7i, rational.s7i, scanner.s7i,

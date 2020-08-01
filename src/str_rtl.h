@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.h     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -37,9 +37,11 @@ inttype strChPos (const const_stritype, const chartype);
 /* rtlArraytype strChSplit (const const_stritype, const chartype); */
 inttype strCompare (const const_stritype, const const_stritype);
 stritype strConcat (const const_stritype, const const_stritype);
+stritype strConcatTemp (stritype, const const_stritype);
 void strCopy (stritype *const, const const_stritype);
 stritype strCreate (const const_stritype);
 void strDestr (const const_stritype);
+stritype strEmpty (void);
 booltype strGe (const const_stritype, const const_stritype);
 booltype strGt (const const_stritype, const const_stritype);
 inttype strHashCode (const const_stritype);
@@ -48,6 +50,7 @@ inttype strIpos (const const_stritype, const const_stritype, const inttype);
 booltype strLe (const const_stritype, const const_stritype);
 stritype strLit (const const_stritype);
 stritype strLow (const const_stritype);
+stritype strLowTemp (const stritype);
 stritype strLpad (const const_stritype, const inttype);
 booltype strLt (const const_stritype, const const_stritype);
 stritype strMult (const const_stritype, const inttype);
@@ -62,6 +65,7 @@ stritype strSubstr (const const_stritype, inttype, inttype);
 stritype strTail (const const_stritype, inttype);
 stritype strTrim (const const_stritype);
 stritype strUp (const const_stritype);
+stritype strUpTemp (const stritype);
 
 #else
 
@@ -71,9 +75,11 @@ inttype strChPos ();
 /* rtlArraytype strChSplit (); */
 inttype strCompare ();
 stritype strConcat ();
+stritype strConcatTemp ();
 void strCopy ();
 stritype strCreate ();
 void strDestr ();
+stritype strEmpty ();
 booltype strGe ();
 booltype strGt ();
 inttype strHashCode ();
@@ -82,6 +88,7 @@ inttype strIpos ();
 booltype strLe ();
 stritype strLit ();
 stritype strLow ();
+stritype strLowTemp ();
 stritype strLpad ();
 booltype strLt ();
 stritype strMult ();
@@ -96,5 +103,6 @@ stritype strSubstr ();
 stritype strTail ();
 stritype strTrim ();
 stritype strUp ();
+stritype strUpTemp ();
 
 #endif

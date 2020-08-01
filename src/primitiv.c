@@ -401,6 +401,7 @@ static primactrecord prim_act_table[] = {
     { "INT_INCR",            int_incr,            },
     { "INT_LE",              int_le,              },
     { "INT_LOG2",            int_log2,            },
+    { "INT_LPAD0",           int_lpad0,           },
     { "INT_LT",              int_lt,              },
     { "INT_MCPY",            int_mcpy,            },
     { "INT_MDIV",            int_mdiv,            },
@@ -502,6 +503,7 @@ static primactrecord prim_act_table[] = {
 #ifdef WITH_REFERENCE
     { "REF_ADDR",            ref_addr,            },
     { "REF_ALLOC",           ref_alloc,           },
+    { "REF_ARRMAXPOS",       ref_arrmaxpos,       },
     { "REF_ARRMINPOS",       ref_arrminpos,       },
     { "REF_ARRTOLIST",       ref_arrtolist,       },
     { "REF_BODY",            ref_body,            },

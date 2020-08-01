@@ -400,6 +400,80 @@ inttype number;
 
 #ifdef ANSI_C
 
+stritype intLpad0 (inttype arg1, const inttype pad_size)
+#else
+
+stritype intLpad0 (arg1, pad_size)
+inttype arg1;
+inttype pad_size;
+#endif
+
+  {
+    uinttype number;
+    booltype sign;
+    strelemtype buffer_1[50];
+    strelemtype *buffer;
+    memsizetype length;
+    memsizetype result_size;
+    stritype result;
+
+  /* intLpad0 */
+    if ((sign = (arg1 < 0))) {
+      number = -arg1;
+    } else {
+      number = arg1;
+    } /* if */
+    buffer = &buffer_1[50];
+    do {
+      *(--buffer) = (strelemtype) (number % 10 + '0');
+    } while ((number /= 10) != 0);
+    length = &buffer_1[50] - buffer;
+    if (pad_size > (inttype) length) {
+      result_size = (memsizetype) pad_size;
+    } else {
+      if (sign) {
+        result_size = length + 1;
+      } else {
+        result_size = length;
+      } /* if */
+    } /* if */
+    if (!ALLOC_STRI(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_STRI(result_size);
+      result->size = result_size;
+#ifdef WIDE_CHAR_STRINGS
+      {
+        strelemtype *elem = result->mem;
+        memsizetype len0 = result_size - length;
+
+        if (sign) {
+          len0--;
+          *elem++ = (strelemtype) '-';
+        } /* if */
+        while (len0--) {
+          *elem++ = (strelemtype) '0';
+        } /* while */
+      }
+#else
+     if (sign) {
+       result->mem[0] = (strelemtype) '-';
+       memset(&result->mem[1], '0', (SIZE_TYPE) (result_size - length - 1));
+     } else {
+       memset(result->mem, '0', (SIZE_TYPE) (result_size - length));
+     } /* if */
+#endif
+      memcpy(&result->mem[result_size - length], buffer,
+          (SIZE_TYPE) length * sizeof(strelemtype));
+      return(result);
+    } /* if */
+  } /* intLpad0 */
+
+
+
+#ifdef ANSI_C
+
 inttype intParse (const_stritype stri)
 #else
 

@@ -77,7 +77,8 @@ listtype arguments;
     if (arr_from_size != 0) {
       arr_to_size = arr_to->max_position - arr_to->min_position + 1;
       new_size = arr_to_size + arr_from_size;
-      if (!RESIZE_ARRAY(arr_to, arr_to_size, new_size)) {
+      arr_to = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
+      if (arr_to == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       COUNT3_ARRAY(arr_to_size, new_size);
@@ -91,7 +92,8 @@ listtype arguments;
       } else {
         if (!crea_array(&arr_to->arr[arr_to_size], arr_from->arr,
             arr_from_size)) {
-          if (!RESIZE_ARRAY(arr_to, new_size, arr_to_size)) {
+          arr_to = REALLOC_ARRAY(arr_to, new_size, arr_to_size);
+          if (arr_to == NULL) {
             return(raise_exception(SYS_MEM_EXCEPTION));
           } /* if */
           COUNT3_ARRAY(new_size, arr_to_size);
@@ -306,7 +308,8 @@ listtype arguments;
     result_size = arr1_size + arr2_size;
     if (TEMP_OBJECT(arg_1(arguments))) {
       result = arr1;
-      if (!RESIZE_ARRAY(result, arr1_size, result_size)) {
+      result = REALLOC_ARRAY(result, arr1_size, result_size);
+      if (result == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       COUNT3_ARRAY(arr1_size, result_size);
@@ -563,7 +566,8 @@ listtype arguments;
     result_size = arr1_size + 1;
     if (TEMP_OBJECT(arg_1(arguments))) {
       result = arr1;
-      if (!RESIZE_ARRAY(result, arr1_size, result_size)) {
+      result = REALLOC_ARRAY(result, arr1_size, result_size);
+      if (result == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       COUNT3_ARRAY(arr1_size, result_size);
@@ -666,6 +670,7 @@ listtype arguments;
     inttype stop;
     memsizetype length;
     memsizetype result_size;
+    arraytype resized_result;
     arraytype result;
 
   /* arr_head */
@@ -683,11 +688,13 @@ listtype arguments;
         result = arr1;
         arg_1(arguments)->value.arrayvalue = NULL;
         destr_array(&result->arr[result_size], length - result_size);
-        if (!RESIZE_ARRAY(result, length, result_size)) {
+        resized_result = REALLOC_ARRAY(result, length, result_size);
+        if (resized_result == NULL) {
           destr_array(result->arr, result_size);
           FREE_ARRAY(result, length);
           return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
         } /* if */
+        result = resized_result;
         COUNT3_ARRAY(length, result_size);
         result->max_position = stop;
       } else {
@@ -887,7 +894,8 @@ listtype arguments;
             (arr1->max_position - position) * sizeof(objectrecord));
         arr1->max_position--;
         arr1_size = arr1->max_position - arr1->min_position + 1;
-        if (!RESIZE_ARRAY(arr1, arr1_size + 1, arr1_size)) {
+        arr1 = REALLOC_ARRAY(arr1, arr1_size + 1, arr1_size);
+        if (arr1 == NULL) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
         COUNT3_ARRAY(arr1_size + 1, arr1_size);

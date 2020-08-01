@@ -26,6 +26,11 @@
 (********************************************************************)
 
 
+(**
+ *  The type 'bigInteger' consists of all integer numbers.
+ *  The literals of the type 'bigInteger' are sequences of digits
+ *  followed by an underscore character (for example 1_ ).
+ *)
 const type: bigInteger is          subtype object;
 $ system "bigInteger" is bigInteger;
 

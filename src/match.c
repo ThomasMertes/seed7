@@ -287,6 +287,7 @@ objecttype object;
       case ACTOBJECT:
       case ENUMLITERALOBJECT:
       case VARENUMOBJECT:
+      case VALUEPARAMOBJECT:
       case REFPARAMOBJECT:
       case DECLAREDOBJECT:
       case FORWARDOBJECT:

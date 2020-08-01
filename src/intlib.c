@@ -438,6 +438,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype int_lpad0 (listtype arguments)
+#else
+
+objecttype int_lpad0 (arguments)
+listtype arguments;
+#endif
+
+  { /* int_lpad0 */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_stri_temp(intLpad0(
+        take_int(arg_1(arguments)), take_int(arg_3(arguments)))));
+  } /* int_lpad0 */
+
+
+
+#ifdef ANSI_C
+
 objecttype int_lt (listtype arguments)
 #else
 

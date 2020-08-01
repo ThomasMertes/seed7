@@ -580,6 +580,12 @@ const proc: put (in integer: x, in integer: y,
   end func;
 
 
+(**
+ *  Creates a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (x1, y1) and the given
+ *  'width' and 'height' is copied from 'curr_win' to the new pixmap.
+ *  @return the new pixmap.
+ *)
 const func PRIMITIVE_WINDOW: getPixmap (in integer: x1, in integer: y1,
     in integer: width, in integer: height) is func
   result
@@ -589,6 +595,12 @@ const func PRIMITIVE_WINDOW: getPixmap (in integer: x1, in integer: y1,
   end func;
 
 
+(**
+ *  Creates a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (x1, y1) and the given
+ *  'width' and 'height' is copied from 'source_win' to the new pixmap.
+ *  @return the new pixmap.
+ *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win,
     in integer: x1, in integer: y1, in integer: width, in integer: height) is func
   result
@@ -598,6 +610,11 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win,
   end func;
 
 
+(**
+ *  Creates a new pixmap which is a copy from 'source_win'.
+ *  The content of 'source_win' is copied the new pixmap.
+ *  @return the new pixmap.
+ *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
@@ -608,6 +625,7 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is func
 
 (**
  *  Creates a new pixmap with the given 'width' and 'height'.
+ *  @return the new pixmap.
  *)
 const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is func
   result

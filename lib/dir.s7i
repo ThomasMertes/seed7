@@ -34,31 +34,53 @@ const type: dir_file is sub NULL_FILE struct
   end struct;
 
 
-const func dir_file: open_dir (in string: dir_name) is func
+const func dir_file: malloc (ref dir_file: aDirFile) is func
   result
     var dir_file: result is dir_file.value;
   begin
-    result := dir_file.value;
-    result.path := "";
-    result.dir_array := read_dir(dir_name);
-    result.curr_line := 1;
-    result.curr_column := 1;
+    result := aDirFile;
   end func;
 
 
-const func dir_file: open_dir_path (in string: dir_name) is func
+const func file: open_dir (in string: dir_name) is func
   result
-    var dir_file: result is dir_file.value;
+    var file: result is STD_NULL;
+  local
+    var dir_file: new_file is dir_file.value;
   begin
-    result := dir_file.value;
+    new_file.path := "";
+    new_file.curr_line := 1;
+    new_file.curr_column := 1;
+    block
+      new_file.dir_array := read_dir(dir_name);
+      result := malloc(new_file);
+    exception
+      catch FILE_ERROR:
+        result := STD_NULL;
+    end block;
+  end func;
+
+
+const func file: open_dir_path (in string: dir_name) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var dir_file: new_file is dir_file.value;
+  begin
     if dir_name[length(dir_name)] <> '/' then
-      result.path := dir_name & "/";
+      new_file.path := dir_name & "/";
     else
-      result.path := dir_name;
+      new_file.path := dir_name;
     end if;
-    result.dir_array := read_dir(dir_name);
-    result.curr_line := 1;
-    result.curr_column := 1;
+    new_file.curr_line := 1;
+    new_file.curr_column := 1;
+    block
+      new_file.dir_array := read_dir(dir_name);
+      result := malloc(new_file);
+    exception
+      catch FILE_ERROR:
+        result := STD_NULL;
+    end block;
   end func;
 
 

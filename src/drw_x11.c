@@ -1583,6 +1583,9 @@ static void dra_init ()
     char *class_text;
 
   /* dra_init */
+#ifdef TRACE_X11
+    printf("BEGIN dra_init()\n");
+#endif
     mydisplay = XOpenDisplay("");
 /*  printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
     myscreen = DefaultScreen(mydisplay);
@@ -1642,6 +1645,9 @@ static void dra_init ()
 #endif
     mybackground = WhitePixel(mydisplay, myscreen);
     myforeground = BlackPixel(mydisplay, myscreen);
+#ifdef TRACE_X11
+    printf("END dra_init\n");
+#endif
   } /* dra_init */
 
 

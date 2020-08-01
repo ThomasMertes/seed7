@@ -25,6 +25,14 @@
 $ include "seed7_05.s7i";
 
 
+const func string: striExpr (in string: stri) is
+  return stri;
+
+
+const func integer: intExpr (in integer: number) is
+  return number;
+
+
 const proc: check_string_literal is func
   local
     var boolean: okay is TRUE;
@@ -375,6 +383,129 @@ const proc: check_string_comparisons is func
       writeln(" ***** STRING = STRING does not work correct");
       okay := FALSE;
     end if;
+    if not (striExpr("") = "") or
+        not (striExpr("a") = "a") or
+        not (striExpr("b") = "b") or
+        not (striExpr("aa") = "aa") or
+        not (striExpr("ab") = "ab") or
+        not (striExpr("ba") = "ba") or
+        not (striExpr("aaa") = "aaa") or
+        not (striExpr("abc") = "abc") or
+        not (striExpr("cbc") = "cbc") or
+        not (striExpr("123456789") = "123456789") or
+        not (striExpr("1234567890") = "1234567890") or
+        not (striExpr("abcdefghijklmnopqrstuvwxyz") = "abcdefghijklmnopqrstuvwxyz") or
+        striExpr("") = "a" or
+        striExpr("") = "123456789" or
+        striExpr("a") = "" or
+        striExpr("a") = "b" or
+        striExpr("a") = "aa" or
+        striExpr("a") = "ab" or
+        striExpr("a") = "123456789" or
+        striExpr("b") = "a" or
+        striExpr("aa") = "a" or
+        striExpr("aa") = "ab" or
+        striExpr("aa") = "ba" or
+        striExpr("aa") = "aaa" or
+        striExpr("ab") = "a" or
+        striExpr("ab") = "aa" or
+        striExpr("ab") = "ba" or
+        striExpr("ba") = "aa" or
+        striExpr("ba") = "ab" or
+        striExpr("aaa") = "aa" or
+        striExpr("abc") = "cbc" or
+        striExpr("cbc") = "abc" or
+        striExpr("123456789") = "" or
+        striExpr("123456789") = "a" or
+        striExpr("123456789") = "1234567890" or
+        striExpr("123456789") = "abcdefghijklmnopqrstuvwxyz" or
+        striExpr("1234567890") = "123456789" or
+        striExpr("abcdefghijklmnopqrstuvwxyz") = "123456789" then
+      writeln(" ***** STRING = STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if not ("" = striExpr("")) or
+        not ("a" = striExpr("a")) or
+        not ("b" = striExpr("b")) or
+        not ("aa" = striExpr("aa")) or
+        not ("ab" = striExpr("ab")) or
+        not ("ba" = striExpr("ba")) or
+        not ("aaa" = striExpr("aaa")) or
+        not ("abc" = striExpr("abc")) or
+        not ("cbc" = striExpr("cbc")) or
+        not ("123456789" = striExpr("123456789")) or
+        not ("1234567890" = striExpr("1234567890")) or
+        not ("abcdefghijklmnopqrstuvwxyz" = striExpr("abcdefghijklmnopqrstuvwxyz")) or
+        "" = striExpr("a") or
+        "" = striExpr("123456789") or
+        "a" = striExpr("") or
+        "a" = striExpr("b") or
+        "a" = striExpr("aa") or
+        "a" = striExpr("ab") or
+        "a" = striExpr("123456789") or
+        "b" = striExpr("a") or
+        "aa" = striExpr("a") or
+        "aa" = striExpr("ab") or
+        "aa" = striExpr("ba") or
+        "aa" = striExpr("aaa") or
+        "ab" = striExpr("a") or
+        "ab" = striExpr("aa") or
+        "ab" = striExpr("ba") or
+        "ba" = striExpr("aa") or
+        "ba" = striExpr("ab") or
+        "aaa" = striExpr("aa") or
+        "abc" = striExpr("cbc") or
+        "cbc" = striExpr("abc") or
+        "123456789" = striExpr("") or
+        "123456789" = striExpr("a") or
+        "123456789" = striExpr("1234567890") or
+        "123456789" = striExpr("abcdefghijklmnopqrstuvwxyz") or
+        "1234567890" = striExpr("123456789") or
+        "abcdefghijklmnopqrstuvwxyz" = striExpr("123456789") then
+      writeln(" ***** STRING = STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if not (striExpr("") = striExpr("")) or
+        not (striExpr("a") = striExpr("a")) or
+        not (striExpr("b") = striExpr("b")) or
+        not (striExpr("aa") = striExpr("aa")) or
+        not (striExpr("ab") = striExpr("ab")) or
+        not (striExpr("ba") = striExpr("ba")) or
+        not (striExpr("aaa") = striExpr("aaa")) or
+        not (striExpr("abc") = striExpr("abc")) or
+        not (striExpr("cbc") = striExpr("cbc")) or
+        not (striExpr("123456789") = striExpr("123456789")) or
+        not (striExpr("1234567890") = striExpr("1234567890")) or
+        not (striExpr("abcdefghijklmnopqrstuvwxyz") = striExpr("abcdefghijklmnopqrstuvwxyz")) or
+        striExpr("") = striExpr("a") or
+        striExpr("") = striExpr("123456789") or
+        striExpr("a") = striExpr("") or
+        striExpr("a") = striExpr("b") or
+        striExpr("a") = striExpr("aa") or
+        striExpr("a") = striExpr("ab") or
+        striExpr("a") = striExpr("123456789") or
+        striExpr("b") = striExpr("a") or
+        striExpr("aa") = striExpr("a") or
+        striExpr("aa") = striExpr("ab") or
+        striExpr("aa") = striExpr("ba") or
+        striExpr("aa") = striExpr("aaa") or
+        striExpr("ab") = striExpr("a") or
+        striExpr("ab") = striExpr("aa") or
+        striExpr("ab") = striExpr("ba") or
+        striExpr("ba") = striExpr("aa") or
+        striExpr("ba") = striExpr("ab") or
+        striExpr("aaa") = striExpr("aa") or
+        striExpr("abc") = striExpr("cbc") or
+        striExpr("cbc") = striExpr("abc") or
+        striExpr("123456789") = striExpr("") or
+        striExpr("123456789") = striExpr("a") or
+        striExpr("123456789") = striExpr("1234567890") or
+        striExpr("123456789") = striExpr("abcdefghijklmnopqrstuvwxyz") or
+        striExpr("1234567890") = striExpr("123456789") or
+        striExpr("abcdefghijklmnopqrstuvwxyz") = striExpr("123456789") then
+      writeln(" ***** STRING = STRING does not work correct");
+      okay := FALSE;
+    end if;
     if "" <> "" or
         "a" <> "a" or
         "b" <> "b" or
@@ -413,6 +544,129 @@ const proc: check_string_comparisons is func
         not ("123456789" <> "abcdefghijklmnopqrstuvwxyz") or
         not ("1234567890" <> "123456789") or
         not ("abcdefghijklmnopqrstuvwxyz" <> "123456789") then
+      writeln(" ***** STRING <> STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if striExpr("") <> "" or
+        striExpr("a") <> "a" or
+        striExpr("b") <> "b" or
+        striExpr("aa") <> "aa" or
+        striExpr("ab") <> "ab" or
+        striExpr("ba") <> "ba" or
+        striExpr("aaa") <> "aaa" or
+        striExpr("abc") <> "abc" or
+        striExpr("cbc") <> "cbc" or
+        striExpr("123456789") <> "123456789" or
+        striExpr("1234567890") <> "1234567890" or
+        striExpr("abcdefghijklmnopqrstuvwxyz") <> "abcdefghijklmnopqrstuvwxyz" or
+        not (striExpr("") <> "a") or
+        not (striExpr("") <> "123456789") or
+        not (striExpr("a") <> "") or
+        not (striExpr("a") <> "b") or
+        not (striExpr("a") <> "aa") or
+        not (striExpr("a") <> "ab") or
+        not (striExpr("a") <> "123456789") or
+        not (striExpr("b") <> "a") or
+        not (striExpr("aa") <> "a") or
+        not (striExpr("aa") <> "ab") or
+        not (striExpr("aa") <> "ba") or
+        not (striExpr("aa") <> "aaa") or
+        not (striExpr("ab") <> "a") or
+        not (striExpr("ab") <> "aa") or
+        not (striExpr("ab") <> "ba") or
+        not (striExpr("ba") <> "aa") or
+        not (striExpr("ba") <> "ab") or
+        not (striExpr("aaa") <> "aa") or
+        not (striExpr("abc") <> "cbc") or
+        not (striExpr("cbc") <> "abc") or
+        not (striExpr("123456789") <> "") or
+        not (striExpr("123456789") <> "a") or
+        not (striExpr("123456789") <> "1234567890") or
+        not (striExpr("123456789") <> "abcdefghijklmnopqrstuvwxyz") or
+        not (striExpr("1234567890") <> "123456789") or
+        not (striExpr("abcdefghijklmnopqrstuvwxyz") <> "123456789") then
+      writeln(" ***** STRING <> STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if "" <> striExpr("") or
+        "a" <> striExpr("a") or
+        "b" <> striExpr("b") or
+        "aa" <> striExpr("aa") or
+        "ab" <> striExpr("ab") or
+        "ba" <> striExpr("ba") or
+        "aaa" <> striExpr("aaa") or
+        "abc" <> striExpr("abc") or
+        "cbc" <> striExpr("cbc") or
+        "123456789" <> striExpr("123456789") or
+        "1234567890" <> striExpr("1234567890") or
+        "abcdefghijklmnopqrstuvwxyz" <> striExpr("abcdefghijklmnopqrstuvwxyz") or
+        not ("" <> striExpr("a")) or
+        not ("" <> striExpr("123456789")) or
+        not ("a" <> striExpr("")) or
+        not ("a" <> striExpr("b")) or
+        not ("a" <> striExpr("aa")) or
+        not ("a" <> striExpr("ab")) or
+        not ("a" <> striExpr("123456789")) or
+        not ("b" <> striExpr("a")) or
+        not ("aa" <> striExpr("a")) or
+        not ("aa" <> striExpr("ab")) or
+        not ("aa" <> striExpr("ba")) or
+        not ("aa" <> striExpr("aaa")) or
+        not ("ab" <> striExpr("a")) or
+        not ("ab" <> striExpr("aa")) or
+        not ("ab" <> striExpr("ba")) or
+        not ("ba" <> striExpr("aa")) or
+        not ("ba" <> striExpr("ab")) or
+        not ("aaa" <> striExpr("aa")) or
+        not ("abc" <> striExpr("cbc")) or
+        not ("cbc" <> striExpr("abc")) or
+        not ("123456789" <> striExpr("")) or
+        not ("123456789" <> striExpr("a")) or
+        not ("123456789" <> striExpr("1234567890")) or
+        not ("123456789" <> striExpr("abcdefghijklmnopqrstuvwxyz")) or
+        not ("1234567890" <> striExpr("123456789")) or
+        not ("abcdefghijklmnopqrstuvwxyz" <> striExpr("123456789")) then
+      writeln(" ***** STRING <> STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if striExpr("") <> striExpr("") or
+        striExpr("a") <> striExpr("a") or
+        striExpr("b") <> striExpr("b") or
+        striExpr("aa") <> striExpr("aa") or
+        striExpr("ab") <> striExpr("ab") or
+        striExpr("ba") <> striExpr("ba") or
+        striExpr("aaa") <> striExpr("aaa") or
+        striExpr("abc") <> striExpr("abc") or
+        striExpr("cbc") <> striExpr("cbc") or
+        striExpr("123456789") <> striExpr("123456789") or
+        striExpr("1234567890") <> striExpr("1234567890") or
+        striExpr("abcdefghijklmnopqrstuvwxyz") <> striExpr("abcdefghijklmnopqrstuvwxyz") or
+        not (striExpr("") <> striExpr("a")) or
+        not (striExpr("") <> striExpr("123456789")) or
+        not (striExpr("a") <> striExpr("")) or
+        not (striExpr("a") <> striExpr("b")) or
+        not (striExpr("a") <> striExpr("aa")) or
+        not (striExpr("a") <> striExpr("ab")) or
+        not (striExpr("a") <> striExpr("123456789")) or
+        not (striExpr("b") <> striExpr("a")) or
+        not (striExpr("aa") <> striExpr("a")) or
+        not (striExpr("aa") <> striExpr("ab")) or
+        not (striExpr("aa") <> striExpr("ba")) or
+        not (striExpr("aa") <> striExpr("aaa")) or
+        not (striExpr("ab") <> striExpr("a")) or
+        not (striExpr("ab") <> striExpr("aa")) or
+        not (striExpr("ab") <> striExpr("ba")) or
+        not (striExpr("ba") <> striExpr("aa")) or
+        not (striExpr("ba") <> striExpr("ab")) or
+        not (striExpr("aaa") <> striExpr("aa")) or
+        not (striExpr("abc") <> striExpr("cbc")) or
+        not (striExpr("cbc") <> striExpr("abc")) or
+        not (striExpr("123456789") <> striExpr("")) or
+        not (striExpr("123456789") <> striExpr("a")) or
+        not (striExpr("123456789") <> striExpr("1234567890")) or
+        not (striExpr("123456789") <> striExpr("abcdefghijklmnopqrstuvwxyz")) or
+        not (striExpr("1234567890") <> striExpr("123456789")) or
+        not (striExpr("abcdefghijklmnopqrstuvwxyz") <> striExpr("123456789")) then
       writeln(" ***** STRING <> STRING does not work correct");
       okay := FALSE;
     end if;
@@ -851,20 +1105,58 @@ const proc: check_string_index is func
     var boolean: okay is TRUE;
   begin
     okay := TRUE;
-    if  "1234567890" [ 1 ] <> '1' or
-        "1234567890" [ 2 ] <> '2' or
-        "1234567890" [ 3 ] <> '3' or
-        "1234567890" [ 4 ] <> '4' or
-        "1234567890" [ 5 ] <> '5' or
-        "1234567890" [ 6 ] <> '6' or
-        "1234567890" [ 7 ] <> '7' or
-        "1234567890" [ 8 ] <> '8' or
-        "1234567890" [ 9 ] <> '9' or
+    if  "1234567890" [  1 ] <> '1' or
+        "1234567890" [  2 ] <> '2' or
+        "1234567890" [  3 ] <> '3' or
+        "1234567890" [  4 ] <> '4' or
+        "1234567890" [  5 ] <> '5' or
+        "1234567890" [  6 ] <> '6' or
+        "1234567890" [  7 ] <> '7' or
+        "1234567890" [  8 ] <> '8' or
+        "1234567890" [  9 ] <> '9' or
         "1234567890" [ 10 ] <> '0' then
       writeln(" ***** STRING [ INDEX ] does not work correct");
       okay := FALSE;
     end if;
-    okay := TRUE;
+    if  striExpr("1234567890") [  1 ] <> '1' or
+        striExpr("1234567890") [  2 ] <> '2' or
+        striExpr("1234567890") [  3 ] <> '3' or
+        striExpr("1234567890") [  4 ] <> '4' or
+        striExpr("1234567890") [  5 ] <> '5' or
+        striExpr("1234567890") [  6 ] <> '6' or
+        striExpr("1234567890") [  7 ] <> '7' or
+        striExpr("1234567890") [  8 ] <> '8' or
+        striExpr("1234567890") [  9 ] <> '9' or
+        striExpr("1234567890") [ 10 ] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct");
+      okay := FALSE;
+    end if;
+    if  "1234567890" [intExpr(  1 )] <> '1' or
+        "1234567890" [intExpr(  2 )] <> '2' or
+        "1234567890" [intExpr(  3 )] <> '3' or
+        "1234567890" [intExpr(  4 )] <> '4' or
+        "1234567890" [intExpr(  5 )] <> '5' or
+        "1234567890" [intExpr(  6 )] <> '6' or
+        "1234567890" [intExpr(  7 )] <> '7' or
+        "1234567890" [intExpr(  8 )] <> '8' or
+        "1234567890" [intExpr(  9 )] <> '9' or
+        "1234567890" [intExpr( 10 )] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct");
+      okay := FALSE;
+    end if;
+    if  striExpr("1234567890") [intExpr(  1 )] <> '1' or
+        striExpr("1234567890") [intExpr(  2 )] <> '2' or
+        striExpr("1234567890") [intExpr(  3 )] <> '3' or
+        striExpr("1234567890") [intExpr(  4 )] <> '4' or
+        striExpr("1234567890") [intExpr(  5 )] <> '5' or
+        striExpr("1234567890") [intExpr(  6 )] <> '6' or
+        striExpr("1234567890") [intExpr(  7 )] <> '7' or
+        striExpr("1234567890") [intExpr(  8 )] <> '8' or
+        striExpr("1234567890") [intExpr(  9 )] <> '9' or
+        striExpr("1234567890") [intExpr( 10 )] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct");
+      okay := FALSE;
+    end if;
     if  "1234567890" [ -5 .. -10 ] <> "" or
         "1234567890" [ -5 .. -5 ] <> "" or
         "1234567890" [ -5 .. 0 ] <> "" or

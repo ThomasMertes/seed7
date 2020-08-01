@@ -81,24 +81,46 @@ const func integer: daysInMonth (in integer: year, in integer: month) is func
   end func;
 
 
-const func string: str2 (in integer: number) is func
-  result
-    var string: stri is "";
-  begin
-    if number < 10 then
-      stri := "0" & str(number);
-    else
-      stri := str(number);
-    end if;
-  end func;
-
-
 const func string: str_date (in time: aTime) is
-  return str(aTime.year) & "-" & str2(aTime.month) & "-" & str2(aTime.day);
+  return aTime.year  lpad0 4 <& "-" <&
+         aTime.month lpad0 2 <& "-" <&
+         aTime.day   lpad0 2;
 
 
 const func string: str_time (in time: aTime) is
-  return str2(aTime.hour) & ":" & str2(aTime.minute) & ":" & str2(aTime.second);
+  return aTime.hour   lpad0 2 <& ":" <&
+         aTime.minute lpad0 2 <& ":" <&
+         aTime.second lpad0 2;
+
+
+const func string: str_yyyy_mm_dd (in time: aTime, in string: delimiter) is
+  return aTime.year  lpad0 4 <& delimiter <&
+         aTime.month lpad0 2 <& delimiter <&
+         aTime.day   lpad0 2;
+
+
+const func string: str_mm_dd_yy (in time: aTime, in string: delimiter) is
+  return aTime.month        lpad0 2 <& delimiter <&
+         aTime.day          lpad0 2 <& delimiter <&
+         aTime.year rem 100 lpad0 2;
+
+
+const func string: str_mm_dd_yyyy (in time: aTime, in string: delimiter) is
+  return aTime.month lpad0 2 <& delimiter <&
+         aTime.day   lpad0 2 <& delimiter <&
+         aTime.year  lpad0 4;
+
+
+const func string: str_d_m_yy (in time: aTime, in string: delimiter) is
+  return aTime.day   <& delimiter <&
+         aTime.month <& delimiter <&
+         aTime.year  rem 100 lpad0 2;
+
+
+const func string: str_d_m_yyyy (in time: aTime, in string: delimiter) is
+  return aTime.day   <& delimiter <&
+         aTime.month <& delimiter <&
+         aTime.year  lpad0 4;
 
 
 (**
@@ -688,9 +710,12 @@ const func string: str (in duration: aDuration) is func
   result
     var string: stri is "";
   begin
-    stri := str(year(aDuration)) & "-" & str2(month(aDuration)) & "-" &
-        str2(aDuration.day) & " " & str2(aDuration.hour) & ":" &
-        str2(aDuration.minute) & ":" & str2(aDuration.second);
+    stri := year(aDuration) <& "-" <&
+        month(aDuration) lpad0 2 <& "-" <&
+        aDuration.day    lpad0 2 <& " " <&
+        aDuration.hour   lpad0 2 <& ":" <&
+        aDuration.minute lpad0 2 <& ":" <&
+        aDuration.second lpad0 2;
   end func;
 
 
@@ -1126,22 +1151,22 @@ const func duration: (in time: tim1) - (in time: tim2) is func
 write("tim1>");
 write(tim1);
 write(" ");
-writeln(replace(tim1.mycro_second lpad 6, " ", "0"));
+writeln(tim1.mycro_second lpad0 6);
 write("tim2>");
 write(tim2);
 write(" ");
-writeln(replace(tim2.mycro_second lpad 6, " ", "0"));
+writeln(tim2.mycro_second lpad0 6);
 write("D>");
 write(dur_val);
 write(" ");
-writeln(replace(dur_val.mycro_second lpad 6, " ", "0"));
+writeln(dur_val.mycro_second lpad0 6);
 *)
     NORMALIZE(dur_val);
 (*
 write("E>");
 write(dur_val);
 write(" ");
-writeln(replace(dur_val.mycro_second lpad 6, " ", "0"));
+writeln(dur_val.mycro_second lpad0 6);
 *)
   end func;
 

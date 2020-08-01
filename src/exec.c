@@ -89,7 +89,11 @@ register objecttype object;
       case REFPARAMOBJECT:
       case RESULTOBJECT:
       case LOCALVOBJECT:
-        result = object->value.objvalue;
+        if (object->value.objvalue != NULL) {
+          result = object->value.objvalue;
+        } else {
+          result = object;
+        } /* if */
         break;
       case MATCHOBJECT:
         /* This is NONSENSE:
@@ -708,6 +712,9 @@ objecttype object;
           prot_cstri(" ");
         } /* if */
         prot_cstri(get_primact(act_object->value.actvalue)->name);
+        /* prot_cstri("(");
+           prot_list(act_param_list);
+           prot_cstri(") "); */
         prot_cstri("(");
         prot_list(evaluated_act_params);
         prot_cstri(") ");
@@ -890,6 +897,7 @@ objecttype object;
         exec_all_parameters(actual_parameters);
         result = subroutine_object;
         break;
+      case VALUEPARAMOBJECT:
       case REFPARAMOBJECT:
 /*        printf("refparamobject ");
         trace1(subroutine_object);
@@ -957,6 +965,11 @@ objecttype object;
       case VARENUMOBJECT:
         result = object->value.objvalue;
         break;
+      case INTOBJECT:
+      case BIGINTOBJECT:
+      case CHAROBJECT:
+      case STRIOBJECT:
+      case BSTRIOBJECT:
       case ENUMLITERALOBJECT:
         result = object;
         break;

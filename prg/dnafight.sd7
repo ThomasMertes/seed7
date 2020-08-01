@@ -323,7 +323,7 @@ const proc: initScreen is func
     color(scr, yellow, textBackground);
     write(scr, " Y Yellow  ");
     color(scr, amber, textBackground);
-    write(scr, " Y Amber  ");
+    write(scr, " A Amber  ");
     setPos(scr, 29, 2);
     color(scr, orange, textBackground);
     write(scr, " O Orange  ");

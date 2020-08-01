@@ -261,7 +261,7 @@ inttype port;
         host_ent = gethostbyname(name);
         if (host_ent == NULL) {
           result = NULL;
-          raise_error(IO_ERROR);
+          raise_error(RANGE_ERROR);
         } else {
           /*
           printf("Host name:      %s\n", host_ent->h_name);
@@ -274,7 +274,7 @@ inttype port;
           if (host_ent->h_addrtype != AF_INET ||
               host_ent->h_length != sizeof(inet_address->sin_addr.s_addr)) {
             result = NULL;
-            raise_error(IO_ERROR);
+            raise_error(FILE_ERROR);
           } else {
             if (!ALLOC_BSTRI(result, sizeof(struct sockaddr_in))) {
               raise_error(MEMORY_ERROR);
@@ -683,14 +683,14 @@ inttype protocol;
 
       err = WSAStartup(wVersionRequested, &wsaData);
       if (err != 0) {
-        raise_error(IO_ERROR);
+        raise_error(FILE_ERROR);
         return(-1);
       } /* if */
 
       if (LOBYTE(wsaData.wVersion) != 2 ||
           HIBYTE(wsaData.wVersion) != 2) {
         WSACleanup();
-        raise_error(IO_ERROR);
+        raise_error(FILE_ERROR);
         return(-1);
       } /* if */
       initialized = TRUE;
@@ -792,7 +792,7 @@ stritype stri;
     } else {
       if (send(sock, buf->mem, buf->size, 0) != buf->size) {
         FREE_BSTRI(buf, buf->size);
-        raise_error(IO_ERROR);
+        raise_error(FILE_ERROR);
       } else {
         FREE_BSTRI(buf, buf->size);
       } /* if */

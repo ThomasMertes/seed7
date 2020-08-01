@@ -38,15 +38,14 @@ const integer: UPPER_BORDER is 12 + 64 + 12;
 const integer: LEFT_BORDER is 28;
 const integer: PIXMAP_WIDTH is 48;
 const integer: PIXMAP_HEIGHT is 64;
-const integer: CARD_BORDER is 8;
-const integer: CARD_WIDTH is PIXMAP_WIDTH + 2 * CARD_BORDER;
-const integer: CARD_HEIGHT is PIXMAP_HEIGHT + 2 * CARD_BORDER;
-const integer: FIELD_X_STEP is CARD_WIDTH div 2;
-const integer: FIELD_Y_STEP is CARD_HEIGHT div 2;
+const integer: TILE_BORDER is 8;
+const integer: TILE_WIDTH is PIXMAP_WIDTH + 2 * TILE_BORDER;
+const integer: TILE_HEIGHT is PIXMAP_HEIGHT + 2 * TILE_BORDER;
+const integer: FIELD_X_STEP is TILE_WIDTH div 2;
+const integer: FIELD_Y_STEP is TILE_HEIGHT div 2;
 const integer: HALF_FIELD is FIELD_Y_STEP div 2;
 const integer: FRAME_THICKNESS is 5;
 const integer: MARK_THICKNESS is 7;
-const integer: FIELD_LEVELS is 5;
 const integer: FIELD_LINES is 15;
 const integer: FIELD_COLUMNS is 29;
 const integer: COMPUTER_HIT_XPOS is 8;
@@ -54,12 +53,17 @@ const integer: PLAYER_HIT_XPOS is UPPER_BORDER + FIELD_LINES * FIELD_X_STEP + FI
 const integer: SHIFT_X is 10;
 const integer: SHIFT_Y is 10;
 const color: BACKGROUND is light_blue;
-const color: leftSideColor  is gray(49152); # was: 57344
-const color: lowerSideColor is gray(40960); # was: 49152
-const color: leftEdgeColor  is gray(32768); # was: 40960
-const color: lowerEdgeColor is gray(24576); # was: 32768
+const color: leftSideColor is gray(49152); # was: 57344
+const color: nearSideColor is gray(40960); # was: 49152
+const color: leftEdgeColor is gray(32768); # was: 40960
+const color: nearEdgeColor is gray(24576); # was: 32768
 
 
+(**
+ *  Return an array of colors between 'first' and 'second'.
+ *  The returned array has the specified 'length'. The colors 'first'
+ *  and 'second' are not part of the array.
+ *)
 const func array color: colorScale (in color: first, in color: second,
     in integer: length) is func
   result
@@ -82,23 +86,23 @@ const func array color: colorScale (in color: first, in color: second,
   end func;
 
 
-const array color: leftFrameColor  is colorScale(leftSideColor,  white, FRAME_THICKNESS);
-const array color: rightFrameColor is colorScale(leftEdgeColor,  white, FRAME_THICKNESS);
-const array color: upperFrameColor is colorScale(lowerEdgeColor, white, FRAME_THICKNESS);
-const array color: lowerFrameColor is colorScale(lowerSideColor, white, FRAME_THICKNESS);
+const array color: leftFrameColor  is colorScale(leftSideColor, white, FRAME_THICKNESS);
+const array color: rightFrameColor is colorScale(leftEdgeColor, white, FRAME_THICKNESS);
+const array color: nearFrameColor  is colorScale(nearSideColor, white, FRAME_THICKNESS);
+const array color: farFrameColor   is colorScale(nearEdgeColor, white, FRAME_THICKNESS);
 
-const array color: lowerLeftEdgeColor is colorScale(lowerSideColor, leftSideColor, 3);
+const array color: nearLeftEdgeColor is colorScale(nearSideColor, leftSideColor, 3);
 
-const color: upperLeftEdgeColor is colorScale(lowerEdgeColor, leftSideColor, 1)[1];
-const color: lowerRightEdgeColor is colorScale(leftEdgeColor, lowerSideColor, 1)[1];
+const color: nearRightEdgeColor is colorScale(leftEdgeColor, nearSideColor, 1)[1];
+const color: farLeftEdgeColor   is colorScale(nearEdgeColor, leftSideColor, 1)[1];
 
 var array PRIMITIVE_WINDOW: digit_pixmap is 0 times PRIMITIVE_WINDOW.value;
 
-const type: cardType is new struct
-    var array string: picture is 0 times "";
+const type: tileType is new struct
+    var array string: pattern is 0 times "";
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
     var integer: value is 0;
-    var integer: number is 0;
+    var integer: quantity is 0;
   end struct;
 
 const type: fieldType is new struct
@@ -106,7 +110,7 @@ const type: fieldType is new struct
     var boolean: present is FALSE;
     var boolean: selected is FALSE;
     var PRIMITIVE_WINDOW: backup is PRIMITIVE_WINDOW.value;
-    var integer: cardNumber is 0;
+    var integer: tileNumber is 0;
   end struct;
 
 const type: positionType is new struct
@@ -160,58 +164,10 @@ var layoutType: welcomeLayout is [](
     "    X            X  X        ",
     "        X   X           X   X",
     "X   X           X  X         ",
-    "  X      X X             X X "),
-
- []("                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                           X ",
-    "                             ",
-    "                             "),
-
- []("                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             "),
-
- []("                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             ",
-    "                             "));
+    "  X      X X             X X "));
 
 
-var layoutType: classicLayout is [](
+var layoutType: turtleLayout is [](
 
  []("  X X X X X X X X X X X X    ",
     "                             ",
@@ -503,6 +459,13 @@ const proc: writeButton (inout graph_file: messageFile, in integer: xPos, in int
 const proc: writeButton (inout text: messageFile, in integer: xPos, in integer: yPos, in string: buttonText) is DYNAMIC;
 
 
+(**
+ *  Returns the answer (yes or no) of the user to 'messagText'.
+ *  A popup window with the 'messagText' and two buttons (yes and no)
+ *  is displayed. The user can use the keyboard or the mouse to
+ *  respond.
+ *  @return TRUE if 'yes' was pressed and FALSE if 'no' was pressed.
+ *)
 const func boolean: isOkay (in array string: messagText) is func
   result
     var boolean: result is FALSE;
@@ -619,57 +582,57 @@ const func char: getCommand is func
   end func;
 
 
-const func cardType: genCard (in array string: pattern) is func
+const func tileType: genTile (in array string: pattern) is func
   result
-    var cardType: result is cardType.value;
+    var tileType: result is tileType.value;
   begin
-    result.picture := pattern;
+    result.pattern := pattern;
   end func;
 
 
-var array cardType: cards is [](
-    genCard(dot1_pic),
-    genCard(dot2_pic),
-    genCard(dot3_pic),
-    genCard(dot4_pic),
-    genCard(dot5_pic),
-    genCard(dot6_pic),
-    genCard(dot7_pic),
-    genCard(dot8_pic),
-    genCard(dot9_pic),
-    genCard(bamboo1_pic),
-    genCard(bamboo2_pic),
-    genCard(bamboo3_pic),
-    genCard(bamboo4_pic),
-    genCard(bamboo5_pic),
-    genCard(bamboo6_pic),
-    genCard(bamboo7_pic),
-    genCard(bamboo8_pic),
-    genCard(bamboo9_pic),
-    genCard(character1_pic),
-    genCard(character2_pic),
-    genCard(character3_pic),
-    genCard(character4_pic),
-    genCard(character5_pic),
-    genCard(character6_pic),
-    genCard(character7_pic),
-    genCard(character8_pic),
-    genCard(character9_pic),
-    genCard(north_pic),
-    genCard(south_pic),
-    genCard(east_pic),
-    genCard(west_pic),
-    genCard(middle_pic),
-    genCard(green_pic),
-    genCard(white_pic),
-    genCard(plum_pic),
-    genCard(orchid_pic),
-    genCard(chrysanthemum_pic),
-    genCard(bamboo_pic),
-    genCard(spring_pic),
-    genCard(summer_pic),
-    genCard(autumn_pic),
-    genCard(winter_pic)
+var array tileType: tiles is [](
+    genTile(dot1_pic),
+    genTile(dot2_pic),
+    genTile(dot3_pic),
+    genTile(dot4_pic),
+    genTile(dot5_pic),
+    genTile(dot6_pic),
+    genTile(dot7_pic),
+    genTile(dot8_pic),
+    genTile(dot9_pic),
+    genTile(bamboo1_pic),
+    genTile(bamboo2_pic),
+    genTile(bamboo3_pic),
+    genTile(bamboo4_pic),
+    genTile(bamboo5_pic),
+    genTile(bamboo6_pic),
+    genTile(bamboo7_pic),
+    genTile(bamboo8_pic),
+    genTile(bamboo9_pic),
+    genTile(character1_pic),
+    genTile(character2_pic),
+    genTile(character3_pic),
+    genTile(character4_pic),
+    genTile(character5_pic),
+    genTile(character6_pic),
+    genTile(character7_pic),
+    genTile(character8_pic),
+    genTile(character9_pic),
+    genTile(north_pic),
+    genTile(south_pic),
+    genTile(east_pic),
+    genTile(west_pic),
+    genTile(middle_pic),
+    genTile(green_pic),
+    genTile(white_pic),
+    genTile(plum_pic),
+    genTile(orchid_pic),
+    genTile(chrysanthemum_pic),
+    genTile(bamboo_pic),
+    genTile(spring_pic),
+    genTile(summer_pic),
+    genTile(autumn_pic),
+    genTile(winter_pic)
   );
 
 
@@ -721,6 +684,13 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
   end func;
 
 
+(**
+ *  Draws a scaled pattern to a position at a window.
+ *  The upper left corner of the pattern is drawn to (xPos, yPos).
+ *  The pattern is drawn in horizontal lines from the middle upward
+ *  and downward. This is done for better appearance at slow
+ *  computers.
+ *)
 const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos,
     in array string: pattern, in integer: scale) is func
   local
@@ -757,108 +727,135 @@ const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPo
   end func;
 
 
+(**
+ *  Draws the symbols of a tile.
+ *  The symbols of a tile are stored in a pixmap. When the pixmap
+ *  does not already exist it is generated from the pattern.
+ *)
 const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos,
-    inout cardType: aCard) is func
+    inout tileType: aTile) is func
   begin
-    if aCard.pixmap = PRIMITIVE_WINDOW.value then
+    if aTile.pixmap = PRIMITIVE_WINDOW.value then
       rect(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT, BACKGROUND);
-      draw(win, xPos, yPos, aCard.picture, PIXMAP_HEIGHT div length(aCard.picture));
-      aCard.pixmap := getPixmap(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT);
+      draw(win, xPos, yPos, aTile.pattern, PIXMAP_HEIGHT div length(aTile.pattern));
+      aTile.pixmap := getPixmap(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT);
     else
-      put(win, xPos, yPos, aCard.pixmap, PSET);
+      put(win, xPos, yPos, aTile.pixmap, PSET);
     end if;
   end func;
 
 
+(**
+ *  Draws the top borders of a tile.
+ *)
 const proc: putFrame (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
   local
     var integer: shift is 0;
   begin
     for shift range 1 to FRAME_THICKNESS do
-      line(win, xPos - CARD_BORDER + shift,
-          yPos - CARD_BORDER + shift - 1,
-          CARD_WIDTH -  2 * shift - 1, 0, upperFrameColor[shift]);
+      line(win, xPos - TILE_BORDER + shift,
+          yPos - TILE_BORDER + shift - 1,
+          TILE_WIDTH -  2 * shift - 1, 0, farFrameColor[shift]);
     end for;
     for shift range 1 to FRAME_THICKNESS do
-      line(win, xPos - CARD_BORDER + shift - 1,
-          yPos - CARD_BORDER + shift,
-          0, CARD_HEIGHT -  2 * shift - 1, leftFrameColor[shift]);
+      line(win, xPos - TILE_BORDER + shift - 1,
+          yPos - TILE_BORDER + shift,
+          0, TILE_HEIGHT -  2 * shift - 1, leftFrameColor[shift]);
     end for;
     for shift range 1 to FRAME_THICKNESS do
-      line(win, xPos - CARD_BORDER + CARD_WIDTH - shift,
-          yPos - CARD_BORDER + shift,
-          0, CARD_HEIGHT -  2 * shift - 1, rightFrameColor[shift]);
+      line(win, xPos - TILE_BORDER + TILE_WIDTH - shift,
+          yPos - TILE_BORDER + shift,
+          0, TILE_HEIGHT -  2 * shift - 1, rightFrameColor[shift]);
     end for;
     for shift range 1 to FRAME_THICKNESS do
-      line(win, xPos - CARD_BORDER + shift,
-          yPos - CARD_BORDER + CARD_HEIGHT - shift,
-          CARD_WIDTH -  2 * shift - 1, 0, lowerFrameColor[shift]);
+      line(win, xPos - TILE_BORDER + shift,
+          yPos - TILE_BORDER + TILE_HEIGHT - shift,
+          TILE_WIDTH -  2 * shift - 1, 0, nearFrameColor[shift]);
     end for;
   end func;
 
 
+(**
+ *  Draws the left (western) vertical side of a tile.
+ *)
 const proc: drawLeftSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
   local
     var integer: shift is 0;
   begin
     for shift range 1 to pred(SHIFT_X) do
-      lineTo(win, xPos - CARD_BORDER - shift,
-          yPos - CARD_BORDER + shift + 2,
-          xPos - CARD_BORDER - shift,
-          yPos + PIXMAP_HEIGHT + CARD_BORDER + shift - 3, leftSideColor);
+      lineTo(win, xPos - TILE_BORDER - shift,
+          yPos - TILE_BORDER + shift + 2,
+          xPos - TILE_BORDER - shift,
+          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 3, leftSideColor);
     end for;
-    lineTo(win, xPos - CARD_BORDER - SHIFT_X,
-        yPos - CARD_BORDER + SHIFT_X + 1,
-        xPos - CARD_BORDER - SHIFT_X,
-        yPos + PIXMAP_HEIGHT + CARD_BORDER + SHIFT_X - 2, leftEdgeColor);
-    line(win, xPos - CARD_BORDER, yPos - CARD_BORDER + 1,
-        -pred(SHIFT_X), pred(SHIFT_Y), upperLeftEdgeColor);
+    lineTo(win, xPos - TILE_BORDER - SHIFT_X,
+        yPos - TILE_BORDER + SHIFT_X + 1,
+        xPos - TILE_BORDER - SHIFT_X,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 2, leftEdgeColor);
+    line(win, xPos - TILE_BORDER, yPos - TILE_BORDER + 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), farLeftEdgeColor);
   end func;
 
 
-const proc: drawLowerSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
+(**
+ *  Draws the near (southern) vertical side of a tile.
+ *)
+const proc: drawNearSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
   local
     var integer: shift is 0;
   begin
     for shift range 1 to pred(SHIFT_X) do
-      lineTo(win, xPos - CARD_BORDER - shift + 2,
-          yPos + PIXMAP_HEIGHT + CARD_BORDER + shift - 1,
-          xPos + PIXMAP_WIDTH + CARD_BORDER - shift - 3,
-          yPos + PIXMAP_HEIGHT + CARD_BORDER + shift - 1, lowerSideColor);
+      lineTo(win, xPos - TILE_BORDER - shift + 2,
+          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 1,
+          xPos + PIXMAP_WIDTH + TILE_BORDER - shift - 3,
+          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 1, nearSideColor);
     end for;
-    lineTo(win, xPos - CARD_BORDER - SHIFT_X + 1,
-        yPos + PIXMAP_HEIGHT + CARD_BORDER + SHIFT_X - 1,
-        xPos + PIXMAP_WIDTH + CARD_BORDER - SHIFT_X - 2,
-        yPos + PIXMAP_HEIGHT + CARD_BORDER + SHIFT_X - 1, lowerEdgeColor);
-    line(win, xPos + PIXMAP_WIDTH + CARD_BORDER - 2,
-        yPos + PIXMAP_HEIGHT + CARD_BORDER - 1,
-        -pred(SHIFT_X), pred(SHIFT_Y), lowerRightEdgeColor);
+    lineTo(win, xPos - TILE_BORDER - SHIFT_X + 1,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1,
+        xPos + PIXMAP_WIDTH + TILE_BORDER - SHIFT_X - 2,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1, nearEdgeColor);
+    line(win, xPos + PIXMAP_WIDTH + TILE_BORDER - 2,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearRightEdgeColor);
   end func;
 
 
-const proc: drawCard (inout PRIMITIVE_WINDOW: win, in integer: level,
+(**
+ *  Draws a tile at the position (level, line, column).
+ *  The 'field' is not checked for the existance of a tile at
+ *  (level, line, column). The complete tile is drawn inclusive
+ *  borders. Although the tile is drawn with isometric graphic the
+ *  visibility is not checked.
+ *)
+const proc: drawTile (inout PRIMITIVE_WINDOW: win, in integer: level,
     in integer: line, in integer: column) is func
   local
     var integer: xPos is 0;
     var integer: yPos is 0;
   begin
-    xPos := LEFT_BORDER + CARD_BORDER + FIELD_X_STEP * pred(column) + SHIFT_X * level;
-    yPos := UPPER_BORDER + CARD_BORDER + FIELD_Y_STEP * pred(line) - SHIFT_Y * level;
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(column) + SHIFT_X * level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(line) - SHIFT_Y * level;
     drawLeftSide(win, xPos, yPos);
-    drawLowerSide(win, xPos, yPos);
-    line(win, xPos - CARD_BORDER + 1, yPos + PIXMAP_HEIGHT + CARD_BORDER - 1,
-        -pred(SHIFT_X), pred(SHIFT_Y), lowerLeftEdgeColor[1]);
-    line(win, xPos - CARD_BORDER, yPos + PIXMAP_HEIGHT + CARD_BORDER - 1,
-        -pred(SHIFT_X), pred(SHIFT_Y), lowerLeftEdgeColor[2]);
-    line(win, xPos - CARD_BORDER, yPos + PIXMAP_HEIGHT + CARD_BORDER - 2,
-        -pred(SHIFT_X), pred(SHIFT_Y), lowerLeftEdgeColor[3]);
-    rect(win, xPos - CARD_BORDER + 1, yPos - CARD_BORDER + 1,
-        CARD_WIDTH - 2, CARD_HEIGHT - 2, white);
+    drawNearSide(win, xPos, yPos);
+    line(win, xPos - TILE_BORDER + 1, yPos + PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[1]);
+    line(win, xPos - TILE_BORDER, yPos + PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[2]);
+    line(win, xPos - TILE_BORDER, yPos + PIXMAP_HEIGHT + TILE_BORDER - 2,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[3]);
+    rect(win, xPos - TILE_BORDER + 1, yPos - TILE_BORDER + 1,
+        TILE_WIDTH - 2, TILE_HEIGHT - 2, white);
     putFrame(win, xPos, yPos);
-    draw(win, xPos, yPos, cards[field[level][line][column].cardNumber]);
+    draw(win, xPos, yPos, tiles[field[level][line][column].tileNumber]);
   end func;
 
 
+(**
+ *  Draw a complete board of tiles and flush after each tile.
+ *  This function us just used on the welcome screen.
+ *  The order in which the tiles are drawn makes sure that
+ *  the visibility is okay.
+ *)
 const proc: drawBoardWithFlush is func
   local
     var integer: level is 0;
@@ -866,13 +863,13 @@ const proc: drawBoardWithFlush is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    for level range 1 to FIELD_LEVELS do
+    for level range 1 to length(field) do
       for diagonalStartColumn range FIELD_COLUMNS downto 2 - FIELD_LINES do
         for line range 1 to FIELD_LINES do
           column := diagonalStartColumn + line - 1;
           if column >= 1 and column <= FIELD_COLUMNS and
               field[level][line][column].present then
-            drawCard(curr_win, level, line, column);
+            drawTile(curr_win, level, line, column);
             DRAW_FLUSH;
           end if;
         end for;
@@ -881,6 +878,11 @@ const proc: drawBoardWithFlush is func
   end func;
 
 
+(**
+ *  Draw a complete board of tiles.
+ *  The order in which the tiles are drawn makes sure that
+ *  the visibility is okay.
+ *)
 const proc: drawBoard is func
   local
     var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
@@ -891,13 +893,13 @@ const proc: drawBoard is func
   begin
     win := newPixmap(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(win, BACKGROUND);
-    for level range 1 to FIELD_LEVELS do
+    for level range 1 to length(field) do
       for diagonalStartColumn range FIELD_COLUMNS downto 2 - FIELD_LINES do
         for line range 1 to FIELD_LINES do
           column := diagonalStartColumn + line - 1;
           if column >= 1 and column <= FIELD_COLUMNS and
               field[level][line][column].present then
-            drawCard(win, level, line, column);
+            drawTile(win, level, line, column);
           end if;
         end for;
       end for;
@@ -914,7 +916,7 @@ const func integer: getMaximumLevelLeftward (in integer: line, in integer: colum
     var integer: lin is 0;
   begin
     if column > 2 then
-      for level range 1 to FIELD_LEVELS do
+      for level range 1 to length(field) do
         for lin range pred(line) to succ(line) do
           if lin >= 1 and lin <= FIELD_LINES then
             if field[level][lin][column - 2].present then
@@ -935,7 +937,7 @@ const func integer: getMaximumLevelDownward (in integer: line, in integer: colum
     var integer: col is 0;
   begin
     if line < pred(FIELD_LINES) then
-      for level range 1 to FIELD_LEVELS do
+      for level range 1 to length(field) do
         for col range pred(column) to succ(column) do
           if col >= 1 and col <= FIELD_COLUMNS then
             if field[level][line + 2][col].present then
@@ -959,10 +961,10 @@ const proc: markFrame (in positionType: pos, in color: frameColor) is func
     var integer: shorten_x2 is 0;
     var integer: shorten_y2 is 0;
   begin
-    xPos := LEFT_BORDER + CARD_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
-    yPos := UPPER_BORDER + CARD_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
     field[pos.level][pos.line][pos.column].backup := getPixmap(
-        xPos - CARD_BORDER, yPos - CARD_BORDER, CARD_WIDTH, CARD_HEIGHT);
+        xPos - TILE_BORDER, yPos - TILE_BORDER, TILE_WIDTH, TILE_HEIGHT);
     maximumLevelLeftward := getMaximumLevelLeftward(pos.line, pos.column);
     maximumLevelDownward := getMaximumLevelDownward(pos.line, pos.column);
     if maximumLevelLeftward > pos.level then
@@ -979,19 +981,19 @@ const proc: markFrame (in positionType: pos, in color: frameColor) is func
     if maximumLevelDownward > pos.level then
       shorten_y1 := SHIFT_Y * (maximumLevelDownward - pos.level)
     end if;
-    rect(xPos - CARD_BORDER + shorten_x1, yPos - CARD_BORDER,
-        CARD_WIDTH - shorten_x1, MARK_THICKNESS, frameColor);
+    rect(xPos - TILE_BORDER + shorten_x1, yPos - TILE_BORDER,
+        TILE_WIDTH - shorten_x1, MARK_THICKNESS, frameColor);
     if shorten_x1 = 0 then
-      rect(xPos - CARD_BORDER, yPos - CARD_BORDER,
-          MARK_THICKNESS, CARD_HEIGHT - shorten_y1, frameColor);
+      rect(xPos - TILE_BORDER, yPos - TILE_BORDER,
+          MARK_THICKNESS, TILE_HEIGHT - shorten_y1, frameColor);
     end if;
-    rect(xPos - CARD_BORDER + CARD_WIDTH - MARK_THICKNESS,
-        yPos - CARD_BORDER,
-        MARK_THICKNESS, CARD_HEIGHT - shorten_y2, frameColor);
+    rect(xPos - TILE_BORDER + TILE_WIDTH - MARK_THICKNESS,
+        yPos - TILE_BORDER,
+        MARK_THICKNESS, TILE_HEIGHT - shorten_y2, frameColor);
     if shorten_y2 = 0 then
-      rect(xPos - CARD_BORDER + shorten_x2,
-          yPos - CARD_BORDER + CARD_HEIGHT - MARK_THICKNESS,
-          CARD_WIDTH - shorten_x2, MARK_THICKNESS, frameColor);
+      rect(xPos - TILE_BORDER + shorten_x2,
+          yPos - TILE_BORDER + TILE_HEIGHT - MARK_THICKNESS,
+          TILE_WIDTH - shorten_x2, MARK_THICKNESS, frameColor);
     end if;
   end func;
 
@@ -1001,9 +1003,9 @@ const proc: unmarkFrame (in positionType: pos) is func
     var integer: xPos is 0;
     var integer: yPos is 0;
   begin
-    xPos := LEFT_BORDER + CARD_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
-    yPos := UPPER_BORDER + CARD_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
-    put(xPos - CARD_BORDER, yPos - CARD_BORDER,
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
+    put(xPos - TILE_BORDER, yPos - TILE_BORDER,
         field[pos.level][pos.line][pos.column].backup, PSET);
     field[pos.level][pos.line][pos.column].backup := PRIMITIVE_WINDOW.value;
   end func;
@@ -1033,7 +1035,7 @@ const proc: unmarkAll is func
   local
     var positionType: pos is positionType.value;
   begin
-    for pos.level range 1 to FIELD_LEVELS do 
+    for pos.level range 1 to length(field) do 
       for pos.line range 1 to FIELD_LINES do 
         for pos.column range 1 to FIELD_COLUMNS do
           unmark(pos);
@@ -1043,6 +1045,12 @@ const proc: unmarkAll is func
   end func;
 
 
+(**
+ *  Refreshes the tile at the position 'pos' (level, line, column).
+ *  This function takes the visibility into account.
+ *  The tiles around the specified position are drawn to an offscreen
+ *  pixmap. Finally the area of the tile is copied to the screen.
+ *)
 const proc: refresh (in positionType: pos) is func
   local
     var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
@@ -1055,27 +1063,30 @@ const proc: refresh (in positionType: pos) is func
   begin
     win := newPixmap(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(win, BACKGROUND);
-    for level range 1 to FIELD_LEVELS do
+    for level range 1 to length(field) do
       for diagonalStartColumn range pos.column + 2 downto pos.column - 6 do
         for line range pos.line - 2 to pos.line + 2 do
           column := diagonalStartColumn + line - pos.line + 2 ;
           if line >= 1 and line <= FIELD_LINES and
                 column >= 1 and column <= FIELD_COLUMNS and
                 field[level][line][column].present then
-            drawCard(win, level, line, column);
+            drawTile(win, level, line, column);
             # writeln("refresh " <& level <& " " <& line <& " " <& column);
           end if;
         end for;
       end for;
     end for;
-    xPos := LEFT_BORDER + CARD_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
-    yPos := UPPER_BORDER + CARD_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
-    win := getPixmap(win, xPos - CARD_BORDER - SHIFT_X, yPos - CARD_BORDER,
-        CARD_WIDTH + SHIFT_X, CARD_HEIGHT + SHIFT_Y);
-    put(xPos - CARD_BORDER - SHIFT_X, yPos - CARD_BORDER, win, PSET);
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
+    win := getPixmap(win, xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER,
+        TILE_WIDTH + SHIFT_X, TILE_HEIGHT + SHIFT_Y);
+    put(xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER, win, PSET);
   end func;
 
 
+(**
+ *  Removes the tile at the position 'pos' (level, line, column).
+ *)
 const proc: remove (in positionType: pos) is func
   begin
     if field[pos.level][pos.line][pos.column].present then
@@ -1085,6 +1096,9 @@ const proc: remove (in positionType: pos) is func
   end func;
 
 
+(**
+ *  Inserts the tile at the position 'pos' (level, line, column).
+ *)
 const proc: insert (in positionType: pos) is func
   begin
     if not field[pos.level][pos.line][pos.column].present then
@@ -1124,7 +1138,7 @@ const func boolean: covered (in integer: level, in integer: line,
     var integer: lin is 0;
     var integer: col is 0;
   begin
-    if level < FIELD_LEVELS then
+    if level < length(field) then
       for lin range pred(line) to succ(line) do
         if lin >= 1 and lin <= FIELD_LINES then
           for col range pred(column) to succ(column) do
@@ -1140,7 +1154,7 @@ const func boolean: covered (in integer: level, in integer: line,
   end func;
 
 
-const func integer: getFirstAccessibleCardColumn (in integer: level, in integer: line) is func
+const func integer: getFirstAccessibleTileColumn (in integer: level, in integer: line) is func
   result
     var integer: result is 0;
   local
@@ -1169,7 +1183,7 @@ const func integer: getFirstAccessibleCardColumn (in integer: level, in integer:
   end func;
 
 
-const func integer: getLastAccessibleCardColumn (in integer: level, in integer: line) is func
+const func integer: getLastAccessibleTileColumn (in integer: level, in integer: line) is func
   result
     var integer: result is 0;
   local
@@ -1198,20 +1212,20 @@ const func integer: getLastAccessibleCardColumn (in integer: level, in integer: 
   end func;
 
 
-const func array positionType: getAccessibleCardPositions is func
+const func array positionType: getAccessibleTilePositions is func
   result
     var array positionType: result is 0 times positionType.value;
   local
     var positionType: pos is positionType.value;
     var integer: column is 0;
   begin
-    for pos.level range 1 to FIELD_LEVELS do
+    for pos.level range 1 to length(field) do
       for pos.line range 1 to FIELD_LINES do
-        pos.column := getFirstAccessibleCardColumn(pos.level, pos.line);
+        pos.column := getFirstAccessibleTileColumn(pos.level, pos.line);
         if pos.column <> 0 then
           result &:= [] (pos);
         end if;
-        column := getLastAccessibleCardColumn(pos.level, pos.line);
+        column := getLastAccessibleTileColumn(pos.level, pos.line);
         if column <> 0 and column <> pos.column then
           pos.column := column;
           result &:= [] (pos);
@@ -1225,19 +1239,19 @@ const func integer: countPossibleMoves is func
   result
     var integer: result is 0;
   local
-    var array positionType: accessibleCardPositions is 0 times positionType.value;
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
     var integer: first is 0;
     var integer: second is 0;
     var positionType: pos1 is positionType.value;
     var positionType: pos2 is positionType.value;
   begin
-    accessibleCardPositions := getAccessibleCardPositions;
-    for first range 1 to length(accessibleCardPositions) do
-      for second range succ(first) to length(accessibleCardPositions) do
-        pos1 := accessibleCardPositions[first];
-        pos2 := accessibleCardPositions[second];
-        if cards[field[pos1.level][pos1.line][pos1.column].cardNumber].value =
-            cards[field[pos2.level][pos2.line][pos2.column].cardNumber].value then
+    accessibleTilePositions := getAccessibleTilePositions;
+    for first range 1 to length(accessibleTilePositions) do
+      for second range succ(first) to length(accessibleTilePositions) do
+        pos1 := accessibleTilePositions[first];
+        pos2 := accessibleTilePositions[second];
+        if tiles[field[pos1.level][pos1.line][pos1.column].tileNumber].value =
+            tiles[field[pos2.level][pos2.line][pos2.column].tileNumber].value then
           incr(result);
         end if;
       end for;
@@ -1248,20 +1262,20 @@ const func integer: countPossibleMoves is func
 const proc: showPossibleMoves (in color: frameColor, inout char: command,
     inout boolean: readCommand); is func
   local
-    var array positionType: accessibleCardPositions is 0 times positionType.value;
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
     var integer: first is 0;
     var integer: second is 0;
     var positionType: pos1 is positionType.value;
     var positionType: pos2 is positionType.value;
   begin
-    accessibleCardPositions := getAccessibleCardPositions;
-    for first range 1 to length(accessibleCardPositions) do
-      for second range succ(first) to length(accessibleCardPositions) do
-        pos1 := accessibleCardPositions[first];
-        pos2 := accessibleCardPositions[second];
+    accessibleTilePositions := getAccessibleTilePositions;
+    for first range 1 to length(accessibleTilePositions) do
+      for second range succ(first) to length(accessibleTilePositions) do
+        pos1 := accessibleTilePositions[first];
+        pos2 := accessibleTilePositions[second];
         if command = 'H' and
-            cards[field[pos1.level][pos1.line][pos1.column].cardNumber].value =
-            cards[field[pos2.level][pos2.line][pos2.column].cardNumber].value then
+            tiles[field[pos1.level][pos1.line][pos1.column].tileNumber].value =
+            tiles[field[pos2.level][pos2.line][pos2.column].tileNumber].value then
           markFrame(pos1, frameColor);
           markFrame(pos2, frameColor);
           command := getCommand;
@@ -1276,16 +1290,16 @@ const proc: showPossibleMoves (in color: frameColor, inout char: command,
 
 const proc: showPossibleMatches (in positionType: pos1, in boolean: marked) is func
   local
-    var array positionType: accessibleCardPositions is 0 times positionType.value;
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
     var integer: number is 0;
     var positionType: pos2 is positionType.value;
   begin
-    accessibleCardPositions := getAccessibleCardPositions;
-    for number range 1 to length(accessibleCardPositions) do
-      pos2 := accessibleCardPositions[number];
+    accessibleTilePositions := getAccessibleTilePositions;
+    for number range 1 to length(accessibleTilePositions) do
+      pos2 := accessibleTilePositions[number];
       if pos1.level <> pos2.level or pos1.line <> pos2.line or pos1.column <> pos2.column then
-        if cards[field[pos1.level][pos1.line][pos1.column].cardNumber].value =
-            cards[field[pos2.level][pos2.line][pos2.column].cardNumber].value then
+        if tiles[field[pos1.level][pos1.line][pos1.column].tileNumber].value =
+            tiles[field[pos2.level][pos2.line][pos2.column].tileNumber].value then
           if marked then
             markFrame(pos2, light_green);
           else
@@ -1314,7 +1328,7 @@ const proc: showDemo is func
     var moveType: move is moveType.value;
   begin
     backupField := field;
-    for level range 1 to FIELD_LEVELS do
+    for level range 1 to length(field) do
       for line range 1 to FIELD_LINES do
         for column range 1 to FIELD_COLUMNS do
           if field[level][line][column].used then
@@ -1342,7 +1356,7 @@ const proc: showDemo is func
   end func;
 
 
-const proc: locateCard (in integer: xPos, in integer: yPos,
+const proc: locateTile (in integer: xPos, in integer: yPos,
     inout integer: level, inout integer: line, inout integer: column,
     inout boolean: found) is func
   local
@@ -1353,7 +1367,7 @@ const proc: locateCard (in integer: xPos, in integer: yPos,
     var integer: col is 0;
   begin
     found := FALSE;
-    for lev range FIELD_LEVELS downto 1 do
+    for lev range length(field) downto 1 do
       line2 := (yPos - UPPER_BORDER + SHIFT_Y * lev) div FIELD_Y_STEP + 1;
       column2 := (xPos - LEFT_BORDER - SHIFT_X * lev) div FIELD_X_STEP + 1;
       for lin range pred(line2) to line2 do
@@ -1373,47 +1387,47 @@ const proc: locateCard (in integer: xPos, in integer: yPos,
   end func;
 
 
-const func boolean: legalMove (in integer: level, in integer: line,
-    in integer: column) is func
+(**
+ *  Returns TRUE when 'pos' is a legal move; FALSE otherwise.
+ *)
+const func boolean: legalMove (in positionType: pos) is func
   result
     var boolean: result is TRUE;
   local
     var integer: col is 0;
   begin
-    for col range 1 to pred(column) do
-      if field[level][line][col].present or
-          line > 1 and
-          field[level][pred(line)][col].present or
-          line < FIELD_LINES and
-          field[level][succ(line)][col].present then
+    for col range 1 to pred(pos.column) do
+      if field[pos.level][pos.line][col].present or
+          pos.line > 1 and
+          field[pos.level][pred(pos.line)][col].present or
+          pos.line < FIELD_LINES and
+          field[pos.level][succ(pos.line)][col].present then
         result := FALSE;
       end if;
     end for;
     if not result then
       result := TRUE;
-      for col range succ(column) to FIELD_COLUMNS do
-        if field[level][line][col].present or
-            line > 1 and
-            field[level][pred(line)][col].present or
-            line < FIELD_LINES and
-            field[level][succ(line)][col].present then
+      for col range succ(pos.column) to FIELD_COLUMNS do
+        if field[pos.level][pos.line][col].present or
+            pos.line > 1 and
+            field[pos.level][pred(pos.line)][col].present or
+            pos.line < FIELD_LINES and
+            field[pos.level][succ(pos.line)][col].present then
           result := FALSE;
         end if;
       end for;
     end if;
-    result := result and not covered(level, line, column);
+    result := result and not covered(pos.level, pos.line, pos.column);
   end func;
 
 
 const proc: playerMove (inout moveType: move, inout char: command) is func
   local
     var boolean: readCommand is TRUE;
-    var integer: selectedCards is 0;
+    var integer: selectedTiles is 0;
     var integer: xPos is 0;
     var integer: yPos is 0;
-    var integer: level is 0;
-    var integer: line is 0;
-    var integer: column is 0;
+    var positionType: pos is positionType.value;
     var boolean: found is FALSE;
     var boolean: moveFinished is FALSE;
   begin
@@ -1424,7 +1438,7 @@ const proc: playerMove (inout moveType: move, inout char: command) is func
       readCommand := TRUE;
       if command <> KEY_MOUSE1 then
         if command = 'H' then
-          if selectedCards = 0 then
+          if selectedTiles = 0 then
             showPossibleMoves(light_green, command, readCommand);
           else
             showPossibleMatches(move.pos1, TRUE);
@@ -1439,32 +1453,26 @@ const proc: playerMove (inout moveType: move, inout char: command) is func
         xPos := getxpos(KEYBOARD);
         yPos := getypos(KEYBOARD);
         if xPos >= LEFT_BORDER and yPos >= UPPER_BORDER then
-          locateCard(xPos, yPos, level, line, column, found);
-          if found and legalMove(level, line, column) then
-            if field[level][line][column].present then
-              if field[level][line][column].selected then
+          locateTile(xPos, yPos, pos.level, pos.line, pos.column, found);
+          if found and legalMove(pos) then
+            if field[pos.level][pos.line][pos.column].present then
+              if field[pos.level][pos.line][pos.column].selected then
                 unmark(move.pos1);
-                decr(selectedCards);
+                decr(selectedTiles);
               else
-                if selectedCards = 0 then
-                  move.pos1.level := level;
-                  move.pos1.line := line;
-                  move.pos1.column := column;
+                if selectedTiles = 0 then
+                  move.pos1 := pos;
                   mark(move.pos1);
-                  incr(selectedCards);
-                elsif selectedCards = 1 then
-                  if  cards[field[move.pos1.level][move.pos1.line][move.pos1.column].cardNumber].value =
-                      cards[field[level][line][column].cardNumber].value then
-                    move.pos2.level := level;
-                    move.pos2.line := line;
-                    move.pos2.column := column;
+                  incr(selectedTiles);
+                elsif selectedTiles = 1 then
+                  if  tiles[field[move.pos1.level][move.pos1.line][move.pos1.column].tileNumber].value =
+                      tiles[field[pos.level][pos.line][pos.column].tileNumber].value then
+                    move.pos2 := pos;
                     mark(move.pos2);
                     moveFinished := TRUE;
                   else
                     unmark(move.pos1);
-                    move.pos1.level := level;
-                    move.pos1.line := line;
-                    move.pos1.column := column;
+                    move.pos1 := pos;
                     mark(move.pos1);
                   end if;
                 end if;
@@ -1509,8 +1517,8 @@ const proc: playerTurn (inout char: command) is func
       elsif command <> KEY_MOUSE1 then
         unmarkAll;
         onTurn := FALSE;
-      elsif cards[field[move.pos1.level][move.pos1.line][move.pos1.column].cardNumber].value =
-          cards[field[move.pos2.level][move.pos2.line][move.pos2.column].cardNumber].value then
+      elsif tiles[field[move.pos1.level][move.pos1.line][move.pos1.column].tileNumber].value =
+          tiles[field[move.pos2.level][move.pos2.line][move.pos2.column].tileNumber].value then
         DRAW_FLUSH;
         number := 0;
         while not keypressed(KEYBOARD) and number <= 5 do
@@ -1545,8 +1553,8 @@ const proc: initLayout (in layoutType: layout) is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    field := FIELD_LEVELS times FIELD_LINES times FIELD_COLUMNS times fieldType.value;
-    for level range 1 to FIELD_LEVELS do
+    field := length(layout) times FIELD_LINES times FIELD_COLUMNS times fieldType.value;
+    for level range 1 to length(field) do
       for line range 1 to FIELD_LINES do
         for column range 1 to FIELD_COLUMNS do
           field[level][line][column].used := layout[level][line][column] = 'X';
@@ -1751,69 +1759,88 @@ const func integer: getFreePlaceColumn (in integer: level, in integer: line) is 
   end func;
 
 
-const proc: getFreePlace (inout integer: level, inout integer: line, inout integer: column) is func
+(**
+ *  Find a free position to place a tile in the inverse game.
+ *)
+const proc: getFreePlace (inout positionType: pos) is func
   local
     var integer: firstPos is 0;
     var integer: lastPos is 0;
     var integer: emptyPos is 0;
-    var integer: pos is 0;
   begin
     repeat
-      level := rand(1, FIELD_LEVELS);
-      line := rand(1, FIELD_LINES);
-      column := getFreePlaceColumn(level, line);
-    until column <> 0;
+      pos.level := rand(1, length(field));
+      pos.line := rand(1, FIELD_LINES);
+      pos.column := getFreePlaceColumn(pos.level, pos.line);
+    until pos.column <> 0;
   end func;
 
 
-const proc: dealOneCard (in integer: level, in integer: line, in integer: column,
-    in integer: cardNumber) is func
+(**
+ *  Deals the tile 'tileNumber' to 'pos' (level, line, column).
+ *)
+const proc: dealOneTile (in integer: tileNumber, in positionType: pos) is func
   begin
-    field[level][line][column].cardNumber := cardNumber;
-    field[level][line][column].present := TRUE;
-    decr(cards[cardNumber].number);
+    field[pos.level][pos.line][pos.column].tileNumber := tileNumber;
+    field[pos.level][pos.line][pos.column].present := TRUE;
+    decr(tiles[tileNumber].quantity);
   end func;
 
 
-const proc: removeOneCard (in integer: level, in integer: line, in integer: column) is func
+(**
+ *  Removes the tile from 'pos' (level, line, column).
+ *)
+const proc: removeOneTile (in positionType: pos) is func
   local
-    var integer: cardNumber is 0;
+    var integer: tileNumber is 0;
   begin
-    cardNumber := field[level][line][column].cardNumber;
-    field[level][line][column].cardNumber := 0;
-    field[level][line][column].present := FALSE;
-    incr(cards[cardNumber].number);
+    tileNumber := field[pos.level][pos.line][pos.column].tileNumber;
+    field[pos.level][pos.line][pos.column].tileNumber := 0;
+    field[pos.level][pos.line][pos.column].present := FALSE;
+    incr(tiles[tileNumber].quantity);
   end func;
 
 
-const proc: dealCardPair (inout boolean: okay) is func
+(**
+ *  Deals a pair of tiles in the inverse game.
+ *  Both tiles have the same 'value'. That means they have the same
+ *  symbols on them or they are both flower tiles or season tiles.
+ *  The tile 'value' is randomly chosen. The places for the tiles are
+ *  chosen with the getFreePlace function. It can happen that the
+ *  tiles block each other. In that case the tiles are removed and
+ *  the process of dealing is retried. When five attempts to deal a
+ *  pair of tiles fail the inverse game fails also and the inverse
+ *  game must be retried from scratch. In this case 'okay' is set to
+ *  FALSE.
+ *)
+const proc: dealTilePair (inout boolean: okay) is func
   local
     var integer: retryCount is 0;
     var moveType: move is moveType.value;
-    var integer: cardNumber1 is 0;
-    var integer: cardNumber2 is 0;
+    var integer: tileNumber1 is 0;
+    var integer: tileNumber2 is 0;
   begin
     repeat
       okay := TRUE;
       repeat
-        cardNumber1 := rand(1, length(cards));
-      until cards[cardNumber1].number > 0;
-      getFreePlace(move.pos1.level, move.pos1.line, move.pos1.column);
-      dealOneCard(move.pos1.level, move.pos1.line, move.pos1.column, cardNumber1);
-      if cards[cardNumber1].number > 0 then
-        cardNumber2 := cardNumber1;
+        tileNumber1 := rand(1, length(tiles));
+      until tiles[tileNumber1].quantity > 0;
+      getFreePlace(move.pos1);
+      dealOneTile(tileNumber1, move.pos1);
+      if tiles[tileNumber1].quantity > 0 then
+        tileNumber2 := tileNumber1;
       else
         repeat
-          cardNumber2 := rand(35, 42);
-        until cards[cardNumber1].value = cards[cardNumber2].value and
-            cards[cardNumber2].number > 0;
+          tileNumber2 := rand(35, 42);
+        until tiles[tileNumber1].value = tiles[tileNumber2].value and
+            tiles[tileNumber2].quantity > 0;
       end if;
-      getFreePlace(move.pos2.level, move.pos2.line, move.pos2.column);
-      dealOneCard(move.pos2.level, move.pos2.line, move.pos2.column, cardNumber2);
-      if not legalMove(move.pos1.level, move.pos1.line, move.pos1.column) or
-          not legalMove(move.pos2.level, move.pos2.line, move.pos2.column) then
-        removeOneCard(move.pos1.level, move.pos1.line, move.pos1.column);
-        removeOneCard(move.pos2.level, move.pos2.line, move.pos2.column);
+      getFreePlace(move.pos2);
+      dealOneTile(tileNumber2, move.pos2);
+      if not legalMove(move.pos1) or
+          not legalMove(move.pos2) then
+        removeOneTile(move.pos1);
+        removeOneTile(move.pos2);
         okay := FALSE;
         incr(retryCount);
       end if;
@@ -1822,61 +1849,81 @@ const proc: dealCardPair (inout boolean: okay) is func
   end func;
 
 
-const proc: initCards is func
+(**
+ *  Assigns the value and the quantity to the tiles.
+ *  Two tiles are compared using the 'value'. E.g.: Two seasons and
+ *  two flowers have different symbols but have the same 'value'.
+ *  The 'quantity' is used when dealing the tiles to maintain how many
+ *  tiles with the same symbols on them can be dealt. E.g.: The dot,
+ *  bamboo, character, wind and dragon tiles have a 'quantity' of 4
+ *  because in each case there are 4 tiles with the same symbols.
+ *)
+const proc: initTiles is func
   local
     var integer: number is 0;
   begin
     for number range 1 to 34 do
-      cards[number].value := number;
-      cards[number].number := 4;
+      tiles[number].value := number;
+      tiles[number].quantity := 4;
     end for;
     for number range 35 to 38 do
-      cards[number].value := 35;
-      cards[number].number := 1;
+      tiles[number].value := 35;
+      tiles[number].quantity := 1;
     end for;
     for number range 39 to 42 do
-      cards[number].value := 36;
-      cards[number].number := 1;
+      tiles[number].value := 36;
+      tiles[number].quantity := 1;
     end for;
   end func;
 
 
-const proc: dealCards is func
+(**
+ *  Deals all tiles of a solvable game using the turtle layout.
+ *  To create a solvable game an inverse game is played. The inverse
+ *  game starts with an empty field and the tiles are added according
+ *  to the inverse rules. When the inverse game fails it is retried
+ *  from scratch until it succeeds.
+ *)
+const proc: dealTiles is func
   local
     var boolean: okay is TRUE;
     var integer: number is 0;
   begin
     repeat
       okay := TRUE;
-      initCards;
-      initLayout(classicLayout);
+      initTiles;
+      initLayout(turtleLayout);
       number := 1;
       demoMoves := 0 times moveType.value;
       while okay and number <= 72 do
-        dealCardPair(okay);
+        dealTilePair(okay);
         incr(number);
       end while;
     until okay;
   end func;
 
 
-const proc: dealCards2 is func
+(**
+ *  Deals tiles using the welcome layout.
+ *  The tiles are dealt in a random fashion until the layout is
+ *  filled. It would be pure coincidence when the resulting game is
+ *  solvable.
+ *)
+const proc: dealTiles2 is func
   local
-    var integer: level is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var integer: cardNumber is 0;
+    var positionType: pos is positionType.value;
+    var integer: tileNumber is 0;
   begin
-    initCards;
+    initTiles;
     initLayout(welcomeLayout);
-    for level range 1 to FIELD_LEVELS do
-      for line range 1 to FIELD_LINES do
-        for column range 1 to FIELD_COLUMNS do
-          if field[level][line][column].used then
+    for pos.level range 1 to length(field) do
+      for pos.line range 1 to FIELD_LINES do
+        for pos.column range 1 to FIELD_COLUMNS do
+          if field[pos.level][pos.line][pos.column].used then
             repeat
-              cardNumber := rand(1, length(cards));
-            until cards[cardNumber].number > 0;
-            dealOneCard(level, line, column, cardNumber);
+              tileNumber := rand(1, length(tiles));
+            until tiles[tileNumber].quantity > 0;
+            dealOneTile(tileNumber, pos);
           end if;
         end for;
       end for;
@@ -1915,11 +1962,11 @@ const proc: main is func
       create_pixmap(seven, 2),
       create_pixmap(eight, 2),
       create_pixmap(nine,  2));
-    dealCards2;
+    dealTiles2;
     drawBoardWithFlush;
     setPos(screen, 47, 73);
     writeln(screen, "Press any key to start game");
-    dealCards;
+    dealTiles;
     command := getCommand;
     if command <> 'Q' then
       clear(curr_win, BACKGROUND);
@@ -1935,11 +1982,11 @@ const proc: main is func
           command := getCommand;
         end if;
         if command = 'N' and isOkay([] ("Discard old board?")) then
-          dealCards2;
+          dealTiles2;
           clear(curr_win, BACKGROUND);
           drawBoard;
           DRAW_FLUSH;
-          dealCards;
+          dealTiles;
           clear(curr_win, BACKGROUND);
           drawBoard;
           writeButtons;

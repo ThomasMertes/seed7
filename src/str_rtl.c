@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -152,6 +152,7 @@ memsizetype *used_max_position;
 
   {
     stritype new_stri;
+    rtlArraytype resized_work_array;
     memsizetype position;
 
   /* add_stri_to_array */
@@ -161,11 +162,13 @@ memsizetype *used_max_position;
       memcpy(new_stri->mem, stri_elems,
           (SIZE_TYPE) length * sizeof(strelemtype));
       if (*used_max_position >= work_array->max_position) {
-        if (!RESIZE_RTL_ARRAY(work_array, work_array->max_position,
-            work_array->max_position + 256)) {
+        resized_work_array = REALLOC_RTL_ARRAY(work_array,
+            work_array->max_position, work_array->max_position + 256);
+        if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
+          work_array = resized_work_array;
           COUNT3_RTL_ARRAY(work_array->max_position, work_array->max_position + 256);
           work_array->max_position += 256;
         } /* if */
@@ -241,6 +244,7 @@ chartype escape;
     stritype curr_stri;
     const strelemtype *stri_pos;
     memsizetype pos;
+    rtlArraytype resized_result_array;
     rtlArraytype result_array;
 
   /* strChEscSplit */
@@ -280,8 +284,9 @@ chartype escape;
             (memsizetype) (search_end - search_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
-          if (!RESIZE_RTL_ARRAY(result_array, result_array->max_position,
-              used_max_position)) {
+          resized_result_array = REALLOC_RTL_ARRAY(result_array,
+              result_array->max_position, used_max_position);
+          if (resized_result_array == NULL) {
             for (pos = 0; pos < used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
@@ -289,6 +294,7 @@ chartype escape;
             FREE_RTL_ARRAY(result_array, result_array->max_position);
             result_array = NULL;
           } else {
+            result_array = resized_result_array;
             COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
@@ -358,7 +364,7 @@ chartype searched;
     if (main_stri->size >= 1) {
       main_mem = main_stri->mem;
       found_pos = search_strelem(main_mem, searched,
-	  (SIZE_TYPE) (main_stri->size));
+          (SIZE_TYPE) (main_stri->size));
       if (found_pos != NULL) {
         return(((inttype) (found_pos - main_mem)) + 1);
       } /* if */
@@ -384,6 +390,7 @@ chartype delimiter;
     const strelemtype *search_end;
     const strelemtype *found_pos;
     memsizetype pos;
+    rtlArraytype resized_result_array;
     rtlArraytype result_array;
 
   /* strChSplit */
@@ -406,8 +413,9 @@ chartype delimiter;
             (memsizetype) (search_end - search_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
-          if (!RESIZE_RTL_ARRAY(result_array, result_array->max_position,
-              used_max_position)) {
+          resized_result_array = REALLOC_RTL_ARRAY(result_array,
+              result_array->max_position, used_max_position);
+          if (resized_result_array == NULL) {
             for (pos = 0; pos < used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
@@ -415,6 +423,7 @@ chartype delimiter;
             FREE_RTL_ARRAY(result_array, result_array->max_position);
             result_array = NULL;
           } else {
+            result_array = resized_result_array;
             COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
@@ -575,6 +584,42 @@ stritype stri2;
 
 
 
+/**
+ *  Concatenates two strings and returns the result.
+ *  The parameter 'stri1' is resized and 'stri2' is copied to the
+ *  enlarged area of 'stri1'.
+ *  @return the parameter 'stri1.
+ */
+#ifdef ANSI_C
+
+stritype strConcatTemp (stritype stri1, const const_stritype stri2)
+#else
+
+stritype strConcatTemp (stri1, stri2)
+stritype stri1;
+stritype stri2;
+#endif
+
+  {
+    memsizetype result_size;
+
+  /* strConcatTemp */
+    result_size = stri1->size + stri2->size;
+    if (!RESIZE_STRI(stri1, stri1->size, result_size)) {
+      FREE_STRI(stri1, stri1->size);
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT3_STRI(stri1->size, result_size);
+      memcpy(&stri1->mem[stri1->size], stri2->mem,
+          (SIZE_TYPE) stri2->size * sizeof(strelemtype));
+      stri1->size = result_size;
+      return(stri1);
+    } /* if */
+  } /* strConcatTemp */
+
+
+
 #ifdef ANSI_C
 
 void strCopy (stritype *const stri_to, const const_stritype stri_from)
@@ -653,6 +698,29 @@ stritype old_string;
       FREE_STRI(old_string, old_string->size);
     } /* if */
   } /* strDestr */
+
+
+
+#ifdef ANSI_C
+
+stritype strEmpty (void)
+#else
+
+stritype strEmpty ()
+#endif
+
+  {
+    stritype result;
+
+  /* strEmpty */
+    if (!ALLOC_STRI(result, 0)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      COUNT_STRI(0);
+      result->size = 0;
+    } /* if */
+    return(result);
+  } /* strEmpty */
 
 
 
@@ -968,6 +1036,35 @@ stritype stri;
 
 #ifdef ANSI_C
 
+stritype strLowTemp (const stritype stri)
+#else
+
+stritype strLowTemp (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype pos;
+
+  /* strLowTemp */
+    for (pos = 0; pos < stri->size; pos++) {
+#ifdef WIDE_CHAR_STRINGS
+        if (((int) stri->mem[pos]) >= 'A' && ((int) stri->mem[pos]) <= 'Z') {
+          stri->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'A' + 'a');
+        } else {
+          stri->mem[pos] = stri->mem[pos];
+        } /* if */
+#else
+        stri->mem[pos] = (strelemtype) tolower((int) stri->mem[pos]);
+#endif
+    } /* for */
+    return(stri);
+  } /* strLowTemp */
+
+
+
+#ifdef ANSI_C
+
 stritype strLpad (const const_stritype stri, const inttype pad_size)
 #else
 
@@ -1221,7 +1318,7 @@ chartype searched;
     if (main_stri->size >= 1) {
       main_mem = main_stri->mem;
       found_pos = rsearch_strelem(&main_mem[main_stri->size - 1], searched,
-	  (SIZE_TYPE) (main_stri->size));
+          (SIZE_TYPE) (main_stri->size));
       if (found_pos != NULL) {
         return(((inttype) (found_pos - main_mem)) + 1);
       } /* if */
@@ -1548,6 +1645,7 @@ stritype delimiter;
     const strelemtype *search_end;
     const strelemtype *found_pos;
     memsizetype pos;
+    rtlArraytype resized_result_array;
     rtlArraytype result_array;
 
   /* strSplit */
@@ -1582,8 +1680,9 @@ stritype delimiter;
             (memsizetype) (&main_stri->mem[main_stri->size] - segment_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
-          if (!RESIZE_RTL_ARRAY(result_array, result_array->max_position,
-              used_max_position)) {
+          resized_result_array = REALLOC_RTL_ARRAY(result_array,
+              result_array->max_position, used_max_position);
+          if (resized_result_array == NULL) {
             for (pos = 0; pos < used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
@@ -1591,6 +1690,7 @@ stritype delimiter;
             FREE_RTL_ARRAY(result_array, result_array->max_position);
             result_array = NULL;
           } else {
+            result_array = resized_result_array;
             COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
@@ -1780,3 +1880,32 @@ stritype stri;
       return(result);
     } /* if */
   } /* strUp */
+
+
+
+#ifdef ANSI_C
+
+stritype strUpTemp (const stritype stri)
+#else
+
+stritype strUpTemp (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype pos;
+
+  /* strUpTemp */
+    for (pos = 0; pos < stri->size; pos++) {
+#ifdef WIDE_CHAR_STRINGS
+      if (((int) stri->mem[pos]) >= 'a' && ((int) stri->mem[pos]) <= 'z') {
+        stri->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'a' + 'A');
+      } else {
+        stri->mem[pos] = stri->mem[pos];
+      } /* if */
+#else
+      stri->mem[pos] = (strelemtype) toupper((int) stri->mem[pos]);
+#endif
+    } /* for */
+    return(stri);
+  } /* strUpTemp */

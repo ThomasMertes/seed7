@@ -290,14 +290,15 @@ EXTERN memsizetype hs;
 
 
 #define ALLOC_HEAP(var,tp,byt)     ((var = (tp) MALLOC(byt)) != NULL)
-#define REALLOC_HEAP(var,tp,byt)   ((var = (tp) REALLOC(var, byt)) != NULL)
+#define REALLOC_HEAP(var,tp,byt)   ((tp) REALLOC(var, byt))
+#define RESIZE_HEAP(var,tp,byt)    ((var = (tp) REALLOC(var, byt)) != NULL)
 #define FREE_HEAP(var,byt)         (free((void *) var))
 
 
 #define ALLOC_USTRI(var,len)       ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
 #define UNALLOC_USTRI(var,len)     FREE_HEAP(var, SIZ_USTRI(len))
 #define FREE_USTRI(var,L,cnt,byt)  (CNT2_USTRI(L, SIZ_USTRI(L), cnt, byt) FREE_HEAP(var, byt))
-#define RESIZE_USTRI(var,L1,L2)    REALLOC_HEAP(var, ustritype, SIZ_USTRI(L2))
+#define RESIZE_USTRI(var,L1,L2)    RESIZE_HEAP(var, ustritype, SIZ_USTRI(L2))
 #define COUNT_USTRI(len,cnt,byt)   CNT1_USTRI(len, SIZ_USTRI(len), cnt, byt)
 #define COUNT3_USTRI(L1,L2,CT,byt) CNT3(CNT2_USTRI(L1, SIZ_USTRI(L1), CT, byt) CNT1_USTRI(L2, SIZ_USTRI(L2), CT, byt))
 
@@ -310,11 +311,11 @@ EXTERN memsizetype hs;
 #ifdef MMAP_ABLE_STRI
 #define ALLOC_STRI(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len)) ? (var->mem = var->mem1, TRUE) : FALSE)
 #define FREE_STRI(var,len)         (var->mem == var->mem1 ? (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, byt)) : void)
-#define RESIZE_STRI(var,len1,len2) (REALLOC_HEAP(var, stritype, SIZ_STRI(len2)) ? (var->mem = var->mem1, TRUE) : FALSE)
+#define RESIZE_STRI(var,len1,len2) (RESIZE_HEAP(var, stritype, SIZ_STRI(len2)) ? (var->mem = var->mem1, TRUE) : FALSE)
 #else
 #define ALLOC_STRI(var,len)        ALLOC_HEAP(var, stritype, SIZ_STRI(len))
 #define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, byt))
-#define RESIZE_STRI(var,len1,len2) REALLOC_HEAP(var, stritype, SIZ_STRI(len2))
+#define RESIZE_STRI(var,len1,len2) RESIZE_HEAP(var, stritype, SIZ_STRI(len2))
 #endif
 #endif
 #define COUNT_STRI(len)            CNT1_STRI(len, SIZ_STRI(len))
@@ -324,11 +325,11 @@ EXTERN memsizetype hs;
 #ifdef MMAP_ABLE_BSTRI
 #define ALLOC_BSTRI(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE):FALSE)
 #define FREE_BSTRI(var,len)        (var->mem == var->mem1 ? (CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, byt)) : void)
-#define RESIZE_BSTRI(var,ln1,ln2)  (REALLOC_HEAP(var, bstritype, SIZ_BSTRI(ln2)) ? (var->mem = var->mem1, TRUE) : FALSE)
+#define RESIZE_BSTRI(var,ln1,ln2)  (RESIZE_HEAP(var, bstritype, SIZ_BSTRI(ln2)) ? (var->mem = var->mem1, TRUE) : FALSE)
 #else
 #define ALLOC_BSTRI(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE:FALSE)
 #define FREE_BSTRI(var,len)        (CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, byt))
-#define RESIZE_BSTRI(var,ln1,ln2)  REALLOC_HEAP(var, bstritype, SIZ_BSTRI(ln2))
+#define RESIZE_BSTRI(var,ln1,ln2)  RESIZE_HEAP(var, bstritype, SIZ_BSTRI(ln2))
 #endif
 #define COUNT3_BSTRI(len1,len2)    CNT3(CNT2_BSTRI(len1, SIZ_BSTRI(len1)) CNT1_BSTRI(len2, SIZ_BSTRI(len2)))
 
@@ -339,43 +340,43 @@ EXTERN memsizetype hs;
 
 #define ALLOC_ARRAY(var,len)       (ALLOC_HEAP(var, arraytype, SIZ_ARR(len))?CNT1_ARR(len, SIZ_ARR(len)), TRUE:FALSE)
 #define FREE_ARRAY(var,len)        (CNT2_ARR(len, SIZ_ARR(len)) FREE_HEAP(var, byt))
-#define RESIZE_ARRAY(var,ln1,ln2)  REALLOC_HEAP(var, arraytype, SIZ_ARR(ln2))
+#define REALLOC_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, arraytype, SIZ_ARR(ln2))
 #define COUNT3_ARRAY(len1,len2)    CNT3(CNT2_ARR(len1, SIZ_ARR(len1)) CNT1_ARR(len2, SIZ_ARR(len2)))
 
 
-#define ALLOC_RTL_ARRAY(var,len)      (ALLOC_HEAP(var, rtlArraytype, SIZ_RTL_ARR(len))?CNT1_RTL_ARR(len, SIZ_RTL_ARR(len)), TRUE:FALSE)
-#define FREE_RTL_ARRAY(var,len)       (CNT2_RTL_ARR(len, SIZ_RTL_ARR(len)) FREE_HEAP(var, byt))
-#define RESIZE_RTL_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, rtlArraytype, SIZ_RTL_ARR(ln2))
-#define COUNT3_RTL_ARRAY(len1,len2)   CNT3(CNT2_RTL_ARR(len1, SIZ_RTL_ARR(len1)) CNT1_RTL_ARR(len2, SIZ_RTL_ARR(len2)))
+#define ALLOC_RTL_ARRAY(var,len)       (ALLOC_HEAP(var, rtlArraytype, SIZ_RTL_ARR(len))?CNT1_RTL_ARR(len, SIZ_RTL_ARR(len)), TRUE:FALSE)
+#define FREE_RTL_ARRAY(var,len)        (CNT2_RTL_ARR(len, SIZ_RTL_ARR(len)) FREE_HEAP(var, byt))
+#define REALLOC_RTL_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, rtlArraytype, SIZ_RTL_ARR(ln2))
+#define COUNT3_RTL_ARRAY(len1,len2)    CNT3(CNT2_RTL_ARR(len1, SIZ_RTL_ARR(len1)) CNT1_RTL_ARR(len2, SIZ_RTL_ARR(len2)))
 
 
 #define ALLOC_HASH(var,len)        (ALLOC_HEAP(var, hashtype, SIZ_HSH(len))?CNT1_HSH(len, SIZ_HSH(len)), TRUE:FALSE)
 #define FREE_HASH(var,len)         (CNT2_HSH(len, SIZ_HSH(len)) FREE_HEAP(var, byt))
-#define RESIZE_HASH(var,ln1,ln2)   REALLOC_HEAP(var, hashtype, SIZ_HSH(ln2))
+#define RESIZE_HASH(var,ln1,ln2)   RESIZE_HEAP(var, hashtype, SIZ_HSH(ln2))
 #define COUNT3_HASH(len1,len2)     CNT3(CNT2_HSH(len1, SIZ_HSH(len1)) CNT1_HSH(len2, SIZ_HSH(len2)))
 
 
 #define ALLOC_RTL_HASH(var,len)       (ALLOC_HEAP(var, rtlHashtype, SIZ_RTL_HSH(len))?CNT1_RTL_HSH(len, SIZ_RTL_HSH(len)), TRUE:FALSE)
 #define FREE_RTL_HASH(var,len)        (CNT2_RTL_HSH(len, SIZ_RTL_HSH(len)) FREE_HEAP(var, byt))
-#define RESIZE_RTL_HASH(var,ln1,ln2)  REALLOC_HEAP(var, rtlHashtype, SIZ_RTL_HSH(ln2))
+#define RESIZE_RTL_HASH(var,ln1,ln2)  RESIZE_HEAP(var, rtlHashtype, SIZ_RTL_HSH(ln2))
 #define COUNT3_RTL_HASH(len1,len2)    CNT3(CNT2_RTL_HSH(len1, SIZ_RTL_HSH(len1)) CNT1_RTL_HSH(len2, SIZ_RTL_HSH(len2)))
 
 
 #define ALLOC_SET(var,len)         (ALLOC_HEAP(var, settype, SIZ_SET(len))?CNT1_SET(len, SIZ_SET(len)), TRUE:FALSE)
 #define FREE_SET(var,len)          (CNT2_SET(len, SIZ_SET(len)) FREE_HEAP(var, byt))
-#define RESIZE_SET(var,len1,len2)  REALLOC_HEAP(var, settype, SIZ_SET(len2))
+#define RESIZE_SET(var,len1,len2)  RESIZE_HEAP(var, settype, SIZ_SET(len2))
 #define COUNT3_SET(len1,len2)      CNT3(CNT2_SET(len1, SIZ_SET(len1)) CNT1_SET(len2, SIZ_SET(len2)))
 
 
 #define ALLOC_STRUCT(var,len)      (ALLOC_HEAP(var, structtype, SIZ_SCT(len))?CNT1_SCT(len, SIZ_SCT(len)), TRUE:FALSE)
 #define FREE_STRUCT(var,len)       (CNT2_SCT(len, SIZ_SCT(len)) FREE_HEAP(var, byt))
-#define RESIZE_STRUCT(var,ln1,ln2) REALLOC_HEAP(var, structtype, SIZ_SCT(ln2))
+#define RESIZE_STRUCT(var,ln1,ln2) RESIZE_HEAP(var, structtype, SIZ_SCT(ln2))
 #define COUNT3_STRUCT(len1,len2)   CNT3(CNT2_SCT(len1, SIZ_SCT(len1)) CNT1_SCT(len2, SIZ_SCT(len2)))
 
 
 #define ALLOC_BIG(var,len)         (ALLOC_HEAP(var, biginttype, SIZ_BIG(len))?CNT1_BIG(len, SIZ_BIG(len)), TRUE:FALSE)
 #define FREE_BIG(var,len)          (CNT2_BIG(len, SIZ_BIG(len)) FREE_HEAP(var, byt))
-#define RESIZE_BIG(var,ln1,ln2)    REALLOC_HEAP(var, biginttype, SIZ_BIG(ln2))
+#define RESIZE_BIG(var,ln1,ln2)    RESIZE_HEAP(var, biginttype, SIZ_BIG(ln2))
 #define COUNT3_BIG(len1,len2)      CNT3(CNT2_BIG(len1, SIZ_BIG(len1)) CNT1_BIG(len2, SIZ_BIG(len2)))
 
 
@@ -389,7 +390,7 @@ EXTERN memsizetype hs;
 
 #define ALLOC_TABLE(var,tp,nr)     (ALLOC_HEAP(var, tp *, SIZ_TAB(tp,nr))?CNT1_BYT(SIZ_TAB(tp,nr)), TRUE:FALSE)
 #define FREE_TABLE(var,tp,nr)      (CNT2_BYT(SIZ_TAB(tp, nr)) FREE_HEAP(var, SIZ_TAB(tp, nr)))
-#define RESIZE_TABLE(var,tp,n1,n2) REALLOC_HEAP(var, tp *, SIZ_TAB(tp, n2))
+#define RESIZE_TABLE(var,tp,n1,n2) RESIZE_HEAP(var, tp *, SIZ_TAB(tp, n2))
 #define COUNT3_TABLE(tp,nr1,nr2)   CNT3(CNT2_BYT(SIZ_TAB(tp, nr1)) CNT1_BYT(SIZ_TAB(tp, nr2)))
 
 

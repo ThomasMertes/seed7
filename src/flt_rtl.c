@@ -138,6 +138,7 @@ inttype digits_precision;
 
   {
     char buffer[2001];
+    char *buffer_ptr;
 #ifndef USE_VARIABLE_FORMATS
     char form_buffer[10];
 #endif
@@ -169,14 +170,29 @@ inttype digits_precision;
       } /* if */
 #endif
     } /* if */
-    len = strlen(buffer);
+    buffer_ptr = buffer;
+    if (buffer[0] == '-' && buffer[1] == '0') {
+      /* All forms of -0 are converted to 0 */
+      if (buffer[2] == '.') {
+        len = 3;
+        while (buffer[len] == '0') {
+          len++;
+        } /* while */
+        if (buffer[len] == '\0') {
+          buffer_ptr++;
+        } /* if */
+      } else if (buffer[2] == '\0') {
+        buffer_ptr++;
+      } /* if */
+    } /* if */
+    len = strlen(buffer_ptr);
     if (!ALLOC_STRI(result, len)) {
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
       COUNT_STRI(len);
       result->size = len;
-      stri_expand(result->mem, buffer, len);
+      stri_expand(result->mem, buffer_ptr, len);
       return(result);
     } /* if */
   } /* fltDgts */

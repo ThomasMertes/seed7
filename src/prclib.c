@@ -95,6 +95,7 @@ char **arg_v;
 
   {
     arraytype arg_array;
+    arraytype resized_arg_array;
     memsizetype max_array_size;
     memsizetype used_array_size;
     memsizetype position;
@@ -110,10 +111,12 @@ char **arg_v;
       arg_idx = 0;
       while (okay && arg_idx < arg_c) {
         if (used_array_size >= max_array_size) {
-          if (!RESIZE_ARRAY(arg_array, max_array_size,
-              max_array_size + 256)) {
+          resized_arg_array = REALLOC_ARRAY(arg_array,
+              max_array_size, max_array_size + 256);
+          if (resized_arg_array == NULL) {
             okay = FALSE;
           } else {
+            arg_array = resized_arg_array;
             COUNT3_ARRAY(max_array_size, max_array_size + 256);
             max_array_size = max_array_size + 256;
           } /* if */
@@ -134,10 +137,12 @@ char **arg_v;
         } /* if */
       } /* while */
       if (okay) {
-        if (!RESIZE_ARRAY(arg_array, max_array_size,
-            used_array_size)) {
+        resized_arg_array = REALLOC_ARRAY(arg_array,
+            max_array_size, used_array_size);
+        if (resized_arg_array == NULL) {
           okay = FALSE;
         } else {
+          arg_array = resized_arg_array;
           COUNT3_ARRAY(max_array_size, used_array_size);
           arg_array->min_position = 1;
           arg_array->max_position = used_array_size;
