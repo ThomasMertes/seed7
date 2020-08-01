@@ -1048,6 +1048,56 @@ stritype searched;
 
 #ifdef ANSI_C
 
+stritype strSubstr (stritype stri, inttype start, inttype len)
+#else
+
+stritype strSubstr (stri, start, len)
+stritype stri;
+inttype start;
+inttype len;
+#endif
+
+  {
+    memsizetype length;
+    memsizetype result_size;
+    stritype result;
+
+  /* strSubstr */
+    length = stri->size;
+    if (len >= 1 && start + len > 1 && start <= ((inttype) length) &&
+        length >= 1) {
+      if (start < 1) {
+        len += start - 1;
+        start = 1;
+      } /* if */
+      if (start + len - 1 > (inttype) length) {
+        result_size = (memsizetype) (length - start + 1);
+      } else {
+        result_size = (memsizetype) len;
+      } /* if */
+      if (!ALLOC_STRI(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } /* if */
+      COUNT_STRI(result_size);
+      memcpy(result->mem, &stri->mem[start - 1],
+          (SIZE_TYPE) result_size * sizeof(strelemtype));
+      result->size = result_size;
+    } else {
+      if (!ALLOC_STRI(result, (memsizetype) 0)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } /* if */
+      COUNT_STRI(0);
+      result->size = 0;
+    } /* if */
+    return(result);
+  } /* strSubstr */
+
+
+
+#ifdef ANSI_C
+
 stritype strTail (stritype stri, inttype start)
 #else
 

@@ -39,6 +39,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "kbd_drv.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -116,14 +117,9 @@ HWND curr_window;
 
 LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   {
-    PAINTSTRUCT ps;
     win_wintype paint_window;
-    HDC hdc;
-    WINDOWPOS *windowpos;
-    POINT point;
     RECT rect;
     MSG msg;
-    int peek_num;
     LRESULT result;
 
   /* WndProc */
@@ -715,6 +711,54 @@ inttype x, y, radius;
 
   { /* drwFCircle */
   } /* drwFCircle */
+
+
+
+#ifdef ANSI_C
+
+void drwPFCircle (wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col)
+#else
+
+void drwPFCircle (actual_window, x, y, col)
+wintype actual_window;
+inttype x, y, radius;
+inttype col;
+#endif
+
+  {
+    HPEN old_pen;
+    HPEN current_pen;
+    HBRUSH old_brush;
+    HBRUSH current_brush;
+
+  /* drwPFCircle */
+    /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
+    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+    current_brush = CreateSolidBrush((COLORREF) col);
+    if (current_pen == NULL) {
+      printf("drwPFCircle pen with color %ul is NULL\n", col);
+    } /* if */
+    if (current_brush == NULL) {
+      printf("drwPRect brush with color %ul is NULL\n", col);
+    } /* if */
+    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    Ellipse(to_hdc(actual_window), x - radius, y - radius,
+        x + radius, y + radius);
+    SelectObject(to_hdc(actual_window), old_pen);
+    SelectObject(to_hdc(actual_window), old_brush);
+    if (to_backup_hdc(actual_window) != 0) {
+      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      Ellipse(to_backup_hdc(actual_window), x - radius, y - radius,
+          x + radius, y + radius);
+      SelectObject(to_backup_hdc(actual_window), old_pen);
+      SelectObject(to_backup_hdc(actual_window), old_brush);
+    } /* if */
+    DeleteObject(current_pen);
+    DeleteObject(current_brush);
+  } /* drwPFCircle */
 
 
 

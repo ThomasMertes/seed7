@@ -46,6 +46,11 @@ const type: expr_type is new struct
   var string: temp_assigns is "";
   var string: expr is "";
   var string: temp_frees is "";
+  var string: result_decl is "";
+  var string: result_free is "";
+  var string: result_intro is "";
+  var string: result_expr is "";
+  var string: result_finish is "";
 end struct;
 
 var integer: declaration_count is 1;
@@ -65,6 +70,84 @@ var const_table_hash: const_table is const_table_hash.EMPTY_HASH;
 const proc: process_action (in reference: procedure, in ref_list: params,
     inout expr_type: c_expr) is forward;
 const proc: process_expr (in reference: current_expression, inout expr_type: c_expr) is forward;
+
+
+const proc: process_stri_result (inout expr_type: c_expr) is func
+
+  begin
+    incr(c_expr.temp_num);
+    c_expr.result_decl := "stritype tmp_";
+    c_expr.result_decl &:= str(c_expr.temp_num);
+    c_expr.result_decl &:= ";\n";
+    c_expr.result_free := "str_free(tmp_";
+    c_expr.result_free &:= str(c_expr.temp_num);
+    c_expr.result_free &:= ");\n";
+    c_expr.result_intro := "(tmp_";
+    c_expr.result_intro &:= str(c_expr.temp_num);
+    c_expr.result_intro &:= "=";
+    c_expr.result_finish := ")";
+  end func;
+
+
+const proc: process_arg (in reference: current_expression, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+  begin
+    c_param.temp_num := c_expr.temp_num;
+    process_expr(current_expression, c_param);
+    c_expr.temp_num := c_param.temp_num;
+    c_expr.temp_decls &:= c_param.temp_decls;
+    c_expr.temp_decls &:= c_param.result_decl;
+    c_expr.temp_assigns &:= c_param.temp_assigns;
+    c_expr.temp_frees &:= c_param.temp_frees;
+    c_expr.temp_frees &:= c_param.result_free;
+    if c_param.result_expr <> "" then
+      c_expr.expr &:= c_param.result_intro;
+      c_expr.expr &:= c_param.result_expr;
+      c_expr.expr &:= c_param.result_finish;
+    else
+      c_expr.expr &:= c_param.expr;
+    end if;
+  end func;
+
+
+const proc: process_temp_arg (in reference: current_expression, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+  begin
+    c_param.temp_num := c_expr.temp_num;
+    process_expr(current_expression, c_param);
+    c_expr.temp_num := c_param.temp_num;
+    c_expr.temp_decls &:= c_param.temp_decls;
+    c_expr.temp_decls &:= c_param.result_decl;
+    c_expr.temp_assigns &:= c_param.temp_assigns;
+    c_expr.temp_frees &:= c_param.temp_frees;
+    c_expr.temp_frees &:= c_param.result_free;
+    if c_param.result_expr <> "" then
+      c_expr.result_expr &:= c_param.result_intro;
+      c_expr.result_expr &:= c_param.result_expr;
+      c_expr.result_expr &:= c_param.result_finish;
+    else
+      c_expr.result_expr &:= c_param.expr;
+    end if;
+  end func;
+
+
+const proc: process_std_arg (in reference: current_expression, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+  begin
+    c_param.temp_num := c_expr.temp_num;
+    process_expr(current_expression, c_param);
+    c_expr.temp_num := c_param.temp_num;
+    c_expr.temp_decls &:= c_param.temp_decls;
+    c_expr.temp_assigns &:= c_param.temp_assigns;
+    c_expr.temp_frees &:= c_param.temp_frees;
+    c_expr.result_expr &:= c_param.expr;
+  end func;
 
 
 const proc: count_declarations is func
@@ -171,46 +254,68 @@ const proc: ref_list_value (in ref_list: current_value,
 
 
 const proc: process_object_value (in reference: current_object,
+    in reference: object_value, inout string: local_init,
     inout expr_type: c_expr) is func
 
   local
     var string: objclass is "";
   begin
-    objclass := obj_class(current_object);
+    objclass := obj_class(object_value);
     if objclass = "TYPEOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "INTOBJECT" then
-      c_expr.expr &:= str(integer value current_object);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= str(integer value object_value);
     elsif objclass = "CHAROBJECT" then
-      c_expr.expr &:= c_literal(char value current_object);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= c_literal(char value object_value);
     elsif objclass = "STRIOBJECT" then
-      c_expr.expr &:= "NULL";
+      if string value object_value not in stri_const_table then
+        stri_const_table @:= [string value object_value] length(stri_const_table);
+      end if;
+      local_init &:= "strCreate(&(o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "/*";
+      local_init &:= str(current_object);
+      local_init &:= "*/";
+      local_init &:= "), ";
+      local_init &:= "str[";
+      local_init &:= str(stri_const_table[string value object_value]);
+      local_init &:= "] /* ";
+      local_init &:= replace(c_literal(string value object_value), "*/", "* /");
+      local_init &:= " */";
+      local_init &:= ");\n";
     elsif objclass = "FLOATOBJECT" then
-      c_expr.expr &:= str(float value current_object);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= str(float value object_value);
     elsif objclass = "REFOBJECT" then
-      reference_value(reference value current_object, c_expr);
+      c_expr.expr &:= "=";
+      reference_value(reference value object_value, c_expr);
     elsif objclass = "REFLISTOBJECT" then
-      ref_list_value(ref_list value current_object, c_expr);
+      c_expr.expr &:= "=";
+      ref_list_value(ref_list value object_value, c_expr);
     elsif objclass = "FILEOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "ARRAYOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "HASHOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "SETOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "STRUCTOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "CLASSOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "WINOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     elsif objclass = "CONSTENUMOBJECT" then
-      c_expr.expr &:= enum_value(reference value current_object);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= enum_value(reference value object_value);
     elsif objclass = "VARENUMOBJECT" then
-      c_expr.expr &:= enum_value(reference value current_object);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= enum_value(reference value object_value);
     elsif objclass = "ACTOBJECT" then
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= "=NULL";
     else
       c_expr.expr &:= "/* ";
       c_expr.expr &:= objclass;
@@ -219,7 +324,8 @@ const proc: process_object_value (in reference: current_object,
   end func;
 
 
-const proc: process_locals (in reference: current_object, inout expr_type: c_expr) is func
+const proc: process_locals (in reference: current_object, inout string: local_init,
+    inout expr_type: c_expr) is func
 
   local
     var ref_list: objects is ref_list.EMPTY;
@@ -230,8 +336,7 @@ const proc: process_locals (in reference: current_object, inout expr_type: c_exp
       process_type(getType(obj), c_expr);
       c_expr.expr &:= " o_";
       create_name(obj, c_expr);
-      c_expr.expr &:= "=";
-      process_object_value(reference value obj, c_expr);
+      process_object_value(obj, reference value obj, local_init, c_expr);
       c_expr.expr &:= ";\n";
     end for;
   end func;
@@ -686,7 +791,7 @@ const proc: process_prc_print (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     c_expr.expr &:= "prc_print(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -725,18 +830,10 @@ const proc: process_act_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_act_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=act_str(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "act_str(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -1062,7 +1159,7 @@ const proc: process_arr_sort (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.temp_frees &:= ");\n";
     c_expr.expr &:= "(tmp_";
     c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=arr_sort(";
+    c_expr.expr &:= "=arrSort(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -1490,18 +1587,10 @@ const proc: process_chr_shrink (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_chr_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=chrStr(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "chrStr(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -1545,9 +1634,9 @@ const proc: process_cmd_copy (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     c_expr.expr &:= "cmdCopy(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_arg(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -1563,7 +1652,7 @@ const proc: process_cmd_lng (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "cmdLng(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -1572,7 +1661,7 @@ const proc: process_cmd_ls (in ref_list: params, inout expr_type: c_expr) is fun
 
   begin
     c_expr.expr &:= "cmd_ls(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -1581,9 +1670,9 @@ const proc: process_cmd_move (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     c_expr.expr &:= "cmdMove(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_arg(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -1592,7 +1681,7 @@ const proc: process_cmd_remove (in ref_list: params, inout expr_type: c_expr) is
 
   begin
     c_expr.expr &:= "cmdRemove(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -1903,6 +1992,42 @@ const proc: process_drw_open (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_drw_pfcircle (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwPFCircle(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_drw_pline (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwPLine(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_drw_point (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -2005,7 +2130,7 @@ const proc: process_drw_text (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
+    process_arg(params[4], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -2162,20 +2287,12 @@ const proc: process_fil_flush (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_fil_l_rd (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=filLineRead(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "filLineRead(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -2217,52 +2334,24 @@ const proc: process_fil_nil (in ref_list: params, inout expr_type: c_expr) is fu
 
 const proc: process_fil_open (in ref_list: params, inout expr_type: c_expr) is func
 
-  local
-    var integer: temp_num is 0;
   begin
-    incr(c_expr.temp_num);
-    temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "char *tmp_fname_";
-    c_expr.temp_decls &:= str(temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_decls &:= "char *tmp_access_";
-    c_expr.temp_decls &:= str(temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "free(tmp_fname_";
-    c_expr.temp_frees &:= str(temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.temp_frees &:= "free(tmp_access_";
-    c_expr.temp_frees &:= str(temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "fopen(tmp_fname_";
-    c_expr.expr &:= str(temp_num);
-    c_expr.expr &:= "=str_to_cstri(";
+    c_expr.expr &:= "fopen(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), tmp_access_";
-    c_expr.expr &:= str(temp_num);
-    c_expr.expr &:= "=str_to_cstri(";
+    c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
 const proc: process_fil_stri_read (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=filStriRead(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "filStriRead(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -2292,7 +2381,7 @@ const proc: process_fil_write (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= "filWrite(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_arg(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -2300,20 +2389,12 @@ const proc: process_fil_write (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_fil_word_read (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=filWordRead(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "filWordRead(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -2427,20 +2508,12 @@ const proc: process_flt_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_flt_dgts (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=fltDgts(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "fltDgts(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -2503,6 +2576,26 @@ const proc: process_flt_gt (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= ") > (";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_hashcode (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(c_expr.temp_num);
+    temp_num := c_expr.temp_num;
+    c_expr.temp_decls &:= "struct floattoint tmp_a_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "(tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= ".floatvalue=(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "),tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= ".intvalue)";
   end func;
 
 
@@ -2676,18 +2769,10 @@ const proc: process_flt_sqrt (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=fltStr(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "fltStr(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -3370,7 +3455,7 @@ const proc: process_int_parse (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     c_expr.expr &:= "intParse(";
-    process_expr(params[3], c_expr);
+    process_arg(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -3471,18 +3556,10 @@ const proc: process_int_sqrt (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_int_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=intStr(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "intStr(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -3744,18 +3821,10 @@ const proc: process_ref_num (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_ref_objclass (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=ref_objclass(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "ref_objclass(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -3820,18 +3889,10 @@ const proc: process_ref_select (in reference: procedure, in ref_list: params,
 const proc: process_ref_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=ref_str(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "ref_str(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4124,6 +4185,17 @@ const proc: process_set_diff (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_set_elem (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setElem(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_set_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4168,10 +4240,21 @@ const proc: process_set_excl (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_set_elem (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_set_ge (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setElem(";
+    c_expr.expr &:= "setGe(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_set_gt (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setGt(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
@@ -4223,6 +4306,28 @@ const proc: process_set_intersect (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
+const proc: process_set_le (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setLe(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_set_lt (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setLt(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_set_max (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4259,6 +4364,15 @@ const proc: process_set_not_elem (in ref_list: params, inout expr_type: c_expr) 
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[4], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_set_rand (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setRand(";
+    process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -4307,14 +4421,13 @@ const proc: process_str_append (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param3.temp_decls;
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    if c_param3.result_expr <> "" then
       c_expr.expr &:= "strAppend(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "), ";
-      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ");\n";
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param3.temp_frees;
-      c_expr.expr &:= "}";
     else
       c_expr.expr &:= "strAppend(&(";
       c_expr.expr &:= c_param1.expr;
@@ -4322,44 +4435,33 @@ const proc: process_str_append (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param3.expr;
       c_expr.expr &:= ")";
     end if;
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}";
+    end if;
   end func;
 
 
 const proc: process_str_cat (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strConcat(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr := "strConcat(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_temp_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_clit (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=str_clit(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "str_clit(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4367,9 +4469,9 @@ const proc: process_str_cmp (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "strCompare(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_arg(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -4389,20 +4491,23 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param3.temp_decls;
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
-      c_expr.expr &:= "strCopy(&(";
+    end if;
+    if c_param3.result_expr <> "" then
       c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= c_param3.expr;
-      c_expr.expr &:= ");\n";
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param3.temp_frees;
-      c_expr.expr &:= "}";
+      c_expr.expr &:= "=";
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
     else
       c_expr.expr &:= "strCopy(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "), ";
       c_expr.expr &:= c_param3.expr;
-      c_expr.expr &:= ")";
+      c_expr.expr &:= ");\n";
+    end if;
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}";
     end if;
   end func;
 
@@ -4425,11 +4530,11 @@ const proc: process_str_eq (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= "(tmp_a_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "=(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= "),tmp_b_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "=(";
-    process_expr(params[3], c_expr);
+    process_arg(params[3], c_expr);
     c_expr.expr &:= "),tmp_a_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "->size==tmp_b_";
@@ -4470,7 +4575,7 @@ const proc: process_str_hashcode (in ref_list: params, inout expr_type: c_expr) 
 
   begin
     c_expr.expr &:= "strHashCode(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -4478,20 +4583,12 @@ const proc: process_str_hashcode (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_str_head (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strHead(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strHead(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4499,7 +4596,7 @@ const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "((stritype)(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= "))->mem[";
     process_expr(params[3], c_expr);
     c_expr.expr &:= "-1]";
@@ -4510,9 +4607,9 @@ const proc: process_str_ipos (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     c_expr.expr &:= "strIpos(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_arg(params[2], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
@@ -4533,18 +4630,10 @@ const proc: process_str_le (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_str_lit (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=str_lit(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "str_lit(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4552,7 +4641,7 @@ const proc: process_str_lng (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "((stritype)(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= "))->size";
   end func;
 
@@ -4560,38 +4649,22 @@ const proc: process_str_lng (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_str_low (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strLow(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strLow(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_lpad (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strLpad(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strLpad(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4609,20 +4682,12 @@ const proc: process_str_lt (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_str_mult (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strMult(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strMult(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4644,11 +4709,11 @@ const proc: process_str_ne (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= "(tmp_a_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "=(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= "),tmp_b_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "=(";
-    process_expr(params[3], c_expr);
+    process_arg(params[3], c_expr);
     c_expr.expr &:= "),tmp_a_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "->size!=tmp_b_";
@@ -4667,9 +4732,9 @@ const proc: process_str_pos (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "strPos(";
-    process_expr(params[1], c_expr);
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_arg(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -4677,162 +4742,97 @@ const proc: process_str_pos (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_str_range (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strRange(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strRange(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[5], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_repl (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strRepl(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strRepl(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_temp_arg(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_temp_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_rpad (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strRpad(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strRpad(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strRpos(";
-    process_expr(params[1], c_expr);
+    c_expr.expr &:= "strRpos(";
+    process_arg(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    process_arg(params[2], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
 const proc: process_str_substr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=str_substr(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strSubstr(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[5], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_tail (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strTail(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strTail(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_up (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=strUp(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "strUp(";
+    process_temp_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
 const proc: process_str_value (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=str_value(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "str_value(";
+    process_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4981,18 +4981,10 @@ const proc: process_typ_result (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_typ_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "stritype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "str_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=typ_str(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    process_stri_result(c_expr);
+    c_expr.result_expr &:= "typ_str(";
+    process_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -5251,6 +5243,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_drw_new_pixmap(params, c_expr);
     elsif action_name = "DRW_OPEN" then
       process_drw_open(params, c_expr);
+    elsif action_name = "DRW_PFCIRCLE" then
+      process_drw_pfcircle(params, c_expr);
+    elsif action_name = "DRW_PLINE" then
+      process_drw_pline(params, c_expr);
     elsif action_name = "DRW_POINT" then
       process_drw_point(params, c_expr);
     elsif action_name = "DRW_PPOINT" then
@@ -5339,6 +5335,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_flt_ge(params, c_expr);
     elsif action_name = "FLT_GT" then
       process_flt_gt(params, c_expr);
+    elsif action_name = "FLT_HASHCODE" then
+      process_flt_hashcode(params, c_expr);
     elsif action_name = "FLT_IFLT" then
       process_flt_iflt(params, c_expr);
     elsif action_name = "FLT_IPOW" then
@@ -5613,10 +5611,18 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_set_eq(params, c_expr);
     elsif action_name = "SET_EXCL" then
       process_set_excl(params, c_expr);
+    elsif action_name = "SET_GE" then
+      process_set_ge(params, c_expr);
+    elsif action_name = "SET_GT" then
+      process_set_gt(params, c_expr);
     elsif action_name = "SET_INCL" then
       process_set_incl(params, c_expr);
     elsif action_name = "SET_INTERSECT" then
       process_set_intersect(params, c_expr);
+    elsif action_name = "SET_LE" then
+      process_set_le(params, c_expr);
+    elsif action_name = "SET_LT" then
+      process_set_lt(params, c_expr);
     elsif action_name = "SET_MAX" then
       process_set_max(params, c_expr);
     elsif action_name = "SET_MIN" then
@@ -5625,6 +5631,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_set_ne(params, c_expr);
     elsif action_name = "SET_NOT_ELEM" then
       process_set_not_elem(params, c_expr);
+    elsif action_name = "SET_RAND" then
+      process_set_rand(params, c_expr);
     elsif action_name = "SET_UNION" then
       process_set_union(params, c_expr);
     elsif action_name = "SET_VALUE" then
@@ -5733,6 +5741,22 @@ const proc: process_action (in reference: procedure, in ref_list: params,
   end func;
 
 
+const func boolean: is_ref_param (in reference: a_param) is func
+
+  result
+    var boolean: result is TRUE;
+  local
+    var type: param_type is void;
+  begin
+    param_type := getType(a_param);
+    if not is_var(a_param) then
+      if param_type = stritype then
+        result := FALSE;
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_constenumobject (in reference: procedure, in ref_list: params,
     inout expr_type: c_expr) is func
 
@@ -5816,7 +5840,7 @@ const proc: push_macro_param (in reference: formal_param,
 *)
       else
         process_type(param_type, c_expr);
-        if objclass = "REFPARAMOBJECT" then
+        if objclass = "REFPARAMOBJECT" and is_ref_param(formal_param) then
           c_expr.expr &:= " *o_";
           create_name(formal_param, c_expr);
           c_expr.expr &:= "=";
@@ -5841,7 +5865,7 @@ const proc: push_macro_param (in reference: formal_param,
             c_expr.expr &:= "(tmp_";
             c_expr.expr &:= str(temp_num);
             c_expr.expr &:= "=";
-            process_expr(actual_param, c_expr);
+            process_arg(actual_param, c_expr);
             c_expr.expr &:= ", &tmp_";
             c_expr.expr &:= str(temp_num);
             c_expr.expr &:= ");\n";
@@ -5912,6 +5936,7 @@ const proc: process_macro (in reference: procedure,
     var type: result_type is void;
     var expr_type: macro_decls is expr_type.value;
     var reference: result_object is NIL;
+    var string: local_init is "";
   begin
     result_type := result_type(getType(procedure));
     if result_type = voidtype then
@@ -5923,7 +5948,8 @@ const proc: process_macro (in reference: procedure,
       c_expr.expr &:= "/* macro params */\n";
       push_macro_params(formal_params, actual_params, c_expr);
       c_expr.expr &:= "/* macro locals */\n";
-      process_locals(procedure, c_expr);
+      process_locals(procedure, local_init, c_expr);
+      c_expr.expr &:= local_init;
       c_expr.expr &:= "/* macro body */\n";
       process_expr(body(procedure), c_expr);
       pop_macro_params(formal_params, c_expr);
@@ -5939,7 +5965,7 @@ const proc: process_macro (in reference: procedure,
       c_expr.expr &:= str(procedure);
       c_expr.expr &:= "*/ (\n";
       push_macro_params(formal_params, actual_params, macro_decls);
-      process_locals(procedure, macro_decls);
+      process_locals(procedure, local_init, macro_decls);
       result_object := func_result(procedure);
       if result_object <> NIL then
         process_type(getType(result_object), macro_decls);
@@ -5949,6 +5975,7 @@ const proc: process_macro (in reference: procedure,
       end if;
       incr(c_expr.temp_num);
       c_expr.temp_decls &:= macro_decls.temp_decls;
+      c_expr.temp_assigns &:= local_init;
       c_expr.temp_assigns &:= macro_decls.temp_assigns;
       c_expr.temp_assigns &:= macro_decls.expr;
       c_expr.temp_frees &:= macro_decls.temp_frees;
@@ -5991,14 +6018,15 @@ const proc: call_params (in ref_list: formal_params,
           else
             c_expr.expr &:= ", ";
           end if;
-          if objclass = "REFPARAMOBJECT" then
+          if objclass = "REFPARAMOBJECT" and is_ref_param(formal_param) then
             if obj_class(actual_param) = "REFPARAMOBJECT" then
               c_expr.expr &:= "o_";
               create_name(actual_param, c_expr);
             elsif obj_class(actual_param) = "RESULTOBJECT" or
                 obj_class(actual_param) = "LOCALVOBJECT" or
                 obj_class(actual_param) = "STRIOBJECT" or
-                obj_class(actual_param) = "STRUCTOBJECT" then
+                obj_class(actual_param) = "STRUCTOBJECT" or
+                obj_class(actual_param) = "CLASSOBJECT" then
               c_expr.expr &:= "&(";
               process_expr(actual_param, c_expr);
               c_expr.expr &:= ")";
@@ -6014,13 +6042,13 @@ const proc: call_params (in ref_list: formal_params,
               c_expr.expr &:= "(tmp_";
               c_expr.expr &:= str(temp_num);
               c_expr.expr &:= "=";
-              process_expr(actual_param, c_expr);
+              process_arg(actual_param, c_expr);
               c_expr.expr &:= ", &tmp_";
               c_expr.expr &:= str(temp_num);
               c_expr.expr &:= ")";
             end if;
           else
-            process_expr(actual_param, c_expr);
+            process_arg(actual_param, c_expr);
           end if;
         end if;
       end if;
@@ -6166,23 +6194,28 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr);
     elsif objclass = "REFPARAMOBJECT" then
-      if obj_number(current_expression) <= length(object_value) and
-          length(object_value[obj_number(current_expression)]) > 0 then
-        c_expr.expr &:= "/* body o_";
-        c_expr.expr &:= str(obj_number(current_expression));
-        c_expr.expr &:= " ";
-        c_expr.expr &:= str(current_expression);
-        c_expr.expr &:= "*/ {\n";
-        process_expr(object_value[obj_number(current_expression)][1], c_expr);
-        c_expr.expr &:= "\n;} /* body o_";
-        c_expr.expr &:= str(obj_number(current_expression));
-        c_expr.expr &:= " ";
-        c_expr.expr &:= str(current_expression);
-        c_expr.expr &:= "*/\n";
+      if is_ref_param(current_expression) then
+        if obj_number(current_expression) <= length(object_value) and
+            length(object_value[obj_number(current_expression)]) > 0 then
+          c_expr.expr &:= "/* body o_";
+          c_expr.expr &:= str(obj_number(current_expression));
+          c_expr.expr &:= " ";
+          c_expr.expr &:= str(current_expression);
+          c_expr.expr &:= "*/ {\n";
+          process_expr(object_value[obj_number(current_expression)][1], c_expr);
+          c_expr.expr &:= "\n;} /* body o_";
+          c_expr.expr &:= str(obj_number(current_expression));
+          c_expr.expr &:= " ";
+          c_expr.expr &:= str(current_expression);
+          c_expr.expr &:= "*/\n";
+        else
+          c_expr.expr &:= "(*o_";
+          create_name(current_expression, c_expr);
+          c_expr.expr &:= ")";
+        end if;
       else
-        c_expr.expr &:= "(*o_";
+        c_expr.expr &:= "o_";
         create_name(current_expression, c_expr);
-        c_expr.expr &:= ")";
       end if;
     elsif objclass = "RESULTOBJECT" then
       c_expr.expr &:= "o_";
@@ -6326,7 +6359,7 @@ const proc: process_params (in ref_list: formal_params, inout expr_type: c_expr)
             c_expr.expr &:= ", ";
           end if;
           process_type(getType(formal_param), c_expr);
-          if objclass = "REFPARAMOBJECT" then
+          if objclass = "REFPARAMOBJECT" and is_ref_param(formal_param) then
             c_expr.expr &:= " *o_";
           else
             c_expr.expr &:= " o_";
@@ -6378,15 +6411,14 @@ const proc: process_prototype_params (in ref_list: param_list, inout expr_type: 
 
 
 const proc: process_result (in reference: result_object, in reference: result_init,
-    inout expr_type: c_expr) is func
+    inout string: local_init, inout expr_type: c_expr) is func
 
   begin
     if result_object <> NIL then
       process_type(getType(result_object), c_expr);
       c_expr.expr &:= " o_";
       create_name(result_object, c_expr);
-      c_expr.expr &:= "=";
-      process_expr(result_init, c_expr);
+      process_object_value(result_object, result_init, local_init, c_expr);
       c_expr.expr &:= ";\n";
     end if;
   end func;
@@ -6404,7 +6436,7 @@ const proc: process_return (in reference: result_object,
   end func;
 
 
-const proc: process_proc_declaration (in reference: procedure,
+const proc: process_func_declaration (in reference: procedure,
     inout expr_type: c_expr) is func
 
   local
@@ -6414,6 +6446,7 @@ const proc: process_proc_declaration (in reference: procedure,
     var ref_list: param_list is ref_list.EMPTY;
     var reference: result_object is NIL;
     var reference: result_init is NIL;
+    var string: local_init is "";
   begin
     procedure_type := getType(procedure);
     result_type := result_type(procedure_type);
@@ -6440,21 +6473,30 @@ const proc: process_proc_declaration (in reference: procedure,
             c_expr.expr &:= c_proc_body.temp_decls;
             c_expr.expr &:= c_proc_body.temp_assigns;
             c_expr.expr &:= "result=(";
-            c_expr.expr &:= c_proc_body.expr;
+            if c_proc_body.result_expr <> "" then
+              c_expr.expr &:= c_proc_body.result_expr;
+            else
+              c_expr.expr &:= c_proc_body.expr;
+            end if;
             c_expr.expr &:= ");\n";
             c_expr.expr &:= c_proc_body.temp_frees;
             c_expr.expr &:= "return(result);\n";
           else
             c_expr.expr &:= "return(";
-            c_expr.expr &:= c_proc_body.expr;
+            if c_proc_body.result_expr <> "" then
+              c_expr.expr &:= c_proc_body.result_expr;
+            else
+              c_expr.expr &:= c_proc_body.expr;
+            end if;
             c_expr.expr &:= ");\n";
           end if;
         else
           result_init := func_res_init(procedure);
-          process_result(result_object, result_init, c_expr);
-          process_locals(procedure, c_expr);
+          process_result(result_object, result_init, local_init, c_expr);
+          process_locals(procedure, local_init, c_expr);
           process_expr(body(procedure), c_proc_body);
           c_expr.expr &:= c_proc_body.temp_decls;
+          c_expr.expr &:= local_init;
           c_expr.expr &:= c_proc_body.temp_assigns;
           c_expr.expr &:= c_proc_body.expr;
           c_expr.expr &:= ";\n";
@@ -6573,6 +6615,8 @@ const proc: action_address (in reference: procedure, inout expr_type: c_expr) is
       c_expr.expr &:= "&chrCpy";
     elsif action_name = "CHR_CREATE" then
       c_expr.expr &:= "&chrCreate";
+    elsif action_name = "FLT_CMP" then
+      c_expr.expr &:= "&fltCmp";
     elsif action_name = "FLT_CPY" then
       c_expr.expr &:= "&fltCpy";
     elsif action_name = "FLT_CREATE" then
@@ -6854,7 +6898,7 @@ const proc: process_dynamic_decision (in ref_list: formal_params,
           c_expr.expr &:= "*/ ";
         else
           param_type := getType(formal_param);
-          if objclass = "REFPARAMOBJECT" then
+          if objclass = "REFPARAMOBJECT" and is_ref_param(formal_param) then
             c_expr.expr &:= " *o_";
           else
             c_expr.expr &:= " o_";
@@ -6917,7 +6961,7 @@ const proc: print_parameter_list (in ref_list: formal_params,
           c_expr.expr &:= "*/ \"); ";
           c_expr.expr &:= "printf(\"%X\", ";
         end if;
-        if objclass = "REFPARAMOBJECT" then
+        if objclass = "REFPARAMOBJECT" and is_ref_param(formal_param) then
           c_expr.expr &:= "(o_";
           create_name(formal_param, c_expr);
           c_expr.expr &:= "?*o_";
@@ -7133,7 +7177,7 @@ const proc: process_object_declaration (in reference: current_object,
   begin
     objclass := obj_class(current_object);
     if objclass = "BLOCKOBJECT" then
-      process_proc_declaration(current_object, c_expr);
+      process_func_declaration(current_object, c_expr);
     elsif objclass = "TYPEOBJECT" then
       process_type_declaration(current_object, c_expr);
     elsif objclass = "INTOBJECT" then
@@ -7227,7 +7271,11 @@ const proc: write_file_head is func
     c_prog << "typedef float floattype;\n";
     c_prog << "typedef inttype wintype;\n";
     c_prog << "typedef inttype progtype;\n";
-    c_prog << "stritype   *str;\n";
+    c_prog << "struct floattoint {\n";
+    c_prog << "  floattype floatvalue;\n";
+    c_prog << "  inttype intvalue;\n";
+    c_prog << "};\n";
+    c_prog << "stritype    str[];\n";
     c_prog << "arraytype  *arr;\n";
     c_prog << "structtype *sct;\n";
     c_prog << "unsigned long int hs;\n";
@@ -7254,7 +7302,7 @@ const proc: write_file_head is func
     c_prog << "arraytype arr_gen (inttype a, inttype b)                {printf(\"arr_gen\\n\");}\n";
     c_prog << "arraytype arr_head (arraytype a, inttype b)             {printf(\"arr_head\\n\");}\n";
     c_prog << "arraytype arr_range (arraytype a, inttype b, inttype c) {printf(\"arr_range\\n\");}\n";
-    c_prog << "arraytype arr_sort (arraytype a, void *b)               {printf(\"arr_sort\\n\");}\n";
+    c_prog << "arraytype arrSort (arraytype a, void *b)                {printf(\"arrSort\\n\");}\n";
     c_prog << "arraytype arr_tail (arraytype a, inttype b)             {printf(\"arr_tail\\n\");}\n";
     c_prog << "arraytype arr_times (inttype a, long b)                 {printf(\"arr_times\\n\");}\n";
     c_prog << "void      blnCpy (booltype *, booltype);\n";
@@ -7285,6 +7333,8 @@ const proc: write_file_head is func
     c_prog << "wintype   drwImage (wintype, inttype *, inttype, inttype);\n";
     c_prog << "void      drwLine (wintype, inttype, inttype, inttype, inttype);\n";
     c_prog << "wintype   drwOpen (inttype, inttype, inttype, inttype, stritype);\n";
+    c_prog << "void      drwPFCircle (wintype, inttype, inttype, inttype, inttype);\n";
+    c_prog << "void      drwPLine (wintype, inttype, inttype, inttype, inttype, inttype);\n";
     c_prog << "void      drwPoint (wintype, inttype, inttype);\n";
     c_prog << "void      drwPPoint (wintype, inttype, inttype, inttype);\n";
     c_prog << "void      drwPRect (wintype, inttype, inttype, inttype, inttype, inttype);\n";
@@ -7299,6 +7349,7 @@ const proc: write_file_head is func
     c_prog << "stritype  filStriRead (filetype, inttype);\n";
     c_prog << "stritype  filWordRead (filetype, chartype *);\n";
     c_prog << "void      filWrite (filetype, stritype);\n";
+    c_prog << "inttype   fltCmp (floattype, floattype);\n";
     c_prog << "void      fltCpy (floattype *, floattype);\n";
     c_prog << "void      fltCreate (floattype *, floattype);\n";
     c_prog << "stritype  fltDgts (floattype, inttype);\n";
@@ -7354,13 +7405,19 @@ const proc: write_file_head is func
     c_prog << "void      setCpy (settype *, settype);\n";
     c_prog << "settype   setDiff (settype, settype);\n";
     c_prog << "inttype   setElem (inttype, settype);\n";
+    c_prog << "void      setEq (settype, settype);\n";
     c_prog << "void      setExcl (settype *, inttype);\n";
+    c_prog << "void      setGe (settype, settype);\n";
+    c_prog << "void      setGt (settype, settype);\n";
     c_prog << "void      setIncl (settype *, inttype);\n";
     c_prog << "settype   setIntersect (settype, settype);\n";
+    c_prog << "void      setLe (settype, settype);\n";
+    c_prog << "void      setLt (settype, settype);\n";
     c_prog << "inttype   setMax (settype);\n";
     c_prog << "inttype   setMin (settype);\n";
     c_prog << "inttype   setNe (settype, settype);\n";
     c_prog << "inttype   setNotElem (inttype, settype);\n";
+    c_prog << "inttype   setRand (settype);\n";
     c_prog << "settype   setUnion (settype, settype);\n";
     c_prog << "void      strAppend (stritype *, stritype);\n";
     c_prog << "stritype  strConcat (stritype, stritype);\n";
@@ -7385,7 +7442,7 @@ const proc: write_file_head is func
     c_prog << "stritype  strRepl (stritype, stritype, stritype);\n";
     c_prog << "stritype  strRpad (stritype, inttype);\n";
     c_prog << "inttype   strRpos (stritype, stritype);\n";
-    c_prog << "stritype  str_substr (stritype a, inttype b, inttype c) {printf(\"str_substr\\n\");}\n";
+    c_prog << "stritype  strSubstr (stritype, inttype, inttype);\n";
     c_prog << "stritype  strTail (stritype, inttype);\n";
     c_prog << "stritype  strUp (stritype);\n";
     c_prog << "stritype  str_from_cstri (char *cstri) {\n\
@@ -7417,6 +7474,7 @@ const proc: write_file_head is func
     c_prog << "arraytype arr_gen (inttype, inttype);\n";
     c_prog << "arraytype arr_head (arraytype, inttype);\n";
     c_prog << "arraytype arr_range (arraytype, inttype, inttype);\n";
+    c_prog << "arraytype arrSort (arraytype, void * );\n";
     c_prog << "arraytype arr_tail (arraytype, inttype);\n";
     c_prog << "arraytype arr_times (inttype, long);\n";
     c_prog << "void      blnCpy (booltype *a, booltype b)              {printf(\"blnCpy\\n\");}\n";
@@ -7484,13 +7542,19 @@ const proc: write_file_head is func
     c_prog << "void      setCpy (settype *a, settype b)                {printf(\"setCpy\\n\");}\n";
     c_prog << "settype   setDiff (settype a, settype b)                {printf(\"setDiff\\n\");}\n";
     c_prog << "inttype   setElem (inttype a, settype b)                {printf(\"setElem\\n\");}\n";
+    c_prog << "void      setEq (settype a, settype b)                  {printf(\"setEq\\n\");}\n";
     c_prog << "void      setExcl (settype *a, inttype b)               {printf(\"setExcl\\n\");}\n";
+    c_prog << "void      setGe (settype a, settype b)                  {printf(\"setGe\\n\");}\n";
+    c_prog << "void      setGt (settype a, settype b)                  {printf(\"setGt\\n\");}\n";
     c_prog << "void      setIncl (settype *a, inttype b)               {printf(\"setIncl\\n\");}\n";
     c_prog << "settype   setIntersect (settype a, settype b)           {printf(\"setIntersect\\n\");}\n";
+    c_prog << "void      setLe (settype a, settype b)                  {printf(\"setLe\\n\");}\n";
+    c_prog << "void      setLt (settype a, settype b)                  {printf(\"setLt\\n\");}\n";
     c_prog << "inttype   setMax (settype a)                            {printf(\"setMax\\n\");}\n";
     c_prog << "inttype   setMin (settype a)                            {printf(\"setMin\\n\");}\n";
     c_prog << "inttype   setNe (settype, settype)                      {printf(\"setNe\\n\");}\n";
     c_prog << "inttype   setNotElem (inttype a, settype b)             {printf(\"setNotElem\\n\");}\n";
+    c_prog << "inttype   setRand (settype a)                           {printf(\"setRand\\n\");}\n";
     c_prog << "settype   setUnion (settype a, settype b)               {printf(\"setUnion\\n\");}\n";
     c_prog << "void      strAppend (stritype *a, stritype b)           {printf(\"strAppend\\n\");}\n";
     c_prog << "stritype  strConcat (stritype a, stritype b)            {printf(\"strConcat\\n\");}\n";
@@ -7515,7 +7579,7 @@ const proc: write_file_head is func
     c_prog << "stritype  strRepl (stritype a, stritype b, stritype c)  {printf(\"strRepl\\n\");}\n";
     c_prog << "stritype  strRpad (stritype a, inttype b)               {printf(\"strRpad\\n\");}\n";
     c_prog << "inttype   strRpos (stritype a, stritype b)              {printf(\"strRpos\\n\");}\n";
-    c_prog << "stritype  str_substr (stritype, inttype, inttype);\n";
+    c_prog << "stritype  strSubstr (stritype a, inttype b, inttype c)  {printf(\"strSubstr\\n\");}\n";
     c_prog << "stritype  strTail (stritype a, inttype b)               {printf(\"strTail\\n\");}\n";
     c_prog << "stritype  strUp (stritype a)                            {printf(\"strUp\\n\");}\n";
     c_prog << "stritype  str_from_cstri (char * );\n";
@@ -7620,6 +7684,39 @@ const proc: const_value (in reference: current_object, inout expr_type: c_expr) 
   end func;
 
 
+const proc: init_string_constants (inout expr_type: c_expr) is func
+  local
+    var stri_index_hash: stri_index is stri_index_hash.EMPTY_HASH;
+    var string: stri is "";
+    var integer: number is 0;
+    var char: ch is ' ';
+  begin
+    stri_index := flip(stri_const_table);
+    for number range sort(keys(stri_index)) do
+      stri := stri_index[number][1];
+      c_expr.expr &:= "/* str[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "] */ static strelemtype s_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "[]={";
+      c_expr.expr &:= str(length(stri));
+      c_expr.expr &:= ",";
+      for ch range stri do
+        c_expr.expr &:= c_literal(ch);
+        c_expr.expr &:= ",";
+      end for;
+      c_expr.expr &:= "};\n";
+    end for;
+    c_expr.expr &:= "stritype str[]={\n";
+    for number range sort(keys(stri_index)) do
+      c_expr.expr &:= "s_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= ",\n";
+    end for;
+    c_expr.expr &:= "};\n\n";
+  end func;
+
+
 const proc: generate_main (in program: prog) is func
 
   local
@@ -7632,6 +7729,7 @@ const proc: generate_main (in program: prog) is func
     var ref_list: array_list is ref_list.EMPTY;
     var ref_list: struct_list is ref_list.EMPTY;
   begin
+    init_string_constants(c_expr);
     c_expr.expr &:= "int main (int argc, char **argv)\n";
     c_expr.expr &:= "\n";
     c_expr.expr &:= "{\n";
@@ -7644,6 +7742,7 @@ const proc: generate_main (in program: prog) is func
         walk_const_list(struct_to_list(const_object));
       end if;
     end for;
+(*
     c_expr.expr &:= "str = malloc(";
     c_expr.expr &:= str(length(stri_const_table));
     c_expr.expr &:= " * sizeof(stritype));\n";
@@ -7655,6 +7754,7 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= c_literal(stri_index[number][1]);
       c_expr.expr &:= ");\n";
     end for;
+*)
     writeln("after walk_const_list");
     c_expr.expr &:= "arr = malloc(";
     c_expr.expr &:= str(length(const_table));
@@ -7792,7 +7892,6 @@ const proc: pass_2 (in string: source, in program: prog,
         if c_prog <> STD_NULL then
           init_systypes(prog);
           write_file_head();
-          (* process_proc_declaration(sys_var(prog, "main")); *)
           declared_objects := declared_objects(prog);
           for obj range declared_objects do
             process_object(obj);

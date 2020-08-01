@@ -122,13 +122,6 @@ const proc: line (in integer: x1, in integer: y1,
   end func;
 
 
-const proc: lineTo (in integer: x1, in integer: y1,
-    in integer: x2, in integer: y2, in color: col) is func
-  begin
-    DRAW_PLINE(curr_win, x1, y1, x2, y2, colorPixel(col));
-  end func;
-
-
 const proc: lineTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
@@ -137,12 +130,10 @@ const proc: lineTo (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
-const proc: lineToAngle (in integer: x, in integer: y,
-    in integer: length, in float: angle, in color: col) is func
+const proc: lineTo (in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
   begin
-    DRAW_PLINE(curr_win, x, y,
-        x + round(flt(length) * sin(angle)),
-        y + round(flt(length) * -cos(angle)), colorPixel(col));
+    DRAW_PLINE(curr_win, x1, y1, x2, y2, colorPixel(col));
   end func;
 
 
@@ -151,6 +142,15 @@ const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
     in integer: length, in float: angle, in color: col) is func
   begin
     DRAW_PLINE(win, x, y,
+        x + round(flt(length) * sin(angle)),
+        y + round(flt(length) * -cos(angle)), colorPixel(col));
+  end func;
+
+
+const proc: lineToAngle (in integer: x, in integer: y,
+    in integer: length, in float: angle, in color: col) is func
+  begin
+    DRAW_PLINE(curr_win, x, y,
         x + round(flt(length) * sin(angle)),
         y + round(flt(length) * -cos(angle)), colorPixel(col));
   end func;
@@ -233,6 +233,60 @@ const proc: rectTo (in integer: x1, in integer: y1,
   end func;
 
 
+const proc: box (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(win, x1, y1, pred(x1 + width), y1, pix);
+    DRAW_PLINE(win, pred(x1 + width), y1, pred(x1 + width), pred(y1 + height), pix);
+    DRAW_PLINE(win, pred(x1 + width), pred(y1 + height), x1, pred(y1 + height), pix);
+    DRAW_PLINE(win, x1, pred(y1 + height), x1, y1, pix);
+  end func;
+
+
+const proc: box (in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(curr_win, x1, y1, pred(x1 + width), y1, pix);
+    DRAW_PLINE(curr_win, pred(x1 + width), y1, pred(x1 + width), pred(y1 + height), pix);
+    DRAW_PLINE(curr_win, pred(x1 + width), pred(y1 + height), x1, pred(y1 + height), pix);
+    DRAW_PLINE(curr_win, x1, pred(y1 + height), x1, y1, pix);
+  end func;
+
+
+const proc: boxTo (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(win, x1, y1, x2, y1, pix);
+    DRAW_PLINE(win, x2, y1, x2, y2, pix);
+    DRAW_PLINE(win, x2, y2, x1, y2, pix);
+    DRAW_PLINE(win, x1, y2, x1, y1, pix);
+  end func;
+
+
+const proc: boxTo (in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(curr_win, x1, y1, x2, y1, pix);
+    DRAW_PLINE(curr_win, x2, y1, x2, y2, pix);
+    DRAW_PLINE(curr_win, x2, y2, x1, y2, pix);
+    DRAW_PLINE(curr_win, x1, y2, x1, y1, pix);
+  end func;
+
+
 const proc: circle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: r, in color: col) is func
   begin
@@ -251,15 +305,13 @@ const proc: circle (in integer: x, in integer: y, in integer: r, in color: col) 
 const proc: fcircle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: r, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    FILL_CIRCLE(win, x, y, r);
+    FILL_CIRCLE(win, x, y, r, colorPixel(col));
   end func;
 
 
 const proc: fcircle (in integer: x, in integer: y, in integer: r, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    FILL_CIRCLE(curr_win, x, y, r);
+    FILL_CIRCLE(curr_win, x, y, r, colorPixel(col));
   end func;
 
 

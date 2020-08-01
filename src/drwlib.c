@@ -904,6 +904,36 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_pfcircle (listtype arguments)
+#else
+
+objecttype drw_pfcircle (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x1, y1, radius, col;
+
+  /* drw_pfcircle */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x1 = take_int(arg_2(arguments));
+    y1 = take_int(arg_3(arguments));
+    radius = take_int(arg_4(arguments));
+    col = take_int(arg_5(arguments));
+    drwPFCircle(actual_window, x1, y1, radius, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_pfcircle */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_pline (listtype arguments)
 #else
 

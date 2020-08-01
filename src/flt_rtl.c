@@ -62,6 +62,28 @@ static char *form[] = {"%1.0f", "%1.1f", "%1.2f", "%1.3f", "%1.4f",
 
 #ifdef ANSI_C
 
+inttype fltCmp (floattype number1, floattype number2)
+#else
+
+inttype fltCmp (number1, number2)
+floattype number1;
+floattype number2;
+#endif
+
+  { /* fltCmp */
+    if (number1 < number2) {
+      return(-1);
+    } else if (number1 > number2) {
+      return(1);
+    } else {
+      return(0);
+    } /* if */
+  } /* fltCmp */
+
+
+
+#ifdef ANSI_C
+
 void fltCpy (floattype *dest, floattype source)
 #else
 

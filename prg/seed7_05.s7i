@@ -755,7 +755,7 @@ const func string: c_literal (in char: ch) is func
   begin
     if ch = ''' then
       result := "'\\''";
-    elsif ch <= chr(255) then
+    elsif ch <= chr(127) then
       result := c_literal(str(ch));
       result := "'" & result[2 .. length(result) - 1] & "'";
     else
@@ -1569,6 +1569,7 @@ const func boolean: (in integer param) not in (in bitset param) is action "SET_N
 const proc: incl (inout bitset param, in integer param) is         action "SET_INCL";
 const proc: excl (inout bitset param, in integer param) is         action "SET_EXCL";
 const func integer: card (in bitset param) is                      action "SET_CARD";
+const func integer: rand (in bitset param) is                      action "SET_RAND";
 const func integer: min (in bitset param) is                       action "SET_MIN";
 const func integer: max (in bitset param) is                       action "SET_MAX";
 const func bitset: { (in integer: value) } is                      action "SET_BASELIT";
@@ -1652,6 +1653,9 @@ const func type: set of (in type: baseType) is func
         begin
           excl(bitset var_conv a_set, ord(set_elem));
         end func;
+
+      const func baseType: rand (in setType: a_set) is
+        return baseType conv rand(bitset conv a_set);
 
       const func baseType: min (in setType: a_set) is
         return baseType conv min(bitset conv a_set);

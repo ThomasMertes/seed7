@@ -48,6 +48,7 @@ tarx.sd7     Simple tar program
 tch.sd7      The hitchhikers guide ...                         
 tet.sd7      Tetris game with text output                      
 tetg.sd7     Tetris game with graphical output                 
+wator.sd7    Planet Wator simulation with fish and sharks      
 wiz.sd7      Find treasures and fight monsters labyrinth game  
 wordcnt.sd7  Count the words in a file                         
 wrinum.sd7   Write numbers as english text                     

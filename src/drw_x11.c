@@ -46,6 +46,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "kbd_drv.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -922,6 +923,35 @@ inttype x, y, radius;
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     } /* if */
   } /* drwFCircle */
+
+
+
+#ifdef ANSI_C
+
+void drwPFCircle (wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col)
+#else
+
+void drwPFCircle (actual_window, x, y, radius, col)
+wintype actual_window;
+inttype x, y, radius;
+inttype col;
+#endif
+
+  { /* drwPFCircle */
+#ifdef TRACE_X11
+    printf("fcircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
+#endif
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XFillArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    if (to_backup(actual_window) != 0) {
+      XFillArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    } /* if */
+  } /* drwPFCircle */
 
 
 

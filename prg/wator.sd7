@@ -1,0 +1,583 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  wator.sd7     Planet Wator simulation with fish and sharks      *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "screen.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+  include "echo.s7i";
+  include "line.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+
+const integer: MAX_LINE is 100;
+const integer: MAX_COLUMN is 100;
+const integer: CELL_SIZE is 4;
+const integer: SCALE_FISH is 150;
+const integer: SCALE_SHARKS is 40;
+const integer: GRAPH_TOP is CELL_SIZE * (MAX_LINE + 2);
+const integer: GRAPH_BOTTOM is 478;
+
+var integer: nfish     is 0;
+var integer: nsharks   is 0;
+var integer: fbreed    is 0;
+var integer: sbreed    is 0;
+var integer: slife     is 0;
+
+var integer: cycle     is 0;
+
+var integer: maxfish   is 0;
+var integer: minfish   is 0;
+var integer: maxsharks is 0;
+var integer: minsharks is 0;
+
+const integer: EMPTY is 1;
+const integer: FISH is 2;
+const integer: SHARK is 3;
+
+const type: cellType is new struct
+    var integer: content is EMPTY;
+    var boolean: processed is FALSE;
+    var integer: fish is -1;
+    var integer: shark is -1;
+    var integer: starve is -1;
+  end struct;
+
+const type: fieldType is array array cellType;
+
+var fieldType: field is MAX_LINE times MAX_COLUMN times cellType.value;
+
+var array integer: sumContent is 3 times 0;
+
+var text: scr is STD_NULL;
+var text: info is STD_NULL;
+
+
+const proc: introduction is func
+  local
+    var text: intro is STD_NULL;
+  begin
+    intro := open_window(scr, 1, 12, height(scr), width(scr) - 12);
+    setPos(intro, 2, 38);
+    writeln(intro, "W A T O R");
+    setPos(intro, 4, 26);
+    writeln(intro, "Copyright (C) 2006  Thomas Mertes");
+    setPos(intro, 6, 23);
+    writeln(intro, "This program is free software under the");
+    setPos(intro, 7, 23);
+    writeln(intro, "terms of the GNU General Public License");
+    setPos(intro, 9, 18);
+    writeln(intro, "Wator is written in the Seed7 programming language");
+    setPos(intro, 10, 20);
+    writeln(intro, "Homepage:    http://seed7.sourceforge.net");
+    setPos(intro, 11, 20);
+    writeln(intro, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
+    setPos(intro, 14, 1);
+    writeln(intro, "This program simulates the planet WATOR as described in Scientific American Computer");
+    writeln(intro, "Recreations column, Dec 1984.  WATOR (or Wa-Tor) is a toroidal (donut-shaped) planet");
+    writeln(intro, "inhabited by fish and sharks.  The fish feed on a ubiquitous plankton and the sharks");
+    writeln(intro, "feed on the fish.  Time passes in discrete jumps or cycles.  During each cycle, fish");
+    writeln(intro, "move randomly to an unoccupied square,  and reproduce if old enough.  Sharks move to");
+    writeln(intro, "a square occupied by a fish and eat it, if possible, or move to an open square if no");
+    writeln(intro, "meals are available.  Sharks will also breed if old enough,  but will starve if they");
+    writeln(intro, "do not eat within a specified period of time.");
+    writeln(intro);
+    writeln(intro, "Parameters selected at the beginning of the run are as follows:");
+    writeln(intro, "  nfish:    Number of fish at start of run-distributed randomly.");
+    writeln(intro, "  nsharks:  Number of sharks at start, also distributed randomly.");
+    writeln(intro, "  fbreed:   Number of cycles a fish must exist before reproducing.");
+    writeln(intro, "  sbreed:   Number of cycles sharks must exist before reproducing.");
+    writeln(intro, "  starve:   Number of cycles a shark has to find food before starving.");
+    writeln(intro);
+    writeln(intro, "On the screen, fish are green and sharks are blue.  After the initial screen is");
+    writeln(intro, "displayed, press any key to start the simulation.  During the run, pressing any key");
+    writeln(intro, "will stop the program.");
+    writeln(intro);
+    writeln(intro, "Press any key now to continue.");
+  end func;
+
+
+const proc: display is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: newfish is 0;
+    var integer: newsharks is 0;
+  begin
+    sumContent := 3 times 0;
+    for line range 1 to MAX_LINE do
+      for column range 1 to MAX_COLUMN do
+        if field[line][column].processed then
+          field[line][column].processed := FALSE;
+          if field[line][column].content = EMPTY then
+            rect(CELL_SIZE * column, CELL_SIZE * line, CELL_SIZE, CELL_SIZE, black);
+          elsif field[line][column].content = FISH then
+            incr(newfish);
+            rect(CELL_SIZE * column, CELL_SIZE * line, CELL_SIZE, CELL_SIZE, light_green);
+          else # if field[line][column].content = SHARK then
+            incr(newsharks);
+            rect(CELL_SIZE * column, CELL_SIZE * line, CELL_SIZE, CELL_SIZE, light_blue);
+          end if;
+        else
+          incr(sumContent[field[line][column].content]);
+        end if;
+      end for;
+    end for;
+    sumContent[FISH] +:= newfish;
+    sumContent[SHARK] +:= newsharks;
+  end func;
+
+
+const proc: writeInfo is func
+  begin
+    if sumContent[FISH] < minfish then
+      minfish := sumContent[FISH];
+    elsif sumContent[FISH] > maxfish then
+      maxfish := sumContent[FISH];
+    end if;
+    if sumContent[SHARK] < minsharks then
+      minsharks := sumContent[SHARK];
+    elsif sumContent[SHARK] > maxsharks then
+      maxsharks := sumContent[SHARK];
+    end if;
+    setPos(info, 9, 8);
+    writeln(info, sumContent[FISH] lpad 5);
+    setPos(info, 10, 8);
+    writeln(info, minfish lpad 5);
+    setPos(info, 11, 8);
+    writeln(info, maxfish lpad 5);
+    setPos(info, 13, 8);
+    writeln(info, sumContent[SHARK] lpad 5);
+    setPos(info, 14, 8);
+    writeln(info, minsharks lpad 5);
+    setPos(info, 15, 8);
+    writeln(info, maxsharks lpad 5);
+    setPos(info, 17, 13);
+    write(info, cycle);
+  end func;
+
+
+const proc: initInfo is func
+  begin
+    maxfish := sumContent[FISH];
+    minfish := sumContent[FISH];
+    maxsharks := sumContent[SHARK];
+    minsharks := sumContent[SHARK];
+    setPos(info, 9, 1);
+    writeln(info, "Fish:");
+    writeln(info, " min:");
+    writeln(info, " max:");
+    writeln(info);
+    writeln(info, "Sharks:");
+    writeln(info, " min:");
+    writeln(info, " max:");
+    writeln(info);
+    writeln(info, "Generation: ");
+    writeInfo;
+  end func;
+
+
+const proc: initialize is func
+  (* PROCEDURE INITIALIZES ARRAYS, GETS STARTING PARAMETERS, SETS UP SCREEN *)
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: number is 0;
+  begin
+    cycle := 0;
+    clear(info);
+    setPos(info, 1, 1);
+    writeln(info, "W A T O R");
+    setPos(info, 3, 1);
+    write(info, "nfish= ");
+    readln(nfish);
+    write(info, "nsharks= ");
+    readln(nsharks);
+    write(info, "fbreed= ");
+    readln(fbreed);
+    write(info, "sbreed= ");
+    readln(sbreed);
+    write(info, "slife= ");
+    readln(slife);
+    for line range 1 to MAX_LINE do
+      for column range 1 to MAX_COLUMN do
+        field[line][column].content := EMPTY;
+        field[line][column].processed := FALSE;
+        field[line][column].fish := -1;
+        field[line][column].shark := -1;
+        field[line][column].starve := -1;
+      end for;
+    end for;
+    for number range 1 to nfish do
+      repeat
+        line := rand(1, MAX_LINE);
+        column := rand(1, MAX_COLUMN);
+      until field[line][column].content = EMPTY;
+      field[line][column].content := FISH;
+      field[line][column].processed := TRUE;
+      field[line][column].fish := rand(0, pred(fbreed));
+    end for;
+    for number range 1 to nsharks do
+      repeat
+        line := rand(1, MAX_LINE);
+        column := rand(1, MAX_COLUMN);
+      until field[line][column].content = EMPTY;
+      field[line][column].content := SHARK;
+      field[line][column].processed := TRUE;
+      field[line][column].shark := rand(0, pred(sbreed));
+      field[line][column].starve := rand(0, pred(slife));
+    end for;
+    boxTo(CELL_SIZE - 3, CELL_SIZE - 3,
+        CELL_SIZE * succ(MAX_LINE) + 2,
+        CELL_SIZE * succ(MAX_LINE) + 2, white);
+    display;
+    initInfo;
+  end func;
+
+
+const proc: moveFish (inout cellType: source, inout cellType: dest) is func
+  (* MAKE MOVE, FISH BREEDS IF OLD ENOUGH TO REPRODUCE *)
+  begin
+    dest.content := FISH;
+    dest.processed := TRUE;
+    if source.fish = fbreed then
+      dest.fish := 0;
+      source.fish := rand(0, pred(fbreed)); # Randomize parent breed time. This was 0
+    else
+      dest.fish := succ(source.fish);
+      source.content := EMPTY;
+      source.processed := TRUE;
+    end if;
+  end func;
+
+
+const proc: moveAllFish is func
+  local
+    var integer: line         is 0;
+    var integer: column       is 0;
+    var integer: up_line      is 0;
+    var integer: down_line    is 0;
+    var integer: left_column  is 0;
+    var integer: right_column is 0;
+    var integer: nmoves is 0;
+    var array integer: moveopts is 4 times 0;
+  begin
+    for line range 1 to MAX_LINE do
+      if line = 1 then
+        up_line := MAX_LINE;
+      else
+        up_line := pred(line);
+      end if;
+      if line = MAX_LINE then
+        down_line := 1;
+      else
+        down_line := succ(line);
+      end if;
+      for column range 1 to MAX_COLUMN do
+        (* LOOK THROUGH ARRAY FOR FISH, CHECK IF ALREADY MOVED.  IF NOT, THEN *)
+        if field[line][column].content = FISH and not field[line][column].processed then
+          if column = 1 then
+            left_column := MAX_COLUMN;
+          else
+            left_column := pred(column);
+          end if;
+          if column = MAX_COLUMN then
+            right_column := 1;
+          else
+            right_column := succ(column);
+          end if;
+          nmoves := 0;
+          (* LOOK AROUND TO SEE WHERE FISH CAN BE MOVED *)
+          if field[line][left_column].content = EMPTY then
+            incr(nmoves);
+            moveopts[nmoves] := 1;
+          end if;
+          if field[line][right_column].content = EMPTY then
+            incr(nmoves);
+            moveopts[nmoves] := 2;
+          end if;
+          if field[up_line][column].content = EMPTY then
+            incr(nmoves);
+            moveopts[nmoves] := 3;
+          end if;
+          if field[down_line][column].content = EMPTY then
+            incr(nmoves);
+            moveopts[nmoves] := 4;
+          end if;
+          if nmoves = 0 then
+            (* IF NOWHERE TO GO THEY JUST GET OLDER *)
+            if field[line][column].fish = fbreed then
+              field[line][column].fish := 0
+            else
+              incr(field[line][column].fish);
+            end if;
+          else
+            (* OTHERWISE, PICK A MOVE TO MAKE *)
+            case moveopts[rand(1, nmoves)] of
+              when {1}:
+                moveFish(field[line][column], field[line][left_column]);
+              when {2}:
+                moveFish(field[line][column], field[line][right_column]);
+              when {3}:
+                moveFish(field[line][column], field[up_line][column]);
+              when {4}:
+                moveFish(field[line][column], field[down_line][column]);
+            end case;
+          end if;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: killFish (inout cellType: source, inout cellType: dest) is func
+  begin
+    dest.content := SHARK;
+    dest.processed := TRUE;
+    dest.starve := 0;
+    if source.shark = sbreed then
+      dest.shark := 0;
+      source.shark := rand(0, pred(sbreed)); # Randomize parent breed time. This was 0
+      source.starve := 0;
+    else
+      dest.shark := succ(source.shark);
+      source.content := EMPTY;
+      source.processed := TRUE;
+    end if;
+  end func;
+
+
+const proc: moveShark (inout cellType: source, inout cellType: dest) is func
+  begin
+    dest.content := SHARK;
+    dest.processed := TRUE;
+    dest.starve := succ(source.starve);
+    if source.shark = sbreed then
+      dest.shark := 0;
+      source.shark := rand(0, pred(sbreed)); # Randomize parent breed time. This was 0
+      incr(source.starve);
+    else
+      dest.shark := succ(source.shark);
+      source.content := EMPTY;
+      source.processed := TRUE;
+    end if;
+  end func;
+
+
+const proc: moveAllSharks is func
+  local
+    var integer: line         is 0;
+    var integer: column       is 0;
+    var integer: up_line      is 0;
+    var integer: down_line    is 0;
+    var integer: left_column  is 0;
+    var integer: right_column is 0;
+    var integer: nmoves is 0;
+    var integer: nmeals is 0;
+    var array integer: moveopts is 4 times 0;
+  begin
+    for line range 1 to MAX_LINE do
+      if line = 1 then
+        up_line := MAX_LINE;
+      else
+        up_line := pred(line);
+      end if;
+      if line = MAX_LINE then
+        down_line := 1;
+      else
+        down_line := succ(line);
+      end if;
+      for column range 1 to MAX_COLUMN do
+        (* LOOK THROUGH ARRAY FOR sharks, CHECK IF ALREADY MOVED.  IF NOT, THEN *)
+        if field[line][column].content = SHARK and not field[line][column].processed then
+          if column = 1 then
+            left_column := MAX_COLUMN;
+          else
+            left_column := pred(column);
+          end if;
+          if column = MAX_COLUMN then
+            right_column := 1;
+          else
+            right_column := succ(column);
+          end if;
+          nmeals := 0;
+          (* LOOK AROUND TO SEE WHERE sharks CAN BE MOVED *)
+          if field[line][left_column].content = FISH then
+            incr(nmeals);
+            moveopts[nmeals] := 1;
+          end if;
+          if field[line][right_column].content = FISH then
+            incr(nmeals);
+            moveopts[nmeals] := 2;
+          end if;
+          if field[up_line][column].content = FISH then
+            incr(nmeals);
+            moveopts[nmeals] := 3;
+          end if;
+          if field[down_line][column].content = FISH then
+            incr(nmeals);
+            moveopts[nmeals] := 4;
+          end if;
+          (* IF THE SHARK FINDS A FISH TO EAT, THEN PICK ONE, EAT IT, BREED IF POSSIBLE *)
+          if nmeals > 0 then
+            case moveopts[rand(1, nmeals)] of
+              when {1}:
+                killFish(field[line][column], field[line][left_column]);
+              when {2}:
+                killFish(field[line][column], field[line][right_column]);
+              when {3}:
+                killFish(field[line][column], field[up_line][column]);
+              when {4}:
+                killFish(field[line][column], field[down_line][column]);
+            end case;
+          elsif field[line][column].starve < slife then
+            (* IF NO MEALS IN VICINITY, LOOK FOR AN EMPTY SQUARE TO MOVE TO *)
+            nmoves := 0;
+            if field[line][left_column].content = EMPTY then
+              incr(nmoves);
+              moveopts[nmoves] := 1;
+            end if;
+            if field[line][right_column].content = EMPTY then
+              incr(nmoves);
+              moveopts[nmoves] := 2;
+            end if;
+            if field[up_line][column].content = EMPTY then
+              incr(nmoves);
+              moveopts[nmoves] := 3;
+            end if;
+            if field[down_line][column].content = EMPTY then
+              incr(nmoves);
+              moveopts[nmoves] := 4;
+            end if;
+            if nmoves = 0 then
+              (* IF NOTHING TO EAT AND NO PLACE TO GO, SHARK GETS OLDER *)
+              if field[line][column].shark = sbreed then
+                field[line][column].shark := 0;
+              else
+                incr(field[line][column].shark);
+              end if;
+              incr(field[line][column].starve);
+            else
+              (* IF THERE IS A MOVE TO MAKE, PICK ONE FROM AVAILABLE SQUARES *)
+              case moveopts[rand(1, nmoves)] of
+                when {1}:
+                  moveShark(field[line][column], field[line][left_column])
+                when {2}:
+                  moveShark(field[line][column], field[line][right_column])
+                when {3}:
+                  moveShark(field[line][column], field[up_line][column])
+                when {4}:
+                  moveShark(field[line][column], field[down_line][column])
+              end case;
+            end if;
+          else
+            field[line][column].content := EMPTY;
+            field[line][column].processed := TRUE;
+          end if;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: main is func
+  local
+    var char: inchar is ' ';
+    var integer: oldFishGraph is 0;
+    var integer: oldSharkGraph is 0;
+    var integer: newFishGraph is 0;
+    var integer: newSharkGraph is 0;
+  begin
+    # scr := open(SCREEN);
+    screen(640, 480);
+    clear(black);
+    scr := open(curr_win);
+    info := open_window(scr, 1, 70, height(scr), width(scr) - 70);
+    KEYBOARD := GRAPH_KEYBOARD;
+    IN := KEYBOARD;
+    IN := open_echo(IN, info);
+    IN := open_line(IN);
+    introduction;
+    inchar := upper(getc(KEYBOARD));
+    while inchar <> 'Q' do
+      clear(black);
+      initialize;
+      oldFishGraph := GRAPH_BOTTOM - sumContent[FISH] div SCALE_FISH;
+      oldSharkGraph := GRAPH_BOTTOM - sumContent[SHARK] div SCALE_SHARKS;
+      point(cycle rem 640, oldFishGraph, light_green);
+      point(cycle rem 640, oldSharkGraph, light_blue);
+      setPos(info, 28, 1);
+      writeln(info, "Simulation prepared. Press");
+      writeln(info, " Enter to start");
+      writeln(info, " N to start a new simulation");
+      writeln(info, " Q to Quit");
+      inchar := upper(getc(KEYBOARD));
+      setPos(info, 28, 1);
+      writeln(info, " " mult 30);
+      writeln(info, " " mult 30);
+      writeln(info, " " mult 30);
+      writeln(info, " " mult 30);
+      while inchar not in {'N', 'Q'} do
+        moveAllFish;
+        moveAllSharks;
+        display;
+        writeInfo;
+        incr(cycle);
+        newFishGraph := GRAPH_BOTTOM - sumContent[FISH] div SCALE_FISH;
+        if newFishGraph < GRAPH_TOP then
+          newFishGraph := GRAPH_TOP;
+        end if;
+        newSharkGraph := GRAPH_BOTTOM - sumContent[SHARK] div SCALE_SHARKS;
+        if newSharkGraph < GRAPH_TOP then
+          newSharkGraph := GRAPH_TOP;
+        end if;
+        rectTo(cycle rem 640, GRAPH_TOP, cycle rem 640 + 4, GRAPH_BOTTOM, black);
+        if cycle rem 640 = 0 then
+          point(cycle rem 640, newFishGraph, light_green);
+          point(cycle rem 640, newSharkGraph, light_blue);
+        else
+          lineTo(pred(cycle rem 640), oldFishGraph, cycle rem 640, newFishGraph, light_green);
+          lineTo(pred(cycle rem 640), oldSharkGraph, cycle rem 640, newSharkGraph, light_blue);
+        end if;
+        oldFishGraph := newFishGraph;
+        oldSharkGraph := newSharkGraph;
+        if keypressed(KEYBOARD) then
+          repeat
+            inchar := getc(KEYBOARD);
+          until not keypressed(KEYBOARD);
+          setPos(info, 28, 1);
+          writeln(info, "Simulation interrupted. Press");
+          writeln(info, " Enter to continue");
+          writeln(info, " N to start a new simulation");
+          writeln(info, " Q to Quit");
+          inchar := upper(getc(KEYBOARD));
+          setPos(info, 28, 1);
+          writeln(info, " " mult 30);
+          writeln(info, " " mult 30);
+          writeln(info, " " mult 30);
+          writeln(info, " " mult 30);
+        end if;
+      end while;
+    end while;
+  end func;

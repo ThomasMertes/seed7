@@ -47,4 +47,4 @@ stritype filStriRead ();
 stritype filWordRead ();
 void filWrite ();
 
-#endif;
+#endif

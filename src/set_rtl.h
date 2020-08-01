@@ -42,12 +42,17 @@ settype setDiff (settype, settype);
 booltype setElem (inttype, settype);
 booltype setEq (settype, settype);
 void setExcl (settype *, inttype);
+booltype setGe (settype, settype);
+booltype setGt (settype, settype);
 void setIncl (settype *, inttype);
 settype setIntersect (settype, settype);
+booltype setLe (settype, settype);
+booltype setLt (settype, settype);
 inttype setMax (settype);
 inttype setMin (settype);
 booltype setNe (settype, settype);
 booltype setNotElem (inttype, settype);
+inttype setRand (settype);
 settype setUnion (settype, settype);
 
 #else
@@ -58,12 +63,17 @@ settype setDiff ();
 booltype setElem ();
 booltype setEq ();
 void setExcl ();
+booltype setGe ();
+booltype setGt ();
 void setIncl ();
 settype setIntersect ();
+booltype setLe ();
+booltype setLt ();
 inttype setMax ();
 inttype setMin ();
 booltype setNe ();
 booltype setNotElem ();
+inttype setRand ();
 settype setUnion ();
 
 #endif

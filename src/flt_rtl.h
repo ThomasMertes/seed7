@@ -31,6 +31,7 @@
 
 #ifdef ANSI_C
 
+inttype fltCmp (floattype, floattype);
 void fltCpy (floattype *, floattype);
 void fltCreate (floattype *, floattype);
 stritype fltDgts (floattype, inttype);
@@ -42,6 +43,7 @@ stritype fltStr (floattype);
 
 #else
 
+inttype fltCmp ();
 void fltCpy ();
 void fltCreate ();
 stritype fltDgts ();

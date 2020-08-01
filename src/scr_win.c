@@ -54,7 +54,6 @@
 #define white 15
 
 static char currentattribute;
-static char outbuffer[SCRWIDTH];
 static booltype screen_initialized = FALSE;
 static booltype cursor_on = FALSE;
 

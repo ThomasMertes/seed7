@@ -53,6 +53,7 @@ stritype strRange (stritype, inttype, inttype);
 stritype strRepl (stritype, stritype, stritype);
 stritype strRpad (stritype, inttype);
 inttype strRpos (stritype, stritype);
+stritype strSubstr (stritype, inttype, inttype);
 stritype strTail (stritype, inttype);
 stritype strUp (stritype);
 
@@ -80,6 +81,7 @@ stritype strRange ();
 stritype strRepl ();
 stritype strRpad ();
 inttype strRpos ();
+stritype strSubstr ();
 stritype strTail ();
 stritype strUp ();
 
