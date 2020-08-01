@@ -1,0 +1,149 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  lzw.s7i       Lempel-Ziv-Welch compression support library      *)
+(*  Copyright (C) 2015  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bitdata.s7i";
+
+
+(**
+ *  Encode a string with the Lempel-Ziv-Welch (LZW) compression method.
+ *  The packing order of bits in bytes is is MSB-First (Most Significant
+ *  Bit First). Encoding starts with 9 bits per coding point and goes
+ *  up to 12 bits per coding point. The code points 0 to 255 correspond
+ *  to ISO-8859-1 (Latin-1) characters. Code 256 starts a new block with
+ *  a new table and 9 bits per code point. Code 257 marks the end of the
+ *  compressed data. This compression is used in TIFF and PDF files.
+ *)
+const func string: lzwEncodeMsb (in string: uncompressed) is func
+  result
+    var string: compressed is "";
+  local
+    var integer: code is 4095;
+    var char: ch is ' ';
+    var hash [string] integer: mydict is (hash [string] integer).value;
+    var string: buffer is "";
+    var string: xstr is "";
+    var integer: bitPos is 0;
+    var integer: bitsToWrite is 9;
+  begin
+    for ch range uncompressed do
+      if code = 4095 then
+        if buffer <> "" then
+          putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+        end if;
+        mydict := (hash [string] integer).value;
+        for code range 0 to 255 do
+          mydict @:= [str(chr(code))] code;
+        end for;
+        putBitsMsb(compressed, bitPos, 256, bitsToWrite);
+        bitsToWrite := 9;
+        buffer := "";
+      end if;
+      xstr := buffer & str(ch);
+      if xstr in mydict then
+        buffer &:= str(ch)
+      else
+        putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+        code := length(mydict) + 2;
+        mydict @:= [xstr] code;
+        if code = 511 then
+          bitsToWrite := 10;
+        elsif code = 1023 then
+          bitsToWrite := 11;
+        elsif code = 2047 then
+          bitsToWrite := 12;
+        end if;
+        buffer := str(ch);
+      end if;
+    end for;
+    if buffer <> "" then
+      putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+    end if;
+    putBitsMsb(compressed, bitPos, 257, bitsToWrite);
+  end func;
+
+
+(**
+ *  Decode an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is is MSB-First (Most Significant
+ *  Bit First). Decoding starts with 9 bits per coding point and goes
+ *  up to 12 bits per coding point. The code points 0 to 255 correspond
+ *  to ISO-8859-1 (Latin-1) characters. Code 256 starts a new block with
+ *  a new table and 9 bits per code point. Code 257 marks the end of the
+ *  compressed data. This compression is used in TIFF and PDF files.
+ *)
+const func string: lzwDecodeMsb (in string: compressed) is func
+  result
+    var string: decompressed is "";
+  local
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: bitsNeeded is 9;
+    var integer: code is 0;
+    var array string: table is [0 .. 4095] times "";
+    var integer: nextTableIndex is 0;
+    var string: previous is "";
+    var string: current is "";
+  begin
+    for code range 0 to 255 do
+      table[code] := str(chr(code));
+    end for;
+    code := getBitsMsb(compressed, bytePos, bitPos, bitsNeeded);
+    while code <> 257 do
+      if code = 256 then
+        nextTableIndex := 258;
+        previous := "";
+        bitsNeeded := 9
+      elsif previous = "" then
+        current := table[code];
+        decompressed &:= current;
+        previous := current;
+      else
+        if code < nextTableIndex then
+          current := table[code];
+          table[nextTableIndex] := previous & current[.. 1];
+          incr(nextTableIndex);
+        elsif code = nextTableIndex then
+          current := previous & previous[.. 1];
+          table[nextTableIndex] := current;
+          incr(nextTableIndex);
+        else
+          raise RANGE_ERROR;
+        end if;
+        if nextTableIndex = 511 then
+          bitsNeeded := 10;
+        elsif nextTableIndex = 1023 then
+          bitsNeeded := 11;
+        elsif nextTableIndex = 2047 then
+          bitsNeeded := 12;
+        end if;
+        decompressed &:= current;
+        previous := current;
+      end if;
+      code := getBitsMsb(compressed, bytePos, bitPos, bitsNeeded);
+    end while;
+  end func;

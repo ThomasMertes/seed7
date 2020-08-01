@@ -135,6 +135,10 @@ typedef SQLHANDLE SQLHDESC;
 #define SQL_SUCCESS_WITH_INFO   1
 #define SQL_NO_DATA           100
 #define SQL_NULL_DATA         (-1)
+#define SQL_DATA_AT_EXEC      (-2)
+
+#define SQL_NO_TOTAL          (-4)
+
 #define SQL_ERROR             (-1)
 
 #define SQL_PARAM_INPUT  1
@@ -253,9 +257,12 @@ SQLRETURN STDCALL SQLBindParameter (SQLHSTMT hstmt,
                                     SQLLEN       cbValueMax,
                                     SQLLEN      *pcbValue);
 SQLRETURN STDCALL SQLColAttribute (SQLHSTMT StatementHandle,
-                                   SQLUSMALLINT ColumnNumber, SQLUSMALLINT FieldIdentifier,
-                                   SQLPOINTER CharacterAttribute, SQLSMALLINT BufferLength,
-                                   SQLSMALLINT *StringLength, SQLLEN *NumericAttribute);
+                                   SQLUSMALLINT ColumnNumber,
+                                   SQLUSMALLINT FieldIdentifier,
+                                   SQLPOINTER CharacterAttribute,
+                                   SQLSMALLINT BufferLength,
+                                   SQLSMALLINT *StringLength,
+                                   SQLLEN *NumericAttribute);
 SQLRETURN STDCALL SQLColAttributeW (SQLHSTMT hstmt,
                                     SQLUSMALLINT iCol,
                                     SQLUSMALLINT iField,
@@ -285,6 +292,12 @@ SQLRETURN STDCALL SQLExecute (SQLHSTMT StatementHandle);
 SQLRETURN STDCALL SQLFetch (SQLHSTMT StatementHandle);
 SQLRETURN STDCALL SQLFreeHandle (SQLSMALLINT HandleType, SQLHANDLE Handle);
 SQLRETURN STDCALL SQLFreeStmt (SQLHSTMT StatementHandle, SQLUSMALLINT Option);
+SQLRETURN STDCALL SQLGetData (SQLHSTMT     StatementHandle,
+                              SQLUSMALLINT ColumnNumber,
+                              SQLSMALLINT  TargetType,
+                              SQLPOINTER   TargetValue,
+                              SQLLEN       BufferLength,
+                              SQLLEN      *StrLen_or_Ind);
 SQLRETURN STDCALL SQLGetDiagRec (SQLSMALLINT HandleType, SQLHANDLE Handle,
                                  SQLSMALLINT RecNumber, SQLCHAR *Sqlstate,
                                  SQLINTEGER *NativeError, SQLCHAR *MessageText,

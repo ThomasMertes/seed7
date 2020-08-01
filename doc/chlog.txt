@@ -1,4 +1,33 @@
-20141110:
+20151129:
+- The library bitdata.s7i, which provides functions to read and
+  write bits to and from strings, has been added.
+- The libraries deflate.s7i and inflate.s7i have been changed to use
+  functions from bitdata.s7i.
+- The undocumented function reverseBits has been moved from
+  deflate.s7i to bitdata.s7i. The meaning of the two parameters has
+  been changed.
+- The constant array reverseBits has been added to bitdata.s7i.
+  All calls of the function reverseBits have been removed.
+- Calls of the function reverseBits in deflate.s7i have been
+  replaced by usages of the array reverseBits.
+- In inflate.s7i two loops have been replaced by usages of the array
+  reverseBits.
+- The library lzw.s7i, which provides support for Lempel-Ziv-Welch
+  compression and decompression, has been added.
+- The function gzuncompress has been added to gzip.s7i. This
+  function decompresses a string that was compressed with zlib
+  (RFC 1950).
+- The function literal(in char: ch) in seed7_05.s7i has been changed
+  to write character literals with the new numeric escape sequence.
+- In the function detemineOdbcDefines (file chkccomp.c) the test
+  program, that verifies the linker option for the static lib, has
+  been improved to work correctly under Windows.
+- Definitions for SQLGetData() have been added to db_odbc.h and
+  sql_odbc.c.
+- Support to read a CLOB (Character large object) from an ODBC
+  database has been added to sql_odbc.c.
+
+20151110:
 - The program toutf8.sd7 has been improved to accept byte order
   marks for the encodings UTF-16BE and UTF-16LE.
 - Documentation comments have been improved in bigint.s7i,

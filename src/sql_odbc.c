@@ -80,10 +80,11 @@ typedef struct {
   } bindDataRecord, *bindDataType;
 
 typedef struct {
-    int                 buffer_type;
-    memSizeType         buffer_length;
-    void               *buffer;
-    SQLLEN              length;
+    int          buffer_type;
+    memSizeType  buffer_length;
+    void        *buffer;
+    SQLLEN       length;
+    boolType     sql_data_at_exec;
   } resultDataRecord, *resultDataType;
 
 typedef struct {
@@ -150,9 +151,12 @@ typedef SQLRETURN (STDCALL *tp_SQLBindParameter) (SQLHSTMT hstmt,
                                                   SQLLEN       cbValueMax,
                                                   SQLLEN      *pcbValue);
 typedef SQLRETURN (STDCALL *tp_SQLColAttribute) (SQLHSTMT StatementHandle,
-                                                 SQLUSMALLINT ColumnNumber, SQLUSMALLINT FieldIdentifier,
-                                                 SQLPOINTER CharacterAttribute, SQLSMALLINT BufferLength,
-                                                 SQLSMALLINT *StringLength, SQLLEN *NumericAttribute);
+                                                 SQLUSMALLINT ColumnNumber,
+                                                 SQLUSMALLINT FieldIdentifier,
+                                                 SQLPOINTER CharacterAttribute,
+                                                 SQLSMALLINT BufferLength,
+                                                 SQLSMALLINT *StringLength,
+                                                 SQLLEN *NumericAttribute);
 typedef SQLRETURN (STDCALL *tp_SQLColAttributeW) (SQLHSTMT hstmt,
                                                   SQLUSMALLINT iCol,
                                                   SQLUSMALLINT iField,
@@ -182,6 +186,12 @@ typedef SQLRETURN (STDCALL *tp_SQLExecute) (SQLHSTMT StatementHandle);
 typedef SQLRETURN (STDCALL *tp_SQLFetch) (SQLHSTMT StatementHandle);
 typedef SQLRETURN (STDCALL *tp_SQLFreeHandle) (SQLSMALLINT HandleType, SQLHANDLE Handle);
 typedef SQLRETURN (STDCALL *tp_SQLFreeStmt) (SQLHSTMT StatementHandle, SQLUSMALLINT Option);
+typedef SQLRETURN (STDCALL *tp_SQLGetData) (SQLHSTMT     StatementHandle,
+                                            SQLUSMALLINT ColumnNumber,
+                                            SQLSMALLINT  TargetType,
+                                            SQLPOINTER   TargetValue,
+                                            SQLLEN       BufferLength,
+                                            SQLLEN      *StrLen_or_Ind);
 typedef SQLRETURN (STDCALL *tp_SQLGetDiagRec) (SQLSMALLINT HandleType, SQLHANDLE Handle,
                                                SQLSMALLINT RecNumber, SQLCHAR *Sqlstate,
                                                SQLINTEGER *NativeError, SQLCHAR *MessageText,
@@ -214,6 +224,7 @@ static tp_SQLExecute       ptr_SQLExecute;
 static tp_SQLFetch         ptr_SQLFetch;
 static tp_SQLFreeHandle    ptr_SQLFreeHandle;
 static tp_SQLFreeStmt      ptr_SQLFreeStmt;
+static tp_SQLGetData       ptr_SQLGetData;
 static tp_SQLGetDiagRec    ptr_SQLGetDiagRec;
 static tp_SQLGetStmtAttr   ptr_SQLGetStmtAttr;
 static tp_SQLNumResultCols ptr_SQLNumResultCols;
@@ -234,6 +245,7 @@ static tp_SQLSetEnvAttr    ptr_SQLSetEnvAttr;
 #define SQLFetch         ptr_SQLFetch
 #define SQLFreeHandle    ptr_SQLFreeHandle
 #define SQLFreeStmt      ptr_SQLFreeStmt
+#define SQLGetData       ptr_SQLGetData
 #define SQLGetDiagRec    ptr_SQLGetDiagRec
 #define SQLGetStmtAttr   ptr_SQLGetStmtAttr
 #define SQLNumResultCols ptr_SQLNumResultCols
@@ -259,11 +271,14 @@ static boolType setupDll (const char *dllName)
             (SQLColAttribute  = (tp_SQLColAttribute)  dllFunc(dbDll, "SQLColAttribute"))  == NULL ||
             (SQLColAttributeW = (tp_SQLColAttributeW) dllFunc(dbDll, "SQLColAttributeW")) == NULL ||
             (SQLConnectW      = (tp_SQLConnectW)      dllFunc(dbDll, "SQLConnectW"))      == NULL ||
+            (SQLDataSources   = (tp_SQLDataSources)   dllFunc(dbDll, "SQLDataSources"))   == NULL ||
             (SQLDisconnect    = (tp_SQLDisconnect)    dllFunc(dbDll, "SQLDisconnect"))    == NULL ||
+            (SQLDrivers       = (tp_SQLDrivers)       dllFunc(dbDll, "SQLDrivers"))       == NULL ||
             (SQLExecute       = (tp_SQLExecute)       dllFunc(dbDll, "SQLExecute"))       == NULL ||
             (SQLFetch         = (tp_SQLFetch)         dllFunc(dbDll, "SQLFetch"))         == NULL ||
             (SQLFreeHandle    = (tp_SQLFreeHandle)    dllFunc(dbDll, "SQLFreeHandle"))    == NULL ||
             (SQLFreeStmt      = (tp_SQLFreeStmt)      dllFunc(dbDll, "SQLFreeStmt"))      == NULL ||
+            (SQLGetData       = (tp_SQLGetData)       dllFunc(dbDll, "SQLGetData"))       == NULL ||
             (SQLGetDiagRec    = (tp_SQLGetDiagRec)    dllFunc(dbDll, "SQLGetDiagRec"))    == NULL ||
             (SQLGetStmtAttr   = (tp_SQLGetStmtAttr)   dllFunc(dbDll, "SQLGetStmtAttr"))   == NULL ||
             (SQLNumResultCols = (tp_SQLNumResultCols) dllFunc(dbDll, "SQLNumResultCols")) == NULL ||
@@ -606,7 +621,10 @@ static void setupResultColumn (preparedStmtType preparedStmt,
         case SQL_WVARCHAR:
         case SQL_WLONGVARCHAR:
           c_type = SQL_C_WCHAR;
-          if (dataLength < 0) {
+          if (dataLength == SQLLEN_MAX) {
+            resultData->sql_data_at_exec = TRUE;
+            column_size = (memSizeType) SQL_DATA_AT_EXEC;
+          } else if (dataLength < 0) {
             logError(printf("setupResultColumn: DataLength negative: %ld\n",
                             dataLength););
             *err_info = FILE_ERROR;
@@ -873,13 +891,17 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           break;
       } /* switch */
       if (*err_info == OKAY_NO_ERROR) {
-        resultData->buffer = malloc(column_size);
-        if (resultData->buffer == NULL) {
-          logError(printf("setupResultColumn: malloc(" FMT_U_MEM ") failed\n",
-                          column_size););
-          *err_info = MEMORY_ERROR;
+        if (resultData->sql_data_at_exec) {
+          resultData->buffer = NULL;
         } else {
-          memset(resultData->buffer, 0, column_size);
+          resultData->buffer = malloc(column_size);
+          if (resultData->buffer == NULL) {
+            logError(printf("setupResultColumn: malloc(" FMT_U_MEM ") failed\n",
+                            column_size););
+            *err_info = MEMORY_ERROR;
+          } else {
+            memset(resultData->buffer, 0, column_size);
+          } /* if */
         } /* if */
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
@@ -984,7 +1006,8 @@ static void setupResult (preparedStmtType preparedStmt,
       logError(printf("setupResult: SQLNumResultCols returns negative number: %hd\n",
                       num_columns););
       *err_info = FILE_ERROR;
-    } else if (!ALLOC_TABLE(preparedStmt->result_array, resultDataRecord, (memSizeType) num_columns)) {
+    } else if (!ALLOC_TABLE(preparedStmt->result_array,
+                            resultDataRecord, (memSizeType) num_columns)) {
       *err_info = MEMORY_ERROR;
     } else {
       preparedStmt->result_array_size = (memSizeType) num_columns;
@@ -1010,7 +1033,8 @@ static void resizeBindArray (preparedStmtType preparedStmt, memSizeType pos)
   /* resizeBindArray */
     if (pos > preparedStmt->param_array_capacity) {
       new_size = (((pos - 1) >> 3) + 1) << 3;  /* Round to next multiple of 8. */
-      resized_param_array = REALLOC_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_capacity, new_size);
+      resized_param_array = REALLOC_TABLE(preparedStmt->param_array,
+          bindDataRecord, preparedStmt->param_array_capacity, new_size);
       if (unlikely(resized_param_array == NULL)) {
         FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_capacity);
         preparedStmt->param_array = NULL;
@@ -1479,6 +1503,144 @@ static memSizeType setBigRat (void **buffer,
 
 
 
+static striType getClob (preparedStmtType preparedStmt, intType column,
+    errInfoType *err_info)
+
+  {
+    char ch;
+    SQLLEN totalLength = 0;
+    SQLLEN dataLength = 0;
+    SQLRETURN returnCode;
+    cstriType cstri;
+    striType columnValue;
+
+  /* getClob */
+    logFunction(printf("getClob(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) preparedStmt, column););
+    returnCode = SQLGetData(preparedStmt->ppStmt,
+                            (SQLUSMALLINT) column,
+                            SQL_C_CHAR,
+                            &ch, 0, &totalLength);
+    if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
+      if (totalLength == SQL_NULL_DATA) {
+        /* printf("Column is NULL -> Use default value: \"\"\n"); */
+        columnValue = strEmpty();
+      } else if (totalLength == SQL_NO_TOTAL) {
+        *err_info = RANGE_ERROR;
+        columnValue = NULL;
+      } else if (unlikely(totalLength < 0)) {
+        logError(printf("getClob(" FMT_U_MEM ", " FMT_D "): "
+                        "Column has length: %ld\n",
+                        (memSizeType) preparedStmt, column, totalLength););
+        raise_error(FILE_ERROR);
+        columnValue = NULL;
+      } else {
+        /* printf("totalLength=%ld\n", totalLength); */
+        if (unlikely(!ALLOC_CSTRI(cstri, (memSizeType) totalLength))) {
+          *err_info = RANGE_ERROR;
+          columnValue = NULL;
+        } else {
+          returnCode= SQLGetData(preparedStmt->ppStmt,
+                                 (SQLUSMALLINT) column,
+                                 SQL_C_CHAR,
+                                 cstri, totalLength + 1, &dataLength);
+          /* printf("dataLength=%ld\n", dataLength);
+             printf("cstri[0]=%d\n", cstri[0]); */
+          if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
+            columnValue = cstri_buf_to_stri(cstri, (memSizeType) totalLength);
+            if (unlikely(columnValue == NULL)) {
+              *err_info = MEMORY_ERROR;
+            } /* if */
+          } else {
+            logError(printf("getClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
+                            (memSizeType) preparedStmt->ppStmt, column);
+                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+            *err_info = RANGE_ERROR;
+            columnValue = NULL;
+          } /* if */
+          UNALLOC_CSTRI(cstri, (memSizeType) totalLength);
+        } /* if */
+      } /* if */
+    } else {
+      logError(printf("getClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
+                      (memSizeType) preparedStmt->ppStmt, column);
+               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+      *err_info = RANGE_ERROR;
+      columnValue = NULL;
+    } /* if */
+    logFunction(printf("getClob --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
+    return columnValue;
+  } /* getClob */
+
+
+
+static striType getWClob (preparedStmtType preparedStmt, intType column,
+    errInfoType *err_info)
+
+  {
+    char ch;
+    SQLLEN totalLength = 0;
+    SQLLEN dataLength = 0;
+    SQLRETURN returnCode;
+    wstriType wstri;
+    striType columnValue;
+
+  /* getWClob */
+    logFunction(printf("getWClob(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) preparedStmt, column););
+    returnCode = SQLGetData(preparedStmt->ppStmt,
+                            (SQLUSMALLINT) column,
+                            SQL_C_WCHAR,
+                            &ch, 0, &totalLength);
+    if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
+      if (totalLength == SQL_NULL_DATA) {
+        /* printf("Column is NULL -> Use default value: \"\"\n"); */
+        columnValue = strEmpty();
+      } else if (totalLength == SQL_NO_TOTAL) {
+        *err_info = RANGE_ERROR;
+        columnValue = NULL;
+      } else if (unlikely(totalLength < 0)) {
+        logError(printf("getWClob(" FMT_U_MEM ", " FMT_D "): "
+                        "Column has length: %ld\n",
+                        (memSizeType) preparedStmt, column, totalLength););
+        raise_error(FILE_ERROR);
+        columnValue = NULL;
+      } else {
+        /* printf("totalLength=%ld\n", totalLength); */
+        if (unlikely(!ALLOC_WSTRI(wstri, (memSizeType) totalLength / 2))) {
+          *err_info = RANGE_ERROR;
+          columnValue = NULL;
+        } else {
+          returnCode= SQLGetData(preparedStmt->ppStmt,
+                                 (SQLUSMALLINT) column,
+                                 SQL_C_WCHAR,
+                                 wstri, totalLength + 2, &dataLength);
+          if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
+            columnValue = wstri_buf_to_stri(
+                wstri, (memSizeType) totalLength / 2, err_info);
+          } else {
+            logError(printf("getWClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
+                            (memSizeType) preparedStmt->ppStmt, column);
+                     printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+            *err_info = RANGE_ERROR;
+            columnValue = NULL;
+          } /* if */
+          UNALLOC_WSTRI(wstri, (memSizeType) totalLength / 2);
+        } /* if */
+      } /* if */
+    } else {
+      logError(printf("getWClob(" FMT_U_MEM ", " FMT_D "): SQLGetData failed.\n",
+                      (memSizeType) preparedStmt->ppStmt, column);
+               printError(SQL_HANDLE_STMT, preparedStmt->ppStmt););
+      *err_info = RANGE_ERROR;
+      columnValue = NULL;
+    } /* if */
+    logFunction(printf("getWClob --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
+    return columnValue;
+  } /* getWClob */
+
+
+
 static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType value)
 
@@ -1796,7 +1958,8 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       resizeBindArray(preparedStmt, (memSizeType) pos);
       if (preparedStmt->param_array != NULL) {
         if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(SQL_INTERVAL_STRUCT))) == NULL) {
+          if ((preparedStmt->param_array[pos - 1].buffer =
+              malloc(sizeof(SQL_INTERVAL_STRUCT))) == NULL) {
             err_info = MEMORY_ERROR;
           } else {
             /* Use SQL_C_INTERVAL_SECOND internally for all interval types. */
@@ -2205,7 +2368,8 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       resizeBindArray(preparedStmt, (memSizeType) pos);
       if (preparedStmt->param_array != NULL) {
         if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(SQL_TIMESTAMP_STRUCT))) == NULL) {
+          if ((preparedStmt->param_array[pos - 1].buffer =
+              malloc(sizeof(SQL_TIMESTAMP_STRUCT))) == NULL) {
             err_info = MEMORY_ERROR;
           } else {
             preparedStmt->param_array[pos - 1].buffer_type = SQL_TYPE_TIMESTAMP;
@@ -2904,11 +3068,20 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           case SQL_LONGVARCHAR:
           case SQL_WVARCHAR:
           case SQL_WLONGVARCHAR:
-            length = (memSizeType) preparedStmt->result_array[column - 1].length >> 1;
-            columnValue = wstri_buf_to_stri(
-                (wstriType) preparedStmt->result_array[column - 1].buffer,
-                length,
-                &err_info);
+            if (preparedStmt->result_array[column - 1].sql_data_at_exec) {
+              if (preparedStmt->result_array[column - 1].buffer_type == SQL_VARCHAR ||
+                  preparedStmt->result_array[column - 1].buffer_type == SQL_LONGVARCHAR) {
+                columnValue = getClob(preparedStmt, column, &err_info);
+              } else {
+                columnValue = getWClob(preparedStmt, column, &err_info);
+              } /* if */
+            } else {
+              length = (memSizeType) preparedStmt->result_array[column - 1].length >> 1;
+              columnValue = wstri_buf_to_stri(
+                  (wstriType) preparedStmt->result_array[column - 1].buffer,
+                  length,
+                  &err_info);
+            } /* if */
             if (unlikely(columnValue == NULL)) {
               raise_error(err_info);
             } /* if */
@@ -3300,7 +3473,8 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
         err_info = FILE_ERROR;
         name = NULL;
       } else if (stringLength < 0 || stringLength > SQLSMALLINT_MAX - 2) {
-        logError(printf("sqlStmtColumnName: SQLColAttribute returned a stringLength that is negative or too big.\n"););
+        logError(printf("sqlStmtColumnName: "
+                        "SQLColAttribute returned a stringLength that is negative or too big.\n"););
         err_info = FILE_ERROR;
         name = NULL;
       } else if (unlikely(!ALLOC_WSTRI(wideName, (memSizeType) stringLength))) {
@@ -3433,6 +3607,7 @@ databaseType sqlOpenOdbc (const const_striType dbName,
     memSizeType passwordW_length;
     SQLHENV sql_environment;
     SQLHDBC sql_connection;
+    SQLRETURN returnCode;
     errInfoType err_info = OKAY_NO_ERROR;
     dbType database;
 
@@ -3469,7 +3644,8 @@ databaseType sqlOpenOdbc (const const_striType dbName,
                 passwordW_length > SHRT_MAX) {
               err_info = MEMORY_ERROR;
               database = NULL;
-            } else if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_environment) != SQL_SUCCESS) {
+            } else if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE,
+                                      &sql_environment) != SQL_SUCCESS) {
               logError(printf("sqlOpenOdbc: SQLAllocHandle failed\n"););
               err_info = FILE_ERROR;
               database = NULL;
@@ -3482,37 +3658,42 @@ databaseType sqlOpenOdbc (const const_striType dbName,
               err_info = FILE_ERROR;
               SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
               database = NULL;
-            } else if (SQLAllocHandle(SQL_HANDLE_DBC, sql_environment, &sql_connection) != SQL_SUCCESS) {
+            } else if (SQLAllocHandle(SQL_HANDLE_DBC, sql_environment,
+                                      &sql_connection) != SQL_SUCCESS) {
               logError(printf("sqlOpenOdbc: SQLAllocHandle:\n");
                        printError(SQL_HANDLE_ENV, sql_environment););
               err_info = FILE_ERROR;
               SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
               database = NULL;
-            } else if (SQLConnectW(sql_connection,
-                                   (SQLWCHAR *) dbNameW, (SQLSMALLINT) dbNameW_length,
-                                   (SQLWCHAR *) userW, (SQLSMALLINT) userW_length,
-                                   (SQLWCHAR *) passwordW, (SQLSMALLINT) passwordW_length) != SQL_SUCCESS) {
-              logError(printf("sqlOpenOdbc: SQLConnect:\n");
-                       printError(SQL_HANDLE_DBC, sql_connection);
-                       listDrivers(sql_environment);
-                       listDataSources(sql_environment););
-              err_info = FILE_ERROR;
-              SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
-              SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
-              database = NULL;
-            } else if (unlikely(!setupFuncTable() ||
-                                !ALLOC_RECORD(database, dbRecord, count.database))) {
-              err_info = MEMORY_ERROR;
-              SQLDisconnect(sql_connection);
-              SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
-              SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
-              database = NULL;
             } else {
-              memset(database, 0, sizeof(dbRecord));
-              database->usage_count = 1;
-              database->sqlFunc = sqlFunc;
-              database->sql_environment = sql_environment;
-              database->sql_connection = sql_connection;
+              returnCode = SQLConnectW(sql_connection,
+                                       (SQLWCHAR *) dbNameW, (SQLSMALLINT) dbNameW_length,
+                                       (SQLWCHAR *) userW, (SQLSMALLINT) userW_length,
+                                       (SQLWCHAR *) passwordW, (SQLSMALLINT) passwordW_length);
+              if (returnCode != SQL_SUCCESS &&
+                  returnCode != SQL_SUCCESS_WITH_INFO) {
+                logError(printf("sqlOpenOdbc: SQLConnect:\n");
+                         printError(SQL_HANDLE_DBC, sql_connection);
+                         listDrivers(sql_environment);
+                         listDataSources(sql_environment););
+                err_info = FILE_ERROR;
+                SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
+                SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
+                database = NULL;
+              } else if (unlikely(!setupFuncTable() ||
+                                  !ALLOC_RECORD(database, dbRecord, count.database))) {
+                err_info = MEMORY_ERROR;
+                SQLDisconnect(sql_connection);
+                SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
+                SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
+                database = NULL;
+              } else {
+                memset(database, 0, sizeof(dbRecord));
+                database->usage_count = 1;
+                database->sqlFunc = sqlFunc;
+                database->sql_environment = sql_environment;
+                database->sql_connection = sql_connection;
+              } /* if */
             } /* if */
             free_wstri(passwordW, password);
           } /* if */

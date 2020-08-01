@@ -2645,6 +2645,7 @@ void detemineOdbcDefines (FILE *versionFile,
     const char *dllNameList[] = {"odbc32.dll"};
 #endif
     char includeOption[4096];
+    int windowsOdbc = 0;
     const char *odbcInclude = NULL;
     char buffer[4096];
     char linkerOptions[4096];
@@ -2662,6 +2663,7 @@ void detemineOdbcDefines (FILE *versionFile,
                                     includeOption, "")) {
       fputs("#define WINDOWS_ODBC\n", versionFile);
       fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
+      windowsOdbc = 1;
       odbcInclude = "sql.h";
       fprintf(logFile, "Odbc: %s found in system include directory.\n", odbcInclude);
     } else if (compileAndLinkWithOptionsOk("#include <sql.h>\n"
@@ -2687,12 +2689,13 @@ void detemineOdbcDefines (FILE *versionFile,
     } /* if */
     /* Handle libraries: */
 #if defined ODBC_USE_LIB && defined ODBC_LIBS
-    sprintf(buffer, "#include \"tst_vers.h\"\n#include \"%s\"\n"
+    sprintf(buffer, "#include \"tst_vers.h\"\n%s#include \"%s\"\n"
                     "int main(int argc,char *argv[]){\n"
                     "SQLHENV sql_env;\n"
                     "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
                     "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
-                    "return 0;\n}\n", odbcInclude);
+                    "return 0;\n}\n",
+                    windowsOdbc ? "#include \"windows.h\"\n" : "", odbcInclude);
     linkerOptions[0] = '\0';
 #ifdef ODBC_LIBRARY_PATH
     appendOption(linkerOptions, ODBC_LIBRARY_PATH);

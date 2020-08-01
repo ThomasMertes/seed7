@@ -108,6 +108,7 @@ bigint.s7i   Unlimited precision integer support library
 bigrat.s7i   Big rational number support library
 bin32.s7i    32-bit binary value support library
 bin64.s7i    64-bit binary value support library
+bitdata.s7i  Read and write bits to and from strings
 bitmapfont.s7i Font implementation type for bitmap fonts
 bitset.s7i   Support for sets of integer numbers
 bitsetof.s7i Support for bitsets of a base type
@@ -175,6 +176,7 @@ keydescr.s7i Descriptive text for function keys
 line.s7i     Filter file which reads the input linewise
 listener.s7i Support for inet listener
 lower.s7i    Filter file which turns characters to lower case
+lzw.s7i      Lempel-Ziv-Welch compression support library
 mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 make.s7i     Make library to manage the compilation process
 makedata.s7i Function and data structure to read makefiles

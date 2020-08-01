@@ -26,73 +26,20 @@
 (********************************************************************)
 
 
-const proc: putBitLe (inout string: stri, inout integer: bitPos, in integer: bit) is func
-  begin
-    if bitPos = 8 then
-      stri &:= chr(bit);
-      bitPos := 1;
-    else
-      stri @:= [length(stri)] chr(ord(stri[length(stri)]) + (bit << bitPos));
-      incr(bitPos);
-    end if;
-  end func;
-
-
-const proc: putBitsLe (inout string: stri, inout integer: bitPos, in var integer: bits,
-    in var integer: bitsToWrite) is func
-  local
-    var integer: bitsFree is 0;
-  begin
-    bitsFree := 8 - bitPos;
-    if bitsFree > bitsToWrite then
-      stri @:= [length(stri)] chr(ord(stri[length(stri)]) + (bits << bitPos));
-      bitPos +:= bitsToWrite;
-    else
-      if bitsFree >= 1 then
-        stri @:= [length(stri)] chr(ord(stri[length(stri)]) + ((bits rem (1 << bitsFree)) << bitPos));
-        bits >>:= bitsFree;
-        bitsToWrite -:= bitsFree;
-      end if;
-      while bitsToWrite >= 8 do
-        stri &:= chr(bits rem 256);
-        bits >>:= 8;
-        bitsToWrite -:= 8;
-      end while;
-      if bitsToWrite >= 1 then
-        stri &:= chr(bits);
-        bitPos := bitsToWrite;
-      else
-        bitPos := 8;
-      end if;
-    end if;
-  end func;
-
-
-const func integer: reverseBits (in var integer: bits, in integer: size) is func
-  result
-    var integer: reversed is 0;
-  local
-    var integer: bitPos is 0;
-  begin
-    for bitPos range 1 to size do
-      reversed <<:= 1;
-      reversed +:= bits mod 2;
-      bits >>:= 1;
-    end for;
-  end func;
+include "bitdata.s7i";
 
 
 const proc: putLiteralOrLength (inout string: stri, inout integer: bitPos,
     in integer: literalOrLength) is func
   begin
     if literalOrLength <= 143 then
-      putBitsLe(stri, bitPos, reverseBits(literalOrLength + 2#00110000, 8), 8);
+      putBitsLsb(stri, bitPos, reverseBits[8][literalOrLength + 2#00110000], 8);
     elsif literalOrLength <= 255 then
-      putBitsLe(stri, bitPos, reverseBits(literalOrLength + 2#110010000 - 144, 9), 9);
+      putBitsLsb(stri, bitPos, reverseBits[9][literalOrLength + 2#110010000 - 144], 9);
     elsif literalOrLength <= 279 then
-      putBitsLe(stri, bitPos, reverseBits(literalOrLength - 256, 7), 7);
+      putBitsLsb(stri, bitPos, reverseBits[7][literalOrLength - 256], 7);
     else
-      putBitsLe(stri, bitPos, reverseBits(literalOrLength + 2#11000000 - 280, 8), 8);
+      putBitsLsb(stri, bitPos, reverseBits[8][literalOrLength + 2#11000000 - 280], 8);
     end if;
   end func;
 
@@ -103,19 +50,19 @@ const proc: putLength (inout string: stri, inout integer: bitPos, in integer: le
       putLiteralOrLength(stri, bitPos, 254 + length);
     elsif length <= 18 then
       putLiteralOrLength(stri, bitPos, 265 + ((length - 11) >> 1));
-      putBitLe(stri, bitPos, (length - 11) rem 2);
+      putBitLsb(stri, bitPos, (length - 11) rem 2);
     elsif length <= 34 then
       putLiteralOrLength(stri, bitPos, 269 + ((length - 19) >> 2));
-      putBitsLe(stri, bitPos, (length - 19) rem 4, 2);
+      putBitsLsb(stri, bitPos, (length - 19) rem 4, 2);
     elsif length <= 66 then
       putLiteralOrLength(stri, bitPos, 273 + ((length - 35) >> 3));
-      putBitsLe(stri, bitPos, (length - 35) rem 8, 3);
+      putBitsLsb(stri, bitPos, (length - 35) rem 8, 3);
     elsif length <= 130 then
       putLiteralOrLength(stri, bitPos, 277 + ((length - 67) >> 4));
-      putBitsLe(stri, bitPos, (length - 67) rem 16, 4);
+      putBitsLsb(stri, bitPos, (length - 67) rem 16, 4);
     elsif length <= 257 then
       putLiteralOrLength(stri, bitPos, 281 + ((length - 131) >> 5));
-      putBitsLe(stri, bitPos, (length - 131) rem 32, 5);
+      putBitsLsb(stri, bitPos, (length - 131) rem 32, 5);
     elsif length = 258 then
       putLiteralOrLength(stri, bitPos, 285);
     else
@@ -127,46 +74,46 @@ const proc: putLength (inout string: stri, inout integer: bitPos, in integer: le
 const proc: putDistance (inout string: stri, inout integer: bitPos, in integer: distance) is func
   begin
     if distance <= 4 then
-      putBitsLe(stri, bitPos, reverseBits(pred(distance), 5), 5);
+      putBitsLsb(stri, bitPos, reverseBits[5][pred(distance)], 5);
     elsif distance <= 8 then
-      putBitsLe(stri, bitPos, reverseBits(4 + ((distance - 5) >> 1), 5), 5);
-      putBitLe(stri, bitPos, (distance - 5) rem 2);
+      putBitsLsb(stri, bitPos, reverseBits[5][4 + ((distance - 5) >> 1)], 5);
+      putBitLsb(stri, bitPos, (distance - 5) rem 2);
     elsif distance <= 16 then
-      putBitsLe(stri, bitPos, reverseBits(6 + ((distance - 9) >> 2), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 9) rem 4, 2);
+      putBitsLsb(stri, bitPos, reverseBits[5][6 + ((distance - 9) >> 2)], 5);
+      putBitsLsb(stri, bitPos, (distance - 9) rem 4, 2);
     elsif distance <= 32 then
-      putBitsLe(stri, bitPos, reverseBits(8 + ((distance - 17) >> 3), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 17) rem 8, 3);
+      putBitsLsb(stri, bitPos, reverseBits[5][8 + ((distance - 17) >> 3)], 5);
+      putBitsLsb(stri, bitPos, (distance - 17) rem 8, 3);
     elsif distance <= 64 then
-      putBitsLe(stri, bitPos, reverseBits(10 + ((distance - 33) >> 4), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 33) rem 16, 4);
+      putBitsLsb(stri, bitPos, reverseBits[5][10 + ((distance - 33) >> 4)], 5);
+      putBitsLsb(stri, bitPos, (distance - 33) rem 16, 4);
     elsif distance <= 128 then
-      putBitsLe(stri, bitPos, reverseBits(12 + ((distance - 65) >> 5), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 65) rem 32, 5);
+      putBitsLsb(stri, bitPos, reverseBits[5][12 + ((distance - 65) >> 5)], 5);
+      putBitsLsb(stri, bitPos, (distance - 65) rem 32, 5);
     elsif distance <= 256 then
-      putBitsLe(stri, bitPos, reverseBits(14 + ((distance - 129) >> 6), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 129) rem 64, 6);
+      putBitsLsb(stri, bitPos, reverseBits[5][14 + ((distance - 129) >> 6)], 5);
+      putBitsLsb(stri, bitPos, (distance - 129) rem 64, 6);
     elsif distance <= 512 then
-      putBitsLe(stri, bitPos, reverseBits(16 + ((distance - 257) >> 7), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 257) rem 128, 7);
+      putBitsLsb(stri, bitPos, reverseBits[5][16 + ((distance - 257) >> 7)], 5);
+      putBitsLsb(stri, bitPos, (distance - 257) rem 128, 7);
     elsif distance <= 1024 then
-      putBitsLe(stri, bitPos, reverseBits(18 + ((distance - 513) >> 8), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 513) rem 256, 8);
+      putBitsLsb(stri, bitPos, reverseBits[5][18 + ((distance - 513) >> 8)], 5);
+      putBitsLsb(stri, bitPos, (distance - 513) rem 256, 8);
     elsif distance <= 2048 then
-      putBitsLe(stri, bitPos, reverseBits(20 + ((distance - 1025) >> 9), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 1025) rem 512, 9);
+      putBitsLsb(stri, bitPos, reverseBits[5][20 + ((distance - 1025) >> 9)], 5);
+      putBitsLsb(stri, bitPos, (distance - 1025) rem 512, 9);
     elsif distance <= 4096 then
-      putBitsLe(stri, bitPos, reverseBits(22 + ((distance - 2049) >> 10), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 2049) rem 1024, 10);
+      putBitsLsb(stri, bitPos, reverseBits[5][22 + ((distance - 2049) >> 10)], 5);
+      putBitsLsb(stri, bitPos, (distance - 2049) rem 1024, 10);
     elsif distance <= 8192 then
-      putBitsLe(stri, bitPos, reverseBits(24 + ((distance - 4097) >> 11), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 4097) rem 2048, 11);
+      putBitsLsb(stri, bitPos, reverseBits[5][24 + ((distance - 4097) >> 11)], 5);
+      putBitsLsb(stri, bitPos, (distance - 4097) rem 2048, 11);
     elsif distance <= 16384 then
-      putBitsLe(stri, bitPos, reverseBits(26 + ((distance - 8193) >> 12), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 8193) rem 4096, 12);
+      putBitsLsb(stri, bitPos, reverseBits[5][26 + ((distance - 8193) >> 12)], 5);
+      putBitsLsb(stri, bitPos, (distance - 8193) rem 4096, 12);
     elsif distance <= 32768 then
-      putBitsLe(stri, bitPos, reverseBits(28 + ((distance - 16385) >> 13), 5), 5);
-      putBitsLe(stri, bitPos, (distance - 16385) rem 8192, 13);
+      putBitsLsb(stri, bitPos, reverseBits[5][28 + ((distance - 16385) >> 13)], 5);
+      putBitsLsb(stri, bitPos, (distance - 16385) rem 8192, 13);
     else
       raise RANGE_ERROR;
     end if;
@@ -177,7 +124,7 @@ const type: lookupDict is hash [string] integer;
 
 const type: deflateData is new struct
     var integer: uPos is 1;
-    var integer: bitPos is 8;
+    var integer: bitPos is 0;
     var lookupDict: dictionary is lookupDict.value;
     var array integer: slidingWindow is [0 .. 32767] times -32768;
   end struct;
@@ -257,8 +204,8 @@ const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
 const proc: beginDeflateBlock (inout deflateData: deflateState,
     inout string: compressed, in boolean: bfinal) is func
   begin
-    putBitLe(compressed, deflateState.bitPos, ord(bfinal));
-    putBitsLe(compressed, deflateState.bitPos, 1, 2);       # btype:  Fixed Huffman codes
+    putBitLsb(compressed, deflateState.bitPos, ord(bfinal));
+    putBitsLsb(compressed, deflateState.bitPos, 1, 2);       # btype:  Fixed Huffman codes
   end func;
 
 
@@ -297,7 +244,6 @@ const proc: deflateBlock (inout file: inFile, inout string: compressed,
   local
     var deflateData: deflateState is deflateData.value;
     var string: uncompressed is "";
-    var integer: uPos is 1;
   begin
     beginDeflateBlock(deflateState, compressed, bfinal);
     uncompressed := gets(inFile, 4096);

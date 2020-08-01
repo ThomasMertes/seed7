@@ -484,7 +484,7 @@ const func string: literal (in char: ch) is func
       stri := literal(str(ch));
       stri := "'" & stri[2 .. length(stri) - 1] & "'";
     else
-      stri := "'\\" & str(ord(ch)) & "\\'";
+      stri := "'\\" & str(ord(ch)) & ";'";
     end if;
   end func;
 

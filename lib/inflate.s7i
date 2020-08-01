@@ -26,53 +26,7 @@
 (********************************************************************)
 
 
-const func integer: getBitLe (in string: stri, inout integer: bytePos,
-    inout integer: bitPos) is func
-  result
-    var integer: resultBit is 0;
-  begin
-    resultBit := (ord(stri[bytePos]) >> bitPos) mod 2;
-    if bitPos = 7 then
-      bitPos := 0;
-      incr(bytePos);
-    else
-      incr(bitPos);
-    end if;
-  end func;
-
-
-const func integer: getBitsLe (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in var integer: bitsNeeded) is func
-  result
-    var integer: resultBits is 0;
-  local
-    var integer: bitsInByte is 0;
-    var integer: bitsInResult is 0;
-  begin
-    bitsInByte := 8 - bitPos;
-    if bitsInByte > bitsNeeded then
-      resultBits := (ord(stri[bytePos]) >> bitPos) rem (1 << bitsNeeded);
-      bitPos +:= bitsNeeded;
-    else
-      resultBits := ord(stri[bytePos]) mod 256 >> bitPos;
-      bitPos := 0;
-      incr(bytePos);
-      if bitsInByte <> bitsNeeded then
-        bitsNeeded -:= bitsInByte;
-        bitsInResult := bitsInByte;
-        while bitsNeeded >= 8 do
-          resultBits +:= ord(stri[bytePos]) << bitsInResult;
-          incr(bytePos);
-          bitsNeeded -:= 8;
-          bitsInResult +:= 8;
-        end while;
-        if bitsNeeded <> 0 then
-          resultBits +:= ord(stri[bytePos]) rem (1 << bitsNeeded) << bitsInResult;
-          bitPos := bitsNeeded;
-        end if;
-      end if;
-    end if;
-  end func;
+include "bitdata.s7i";
 
 
 const proc: getNonCompressedBlock (in string: stri, inout integer: bytePos,
@@ -92,26 +46,20 @@ const func integer: getLiteralOrLength (in string: stri, inout integer: bytePos,
     inout integer: bitPos) is func
   result
     var integer: literalOrLength is 0;
-  local
-    var integer: bitLength is 0;
   begin
-    repeat
-      literalOrLength <<:= 1;
-      literalOrLength +:= getBitLe(stri, bytePos, bitPos);
-      incr(bitLength);
-    until bitLength = 7;
+    literalOrLength := reverseBits[7][getBitsLsb(stri, bytePos, bitPos, 7)];
     if literalOrLength <= 2#0010111 then
       literalOrLength +:= 256;
     else
       literalOrLength <<:= 1;
-      literalOrLength +:= getBitLe(stri, bytePos, bitPos);
+      literalOrLength +:= getBitLsb(stri, bytePos, bitPos);
       if literalOrLength <= 2#10111111 then
         literalOrLength -:= 2#00110000;
       elsif literalOrLength <= 2#11000111 then
         literalOrLength +:= 280 - 2#11000000;
       else
         literalOrLength <<:= 1;
-        literalOrLength +:= getBitLe(stri, bytePos, bitPos);
+        literalOrLength +:= getBitLsb(stri, bytePos, bitPos);
         literalOrLength -:= 2#110010000 - 144;
       end if;
     end if;
@@ -119,18 +67,8 @@ const func integer: getLiteralOrLength (in string: stri, inout integer: bytePos,
 
 
 const func integer: getDistance (in string: stri, inout integer: bytePos,
-    inout integer: bitPos) is func
-  result
-    var integer: distance is 0;
-  local
-    var integer: bitLength is 0;
-  begin
-    repeat
-      distance <<:= 1;
-      distance +:= getBitLe(stri, bytePos, bitPos);
-      incr(bitLength);
-    until bitLength = 5;
-  end func;
+    inout integer: bitPos) is
+  return reverseBits[5][getBitsLsb(stri, bytePos, bitPos, 5)];
 
 
 const func integer: decodeLength (in string: stri, inout integer: bytePos,
@@ -141,15 +79,15 @@ const func integer: decodeLength (in string: stri, inout integer: bytePos,
     if code <= 264 then
       length := code - 254;
     elsif code <= 268 then
-      length := 11 + ((code - 265) << 1) + getBitLe(stri, bytePos, bitPos);
+      length := 11 + ((code - 265) << 1) + getBitLsb(stri, bytePos, bitPos);
     elsif code <= 272 then
-      length := 19 + ((code - 269) << 2) + getBitsLe(stri, bytePos, bitPos, 2);
+      length := 19 + ((code - 269) << 2) + getBitsLsb(stri, bytePos, bitPos, 2);
     elsif code <= 276 then
-      length := 35 + ((code - 273) << 3) + getBitsLe(stri, bytePos, bitPos, 3);
+      length := 35 + ((code - 273) << 3) + getBitsLsb(stri, bytePos, bitPos, 3);
     elsif code <= 280 then
-      length := 67 + ((code - 277) << 4) + getBitsLe(stri, bytePos, bitPos, 4);
+      length := 67 + ((code - 277) << 4) + getBitsLsb(stri, bytePos, bitPos, 4);
     elsif code <= 284 then
-      length := 131 + ((code - 281) << 5) + getBitsLe(stri, bytePos, bitPos, 5);
+      length := 131 + ((code - 281) << 5) + getBitsLsb(stri, bytePos, bitPos, 5);
     elsif code = 285 then
       length := 258;
     else
@@ -167,31 +105,31 @@ const func integer: decodeDistance (in string: stri, inout integer: bytePos,
       when {0, 1, 2, 3}:
         distance := succ(code);
       when {4, 5}:
-        distance := 5 + ((code - 4) << 1) + getBitLe(stri, bytePos, bitPos);
+        distance := 5 + ((code - 4) << 1) + getBitLsb(stri, bytePos, bitPos);
       when {6, 7}:
-        distance := 9 + ((code - 6) << 2) + getBitsLe(stri, bytePos, bitPos, 2);
+        distance := 9 + ((code - 6) << 2) + getBitsLsb(stri, bytePos, bitPos, 2);
       when {8, 9}:
-        distance := 17 + ((code - 8) << 3) + getBitsLe(stri, bytePos, bitPos, 3);
+        distance := 17 + ((code - 8) << 3) + getBitsLsb(stri, bytePos, bitPos, 3);
       when {10, 11}:
-        distance := 33 + ((code - 10) << 4) + getBitsLe(stri, bytePos, bitPos, 4);
+        distance := 33 + ((code - 10) << 4) + getBitsLsb(stri, bytePos, bitPos, 4);
       when {12, 13}:
-        distance := 65 + ((code - 12) << 5) + getBitsLe(stri, bytePos, bitPos, 5);
+        distance := 65 + ((code - 12) << 5) + getBitsLsb(stri, bytePos, bitPos, 5);
       when {14, 15}:
-        distance := 129 + ((code - 14) << 6) + getBitsLe(stri, bytePos, bitPos, 6);
+        distance := 129 + ((code - 14) << 6) + getBitsLsb(stri, bytePos, bitPos, 6);
       when {16, 17}:
-        distance := 257 + ((code - 16) << 7) + getBitsLe(stri, bytePos, bitPos, 7);
+        distance := 257 + ((code - 16) << 7) + getBitsLsb(stri, bytePos, bitPos, 7);
       when {18, 19}:
-        distance := 513 + ((code - 18) << 8) + getBitsLe(stri, bytePos, bitPos, 8);
+        distance := 513 + ((code - 18) << 8) + getBitsLsb(stri, bytePos, bitPos, 8);
       when {20, 21}:
-        distance := 1025 + ((code - 20) << 9) + getBitsLe(stri, bytePos, bitPos, 9);
+        distance := 1025 + ((code - 20) << 9) + getBitsLsb(stri, bytePos, bitPos, 9);
       when {22, 23}:
-        distance := 2049 + ((code - 22) << 10) + getBitsLe(stri, bytePos, bitPos, 10);
+        distance := 2049 + ((code - 22) << 10) + getBitsLsb(stri, bytePos, bitPos, 10);
       when {24, 25}:
-        distance := 4097 + ((code - 24) << 11) + getBitsLe(stri, bytePos, bitPos, 11);
+        distance := 4097 + ((code - 24) << 11) + getBitsLsb(stri, bytePos, bitPos, 11);
       when {26, 27}:
-        distance := 8193 + ((code - 26) << 12) + getBitsLe(stri, bytePos, bitPos, 12);
+        distance := 8193 + ((code - 26) << 12) + getBitsLsb(stri, bytePos, bitPos, 12);
       when {28, 29}:
-        distance := 16385 + ((code - 28) << 13) + getBitsLe(stri, bytePos, bitPos, 13);
+        distance := 16385 + ((code - 28) << 13) + getBitsLsb(stri, bytePos, bitPos, 13);
       otherwise:
         raise RANGE_ERROR;
     end case;
@@ -248,7 +186,7 @@ const func integer: getHuffmanValue (in string: stri, inout integer: bytePos,
   begin
     repeat
       code <<:= 1;
-      code +:= getBitLe(stri, bytePos, bitPos);
+      code +:= getBitLsb(stri, bytePos, bitPos);
       incr(bitLength);
     until code < conversionTable[bitLength].limit;
     huffmanValue := conversionTable[pred(bitLength)].table[code];
@@ -324,12 +262,12 @@ const proc: decodeDynamicHuffmanCodes (in string: compressed, inout integer: byt
     var integer: distance is 0;
     var integer: nextPos is 0;
   begin
-    hlit := getBitsLe(compressed, bytePos, bitPos, 5);
-    hdist := getBitsLe(compressed, bytePos, bitPos, 5);
-    hclen := getBitsLe(compressed, bytePos, bitPos, 4);
+    hlit := getBitsLsb(compressed, bytePos, bitPos, 5);
+    hdist := getBitsLsb(compressed, bytePos, bitPos, 5);
+    hclen := getBitsLsb(compressed, bytePos, bitPos, 4);
     lengthCodeLengths := [0 .. 18] times 0;
     for number range 1 to hclen + 4 do
-      lengthCodeLengths[codeLengthAlphabet[number]] := getBitsLe(compressed, bytePos, bitPos, 3);
+      lengthCodeLengths[codeLengthAlphabet[number]] := getBitsLsb(compressed, bytePos, bitPos, 3);
     end for;
     lengthConversionTable := computeConversionTable(lengthCodeLengths);
     number := 1;
@@ -339,16 +277,16 @@ const proc: decodeDynamicHuffmanCodes (in string: compressed, inout integer: byt
         combinedCodeLengths &:= codeLength;
         incr(number);
       elsif codeLength = 16 then
-        factor := getBitsLe(compressed, bytePos, bitPos, 2) + 3;
+        factor := getBitsLsb(compressed, bytePos, bitPos, 2) + 3;
         combinedCodeLengths &:= factor times
             combinedCodeLengths[maxIdx(combinedCodeLengths)];
         number +:= factor;
       elsif codeLength = 17 then
-        factor := getBitsLe(compressed, bytePos, bitPos, 3) + 3;
+        factor := getBitsLsb(compressed, bytePos, bitPos, 3) + 3;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       else # codeLength = 18
-        factor := getBitsLe(compressed, bytePos, bitPos, 7) + 11;
+        factor := getBitsLsb(compressed, bytePos, bitPos, 7) + 11;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       end if;
@@ -385,8 +323,8 @@ const proc: processCompressedBlock (in string: compressed, inout integer: bytePo
   local
     var integer: btype is 0;
   begin
-    bfinal := odd(getBitLe(compressed, bytePos, bitPos));
-    btype := getBitsLe(compressed, bytePos, bitPos, 2);
+    bfinal := odd(getBitLsb(compressed, bytePos, bitPos));
+    btype := getBitsLsb(compressed, bytePos, bitPos, 2);
     case btype of
       when {0}:
         if bitPos <> 0 then
