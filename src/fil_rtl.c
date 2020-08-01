@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_rtl.c     Primitive actions for the C library file type.    */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_rtl.c                                       */
-/*  Changes: 1992, 1993, 1994, 2009, 2013, 2014  Thomas Mertes      */
+/*  Changes: 1992, 1993, 1994, 2009, 2013 - 2015  Thomas Mertes     */
 /*  Content: Primitive actions for the C library file type.         */
 /*                                                                  */
 /********************************************************************/
@@ -58,6 +58,8 @@
 #define EXTERN
 #include "fil_rtl.h"
 
+#undef VERBOSE_EXCEPTIONS
+
 
 #ifdef C_PLUS_PLUS
 #define C "C"
@@ -77,15 +79,19 @@ extern C __int64 __cdecl _ftelli64(FILE *);
 extern C FILE *_wpopen (const wchar_t *, const wchar_t *);
 #endif
 
-
 long_jump_position intr_jump_pos;
-
 
 #define BUFFER_SIZE             4096
 #define GETS_DEFAULT_SIZE    1048576
 #define GETS_STRI_SIZE_DELTA    4096
 #define READ_STRI_INIT_SIZE      256
 #define READ_STRI_SIZE_DELTA    2048
+
+#ifdef VERBOSE_EXCEPTIONS
+#define logError(logStatements) logStatements
+#else
+#define logError(logStatements)
+#endif
 
 
 
@@ -459,6 +465,9 @@ intType getFileLengthUsingSeek (fileType aFile)
   /* getFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
     if (unlikely(file_length < (os_off_t) 0)) {
+      logError(printf(" *** getFileLengthUsingSeek: seekFileLength(" FMT_U_MEM ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      (memSizeType) aFile, errno, strerror(errno)););
       /* printf("errno=%d\n", errno);
       printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
           EBADF, EINVAL, ESPIPE); */
@@ -484,6 +493,9 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
   /* getBigFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
     if (unlikely(file_length < (os_off_t) 0)) {
+      logError(printf(" *** getBigFileLengthUsingSeek: seekFileLength(" FMT_U_MEM ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      (memSizeType) aFile, errno, strerror(errno)););
       /* printf("errno=%d\n", errno);
       printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
           EBADF, EINVAL, ESPIPE); */
@@ -1112,6 +1124,9 @@ void filClose (fileType aFile)
 
   { /* filClose */
     if (unlikely(fclose(aFile) != 0)) {
+      logError(printf(" *** filClose: fclose(" FMT_U_MEM ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      (memSizeType) aFile, errno, strerror(errno)););
       /* printf("errno=%d\n", errno);
          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  EISDIR=%d  EROFS=%d  EBADF=%d\n",
                 EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, EISDIR, EROFS, EBADF); */

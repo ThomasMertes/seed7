@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Compiler data reflection                                */
 /*  File: seed7/src/ref_data.c                                      */
-/*  Changes: 1991-1994, 2004, 2007, 2008, 2010  Thomas Mertes       */
+/*  Changes: 1991-1994, 2004, 2007, 2008, 2010, 2015  Thomas Mertes */
 /*  Content: Primitive actions for the reference type.              */
 /*                                                                  */
 /********************************************************************/
@@ -47,6 +47,7 @@
 #include "syvarutl.h"  /* from the compiler library */
 #include "hsh_rtl.h"
 #include "int_rtl.h"
+#include "str_rtl.h"
 #include "big_drv.h"
 #include "pol_drv.h"
 #include "rtl_err.h"
@@ -60,12 +61,15 @@
 
 
 
-objectType refAlloc (objectType obj_arg)
+objectType refAlloc (const const_objectType obj_arg)
 
   {
     objectType created_object;
 
   /* refAlloc */
+    /* printf("refAlloc(");
+    trace1(obj_arg);
+    printf(")\n"); */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = obj_arg->type_of;
       memcpy(&created_object->descriptor, &obj_arg->descriptor,
@@ -81,7 +85,30 @@ objectType refAlloc (objectType obj_arg)
 
 
 
-intType refArrMaxIdx (objectType obj_arg)
+objectType refAllocStri (boolType var_flag, typeType any_type,
+    const const_striType stri_from)
+
+  {
+    objectType created_object;
+
+  /* refAllocStri */
+    if (ALLOC_OBJECT(created_object)) {
+      created_object->type_of = any_type;
+      created_object->descriptor.property = NULL;
+      INIT_CATEGORY_OF_OBJ(created_object, STRIOBJECT);
+      if (var_flag) {
+        SET_VAR_FLAG(created_object);
+      } /* if */
+      created_object->value.striValue = strCreate(stri_from);
+    } else {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return created_object;
+  } /* refAllocStri */
+
+
+
+intType refArrMaxIdx (const const_objectType obj_arg)
 
   { /* refArrMaxIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
@@ -94,7 +121,7 @@ intType refArrMaxIdx (objectType obj_arg)
 
 
 
-intType refArrMinIdx (objectType obj_arg)
+intType refArrMinIdx (const const_objectType obj_arg)
 
   { /* refArrMinIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
@@ -107,7 +134,7 @@ intType refArrMinIdx (objectType obj_arg)
 
 
 
-listType refArrToList (objectType obj_arg)
+listType refArrToList (const const_objectType obj_arg)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
@@ -129,7 +156,7 @@ listType refArrToList (objectType obj_arg)
 
 
 
-objectType refBody (objectType obj_arg)
+objectType refBody (const const_objectType obj_arg)
 
   {
     objectType result;
@@ -146,7 +173,7 @@ objectType refBody (objectType obj_arg)
 
 
 
-intType refCategory (objectType obj_arg)
+intType refCategory (const const_objectType obj_arg)
 
   {
     intType result;
@@ -202,7 +229,7 @@ striType refCatStr (intType aCategory)
 
 
 
-striType refFile (objectType obj_arg)
+striType refFile (const const_objectType obj_arg)
 
   {
     fileNumType file_number;
@@ -235,7 +262,7 @@ striType refFile (objectType obj_arg)
 
 
 
-listType refHshDataToList (objectType obj_arg)
+listType refHshDataToList (const const_objectType obj_arg)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
@@ -257,7 +284,7 @@ listType refHshDataToList (objectType obj_arg)
 
 
 
-listType refHshKeysToList (objectType obj_arg)
+listType refHshKeysToList (const const_objectType obj_arg)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
@@ -279,7 +306,7 @@ listType refHshKeysToList (objectType obj_arg)
 
 
 
-boolType refIsVar (objectType obj_arg)
+boolType refIsVar (const const_objectType obj_arg)
 
   { /* refIsVar */
     /* printf("refIsvar(%lu)\n", obj_arg); */
@@ -293,7 +320,7 @@ boolType refIsVar (objectType obj_arg)
 
 
 
-objectType refItfToSct (objectType obj_arg)
+objectType refItfToSct (const const_objectType obj_arg)
 
   {
     objectType result;
@@ -311,7 +338,7 @@ objectType refItfToSct (objectType obj_arg)
 
 
 
-intType refLine (objectType obj_arg)
+intType refLine (const const_objectType obj_arg)
 
   {
     intType result;
@@ -339,7 +366,7 @@ intType refLine (objectType obj_arg)
 
 
 
-listType refLocalConsts (objectType obj_arg)
+listType refLocalConsts (const const_objectType obj_arg)
 
   {
     listType local_elem;
@@ -370,7 +397,7 @@ listType refLocalConsts (objectType obj_arg)
 
 
 
-listType refLocalVars (objectType obj_arg)
+listType refLocalVars (const const_objectType obj_arg)
 
   {
     locListType local_elem;
@@ -401,7 +428,7 @@ listType refLocalVars (objectType obj_arg)
 
 
 
-intType refNum (objectType obj_arg)
+intType refNum (const const_objectType obj_arg)
 
   {
     static rtlHashType obj_table = NULL;
@@ -435,7 +462,7 @@ intType refNum (objectType obj_arg)
 
 
 
-listType refParams (objectType obj_arg)
+listType refParams (const const_objectType obj_arg)
 
   {
     listType result;
@@ -454,7 +481,7 @@ listType refParams (objectType obj_arg)
 
 
 
-objectType refResini (objectType obj_arg)
+objectType refResini (const const_objectType obj_arg)
 
   {
     objectType result;
@@ -471,7 +498,7 @@ objectType refResini (objectType obj_arg)
 
 
 
-objectType refResult (objectType obj_arg)
+objectType refResult (const const_objectType obj_arg)
 
   {
     objectType result;
@@ -488,7 +515,7 @@ objectType refResult (objectType obj_arg)
 
 
 
-listType refSctToList (objectType obj_arg)
+listType refSctToList (const const_objectType obj_arg)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
@@ -573,7 +600,7 @@ void refSetVar (objectType obj_arg, boolType var_flag)
 
 
 
-striType refStr (objectType obj_arg)
+striType refStr (const const_objectType obj_arg)
 
   {
     const_cstriType stri;
@@ -633,7 +660,7 @@ striType refStr (objectType obj_arg)
 
 
 
-typeType refType (objectType obj_arg)
+typeType refType (const const_objectType obj_arg)
 
   {
     typeType result;
@@ -650,7 +677,7 @@ typeType refType (objectType obj_arg)
 
 
 
-actType actValue (objectType obj_arg)
+actType actValue (const const_objectType obj_arg)
 
   { /* actValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
@@ -663,7 +690,7 @@ actType actValue (objectType obj_arg)
 
 
 
-bigIntType bigValue (objectType obj_arg)
+bigIntType bigValue (const const_objectType obj_arg)
 
   { /* bigValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
@@ -676,7 +703,7 @@ bigIntType bigValue (objectType obj_arg)
 
 
 
-boolType blnValue (objectType obj_arg)
+boolType blnValue (const_objectType obj_arg)
 
   { /* bln_value */
     if (obj_arg != NULL) {
@@ -699,7 +726,7 @@ boolType blnValue (objectType obj_arg)
 
 
 
-bstriType bstValue (objectType obj_arg)
+bstriType bstValue (const const_objectType obj_arg)
 
   {
     bstriType bstri;
@@ -725,7 +752,7 @@ bstriType bstValue (objectType obj_arg)
 
 
 
-charType chrValue (objectType obj_arg)
+charType chrValue (const const_objectType obj_arg)
 
   { /* chrValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
@@ -738,7 +765,7 @@ charType chrValue (objectType obj_arg)
 
 
 
-winType drwValue (objectType obj_arg)
+winType drwValue (const const_objectType obj_arg)
 
   {
     winType win_value;
@@ -758,7 +785,7 @@ winType drwValue (objectType obj_arg)
 
 
 
-fileType filValue (objectType obj_arg)
+fileType filValue (const const_objectType obj_arg)
 
   { /* filValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
@@ -771,7 +798,7 @@ fileType filValue (objectType obj_arg)
 
 
 
-floatType fltValue (objectType obj_arg)
+floatType fltValue (const const_objectType obj_arg)
 
   { /* fltValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
@@ -784,7 +811,7 @@ floatType fltValue (objectType obj_arg)
 
 
 
-intType intValue (objectType obj_arg)
+intType intValue (const const_objectType obj_arg)
 
   { /* intValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
@@ -797,7 +824,7 @@ intType intValue (objectType obj_arg)
 
 
 
-processType pcsValue (objectType obj_arg)
+processType pcsValue (const const_objectType obj_arg)
 
   {
     processType process_value;
@@ -817,7 +844,7 @@ processType pcsValue (objectType obj_arg)
 
 
 
-pollType polValue (objectType obj_arg)
+pollType polValue (const const_objectType obj_arg)
 
   { /* polValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT) {
@@ -830,7 +857,7 @@ pollType polValue (objectType obj_arg)
 
 
 
-progType prgValue (objectType obj_arg)
+progType prgValue (const const_objectType obj_arg)
 
   { /* prgValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
@@ -843,7 +870,7 @@ progType prgValue (objectType obj_arg)
 
 
 
-objectType refValue (objectType obj_arg)
+objectType refValue (const const_objectType obj_arg)
 
   { /* refValue */
     if (obj_arg != NULL &&
@@ -864,7 +891,7 @@ objectType refValue (objectType obj_arg)
 
 
 
-listType rflValue (objectType obj_arg)
+listType rflValue (const const_objectType obj_arg)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
@@ -913,7 +940,7 @@ void rflSetValue (objectType list_to, listType list_from)
 
 
 
-setType setValue (objectType obj_arg)
+setType setValue (const const_objectType obj_arg)
 
   {
     setType set1;
@@ -941,7 +968,7 @@ setType setValue (objectType obj_arg)
 
 
 
-striType strValue (objectType obj_arg)
+striType strValue (const const_objectType obj_arg)
 
   {
     striType stri;
@@ -967,7 +994,7 @@ striType strValue (objectType obj_arg)
 
 
 
-typeType typValue (objectType obj_arg)
+typeType typValue (const const_objectType obj_arg)
 
   { /* typValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {

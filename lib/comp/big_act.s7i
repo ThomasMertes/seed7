@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  big_act.s7i   Generate code for actions of the type bigInteger. *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -161,7 +161,7 @@ const proc: big_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "bigIntType  bigSuccTemp (bigIntType);");
     declareExtern(c_prog, "bstriType   bigToBStriBe (const const_bigIntType, const boolType);");
     declareExtern(c_prog, "bstriType   bigToBStriLe (const const_bigIntType, const boolType);");
-    declareExtern(c_prog, "bigIntType  bigValue (objRefType);");
+    declareExtern(c_prog, "bigIntType  bigValue (const const_objRefType);");
     declareExtern(c_prog, "bigIntType  bigXor (const_bigIntType, const_bigIntType);");
     declareExtern(c_prog, "bigIntType  bigZero (void);");
   end func;
@@ -532,9 +532,7 @@ const proc: process_const_big_div (in reference: dividend, in bigInteger: diviso
       c_expr.expr &:= bigIntegerLiteral(quotient);
     elsif divisor = 1_ then
       incr(countOptimizations);
-      c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
-      c_expr.expr &:= ")";
     elsif divisor = -1_ then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
@@ -1120,9 +1118,7 @@ const proc: process_const_big_mdiv (in reference: dividend, in bigInteger: divis
       c_expr.expr &:= bigIntegerLiteral(quotient);
     elsif divisor = 1_ then
       incr(countOptimizations);
-      c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
-      c_expr.expr &:= ")";
     elsif divisor = -1_ then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);

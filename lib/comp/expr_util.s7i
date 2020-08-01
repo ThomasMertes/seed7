@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  expr_util.s7i  Functions for the internal C expressions.        *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -34,8 +34,8 @@ const proc: prepare_typed_result (in type: aType, inout expr_type: c_expr) is fu
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := type_name(aType);
     c_expr.result_decl &:= " tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
@@ -43,8 +43,8 @@ const proc: prepare_typed_result (in type: aType, inout expr_type: c_expr) is fu
     c_expr.result_decl &:= type_name(aType);
     c_expr.result_decl &:= ")(NULL);\n";
     process_destr_declaration(aType, global_c_expr);
-    process_destr_call(aType, c_expr.result_temp, c_expr.result_free);
-    c_expr.result_to_null := c_expr.result_temp;
+    process_destr_call(aType, c_expr.result_name, c_expr.result_free);
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = (";
     c_expr.result_to_null &:= type_name(aType);
     c_expr.result_to_null &:= ")(NULL);\n";
@@ -61,15 +61,15 @@ const proc: prepare_bigint_result (inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := "bigIntType tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     c_expr.result_free := "bigDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = NULL;\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
@@ -82,8 +82,8 @@ const proc: prepare_list_result (in type: list_type, inout expr_type: c_expr) is
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := type_name(list_type);
     c_expr.result_decl &:= " tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
@@ -93,7 +93,7 @@ const proc: prepare_list_result (in type: list_type, inout expr_type: c_expr) is
     c_expr.result_free := "rflDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = (";
     c_expr.result_to_null &:= type_name(list_type);
     c_expr.result_to_null &:= ")(NULL);\n";
@@ -110,8 +110,8 @@ const proc: prepare_set_result (in type: set_type, inout expr_type: c_expr) is f
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := type_name(set_type);
     c_expr.result_decl &:= " tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
@@ -121,7 +121,7 @@ const proc: prepare_set_result (in type: set_type, inout expr_type: c_expr) is f
     c_expr.result_free := "setDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = (";
     c_expr.result_to_null &:= type_name(set_type);
     c_expr.result_to_null &:= ")(NULL);\n";
@@ -138,15 +138,15 @@ const proc: prepare_stri_result (inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := "striType tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     c_expr.result_free := "strDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = NULL;\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
@@ -159,15 +159,15 @@ const proc: prepare_bstri_result (inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := "bstriType tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     c_expr.result_free := "bstDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = NULL;\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
@@ -180,15 +180,15 @@ const proc: prepare_prog_result (inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := "progType tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     c_expr.result_free := "prgDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = NULL;\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
@@ -201,15 +201,15 @@ const proc: prepare_win_result (inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := "winType tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     c_expr.result_free := "winDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = NULL;\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
@@ -222,15 +222,15 @@ const proc: prepare_process_result (inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_temp := "tmp_";
-    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
     c_expr.result_decl := "processType tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     c_expr.result_free := "pcsDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
-    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null := c_expr.result_name;
     c_expr.result_to_null &:= " = NULL;\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
@@ -256,15 +256,15 @@ const proc: prepareAnyParamTemporarys (in reference: aParam,
 const proc: getAnyParamToExpr (in expr_type: c_param, inout expr_type: c_expr) is func
 
   begin
-    if c_param.result_expr <> "" then
+    if c_param.expr <> "" then
+      c_expr.expr &:= c_param.expr;
+    else
       c_expr.temp_decls &:= c_param.result_decl;
       c_expr.temp_frees &:= c_param.result_free;
       c_expr.temp_to_null &:= c_param.result_to_null;
       c_expr.expr &:= c_param.result_intro;
       c_expr.expr &:= c_param.result_expr;
       c_expr.expr &:= c_param.result_finish;
-    else
-      c_expr.expr &:= c_param.expr;
     end if;
   end func;
 
@@ -282,15 +282,15 @@ const proc: getAnyParamToExpr (in reference: aParam, inout expr_type: c_expr) is
 const proc: getAnyParamToResultExpr (in expr_type: c_param, inout expr_type: c_expr) is func
 
   begin
-    if c_param.result_expr <> "" then
+    if c_param.expr <> "" then
+      c_expr.result_expr &:= c_param.expr;
+    else
       c_expr.temp_decls &:= c_param.result_decl;
       c_expr.temp_frees &:= c_param.result_free;
       c_expr.temp_to_null &:= c_param.result_to_null;
       c_expr.result_expr &:= c_param.result_intro;
       c_expr.result_expr &:= c_param.result_expr;
       c_expr.result_expr &:= c_param.result_finish;
-    else
-      c_expr.result_expr &:= c_param.expr;
     end if;
   end func;
 

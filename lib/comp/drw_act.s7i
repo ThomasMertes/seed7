@@ -139,7 +139,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwText (const_winType, intType, intType, const const_striType, intType, intType);");
     declareExtern(c_prog, "void        drwToBottom (const_winType);");
     declareExtern(c_prog, "void        drwToTop (const_winType);");
-    declareExtern(c_prog, "winType     drwValue (objRefType);");
+    declareExtern(c_prog, "winType     drwValue (const const_objRefType);");
     declareExtern(c_prog, "intType     drwWidth (const_winType);");
     declareExtern(c_prog, "intType     drwXPos (const_winType);");
     declareExtern(c_prog, "intType     drwYPos (const_winType);");

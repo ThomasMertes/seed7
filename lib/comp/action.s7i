@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  actions.s7i   Generate C code for primitive actions.            *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -875,14 +875,22 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_BINOM, function, params, c_expr);
       elsif action_name = "INT_BIT_LENGTH" then
         process(INT_BIT_LENGTH, function, params, c_expr);
-      elsif action_name = "INT_BYTES_BE" then
-        process(INT_BYTES_BE, function, params, c_expr);
       elsif action_name = "INT_BYTES_BE_2_INT" then
         process(INT_BYTES_BE_2_INT, function, params, c_expr);
-      elsif action_name = "INT_BYTES_LE" then
-        process(INT_BYTES_LE, function, params, c_expr);
+      elsif action_name = "INT_BYTES_BE_2_UINT" then
+        process(INT_BYTES_BE_2_UINT, function, params, c_expr);
+      elsif action_name = "INT_BYTES_BE_SIGNED" then
+        process(INT_BYTES_BE_SIGNED, function, params, c_expr);
+      elsif action_name = "INT_BYTES_BE_UNSIGNED" then
+        process(INT_BYTES_BE_UNSIGNED, function, params, c_expr);
       elsif action_name = "INT_BYTES_LE_2_INT" then
         process(INT_BYTES_LE_2_INT, function, params, c_expr);
+      elsif action_name = "INT_BYTES_LE_2_UINT" then
+        process(INT_BYTES_LE_2_UINT, function, params, c_expr);
+      elsif action_name = "INT_BYTES_LE_SIGNED" then
+        process(INT_BYTES_LE_SIGNED, function, params, c_expr);
+      elsif action_name = "INT_BYTES_LE_UNSIGNED" then
+        process(INT_BYTES_LE_UNSIGNED, function, params, c_expr);
       elsif action_name = "INT_CMP" then
         process(INT_CMP, function, params, c_expr);
       elsif action_name = "INT_CONV" then
@@ -1172,6 +1180,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_ADDR, function, params, c_expr);
       elsif action_name = "REF_ALLOC" then
         process(REF_ALLOC, function, params, c_expr);
+      elsif action_name = "REF_ALLOC_STRI" then
+        process(REF_ALLOC_STRI, function, params, c_expr);
       elsif action_name = "REF_ARRMAXIDX" then
         process(REF_ARRMAXIDX, function, params, c_expr);
       elsif action_name = "REF_ARRMINIDX" then

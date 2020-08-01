@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  arr_act.s7i   Generate code for actions of the type array.      *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -380,7 +380,7 @@ const proc: process (ARR_HEAD, in reference: function,
       c_expr.result_expr &:= c_param.result_expr;
       c_expr.result_expr &:= c_param.result_finish;
       c_expr.result_expr &:= ", arrHeadTemp(&(";
-      c_expr.result_expr &:= c_param.result_temp;
+      c_expr.result_expr &:= c_param.result_name;
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[4], c_expr);
       c_expr.result_expr &:= "))";
@@ -527,7 +527,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.result_expr &:= ", ";
         c_expr.result_expr &:= result_name;
         c_expr.result_expr &:= ".value.genericValue=arrIdxTemp(&(";
-        c_expr.result_expr &:= c_param.result_temp;
+        c_expr.result_expr &:= c_param.result_name;
         c_expr.result_expr &:= "), ";
         c_expr.result_expr &:= str(index);
         c_expr.result_expr &:= "), ";
@@ -542,7 +542,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.expr &:= ", ";
         c_expr.expr &:= result_name;
         c_expr.expr &:= ".value.genericValue=arrIdxTemp(&(";
-        c_expr.expr &:= c_param.result_temp;
+        c_expr.expr &:= c_param.result_name;
         c_expr.expr &:= "), ";
         c_expr.expr &:= str(index);
         c_expr.expr &:= "), ";
@@ -642,7 +642,7 @@ const proc: process (ARR_IDX, in reference: function,
           c_expr.result_expr &:= ", ";
           c_expr.result_expr &:= result_name;
           c_expr.result_expr &:= ".value.genericValue=arrIdxTemp(&(";
-          c_expr.result_expr &:= c_param.result_temp;
+          c_expr.result_expr &:= c_param.result_name;
           c_expr.result_expr &:= "), ";
           getAnyParamToResultExpr(params[3], c_expr);
           c_expr.result_expr &:= "), ";
@@ -657,7 +657,7 @@ const proc: process (ARR_IDX, in reference: function,
           c_expr.expr &:= ", ";
           c_expr.expr &:= result_name;
           c_expr.expr &:= ".value.genericValue=arrIdxTemp(&(";
-          c_expr.expr &:= c_param.result_temp;
+          c_expr.expr &:= c_param.result_name;
           c_expr.expr &:= "), ";
           process_expr(params[3], c_expr);
           c_expr.expr &:= "), ";
@@ -852,7 +852,7 @@ const proc: process (ARR_RANGE, in reference: function,
       c_expr.result_expr &:= c_param.result_expr;
       c_expr.result_expr &:= c_param.result_finish;
       c_expr.result_expr &:= ", arrRangeTemp(&(";
-      c_expr.result_expr &:= c_param.result_temp;
+      c_expr.result_expr &:= c_param.result_name;
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ", ";
@@ -961,7 +961,7 @@ const proc: process (ARR_SUBARR, in reference: function,
       c_expr.result_expr &:= c_param.result_expr;
       c_expr.result_expr &:= c_param.result_finish;
       c_expr.result_expr &:= ", arrSubarrTemp(&(";
-      c_expr.result_expr &:= c_param.result_temp;
+      c_expr.result_expr &:= c_param.result_name;
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ", ";
@@ -1025,7 +1025,7 @@ const proc: process (ARR_TAIL, in reference: function,
       c_expr.result_expr &:= c_param.result_expr;
       c_expr.result_expr &:= c_param.result_finish;
       c_expr.result_expr &:= ", arrTailTemp(&(";
-      c_expr.result_expr &:= c_param.result_temp;
+      c_expr.result_expr &:= c_param.result_name;
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= "))";

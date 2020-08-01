@@ -56,7 +56,7 @@ const proc: typ_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     typNum (typeType);");
     declareExtern(c_prog, "typeType    typResult (typeType);");
     declareExtern(c_prog, "striType    typStr (typeType);");
-    declareExtern(c_prog, "typeType    typValue (objRefType);");
+    declareExtern(c_prog, "typeType    typValue (const const_objRefType);");
   end func;
 
 

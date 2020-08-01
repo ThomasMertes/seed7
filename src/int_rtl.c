@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/int_rtl.c                                       */
-/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2014  Thomas Mertes    */
+/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2015  Thomas Mertes    */
 /*  Content: Primitive actions for the integer type.                */
 /*                                                                  */
 /********************************************************************/
@@ -1138,30 +1138,28 @@ striType intBytesBe (intType number, boolType isSigned)
  *  Convert a string of bytes (interpreted as big-endian) to an integer.
  *  @param byteStri String of bytes to be converted. The bytes are
  *         interpreted as binary big-endian representation with a
- *         base of 256.
- *  @param isSigned Determines the signedness of 'byteStri'.
- *         When 'isSigned' is TRUE 'byteStri' is interpreted as
- *         signed value in the twos-complement representation.
- *         In this case the result is negative when the most significant
- *         byte (the first byte) has an ordinal >= 128.
- *  @return an integer created from 'byteStri'.
+ *         base of 256. Negative values use the twos-complement
+ *         representation.
+ *  @return an integer created from 'byteStri'. The result is negative
+ *          when the most significant byte (the first byte) of 'byteStri'
+ *          has an ordinal >= 128.
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-intType intBytesBe2Int (const const_striType byteStri, boolType isSigned)
+intType intBytesBe2Int (const const_striType byteStri)
 
   {
     memSizeType pos = 0;
-    intType result = 0;
+    intType result;
 
   /* intBytesBe2Int */
 #ifdef TRACE_INT_RTL
     printf("intBytesBe2Int(");
     prot_stri(byteStri);
-    printf(", %d)\n", isSigned);
+    printf(")\n");
 #endif
-    if (!isSigned || byteStri->size == 0 || byteStri->mem[0] <= 127) {
-      if (unlikely(byteStri->size >= sizeof(intType))) {
+    if (byteStri->size == 0 || byteStri->mem[0] <= 127) {
+      if (byteStri->size >= sizeof(intType)) {
         while (pos < byteStri->size && byteStri->mem[pos] == 0) {
           pos++;
         } /* if */
@@ -1172,8 +1170,9 @@ intType intBytesBe2Int (const const_striType byteStri, boolType isSigned)
           return 0;
         } /* if */
       } /* if */
-    } else { /* isSigned && byteStri->size != 0 && byteStri->mem[0] >= 128 */
-      if (unlikely(byteStri->size >= sizeof(intType))) {
+      result = 0;
+    } else { /* byteStri->size != 0 && byteStri->mem[0] >= 128 */
+      if (byteStri->size >= sizeof(intType)) {
         while (pos < byteStri->size && byteStri->mem[pos] == 255) {
           pos++;
         } /* if */
@@ -1199,6 +1198,55 @@ intType intBytesBe2Int (const const_striType byteStri, boolType isSigned)
 #endif
     return result;
   } /* intBytesBe2Int */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as big-endian) to an integer.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary big-endian representation with a
+ *         base of 256.
+ *  @return an integer created from 'byteStri'. The result is always
+ *          positive.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
+ *             when the result value cannot be represented with an integer.
+ */
+intType intBytesBe2UInt (const const_striType byteStri)
+
+  {
+    memSizeType pos = 0;
+    intType result = 0;
+
+  /* intBytesBe2UInt */
+#ifdef TRACE_INT_RTL
+    printf("intBytesBe2UInt(");
+    prot_stri(byteStri);
+    printf(")\n");
+#endif
+    if (byteStri->size >= sizeof(intType)) {
+      while (pos < byteStri->size && byteStri->mem[pos] == 0) {
+        pos++;
+      } /* if */
+      if (unlikely(byteStri->size - pos > sizeof(intType) ||
+                   (byteStri->size - pos == sizeof(intType) &&
+                    byteStri->mem[pos] >= 128))) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+    } /* if */
+    for (; pos < byteStri->size; pos++) {
+      if (unlikely(byteStri->mem[pos] >= 256)) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+      result <<= 8;
+      result += byteStri->mem[pos];
+    } /* for */
+#ifdef TRACE_INT_RTL
+    printf("intBytesBe2UInt --> " FMT_D "\n", result);
+#endif
+    return result;
+  } /* intBytesBe2UInt */
 
 
 
@@ -1252,7 +1300,7 @@ striType intBytesLe (intType number, boolType isSigned)
         pos++;
       } /* if */
     } else {
-      logError(printf(" *** intBytesBe(" FMT_D ", %d): "
+      logError(printf(" *** intBytesLe(" FMT_D ", %d): "
                       "Negative number and isSigned is FALSE.\n",
                       number, isSigned););
       raise_error(RANGE_ERROR);
@@ -1279,30 +1327,28 @@ striType intBytesLe (intType number, boolType isSigned)
  *  Convert a string of bytes (interpreted as little-endian) to an integer.
  *  @param byteStri String of bytes to be converted. The bytes are
  *         interpreted as binary little-endian representation with a
- *         base of 256.
- *  @param isSigned Determines the signedness of 'byteStri'.
- *         When 'isSigned' is TRUE 'byteStri' is interpreted as
- *         signed value in the twos-complement representation.
- *         In this case the result is negative when the most significant
- *         byte (the last byte) has an ordinal >= 128.
- *  @return an integer created from 'byteStri'.
+ *         base of 256. Negative values use the twos-complement
+ *         representation.
+ *  @return an integer created from 'byteStri'. The result is negative
+ *          when the most significant byte (the last byte) of 'byteStri'
+ *          has an ordinal >= 128.
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-intType intBytesLe2Int (const const_striType byteStri, boolType isSigned)
+intType intBytesLe2Int (const const_striType byteStri)
 
   {
     memSizeType pos;
-    intType result = 0;
+    intType result;
 
   /* intBytesLe2Int */
 #ifdef TRACE_INT_RTL
     printf("intBytesLe2Int(");
     prot_stri(byteStri);
-    printf(", %d)\n", isSigned);
+    printf(")\n");
 #endif
     pos = byteStri->size;
-    if (!isSigned || byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
+    if (byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
       if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos > 0 && byteStri->mem[pos - 1] == 0) {
           pos--;
@@ -1314,7 +1360,8 @@ intType intBytesLe2Int (const const_striType byteStri, boolType isSigned)
           return 0;
         } /* if */
       } /* if */
-    } else { /* isSigned && byteStri->size != 0 && byteStri->mem[pos - 1] >= 128 */
+      result = 0;
+    } else { /* byteStri->size != 0 && byteStri->mem[pos - 1] >= 128 */
       if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos > 0 && byteStri->mem[pos - 1] == 255) {
           pos--;
@@ -1341,6 +1388,56 @@ intType intBytesLe2Int (const const_striType byteStri, boolType isSigned)
 #endif
     return result;
   } /* intBytesLe2Int */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as little-endian) to an integer.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary little-endian representation with a
+ *         base of 256.
+ *  @return an integer created from 'byteStri'. The result is always
+ *          positive.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
+ *             when the result value cannot be represented with an integer.
+ */
+intType intBytesLe2UInt (const const_striType byteStri)
+
+  {
+    memSizeType pos;
+    intType result = 0;
+
+  /* intBytesLe2UInt */
+#ifdef TRACE_INT_RTL
+    printf("intBytesLe2UInt(");
+    prot_stri(byteStri);
+    printf(")\n");
+#endif
+    pos = byteStri->size;
+    if (unlikely(byteStri->size >= sizeof(intType))) {
+      while (pos > 0 && byteStri->mem[pos - 1] == 0) {
+        pos--;
+      } /* if */
+      if (unlikely(pos > sizeof(intType) ||
+                   (pos == sizeof(intType) &&
+                    byteStri->mem[pos - 1] >= 128))) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+    } /* if */
+    for (; pos > 0; pos--) {
+      if (unlikely(byteStri->mem[pos - 1] >= 256)) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+      result <<= 8;
+      result += byteStri->mem[pos - 1];
+    } /* for */
+#ifdef TRACE_INT_RTL
+    printf("intBytesLe2UInt --> " FMT_D "\n", result);
+#endif
+    return result;
+  } /* intBytesLe2UInt */
 
 
 

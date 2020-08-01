@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/str_rtl.c                                       */
-/*  Changes: 1991 - 1994, 2005, 2008 - 2014  Thomas Mertes          */
+/*  Changes: 1991 - 1994, 2005, 2008 - 2015  Thomas Mertes          */
 /*  Content: Primitive actions for the string type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -1886,7 +1886,7 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
 #endif
   } /* strHeadSlice */
 
-#else
+#endif
 
 
 
@@ -1926,8 +1926,6 @@ striType strHead (const const_striType stri, const intType stop)
     } /* if */
     return result;
   } /* strHead */
-
-#endif
 
 
 
@@ -2773,7 +2771,7 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
 #endif
   } /* strRangeSlice */
 
-#else
+#endif
 
 
 
@@ -2823,8 +2821,6 @@ striType strRange (const const_striType stri, intType start, intType stop)
     } /* if */
     return result;
   } /* strRange */
-
-#endif
 
 
 
@@ -3589,7 +3585,7 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
 #endif
   } /* strSubstrSlice */
 
-#else
+#endif
 
 
 
@@ -3639,8 +3635,6 @@ striType strSubstr (const const_striType stri, intType start, intType length)
     return result;
   } /* strSubstr */
 
-#endif
-
 
 
 #ifdef ALLOW_STRITYPE_SLICES
@@ -3684,7 +3678,7 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
 #endif
   } /* strTailSlice */
 
-#else
+#endif
 
 
 
@@ -3730,8 +3724,6 @@ striType strTail (const const_striType stri, intType start)
     } /* if */
     return result;
   } /* strTail */
-
-#endif
 
 
 

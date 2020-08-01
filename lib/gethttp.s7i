@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  gethttp.s7i   Support to get data with the HTTP protocol        *)
-(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*  Copyright (C) 2008, 2010, 2011, 2013 - 2015  Thomas Mertes      *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -241,7 +241,12 @@ const func string: getHttp (inout file: sock) is func
     if transferEncoding = "chunked" then
       if not eof(sock) then
         line := getln(sock);
-        chunkSize := integer(line, 16);
+        block
+          chunkSize := integer(line, 16);
+        exception
+          catch RANGE_ERROR:
+            chunkSize := -1;
+        end block;
         while chunkSize > 0 and not eof(sock) do
           repeat
             buffer := gets(sock, chunkSize);
@@ -251,7 +256,12 @@ const func string: getHttp (inout file: sock) is func
           if not eof(sock) then
             ignore(getln(sock));
             line := getln(sock);
-            chunkSize := integer(line, 16);
+            block
+              chunkSize := integer(line, 16);
+            exception
+              catch RANGE_ERROR:
+                chunkSize := -1;
+            end block;
           end if;
         end while;
       end if;

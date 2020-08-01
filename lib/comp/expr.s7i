@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  expr.s7i      Support to represent C cxpressions.               *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -33,7 +33,8 @@ const type: expr_type is new struct
     var string: expr is "";
     var string: temp_frees is "";
     var string: temp_to_null is "";
-    var string: result_temp is "";
+    var boolean: prefer_result_expr is FALSE;
+    var string: result_name is "";
     var string: result_decl is "";
     var string: result_free is "";
     var string: result_to_null is "";

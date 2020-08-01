@@ -203,7 +203,7 @@ static void print_error_line (void)
 static void write_place (errorType err, const const_ustriType name, const lineNumType line)
 
   { /* write_place */
-    printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
+    printf("*** %s(%1u):%d: ", name, line, ((int) err) + 1);
   } /* write_place */
 
 

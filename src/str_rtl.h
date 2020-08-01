@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.h     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/str_rtl.h                                       */
-/*  Changes: 1991 - 1994, 2005, 2008 - 2014  Thomas Mertes          */
+/*  Changes: 1991 - 1994, 2005, 2008 - 2015  Thomas Mertes          */
 /*  Content: Primitive actions for the string type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -69,9 +69,8 @@ boolType strGt (const const_striType stri1, const const_striType stri2);
 intType strHashCode (const const_striType stri);
 #ifdef ALLOW_STRITYPE_SLICES
 void strHeadSlice (const const_striType stri, const intType stop, striType slice);
-#else
-striType strHead (const const_striType stri, const intType stop);
 #endif
+striType strHead (const const_striType stri, const intType stop);
 striType strHeadTemp (const striType stri, const intType stop);
 intType strIPos (const const_striType main_stri, const const_striType searched,
     const intType from_index);
@@ -90,9 +89,8 @@ intType strPos (const const_striType main_stri, const const_striType searched);
 void strPush (striType *const destination, const charType extension);
 #ifdef ALLOW_STRITYPE_SLICES
 void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice);
-#else
-striType strRange (const const_striType stri, intType start, intType stop);
 #endif
+striType strRange (const const_striType stri, intType start, intType stop);
 intType strRChIPos (const const_striType main_stri, const charType searched,
     const intType from_index);
 intType strRChPos (const const_striType main_stri, const charType searched);
@@ -107,14 +105,12 @@ striType strRtrim (const const_striType stri);
     const const_striType delimiter); */
 #ifdef ALLOW_STRITYPE_SLICES
 void strSubstrSlice (const const_striType stri, intType start, intType len, striType slice);
-#else
-striType strSubstr (const const_striType stri, intType start, intType len);
 #endif
+striType strSubstr (const const_striType stri, intType start, intType len);
 #ifdef ALLOW_STRITYPE_SLICES
 void strTailSlice (const const_striType stri, intType start, striType slice);
-#else
-striType strTail (const const_striType stri, intType start);
 #endif
+striType strTail (const const_striType stri, intType start);
 striType strToUtf8 (const const_striType stri);
 striType strTrim (const const_striType stri);
 striType strUp (const const_striType stri);

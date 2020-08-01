@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,13 +20,14 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/reflib.h                                        */
-/*  Changes: 1991, 1992, 1993, 1994, 2004, 2007  Thomas Mertes      */
+/*  Changes: 1991 - 1994, 2004, 2007, 2015  Thomas Mertes           */
 /*  Content: All primitive actions for the reference type.          */
 /*                                                                  */
 /********************************************************************/
 
 objectType ref_addr          (listType arguments);
 objectType ref_alloc         (listType arguments);
+objectType ref_alloc_stri    (listType arguments);
 objectType ref_arrmaxidx     (listType arguments);
 objectType ref_arrminidx     (listType arguments);
 objectType ref_arrtolist     (listType arguments);

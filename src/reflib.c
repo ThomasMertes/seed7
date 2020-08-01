@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/reflib.c                                        */
-/*  Changes: 1991, 1992, 1993, 1994, 2004, 2007  Thomas Mertes      */
+/*  Changes: 1991 - 1994, 2004, 2007, 2015  Thomas Mertes           */
 /*  Content: All primitive actions for the reference type.          */
 /*                                                                  */
 /********************************************************************/
@@ -166,6 +166,20 @@ objectType ref_alloc (listType arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* ref_alloc */
+
+
+
+objectType ref_alloc_stri (listType arguments)
+
+  { /* ref_alloc_stri */
+    isit_bool(arg_1(arguments));
+    isit_type(arg_2(arguments));
+    isit_stri(arg_3(arguments));
+    return bld_reference_temp(
+        refAllocStri(take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT,
+                     take_type(arg_2(arguments)),
+                     take_stri(arg_3(arguments))));
+  } /* ref_alloc_stri */
 
 
 

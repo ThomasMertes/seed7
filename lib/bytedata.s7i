@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bytedata.s7i  Convert byte data to and from strings             *)
-(*  Copyright (C) 2009, 2013, 2014  Thomas Mertes                   *)
+(*  Copyright (C) 2009, 2013 - 2015  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -35,6 +35,7 @@ include "bstring.s7i";
  *  Enumeration of signedness values.
  *  Signedness defines if negative values can be represented.
  *  Defines: UNSIGNED and SIGNED.
+ *  Signed values use the twos-complement representation.
  *)
 const type: signedness is new enum
     UNSIGNED, SIGNED
@@ -44,7 +45,9 @@ const type: signedness is new enum
 (**
  *  Enumeration of endianess values.
  *  Endianess defines how the bytes of a data are ordered within memory.
- *  Defines: LE and BE.
+ *  Defines: LE (little-endian) and BE (big-endian).
+ *  A little-endian representation starts with the least significant byte.
+ *  A big-endian representation starts with the most significant byte.
  *)
 const type: endianess is new enum
     LE, BE
@@ -190,23 +193,13 @@ const func string: int64AsEightBytesBe (in integer: number) is func
   end func;
 
 
-const func string: bytesBe (in integer: number,
-                            in boolean: isSigned) is action "INT_BYTES_BE";
+const func string: bytes (in integer: number, UNSIGNED, BE) is action "INT_BYTES_BE_UNSIGNED";
 
-const func string: bytesLe (in integer: number,
-                            in boolean: isSigned) is action "INT_BYTES_LE";
+const func string: bytes (in integer: number, UNSIGNED, LE) is action "INT_BYTES_LE_UNSIGNED";
 
-const func string: bytes (in integer: number, UNSIGNED, BE) is
-  return bytesBe(number, FALSE);
+const func string: bytes (in integer: number, SIGNED, BE) is action "INT_BYTES_BE_SIGNED";
 
-const func string: bytes (in integer: number, UNSIGNED, LE) is
-  return bytesLe(number, FALSE);
-
-const func string: bytes (in integer: number, SIGNED, BE) is
-  return bytesBe(number, TRUE);
-
-const func string: bytes (in integer: number, SIGNED, LE) is
-  return bytesLe(number, TRUE);
+const func string: bytes (in integer: number, SIGNED, LE) is action "INT_BYTES_LE_SIGNED";
 
 
 (**
@@ -271,23 +264,13 @@ const func string: bytes (in bigInteger: number,
     in signedness: signed, in endianess: endian) is DYNAMIC;
 
 
-const func integer: bytesBe2Int (in string: byteStri,
-                                 in boolean: isSigned) is action "INT_BYTES_BE_2_INT";
+const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE) is action "INT_BYTES_BE_2_UINT";
 
-const func integer: bytesLe2Int (in string: byteStri,
-                                 in boolean: isSigned) is action "INT_BYTES_LE_2_INT";
+const func integer: bytes2Int (in string: byteStri, UNSIGNED, LE) is action "INT_BYTES_LE_2_UINT";
 
-const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE) is
-  return bytesBe2Int(byteStri, FALSE);
+const func integer: bytes2Int (in string: byteStri, SIGNED, BE) is action "INT_BYTES_BE_2_INT";
 
-const func integer: bytes2Int (in string: byteStri, UNSIGNED, LE) is
-  return bytesLe2Int(byteStri, FALSE);
-
-const func integer: bytes2Int (in string: byteStri, SIGNED, BE) is
-  return bytesBe2Int(byteStri, TRUE);
-
-const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is
-  return bytesLe2Int(byteStri, TRUE);
+const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is action "INT_BYTES_LE_2_INT";
 
 
 (**

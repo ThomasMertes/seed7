@@ -1047,7 +1047,8 @@ void prot_params (const_listType list)
       while (list_end->next != NULL) {
         list_end = list_end->next;
       } /* while */
-      if (CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
+      if (CATEGORY_OF_OBJ(list->obj) != SYMBOLOBJECT &&
+          CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
           HAS_ENTITY(list_end->obj) &&
           GET_ENTITY(list_end->obj)->ident != NULL &&
           GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {
@@ -1111,7 +1112,8 @@ void prot_name (const_listType list)
       while (list_end->next != NULL) {
         list_end = list_end->next;
       } /* while */
-      if (CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
+      if (CATEGORY_OF_OBJ(list->obj) != SYMBOLOBJECT &&
+          CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
           HAS_ENTITY(list_end->obj) &&
           GET_ENTITY(list_end->obj)->ident != NULL &&
           GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {

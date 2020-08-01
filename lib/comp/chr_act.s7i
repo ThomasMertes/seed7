@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chr_act.s7i   Generate code for actions of the type char.       *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -64,7 +64,7 @@ const proc: chr_prototypes (inout file: c_prog) is func
       writeln(c_prog, "#define     chrStrMacro(ch,str) (str.size=1,str.mem[0]=(strElemType)(ch),&str)");
     end if;
     declareExtern(c_prog, "charType    chrUp (charType);");
-    declareExtern(c_prog, "charType    chrValue (objRefType);");
+    declareExtern(c_prog, "charType    chrValue (const const_objRefType);");
   end func;
 
 
@@ -119,7 +119,7 @@ const proc: process (CHR_CLIT, in reference: function,
   local
     var string: buffer_name is "";
   begin
-    if ccConf.ALLOW_STRITYPE_SLICES then
+    if ccConf.ALLOW_STRITYPE_SLICES and not c_expr.prefer_result_expr then
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";

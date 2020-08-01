@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.h     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/int_rtl.h                                       */
-/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2014  Thomas Mertes    */
+/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2015  Thomas Mertes    */
 /*  Content: Primitive actions for the integer type.                */
 /*                                                                  */
 /********************************************************************/
@@ -54,9 +54,11 @@ intType intBinom (intType n_number, intType k_number);
 uintType uintBinomNoChk (uintType n_number, intType k_number);
 intType intBitLength (intType number);
 striType intBytesBe (intType number, boolType isSigned);
-intType intBytesBe2Int (const const_striType byteStri, boolType isSigned);
+intType intBytesBe2Int (const const_striType byteStri);
+intType intBytesBe2UInt (const const_striType byteStri);
 striType intBytesLe (intType number, boolType isSigned);
-intType intBytesLe2Int (const const_striType byteStri, boolType isSigned);
+intType intBytesLe2Int (const const_striType byteStri);
+intType intBytesLe2UInt (const const_striType byteStri);
 intType intCmp (intType number1, intType number2);
 intType intLog10 (intType number);
 intType intLog2 (intType number);

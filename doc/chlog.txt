@@ -1,3 +1,54 @@
+20150118:
+- The performance of the function bytes2Int in bytedata.s7i has been
+  improved by 10% (measured with gcc and valgrind). An intermediate
+  function has been removed and a boolean parameter has been omitted
+  from the underlying C function .
+- The function check_string_concat, which contains checks for string
+  concatenation, has been added to chkstr.sd7.
+- Improvements have been done in gethttp.s7i and tls.s7i to avoid
+  blocking and exceptions, when a socket is closed or unexpected data
+  is read.
+- Several optimizations in the compiler (s7c) have been done:
+  - The function optimize_str_cat has been added to comp/str_act.s7i.
+    This function optimizes sequences of string concatenations.
+  - The flag prefer_result_expr has been added to the struct
+    expr_type in comp/expr.s7i. With this flag it can be requested
+    that a parameter is preferred as result_expr (the value is
+    allocated at the heap).
+  - The function process_int_str has been added to int_act.s7i.
+    This function is used for INT_STR and for the radix operator
+    when the base is 10.
+- The program chk_all.sd7 has been changed to ignore the exception
+  FILE_ERROR, when it is raised by some calls of removeFile.
+- In int_rtl.c the functions intBytesBe2Int and intBytesLe2Int have
+  been changed to convert only signed values (in twos-complement
+  representation). The parameter isSigned has been removed.
+- The functions intBytesBe2UInt and intBytesLe2UInt have been added
+  to int_rtl.c. This functions convert unsigned values.
+- The function write_place in error.c has been fixed to write the
+  correct file name and line. This error has been introduced in
+  version 2014-09-07, when the function write_place has been added.
+- A definition and calls of the macro logError have been added to
+  fil_rtl.c and soc_rtl.c.
+- A version of the function alloc has been added to progs.s7i. This
+  version allocates a string object.
+- The functions prot_params and prot_name in traceutl.c have been
+  improved to write syntax with keywords at the beginning and at the
+  end correctly.
+- In ref_data.c the functions refAlloc, refArrMaxIdx, refArrMinIdx,
+  refArrToList, refBody, refCategory, refFile, refHshDataToList,
+  refHshKeysToList, refIsVar, refItfToSct, refLine, refLocalConsts,
+  refLocalVars, refNum, refParams, refResini, refResult,
+  refSctToList, refStr, refType, actValue, bigValue, blnValue,
+  bstValue, chrValue, drwValue, filValue, fltValue, intValue,
+  pcsValue, polValue, prgValue, refValue, rflValue, setValue,
+  strValue and typValue have been changed to use const parameters.
+- The actions INT_BYTES_BE and INT_BYTES_LE have been replaced by
+  INT_BYTES_BE_SIGNED, INT_BYTES_BE_UNSIGNED, INT_BYTES_LE_SIGNED and
+  INT_BYTES_LE_UNSIGNED.
+- The actions INT_BYTES_BE_2_UINT, INT_BYTES_LE_2_UINT and
+  REF_ALLOC_STRI have been added.
+
 20150104:
 - In sql_post.c the function swap64 has been renamed to swapUInt64.
   Thanks go to Brian Callahan for reporting that OpenBSD already has
@@ -31,9 +82,9 @@
   improved to avoid a call of XGetGeometry, when the window is a
   pixmap. This significantly improves the writing with Seed7 fonts
   under Mac OS X.
-- The compiler has been improved to limit the length of float
-  literals to 100 characters. The length of a float literal accepted
-  by the cl C compiler from msvc is limited.
+- The compiler has been improved to limit the length of generated C
+  float literals to 100 characters. The length of a float literal
+  accepted by the cl C compiler from msvc is limited.
 - The function doubleToCharBuffer in flt_rtl.c has been improved to
   work correctly for numbers with big and small exponents.
 - Tests of float to string conversions have been added to chkflt.sd7.

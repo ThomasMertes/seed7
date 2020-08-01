@@ -104,7 +104,7 @@ const proc: flt_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "floatType   fltRand (floatType, floatType);");
     declareExtern(c_prog, "striType    fltSci (floatType, intType);");
     declareExtern(c_prog, "striType    fltStr (floatType);");
-    declareExtern(c_prog, "floatType   fltValue (objRefType);");
+    declareExtern(c_prog, "floatType   fltValue (const const_objRefType);");
   end func;
 
 

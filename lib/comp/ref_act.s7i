@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ref_act.s7i   Generate code for actions of the type reference.  *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -26,6 +26,7 @@
 
 const ACTION: REF_ADDR           is action "REF_ADDR";
 const ACTION: REF_ALLOC          is action "REF_ALLOC";
+const ACTION: REF_ALLOC_STRI     is action "REF_ALLOC_STRI";
 const ACTION: REF_ARRMAXIDX      is action "REF_ARRMAXIDX";
 const ACTION: REF_ARRMINIDX      is action "REF_ARRMINIDX";
 const ACTION: REF_ARRTOLIST      is action "REF_ARRTOLIST";
@@ -68,33 +69,34 @@ const ACTION: REF_VALUE          is action "REF_VALUE";
 const proc: ref_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "objRefType  refAlloc (objRefType);");
-    declareExtern(c_prog, "intType     refArrMaxIdx (objRefType);");
-    declareExtern(c_prog, "intType     refArrMinIdx (objRefType);");
-    declareExtern(c_prog, "listType    refArrToList (objRefType);");
-    declareExtern(c_prog, "objRefType  refBody (objRefType);");
-    declareExtern(c_prog, "intType     refCategory (objRefType);");
+    declareExtern(c_prog, "objRefType  refAlloc (const const_objRefType);");
+    declareExtern(c_prog, "objRefType  refAllocStri (boolType, typeType, const const_striType);");
+    declareExtern(c_prog, "intType     refArrMaxIdx (const const_objRefType);");
+    declareExtern(c_prog, "intType     refArrMinIdx (const const_objRefType);");
+    declareExtern(c_prog, "listType    refArrToList (const const_objRefType);");
+    declareExtern(c_prog, "objRefType  refBody (const const_objRefType);");
+    declareExtern(c_prog, "intType     refCategory (const const_objRefType);");
     declareExtern(c_prog, "striType    refCatStr (intType);");
-    declareExtern(c_prog, "striType    refFile (objRefType);");
-    declareExtern(c_prog, "listType    refHshDataToList (objRefType);");
-    declareExtern(c_prog, "listType    refHshKeysToList (objRefType);");
-    declareExtern(c_prog, "boolType    refIsVar (objRefType);");
-    declareExtern(c_prog, "objRefType  refItfToSct (objRefType);");
-    declareExtern(c_prog, "intType     refLine (objRefType);");
-    declareExtern(c_prog, "listType    refLocalConsts (objRefType);");
-    declareExtern(c_prog, "listType    refLocalVars (objRefType);");
-    declareExtern(c_prog, "intType     refNum (objRefType);");
-    declareExtern(c_prog, "listType    refParams (objRefType);");
-    declareExtern(c_prog, "objRefType  refResini (objRefType);");
-    declareExtern(c_prog, "objRefType  refResult (objRefType);");
-    declareExtern(c_prog, "listType    refSctToList (objRefType);");
+    declareExtern(c_prog, "striType    refFile (const const_objRefType);");
+    declareExtern(c_prog, "listType    refHshDataToList (const const_objRefType);");
+    declareExtern(c_prog, "listType    refHshKeysToList (const const_objRefType);");
+    declareExtern(c_prog, "boolType    refIsVar (const const_objRefType);");
+    declareExtern(c_prog, "objRefType  refItfToSct (const const_objRefType);");
+    declareExtern(c_prog, "intType     refLine (const const_objRefType);");
+    declareExtern(c_prog, "listType    refLocalConsts (const const_objRefType);");
+    declareExtern(c_prog, "listType    refLocalVars (const const_objRefType);");
+    declareExtern(c_prog, "intType     refNum (const const_objRefType);");
+    declareExtern(c_prog, "listType    refParams (const const_objRefType);");
+    declareExtern(c_prog, "objRefType  refResini (const const_objRefType);");
+    declareExtern(c_prog, "objRefType  refResult (const const_objRefType);");
+    declareExtern(c_prog, "listType    refSctToList (const const_objRefType);");
     declareExtern(c_prog, "void        refSetCategory (objRefType, intType);");
     declareExtern(c_prog, "void        refSetParams (objRefType, const_listType);");
     declareExtern(c_prog, "void        refSetType (objRefType, typeType);");
     declareExtern(c_prog, "void        refSetVar (objRefType, boolType);");
-    declareExtern(c_prog, "striType    refStr (objRefType);");
-    declareExtern(c_prog, "typeType    refType (objRefType);");
-    declareExtern(c_prog, "objRefType  refValue (objRefType);");
+    declareExtern(c_prog, "striType    refStr (const const_objRefType);");
+    declareExtern(c_prog, "typeType    refType (const const_objRefType);");
+    declareExtern(c_prog, "objRefType  refValue (const const_objRefType);");
   end func;
 
 
@@ -115,6 +117,21 @@ const proc: process (REF_ALLOC, in reference: function,
     compDataLibraryUsed := TRUE;
     c_expr.expr &:= "refAlloc(";
     process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ALLOC_STRI, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refAllocStri(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 

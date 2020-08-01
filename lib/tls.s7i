@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tls.s7i       Support for Transport Layer Security (TLS/SSL).   *)
-(*  Copyright (C) 2013, 2014  Thomas Mertes                         *)
+(*  Copyright (C) 2013 - 2015  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -888,8 +888,13 @@ const proc: getTlsMsgRecord (inout file: sock, inout tlsParseState: state) is fu
           msg2 := gets(sock, missing);
           state.message &:= msg2;
           missing -:= length(msg2);
-        until missing = 0;
-        state.pos := 6;
+        until missing = 0 or eof(sock);
+        if missing = 0 then
+          state.pos := 6;
+        else
+          state.contentType := NO_MESSAGE;
+          state.length := 0;
+        end if;
       else
         state.contentType := NO_MESSAGE;
         state.length := 0;
@@ -1452,7 +1457,11 @@ const proc: close (inout tlsFile: aFile) is func
     closeNotify := genCloseNotify(aFile.parameters);
     # showMsg(closeNotify);
     closeNotify := tlsEncryptRecord(aFile.parameters, closeNotify);
-    write(aFile.sock, closeNotify);
+    block
+      write(aFile.sock, closeNotify);
+    exception
+      catch FILE_ERROR: noop;
+    end block;
     close(aFile.sock);
     aFile.sock := STD_NULL;
   end func;
@@ -1488,7 +1497,10 @@ const func string: getApplicationData (inout tlsFile: inFile) is func
       # writeln("getApplicationData:");
       # showMsg(inFile.parseState.message);
       if inFile.parseState.message[inFile.parseState.pos + 1] = '\0;' then  # close_notify
-        writeln("close notify");
+        # writeln("close notify");
+        close(inFile);
+      elsif inFile.parseState.message[inFile.parseState.pos + 1] = '\40;' then  # handshake_failure
+        # writeln("handshake failure");
         close(inFile);
       else
         showMsg(inFile.parseState.message);

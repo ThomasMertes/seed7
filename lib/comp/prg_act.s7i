@@ -62,7 +62,7 @@ const proc: prg_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "progType    prgStrParse (const const_striType, const_setType, const const_arrayType, const_striType);");
     declareExtern(c_prog, "objRefType  prgSyobject (const progType, const const_striType);");
     declareExtern(c_prog, "objRefType  prgSysvar (const const_progType, const const_striType);");
-    declareExtern(c_prog, "progType    prgValue (objRefType);");
+    declareExtern(c_prog, "progType    prgValue (const const_objRefType);");
   end func;
 
 

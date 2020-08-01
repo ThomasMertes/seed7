@@ -131,6 +131,7 @@ const string: chkstr_output is "\n\
   \String tail works correct\n\
   \String range works correct\n\
   \String substr works correct\n\
+  \String concatenation works correct\n\
   \String operations work correct\n\
   \String functions work correct\n\
   \split(string) works correct\n\
@@ -252,6 +253,16 @@ const string: chkexc_output is "\n\
   \1 div 0 in repeat raises NUMERIC_ERROR\n";
 
 
+const proc: igrnoreFileError (ref proc: statement) is func
+  begin
+    block
+      statement;
+    exception
+      catch FILE_ERROR: noop;
+    end block;
+  end func;
+
+
 const func boolean: equalFiles (in string: file1Name, in string: file2Name) is func
   result
     var boolean: equal is FALSE;
@@ -323,11 +334,7 @@ const func boolean: checkInterpreter (in string: progName, in string: referenceO
       flush(OUT);
     end if;
     if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-      block
-        removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
-      exception
-        catch FILE_ERROR: noop;
-      end block;
+      igrnoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
     end if;
   end func;
 
@@ -392,11 +399,7 @@ const func boolean: checkCompiler (in string: progName, in string: option,
         moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
       end if;
       if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-        block
-          removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
-        exception
-          catch FILE_ERROR: noop;
-        end block;
+        igrnoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
       end if;
       compilerOutput := cmdOutput(executeCompiler & option & progName);
       if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
@@ -417,13 +420,11 @@ const func boolean: checkCompiler (in string: progName, in string: option,
           else
             removeFile("tmp_" & progName & ".c");
             removeFile("tmp1_" & progName & ".c");
-            removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION);
+            if fileType("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) <> FILE_ABSENT then
+              igrnoreFileError(removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION));
+            end if;
             if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-              block
-                removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
-              exception
-                catch FILE_ERROR: noop;
-              end block;
+              igrnoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
             end if;
             write(".");
             flush(OUT);

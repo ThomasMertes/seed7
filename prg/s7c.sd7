@@ -1821,7 +1821,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
               c_expr.temp_decls   &:= c_body.temp_decls;
               c_expr.temp_assigns &:= c_body.temp_assigns;
               c_expr.temp_frees   &:= c_body.temp_frees;
-              c_expr.result_temp    := c_body.result_temp;
+              c_expr.result_name    := c_body.result_name;
               c_expr.result_decl    := c_body.result_decl;
               c_expr.result_free    := c_body.result_free;
               c_expr.result_to_null := c_body.result_to_null;

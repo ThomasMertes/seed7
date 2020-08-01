@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/primitiv.c                                      */
-/*  Changes: 1992, 1993, 1994, 2004 - 2014  Thomas Mertes           */
+/*  Changes: 1992, 1993, 1994, 2004 - 2015  Thomas Mertes           */
 /*  Content: Table definitions for all primitive actions.           */
 /*                                                                  */
 /********************************************************************/
@@ -492,10 +492,14 @@ static primActRecord prim_act_table[] = {
     { "INT_AND_ASSIGN",          int_and_assign,          },
     { "INT_BINOM",               int_binom,               },
     { "INT_BIT_LENGTH",          int_bit_length,          },
-    { "INT_BYTES_BE",            int_bytesBe,             },
     { "INT_BYTES_BE_2_INT",      int_bytesBe2Int,         },
-    { "INT_BYTES_LE",            int_bytesLe,             },
+    { "INT_BYTES_BE_2_UINT",     int_bytesBe2UInt,        },
+    { "INT_BYTES_BE_SIGNED",     int_bytesBeSigned,       },
+    { "INT_BYTES_BE_UNSIGNED",   int_bytesBeUnsigned,     },
     { "INT_BYTES_LE_2_INT",      int_bytesLe2Int,         },
+    { "INT_BYTES_LE_2_UINT",     int_bytesLe2UInt,        },
+    { "INT_BYTES_LE_SIGNED",     int_bytesLeSigned,       },
+    { "INT_BYTES_LE_UNSIGNED",   int_bytesLeUnsigned,     },
     { "INT_CMP",                 int_cmp,                 },
     { "INT_CONV",                int_conv,                },
     { "INT_CPY",                 int_cpy,                 },
@@ -678,6 +682,7 @@ static primActRecord prim_act_table[] = {
 #ifdef WITH_REFERENCE
     { "REF_ADDR",                ref_addr,                },
     { "REF_ALLOC",               ref_alloc,               },
+    { "REF_ALLOC_STRI",          ref_alloc_stri,          },
     { "REF_ARRMAXIDX",           ref_arrmaxidx,           },
     { "REF_ARRMINIDX",           ref_arrminidx,           },
     { "REF_ARRTOLIST",           ref_arrtolist,           },

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  str_act.s7i   Generate code for actions of the type string.     *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -133,7 +133,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    strUp (const const_striType);");
     declareExtern(c_prog, "striType    strUpTemp (const striType);");
     declareExtern(c_prog, "striType    strUtf8ToStri (const_striType);");
-    declareExtern(c_prog, "striType    strValue (objRefType);");
+    declareExtern(c_prog, "striType    strValue (const const_objRefType);");
     declareExtern(c_prog, "striType    strZero (const intType);");
   end func;
 
@@ -254,16 +254,16 @@ const proc: process (STR_APPEND, in reference: function,
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= "), ";
         c_expr.expr &:= c_param3.expr;
-      elsif c_param3.result_expr <> "" then
-        c_expr.expr &:= "strAppendTemp(&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= "), ";
-        c_expr.expr &:= c_param3.result_expr;
-      else
+      elsif c_param3.expr <> "" then
         c_expr.expr &:= "strAppend(&(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= "), ";
         c_expr.expr &:= c_param3.expr;
+      else
+        c_expr.expr &:= "strAppendTemp(&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "), ";
+        c_expr.expr &:= c_param3.result_expr;
       end if;
       c_expr.expr &:= ");\n";
       if has_temp_values(c_param3) then
@@ -284,8 +284,7 @@ const proc: process (STR_APPEND, in reference: function,
  *  the first parameter as result of the concatenation. That way the
  *  temporary of the first parameter must not be freed.
  *)
-const proc: process (STR_CAT, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: optimize_str_cat (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var reference: leftParam is NIL;
@@ -293,10 +292,11 @@ const proc: process (STR_CAT, in reference: function,
     var boolean: concatFound is FALSE;
     var ref_list: subExprParams is ref_list.EMPTY;
     var string: concatNParamName is "";
-    var integer: index is 0;
+    var reference: evaluatedParam is NIL;
+    var integer: index is 1;
+    var string: paramValue is "";
     var expr_type: c_param1 is expr_type.value;
   begin
-    prepare_stri_result(c_expr);
     leftParam := params[1];
     concatNParamList := [] (params[3]);
     repeat
@@ -313,7 +313,30 @@ const proc: process (STR_CAT, in reference: function,
       end if;
     until not concatFound;
     concatNParamList := [] (leftParam) & concatNParamList;
+    while index <= length(concatNParamList) do
+      if getConstant(concatNParamList[index], STRIOBJECT, evaluatedParam) then
+        paramValue := getValue(evaluatedParam, string);
+        if paramValue = "" then
+          # Empty strings are removed.
+          incr(countOptimizations);
+          ignore(remove(concatNParamList, index));
+        elsif succ(index) <= length(concatNParamList) and
+            getConstant(concatNParamList[succ(index)], STRIOBJECT, evaluatedParam) then
+          # Two consecutive constant strings are concatenated at compile time.
+          incr(countOptimizations);
+          concatNParamList[index] := alloc(FALSE, getType(concatNParamList[index]),
+              paramValue & getValue(evaluatedParam, string));
+          ignore(remove(concatNParamList, succ(index)));
+        else
+          incr(index);
+        end if;
+      else
+        incr(index);
+      end if;
+    end while;
     if length(concatNParamList) > 2 then
+      incr(countOptimizations);
+      prepare_stri_result(c_expr);
       incr(c_expr.temp_num);
       concatNParamName := "tmp_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "const_striType ";
@@ -335,7 +358,43 @@ const proc: process (STR_CAT, in reference: function,
       c_expr.result_expr &:= ", ";
       c_expr.result_expr &:= str(length(concatNParamList));
       c_expr.result_expr &:= "))";
+    elsif length(concatNParamList) = 2 then
+      prepare_stri_result(c_expr);
+      prepareAnyParamTemporarys(concatNParamList[1], c_param1, c_expr);
+      if c_param1.expr <> "" then
+        c_expr.result_expr := "strConcat(";
+        c_expr.result_expr &:= c_param1.expr;
+      else
+        c_expr.result_expr := "strConcatTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+      end if;
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(concatNParamList[2], c_expr);
+      c_expr.result_expr &:= ")";
+    elsif length(concatNParamList) = 1 then
+      incr(countOptimizations);
+      process_expr(concatNParamList[1], c_expr);
     else
+      incr(countOptimizations);
+      if c_expr.prefer_result_expr then
+        c_expr.result_expr := "strEmpty()";
+      else
+        c_expr.expr &:= stringLiteral("");
+      end if;
+    end if;
+  end func;
+
+
+const proc: process (STR_CAT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if evaluate_const_expr >= 1 then
+      optimize_str_cat(params, c_expr);
+    else
+      prepare_stri_result(c_expr);
       prepareAnyParamTemporarys(params[1], c_param1, c_expr);
       if c_param1.result_expr <> "" then
         c_expr.result_expr := "strConcatTemp(";
@@ -417,60 +476,38 @@ const proc: process (STR_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
+    prepareAnyParamTemporarys(params[1], c_param1, statement);
+    c_param3.prefer_result_expr := TRUE;
+    prepareAnyParamTemporarys(params[3], c_param3, statement);
     if c_param3.result_expr <> "" then
-      if not has_temp_values(c_param3) then
-        c_expr.expr &:= "{\n";
-      end if;
-      setDiagnosticLine(c_expr);
       if isNormalVariable(params[1]) then
-        c_expr.expr &:= "striType old_stri=";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ";\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= "=";
+        statement.expr &:= "striType old_stri=";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ";\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=";
       else
-        c_expr.expr &:= "striType *stri_ptr=&(";
-        c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ");\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "striType old_stri=*stri_ptr;\n";
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= "*stri_ptr=";
+        statement.expr &:= "striType *stri_ptr=&(";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ");\n";
+        statement.expr &:= "striType old_stri=*stri_ptr;\n";
+        statement.expr &:= "*stri_ptr=";
       end if;
-      c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ";\n";
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "strDestr(old_stri);\n";
-      if not has_temp_values(c_param3) then
-        c_expr.expr &:= "}\n";
-      end if;
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
+      statement.expr &:= "strDestr(old_stri);\n";
     else
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "strCopy(&(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), ";
-      c_expr.expr &:= c_param3.expr;
-      c_expr.expr &:= ");\n";
+      statement.expr &:= "strCopy(&(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= "), ";
+      statement.expr &:= c_param3.expr;
+      statement.expr &:= ");\n";
     end if;
-    if has_temp_values(c_param3) then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -2231,7 +2268,7 @@ const proc: process (STR_TAIL, in reference: function,
       c_expr.expr &:= ",";
       c_expr.expr &:= stringLiteral("");
       c_expr.expr &:= ")";
-    elsif ccConf.ALLOW_STRITYPE_SLICES then
+    elsif ccConf.ALLOW_STRITYPE_SLICES and not c_expr.prefer_result_expr then
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "struct striStruct ";

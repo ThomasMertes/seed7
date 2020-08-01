@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/intlib.c                                        */
-/*  Changes: 1992 - 1994, 2000, 2005, 2013, 2014  Thomas Mertes     */
+/*  Changes: 1992 - 1994, 2000, 2005, 2013 - 2015  Thomas Mertes    */
 /*  Content: All primitive actions for the integer type.            */
 /*                                                                  */
 /********************************************************************/
@@ -236,42 +236,14 @@ objectType int_bit_length (listType arguments)
 
 
 /**
- *  Convert an integer into a big-endian string of bytes.
- *  The result uses binary representation with a base of 256.
- *  The result contains chars (bytes) with an ordinal <= 255.
- *  @param number/arg_1 Integer number to be converted.
- *  @param isSigned/arg_2 Determines the signedness of the result.
- *         When 'isSigned' is TRUE the result is encoded with the
- *         twos-complement representation. In this case a negative
- *         'number' is converted to a result where the most significant
- *         byte has an ordinal >= 128.
- *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
- */
-objectType int_bytesBe (listType arguments)
-
-  { /* int_bytesBe */
-    isit_int(arg_1(arguments));
-    isit_bool(arg_2(arguments));
-    return bld_stri_temp(
-        intBytesBe(take_int(arg_1(arguments)),
-                   take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
-  } /* int_bytesBe */
-
-
-
-/**
  *  Convert a string of bytes (interpreted as big-endian) to an integer.
  *  @param byteStri/arg_1 String of bytes to be converted. The bytes
  *         are interpreted as binary big-endian representation with a
- *         base of 256.
- *  @param isSigned/arg_2 Determines the signedness of 'byteStri'.
- *         When 'isSigned' is TRUE 'byteStri' is interpreted as
- *         signed value in the twos-complement representation.
- *         In this case the result is negative when the most significant
- *         byte (the first byte) has an ordinal >= 128.
- *  @return an integer created from 'byteStri'.
+ *         base of 256. Negative values use the twos-complement
+ *         representation.
+ *  @return an integer created from 'byteStri'. The result is negative
+ *          when the most significant byte (the first byte) of byteStri/arg_1
+ *          has an ordinal >= 128.
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
@@ -279,11 +251,102 @@ objectType int_bytesBe2Int (listType arguments)
 
   { /* int_bytesBe2Int */
     isit_stri(arg_1(arguments));
-    isit_bool(arg_2(arguments));
-    return bld_int_temp(
-        intBytesBe2Int(take_stri(arg_1(arguments)),
-                       take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
+    return bld_int_temp(intBytesBe2Int(take_stri(arg_1(arguments))));
   } /* int_bytesBe2Int */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as big-endian) to a positive integer.
+ *  @param byteStri/arg_1 String of bytes to be converted. The bytes
+ *         are interpreted as binary big-endian representation with a
+ *         base of 256.
+ *  @return an integer created from 'byteStri'. The result is always
+ *          positive.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
+ *             when the result value cannot be represented with an integer.
+ */
+objectType int_bytesBe2UInt (listType arguments)
+
+  { /* int_bytesBe2UInt */
+    isit_stri(arg_1(arguments));
+    return bld_int_temp(intBytesBe2UInt(take_stri(arg_1(arguments))));
+  } /* int_bytesBe2UInt */
+
+
+
+/**
+ *  Convert an integer into a big-endian string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Integer number to be converted.
+ *  @return a string with the shortest binary representation of 'number'.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType int_bytesBeSigned (listType arguments)
+
+  { /* int_bytesBeSigned */
+    isit_int(arg_1(arguments));
+    return bld_stri_temp(intBytesBe(take_int(arg_1(arguments)), TRUE));
+  } /* int_bytesBeSigned */
+
+
+
+/**
+ *  Convert a positive integer into a big-endian string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Integer number to be converted.
+ *  @return a string with the shortest binary representation of 'number'.
+ *  @exception RANGE_ERROR When 'number' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType int_bytesBeUnsigned (listType arguments)
+
+  { /* int_bytesBeUnsigned */
+    isit_int(arg_1(arguments));
+    return bld_stri_temp(intBytesBe(take_int(arg_1(arguments)), FALSE));
+  } /* int_bytesBeUnsigned */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as little-endian) to an integer.
+ *  @param byteStri/arg_1 String of bytes to be converted. The bytes
+ *         are interpreted as binary little-endian representation with a
+ *         base of 256. Negative values use the twos-complement
+ *         representation.
+ *  @return an integer created from 'byteStri'. The result is negative
+ *          when the most significant byte (the last byte) of byteStri/arg_1
+ *          has an ordinal >= 128.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
+ *             when the result value cannot be represented with an integer.
+ */
+objectType int_bytesLe2Int (listType arguments)
+
+  { /* int_bytesLe2Int */
+    isit_stri(arg_1(arguments));
+    return bld_int_temp(intBytesLe2Int(take_stri(arg_1(arguments))));
+  } /* int_bytesLe2Int */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as little-endian) to a positive integer.
+ *  @param byteStri/arg_1 String of bytes to be converted. The bytes
+ *         are interpreted as binary little-endian representation with a
+ *         base of 256.
+ *  @return an integer created from 'byteStri'. The result is always
+ *          positive.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
+ *             when the result value cannot be represented with an integer.
+ */
+objectType int_bytesLe2UInt (listType arguments)
+
+  { /* int_bytesLe2UInt */
+    isit_stri(arg_1(arguments));
+    return bld_int_temp(intBytesLe2UInt(take_stri(arg_1(arguments))));
+  } /* int_bytesLe2UInt */
 
 
 
@@ -292,50 +355,33 @@ objectType int_bytesBe2Int (listType arguments)
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number/arg_1 Integer number to be converted.
- *  @param isSigned/arg_2 Determines the signedness of the result.
- *         When 'isSigned' is TRUE the result is encoded with the
- *         twos-complement representation. In this case a negative
- *         'number' is converted to a result where the most significant
- *         byte has an ordinal >= 128.
  *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType int_bytesLe (listType arguments)
+objectType int_bytesLeSigned (listType arguments)
 
-  { /* int_bytesLe */
+  { /* int_bytesLeSigned */
     isit_int(arg_1(arguments));
-    isit_bool(arg_2(arguments));
-    return bld_stri_temp(
-        intBytesLe(take_int(arg_1(arguments)),
-                   take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
-  } /* int_bytesLe */
+    return bld_stri_temp(intBytesLe(take_int(arg_1(arguments)), TRUE));
+  } /* int_bytesLeSigned */
 
 
 
 /**
- *  Convert a string of bytes (interpreted as little-endian) to an integer.
- *  @param byteStri/arg_1 String of bytes to be converted. The bytes
- *         are interpreted as binary little-endian representation with a
- *         base of 256.
- *  @param isSigned/arg_2 Determines the signedness of 'byteStri'.
- *         When 'isSigned' is TRUE 'byteStri' is interpreted as
- *         signed value in the twos-complement representation.
- *         In this case the result is negative when the most significant
- *         byte (the last byte) has an ordinal >= 128.
- *  @return an integer created from 'byteStri'.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present or
- *             when the result value cannot be represented with an integer.
+ *  Convert a positive integer into a little-endian string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Integer number to be converted.
+ *  @return a string with the shortest binary representation of 'number'.
+ *  @exception RANGE_ERROR When 'number' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType int_bytesLe2Int (listType arguments)
+objectType int_bytesLeUnsigned (listType arguments)
 
-  { /* int_bytesLe2Int */
-    isit_stri(arg_1(arguments));
-    isit_bool(arg_2(arguments));
-    return bld_int_temp(
-        intBytesLe2Int(take_stri(arg_1(arguments)),
-                       take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
-  } /* int_bytesLe2Int */
+  { /* int_bytesLeUnsigned */
+    isit_int(arg_1(arguments));
+    return bld_stri_temp(intBytesLe(take_int(arg_1(arguments)), FALSE));
+  } /* int_bytesLeUnsigned */
 
 
 
