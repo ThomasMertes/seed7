@@ -45,8 +45,9 @@ const proc: GET_TIME (inout integer param, inout integer param, inout integer pa
     inout integer param, inout integer param, inout integer param, inout integer param,
     inout integer param) is action "TIM_NOW";
 
-const proc: AWAIT_TIME (ref integer param, ref integer param, ref integer param, ref integer param, ref integer param,
-    ref integer param, ref integer param) is action "TIM_AWAIT";
+const proc: AWAIT_TIME (ref integer param, ref integer param, ref integer param,
+    ref integer param, ref integer param, ref integer param, ref integer param,
+    ref integer param) is action "TIM_AWAIT";
 
 
 const func boolean: leap_year (in integer: year) is
@@ -492,7 +493,7 @@ const func time: time (NOW) is func
 const proc: await (ref time: tim) is func
   begin
     AWAIT_TIME(tim.year, tim.month, tim.day,
-        tim.hour, tim.minute, tim.second, tim.mycro_second);
+        tim.hour, tim.minute, tim.second, tim.mycro_second, tim.timezone);
   end func;
 
 
@@ -837,74 +838,76 @@ const func integer: MYCRO_SECONDS (in duration: dur_val) is func
   end func;
 
 
-const proc: NORMALIZE (inout duration: DUR) is func
+const proc: NORMALIZE (inout duration: aDuration) is func
   begin
-(*  write("NORM IN  "); write(DUR); writeln; *)
-    DUR.second := DUR.second + DUR.mycro_second mdiv 1000000;
-    DUR.mycro_second := DUR.mycro_second mod 1000000;
-    DUR.minute := DUR.minute + DUR.second mdiv 60;
-    DUR.second := DUR.second mod 60;
-    DUR.hour := DUR.hour + DUR.minute mdiv 60;
-    DUR.minute := DUR.minute mod 60;
-    DUR.day := DUR.day + DUR.hour mdiv 24;
-    DUR.hour := DUR.hour mod 24;
-(*  write("NORM OUT "); write(DUR); writeln; *)
+(*  write("NORM IN  "); write(aDuration); writeln; *)
+    aDuration.second := aDuration.second + aDuration.mycro_second mdiv 1000000;
+    aDuration.mycro_second := aDuration.mycro_second mod 1000000;
+    aDuration.minute := aDuration.minute + aDuration.second mdiv 60;
+    aDuration.second := aDuration.second mod 60;
+    aDuration.hour := aDuration.hour + aDuration.minute mdiv 60;
+    aDuration.minute := aDuration.minute mod 60;
+    aDuration.day := aDuration.day + aDuration.hour mdiv 24;
+    aDuration.hour := aDuration.hour mod 24;
+(*  write("NORM OUT "); write(aDuration); writeln; *)
   end func;
 
 
-const proc: (inout time: tim) +:= (in duration: DUR) is func
+const proc: (inout time: tim) +:= (in duration: aDuration) is func
   begin
-    tim.year +:= year(DUR);
-    tim.month +:= month(DUR);
-    tim.day +:= DUR.day;
-    tim.hour +:= DUR.hour;
-    tim.minute +:= DUR.minute;
-    tim.second +:= DUR.second;
-    tim.mycro_second +:= DUR.mycro_second;
+    tim.year +:= year(aDuration);
+    tim.month +:= month(aDuration);
+    tim.day +:= aDuration.day;
+    tim.hour +:= aDuration.hour;
+    tim.minute +:= aDuration.minute;
+    tim.second +:= aDuration.second;
+    tim.mycro_second +:= aDuration.mycro_second;
     NORMALIZE(tim);
   end func;
 
 
-const proc: (inout time: tim) -:= (in duration: DUR) is func
+const proc: (inout time: tim) -:= (in duration: aDuration) is func
   begin
-    tim.year -:= year(DUR);
-    tim.month -:= month(DUR);
-    tim.day -:= DUR.day;
-    tim.hour -:= DUR.hour;
-    tim.minute -:= DUR.minute;
-    tim.second -:= DUR.second;
-    tim.mycro_second -:= DUR.mycro_second;
+    tim.year -:= year(aDuration);
+    tim.month -:= month(aDuration);
+    tim.day -:= aDuration.day;
+    tim.hour -:= aDuration.hour;
+    tim.minute -:= aDuration.minute;
+    tim.second -:= aDuration.second;
+    tim.mycro_second -:= aDuration.mycro_second;
     NORMALIZE(tim);
   end func;
 
 
-const func time: (in time: tim) + (in duration: DUR) is func
+const func time: (in time: tim) + (in duration: aDuration) is func
   result
-    var time: TIM_VAL is time.value;
+    var time: result is time.value;
   begin
-    TIM_VAL.year := tim.year + year(DUR);
-    TIM_VAL.month := tim.month + month(DUR);
-    TIM_VAL.day := tim.day + DUR.day;
-    TIM_VAL.hour := tim.hour + DUR.hour;
-    TIM_VAL.minute := tim.minute + DUR.minute;
-    TIM_VAL.second := tim.second + DUR.second;
-    TIM_VAL.mycro_second := tim.mycro_second + DUR.mycro_second;
-    NORMALIZE(TIM_VAL);
+    result.year := tim.year + year(aDuration);
+    result.month := tim.month + month(aDuration);
+    result.day := tim.day + aDuration.day;
+    result.hour := tim.hour + aDuration.hour;
+    result.minute := tim.minute + aDuration.minute;
+    result.second := tim.second + aDuration.second;
+    result.mycro_second := tim.mycro_second + aDuration.mycro_second;
+    result.timezone := tim.timezone;
+    NORMALIZE(result);
   end func;
 
 
-const func time: (in time: tim) - (in duration: DUR) is func
+const func time: (in time: tim) - (in duration: aDuration) is func
   result
-    var time: TIM_VAL is time.value;
+    var time: result is time.value;
   begin
-    TIM_VAL.year := tim.year - year(DUR);
-    TIM_VAL.month := tim.month - month(DUR);
-    TIM_VAL.day := tim.day - DUR.day;
-    TIM_VAL.hour := tim.hour - DUR.hour;
-    TIM_VAL.minute := tim.minute - DUR.minute;
-    TIM_VAL.second := tim.second - DUR.second;
-    TIM_VAL.mycro_second := tim.mycro_second - DUR.mycro_second;
-    NORMALIZE(TIM_VAL);
+    result.year := tim.year - year(aDuration);
+    result.month := tim.month - month(aDuration);
+    result.day := tim.day - aDuration.day;
+    result.hour := tim.hour - aDuration.hour;
+    result.minute := tim.minute - aDuration.minute;
+    result.second := tim.second - aDuration.second;
+    result.mycro_second := tim.mycro_second - aDuration.mycro_second;
+    result.timezone := tim.timezone;
+    NORMALIZE(result);
   end func;
 
 
@@ -943,108 +946,108 @@ writeln(replace(dur_val.mycro_second lpad 6, " ", "0"));
   end func;
 
 
-const func duration: - (in duration: DUR) is func
+const func duration: - (in duration: aDuration) is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.year_365 := -DUR.year_365;
-    dur_val.year_366 := -DUR.year_366;
-    dur_val.month_28 := -DUR.month_28;
-    dur_val.month_29 := -DUR.month_29;
-    dur_val.month_30 := -DUR.month_30;
-    dur_val.month_31 := -DUR.month_31;
-    dur_val.day := -DUR.day;
-    dur_val.hour := -DUR.hour;
-    dur_val.minute := -DUR.minute;
-    dur_val.second := -DUR.second;
+    dur_val.year_365 := -aDuration.year_365;
+    dur_val.year_366 := -aDuration.year_366;
+    dur_val.month_28 := -aDuration.month_28;
+    dur_val.month_29 := -aDuration.month_29;
+    dur_val.month_30 := -aDuration.month_30;
+    dur_val.month_31 := -aDuration.month_31;
+    dur_val.day := -aDuration.day;
+    dur_val.hour := -aDuration.hour;
+    dur_val.minute := -aDuration.minute;
+    dur_val.second := -aDuration.second;
   end func;
 
 
-const func duration: + (in duration: DUR) is func
+const func duration: + (in duration: aDuration) is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.year_365 := DUR.year_365;
-    dur_val.year_366 := DUR.year_366;
-    dur_val.month_28 := DUR.month_28;
-    dur_val.month_29 := DUR.month_29;
-    dur_val.month_30 := DUR.month_30;
-    dur_val.month_31 := DUR.month_31;
-    dur_val.day := DUR.day;
-    dur_val.hour := DUR.hour;
-    dur_val.minute := DUR.minute;
-    dur_val.second := DUR.second;
+    dur_val.year_365 := aDuration.year_365;
+    dur_val.year_366 := aDuration.year_366;
+    dur_val.month_28 := aDuration.month_28;
+    dur_val.month_29 := aDuration.month_29;
+    dur_val.month_30 := aDuration.month_30;
+    dur_val.month_31 := aDuration.month_31;
+    dur_val.day := aDuration.day;
+    dur_val.hour := aDuration.hour;
+    dur_val.minute := aDuration.minute;
+    dur_val.second := aDuration.second;
   end func;
 
 
-const func duration: (in duration: DUR1) + (in duration: DUR2) is func
+const func duration: (in duration: aDuration1) + (in duration: aDuration2) is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.year_365 := DUR1.year_365 + DUR2.year_365;
-    dur_val.year_366 := DUR1.year_366 + DUR2.year_366;
-    dur_val.month_28 := DUR1.month_28 + DUR2.month_28;
-    dur_val.month_29 := DUR1.month_29 + DUR2.month_29;
-    dur_val.month_30 := DUR1.month_30 + DUR2.month_30;
-    dur_val.month_31 := DUR1.month_31 + DUR2.month_31;
-    dur_val.day := DUR1.day + DUR2.day;
-    dur_val.hour := DUR1.hour + DUR2.hour;
-    dur_val.minute := DUR1.minute + DUR2.minute;
-    dur_val.second := DUR1.second + DUR2.second;
+    dur_val.year_365 := aDuration1.year_365 + aDuration2.year_365;
+    dur_val.year_366 := aDuration1.year_366 + aDuration2.year_366;
+    dur_val.month_28 := aDuration1.month_28 + aDuration2.month_28;
+    dur_val.month_29 := aDuration1.month_29 + aDuration2.month_29;
+    dur_val.month_30 := aDuration1.month_30 + aDuration2.month_30;
+    dur_val.month_31 := aDuration1.month_31 + aDuration2.month_31;
+    dur_val.day := aDuration1.day + aDuration2.day;
+    dur_val.hour := aDuration1.hour + aDuration2.hour;
+    dur_val.minute := aDuration1.minute + aDuration2.minute;
+    dur_val.second := aDuration1.second + aDuration2.second;
     NORMALIZE(dur_val);
   end func;
 
 
-const func duration: (in duration: DUR1) - (in duration: DUR2) is func
+const func duration: (in duration: aDuration1) - (in duration: aDuration2) is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.year_365 := DUR1.year_365 - DUR2.year_365;
-    dur_val.year_366 := DUR1.year_366 - DUR2.year_366;
-    dur_val.month_28 := DUR1.month_28 - DUR2.month_28;
-    dur_val.month_29 := DUR1.month_29 - DUR2.month_29;
-    dur_val.month_30 := DUR1.month_30 - DUR2.month_30;
-    dur_val.month_31 := DUR1.month_31 - DUR2.month_31;
-    dur_val.day := DUR1.day - DUR2.day;
-    dur_val.hour := DUR1.hour - DUR2.hour;
-    dur_val.minute := DUR1.minute - DUR2.minute;
-    dur_val.second := DUR1.second - DUR2.second;
+    dur_val.year_365 := aDuration1.year_365 - aDuration2.year_365;
+    dur_val.year_366 := aDuration1.year_366 - aDuration2.year_366;
+    dur_val.month_28 := aDuration1.month_28 - aDuration2.month_28;
+    dur_val.month_29 := aDuration1.month_29 - aDuration2.month_29;
+    dur_val.month_30 := aDuration1.month_30 - aDuration2.month_30;
+    dur_val.month_31 := aDuration1.month_31 - aDuration2.month_31;
+    dur_val.day := aDuration1.day - aDuration2.day;
+    dur_val.hour := aDuration1.hour - aDuration2.hour;
+    dur_val.minute := aDuration1.minute - aDuration2.minute;
+    dur_val.second := aDuration1.second - aDuration2.second;
     NORMALIZE(dur_val);
   end func;
 
 
-const func duration: (in integer: number) * (in duration: DUR) is func
+const func duration: (in integer: number) * (in duration: aDuration) is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.year_365 := number * DUR.year_365;
-    dur_val.year_366 := number * DUR.year_366;
-    dur_val.month_28 := number * DUR.month_28;
-    dur_val.month_29 := number * DUR.month_29;
-    dur_val.month_30 := number * DUR.month_30;
-    dur_val.month_31 := number * DUR.month_31;
-    dur_val.day := number * DUR.day;
-    dur_val.hour := number * DUR.hour;
-    dur_val.minute := number * DUR.minute;
-    dur_val.second := number * DUR.second;
+    dur_val.year_365 := number * aDuration.year_365;
+    dur_val.year_366 := number * aDuration.year_366;
+    dur_val.month_28 := number * aDuration.month_28;
+    dur_val.month_29 := number * aDuration.month_29;
+    dur_val.month_30 := number * aDuration.month_30;
+    dur_val.month_31 := number * aDuration.month_31;
+    dur_val.day := number * aDuration.day;
+    dur_val.hour := number * aDuration.hour;
+    dur_val.minute := number * aDuration.minute;
+    dur_val.second := number * aDuration.second;
     NORMALIZE(dur_val);
   end func;
 
 
-const func duration: (in duration: DUR) * (in integer: number) is func
+const func duration: (in duration: aDuration) * (in integer: number) is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.year_365 := DUR.year_365 * number;
-    dur_val.year_366 := DUR.year_366 * number;
-    dur_val.month_28 := DUR.month_28 * number;
-    dur_val.month_29 := DUR.month_29 * number;
-    dur_val.month_30 := DUR.month_30 * number;
-    dur_val.month_31 := DUR.month_31 * number;
-    dur_val.day := DUR.day * number;
-    dur_val.hour := DUR.hour * number;
-    dur_val.minute := DUR.minute * number;
-    dur_val.second := DUR.second * number;
+    dur_val.year_365 := aDuration.year_365 * number;
+    dur_val.year_366 := aDuration.year_366 * number;
+    dur_val.month_28 := aDuration.month_28 * number;
+    dur_val.month_29 := aDuration.month_29 * number;
+    dur_val.month_30 := aDuration.month_30 * number;
+    dur_val.month_31 := aDuration.month_31 * number;
+    dur_val.day := aDuration.day * number;
+    dur_val.hour := aDuration.hour * number;
+    dur_val.minute := aDuration.minute * number;
+    dur_val.second := aDuration.second * number;
     NORMALIZE(dur_val);
   end func;
 

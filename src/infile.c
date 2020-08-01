@@ -82,7 +82,8 @@ int fill_buf ()
 #ifdef USE_MMAP
     result = EOF;
 #else
-    if ((chars_read = fread(in_file.start, 1,
+    if (in_file.fil != NULL &&
+        (chars_read = fread(in_file.start, 1,
         (SIZE_TYPE) in_file.buffer_size, in_file.fil)) != 0) {
       in_file.nextch = in_file.start;
       in_file.byond = in_file.start + chars_read;

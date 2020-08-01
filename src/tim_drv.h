@@ -31,15 +31,14 @@
 
 #ifdef ANSI_C
 
+void timAwait (inttype, inttype, inttype, inttype,
+               inttype, inttype, inttype, inttype);
 void timNow (inttype *, inttype *, inttype *, inttype *,
 	     inttype *, inttype *, inttype *, inttype *);
-void get_time (time_t *, long *, long *);
-void await_time (time_t, long);
 
 #else
 
+void timAwait ();
 void timNow ();
-void get_time ();
-void await_time ();
 
 #endif

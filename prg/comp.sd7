@@ -5195,28 +5195,7 @@ const proc: process_str_value (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_tim_await (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "tim_await(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[6], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[7], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "timNow(";
+    c_expr.expr &:= "timAwait(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -5233,6 +5212,29 @@ const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is fu
     c_expr.expr &:= ", ";
     process_expr(params[8], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "timNow(&(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -7955,8 +7957,7 @@ const proc: write_file_head is func
               \return(NULL);\n\
               \}\n";
     c_prog << "char *    str_to_cstri (stritype a)                     {printf(\"str_to_cstri\\n\");}\n";
-    c_prog << "void      tim_await (inttype a, inttype b, inttype c, \
-         \inttype d, inttype e, inttype f, inttype g)                  {printf(\"tim_await\\n\");}\n";
+    c_prog << "void      timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
     c_prog << "void      timNow (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
     c_prog << "void      raise_error (int a)                           {printf(\"raise_error\\n\");}\n";
 (*
@@ -8088,7 +8089,8 @@ const proc: write_file_head is func
     c_prog << "stritype  strUp (stritype a)                            {printf(\"strUp\\n\");}\n";
     c_prog << "stritype  str_from_cstri (char * );\n";
     c_prog << "char *    str_to_cstri (stritype);\n";
-    c_prog << "void      tim_await (inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
+    c_prog << "void      timAwait (inttype a, inttype b, inttype c, \
+         \inttype d, inttype e, inttype f, inttype g, inttype h)       {printf(\"timAwait\\n\");}\n";
     c_prog << "void      timNow (inttype a, inttype b, inttype c, \
          \inttype d, inttype e, inttype f, inttype g, inttype h)       {printf(\"timNow\\n\");}\n";
 *)

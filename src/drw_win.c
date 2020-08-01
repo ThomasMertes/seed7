@@ -341,16 +341,16 @@ chartype gkbGetc ()
               } /* switch */
             } /* if */
             if (result == K_NONE) {
-	      /* printf("TranslateMessage(%d) %lu, %d %X\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              /* printf("TranslateMessage(%d) %lu, %d %X\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               TranslateMessage(&msg);
               /* printf("translated message=%d %lu, %d %X\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		/* printf("PeekMessage(%d) %lu, %d %X\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+                /* printf("PeekMessage(%d) %lu, %d %X\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
                 if (msg.message != WM_CHAR) {
                   result = K_UNDEF;
                 } /* if */
               } else {
-		/* printf("PeekMessage ==> empty\n"); */
+                /* printf("PeekMessage ==> empty\n"); */
                 result = K_UNDEF;
               } /* if */
             } /* if */
@@ -430,7 +430,7 @@ chartype gkbGetc ()
             /* printf("WM_CHAR %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
             result = msg.wParam;
             if (result >= 128 && result <= 159) {
-	      result = map_1252_to_unicode[result - 128];
+              result = map_1252_to_unicode[result - 128];
             } /* if */
           } else {
             /* printf("message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
@@ -819,7 +819,7 @@ inttype col;
       printf("drwPFCircle pen with color %lx is NULL\n", col);
     } /* if */
     if (current_brush == NULL) {
-      printf("drwPRect brush with color %lx is NULL\n", col);
+      printf("drwPFCircle brush with color %lx is NULL\n", col);
     } /* if */
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     old_brush = SelectObject(to_hdc(actual_window), current_brush);
@@ -1174,8 +1174,8 @@ stritype window_name;
             result->backup = CreateCompatibleBitmap(result->hdc, width, height);
             SelectObject(result->backup_hdc, result->backup);
             std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-		ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-				  DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
+                ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
             SelectObject(result->hdc, std_font);
             SelectObject(result->backup_hdc, std_font);
             ShowWindow(result->hWnd, SW_SHOWDEFAULT);
@@ -1294,22 +1294,42 @@ inttype col;
     } /* if */
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     old_brush = SelectObject(to_hdc(actual_window), current_brush);
-    if (length_x == 1 || length_y == 1) {
-      MoveToEx(to_hdc(actual_window), x1, y1, NULL);
-      LineTo(to_hdc(actual_window), x1 + length_x, y1 + length_y);
+    if (length_x == 1) {
+      if (length_y == 1) {
+        MoveToEx(to_hdc(actual_window), x1, y1, NULL);
+        LineTo(to_hdc(actual_window), x1 + 1, y1 + 1);
+      } else {
+        MoveToEx(to_hdc(actual_window), x1, y1, NULL);
+        LineTo(to_hdc(actual_window), x1, y1 + length_y);
+      } /* if */
     } else {
-      Rectangle(to_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
+      if (length_y == 1) {
+        MoveToEx(to_hdc(actual_window), x1, y1, NULL);
+        LineTo(to_hdc(actual_window), x1 + length_x, y1);
+      } else {
+        Rectangle(to_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
+      } /* if */
     } /* if */
     SelectObject(to_hdc(actual_window), old_pen);
     SelectObject(to_hdc(actual_window), old_brush);
     if (to_backup_hdc(actual_window) != 0) {
       old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
       old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
-      if (length_x == 1 || length_y == 1) {
-        MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
-        LineTo(to_backup_hdc(actual_window), x1 + length_x, y1 + length_y);
+      if (length_x == 1) {
+        if (length_y == 1) {
+          MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
+          LineTo(to_backup_hdc(actual_window), x1 + 1, y1 + 1);
+        } else {
+          MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
+          LineTo(to_backup_hdc(actual_window), x1, y1 + length_y);
+        } /* if */
       } else {
-        Rectangle(to_backup_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
+        if (length_y == 1) {
+          MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
+          LineTo(to_backup_hdc(actual_window), x1 + length_x, y1);
+        } else {
+          Rectangle(to_backup_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
+        } /* if */
       } /* if */
       SelectObject(to_backup_hdc(actual_window), old_pen);
       SelectObject(to_backup_hdc(actual_window), old_brush);

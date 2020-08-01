@@ -84,22 +84,22 @@ const array string: crown_pic is [](
 
 
 const array string: crystal_ball_pic is [](
-  "     XXXXXX     ",
-  "   XXXXXXXXXX   ",
-  "  XXXBBXXXXXXX  ",
-  " XXXBXXXXXXXXXX ",
-  " XXBXXXXXXXXXXX ",
-  "XXBXXXXXXXXXXXXX",
-  "XXBXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXRXX",
-  "XXXXXXXXXXXXXRXX",
-  " XXXXXXXXXXXRXX ",
-  " XXXXXXXXXXRXXX ",
-  "  XXXXXXXRRXXX  ",
-  " bbbbbbbbbbbbbb ",
-  "bbbbbbbbbbbbbbbb");
+  "     cccccc     ",
+  "   cccccccccc   ",
+  "  cccBBccccccc  ",
+  " cccBcccccccccc ",
+  " ccBccccccccccc ",
+  "ccBccccccccccccc",
+  "ccBccccccccccccc",
+  "cccccccccccccccc",
+  "cccccccccccccccc",
+  "cccccccccccccRcc",
+  "cccccccccccccRcc",
+  " cccccccccccRcc ",
+  " ccccccccccRccc ",
+  "  cccccccRRccc  ",
+  " OOOOOOOOOOOOOO ",
+  "OOOOOOOOOOOOOOOO");
 
 
 const array string: demon_pic is [](
@@ -137,6 +137,44 @@ const array string: diamond_pic is [](
   "    ccBBBBXX    ",
   "      cBBX      ",
   "       cX       ",
+  "                ");
+
+
+const array string: exit_pic is [](
+  "GGGGGGGGGGGGGGGG",
+  "GG            GG",
+  "GG      GG    GG",
+  "GG      GG    GG",
+  "GG            GG",
+  "GG   GGGGG    GG",
+  "GG  GG GGGG   GG",
+  "GG GG GGG GGG GG",
+  "GG    GGG     GG",
+  "GG   GG GG    GG",
+  "G    GG GG    GG",
+  "G GGGG   GG   GG",
+  "G        GG   GG",
+  "GG        GG  GG",
+  "GG            GG",
+  "G            GGG");
+
+
+const array string: eye_pic is [](
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "     XXXXXX     ",
+  "   XXXBBBBXXX   ",
+  " XXXXBBB BBXXXX ",
+  "XXXXXB BBBBXXXXX",
+  "XXXXXBBBB BXXXXX",
+  " XXXXBB BBBXXXX ",
+  "   XXXBBBBXXX   ",
+  "     XXXXXX     ",
+  "                ",
+  "                ",
+  "                ",
   "                ");
 
 
@@ -233,6 +271,25 @@ const array string: goldbar_pic is [](
   " XYYYYYYYXYX    ",
   "XYYYYYYYYYX     ",
   "XXXXXXXXXXX     ");
+
+
+const array string: hand_pic is [](
+  "        XX      ",
+  "     XX XX XX   ",
+  "     XX XX XX   ",
+  "     XX XX XX XX",
+  "     XX XX XX XX",
+  "XX   XX XX XX XX",
+  "XXX  XX XX XX XX",
+  "XXX  XXXXXXXX XX",
+  " XXX XXXXXXXXXXX",
+  " XXXXXXXXXXXXXXX",
+  "  XXXXXXXXXXXXXX",
+  "  XXXXXXXXXXXXXX",
+  "   XXXXXXXXXXXX ",
+  "    XXXXXXXXXXX ",
+  "     XXXXXXXXX  ",
+  "     XXXXXXXXX  ");
 
 
 const array string: harp_pic is [](
@@ -387,6 +444,25 @@ const array string: lamp_pic is [](
   "BBBBBBBBBBBBBBB ");
 
 
+const array string: load_pic is [](
+  "                ",
+  "  xxXxXXXXXXx   ",
+  "  xxXxXXXxxXxx  ",
+  "  xxXxXXXxxXxx  ",
+  "  xxXxXXXXXXxx  ",
+  "  xxxxxxxxxxxx  ",
+  "  xxXXXXXXXXxx  ",
+  "  xxXxxxxxxXxx  ",
+  "  xxXxxxxxxXxx  ",
+  "  xxXxxRRRxXxx  ",
+  "  xxXxxRRRxXxx  ",
+  "  xxXRRRRRRRxx  ",
+  "      RRRRR     ",
+  "       RRR      ",
+  "        R       ",
+  "                ");
+
+
 const array string: magic_wand_pic is [](
   "     Y    G  XX ",
   "   YYYYY    XXXX",
@@ -404,6 +480,25 @@ const array string: magic_wand_pic is [](
   "X   X           ",
   "X  X            ",
   " XX             ");
+
+
+const array string: magnifier_pic is [](
+  "    OOOO        ",
+  "  OOOOOOOO      ",
+  " OOccccccOO     ",
+  " OOcRccXcOO     ",
+  "OOcRccccXcOO    ",
+  "OOccccccccOO    ",
+  "OOccccccccOO    ",
+  "OOccccccBcOO    ",
+  " OOccccBcOO     ",
+  " OOccccccOO     ",
+  "  OOOOOOOObOO   ",
+  "    OOOO  ObbO  ",
+  "          ObbbO ",
+  "           ObbbO",
+  "            ObbO",
+  "             OO ");
 
 
 const array string: necklace_pic is [](
@@ -460,6 +555,25 @@ const array string: ruby_pic is [](
   "    RRrrrrXX    ",
   "      RrrX      ",
   "       RX       ",
+  "                ");
+
+
+const array string: save_pic is [](
+  "                ",
+  "  xxXxXXXXXXx   ",
+  "  xxXxXXXxxXxx  ",
+  "  xxXxXXXxxXxx  ",
+  "  xxXxXXXXXXxx  ",
+  "  xxxxxxxxxxxx  ",
+  "  xxXXXXXXXXxx  ",
+  "  xxXxxxxxxXxx  ",
+  "  xxXxxxxxxXxx  ",
+  "  xxXxxxRxxXxx  ",
+  "  xxXxxRRRxXxx  ",
+  "  xxXxRRRRRXxx  ",
+  "     RRRRRRR    ",
+  "       RRR      ",
+  "       RRR      ",
   "                ");
 
 

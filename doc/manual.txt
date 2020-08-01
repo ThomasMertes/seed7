@@ -2406,6 +2406,8 @@ CONTENTS
       julianDayNumber(A)  Number of days that have elapsed since
                 January 1, 4713 BC in the proleptic Julian calendar
                   ( Type of result: integer )
+      julianDayNumToTime(A)  Convert julian day number to time
+                  ( Type of argument A: integer )
       compare(A, B) Compare function
                   ( Type of result: integer )
       hashCode(A) Hash function

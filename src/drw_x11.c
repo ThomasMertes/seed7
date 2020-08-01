@@ -196,7 +196,7 @@ XExposeEvent *xexpose;
             expose_window->window, mygc, 0, 0,
             to_width(expose_window), to_height(expose_window), 0, 0);
         /* XFlush(mydisplay);
-	   XSync(mydisplay, 0); */
+           XSync(mydisplay, 0); */
       } /* if */
     } /* if */
   } /* redraw */
@@ -542,7 +542,7 @@ chartype gkbGetc ()
             case XK_KP_5:       result = K_UNDEF;       break;
             case XK_KP_Enter:   result = K_NL;          break;
             case XK_KP_Decimal: result = K_DEL;         break;
-	    case XK_EuroSign:   result = mykey;         break;
+            case XK_EuroSign:   result = mykey;         break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -553,7 +553,7 @@ chartype gkbGetc ()
             case XK_Caps_Lock:
             case XK_Num_Lock:
             case XK_Shift_Lock:
-	    case XK_ISO_Level3_Shift:
+            case XK_ISO_Level3_Shift:
               result = gkbGetc(); break;
             default:
               if (count == 1) {
@@ -626,7 +626,7 @@ booltype gkbKeyPressed ()
             case XK_Caps_Lock:
             case XK_Num_Lock:
             case XK_Shift_Lock:
-	    case XK_ISO_Level3_Shift:
+            case XK_ISO_Level3_Shift:
               XNextEvent(mydisplay, &myevent);
               num_events = XEventsQueued(mydisplay, QueuedAfterReading);
               break;

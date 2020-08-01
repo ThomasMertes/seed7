@@ -46,6 +46,74 @@
 
 #ifdef ANSI_C
 
+void timAwait (inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype mycro_sec, inttype time_zone)
+#else
+
+void timAwait (year, month, day, hour, min, sec, mycro_sec, time_zone)
+inttype year;
+inttype month;
+inttype day;
+inttype hour;
+inttype min;
+inttype sec;
+inttype mycro_sec;
+inttype time_zone;
+#endif
+
+  {
+    SYSTEMTIME await_time_struct;
+    FILETIME await_file_time;
+    FILETIME current_time;
+    ULARGE_INTEGER time_64;
+    time_t await_second;
+    time_t current_second;
+    long current_mycro_sec;
+    unsigned long wait_milliseconds;
+
+  /* timAwait */
+#ifdef TRACE_TIM_WIN
+    printf("BEGIN timAwait\n");
+#endif
+    await_time_struct.wYear         = year;
+    await_time_struct.wMonth        = month;
+    await_time_struct.wDay          = day;
+    await_time_struct.wHour         = hour;
+    await_time_struct.wMinute       = min;
+    await_time_struct.wSecond       = sec;
+    SystemTimeToFileTime(&await_time_struct, &await_file_time);
+    memcpy(&time_64, &await_file_time, sizeof(ULARGE_INTEGER));
+    await_second = time_64.QuadPart / 10000000 - 3054539008LU;
+    await_second +=  time_zone * 60;
+    GetSystemTimeAsFileTime(&current_time);
+    memcpy(&time_64, &current_time, sizeof(ULARGE_INTEGER));
+    current_second =  time_64.QuadPart / 10000000 - 3054539008LU;
+    current_mycro_sec = (time_64.QuadPart / 10) % 1000000;
+    if (current_second < await_second ||
+        (current_second == await_second &&
+        current_mycro_sec < mycro_sec)) {
+      wait_milliseconds = (await_second - current_second) * 1000;
+      if (mycro_sec >= current_mycro_sec) {
+        wait_milliseconds += (mycro_sec - current_mycro_sec) / 1000;
+      } else {
+        wait_milliseconds -= (current_mycro_sec - mycro_sec) / 1000;
+      } /* if */
+#ifdef TRACE_TIM_WIN
+      printf("%lu %lu < %lu %lu Sleep(%lu)\n",
+	  current_second, current_mycro_sec, await_second, mycro_sec,
+	  wait_milliseconds);
+#endif
+      Sleep(wait_milliseconds);
+    } /* if */
+#ifdef TRACE_TIM_WIN
+    printf("END timAwait\n");
+#endif
+  } /* timAwait */
+
+
+
+#ifdef ANSI_C
+
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
 #else
@@ -65,14 +133,17 @@ inttype *time_zone;
     FILETIME system_time;
     FILETIME local_time;
     SYSTEMTIME time_struct;
-    ULARGE_INTEGER local_time_64;
-    TIME_ZONE_INFORMATION this_time_zone;
+    ULARGE_INTEGER time_64;
+    time_t utc_seconds;
+    time_t local_seconds;
 
   /* timNow */
 #ifdef TRACE_TIM_WIN
     printf("BEGIN timNow\n");
 #endif
     GetSystemTimeAsFileTime(&system_time);
+    memcpy(&time_64, &system_time, sizeof(ULARGE_INTEGER));
+    utc_seconds = time_64.QuadPart / 10000000 - 3054539008LU;
     FileTimeToLocalFileTime(&system_time, &local_time);
     FileTimeToSystemTime(&local_time, &time_struct);
     *year  = time_struct.wYear;
@@ -81,97 +152,16 @@ inttype *time_zone;
     *hour  = time_struct.wHour;
     *min   = time_struct.wMinute;
     *sec   = time_struct.wSecond;
-    memcpy(&local_time_64, &local_time, sizeof(ULARGE_INTEGER));
-    *mycro_sec = (local_time_64.QuadPart / 10) % 1000000;
-    GetTimeZoneInformation(&this_time_zone);
-    *time_zone = this_time_zone.Bias;
+    memcpy(&time_64, &local_time, sizeof(ULARGE_INTEGER));
+    local_seconds = time_64.QuadPart / 10000000 - 3054539008LU;
+    *mycro_sec = (time_64.QuadPart / 10) % 1000000;
+    *time_zone = (utc_seconds - local_seconds) / 60;
 #ifdef TRACE_TIM_WIN
+    printf("timNow %lu %lu %lu %lu %ld %d %d\n",
+        system_time.dwHighDateTime, system_time.dwLowDateTime,
+        local_time.dwHighDateTime, local_time.dwLowDateTime,
+        *time_zone, utc_seconds, local_seconds);
     printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
-	*year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+	  *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
 #endif
   } /* timNow */
-
-
-
-#ifdef ANSI_C
-
-void get_time (time_t *calendar_time, long *mycro_secs, long *time_zone)
-#else
-
-void get_time (calendar_time, mycro_secs, time_zone)
-time_t *calendar_time;
-long *mycro_secs;
-long *time_zone;
-#endif
-
-  {
-    FILETIME system_time;
-    ULARGE_INTEGER system_time_64;
-    TIME_ZONE_INFORMATION this_time_zone;
-
-  /* get_time */
-#ifdef TRACE_TIM_WIN
-    printf("BEGIN get_time\n");
-#endif
-    /* printf("time before %ld\n", time(NULL)); */
-    GetSystemTimeAsFileTime(&system_time);
-    /* printf("time after %ld\n", time(NULL)); */
-    memcpy(&system_time_64, &system_time, sizeof(ULARGE_INTEGER));
-    *calendar_time =  system_time_64.QuadPart / 10000000 - 3054539008LU;
-    *mycro_secs = (system_time_64.QuadPart / 10) % 1000000;
-    GetTimeZoneInformation(&this_time_zone);
-    *time_zone = this_time_zone.Bias;
-#ifdef TRACE_TIM_WIN
-    printf("END get_time(%lu, %ld, %ld)\n",
-        *calendar_time, *mycro_secs, *time_zone);
-#endif
-  } /* get_time */
-
-
-
-#ifdef ANSI_C
-
-void await_time (time_t calendar_time, long mycro_secs)
-#else
-
-void await_time (calendar_time, mycro_secs)
-time_t calendar_time;
-long mycro_secs;
-#endif
-
-  {
-    FILETIME system_time;
-    ULARGE_INTEGER system_time_64;
-    time_t current_time;
-    long current_mycro_secs;
-    unsigned long wait_milliseconds;
-
-  /* await_time */
-#ifdef TRACE_TIM_WIN
-    printf("BEGIN await_time(%lu, %ld)\n",
-        calendar_time, mycro_secs);
-#endif
-    GetSystemTimeAsFileTime(&system_time);
-    memcpy(&system_time_64, &system_time, sizeof(ULARGE_INTEGER));
-    current_time =  system_time_64.QuadPart / 10000000 - 3054539008LU;
-    current_mycro_secs = (system_time_64.QuadPart / 10) % 1000000;
-    if (current_time < calendar_time ||
-        (current_time == calendar_time &&
-        current_mycro_secs < mycro_secs)) {
-      wait_milliseconds = (calendar_time - current_time) * 1000;
-      if (mycro_secs >= current_mycro_secs) {
-        wait_milliseconds += (mycro_secs - current_mycro_secs) / 1000;
-      } else {
-        wait_milliseconds -= (current_mycro_secs - mycro_secs) / 1000;
-      } /* if */
-#ifdef TRACE_TIM_WIN
-      printf("%lu %lu < %lu %lu Sleep(%lu)\n",
-	  current_time, current_mycro_secs, calendar_time, mycro_secs,
-	  wait_milliseconds);
-#endif
-      Sleep(wait_milliseconds);
-    } /* if */
-#ifdef TRACE_TIM_WIN
-    printf("END await_time\n");
-#endif
-  } /* await_time */

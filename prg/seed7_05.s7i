@@ -1643,7 +1643,11 @@ const func bitset: (attr bitset) parse (in var string: stri) is func
         repeat
           stri := stri[2 ..];
         until stri[1] <> ' ';
-        incl(result, integer parse getint(stri));
+        if stri[1] >= '0' and stri[1] <= '9' then
+          incl(result, integer parse getint(stri));
+        elsif stri[1] <> '}' then
+          raise RANGE_ERROR;
+        end if;
       until stri[1] <> ',';
       if stri <> "}" then
         raise RANGE_ERROR;

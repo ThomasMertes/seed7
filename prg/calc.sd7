@@ -45,8 +45,6 @@ const proc: main is func
         \  begin\n\
         \    writeln(" & command & ");\n\
         \  end func;\n\
-        \\n\
-        \$ system \"main\" is main;\n\
         \");
       if prog_expr <> program.EMPTY then
         execute(prog_expr);
