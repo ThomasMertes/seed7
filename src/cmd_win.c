@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -54,18 +57,9 @@
 #define EXTERN
 #include "cmd_drv.h"
 
-#undef TRACE_CMD_WIN
-#undef VERBOSE_EXCEPTIONS
-
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
-#endif
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) logStatements
-#else
-#define logError(logStatements)
 #endif
 
 

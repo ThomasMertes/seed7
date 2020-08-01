@@ -117,6 +117,7 @@ objectType soc_bind (listType arguments)
 
 /**
  *  Close a socket.
+ *  @exception FILE_ERROR A system function returns an error.
  */
 objectType soc_close (listType arguments)
 

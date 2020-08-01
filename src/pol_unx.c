@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -47,6 +50,7 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "hsh_rtl.h"
+#include "soc_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -745,11 +749,9 @@ void polPoll (const pollType pollData)
       poll_result = os_poll(conv(pollData)->pollFds, conv(pollData)->size, -1); /* &timeout); */
     } while (unlikely(poll_result == -1 && errno == EINTR));
     if (unlikely(poll_result < 0)) {
-      /* printf("errno=%d\n", errno);
-      printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-          EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-      printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d  EBADF=%d\n",
-           EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL, EBADF); */
+      logError(printf("polPoll: poll(*, " FMT_U_MEM ", -1) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      conv(pollData)->size, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } else {
       var_conv(pollData)->iteratorMode = ITER_EMPTY;

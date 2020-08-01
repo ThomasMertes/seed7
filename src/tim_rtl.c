@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -42,8 +45,6 @@
 #undef EXTERN
 #define EXTERN
 #include "tim_rtl.h"
-
-#undef TRACE_TIM_RTL
 
 
 #if TIME_T_SIZE == 32
@@ -65,7 +66,6 @@
 #define STRUCT_TM_MAX_YEAR   292277026595
 #endif
 #endif
-
 
 static time_t month_days[2][12] = {
     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
@@ -159,9 +159,7 @@ void timFromTimestamp (time_t timestamp,
     struct tm *local_time;
 
   /* timFromTimestamp */
-#ifdef TRACE_TIM_RTL
-    printf("BEGIN timFromTimestamp(%ld)\n", timestamp);
-#endif
+    logFunction(printf("timFromTimestamp(%ld)\n", timestamp););
 #if defined USE_LOCALTIME_R
     local_time = localtime_r(&timestamp, &tm_result);
 #elif defined USE_LOCALTIME_S
@@ -186,11 +184,9 @@ void timFromTimestamp (time_t timestamp,
       *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
-#ifdef TRACE_TIM_RTL
-    printf("END timFromTimestamp(%ld, %04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
-        timestamp, *year, *month, *day, *hour, *min, *sec,
-        *micro_sec, *time_zone, *is_dst);
-#endif
+    logFunction(printf("timFromTimestamp(%ld, %04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+                       timestamp, *year, *month, *day, *hour, *min, *sec,
+                       *micro_sec, *time_zone, *is_dst););
   } /* timFromTimestamp */
 
 
@@ -219,10 +215,8 @@ time_t timToTimestamp (intType year, intType month, intType day, intType hour,
     time_t result;
 
   /* timToTimestamp */
-#ifdef TRACE_TIM_RTL
-    printf("BEGIN timToTimestamp(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
-        year, month, day, hour, min, sec, micro_sec, time_zone);
-#endif
+    logFunction(printf("timToTimestamp(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+                       year, month, day, hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
     tm_time.tm_mday  = (int) day;
@@ -238,9 +232,7 @@ time_t timToTimestamp (intType year, intType month, intType day, intType hour,
         result -= (time_t) time_zone * 60;
       } /* if */
     } /* if */
-#ifdef TRACE_TIM_RTL
-    printf("END timToTimestamp ==> %lu\n", result);
-#endif
+    logFunction(printf("timToTimestamp ==> %lu\n", result););
     return result;
   } /* timToTimestamp */
 
@@ -259,12 +251,10 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
     time_t time_zone_reference;
 
   /* timSetLocalTZ */
-#ifdef TRACE_TIM_RTL
-    printf("BEGIN timSetLocalTZ(" F_D(04) "-" F_D(02) "-" F_D(02),
-           year, month, day);
-    printf(" " F_D(02) ":" F_D(02) ":" F_D(02) ")\n",
-           hour, min, sec);
-#endif
+    logFunction(printf("timSetLocalTZ(" F_D(04) "-" F_D(02) "-" F_D(02),
+                       year, month, day);
+                printf(" " F_D(02) ":" F_D(02) ":" F_D(02) ")\n",
+                       hour, min, sec););
     timestamp = 0;
 #if defined USE_LOCALTIME_R
     local_time = localtime_r(&timestamp, &tm_result);
@@ -324,12 +314,10 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
 #endif
       } /* if */
     } /* if */
-#ifdef TRACE_TIM_RTL
-    printf("END timSetLocalTZ(" F_D(04) "-" F_D(02) "-" F_D(02),
-           year, month, day);
-    printf(" " F_D(02) ":" F_D(02) ":" F_D(02) " " FMT_D " %d)\n",
-           hour, min, sec, *time_zone, *is_dst);
-#endif
+    logFunction(printf("timSetLocalTZ(" F_D(04) "-" F_D(02) "-" F_D(02),
+                       year, month, day);
+                printf(" " F_D(02) ":" F_D(02) ":" F_D(02) " " FMT_D " %d) -->\n",
+                       hour, min, sec, *time_zone, *is_dst););
   } /* timSetLocalTZ */
 
 

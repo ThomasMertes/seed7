@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #ifdef MYSQL_INCLUDE
@@ -52,8 +55,6 @@
 #include "rtl_err.h"
 #include "dll_drv.h"
 #include "sql_drv.h"
-
-#undef VERBOSE_EXCEPTIONS
 
 
 typedef struct {
@@ -96,12 +97,6 @@ static sqlFuncType sqlFunc = NULL;
 #define MOST_NEGATIVE_FLOAT  -3.4028234663852885e+38
 #define MOST_POSITIVE_DOUBLE  1.7976931348623157e+308
 #define MOST_NEGATIVE_DOUBLE -1.7976931348623157e+308
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) printf(" *** "); logStatements
-#else
-#define logError(logStatements)
-#endif
 
 
 #ifdef MYSQL_DLL
@@ -229,12 +224,12 @@ static boolType findDll (void)
     boolType found = FALSE;
 
   /* findDll */
-    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos++) {
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
       logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
                  printf("%s\n", dllList[pos]);
                });
     } /* if */

@@ -31,3 +31,4 @@
 
 
 boolType filInputReady (fileType aFile);
+void setupFiles (void);

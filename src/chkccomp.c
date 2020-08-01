@@ -195,26 +195,28 @@ void doRemove (const char *fileName)
   {
 
   /* doRemove */
-    if (remove(fileName) != 0) {
+    if (fileIsRegular(fileName)) {
+      if (remove(fileName) != 0) {
 #if defined OS_STRI_WCHAR && defined USE_WINSOCK
-      /* This workaround is necessary for windows. */
-      time_t start_time;
-      char command[1024];
+        /* This workaround is necessary for windows. */
+        time_t start_time;
+        char command[1024];
 
-      sprintf(command, "DEL %s 2>NUL:", fileName);
-      start_time = time(NULL);
-      while (time(NULL) < start_time + 20 &&
-             fileIsRegular(fileName)) {
-        if (remove(fileName) != 0) {
-          system(command);
+        sprintf(command, "DEL %s 2>NUL:", fileName);
+        start_time = time(NULL);
+        while (time(NULL) < start_time + 20 &&
+               fileIsRegular(fileName)) {
+          if (remove(fileName) != 0) {
+            system(command);
+          } /* if */
+        } /* while */
+        if (fileIsRegular(fileName)) {
+          fprintf(logFile, " *** Cannot remove %s\n", fileName);
         } /* if */
-      } /* while */
-      if (fileIsRegular(fileName)) {
-        fprintf(logFile, " *** Cannot remove %s\n", fileName);
-      } /* if */
 #else
-      fprintf(logFile, " *** Cannot remove %s\n", fileName);
+        fprintf(logFile, " *** Cannot remove %s\n", fileName);
 #endif
+      } /* if */
     } /* if */
   } /* doRemove */
 
@@ -222,30 +224,13 @@ void doRemove (const char *fileName)
 
 void cleanUpCompilation (void)
 
-  {
-    char fileName[1024];
-
-  /* cleanUpCompilation */
-    if (fileIsRegular("ctest.c")) {
-      doRemove("ctest.c");
-    } /* if */
-    if (fileIsRegular("ctest.cerrs")) {
-      doRemove("ctest.cerrs");
-    } /* if */
-    if (fileIsRegular("ctest.lerrs")) {
-      doRemove("ctest.lerrs");
-    } /* if */
-    sprintf(fileName, "ctest%s", OBJECT_FILE_EXTENSION);
-    if (fileIsRegular(fileName)) {
-      doRemove(fileName);
-    } /* if */
-    sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
-    if (fileIsRegular(fileName)) {
-      doRemove(fileName);
-    } /* if */
-    if (fileIsRegular("ctest.out")) {
-      doRemove("ctest.out");
-    } /* if */
+  { /* cleanUpCompilation */
+    doRemove("ctest.c");
+    doRemove("ctest.cerrs");
+    doRemove("ctest.lerrs");
+    doRemove("ctest" OBJECT_FILE_EXTENSION);
+    doRemove("ctest" EXECUTABLE_FILE_EXTENSION);
+    doRemove("ctest.out");
   } /* cleanUpCompilation */
 
 
@@ -400,6 +385,77 @@ void testOutputToVersionFile (FILE *versionFile)
       fclose(outFile);
     } /* if */
   } /* testOutputToVersionFile */
+
+
+
+void checkPopen (FILE *versionFile)
+
+  {
+    char *popen = NULL;
+    char *binary_mode = "";
+    char buffer[4096];
+
+  /* checkPopen */
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{FILE *aFile; aFile=popen(\""
+                         LIST_DIRECTORY_CONTENTS
+                         "\", \"r\");\n"
+                         "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n")) {
+      popen = "popen";
+    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                "{FILE *aFile; aFile=_popen(\""
+                                LIST_DIRECTORY_CONTENTS
+                                "\", \"r\");\n"
+                                "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n")) {
+      popen = "_popen";
+    } /* if */
+    if (popen != NULL) {
+      if (doTest() == 1) {
+        fputs("#define FTELL_WRONG_FOR_PIPE\n", versionFile);
+      } /* if */
+      sprintf(buffer, "#include <stdio.h>\n#include <errno.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; aFile=%s(\""
+                      LIST_DIRECTORY_CONTENTS
+                      "\", \"rb\");\n"
+                      "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        fputs("#define POPEN_SUPPORTS_BINARY_MODE\n", versionFile);
+        binary_mode = "b";
+      } /* if */
+      sprintf(buffer, "#include <stdio.h>\n#include <errno.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; aFile=%s(\""
+                      LIST_DIRECTORY_CONTENTS
+                      "\", \"rt\");\n"
+                      "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        fputs("#define POPEN_SUPPORTS_TEXT_MODE\n", versionFile);
+      } /* if */
+      if (compileAndLinkOk("#include <stdio.h>\n"
+                           "int main(int argc, char *argv[])\n"
+                           "{printf(\"x\\n\"); return 0;}\n")) {
+        if (rename("ctest" EXECUTABLE_FILE_EXTENSION, "ctest2" EXECUTABLE_FILE_EXTENSION) == 0) {
+          sprintf(buffer, "#include <stdio.h>\n#include <string.h>\n"
+                          "int main(int argc, char *argv[])\n"
+                          "{char buffer[5]; FILE *aFile; aFile=%s(\""
+                          ".%s%cctest2%s"
+                          "\", \"r%s\");\n"
+                          "if (fgets(buffer, 4, aFile) != NULL)\n"
+                          "printf(\"%%d\\n\", memcmp(buffer, \"x\\r\\n\", 3) == 0);\n"
+                          "else printf(\"0\\n\"); return 0;}\n",
+                          popen, PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
+                          EXECUTABLE_FILE_EXTENSION, binary_mode);
+          if (compileAndLinkOk(buffer) && doTest() == 1) {
+            fputs("#define STDOUT_IS_IN_TEXT_MODE\n", versionFile);
+          } /* if */
+          doRemove("ctest2" EXECUTABLE_FILE_EXTENSION);
+        } /* if */
+      } /* if */
+    } else {
+      fputs("#define POPEN_MISSING\n", versionFile);
+    } /* if */
+  } /* checkPopen */
 
 
 
@@ -2237,22 +2293,7 @@ int main (int argc, char **argv)
       strcat(buffer, "#define NORETURN\\n");
     } /* if */
     fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", buffer);
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                         "{FILE *aFile; aFile=popen(\""
-                         LIST_DIRECTORY_CONTENTS
-                         "\", \"r\");\n"
-                         "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n") ||
-        compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                         "{FILE *aFile; aFile=_popen(\""
-                         LIST_DIRECTORY_CONTENTS
-                         "\", \"r\");\n"
-                         "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n")) {
-      if (doTest() == 1) {
-        fputs("#define FTELL_WRONG_FOR_PIPE\n", versionFile);
-      } /* if */
-    } else {
-      fputs("#define POPEN_MISSING\n", versionFile);
-    } /* if */
+    checkPopen(versionFile);
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{int canWrite=0;FILE *aFile;\n"
                          "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL){\n"

@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -46,9 +49,6 @@
 #undef EXTERN
 #define EXTERN
 #include "int_rtl.h"
-
-#undef TRACE_INT_RTL
-#undef VERBOSE_EXCEPTIONS
 
 
 #define UINT_BITS(A)                     ((A) & UINTTYPE_MAX)
@@ -205,12 +205,6 @@ static uintType low_seed;
 static uintType high_seed;
 #endif
 
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) logStatements
-#else
-#define logError(logStatements)
-#endif
-
 
 
 void setupRand (void)
@@ -352,10 +346,8 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
     uintType product_low;
 
   /* uint_mult */
-#ifdef TRACE_RANDOM
-    printf("BEGIN uint_mult(%08x, %08x)\n",
-        (unsigned int) factor1, (unsigned int) factor2);
-#endif
+    logFunction(printf("uint_mult(%08x, %08x)\n",
+                       (unsigned int) factor1, (unsigned int) factor2););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1);
     factor2_part[0] = LOWER_HALF_OF_UINT(factor2);
@@ -369,10 +361,8 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
     /* c5 contains the high uintType of factor1 * factor2 */
     product_low = UINT_BITS(factor1 * factor2);
     *product_high = UINT_BITS(c5);
-#ifdef TRACE_RANDOM
-    printf("END uint_mult ==> %08x%08x\n",
-        (unsigned int) *product_high, (unsigned int) product_low);
-#endif
+    logFunction(printf("uint_mult --> %08x%08x\n",
+                       (unsigned int) *product_high, (unsigned int) product_low););
     return product_low;
   } /* uint_mult */
 
@@ -412,11 +402,9 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
     uintType product_low;
 
   /* uint2_mult */
-#ifdef TRACE_RANDOM
-    printf("BEGIN uint2_mult(%08x%08x, %08x%08x)\n",
-        (unsigned int) factor1_high, (unsigned int) factor1_low,
-        (unsigned int) factor2_high, (unsigned int) factor2_low);
-#endif
+    logFunction(printf("uint2_mult(%08x%08x, %08x%08x)\n",
+                       (unsigned int) factor1_high, (unsigned int) factor1_low,
+                       (unsigned int) factor2_high, (unsigned int) factor2_low););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1_low);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1_low);
     factor2_part[0] = LOWER_HALF_OF_UINT(factor2_low);
@@ -432,10 +420,8 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
     *product_high = UINT_BITS(factor1_low * factor2_high + factor1_high * factor2_low + c5);
     /* factor1_high * factor2_high is not computed. All bits of it  */
     /* would be discarded, since they are higher than product_high. */
-#ifdef TRACE_RANDOM
-    printf("END uint2_mult ==> %08x%08x\n",
-        (unsigned int) *product_high, (unsigned int) product_low);
-#endif
+    logFunction(printf("uint2_mult --> %08x%08x\n",
+                       (unsigned int) *product_high, (unsigned int) product_low););
     return product_low;
   } /* uint2_mult */
 
@@ -464,11 +450,9 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
     uintType sum_low;
 
   /* uint2_add */
-#ifdef TRACE_RANDOM
-    printf("BEGIN uint2_add(%08x%08x, %08x%08x)\n",
-        (unsigned int) summand1_high, (unsigned int) summand1_low,
-        (unsigned int) summand2_high, (unsigned int) summand2_low);
-#endif
+    logFunction(printf("uint2_add(%08x%08x, %08x%08x)\n",
+                       (unsigned int) summand1_high, (unsigned int) summand1_low,
+                       (unsigned int) summand2_high, (unsigned int) summand2_low););
     sum_low = UINT_BITS(summand1_low + summand2_low);
     if (UINT_HIGHEST_BIT(summand1_low) + UINT_HIGHEST_BIT(summand2_low) +
         UINT_HIGHEST_BIT(UINT_BITS_WITHOUT_HIGHEST_BIT(summand1_low) +
@@ -477,10 +461,8 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
     } else {
       *sum_high = UINT_BITS(summand1_high + summand2_high);
     } /* if */
-#ifdef TRACE_RANDOM
-    printf("END uint2_add ==> %08x%08x\n",
-        (unsigned int) *sum_high, (unsigned int) sum_low);
-#endif
+    logFunction(printf("uint2_add --> %08x%08x\n",
+                       (unsigned int) *sum_high, (unsigned int) sum_low););
     return sum_low;
   } /* uint2_add */
 
@@ -499,13 +481,10 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
 uintType uintRand (void)
 
   { /* uintRand */
-#ifdef TRACE_RANDOM
-    printf("BEGIN uintRand\n");
-#endif
+    logFunction(printf("uintRand\n"););
     seed = seed * RAND_MULTIPLIER + RAND_INCREMENT;
-#ifdef TRACE_RANDOM
-    printf("END uintRand ==> " F_X(08) "\n", (uintType) (seed >> INTTYPE_SIZE));
-#endif
+    logFunction(printf("uintRand --> " F_X(08) "\n",
+                       (uintType) (seed >> INTTYPE_SIZE)););
     return (uintType) (seed >> INTTYPE_SIZE);
   } /* uintRand */
 
@@ -525,17 +504,13 @@ uintType uintRand (void)
 uintType uintRand (void)
 
   { /* uintRand */
-#ifdef TRACE_RANDOM
-    printf("BEGIN uintRand\n");
-#endif
+    logFunction(printf("uintRand\n"););
     /* SEED = SEED * RAND_MULTIPLIER + RAND_INCREMENT */
     low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(RAND_MULTIPLIER),
         &high_seed);
     low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(RAND_INCREMENT),
         &high_seed);
-#ifdef TRACE_RANDOM
-    printf("END uintRand ==> " F_X(08) "\n", high_seed);
-#endif
+    logFunction(printf("uintRand --> " F_X(08) "\n", high_seed););
     return high_seed;
   } /* uintRand */
 #endif
@@ -748,12 +723,10 @@ striType uintRadix (uintType number, intType base, boolType upperCase)
     striType result;
 
   /* uintRadix */
-#ifdef TRACE_INT_RTL
-    printf("uintRadix(" FMT_U ", " FMT_D ", %d)\n",
-           number, base, upperCase);
-#endif
+    logFunction(printf("uintRadix(" FMT_U ", " FMT_D ", %d)\n",
+                       number, base, upperCase););
     if (unlikely(base < 2 || base > 36)) {
-      logError(printf(" *** uintRadix(" FMT_U ", " FMT_D ", %d): "
+      logError(printf("uintRadix(" FMT_U ", " FMT_D ", %d): "
                       "base < 2 or base > 36.\n",
                       number, base, upperCase););
       raise_error(RANGE_ERROR);
@@ -772,9 +745,7 @@ striType uintRadix (uintType number, intType base, boolType upperCase)
         memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
       } /* if */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("uintRadix --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("uintRadix --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* uintRadix */
 
@@ -802,10 +773,8 @@ striType uintRadixPow2 (uintType number, int shift, int mask, boolType upperCase
     striType result;
 
   /* uintRadixPow2 */
-#ifdef TRACE_INT_RTL
-    printf("uintRadixPow2(" FMT_U ", %d, %x, %d)\n",
-           number, shift, mask, upperCase);
-#endif
+    logFunction(printf("uintRadixPow2(" FMT_U ", %d, %x, %d)\n",
+                       number, shift, mask, upperCase););
     digits = digitTable[upperCase];
     buffer = &buffer_1[RADIX_BUFFER_SIZE];
     do {
@@ -818,9 +787,8 @@ striType uintRadixPow2 (uintType number, int shift, int mask, boolType upperCase
       result->size = length;
       memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("uintRadixPow2 --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("uintRadixPow2 --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* uintRadixPow2 */
 
@@ -840,9 +808,7 @@ striType uintStr (uintType number)
     striType result;
 
   /* uintStr */
-#ifdef TRACE_INT_RTL
-    printf("uintStr(" FMT_U ")\n", number);
-#endif
+    logFunction(printf("uintStr(" FMT_U ")\n", number););
     length = DECIMAL_DIGITS(number);
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
       raise_error(MEMORY_ERROR);
@@ -853,9 +819,8 @@ striType uintStr (uintType number)
         *(--buffer) = (strElemType) (number % 10 + '0');
       } while ((number /= 10) != 0);
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("uintStr --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("uintStr --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* uintStr */
 
@@ -1031,9 +996,8 @@ intType intBinom (intType n_number, intType k_number)
     intType result;
 
   /* intBinom */
-#ifdef TRACE_INT_RTL
-    printf("intBinom(" FMT_D ", " FMT_D ")\n", k_number, n_number);
-#endif
+    logFunction(printf("intBinom(" FMT_D ", " FMT_D ")\n",
+                       k_number, n_number););
     if (n_number >= 0 && k_number > (intType) ((uintType) n_number >> 1)) {
       k_number = n_number - k_number;
     } /* if */
@@ -1085,7 +1049,7 @@ intType intBinom (intType n_number, intType k_number)
             reducedDenominator = reducedDenominator / gcd;
             if (unsigned_result > UINTTYPE_MAX / reducedNumerator) {
               /* Unavoidable overflow */
-              logError(printf(" *** intBinom(" FMT_D ", " FMT_D "): "
+              logError(printf("intBinom(" FMT_D ", " FMT_D "): "
                        "Unavoidable overflow.\n", n_number, k_number););
               raise_error(OVERFLOW_ERROR);
               return 0;
@@ -1101,7 +1065,7 @@ intType intBinom (intType n_number, intType k_number)
       } /* if */
       if (negative) {
         if (unsigned_result > -(uintType) INTTYPE_MIN) {
-          logError(printf(" *** intBinom(" FMT_D ", " FMT_D "): "
+          logError(printf("intBinom(" FMT_D ", " FMT_D "): "
                    "Negative result too small.\n", n_number, k_number););
           raise_error(OVERFLOW_ERROR);
           result = 0;
@@ -1110,7 +1074,7 @@ intType intBinom (intType n_number, intType k_number)
         } /* if */
       } else {
         if (unsigned_result > INTTYPE_MAX) {
-          logError(printf(" *** intBinom(" FMT_D ", " FMT_D "): "
+          logError(printf("intBinom(" FMT_D ", " FMT_D "): "
                    "Positive result too big.\n", n_number, k_number););
           raise_error(OVERFLOW_ERROR);
           result = 0;
@@ -1119,9 +1083,7 @@ intType intBinom (intType n_number, intType k_number)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intBinom --> " FMT_D "\n", result);
-#endif
+    logFunction(printf("intBinom --> " FMT_D "\n", result););
     return result;
   } /* intBinom */
 
@@ -1143,9 +1105,8 @@ uintType uintBinomNoChk (uintType n_number, intType k_number)
     uintType result;
 
   /* uintBinomNoChk */
-#ifdef TRACE_INT_RTL
-    printf("uintBinomNoChk(" FMT_D ", " FMT_U ")\n", k_number, n_number);
-#endif
+    logFunction(printf("uintBinomNoChk(" FMT_D ", " FMT_U ")\n",
+                       k_number, n_number););
     if (k_number > (intType) (n_number >> 1)) {
       k_number = (intType) n_number - k_number;
     } /* if */
@@ -1165,9 +1126,7 @@ uintType uintBinomNoChk (uintType n_number, intType k_number)
         result /= denominator;
       } /* for */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("uintBinomNoChk --> " FMT_U "\n", result);
-#endif
+    logFunction(printf("uintBinomNoChk --> " FMT_U "\n", result););
     return result;
   } /* uintBinomNoChk */
 
@@ -1216,9 +1175,7 @@ striType intBytesBe (intType number, boolType isSigned)
     striType result;
 
   /* intBytesBe */
-#ifdef TRACE_INT_RTL
-    printf("intBytesBe(" FMT_D ", %d)\n", number, isSigned);
-#endif
+    logFunction(printf("intBytesBe(" FMT_D ", %d)\n", number, isSigned););
     if (number >= 0) {
       do {
         pos--;
@@ -1244,7 +1201,7 @@ striType intBytesBe (intType number, boolType isSigned)
         buffer[pos] = 255;
       } /* if */
     } else {
-      logError(printf(" *** intBytesBe(" FMT_D ", %d): "
+      logError(printf("intBytesBe(" FMT_D ", %d): "
                       "Negative number and isSigned is FALSE.\n",
                       number, isSigned););
       raise_error(RANGE_ERROR);
@@ -1257,9 +1214,7 @@ striType intBytesBe (intType number, boolType isSigned)
       memcpy(result->mem, &buffer[pos],
              (memSizeType) (BYTE_BUFFER_SIZE - pos) * sizeof(strElemType));
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intBytesBe --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("intBytesBe --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* intBytesBe */
 
@@ -1284,9 +1239,8 @@ intType intBytesBe2Int (const const_striType byteStri)
     intType result;
 
   /* intBytesBe2Int */
-#ifdef TRACE_INT_RTL
-    printf("intBytesBe2Int(\"%s\")\n", striAsUnquotedCStri(byteStri));
-#endif
+    logFunction(printf("intBytesBe2Int(\"%s\")\n",
+                       striAsUnquotedCStri(byteStri)););
     if (byteStri->size == 0 || byteStri->mem[0] <= 127) {
       if (byteStri->size >= sizeof(intType)) {
         while (pos < byteStri->size && byteStri->mem[pos] == 0) {
@@ -1295,7 +1249,7 @@ intType intBytesBe2Int (const const_striType byteStri)
         if (unlikely(byteStri->size - pos > sizeof(intType) ||
                      (byteStri->size - pos == sizeof(intType) &&
                       byteStri->mem[pos] >= 128))) {
-          logError(printf(" *** intBytesBe2Int(\"%s\"): "
+          logError(printf("intBytesBe2Int(\"%s\"): "
                           "Number too big.\n",
                           striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
@@ -1311,7 +1265,7 @@ intType intBytesBe2Int (const const_striType byteStri)
         if (unlikely(byteStri->size - pos > sizeof(intType) ||
                      (byteStri->size - pos == sizeof(intType) &&
                       byteStri->mem[pos] <= 127))) {
-          logError(printf(" *** intBytesBe2Int(\"%s\"): "
+          logError(printf("intBytesBe2Int(\"%s\"): "
                           "Number too small.\n",
                           striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
@@ -1322,7 +1276,7 @@ intType intBytesBe2Int (const const_striType byteStri)
     } /* if */
     for (; pos < byteStri->size; pos++) {
       if (unlikely(byteStri->mem[pos] >= 256)) {
-        logError(printf(" *** intBytesBe2Int(\"%s\"): "
+        logError(printf("intBytesBe2Int(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
                         byteStri->mem[pos]););
@@ -1332,9 +1286,7 @@ intType intBytesBe2Int (const const_striType byteStri)
       result <<= 8;
       result += byteStri->mem[pos];
     } /* for */
-#ifdef TRACE_INT_RTL
-    printf("intBytesBe2Int --> " FMT_D "\n", result);
-#endif
+    logFunction(printf("intBytesBe2Int --> " FMT_D "\n", result););
     return result;
   } /* intBytesBe2Int */
 
@@ -1357,9 +1309,8 @@ intType intBytesBe2UInt (const const_striType byteStri)
     intType result = 0;
 
   /* intBytesBe2UInt */
-#ifdef TRACE_INT_RTL
-    printf("intBytesBe2UInt(\"%s\")\n", striAsUnquotedCStri(byteStri));
-#endif
+    logFunction(printf("intBytesBe2UInt(\"%s\")\n",
+                       striAsUnquotedCStri(byteStri)););
     if (byteStri->size >= sizeof(intType)) {
       while (pos < byteStri->size && byteStri->mem[pos] == 0) {
         pos++;
@@ -1367,7 +1318,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
       if (unlikely(byteStri->size - pos > sizeof(intType) ||
                    (byteStri->size - pos == sizeof(intType) &&
                     byteStri->mem[pos] >= 128))) {
-        logError(printf(" *** intBytesBe2UInt(\"%s\"): "
+        logError(printf("intBytesBe2UInt(\"%s\"): "
                         "Number too big.\n",
                         striAsUnquotedCStri(byteStri)););
         raise_error(RANGE_ERROR);
@@ -1376,7 +1327,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
     } /* if */
     for (; pos < byteStri->size; pos++) {
       if (unlikely(byteStri->mem[pos] >= 256)) {
-        logError(printf(" *** intBytesBe2UInt(\"%s\"): "
+        logError(printf("intBytesBe2UInt(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
                         byteStri->mem[pos]););
@@ -1386,9 +1337,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
       result <<= 8;
       result += byteStri->mem[pos];
     } /* for */
-#ifdef TRACE_INT_RTL
-    printf("intBytesBe2UInt --> " FMT_D "\n", result);
-#endif
+    logFunction(printf("intBytesBe2UInt --> " FMT_D "\n", result););
     return result;
   } /* intBytesBe2UInt */
 
@@ -1416,9 +1365,7 @@ striType intBytesLe (intType number, boolType isSigned)
     striType result;
 
   /* intBytesLe */
-#ifdef TRACE_INT_RTL
-    printf("intBytesLe(" FMT_D ", %d)\n", number, isSigned);
-#endif
+    logFunction(printf("intBytesLe(" FMT_D ", %d)\n", number, isSigned););
     if (number >= 0) {
       do {
         buffer[pos] = (ucharType) (number & 0xff);
@@ -1444,7 +1391,7 @@ striType intBytesLe (intType number, boolType isSigned)
         pos++;
       } /* if */
     } else {
-      logError(printf(" *** intBytesLe(" FMT_D ", %d): "
+      logError(printf("intBytesLe(" FMT_D ", %d): "
                       "Negative number and isSigned is FALSE.\n",
                       number, isSigned););
       raise_error(RANGE_ERROR);
@@ -1457,9 +1404,8 @@ striType intBytesLe (intType number, boolType isSigned)
       memcpy(result->mem, &buffer[0],
              (memSizeType) pos * sizeof(strElemType));
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intBytesLe --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("intBytesLe --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* intBytesLe */
 
@@ -1484,9 +1430,8 @@ intType intBytesLe2Int (const const_striType byteStri)
     intType result;
 
   /* intBytesLe2Int */
-#ifdef TRACE_INT_RTL
-    printf("intBytesLe2Int(\"%s\")\n", striAsUnquotedCStri(byteStri));
-#endif
+    logFunction(printf("intBytesLe2Int(\"%s\")\n",
+                       striAsUnquotedCStri(byteStri)););
     pos = byteStri->size;
     if (byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
       if (unlikely(byteStri->size >= sizeof(intType))) {
@@ -1496,7 +1441,7 @@ intType intBytesLe2Int (const const_striType byteStri)
         if (unlikely(pos > sizeof(intType) ||
                      (pos == sizeof(intType) &&
                       byteStri->mem[pos - 1] >= 128))) {
-          logError(printf(" *** intBytesLe2Int(\"%s\"): "
+          logError(printf("intBytesLe2Int(\"%s\"): "
                           "Number too big.\n",
                           striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
@@ -1512,7 +1457,7 @@ intType intBytesLe2Int (const const_striType byteStri)
         if (unlikely(pos > sizeof(intType) ||
                      (pos == sizeof(intType) &&
                       byteStri->mem[pos - 1] <= 127))) {
-          logError(printf(" *** intBytesLe2Int(\"%s\"): "
+          logError(printf("intBytesLe2Int(\"%s\"): "
                           "Number too small.\n",
                           striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
@@ -1523,7 +1468,7 @@ intType intBytesLe2Int (const const_striType byteStri)
     } /* if */
     for (; pos > 0; pos--) {
       if (unlikely(byteStri->mem[pos - 1] >= 256)) {
-        logError(printf(" *** intBytesLe2Int(\"%s\"): "
+        logError(printf("intBytesLe2Int(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
                         byteStri->mem[pos]););
@@ -1533,9 +1478,7 @@ intType intBytesLe2Int (const const_striType byteStri)
       result <<= 8;
       result += byteStri->mem[pos - 1];
     } /* for */
-#ifdef TRACE_INT_RTL
-    printf("intBytesLe2Int --> " FMT_D "\n", result);
-#endif
+    logFunction(printf("intBytesLe2Int --> " FMT_D "\n", result););
     return result;
   } /* intBytesLe2Int */
 
@@ -1558,9 +1501,8 @@ intType intBytesLe2UInt (const const_striType byteStri)
     intType result = 0;
 
   /* intBytesLe2UInt */
-#ifdef TRACE_INT_RTL
-    printf("intBytesLe2UInt(\"%s\")\n", striAsUnquotedCStri(byteStri));
-#endif
+    logFunction(printf("intBytesLe2UInt(\"%s\")\n",
+                       striAsUnquotedCStri(byteStri)););
     pos = byteStri->size;
     if (unlikely(byteStri->size >= sizeof(intType))) {
       while (pos > 0 && byteStri->mem[pos - 1] == 0) {
@@ -1569,7 +1511,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
       if (unlikely(pos > sizeof(intType) ||
                    (pos == sizeof(intType) &&
                     byteStri->mem[pos - 1] >= 128))) {
-        logError(printf(" *** intBytesLe2UInt(\"%s\"): "
+        logError(printf("intBytesLe2UInt(\"%s\"): "
                         "Number too big.\n",
                         striAsUnquotedCStri(byteStri)););
         raise_error(RANGE_ERROR);
@@ -1578,7 +1520,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
     } /* if */
     for (; pos > 0; pos--) {
       if (unlikely(byteStri->mem[pos - 1] >= 256)) {
-        logError(printf(" *** intBytesLe2UInt(\"%s\"): "
+        logError(printf("intBytesLe2UInt(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
                         byteStri->mem[pos]););
@@ -1588,9 +1530,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
       result <<= 8;
       result += byteStri->mem[pos - 1];
     } /* for */
-#ifdef TRACE_INT_RTL
-    printf("intBytesLe2UInt --> " FMT_D "\n", result);
-#endif
+    logFunction(printf("intBytesLe2UInt --> " FMT_D "\n", result););
     return result;
   } /* intBytesLe2UInt */
 
@@ -1643,11 +1583,9 @@ intType intLog10 (intType number)
     int logarithm;
 
   /* intLog10 */
-#ifdef TRACE_INT_RTL
-    printf("intLog10(" FMT_D ")\n", number);
-#endif
+    logFunction(printf("intLog10(" FMT_D ")\n", number););
     if (unlikely(number < 0)) {
-      logError(printf(" *** intLog10(" FMT_D "): Number is negative.\n",
+      logError(printf("intLog10(" FMT_D "): Number is negative.\n",
                       number););
       raise_error(NUMERIC_ERROR);
       logarithm = 0;
@@ -1656,9 +1594,7 @@ intType intLog10 (intType number)
     } else {
       logarithm = DECIMAL_DIGITS((uintType) number) - 1;
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intLog10 --> %d\n", logarithm);
-#endif
+    logFunction(printf("intLog10 --> %d\n", logarithm););
     return (intType) logarithm;
   } /* intLog10 */
 
@@ -1676,20 +1612,16 @@ intType intLog2 (intType number)
     int logarithm;
 
   /* intLog2 */
-#ifdef TRACE_INT_RTL
-    printf("intLog2(" FMT_D ")\n", number);
-#endif
+    logFunction(printf("intLog2(" FMT_D ")\n", number););
     if (unlikely(number < 0)) {
-      logError(printf(" *** intLog2(" FMT_D "): Number is negative.\n",
+      logError(printf("intLog2(" FMT_D "): Number is negative.\n",
                       number););
       raise_error(NUMERIC_ERROR);
       logarithm = 0;
     } else {
       logarithm = uintMostSignificantBit((uintType) number);
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intLog2 --> %d\n", logarithm);
-#endif
+    logFunction(printf("intLog2 --> %d\n", logarithm););
     return (intType) logarithm;
   } /* intLog2 */
 
@@ -1794,9 +1726,7 @@ intType intParse (const const_striType stri)
     intType int_value = 0;
 
   /* intParse */
-#ifdef TRACE_INT_RTL
-    printf("intParse(\"%s\")\n", striAsUnquotedCStri(stri));
-#endif
+    logFunction(printf("intParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     if (stri->size != 0) {
       if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
@@ -1837,9 +1767,7 @@ intType intParse (const const_striType stri)
     if (unlikely(!okay)) {
       raise_error(RANGE_ERROR);
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intParse --> " FMT_D "\n", int_value);
-#endif
+    logFunction(printf("intParse --> " FMT_D "\n", int_value););
     return int_value;
   } /* intParse */
 
@@ -1856,11 +1784,9 @@ intType intPow (intType base, intType exponent)
     intType power;
 
   /* intPow */
-#ifdef TRACE_INT_RTL
-    printf("intPow(" FMT_D ", " FMT_D ")\n", base, exponent);
-#endif
+    logFunction(printf("intPow(" FMT_D ", " FMT_D ")\n", base, exponent););
     if (unlikely(exponent < 0)) {
-      logError(printf(" *** intPow(" FMT_D ", " FMT_D "): "
+      logError(printf("intPow(" FMT_D ", " FMT_D "): "
                       "Exponent is negative.\n",
                       base, exponent););
       raise_error(NUMERIC_ERROR);
@@ -1880,9 +1806,7 @@ intType intPow (intType base, intType exponent)
         exponent >>= 1;
       } /* while */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intPow --> " FMT_D "\n", power);
-#endif
+    logFunction(printf("intPow --> " FMT_D "\n", power););
     return power;
   } /* intPow */
 
@@ -1900,11 +1824,10 @@ intType intPowOvfChk (intType base, intType exponent)
     intType power;
 
   /* intPowOvfChk */
-#ifdef TRACE_INT_RTL
-    printf("intPowOvfChk(" FMT_D ", " FMT_D ")\n", base, exponent);
-#endif
+    logFunction(printf("intPowOvfChk(" FMT_D ", " FMT_D ")\n",
+                       base, exponent););
     if (unlikely(exponent < 0)) {
-      logError(printf(" *** intPowOvfChk(" FMT_D ", " FMT_D "): "
+      logError(printf("intPowOvfChk(" FMT_D ", " FMT_D "): "
                       "Exponent is negative.\n",
                       base, exponent););
       raise_error(NUMERIC_ERROR);
@@ -1913,7 +1836,7 @@ intType intPowOvfChk (intType base, intType exponent)
       if ((uintType) exponent < sizeof(minBaseOfExponent) / sizeof(intType)) {
         if (unlikely(base < minBaseOfExponent[exponent] ||
                      base > maxBaseOfExponent[exponent])) {
-          logError(printf(" *** intPowOvfChk(" FMT_D ", " FMT_D "): "
+          logError(printf("intPowOvfChk(" FMT_D ", " FMT_D "): "
                           "Base wrong: ",
                           base, exponent);
                    if (base < minBaseOfExponent[exponent]) {
@@ -1928,7 +1851,7 @@ intType intPowOvfChk (intType base, intType exponent)
         } /* if */
       } else if (unlikely(base < -8 || base > 8 ||
                           exponent > maxExponentOfBase[base + 8])) {
-        logError(printf(" *** intPowOvfChk(" FMT_D ", " FMT_D "): ",
+        logError(printf("intPowOvfChk(" FMT_D ", " FMT_D "): ",
                         base, exponent);
                  if (base < -8) {
                    printf("Base wrong: " FMT_D " < -8\n", base);
@@ -1955,9 +1878,7 @@ intType intPowOvfChk (intType base, intType exponent)
         exponent >>= 1;
       } /* while */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intPowOvfChk --> " FMT_D "\n", power);
-#endif
+    logFunction(printf("intPowOvfChk --> " FMT_D "\n", power););
     return power;
   } /* intPowOvfChk */
 
@@ -1985,12 +1906,10 @@ striType intRadix (intType number, intType base, boolType upperCase)
     striType result;
 
   /* intRadix */
-#ifdef TRACE_INT_RTL
-    printf("intRadix(" FMT_D ", " FMT_D ", %d)\n",
-           number, base, upperCase);
-#endif
+    logFunction(printf("intRadix(" FMT_D ", " FMT_D ", %d)\n",
+                       number, base, upperCase););
     if (unlikely(base < 2 || base > 36)) {
-      logError(printf(" *** intRadix(" FMT_D ", " FMT_D ", %d): "
+      logError(printf("intRadix(" FMT_D ", " FMT_D ", %d): "
                       "base < 2 or base > 36.\n",
                       number, base, upperCase););
       raise_error(RANGE_ERROR);
@@ -2020,9 +1939,7 @@ striType intRadix (intType number, intType base, boolType upperCase)
         memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
       } /* if */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intRadix --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("intRadix --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* intRadix */
 
@@ -2052,10 +1969,8 @@ striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase)
     striType result;
 
   /* intRadixPow2 */
-#ifdef TRACE_INT_RTL
-    printf("intRadixPow2(" FMT_D ", %d, %x, %d)\n",
-           number, shift, mask, upperCase);
-#endif
+    logFunction(printf("intRadixPow2(" FMT_D ", %d, %x, %d)\n",
+                       number, shift, mask, upperCase););
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -2079,9 +1994,8 @@ striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase)
       result->size = length;
       memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intRadixPow2 --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("intRadixPow2 --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* intRadixPow2 */
 
@@ -2103,14 +2017,12 @@ intType intRand (intType low, intType high)
     intType randomNumber;
 
   /* intRand */
-#ifdef TRACE_INT_RTL
-    printf("intRand(" FMT_D ", " FMT_D ")\n", low, high);
-#endif
+    logFunction(printf("intRand(" FMT_D ", " FMT_D ")\n", low, high););
     if (unlikely(low >= high)) {
       if (low == high) {
         randomNumber = low;
       } else {
-        logError(printf(" *** intRand(" FMT_D ", " FMT_D "): "
+        logError(printf("intRand(" FMT_D ", " FMT_D "): "
                         "The range is empty (low > high holds).\n",
                         low, high););
         raise_error(RANGE_ERROR);
@@ -2131,9 +2043,7 @@ intType intRand (intType low, intType high)
         randomNumber = (intType) ((uintType) low + rand_val % scale_limit);
       } /* if */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intRand --> " FMT_D "\n", randomNumber);
-#endif
+    logFunction(printf("intRand --> " FMT_D "\n", randomNumber););
     return randomNumber;
   } /* intRand */
 
@@ -2150,14 +2060,12 @@ intType intMultOvfChk (intType factor1, intType factor2)
     intType product;
 
   /* intMultOvfChk */
-#ifdef TRACE_INT_RTL
-    printf(" *** intMultOvfChk(" FMT_D ", " FMT_D ")\n",
-           factor1, factor2);
-#endif
+    logFunction(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D ")\n",
+                       factor1, factor2););
     if (factor1 < 0) {
       if (factor2 < 0) {
         if (unlikely(factor1 < INTTYPE_MAX / factor2)) {
-          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
                           "factor1 < " FMT_D "\n",
                           factor1, factor2, INTTYPE_MAX / factor2););
           raise_error(OVERFLOW_ERROR);
@@ -2165,7 +2073,7 @@ intType intMultOvfChk (intType factor1, intType factor2)
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor1 < INTTYPE_MIN / factor2)) {
-          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
                           "factor1 < " FMT_D "\n",
                           factor1, factor2, INTTYPE_MIN / factor2););
           raise_error(OVERFLOW_ERROR);
@@ -2175,7 +2083,7 @@ intType intMultOvfChk (intType factor1, intType factor2)
     } else if (factor1 != 0) {
       if (factor2 < 0) {
         if (unlikely(factor2 < INTTYPE_MIN / factor1)) {
-          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
                           "factor2 < " FMT_D "\n",
                           factor1, factor2, INTTYPE_MIN / factor1););
           raise_error(OVERFLOW_ERROR);
@@ -2183,7 +2091,7 @@ intType intMultOvfChk (intType factor1, intType factor2)
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor2 > INTTYPE_MAX / factor1)) {
-          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
                           "factor2 > " FMT_D "\n",
                           factor1, factor2, INTTYPE_MAX / factor1););
           raise_error(OVERFLOW_ERROR);
@@ -2192,9 +2100,7 @@ intType intMultOvfChk (intType factor1, intType factor2)
       } /* if */
     } /* if */
     product = factor1 * factor2;
-#ifdef TRACE_INT_RTL
-    printf("intMultOvfChk --> " FMT_D "\n", product);
-#endif
+    logFunction(printf("intMultOvfChk --> " FMT_D "\n", product););
     return product;
   } /* intMultOvfChk */
 
@@ -2212,11 +2118,9 @@ intType intSqrt (intType number)
     register uintType root2;
 
   /* intSqrt */
-#ifdef TRACE_INT_RTL
-    printf("intSqrt(" FMT_D ")\n", number);
-#endif
+    logFunction(printf("intSqrt(" FMT_D ")\n", number););
     if (unlikely(number < 0)) {
-      logError(printf(" *** intSqrt(" FMT_D "): Number is negative.\n",
+      logError(printf("intSqrt(" FMT_D "): Number is negative.\n",
                       number););
       raise_error(NUMERIC_ERROR);
       root = 0;
@@ -2229,9 +2133,7 @@ intType intSqrt (intType number)
         root2 = (root + (uintType) number / root) >> 1;
       } while (root > root2);
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intSqrt --> " FMT_U "\n", root);
-#endif
+    logFunction(printf("intSqrt --> " FMT_U "\n", root););
     return (intType) root;
   } /* intSqrt */
 
@@ -2254,9 +2156,7 @@ striType intStr (intType number)
     striType result;
 
   /* intStr */
-#ifdef TRACE_INT_RTL
-    printf("intStr(" FMT_D ")\n", number);
-#endif
+    logFunction(printf("intStr(" FMT_D ")\n", number););
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -2281,9 +2181,8 @@ striType intStr (intType number)
         result->mem[0] = (strElemType) '-';
       } /* if */
     } /* if */
-#ifdef TRACE_INT_RTL
-    printf("intStr --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("intStr --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* intStr */
 
@@ -2298,9 +2197,7 @@ striType intStrToBuffer (intType number, striType buffer)
     strElemType *bufferPtr;
 
   /* intStrToBuffer */
-#ifdef TRACE_INT_RTL
-    printf("intStrToBuffer(" FMT_D ")\n", number);
-#endif
+    logFunction(printf("intStrToBuffer(" FMT_D ")\n", number););
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -2318,9 +2215,8 @@ striType intStrToBuffer (intType number, striType buffer)
     } /* if */
     buffer->mem = bufferPtr;
     buffer->size = (memSizeType) (&buffer->mem1[INTTYPE_DECIMAL_SIZE] - bufferPtr);
-#ifdef TRACE_INT_RTL
-    printf("intStrToBuffer --> \"%s\"\n", striAsUnquotedCStri(buffer));
-#endif
+    logFunction(printf("intStrToBuffer --> \"%s\"\n",
+                       striAsUnquotedCStri(buffer)););
     return buffer;
   } /* intStrToBuffer */
 #endif

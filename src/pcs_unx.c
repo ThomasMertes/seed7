@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #define _XOPEN_SOURCE
@@ -39,6 +42,7 @@
 #include "sys/wait.h"
 #include "fcntl.h"
 #include "signal.h"
+#include "errno.h"
 
 #ifdef UNISTD_H_PRESENT
 #include "unistd.h"
@@ -50,9 +54,6 @@
 #include "striutl.h"
 #include "int_rtl.h"
 #include "rtl_err.h"
-
-#undef TRACE_PCS_UNX
-#undef VERBOSE_EXCEPTIONS
 
 
 typedef struct {
@@ -79,12 +80,6 @@ size_t sizeof_processRecord = sizeof(unx_processRecord);
 #define to_var_pid(process)          (((unx_processType) process)->pid)
 #define to_var_isTerminated(process) (((unx_processType) process)->isTerminated)
 #define to_var_exitValue(process)    (((unx_processType) process)->exitValue)
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) logStatements
-#else
-#define logError(logStatements)
-#endif
 
 
 
@@ -132,13 +127,21 @@ static os_striType *genArgVector (const const_striType command,
     } else {
       argv[0] = cp_to_os_path(command, &path_info, err_info);
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
+        logError(printf("genArgVector: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(command), *err_info););
         free(argv);
         argv = NULL;
       } else {
         /* fprintf(stderr, "argv[0]=" FMT_S_OS "\n", argv[0]); */
         for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
           argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
-          /* fprintf(stderr, "argv[%d]=" FMT_S_OS "\n", pos + 1, argv[pos + 1]); */
+          if (unlikely(*err_info != OKAY_NO_ERROR)) {
+            logError(printf("genArgVector: stri_to_os_stri(\"%s\", *, *) failed:\n"
+                            "err_info=%d\n",
+                            striAsUnquotedCStri(parameters->arr[pos].value.striValue),
+                            *err_info););
+          } /* if */
         } /* for */
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
           /* Free the individual arguments in the reverse order */
@@ -237,11 +240,9 @@ intType pcsExitValue (const const_processType process)
 void pcsFree (processType old_process)
 
   { /* pcsFree */
-#ifdef TRACE_PCS_UNX
-    printf("pcsFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) old_process,
-           old_process != NULL ? old_process->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("pcsFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) old_process,
+                       old_process != NULL ? old_process->usage_count : (uintType) 0););
     FREE_RECORD(old_process, unx_processRecord, count.process);
   } /* pcsFree */
 
@@ -280,11 +281,9 @@ boolType pcsIsAlive (const processType process)
     boolType isAlive;
 
   /* pcsIsAlive */
-#ifdef TRACE_PCS_UNX
-    printf("pcsIsAlive(" FMT_U_MEM ") (pid=%ld)\n",
-           (memSizeType) process,
-           process != NULL ? (long int) to_pid(process) : 0);
-#endif
+    logFunction(printf("pcsIsAlive(" FMT_U_MEM ") (pid=%ld)\n",
+                       (memSizeType) process,
+                       process != NULL ? (long int) to_pid(process) : 0););
     if (to_isTerminated(process)) {
       isAlive = FALSE;
     } else {
@@ -329,16 +328,14 @@ boolType pcsIsAlive (const processType process)
 void pcsKill (const processType process)
 
   { /* pcsKill */
-#ifdef TRACE_PCS_UNX
-    printf("pcsKill(" FMT_U_MEM ") (pid=%ld)\n",
-           (memSizeType) process,
-           process != NULL ? (long int) to_pid(process) : 0);
-#endif
+    logFunction(printf("pcsKill(" FMT_U_MEM ") (pid=%ld)\n",
+                       (memSizeType) process,
+                       process != NULL ? (long int) to_pid(process) : 0););
     if (process == NULL) {
-      logError(printf(" *** pcsKill: process == NULL\n"););
+      logError(printf("pcsKill: process == NULL\n"););
       raise_error(FILE_ERROR);
     } else if (kill(to_pid(process), SIGKILL) != 0) {
-      logError(printf(" *** pcsKill: kill(%d, SIGKILL) failed:\nerrno=%d\nerror: %s\n",
+      logError(printf("pcsKill: kill(%d, SIGKILL) failed:\nerrno=%d\nerror: %s\n",
                       to_pid(process), errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
@@ -363,7 +360,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else if (unlikely(access(argv[0], X_OK) != 0)) {
-      logError(printf(" *** pcsPipe2: No execute permission for " FMT_S_OS "\n", argv[0]););
+      logError(printf("pcsPipe2: No execute permission for " FMT_S_OS "\n", argv[0]););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
     } else if (unlikely(pipe(childStdinPipes) != 0)) {
@@ -388,14 +385,10 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         close(childStdoutPipes[0]);
         close(childStdoutPipes[1]);
         execv(argv[0], argv);
-        logError(printf(" *** pcsPipe2: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
+        logError(printf("pcsPipe2: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
                         argv[0], errno, strerror(errno)););
-        /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-            EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-        printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
-            EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
       } else if (pid == (pid_t) -1) {
-        logError(printf(" *** pcsPipe2: fork failed:\nerrno=%d\nerror: %s\n",
+        logError(printf("pcsPipe2: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
         close(0); /* Restore the original std fds of parent */
         close(1);
@@ -453,7 +446,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else if (access(argv[0], X_OK) != 0) {
-      logError(printf(" *** pcsPty: No execute permission for " FMT_S_OS "\n", argv[0]););
+      logError(printf("pcsPty: No execute permission for " FMT_S_OS "\n", argv[0]););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
     } else {
@@ -483,14 +476,10 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             close(masterfd); /* Not required for the child */
             close(slavefd);
             execv(argv[0], argv);
-            logError(printf(" *** pcsPty: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
+            logError(printf("pcsPty: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
                             argv[0], errno, strerror(errno)););
-            /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-            printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
-                EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
           } else if (pid == (pid_t) -1) {
-            logError(printf(" *** pcsPty: fork failed:\nerrno=%d\nerror: %s\n",
+            logError(printf("pcsPty: fork failed:\nerrno=%d\nerror: %s\n",
                             errno, strerror(errno)););
             close(0); /* Restore the original std fds of parent */
             close(1);
@@ -532,6 +521,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       process = NULL;
     } else if (access(argv[0], X_OK) != 0) {
       freeArgVector(argv);
+      logError(printf("pcsStart: access(" FMT_S_OS ", X_OK) not granted:\n"
+                      "errno=%d\nerror: %s\n",
+                      argv[0], errno, strerror(errno)););
       raise_error(FILE_ERROR);
       process = NULL;
     } else if (!ALLOC_RECORD(process, unx_processRecord, count.process)) {
@@ -541,14 +533,12 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       pid = fork();
       if (pid == 0) {
         execv(argv[0], argv);
-        logError(printf(" *** pcsStart: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
+        logError(printf("pcsStart: execv(" FMT_S_OS ") failed:\n"
+                        "errno=%d\nerror: %s\n",
                         argv[0], errno, strerror(errno)););
-        /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-            EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-        printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
-            EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
+        exit(1);
       } else if (pid == (pid_t) -1) {
-        logError(printf(" *** pcsStart: fork failed:\nerrno=%d\nerror: %s\n",
+        logError(printf("pcsStart: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
         freeArgVector(argv);
         FREE_RECORD(process, unx_processRecord, count.process);
@@ -587,7 +577,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       raise_error(err_info);
       process = NULL;
     } else if (unlikely(access(argv[0], X_OK) != 0)) {
-      logError(printf(" *** pcsStartPipe: No execute permission for " FMT_S_OS "\n", argv[0]););
+      logError(printf("pcsStartPipe: No execute permission for " FMT_S_OS "\n", argv[0]););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
       process = NULL;
@@ -634,14 +624,14 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         close(childStderrPipes[0]);
         close(childStderrPipes[1]);
         execv(argv[0], argv);
-        logError(printf(" *** pcsStartPipe: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
+        logError(printf("pcsStartPipe: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
                         argv[0], errno, strerror(errno)););
         /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
             EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
         printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
             EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
       } else if (pid == (pid_t) -1) {
-        logError(printf(" *** pcsStartPipe: fork failed:\nerrno=%d\nerror: %s\n",
+        logError(printf("pcsStartPipe: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
         close(0); /* Restore the original std fds of parent */
         close(1);
@@ -721,11 +711,9 @@ void pcsWaitFor (const processType process)
     int status;
 
   /* pcsWaitFor */
-#ifdef TRACE_PCS_UNX
-    printf("pcsWaitFor(" FMT_U_MEM ") (pid=%ld)\n",
-           (memSizeType) process,
-           process != NULL ? (long int) to_pid(process) : 0);
-#endif
+    logFunction(printf("pcsWaitFor(" FMT_U_MEM ") (pid=%ld)\n",
+                       (memSizeType) process,
+                       process != NULL ? (long int) to_pid(process) : 0););
     if (!to_isTerminated(process)) {
       status = 0;
       waitpid_result = waitpid(to_pid(process), &status, 0);

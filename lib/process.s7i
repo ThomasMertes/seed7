@@ -194,6 +194,11 @@ const func array string: getSearchPath  is action "CMD_GET_SEARCH_PATH";
 const proc: setSearchPath (in array string: searchPath)  is action "CMD_SET_SEARCH_PATH";
 
 
+(**
+ *  Search for an executable in the directories of the search path.
+ *  @return the absolute path of the executable or "" when
+ *          the executable was not found.
+ *)
 const func string: commandPath (in string: command) is func
   result
     var string: cmdPath is "";
@@ -219,6 +224,11 @@ const func string: commandPath (in string: command) is func
   end func;
 
 
+(**
+ *  Search for the directory of an executable in the search path.
+ *  @return the absolute path of the directory of the executable or
+ *          "" when the executable was not found.
+ *)
 const func string: commandDir (in string: command) is func
   result
     var string: cmdDir is "";

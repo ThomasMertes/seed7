@@ -188,6 +188,7 @@ const func file: openInetSocket (in string: hostName, in integer: portNumber) is
  *  A listener manages accepted sockets (its existing connections).
  *  When closing a socket, that was accepted from a listener,
  *  it is also signed off from the listener.
+ *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: close (inout socket: aSocket) is func
   begin

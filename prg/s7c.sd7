@@ -2428,6 +2428,7 @@ const proc: process_main_declaration (in reference: current_object,
       main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);\n";
     end if;
     main_prolog &:= "setupStack();\n";
+    main_prolog &:= "setupFiles();\n";
     main_prolog &:= "setupRand();\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
@@ -5212,6 +5213,8 @@ const proc: write_prototypes is func
     end if;
     declareExtern("intType     heapsize (void);");
     declareExtern("void        setupStack (void);");
+    declareExtern("void        setupFiles (void);");
+    declareExtern("void        setupRand (void);");
     declareExtern("void        setupFloat (void);");
     writeln(c_prog, "static void        prcNoop (void) {}");
     writeln(c_prog, "static void        init_values (void);");

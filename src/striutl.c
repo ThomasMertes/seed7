@@ -2428,12 +2428,12 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
     for (inPos = 0, outPos = 0; inBuffer[inPos] != '\0'; inPos++, outPos++) {
       switch (inBuffer[inPos]) {
 #ifdef ESCAPE_SHELL_COMMANDS
-        case '\t': case ' ':  case '!':  case '\"': case '$':
-        case '&':  case '\'': case '(':  case ')':  case '*':
-        case ',':  case ':':  case ';':  case '<':  case '=':
-        case '>':  case '?':  case '[':  case '\\': case ']':
-        case '^':  case '`':  case '{':  case '|':  case '}':
-        case '~':
+        case '\t': case ' ':  case '!':  case '\"': case '#':
+        case '$':  case '&':  case '\'': case '(':  case ')':
+        case '*':  case ',':  case ':':  case ';':  case '<':
+        case '=':  case '>':  case '?':  case '[':  case '\\':
+        case ']':  case '^':  case '`':  case '{':  case '|':
+        case '}':  case '~':
           outBuffer[outPos] = '\\';
           outPos++;
           outBuffer[outPos] = inBuffer[inPos];
@@ -2444,7 +2444,7 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
 #else
         case ' ':  case '%':  case '&':  case '\'': case '(':
         case ')':  case ',':  case ';':  case '=':  case '^':
-      case '~':  case (os_charType) 160:
+        case '~':  case (os_charType) 160:
           quote_path = TRUE;
           outBuffer[outPos] = inBuffer[inPos];
           break;
@@ -2495,6 +2495,13 @@ os_striType cp_to_command (const const_striType commandPath,
     os_striType result;
 
   /* cp_to_command */
+#ifdef TRACE_STRIUTL
+    printf("cp_to_command(");
+    prot_stri(commandPath);
+    printf(", ");
+    prot_stri(parameters);
+    printf(", *)\n");
+#endif
 #ifdef EMULATE_ROOT_CWD
     if (stri_charpos(commandPath, '/') != NULL) {
       os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
@@ -2558,7 +2565,9 @@ os_striType cp_to_command (const const_striType commandPath,
       } /* if */
       os_stri_free(os_commandPath);
     } /* if */
-    /* printf("cp_to_command -> %ls\n", result); */
+#ifdef TRACE_STRIUTL
+    printf("cp_to_command -> " FMT_S_OS "\n", result);
+#endif
     return result;
   } /* cp_to_command */
 

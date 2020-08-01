@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -46,6 +49,7 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "hsh_rtl.h"
+#include "soc_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -54,16 +58,20 @@
 
 
 #ifdef USE_WINSOCK
+
 #define DYNAMIC_FD_SET
 #define VERIFY_FD_SETSIZE
 #define SIZEOF_FD_SET(size) \
     (sizeof(fd_set) - FD_SETSIZE * sizeof(SOCKET) + (size) * sizeof(SOCKET))
 #define USED_FD_SET_SIZE(fdset) SIZEOF_FD_SET((fdset)->fd_count)
+
 #else
+
 #define SELECT_WITH_NFDS
 #define VERIFY_MAXIMUM_FD_NUMBER
 #define SIZEOF_FD_SET(size) sizeof(fd_set)
 #define USED_FD_SET_SIZE(fdset) sizeof(fd_set)
+
 #endif
 
 #define USE_PREPARED_FD_SET
@@ -516,17 +524,9 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
       select_result = select(nfds, readFds, writeFds, NULL, timeout);
     } while (unlikely(select_result == -1 && errno == EINTR));
     if (unlikely(select_result < 0)) {
-      /* printf("errno=%d\n", errno);
-      printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-          EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-      printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d  EBADF=%d\n",
-           EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL, EBADF); */
-      /* printf("WSAGetLastError=%d\n", WSAGetLastError());
-      printf("WSANOTINITIALISED=%ld  WSAEFAULT=%ld  WSAENETDOWN=%ld  WSAEINVAL=%ld\n",
-          WSANOTINITIALISED, WSAEFAULT, WSAENETDOWN, WSAEINVAL);
-      printf("WSAEINTR=%ld  WSAEINPROGRESS=%ld  WSAENOTSOCK =%ld\n",
-          WSAEINTR, WSAEINPROGRESS, WSAENOTSOCK); */
-      /* printf("nfds=%d\n", nfds); */
+      logError(printf("doPoll: select(%d, *, *, NULL, " FMT_U_MEM ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      nfds, timeout, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } else {
       var_conv(pollData)->readTest.iterPos = 0;

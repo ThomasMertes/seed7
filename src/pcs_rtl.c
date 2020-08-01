@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -36,8 +39,6 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "pcs_drv.h"
-
-#undef TRACE_PCS_RTL
 
 
 
@@ -59,13 +60,11 @@ intType pcsCmpGeneric (const genericType value1, const genericType value2)
 void pcsCpy (processType *const process_to, const processType process_from)
 
   { /* pcsCpy */
-#ifdef TRACE_PCS_RTL
-    printf("BEGIN pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
-           (memSizeType) *process_to,
-           *process_to != NULL ? (*process_to)->usage_count : (uintType) 0,
-           (memSizeType) process_from,
-           process_from != NULL ? process_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) *process_to,
+                       *process_to != NULL ? (*process_to)->usage_count : (uintType) 0,
+                       (memSizeType) process_from,
+                       process_from != NULL ? process_from->usage_count : (uintType) 0););
     if (process_from != NULL) {
       process_from->usage_count++;
     } /* if */
@@ -76,13 +75,11 @@ void pcsCpy (processType *const process_to, const processType process_from)
       } /* if */
     } /* if */
     *process_to = process_from;
-#ifdef TRACE_PCS_RTL
-    printf("END pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
-           (memSizeType) *process_to,
-           *process_to != NULL ? (*process_to)->usage_count : (uintType) 0,
-           (memSizeType) process_from,
-           process_from != NULL ? process_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) *process_to,
+                       *process_to != NULL ? (*process_to)->usage_count : (uintType) 0,
+                       (memSizeType) process_from,
+                       process_from != NULL ? process_from->usage_count : (uintType) 0););
   } /* pcsCpy */
 
 
@@ -99,19 +96,15 @@ void pcsCpyGeneric (genericType *const dest, const genericType source)
 processType pcsCreate (const processType process_from)
 
   { /* pcsCreate */
-#ifdef TRACE_PCS_RTL
-    printf("BEGIN pcsCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) process_from,
-           process_from != NULL ? process_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("pcsCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) process_from,
+                       process_from != NULL ? process_from->usage_count : (uintType) 0););
     if (process_from != NULL) {
       process_from->usage_count++;
     } /* if */
-#ifdef TRACE_PCS_RTL
-    printf("END pcsCreate ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) process_from,
-           process_from != NULL ? process_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("pcsCreate --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) process_from,
+                       process_from != NULL ? process_from->usage_count : (uintType) 0););
     return process_from;
   } /* pcsCreate */
 
@@ -140,11 +133,9 @@ genericType pcsCreateGeneric (const genericType from_value)
 void pcsDestr (const processType old_process)
 
   { /* pcsDestr */
-#ifdef TRACE_PCS_RTL
-    printf("BEGIN pcsDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) old_process,
-           old_process != NULL ? old_process->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("pcsDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) old_process,
+                       old_process != NULL ? old_process->usage_count : (uintType) 0););
     if (old_process != NULL) {
       old_process->usage_count--;
       if (old_process->usage_count == 0) {

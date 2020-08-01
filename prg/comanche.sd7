@@ -23,48 +23,14 @@
 
 
 $ include "seed7_05.s7i";
+  include "httpserv.s7i";
+  include "x509cert.s7i";
   include "osfiles.s7i";
-  include "duration.s7i";
-  include "socket.s7i";
-  include "listener.s7i";
   include "shell.s7i";
   include "getf.s7i";
-  include "x509cert.s7i";
-  include "tls.s7i";
 
 var string: htdocs is "../htdocs";
 var string: cgi_bin is "../prg";
-var integer: port is 1080;
-var duration: keepAliveTime is 15 . SECONDS;
-
-const type: httpServerConnection is new struct
-    var file: sock is STD_NULL;
-    var time: timeout is time.value;
-    var integer: num is 0;
-  end struct;
-
-const type: httpConnectionHash is hash [file] httpServerConnection;
-
-var httpConnectionHash: httpSessions is httpConnectionHash.value;
-var integer: sessionNum is 0;
-
-
-const func string: rfc1123Date (in time: aTime) is func
-  result
-    var string: dateStri is "";
-  local
-    const array string: wkday is [] ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
-    const array string: month is [] ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
-    var time: timeInUTC is time.value;
-  begin
-    timeInUTC := toUTC(aTime);
-    dateStri := wkday[dayOfWeek(timeInUTC)] <& ", " <&
-                timeInUTC.day lpad0 2 <& " " <&
-                month[timeInUTC.month] <& " " <&
-                timeInUTC.year <& " " <&
-                str_hh_mm_ss(timeInUTC, ":") <& " GMT";
-  end func;
 
 
 const proc: sendHttpResponse (inout file: sock, in string: content,
@@ -197,208 +163,81 @@ const func string: callCgi (in string: filePath, in string: queryParams,
   end func;
 
 
-const proc: processHttpRequest (inout httpServerConnection: http) is func
+const proc: processGet (inout httpRequest: request) is func
   local
-    var string: line is "";
-    var string: requestCommand is "";
-    var string: requestPath is "";
     var string: filePath is "";
-    var string: hostName is "";
-    var integer: questionMarkPos is 0;
-    var string: queryParams is "";
-    var string: postParams is "";
     var string: cookies is "";
     var array string: cgiHeader is 0 times "";
     var string: buffer is "";
     var string: contentType is "";
-    var string: contentLengthStri is "";
-    var integer: contentLength is 0;
-    var boolean: keepAlive is FALSE;
   begin
-    http.timeout := time(NOW) + keepAliveTime;
-    line := getln(http.sock);
-    # writeln(literal(line));
-    while line <> "" do
-      # writeln(line);
-      if startsWith(line, "GET") then
-        requestCommand := "GET";
-        requestPath := trim(line[4 ..]);
-        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
-      elsif startsWith(line, "POST") then
-        requestCommand := "POST";
-        requestPath := trim(line[5 ..]);
-        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
-      elsif startsWith(line, "Host") then
-        hostName := trim(line[succ(pos(line, ":")) ..]);
-      elsif startsWith(line, "Content-Length") then
-        contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
-        block
-          contentLength := integer parse contentLengthStri;
-        exception
-          catch RANGE_ERROR:
-            contentLength := -1;
-        end block;
-      elsif startsWith(line, "Connection") then
-        keepAlive := lower(trim(line[succ(pos(line, ":")) ..])) = "keep-alive";
-      elsif startsWith(line, "Cookie") then
-        cookies := trim(line[succ(pos(line, ":")) ..]);
-      end if;
-      line := getln(http.sock);
-    end while;
-    if requestCommand = "GET" then
-      # writeln("GET " <& requestPath);
-      questionMarkPos := pos(requestPath, '?');
-      if questionMarkPos <> 0 then
-        queryParams := requestPath[succ(questionMarkPos) ..];
-        requestPath := requestPath[.. pred(questionMarkPos)];
-      end if;
-      filePath := replace(requestPath, "\\", "/");
-      if startsWith(filePath, "/cgi-bin/") then
-        buffer := callCgi(filePath, queryParams, "", cookies, cgiHeader);
-        if buffer <> "" then
-          sendHttpResponse(http.sock, buffer, "", cgiHeader);
-        end if;
-      else
-        filePath := toStdPath(htdocs & "/" & filePath);
-        # writeln(literal(filePath));
-        if fileType(filePath) = FILE_ABSENT then
-          if fileType(filePath & ".html") <> FILE_ABSENT then
-            filePath &:= ".html";
-          elsif fileType(filePath & ".htm") <> FILE_ABSENT then
-            filePath &:= ".htm";
-          end if;
-        elsif fileType(filePath) = FILE_DIR then
-          if fileType(filePath & "/index.html") <> FILE_ABSENT then
-            filePath &:= "/index.html";
-          elsif fileType(filePath & "/index.htm") <> FILE_ABSENT then
-            filePath &:= "/index.htm";
-          end if;
-        end if;
-        if fileType(filePath) = FILE_REGULAR then
-          buffer := getf(filePath);
-        else
-          buffer := "";
-        end if;
-        if buffer <> "" then
-          if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
-            contentType := "text/html";
-          end if;
-          sendHttpResponse(http.sock, buffer, contentType, 0 times "");
-        end if;
-      end if;
-      if buffer = "" then
-        sendClientError(http.sock, "404 Not Found",
-            "The requested URL " <& requestPath <&
-            " was not found on this server.");
-      end if;
-    elsif requestCommand = "POST" then
-      # writeln("POST " <& requestPath);
-      questionMarkPos := pos(requestPath, '?');
-      if questionMarkPos <> 0 then
-        queryParams := requestPath[succ(questionMarkPos) ..];
-        requestPath := requestPath[.. pred(questionMarkPos)];
-      end if;
-      # writeln(queryParams);
-      if contentLengthStri <> "" then
-        while contentLength <> 0 do
-          buffer := gets(http.sock, contentLength);
-          contentLength -:= length(buffer);
-          postParams &:= buffer;
-        end while;
-      elsif inputReady(http.sock, 1 . SECONDS) then
-        buffer := gets(http.sock, 10000000);
-        while buffer <> "" do
-          postParams &:= buffer;
-          if inputReady(http.sock, 1 . SECONDS) then
-            buffer := gets(http.sock, 10000000);
-          else
-            buffer := "";
-          end if;
-        end while;
-      end if;
-      buffer := "";
-      # writeln(postParams);
-      filePath := replace(requestPath, "\\", "/");
-      if startsWith(filePath, "/cgi-bin/") then
-        buffer := callCgi(filePath, queryParams, postParams, cookies, cgiHeader);
-      end if;
-      if buffer <> "" then
-        sendHttpResponse(http.sock, buffer, "", cgiHeader);
-      else
-        sendClientError(http.sock, "404 Not Found",
-            "The requested URL " <& requestPath <&
-            " was not found on this server.");
-      end if;
+    # writeln("GET " <& request.path);
+    if "Cookie" in request.properties then
+      cookies := request.properties["Cookie"];
     end if;
-  end func;
-
-
-const proc: openHttpSession (inout file: sock, in boolean: useTls) is func
-  local
-    var file: tlsSock is STD_NULL;
-    var httpServerConnection: http is httpServerConnection.value;
-  begin
-    # writeln("openHttpSession: " <& ord(sock));
-    if useTls then
-      http.sock := openServerTls(sock, stdCertificate);
-      if http.sock = STD_NULL then
-        # writeln(" ***** Cannot open TLS connection.");
-        close(sock);
-        sock := STD_NULL;
+    if startsWith(request.path, "/cgi-bin/") then
+      buffer := callCgi(request.path, request.queryStri, "", cookies, cgiHeader);
+      if buffer <> "" then
+        sendHttpResponse(request.sock, buffer, "", cgiHeader);
       end if;
     else
-      http.sock := sock;
-    end if;
-    if http.sock <> STD_NULL then
-      incr(sessionNum);
-      # writeln("Open session: " <& sessionNum);
-      http.timeout := time(NOW) + keepAliveTime;
-      http.num := sessionNum;
-      httpSessions @:= [sock] http;
-    end if;
-  end func;
-
-
-const proc: closeHttpSession (inout file: sock) is func
-  begin
-    # writeln("closeHttpSession: " <& ord(sock));
-    # writeln("Close session: " <& httpSessions[sock].num);
-    close(httpSessions[sock].sock);
-    excl(httpSessions, sock);
-  end func;
-
-
-const proc: processHttpRequest (inout file: sock, in boolean: useTls) is func
-  begin
-    # writeln("processHttpRequest: " <& ord(sock));
-    if sock not in httpSessions then
-      openHttpSession(sock, useTls);
-    end if;
-    if sock in httpSessions then
-      if eof(sock) then
-        closeHttpSession(sock);
+      filePath := toStdPath(htdocs & "/" & request.path);
+      # writeln(literal(filePath));
+      if fileType(filePath) = FILE_ABSENT then
+        if fileType(filePath & ".html") <> FILE_ABSENT then
+          filePath &:= ".html";
+        elsif fileType(filePath & ".htm") <> FILE_ABSENT then
+          filePath &:= ".htm";
+        end if;
+      elsif fileType(filePath) = FILE_DIR then
+        if fileType(filePath & "/index.html") <> FILE_ABSENT then
+          filePath &:= "/index.html";
+        elsif fileType(filePath & "/index.htm") <> FILE_ABSENT then
+          filePath &:= "/index.htm";
+        end if;
+      end if;
+      if fileType(filePath) = FILE_REGULAR then
+        buffer := getf(filePath);
       else
-        block
-          processHttpRequest(httpSessions[sock]);
-        exception
-          catch FILE_ERROR:
-            noop;
-        end block;
+        buffer := "";
       end if;
+      if buffer <> "" then
+        if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
+          contentType := "text/html";
+        end if;
+        sendHttpResponse(request.sock, buffer, contentType, 0 times "");
+      end if;
+    end if;
+    if buffer = "" then
+      sendClientError(request.sock, "404 Not Found",
+          "The requested URL " <& request.path <&
+          " was not found on this server.");
     end if;
   end func;
 
 
-const proc: cleanSessions is func
+const proc: processPost (inout httpRequest: request) is func
   local
-    var file: sock is STD_NULL;
+    var string: cookies is "";
+    var array string: cgiHeader is 0 times "";
+    var string: buffer is "";
   begin
-    # writeln(length(httpSessions) <& " sessions");
-    for sock range keys(httpSessions) do
-      if sock in httpSessions and time(NOW) > httpSessions[sock].timeout then
-        closeHttpSession(sock);
-      end if;
-    end for;
+    # writeln("POST " <& request.path);
+    # writeln("queryStri: " <& request.queryStri);
+    # writeln("postParams: " <& request.body);
+    if "Cookie" in request.properties then
+      cookies := request.properties["Cookie"];
+    end if;
+    if startsWith(request.path, "/cgi-bin/") then
+      buffer := callCgi(request.path, request.queryStri, request.body, cookies, cgiHeader);
+    end if;
+    if buffer <> "" then
+      sendHttpResponse(request.sock, buffer, "", cgiHeader);
+    else
+      sendClientError(request.sock, "404 Not Found",
+          "The requested URL " <& request.path <&
+          " was not found on this server.");
+    end if;
   end func;
 
 
@@ -411,13 +250,11 @@ const proc: main is func
     var boolean: htdocsAssigned is FALSE;
     var boolean: cgiBinAssigned is FALSE;
     var boolean: okay is TRUE;
-    var listener: inetListener is listener.value;
-    var file: existingConnection is STD_NULL;
-    var file: newConnection is STD_NULL;
-    var file: sock is STD_NULL;
-    var file: tlsSock is STD_NULL;
+    var integer: port is 1080;
+    var httpServer: server is httpServer.value;
+    var httpRequest: request is httpRequest.value;
   begin
-    writeln("Comanche Version 1.1 - Simple webserver for static and cgi pages");
+    writeln("Comanche Version 2.0 - Simple webserver for static and cgi pages");
     writeln("Copyright (C) 2009 - 2015 Thomas Mertes");
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
@@ -475,21 +312,20 @@ const proc: main is func
         writeln("HTML directory: " <& htdocs);
         writeln("CGI directory: " <& cgi_bin);
         writeln("Port: " <& port);
-        inetListener := openInetListener(port);
-        listen(inetListener, 10);
+        server := openHttpServer(port, stdCertificate, useTls);
         writeln("To test comanche make sure that " <&
                 literal(htdocs & "/index.htm") <& " exists and");
         writeln("open http://localhost:" <& port <& "/ in your browser. \
                 \To stop comanche press CTRL-C.");
         while TRUE do
-          waitForRequest(inetListener, existingConnection, newConnection);
-          if existingConnection <> STD_NULL then
-            processHttpRequest(existingConnection, useTls);
+          request := getRequest(server);
+          # writeln(request.method <& " " <& request.path);
+          if request.method = "GET" then
+            processGet(request);
+          elsif request.method = "POST" then
+            processPost(request);
           end if;
-          if newConnection <> STD_NULL then
-            openHttpSession(newConnection, useTls);
-          end if;
-          cleanSessions;
+          # process(request);
         end while;
       end if;
     end if;

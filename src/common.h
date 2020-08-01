@@ -501,6 +501,13 @@ typedef struct freeListElemStruct {
     struct freeListElemStruct *next;
   } *freeListElemType;
 
+#define LIST_BUFFER_SIZE 4096
+
+typedef struct bufferStruct {
+    struct bufferStruct *next;
+    ucharType buffer[LIST_BUFFER_SIZE];
+  } *bufferList;
+
 
 #ifdef USE_BIG_RTL_LIBRARY
 
@@ -552,4 +559,18 @@ typedef mpz_srcptr  const_bigIntType;
 
 
 #endif
+#endif
+
+/* Logging */
+
+#if LOG_FUNCTIONS_EVERYWHERE || (defined LOG_FUNCTIONS && LOG_FUNCTIONS)
+#define logFunction(logStatements) logStatements
+#else
+#define logFunction(logStatements)
+#endif
+
+#if VERBOSE_EXCEPTIONS_EVERYWHERE || (defined VERBOSE_EXCEPTIONS && VERBOSE_EXCEPTIONS)
+#define logError(logStatements) printf(" *** "); logStatements
+#else
+#define logError(logStatements)
 #endif

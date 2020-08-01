@@ -1856,10 +1856,10 @@ const func string: gets (inout tlsFile: inFile, in integer: maxLength) is func
       raise RANGE_ERROR;
     else
       # writeln("gets(, " <& maxLength <& ") actual length: " <& length(inFile.readBuffer));
-      while length(inFile.readBuffer) < maxLength and not eof(inFile.sock) do
-        inFile.readBuffer &:= getApplicationData(inFile);
+      if inFile.readBuffer = "" and not eof(inFile.sock) then
+        inFile.readBuffer := getApplicationData(inFile);
         # writeln("gets(, " <& maxLength <& ") actual length: " <& length(inFile.readBuffer));
-      end while;
+      end if;
       if length(inFile.readBuffer) > maxLength then
         striRead := inFile.readBuffer[.. maxLength];
         inFile.readBuffer := inFile.readBuffer[succ(maxLength) ..];

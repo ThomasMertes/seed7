@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #define _XOPEN_SOURCE
@@ -57,18 +60,9 @@
 #define EXTERN
 #include "cmd_drv.h"
 
-#undef TRACE_CMD_UNX
-#undef VERBOSE_EXCEPTIONS
-
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
-#endif
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) logStatements
-#else
-#define logError(logStatements)
 #endif
 
 
@@ -99,7 +93,7 @@ striType getExecutablePath (const const_striType arg_0)
       buffer[readlink_result] = '\0';
       result = cp_from_os_path(buffer, &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        logError(printf(" *** getExecutablePath: cp_from_os_path failed.\n"););
+        logError(printf("getExecutablePath: cp_from_os_path failed.\n"););
         raise_error(err_info);
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
       } else {

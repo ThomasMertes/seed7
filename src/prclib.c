@@ -180,6 +180,8 @@ objectType prc_block_catch_all (listType arguments)
       default_statement = arg_6(arguments);
       set_fail_flag(FALSE);
       fail_value = NULL;
+      free_list(fail_stack);
+      fail_stack = NULL;
       evaluate(default_statement);
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -211,6 +213,8 @@ objectType prc_block_otherwise (listType arguments)
           catch_statement = arg_5(current_catch->value.listValue);
           set_fail_flag(FALSE);
           fail_value = NULL;
+          free_list(fail_stack);
+          fail_stack = NULL;
           evaluate(catch_statement);
           searching = FALSE;
         } else {
@@ -225,6 +229,8 @@ objectType prc_block_otherwise (listType arguments)
         otherwise_statement = arg_7(arguments);
         set_fail_flag(FALSE);
         fail_value = NULL;
+        free_list(fail_stack);
+        fail_stack = NULL;
         evaluate(otherwise_statement);
       } /* if */
     } /* if */

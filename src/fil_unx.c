@@ -168,3 +168,10 @@ boolType filInputReady (fileType aFile)
     return result;
   } /* filInputReady */
 #endif
+
+
+
+void setupFiles (void)
+
+  { /* setupFiles */
+  } /* setupFiles */

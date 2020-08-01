@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #ifdef POSTGRESQL_INCLUDE
@@ -62,8 +65,6 @@
 #include "rtl_err.h"
 #include "dll_drv.h"
 #include "sql_drv.h"
-
-#undef VERBOSE_EXCEPTIONS
 
 
 #define DECSIZE 30
@@ -127,12 +128,6 @@ static sqlFuncType sqlFunc = NULL;
 /* Seconds between 1970-01-01 and 2000-01-01 */
 #define SECONDS_1970_2000 INT64_SUFFIX(946684800)
 
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) printf(" *** "); logStatements
-#else
-#define logError(logStatements)
-#endif
 
 
 #ifdef POSTGRESQL_DLL
@@ -278,12 +273,12 @@ static boolType findDll (void)
     boolType found = FALSE;
 
   /* findDll */
-    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos++) {
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
       logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
                  printf("%s\n", dllList[pos]);
                });
     } /* if */

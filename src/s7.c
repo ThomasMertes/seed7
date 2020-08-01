@@ -58,6 +58,7 @@
 #include "arr_rtl.h"
 #include "cmd_rtl.h"
 #include "con_drv.h"
+#include "fil_drv.h"
 
 #ifdef USE_WINMAIN
 typedef struct {
@@ -382,6 +383,7 @@ int main (int argc, char **argv)
         } else if (option.write_help) {
           writeHelp();
         } else {
+          setupFiles();
           setupRand();
           setupFloat();
           /* printf("source_file_argument: \"");

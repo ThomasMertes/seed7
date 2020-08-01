@@ -89,6 +89,7 @@ toutf8.sd7   Convert a file to UTF-8
 tst_cli.sd7  Test client to demonstrate a socket client
 tst_srv.sd7  Test server to demonstrate a socket server
 wator.sd7    Planet Wator simulation with fish and sharks
+which.sd7    Locate in which directory a command is found.
 wiz.sd7      Find treasures and fight monsters labyrinth game
 wordcnt.sd7  Count the words in a file
 wrinum.sd7   Write numbers as english text
@@ -158,6 +159,7 @@ hashsetof.s7i Support for hashsets of a base type
 hmac.s7i     Hash-based message authentication code functions.
 html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
+httpserv.s7i Support for HTTP server and HTTP requests.
 idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window
 inflate.s7i  Inflate uncompression algorithm

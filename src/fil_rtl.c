@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -56,8 +59,6 @@
 #define EXTERN
 #include "fil_rtl.h"
 
-#undef VERBOSE_EXCEPTIONS
-
 
 #ifdef C_PLUS_PLUS
 #define C "C"
@@ -81,15 +82,8 @@ long_jump_position intr_jump_pos;
 
 #define BUFFER_SIZE             4096
 #define GETS_DEFAULT_SIZE    1048576
-#define GETS_STRI_SIZE_DELTA    4096
 #define READ_STRI_INIT_SIZE      256
 #define READ_STRI_SIZE_DELTA    2048
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) logStatements
-#else
-#define logError(logStatements)
-#endif
 
 
 
@@ -463,9 +457,9 @@ intType getFileLengthUsingSeek (fileType aFile)
   /* getFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
     if (unlikely(file_length < (os_off_t) 0)) {
-      logError(printf(" *** getFileLengthUsingSeek: seekFileLength(" FMT_U_MEM ") failed:\n"
+      logError(printf("getFileLengthUsingSeek: seekFileLength(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      (memSizeType) aFile, errno, strerror(errno)););
+                      fileno(aFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
       result = 0;
     } else if (unlikely(file_length > INTTYPE_MAX)) {
@@ -488,9 +482,9 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
   /* getBigFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
     if (unlikely(file_length < (os_off_t) 0)) {
-      logError(printf(" *** getBigFileLengthUsingSeek: seekFileLength(" FMT_U_MEM ") failed:\n"
+      logError(printf("getBigFileLengthUsingSeek: seekFileLength(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      (memSizeType) aFile, errno, strerror(errno)););
+                      fileno(aFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
@@ -519,26 +513,24 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
     stri_pos = 0;
     while (stri->size - stri_pos >= BUFFER_SIZE && bytes_in_buffer > 0 &&
         *err_info == OKAY_NO_ERROR) {
-      /* printf("read_size=%ld\n", BUFFER_SIZE); */
       bytes_in_buffer = (memSizeType) fread(buffer, 1, BUFFER_SIZE, inFile);
-      if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
+      if (unlikely(bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile))) {
+        logError(printf("read_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        (memSizeType) BUFFER_SIZE, fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
-        /* printf("#A# bytes_in_buffer=%d stri_pos=%d\n",
-            bytes_in_buffer, stri_pos); */
         memcpy_to_strelem(&stri->mem[stri_pos], buffer, bytes_in_buffer);
         stri_pos += bytes_in_buffer;
       } /* if */
     } /* while */
     if (stri->size > stri_pos && bytes_in_buffer > 0 &&
         *err_info == OKAY_NO_ERROR) {
-      /* printf("read_size=%ld\n", stri->size - stri_pos); */
       bytes_in_buffer = (memSizeType) fread(buffer, 1, stri->size - stri_pos, inFile);
-      if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
+      if (unlikely(bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile))) {
+        logError(printf("read_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        stri->size - stri_pos, fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
-        /* printf("#B# bytes_in_buffer=%d stri_pos=%d\n",
-            bytes_in_buffer, stri_pos); */
         memcpy_to_strelem(&stri->mem[stri_pos], buffer, bytes_in_buffer);
         stri_pos += bytes_in_buffer;
       } /* if */
@@ -549,79 +541,93 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
 
 
 
+/**
+ *  Read a string, when we do not know how many bytes are avaliable.
+ *  This function reads the data is read into a list of buffers,
+ *  until enough characters are read or EOF has been reached.
+ *  Afterwards the string is allocated, the data is copied from the
+ *  buffers and the list of buffers is freed.
+ */
 static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
     memSizeType *num_of_chars_read, errInfoType *err_info)
 
   {
-    ucharType buffer[BUFFER_SIZE];
-    memSizeType bytes_in_buffer = 1;
+    struct bufferStruct buffer;
+    bufferList currBuffer = &buffer;
+    bufferList oldBuffer;
+    memSizeType bytes_in_buffer = LIST_BUFFER_SIZE;
     memSizeType result_pos;
-    memSizeType new_size;
-    striType resized_result;
+    memSizeType result_size = 0;
     striType result;
 
   /* read_and_alloc_stri */
-    /* printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *, *)\n", fileno(inFile), chars_missing); */
-    if (!ALLOC_STRI_SIZE_OK(result, GETS_STRI_SIZE_DELTA)) {
-      *err_info = MEMORY_ERROR;
-      result = NULL;
-    } else {
-      result->size = GETS_STRI_SIZE_DELTA;
-      /* printf("chars_missing=" FMT_U_MEM "\n", chars_missing); */
-      result_pos = 0;
-      while (chars_missing - result_pos >= BUFFER_SIZE && bytes_in_buffer > 0 &&
-          *err_info == OKAY_NO_ERROR) {
-        /* printf("read_size=%ld\n", BUFFER_SIZE); */
-        bytes_in_buffer = (memSizeType) fread(buffer, 1, BUFFER_SIZE, inFile);
-        if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
-          *err_info = FILE_ERROR;
-        } else {
-          /* printf("#A# bytes_in_buffer=%d result_pos=%d\n",
-              bytes_in_buffer, result_pos); */
-          if (result_pos + bytes_in_buffer > result->size) {
-            new_size = result->size + GETS_STRI_SIZE_DELTA;
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, result->size, new_size);
-            if (resized_result == NULL) {
-              *err_info = MEMORY_ERROR;
-              return result;
-            } else {
-              result = resized_result;
-              COUNT3_STRI(result->size, new_size);
-              result->size = new_size;
-            } /* if */
+    logFunction(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *, *)\n",
+                       fileno(inFile), chars_missing););
+    buffer.next = NULL;
+    while (chars_missing - result_size >= LIST_BUFFER_SIZE &&
+           bytes_in_buffer == LIST_BUFFER_SIZE &&
+           *err_info == OKAY_NO_ERROR) {
+      bytes_in_buffer = (memSizeType) fread(currBuffer->buffer, 1, LIST_BUFFER_SIZE, inFile);
+      /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      if (unlikely(bytes_in_buffer == 0 && result_size == 0 && ferror(inFile))) {
+        logError(printf("read_and_alloc_stri: "
+                        "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        (memSizeType) LIST_BUFFER_SIZE, fileno(inFile)););
+        *err_info = FILE_ERROR;
+        result = NULL;
+      } else {
+        result_size += bytes_in_buffer;
+        if (chars_missing > result_size && bytes_in_buffer == LIST_BUFFER_SIZE) {
+          currBuffer->next = (bufferList) malloc(sizeof(struct bufferStruct));
+          if (unlikely(currBuffer->next == NULL)) {
+            *err_info = MEMORY_ERROR;
+            result = NULL;
+          } else {
+            currBuffer = currBuffer->next;
+            currBuffer->next = NULL;
           } /* if */
-          memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_in_buffer);
-          result_pos += bytes_in_buffer;
-        } /* if */
-      } /* while */
-      if (chars_missing > result_pos && bytes_in_buffer > 0 &&
-          *err_info == OKAY_NO_ERROR) {
-        /* printf("read_size=%ld\n", chars_missing - result_pos); */
-        bytes_in_buffer = (memSizeType) fread(buffer, 1, chars_missing - result_pos, inFile);
-        if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
-          *err_info = FILE_ERROR;
-        } else {
-          /* printf("#B# bytes_in_buffer=%d result_pos=%d\n",
-              bytes_in_buffer, result_pos); */
-          if (result_pos + bytes_in_buffer > result->size) {
-            new_size = result->size + GETS_STRI_SIZE_DELTA;
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, result->size, new_size);
-            if (resized_result == NULL) {
-              *err_info = MEMORY_ERROR;
-              return result;
-            } else {
-              result = resized_result;
-              COUNT3_STRI(result->size, new_size);
-              result->size = new_size;
-            } /* if */
-          } /* if */
-          memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_in_buffer);
-          result_pos += bytes_in_buffer;
         } /* if */
       } /* if */
-      /* printf("result_pos=" FMT_U_MEM "\n", result_pos); */
-      *num_of_chars_read = result_pos;
+    } /* while */
+    if (chars_missing > result_size &&
+        bytes_in_buffer == LIST_BUFFER_SIZE &&
+        *err_info == OKAY_NO_ERROR) {
+      bytes_in_buffer = (memSizeType) fread(currBuffer->buffer, 1, chars_missing - result_size, inFile);
+      /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      if (unlikely(bytes_in_buffer == 0 && result_size == 0 && ferror(inFile))) {
+        logError(printf("read_and_alloc_stri: "
+                        "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        chars_missing - result_size, fileno(inFile)););
+        *err_info = FILE_ERROR;
+        result = NULL;
+      } else {
+        result_size += bytes_in_buffer;
+      } /* if */
     } /* if */
+    if (likely(*err_info == OKAY_NO_ERROR)) {
+      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        result->size = result_size;
+        currBuffer = &buffer;
+        result_pos = 0;
+        while (result_size - result_pos >= LIST_BUFFER_SIZE) {
+          memcpy_to_strelem(&result->mem[result_pos], currBuffer->buffer, LIST_BUFFER_SIZE);
+          currBuffer = currBuffer->next;
+          result_pos += LIST_BUFFER_SIZE;
+        } /* while */
+        memcpy_to_strelem(&result->mem[result_pos], currBuffer->buffer, result_size - result_pos);
+        *num_of_chars_read = result_size;
+      } /* if */
+    } /* if */
+    currBuffer = buffer.next;
+    while (currBuffer != NULL) {
+      oldBuffer = currBuffer;
+      currBuffer = currBuffer->next;
+      free(oldBuffer);
+    } /* while */
+    logFunction(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
+                       fileno(inFile), chars_missing, *num_of_chars_read, *err_info););
     return result;
   } /* read_and_alloc_stri */
 
@@ -659,6 +665,10 @@ static int readChar (fileType inFile, boolType *sigintReceived)
     old_handler = signal(SIGINT, handle_int_signal);
     if (unlikely(old_handler == SIG_ERR)) {
 #endif
+      logError(printf("readChar(%d, *): "
+                      "signal(SIGINT, handle_int_signal) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      fileno(inFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } else {
       if (do_setjmp(intr_jump_pos) == 0) {
@@ -671,6 +681,10 @@ static int readChar (fileType inFile, boolType *sigintReceived)
 #else
       if (unlikely(signal(SIGINT, old_handler) == SIG_ERR)) {
 #endif
+        logError(printf("readChar(%d, *): "
+                        "signal(SIGINT, old_handler) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        fileno(inFile), errno, strerror(errno)););
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
@@ -726,20 +740,25 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
     striType result;
 
   /* doGetsFromTerminal */
-    ch = getc(inFile);
-    if (feof(inFile)) {
-      clearerr(inFile);
-      fflush(inFile);
-      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = 0;
-      } /* if */
+    if (unlikely(length < 0)) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-      if (ch != EOF) {
-        ungetc(ch, inFile);
+      ch = getc(inFile);
+      if (feof(inFile)) {
+        clearerr(inFile);
+        fflush(inFile);
+        if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 0;
+        } /* if */
+      } else {
+        if (ch != EOF) {
+          ungetc(ch, inFile);
+        } /* if */
+        result = filGets(inFile, length);
       } /* if */
-      result = filGets(inFile, length);
     } /* if */
     return result;
   } /* doGetsFromTerminal */
@@ -756,19 +775,24 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
     striType result;
 
   /* doGetsFromTerminal */
-    ch = readChar(inFile, &sigintReceived);
-    if (unlikely(sigintReceived)) {
-      raise(SIGINT);
-      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = 0;
-      } /* if */
+    if (unlikely(length < 0)) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-      if (ch != EOF) {
-        ungetc(ch, inFile);
+      ch = readChar(inFile, &sigintReceived);
+      if (unlikely(sigintReceived)) {
+        raise(SIGINT);
+        if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 0;
+        } /* if */
+      } else {
+        if (ch != EOF) {
+          ungetc(ch, inFile);
+        } /* if */
+        result = filGets(inFile, length);
       } /* if */
-      result = filGets(inFile, length);
     } /* if */
     return result;
   } /* doGetsFromTerminal */
@@ -815,6 +839,9 @@ static striType doLineRead (fileType inFile, register int ch, charType *terminat
       } /* if */
       if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
         FREE_STRI(result, memlength);
+        logError(printf("doLineRead(%d, '\\" FMT_U32 ";', *): "
+                        "Reading after EOF has been reached.\n",
+                        fileno(inFile), ch););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -931,6 +958,9 @@ static striType doWordRead (fileType inFile, register int ch, charType *terminat
       } /* if */
       if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
         FREE_STRI(result, memlength);
+        logError(printf("doWordRead(%d, '\\" FMT_U32 ";', *): "
+                        "Reading after EOF has been reached.\n",
+                        fileno(inFile), ch););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1024,6 +1054,9 @@ bigIntType filBigLng (fileType aFile)
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
       if (unlikely(stat_buf.st_size < 0)) {
+        logError(printf("filBigLng(%d, *): "
+                        "fstat() returns file size less than zero: " FMT_D64 ".\n",
+                        fileno(aFile), (int64Type) stat_buf.st_size););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1068,6 +1101,10 @@ void filBigSeek (fileType aFile, const const_bigIntType position)
     if (unlikely(file_position <= 0)) {
       raise_error(RANGE_ERROR);
     } else if (unlikely(offsetSeek(aFile, file_position - 1, SEEK_SET) != 0)) {
+      logError(printf("filBigSeek(%d, %s): "
+                      "offsetSeek(%d, " FMT_D64 ", SEEK_SET) failed.\n",
+                      fileno(aFile), bigHexCStri(position),
+                      fileno(aFile), (int64Type) (file_position - 1)););
       raise_error(FILE_ERROR);
     } /* if */
   } /* filBigSeek */
@@ -1092,6 +1129,10 @@ bigIntType filBigTell (fileType aFile)
   /* filBigTell */
     current_file_position = offsetTell(aFile);
     if (unlikely(current_file_position < (os_off_t) 0)) {
+      logError(printf("filBigTell(%d): offsetTell(%d) "
+                      "returns negative offset: " FMT_D64 ".\n",
+                      fileno(aFile), fileno(aFile),
+                      (int64Type) current_file_position););
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
@@ -1116,9 +1157,9 @@ void filClose (fileType aFile)
 
   { /* filClose */
     if (unlikely(fclose(aFile) != 0)) {
-      logError(printf(" *** filClose: fclose(" FMT_U_MEM ") failed:\n"
+      logError(printf("filClose: fclose(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      (memSizeType) aFile, errno, strerror(errno)););
+                      fileno(aFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
   } /* filClose */
@@ -1208,14 +1249,16 @@ striType filGets (fileType inFile, intType length)
     memSizeType chars_requested;
     memSizeType bytes_there;
     memSizeType allocated_size;
-    errInfoType err_info = OKAY_NO_ERROR;
     memSizeType num_of_chars_read;
+    errInfoType err_info = OKAY_NO_ERROR;
     striType resized_result;
     striType result;
 
   /* filGets */
-    /* printf("filGets(%d, " FMT_D ")\n", fileno(inFile), length); */
+    logFunction(printf("filGets(%d, " FMT_D ")\n", fileno(inFile), length););
     if (unlikely(length < 0)) {
+      logError(printf("filGets(%d, " FMT_D "): Negative length.\n",
+                      fileno(inFile), length););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1260,8 +1303,9 @@ striType filGets (fileType inFile, intType length)
               (size_t) allocated_size, inFile);
           /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
           if (num_of_chars_read == 0 && ferror(inFile)) {
-            /* printf("errno=%d\nerror: %s\n", errno, strerror(errno));
-            printf("inFile=%lx\n", (long int) inFile); */
+            logError(printf("filGets: "
+                            "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                            allocated_size, fileno(inFile)););
             err_info = FILE_ERROR;
           } else {
             memcpy_to_strelem(result->mem, (ucharType *) result->mem, num_of_chars_read);
@@ -1270,9 +1314,7 @@ striType filGets (fileType inFile, intType length)
           num_of_chars_read = read_string(inFile, result, &err_info);
         } /* if */
       } else {
-        /* We do not know how many bytes are avaliable therefore
-           result is resized with GETS_STRI_SIZE_DELTA until we
-           have read enough or we reach EOF */
+        /* Read a string, when we do not know how many bytes are avaliable. */
         result = read_and_alloc_stri(inFile, chars_requested, &num_of_chars_read, &err_info);
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -1294,9 +1336,8 @@ striType filGets (fileType inFile, intType length)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("filGets(%d, " FMT_D ") ==> ", fileno(inFile), length);
-       prot_stri(result);
-       printf("\n"); */
+    logFunction(printf("filGets(%d, " FMT_D ") --> \"%s\"",
+                       fileno(inFile), length, striAsUnquotedCStri(result)););
     return result;
   } /* filGets */
 
@@ -1309,16 +1350,16 @@ striType filGetsChkCtrlC (fileType inFile, intType length)
     striType result;
 
   /* filGetsChkCtrlC */
-    /* printf("filGetsChkCtrlC(%d, " FMT_D ")\n", fileno(inFile), length); */
+    logFunction(printf("filGetsChkCtrlC(%d, " FMT_D ")\n",
+                       fileno(inFile), length););
     file_no = fileno(inFile);
     if (file_no != -1 && isatty(file_no)) {
       result = doGetsFromTerminal(inFile, length);
     } else {
       result = filGets(inFile, length);
     } /* if */
-    /* printf("filGetsChkCtrlC(%d, " FMT_D ") ==> ", fileno(inFile), length);
-       prot_stri(result);
-       printf("\n"); */
+    logFunction(printf("filGetsChkCtrlC(%d, " FMT_D ") --> %s\n",
+                       fileno(inFile), length, striAsUnquotedCStri(result)););
     return result;
   } /* filGetsChkCtrlC */
 
@@ -1342,6 +1383,9 @@ boolType filHasNext (fileType inFile)
       next_char = getc(inFile);
       if (next_char != EOF) {
         if (unlikely(ungetc(next_char, inFile) != next_char)) {
+          logError(printf("filHasNext: ungetc('\\" FMT_U32 ";', %d) "
+                          "does not return '\\" FMT_U32 ";'.\n",
+                          next_char, fileno(inFile), next_char););
           raise_error(FILE_ERROR);
           result = FALSE;
         } else {
@@ -1376,6 +1420,10 @@ boolType filHasNextChkCtrlC (fileType inFile)
       } /* if */
       if (next_char != EOF) {
         if (unlikely(ungetc(next_char, inFile) != next_char)) {
+          logError(printf("filHasNextChkCtrlC: "
+                          "ungetc('\\" FMT_U32 ";', %d) "
+                          "does not return '\\" FMT_U32 ";'.\n",
+                          next_char, fileno(inFile), next_char););
           raise_error(FILE_ERROR);
           result = FALSE;
         } else {
@@ -1479,6 +1527,9 @@ intType filLng (fileType aFile)
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
       if (unlikely(stat_buf.st_size < 0)) {
+        logError(printf("filLng(%d, *): "
+                        "fstat() returns File size less than zero: " FMT_D64 ".\n",
+                        fileno(aFile), (int64Type) stat_buf.st_size););
         raise_error(FILE_ERROR);
         result = 0;
       } else if (unlikely(stat_buf.st_size > INTTYPE_MAX)) {
@@ -1542,9 +1593,12 @@ fileType filOpen (const const_striType path, const const_striType mode)
     fileType result;
 
   /* filOpen */
-    /* printf("BEGIN filOpen(%lX, %lX)\n", path, mode); */
+    logFunction(printf("filOpen(%s, ", striAsUnquotedCStri(path));
+                printf(", %s)\n", striAsUnquotedCStri(mode)););
     get_mode(os_mode, mode);
     if (unlikely(os_mode[0] == '\0')) {
+      logError(printf("filOpen: Illegal mode: \"%s\".\n",
+                      striAsUnquotedCStri(mode)););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1587,7 +1641,9 @@ fileType filOpen (const const_striType path, const const_striType mode)
 #endif
       } /* if */
     } /* if */
-    /* printf("END filOpen(%lX, %lX) => %lX\n", path, mode, result); */
+    logFunction(printf("filOpen(%s, ", striAsUnquotedCStri(path));
+                printf(", %s) --> %d\n",
+                       striAsUnquotedCStri(mode), fileno(result)););
     return result;
   } /* filOpen */
 
@@ -1598,6 +1654,9 @@ void filPclose (fileType aFile)
   { /* filPclose */
 #ifndef POPEN_MISSING
     if (unlikely(os_pclose(aFile) == -1)) {
+      logError(printf("filPclose: pclose(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      fileno(aFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
 #endif
@@ -1619,7 +1678,9 @@ void filPclose (fileType aFile)
  *         use the standard path representation.
  *  @param parameters Space separated list of parameters for
  *         the 'command', or "" when there are no parameters.
- *  @param mode A pipe can only be opened with "r" (read) or "w" (write).
+ *  @param mode A pipe can be opened with the binary modes
+ *         "r" (read) and "w" (write) or with the text modes
+ *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  */
@@ -1638,23 +1699,40 @@ fileType filPopen (const const_striType command,
       raise_error(err_info);
       result = NULL;
     } else {
-      os_mode[0] = '\0';
       if (mode->size == 1 &&
           (mode->mem[0] == 'r' ||
            mode->mem[0] == 'w')) {
         os_mode[0] = (os_charType) mode->mem[0];
+#ifdef POPEN_SUPPORTS_BINARY_MODE
+        os_mode[1] = 'b';
+        os_mode[2] = '\0';
+#else
         os_mode[1] = '\0';
+#endif
+      } else if (mode->size == 2 &&
+          (mode->mem[0] == 'r' ||
+           mode->mem[0] == 'w') &&
+           mode->mem[1] == 't') {
+        os_mode[0] = (os_charType) mode->mem[0];
+#ifdef POPEN_SUPPORTS_TEXT_MODE
+        os_mode[1] = 't';
+        os_mode[2] = '\0';
+#else
+        os_mode[1] = '\0';
+#endif
+      } else {
+        os_mode[0] = '\0';
       } /* if */
-      /* The mode "rb" is not allowed under Unix/Linux */
-      /* therefore get_mode(os_mode, mode); cannot be called */
       if (unlikely(os_mode[0] == '\0')) {
+        logError(printf("filPopen: Illegal mode: \"%s\".\n",
+                        striAsUnquotedCStri(mode)););
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
 #ifdef POPEN_MISSING
         result = NULL;
 #else
-        /* printf("os_command: \"" FMT_S_OS "\"\n", os_command); */
+        /* printf("popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n", os_command, os_mode); */
         result = os_popen(os_command, os_mode);
 #endif
       } /* if */
@@ -1707,6 +1785,10 @@ void filSeek (fileType aFile, intType position)
     } else {
       file_position = (os_off_t) position;
       if (unlikely(offsetSeek(aFile, file_position - 1, SEEK_SET) != 0)) {
+      logError(printf("filSeek(%d, " FMT_D "): "
+                      "offsetSeek(%d, " FMT_D64 ", SEEK_SET) failed.\n",
+                      fileno(aFile), position,
+                      fileno(aFile), (int64Type) (file_position - 1)););
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
@@ -1720,6 +1802,9 @@ void filSetbuf (fileType aFile, intType mode, intType size)
     if (unlikely(mode < 0 || mode > 2 || size < 0 || (uintType) size > MAX_MEMSIZETYPE)) {
       raise_error(RANGE_ERROR);
     } else if (unlikely(setvbuf(aFile, NULL, (int) mode, (memSizeType) size) != 0)) {
+      logError(printf("filSetbuf: "
+                      "setvbuf(%d, NULL, %d, " FMT_U_MEM ") failed.\n",
+                      fileno(aFile), (int) mode, (memSizeType) size););
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSetbuf */
@@ -1745,6 +1830,10 @@ intType filTell (fileType aFile)
   /* filTell */
     current_file_position = offsetTell(aFile);
     if (unlikely(current_file_position < (os_off_t) 0)) {
+      logError(printf("filTell(%d): "
+                      "offsetTell(%d) returns negative offset: " FMT_D64 ".\n",
+                      fileno(aFile), fileno(aFile),
+                      (int64Type) current_file_position););
       raise_error(FILE_ERROR);
       result = 0;
     } else if (unlikely(current_file_position >= INTTYPE_MAX)) {
@@ -1814,11 +1903,12 @@ void filWrite (fileType outFile, const const_striType stri)
     ucharType buffer[BUFFER_SIZE];
 
   /* filWrite */
-    /* printf("filWrite(%d, ", fileno(outFile));
-       prot_stri(stri);
-       printf(")\n"); */
+    logFunction(printf("filWrite(%d, \"%s\")\n",
+                       fileno(outFile), striAsUnquotedCStri(stri)););
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
     if (unlikely(stri->size > 0 && (outFile->flags & _F_WRIT) == 0)) {
+      logError(printf("filWrite: Attempt to write to read only file: %d.\n",
+                      fileno(outFile)););
       raise_error(FILE_ERROR);
       return;
     } /* if */
@@ -1830,7 +1920,9 @@ void filWrite (fileType outFile, const const_striType stri)
         return;
       } /* if */
       str = &str[BUFFER_SIZE];
-      if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(ucharType), BUFFER_SIZE, outFile))) {
+      if (unlikely(BUFFER_SIZE != fwrite(buffer, 1, BUFFER_SIZE, outFile))) {
+        logError(printf("filWrite: fwrite(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        (memSizeType) BUFFER_SIZE, fileno(outFile)););
         raise_error(FILE_ERROR);
         return;
       } /* if */
@@ -1840,7 +1932,9 @@ void filWrite (fileType outFile, const const_striType stri)
         raise_error(RANGE_ERROR);
         return;
       } /* if */
-      if (unlikely(len != fwrite(buffer, sizeof(ucharType), len, outFile))) {
+      if (unlikely(len != fwrite(buffer, 1, len, outFile))) {
+        logError(printf("filWrite: fwrite(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        len, fileno(outFile)););
         raise_error(FILE_ERROR);
         return;
       } /* if */

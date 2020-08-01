@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -42,9 +45,6 @@
 #include "striutl.h"
 #include "int_rtl.h"
 #include "rtl_err.h"
-
-#undef TRACE_PCS_WIN
-#undef VERBOSE_EXCEPTIONS
 
 
 #define MAXIMUM_COMMAND_LINE_LENGTH 32768
@@ -84,12 +84,6 @@ size_t sizeof_processRecord = sizeof(win_processRecord);
 typedef int32Type intPtrType;
 #elif POINTER_SIZE == 64
 typedef int64Type intPtrType;
-#endif
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) logStatements
-#else
-#define logError(logStatements)
 #endif
 
 
@@ -277,12 +271,10 @@ intType pcsExitValue (const const_processType process)
 void pcsFree (processType old_process)
 
   { /* pcsFree */
-#ifdef TRACE_PCS_WIN
-    printf("pcsFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) old_process,
-           old_process != NULL ? old_process->usage_count : (uintType) 0);
-    printf("PID=%lu\n", (long unsigned) to_pid(old_process));
-#endif
+    logFunction(printf("pcsFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) old_process,
+                       old_process != NULL ? old_process->usage_count : (uintType) 0);
+                printf("PID=%lu\n", (long unsigned) to_pid(old_process)););
     CloseHandle(to_hProcess(old_process));
     CloseHandle(to_hThread(old_process));
     FREE_RECORD(old_process, win_processRecord, count.process);
@@ -322,6 +314,9 @@ boolType pcsIsAlive (const processType process)
     boolType isAlive;
 
   /* pcsIsAlive */
+    logFunction(printf("pcsIsAlive(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
+                       (memSizeType) process,
+                       process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
     if (to_isTerminated(process)) {
       isAlive = FALSE;
     } else {
@@ -338,7 +333,7 @@ boolType pcsIsAlive (const processType process)
           to_var_exitValue(process) = exitCode;
         } /* if */
       } else {
-        logError(printf(" *** pcsIsAlive: GetExitCodeProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
+        logError(printf("pcsIsAlive: GetExitCodeProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
                         (memSizeType) to_hProcess(process), GetLastError());
                  printf("PID=%lu\n", (long unsigned) to_pid(process)););
         raise_error(FILE_ERROR);
@@ -357,16 +352,14 @@ boolType pcsIsAlive (const processType process)
 void pcsKill (const processType process)
 
   { /* pcsKill */
-#ifdef TRACE_PCS_WIN
-    printf("pcsKill(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
-           (memSizeType) process,
-           process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0);
-#endif
+    logFunction(printf("pcsKill(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
+                       (memSizeType) process,
+                       process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
     if (process == NULL) {
-      logError(printf(" *** pcsKill: process == NULL\n"););
+      logError(printf("pcsKill: process == NULL\n"););
       raise_error(FILE_ERROR);
     } else if (TerminateProcess(to_hProcess(process), 0) == 0) {
-      logError(printf(" *** pcsKill: TerminateProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
+      logError(printf("pcsKill: TerminateProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
                       (memSizeType) to_hProcess(process), GetLastError());
                printf("PID=%lu\n", (long unsigned) to_pid(process)););
       raise_error(FILE_ERROR);
@@ -445,7 +438,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
             CloseHandle(processInformation.hProcess);
             CloseHandle(processInformation.hThread);
           } else {
-            logError(printf(" *** pcsPipe2: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\nGetLastError=%d\n",
+            logError(printf("pcsPipe2: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\nGetLastError=%d\n",
                             os_command_stri, command_line, GetLastError());
                      printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND););
             err_info = FILE_ERROR;
@@ -519,7 +512,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
             process->pid      = processInformation.dwProcessId;
             process->isTerminated = FALSE;
           } else {
-            logError(printf(" *** pcsStart: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\n",
+            logError(printf("pcsStart: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\n",
                             os_command_stri, command_line);
                      printf("GetLastError=%d\n", GetLastError());
                      printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND););
@@ -625,7 +618,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               process->stdOut = fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
               process->stdErr = fdopen(_open_osfhandle((intPtrType) (childErrorRead), _O_TEXT), "r");
             } else {
-              logError(printf(" *** pcsStartPipe: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\nGetLastError=%d\n",
+              logError(printf("pcsStartPipe: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\nGetLastError=%d\n",
                               os_command_stri, command_line, GetLastError());
                        printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND););
               FREE_RECORD(process, win_processRecord, count.process);
@@ -687,13 +680,16 @@ void pcsWaitFor (const processType process)
     DWORD exitCode = 0;
 
   /* pcsWaitFor */
+    logFunction(printf("pcsWaitFor(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
+                       (memSizeType) process,
+                       process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
     if (!to_isTerminated(process)) {
       if (WaitForSingleObject(to_hProcess(process), INFINITE) == WAIT_OBJECT_0) {
         if (GetExitCodeProcess(to_hProcess(process), &exitCode) != 0) {
           to_var_isTerminated(process) = TRUE;
           to_var_exitValue(process) = exitCode;
         } else {
-          logError(printf(" *** pcsWaitFor: GetExitCodeProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
+          logError(printf("pcsWaitFor: GetExitCodeProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
                           (memSizeType) to_hProcess(process), GetLastError());
                    printf("PID=%lu\n", (long unsigned) to_pid(process)););
         } /* if */

@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #ifdef OCI_INCLUDE
@@ -55,8 +58,6 @@
 #include "rtl_err.h"
 #include "dll_drv.h"
 #include "sql_drv.h"
-
-#undef VERBOSE_EXCEPTIONS
 
 
 typedef struct {
@@ -135,12 +136,6 @@ static sqlFuncType sqlFunc = NULL;
 #define SET_NUMBER_TO_NAN(buffer, length) \
         length = 1; \
         ((unsigned char *) (buffer))[0] = 255;
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) printf(" *** "); logStatements
-#else
-#define logError(logStatements)
-#endif
 
 
 #ifdef OCI_DLL
@@ -412,12 +407,12 @@ static boolType findDll (void)
     boolType found = FALSE;
 
   /* findDll */
-    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos++) {
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
       logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
                  printf("%s\n", dllList[pos]);
                });
     } /* if */
@@ -436,7 +431,7 @@ static void sqlClose (databaseType database);
 
 
 
-#ifdef VERBOSE_EXCEPTIONS
+#if VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE
 static void printError (OCIError *oci_error)
 
   {

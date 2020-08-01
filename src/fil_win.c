@@ -35,6 +35,8 @@
 #include "stdio.h"
 #include "windows.h"
 #include "conio.h"
+#include "io.h"
+#include "fcntl.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 
@@ -109,3 +111,13 @@ boolType filInputReady (fileType aFile)
     } /* if */
     return result;
   } /* filInputReady */
+
+
+
+void setupFiles (void)
+
+  { /* setupFiles */
+    _setmode(fileno(stdin), _O_BINARY);
+    _setmode(fileno(stdout), _O_BINARY);
+    _setmode(fileno(stderr), _O_BINARY);
+  } /* setupFiles */

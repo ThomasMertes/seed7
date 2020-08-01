@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -45,9 +48,6 @@
 #undef EXTERN
 #define EXTERN
 #include "big_drv.h"
-
-#undef TRACE_BIG_RTL
-#undef VERBOSE_EXCEPTIONS
 
 
 #define KARATSUBA_THRESHOLD 32
@@ -293,12 +293,6 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift);
 bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtrahend);
 void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType big2);
 striType bigStr (const const_bigIntType big1);
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) logStatements
-#else
-#define logError(logStatements)
-#endif
 
 
 
@@ -698,10 +692,8 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
     bigIntType result;
 
   /* bigParseBasedPow2 */
-#ifdef TRACE_BIG_RTL
-    printf("bigParseBasedPow2(\"%s\", %u)\n",
-            striAsUnquotedCStri(stri), shift);
-#endif
+    logFunction(printf("bigParseBasedPow2(\"%s\", %u)\n",
+                       striAsUnquotedCStri(stri), shift););
     mostSignificantDigitPos = 0;
     if (likely(stri->size != 0)) {
       if (stri->mem[0] == ((strElemType) '-')) {
@@ -716,7 +708,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
     } /* if */
     /* printf("mostSignificantDigitPos: %lu\n", mostSignificantDigitPos); */
     if (unlikely(mostSignificantDigitPos >= stri->size)) {
-      logError(printf(" *** bigParseBasedPow2(\"%s\", %u): "
+      logError(printf("bigParseBasedPow2(\"%s\", %u): "
                       "Digit missing.\n",
                       striAsUnquotedCStri(stri), shift););
       raise_error(RANGE_ERROR);
@@ -775,7 +767,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         } /* for */
         if (unlikely(!okay)) {
           FREE_BIG(result, result_size);
-          logError(printf(" *** bigParseBasedPow2(\"%s\", %u): "
+          logError(printf("bigParseBasedPow2(\"%s\", %u): "
                           "Illegal digit.\n",
                           striAsUnquotedCStri(stri), shift););
           raise_error(RANGE_ERROR);
@@ -796,9 +788,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigParseBasedPow2 --> %s\n", bigHexCStri(result));
-#endif
+    logFunction(printf("bigParseBasedPow2 --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigParseBasedPow2 */
 
@@ -836,10 +826,8 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
     bigIntType result;
 
   /* bigParseBased2To36 */
-#ifdef TRACE_BIG_RTL
-    printf("bigParseBased2To36(\"%s\", " FMT_D ")\n",
-            striAsUnquotedCStri(stri), base);
-#endif
+    logFunction(printf("bigParseBased2To36(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), base););
     position = 0;
     if (likely(stri->size != 0)) {
       if (stri->mem[0] == ((strElemType) '-')) {
@@ -854,7 +842,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
     } /* if */
     /* printf("position: %lu\n", position); */
     if (unlikely(position >= stri->size)) {
-      logError(printf(" *** bigParseBased2To36(\"%s\", " FMT_D "): "
+      logError(printf("bigParseBased2To36(\"%s\", " FMT_D "): "
                       "Digit missing.\n",
                       striAsUnquotedCStri(stri), base););
       raise_error(RANGE_ERROR);
@@ -906,7 +894,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
           result = normalize(result);
         } else {
           FREE_BIG(result, result_size);
-          logError(printf(" *** bigParseBased2To36(\"%s\", " FMT_D "): "
+          logError(printf("bigParseBased2To36(\"%s\", " FMT_D "): "
                           "Illegal digit.\n",
                           striAsUnquotedCStri(stri), base););
           raise_error(RANGE_ERROR);
@@ -914,9 +902,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigParseBased2To36 --> %s\n", bigHexCStri(result));
-#endif
+    logFunction(printf("bigParseBased2To36 --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigParseBased2To36 */
 
@@ -951,10 +937,8 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
     striType result;
 
   /* bigRadixPow2 */
-#ifdef TRACE_BIG_RTL
-    printf("bigRadixPow2(%s, %u, " FMT_X_DIG ", %d)\n",
-           bigHexCStri(big1), shift, mask, upperCase);
-#endif
+    logFunction(printf("bigRadixPow2(%s, %u, " FMT_X_DIG ", %d)\n",
+                       bigHexCStri(big1), shift, mask, upperCase););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     if (negative) {
       unsigned_big = alloc_positive_copy_of_negative_big(big1);
@@ -1059,9 +1043,7 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
         FREE_BIG(unsigned_big, unsigned_big->size);
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigRadixPow2 --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("bigRadixPow2 --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* bigRadixPow2 */
 
@@ -1096,10 +1078,8 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
     striType result;
 
   /* bigRadix2To36 */
-#ifdef TRACE_BIG_RTL
-    printf("bigRadix2To36(%s, %u, %d)\n",
-           bigHexCStri(big1), base, upperCase);
-#endif
+    logFunction(printf("bigRadix2To36(%s, %u, %d)\n",
+                       bigHexCStri(big1), base, upperCase););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     /* A power of two that is less or equal than the base is */
     /* used to estimate the size of the result.              */
@@ -1187,9 +1167,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigRadix2To36 --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("bigRadix2To36 --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* bigRadix2To36 */
 
@@ -1391,6 +1369,7 @@ static void uBigDiv1 (const const_bigIntType dividend,
  *  and the normalized result is returned. This function handles
  *  also the special case of a division by zero.
  *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
 static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit)
 
@@ -1641,6 +1620,8 @@ static bigDigitType uBigRem1 (const const_bigIntType dividend, const bigDigitTyp
  *  remainder is requested and the normalized remainder is
  *  returned. This function handles also the special case of a
  *  division by zero.
+ *  @return the remainder of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
 static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit)
 
@@ -1721,6 +1702,7 @@ static bigDigitType uBigMDiv1 (const const_bigIntType dividend,
  *  This function handles also the special case of a division by
  *  zero.
  *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
 static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digit)
 
@@ -3358,11 +3340,9 @@ intType bigBitLength (const const_bigIntType big1)
     intType result;
 
   /* bigBitLength */
-#ifdef TRACE_BIG_RTL
-    printf("bigBitLength(%s)\n", bigHexCStri(big1));
-#endif
+    logFunction(printf("bigBitLength(%s)\n", bigHexCStri(big1)););
     if (unlikely(big1->size >= MAX_MEM_INDEX >> BIGDIGIT_LOG2_SIZE)) {
-      logError(printf(" *** bigBitLength(%s): "
+      logError(printf("bigBitLength(%s): "
                       "Result does not fit into an integer.\n",
                       bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
@@ -3375,9 +3355,7 @@ intType bigBitLength (const const_bigIntType big1)
         result += digitMostSignificantBit(big1->bigdigits[big1->size - 1]) + 1;
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigBitLength --> " FMT_D "\n", result);
-#endif
+    logFunction(printf("bigBitLength --> " FMT_D "\n", result););
     return result;
   } /* bigBitLength */
 
@@ -3806,9 +3784,8 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferBe */
-#ifdef TRACE_BIG_RTL
-    printf("bigFromByteBufferBe(" FMT_U_MEM ", *, %d)\n", size, isSigned);
-#endif
+    logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", *, %d)\n",
+                       size, isSigned););
     if (size == 0) {
       num_bigdigits = 0;
       result_size = 1;
@@ -3871,9 +3848,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
       } /* if */
     } /* if */
     result = normalize(result);
-#ifdef TRACE_BIG_RTL
-    printf("bigFromByteBufferBe() -> %s\n", bigHexCStri(result));
-#endif
+    logFunction(printf("bigFromByteBufferBe() -> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferBe */
 
@@ -3891,9 +3866,8 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferLe */
-#ifdef TRACE_BIG_RTL
-    printf("bigFromByteBufferLe(" FMT_U_MEM ", *, %d)\n", size, isSigned);
-#endif
+    logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", *, %d)\n",
+                       size, isSigned););
     if (size == 0) {
       num_bigdigits = 0;
       result_size = 1;
@@ -3956,9 +3930,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
       } /* if */
     } /* if */
     result = normalize(result);
-#ifdef TRACE_BIG_RTL
-    printf("bigFromByteBufferLe() -> %s\n", bigHexCStri(result));
-#endif
+    logFunction(printf("bigFromByteBufferLe() -> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferLe */
 
@@ -4338,9 +4310,8 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
     bigIntType power;
 
   /* bigIPow */
-#ifdef TRACE_BIG_RTL
-    printf("bigIPow(%s, " FMT_D ")\n", bigHexCStri(base), exponent);
-#endif
+    logFunction(printf("bigIPow(%s, " FMT_D ")\n",
+                       bigHexCStri(base), exponent););
     if (exponent <= 1) {
       if (exponent == 0) {
         if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
@@ -4352,6 +4323,9 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
       } else if (exponent == 1) {
         power = bigCreate(base);
       } else {
+        logError(printf("bigIPow(%s, " FMT_D "): "
+                        "Exponent is negative.\n",
+                        bigHexCStri(base), exponent););
         raise_error(NUMERIC_ERROR);
         power = NULL;
       } /* if */
@@ -4410,10 +4384,8 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
         FREE_BIG(big_help, help_size);
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigIPow --> %s (size=" FMT_U_MEM ")\n",
-           bigHexCStri(power), power != NULL ? power->size : 0);
-#endif
+    logFunction(printf("bigIPow --> %s (size=" FMT_U_MEM ")\n",
+                       bigHexCStri(power), power != NULL ? power->size : 0););
     return power;
   } /* bigIPow */
 
@@ -4433,6 +4405,9 @@ bigIntType bigIPowSignedDigit (intType base, intType exponent)
   /* bigIPowSignedDigit */
     if (exponent <= 1) {
       if (unlikely(exponent < 0)) {
+        logError(printf("bigIPowSignedDigit(" FMT_D ", " FMT_D "): "
+                        "Exponent is negative.\n",
+                        base, exponent););
         raise_error(NUMERIC_ERROR);
         power = NULL;
       } else {
@@ -4469,6 +4444,8 @@ bigIntType bigLog10 (const const_bigIntType big1)
 
   /* bigLog10 */
     if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+      logError(printf("bigLog10(%s): Number is negative.\n",
+                      bigHexCStri(big1)););
       raise_error(NUMERIC_ERROR);
       logarithm = NULL;
     } else if (big1->size == 1 && big1->bigdigits[0] == 0) {
@@ -4570,6 +4547,8 @@ bigIntType bigLog2 (const const_bigIntType big1)
 
   /* bigLog2 */
     if (unlikely(IS_NEGATIVE(big1->bigdigits[big1->size - 1]))) {
+      logError(printf("bigLog2(%s): Number is negative.\n",
+                      bigHexCStri(big1)););
       raise_error(NUMERIC_ERROR);
       logarithm = NULL;
     } else {
@@ -4614,6 +4593,7 @@ bigIntType bigLog2 (const const_bigIntType big1)
  *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
  *  @param bits Number of lower bits to select from big1.
  *  @return a number in the range 0 .. pred(2_ ** bits).
+ *  @exception NUMERIC_ERROR The number of bits is negative.
  */
 bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
 
@@ -4628,10 +4608,8 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
     bigIntType result;
 
   /* bigLowerBits */
-#ifdef TRACE_BIG_RTL
-    printf("bigLowerBits(%s, " FMT_D ")\n",
-           bigHexCStri(big1), bits);
-#endif
+    logFunction(printf("bigLowerBits(%s, " FMT_D ")\n",
+                       bigHexCStri(big1), bits););
     if (unlikely(bits <= 0)) {
       if (bits == 0) {
         if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, 1))) {
@@ -4641,6 +4619,9 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
           result->bigdigits[0] = (bigDigitType) 0;
         } /* if */
       } else {
+        logError(printf("bigLowerBits(%s, " FMT_D "): "
+                        "Number of bits is negative.\n",
+                        bigHexCStri(big1), bits););
         raise_error(NUMERIC_ERROR);
         result = NULL;
       } /* if */
@@ -4693,10 +4674,8 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
       } /* if */
     } /* if */
     result = normalize(result);
-#ifdef TRACE_BIG_RTL
-    printf("bigLowerBits --> %s (size=" FMT_U_MEM ")\n",
-           bigHexCStri(result), result->size);
-#endif
+    logFunction(printf("bigLowerBits --> %s (size=" FMT_U_MEM ")\n",
+                       bigHexCStri(result), result->size););
     return result;
   } /* bigLowerBits */
 
@@ -4709,6 +4688,7 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
  *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
  *  @param bits Number of lower bits to select from big1.
  *  @return a number in the range 0 .. pred(2_ ** bits).
+ *  @exception NUMERIC_ERROR The number of bits is negative.
  */
 bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
 
@@ -4723,10 +4703,8 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
     bigIntType result;
 
   /* bigLowerBitsTemp */
-#ifdef TRACE_BIG_RTL
-    printf("bigLowerBits(%s, " FMT_D ")",
-           bigHexCStri(big1), bits);
-#endif
+    logFunction(printf("bigLowerBits(%s, " FMT_D ")",
+                       bigHexCStri(big1), bits););
     big1_size = big1->size;
     if (unlikely(bits <= 0)) {
       FREE_BIG(big1, big1_size);
@@ -4738,6 +4716,9 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
           result->bigdigits[0] = (bigDigitType) 0;
         } /* if */
       } else {
+        logError(printf("bigLowerBitsTemp(%s, " FMT_D "): "
+                        "Number of bits is negative.\n",
+                        bigHexCStri(big1), bits););
         raise_error(NUMERIC_ERROR);
         result = NULL;
       } /* if */
@@ -4794,10 +4775,8 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
       } /* if */
     } /* if */
     result = normalize(result);
-#ifdef TRACE_BIG_RTL
-    printf(" --> %s (size=" FMT_U_MEM ")\n",
-           bigHexCStri(result), result->size);
-#endif
+    logFunction(printf(" --> %s (size=" FMT_U_MEM ")\n",
+                       bigHexCStri(result), result->size););
     return result;
   } /* bigLowerBitsTemp */
 
@@ -4817,9 +4796,7 @@ intType bigLowestSetBit (const const_bigIntType big1)
     intType result;
 
   /* bigLowestSetBit */
-#ifdef TRACE_BIG_RTL
-    printf("bigLowestSetBit(%s)\n", bigHexCStri(big1));
-#endif
+    logFunction(printf("bigLowestSetBit(%s)\n", bigHexCStri(big1)););
     big1_size = big1->size;
     pos = 0;
     while (pos < big1_size && big1->bigdigits[pos] == 0) {
@@ -4828,7 +4805,7 @@ intType bigLowestSetBit (const const_bigIntType big1)
     if (pos < big1_size) {
       result = digitLeastSignificantBit(big1->bigdigits[pos]);
       if (unlikely(pos > (memSizeType) (MAX_MEM_INDEX - result) >> BIGDIGIT_LOG2_SIZE)) {
-        logError(printf(" *** bigLowestSetBit(%s): "
+        logError(printf("bigLowestSetBit(%s): "
                         "Result does not fit into an integer.\n",
                         bigHexCStri(big1)););
         raise_error(RANGE_ERROR);
@@ -4839,9 +4816,7 @@ intType bigLowestSetBit (const const_bigIntType big1)
     } else {
       result = -1;
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigLowestSetBit --> " FMT_D "\n", result);
-#endif
+    logFunction(printf("bigLowestSetBit --> " FMT_D "\n", result););
     return result;
   } /* bigLowestSetBit */
 
@@ -5122,6 +5097,9 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
 
   /* bigLog2BaseIPow */
     if (unlikely(log2base < 0 || exponent < 0)) {
+      logError(printf("bigLog2BaseIPow(" FMT_D ", " FMT_D "): "
+                      "Exponent is negative.\n",
+                      log2base, exponent););
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (likely(log2base == 1)) {
@@ -5512,10 +5490,8 @@ bigIntType bigMultSignedDigit (const_bigIntType factor1, intType factor2)
     bigIntType product;
 
   /* bigMultSignedDigit */
-#ifdef TRACE_BIG_RTL
-    printf("bigMultSignedDigit(%s, " FMT_D ")\n",
-           bigHexCStri(factor1), factor2);
-#endif
+    logFunction(printf("bigMultSignedDigit(%s, " FMT_D ")\n",
+                       bigHexCStri(factor1), factor2););
     if (unlikely(!ALLOC_BIG_CHECK_SIZE(product, factor1->size + 1))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -5535,9 +5511,7 @@ bigIntType bigMultSignedDigit (const_bigIntType factor1, intType factor2)
       } /* if */
       product = normalize(product);
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigMultSignedDigit --> %s\n", bigHexCStri(product));
-#endif
+    logFunction(printf("bigMultSignedDigit --> %s\n", bigHexCStri(product)););
     return product;
   } /* bigMultSignedDigit */
 
@@ -5722,9 +5696,7 @@ bigIntType bigParse (const const_striType stri)
     bigIntType result;
 
   /* bigParse */
-#ifdef TRACE_BIG_RTL
-    printf("bigParse(\"%s\")\n", striAsUnquotedCStri(stri));
-#endif
+    logFunction(printf("bigParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     position = 0;
     if (likely(stri->size != 0)) {
       if (stri->mem[0] == ((strElemType) '-')) {
@@ -5738,7 +5710,7 @@ bigIntType bigParse (const const_striType stri)
       } /* if */
     } /* if */
     if (unlikely(position >= stri->size)) {
-      logError(printf(" *** bigParse(\"%s\"): "
+      logError(printf("bigParse(\"%s\"): "
                       "Digit missing.\n",
                       striAsUnquotedCStri(stri)););
       raise_error(RANGE_ERROR);
@@ -5777,7 +5749,7 @@ bigIntType bigParse (const const_striType stri)
           result = normalize(result);
         } else {
           FREE_BIG(result, result_size);
-          logError(printf(" *** bigParse(\"%s\"): "
+          logError(printf("bigParse(\"%s\"): "
                           "Illegal digit.\n",
                           striAsUnquotedCStri(stri)););
           raise_error(RANGE_ERROR);
@@ -5785,9 +5757,7 @@ bigIntType bigParse (const const_striType stri)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigParse --> %s\n", bigHexCStri(result));
-#endif
+    logFunction(printf("bigParse --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigParse */
 
@@ -5814,10 +5784,8 @@ bigIntType bigParseBased (const const_striType stri, intType base)
     bigIntType result;
 
   /* bigParseBased */
-#ifdef TRACE_BIG_RTL
-    printf("bigParseBased(\"%s\", " FMT_D ")\n",
-           striAsUnquotedCStri(stri), base);
-#endif
+    logFunction(printf("bigParseBased(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), base););
     switch (base) {  /* Cases sorted by probability. */
       case 16: result = bigParseBasedPow2(stri, 4); break;
       case  8: result = bigParseBasedPow2(stri, 3); break;
@@ -5827,7 +5795,7 @@ bigIntType bigParseBased (const const_striType stri, intType base)
       case 32: result = bigParseBasedPow2(stri, 5); break;
       default:
         if (unlikely(base < 2 || base > 36)) {
-          logError(printf(" *** bigParseBased(\"%s\", " FMT_D "): "
+          logError(printf("bigParseBased(\"%s\", " FMT_D "): "
                           "Base not in allowed range.\n",
                           striAsUnquotedCStri(stri), base););
           raise_error(RANGE_ERROR);
@@ -5837,9 +5805,7 @@ bigIntType bigParseBased (const const_striType stri, intType base)
         } /* if */
         break;
     } /* switch */
-#ifdef TRACE_BIG_RTL
-    printf("bigParseBased --> %s\n", bigHexCStri(result));
-#endif
+    logFunction(printf("bigParseBased --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigParseBased */
 
@@ -5995,10 +5961,8 @@ striType bigRadix (const const_bigIntType big1, intType base,
     striType result;
 
   /* bigRadix */
-#ifdef TRACE_BIG_RTL
-    printf("bigRadix(%s, " FMT_D ", %d)\n",
-           bigHexCStri(big1), base, upperCase);
-#endif
+    logFunction(printf("bigRadix(%s, " FMT_D ", %d)\n",
+                       bigHexCStri(big1), base, upperCase););
     switch (base) {  /* Cases sorted by probability. */
       case 16: result = bigRadixPow2(big1, 4,  0xf, upperCase); break;
       case  8: result = bigRadixPow2(big1, 3,  0x7, upperCase); break;
@@ -6008,7 +5972,7 @@ striType bigRadix (const const_bigIntType big1, intType base,
       case 32: result = bigRadixPow2(big1, 5, 0x1f, upperCase); break;
       default:
         if (unlikely(base < 2 || base > 36)) {
-          logError(printf(" *** bigRadix((%s, " FMT_D ", %d): "
+          logError(printf("bigRadix((%s, " FMT_D ", %d): "
                           "Base not in allowed range.\n",
                           bigHexCStri(big1), base, upperCase););
           raise_error(RANGE_ERROR);
@@ -6018,9 +5982,7 @@ striType bigRadix (const const_bigIntType big1, intType base,
         } /* if */
         break;
     } /* switch */
-#ifdef TRACE_BIG_RTL
-    printf("bigRadix --> \"%s\"\n", striAsUnquotedCStri(result));
-#endif
+    logFunction(printf("bigRadix --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* bigRadix */
 
@@ -6047,11 +6009,9 @@ bigIntType bigRand (const const_bigIntType low,
     bigIntType result;
 
   /* bigRand */
-#ifdef TRACE_BIG_RTL
-    printf("bigRand(%s, %s)\n", bigHexCStri(low), bigHexCStri(high));
-#endif
+    logFunction(printf("bigRand(%s, %s)\n", bigHexCStri(low), bigHexCStri(high)););
     if (unlikely(bigCmp(low, high) > 0)) {
-      logError(printf(" *** bigRand(%s, %s): "
+      logError(printf("bigRand(%s, %s): "
                       "The range is empty (low > high holds).\n",
                       bigHexCStri(low), bigHexCStri(high)););
       raise_error(RANGE_ERROR);
@@ -6094,9 +6054,7 @@ bigIntType bigRand (const const_bigIntType low,
         FREE_BIG(scale_limit, scale_limit->size);
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigRand --> %s\n", bigHexCStri(result));
-#endif
+    logFunction(printf("bigRand --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigRand */
 
@@ -6900,9 +6858,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
     bstriType result;
 
   /* bigToBStriBe */
-#ifdef TRACE_BIG_RTL
-    printf("bigToBStriBe(%s, %d)\n", bigHexCStri(big1), isSigned);
-#endif
+    logFunction(printf("bigToBStriBe(%s, %d)\n", bigHexCStri(big1), isSigned););
     /* The expression computing result_size does not overflow           */
     /* because the number of bytes in a bigInteger fits in memSizeType. */
     result_size = big1->size * (BIGDIGIT_SIZE >> 3);
@@ -6931,7 +6887,9 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
       } /* if */
     } else {
       if (unlikely(IS_NEGATIVE(digit))) {
-        /* printf("bigToBStriBe: RANGE_ERROR\n"); */
+        logError(printf("bigToBStriBe(%s, %d): "
+                        "Number is negative and 'isSigned' is FALSE.\n",
+                        bigHexCStri(big1), isSigned););
         raise_error(RANGE_ERROR);
         return NULL;
       } else {
@@ -6964,9 +6922,8 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
         } /* for */
       } /* while */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigToBStriBe -->\n");
-#endif
+    logFunction(printf("bigToBStriBe --> \"%s\"\n",
+                       bstriAsUnquotedCStri(result)););
     return result;
   } /* bigToBStriBe */
 
@@ -6996,9 +6953,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
     bstriType result;
 
   /* bigToBStriLe */
-#ifdef TRACE_BIG_RTL
-    printf("bigToBStriLe(%s, %d)\n", bigHexCStri(big1), isSigned);
-#endif
+    logFunction(printf("bigToBStriLe(%s, %d)\n", bigHexCStri(big1), isSigned););
     /* The expression computing result_size does not overflow           */
     /* because the number of bytes in a bigInteger fits in memSizeType. */
     result_size = big1->size * (BIGDIGIT_SIZE >> 3);
@@ -7027,7 +6982,9 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
       } /* if */
     } else {
       if (unlikely(IS_NEGATIVE(digit))) {
-        /* printf("bigToBStriLe: RANGE_ERROR\n"); */
+        logError(printf("bigToBStriLe(%s, %d): "
+                        "Number is negative and 'isSigned' is FALSE.\n",
+                        bigHexCStri(big1), isSigned););
         raise_error(RANGE_ERROR);
         return NULL;
       } else {
@@ -7060,9 +7017,8 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
         } /* for */
       } /* while */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("end bigToBStriLe -->\n");
-#endif
+    logFunction(printf("bigToBStriLe -->\"%s\"\n",
+                       bstriAsUnquotedCStri(result)););
     return result;
   } /* bigToBStriLe */
 
@@ -7165,9 +7121,7 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
     uint64Type result;
 
   /* bigToUInt64 */
-#ifdef TRACE_BIG_RTL
-    printf("bigToUInt64(%s)\n", bigHexCStri(big1));
-#endif
+    logFunction(printf("bigToUInt64(%s)\n", bigHexCStri(big1)););
     pos = big1->size - 1;
     if (unlikely(IS_NEGATIVE(big1->bigdigits[pos]))) {
       raise_error(RANGE_ERROR);
@@ -7191,9 +7145,8 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
 #endif
       } /* if */
     } /* if */
-#ifdef TRACE_BIG_RTL
-    printf("bigToUInt64(%s) --> " FMT_U64 "\n", bigHexCStri(big1), result);
-#endif
+    logFunction(printf("bigToUInt64(%s) --> " FMT_U64 "\n",
+                       bigHexCStri(big1), result););
     return result;
   } /* bigToUInt64 */
 #endif

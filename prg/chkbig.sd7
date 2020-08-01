@@ -2209,8 +2209,18 @@ const proc: chkRadix is func
     end if;
 
     bigNum := 123_;
-    if  not raisesRangeError(bigNum radix 1) or
-        not raisesRangeError(bigNum radix 37) then
+    if  not raisesRangeError(bigNum radix          1 ) or
+        not raisesRangeError(bigNum radix         37 ) or
+        not raisesRangeError(bigNum radix intExpr( 1)) or
+        not raisesRangeError(bigNum radix intExpr(37)) or
+        not raisesRangeError(           123_  radix          1 ) or
+        not raisesRangeError(           123_  radix         37 ) or
+        not raisesRangeError(bigintExpr(123_) radix          1 ) or
+        not raisesRangeError(bigintExpr(123_) radix         37 ) or
+        not raisesRangeError(           123_  radix intExpr( 1)) or
+        not raisesRangeError(           123_  radix intExpr(37)) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr( 1)) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr(37)) then
       writeln(" ***** The radix operator does not raise RANGE_ERROR for an illegal base.");
       okay := FALSE;
     end if;

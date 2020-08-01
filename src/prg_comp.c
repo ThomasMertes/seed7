@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -59,7 +62,6 @@
 #define EXTERN
 #include "prg_comp.h"
 
-#undef TRACE_PRG_COMP
 
 extern boolType interpreter_exception;
 
@@ -137,9 +139,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     progRecord prog_backup;
 
   /* interpret */
-#ifdef TRACE_PRG_COMP
-    printf("BEGIN interpret\n");
-#endif
+    logFunction(printf("interpret\n"););
     if (currentProg != NULL) {
       set_fail_flag(FALSE);
       fail_value = (objectType) NULL;
@@ -199,9 +199,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_PRG_COMP
-    printf("END interpr\n");
-#endif
+    logFunction(printf("interpret -->\n"););
   } /* interpret */
 
 
@@ -245,9 +243,7 @@ void prgDestr (progType old_prog)
     progRecord prog_backup;
 
   /* prgDestr */
-#ifdef TRACE_TYPEUTIL
-    printf("BEGIN prgDestr(%lx)\n", (unsigned long) old_prog);
-#endif
+    logFunction(printf("prgDestr(%lx)\n", (unsigned long) old_prog););
     if (old_prog != NULL) {
       /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
@@ -276,9 +272,7 @@ void prgDestr (progType old_prog)
         /* heap_statistic(); */
       } /* if */
     } /* if */
-#ifdef TRACE_TYPEUTIL
-    printf("END prgDestr\n");
-#endif
+    logFunction(printf("prgDestr\n"););
   } /* prgDestr */
 
 

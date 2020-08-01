@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -44,8 +47,6 @@
 #undef EXTERN
 #define EXTERN
 #include "tim_drv.h"
-
-#undef TRACE_TIM_DOS
 
 
 
@@ -63,10 +64,8 @@ void timAwait (intType year, intType month, intType day, intType hour,
     time_t await_second;
 
   /* timAwait */
-#ifdef TRACE_TIM_DOS
-    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
-        year, month, day, hour, min, sec, micro_sec, time_zone);
-#endif
+    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+                       year, month, day, hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
     tm_time.tm_mday  = (int) day;
@@ -98,9 +97,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
       } while (tstruct.time <= await_second &&
           1000 * ((long) tstruct.millitm) < micro_sec);
     } /* if */
-#ifdef TRACE_TIM_DOS
-    printf("END timAwait\n");
-#endif
+    logFunction(printf("timAwait -->\n"););
   } /* timAwait */
 
 
@@ -141,9 +138,7 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
     struct tm *local_time;
 
   /* timNow */
-#ifdef TRACE_TIM_DOS
-    printf("BEGIN timNow\n");
-#endif
+    logFunction(printf("timNow\n"););
     ftime(&tstruct);
 #if defined USE_LOCALTIME_R
     local_time = localtime_r(&tstruct.time, &tm_result);
@@ -177,9 +172,7 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
       *is_dst    = local_time->tm_isdst > 0;
 #endif
     } /* if */
-#ifdef TRACE_TIM_DOS
-    printf("END timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
-        *year, *month, *day, *hour, *min, *sec,
-        *micro_sec, *time_zone, *is_dst);
-#endif
+    logFunction(printf("timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+                       *year, *month, *day, *hour, *min, *sec,
+                       *micro_sec, *time_zone, *is_dst););
   } /* timNow */

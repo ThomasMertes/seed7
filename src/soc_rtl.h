@@ -32,7 +32,16 @@
 #define SOC_OPT_NONE      0
 #define SOC_OPT_REUSEADDR 1
 
+#ifdef USE_WINSOCK
+#define ERROR_INFORMATION WSAGetLastError(), wsaErrorMessage()
+#else
+#define ERROR_INFORMATION errno, strerror(errno)
+#endif
 
+
+#ifdef USE_WINSOCK
+cstriType wsaErrorMessage (void);
+#endif
 socketType socAccept (socketType sock, bstriType *address);
 intType socAddrFamily (const const_bstriType address);
 striType socAddrNumeric (const const_bstriType address);

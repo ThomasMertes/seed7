@@ -1,3 +1,63 @@
+20150419:
+- The library httpserv.s7i, which supports HTTP server HTTP requests,
+  has been added.
+- The comanche webserver has been changed to use the library
+  httpserv.s7i.
+- The example program which.sd7 has been added. This program locates
+  in which directory a command is found.
+- In shell.s7i the modes used for popen and popen8 have been changed.
+  Now a pipe can be opened with the binary modes "r" (read) and
+  "w" (write), or with the text modes "rt" (read) and "wt" (write).
+- Variants of the functions popen and popen8, which use an array of
+  parameters, have been added to shell.s7i.
+- In tls.s7i the function gets has been changed to return as soon as
+  data is available. This behavior corresponds to the gets function
+  in socket.s7i.
+- Checks for the radix operator have been added to chkbig.sd7 and
+  chkint.sd7.
+- Interpreter and compiler have been improved such that the files
+  STD_IN, STD_OUT and STD_ERR are in binary mode.
+- The function doRemove in chkccomp.c has been improved to check for
+  the presence of the file before it is removed.
+- The function checkPopen has been been added to chkccomp.c.
+- The function cmdShellEscape in cmd_rtl.c has been improved. Now all
+  characters except '\0;', '\n' and '\r' can be escaped ('\r' can be
+  escaped under Linux/Unix/BSD).
+- Now there are two versions of cmdShellEscape and the define variable
+  ESCAPE_SHELL_COMMANDS decides which one is used.
+- The function filPopen has been changed, to open a pipe in binary or
+  text mode.
+- In fil_rtl.c the function read_and_alloc_stri has been changed to
+  read the data into a list of buffers. Afterwards the string is
+  allocated, the data is copied and the buffer list is freed. This
+  improves the perfomance, when the file is a pipe.
+- In fil_rtl.c the function doGetsFromTerminal has been changed to
+  check for a negative length.
+- In soc_rtl.c the function read_and_alloc_stri has been added. This
+  function reads the data into a list of buffers. Afterwards the
+  string is allocated, the data is copied and the buffer list is
+  freed.
+- In soc_rtl.c the function socGets has been improved to use
+  read_and_alloc_stri, when the requested length is larger than 1 MB.
+- In soc_rtl.c the function socWrite has been improved to call send()
+  again, when not all data has been written.
+- In prclib.c the functions prc_block_catch_all and
+  prc_block_otherwise have been improved to free the fail_stack.
+  This way the call stack that is written, when an exception
+  terminates the program, is always correct.
+- The function escape_command in striutl.c has been improved.
+- Verbose exceptions have been added to big_rtl.c, fil_rtl.c,
+  pol_sel.c, pol_unx.c and soc_rtl.c.
+- The logging of C functions in big_rtl.c, cmd_rtl.c, fil_rtl.c,
+  hsh_rtl.c, int_rtl.c, pcs_rtl.c, pcs_unx.c, pcs_win.c, prg_comp.c,
+  soc_rtl.c, str_rtl.c, tim_dos.c, tim_rtl.c, tim_unx.c and tim_win.c
+  has been changed to use the macro logFunction.
+- The definition of the macro logError has been removed from various
+  C files. The new definition of logError is in common.h.
+- Trace output has been added to fil_rtl.c.
+- Documentation comments have been improved in process.s7i shell.s7i,
+  socket.s7i, big_rtl.c, fillib.c
+
 20150405:
 - A cache for client sessions has been added to tls.s7i. This allows
   that a TLS connection can be resumed (without a new negotiation of

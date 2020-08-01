@@ -42,3 +42,10 @@ boolType filInputReady (fileType aFile)
   { /* filInputReady */
     return TRUE;
   } /* filInputReady */
+
+
+
+void setupFiles (void)
+
+  { /* setupFiles */
+  } /* setupFiles */

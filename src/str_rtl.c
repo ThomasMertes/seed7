@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -44,8 +47,6 @@
 #undef EXTERN
 #define EXTERN
 #include "str_rtl.h"
-
-#undef TRACE_STR_RTL
 
 
 #define CHAR_DELTA_BEYOND 128
@@ -696,13 +697,8 @@ striType concat_path (const const_striType absolutePath,
     striType result;
 
   /* concat_path */
-#ifdef TRACE_STR_RTL
-    printf("concat_path(");
-    prot_stri(absolutePath);
-    printf(", ");
-    prot_stri(relativePath);
-    printf(")\n");
-#endif
+    logFunction(printf("concat_path(\"%s\", ", striAsUnquotedCStri(absolutePath));
+                printf("\"%s\")\n", striAsUnquotedCStri(relativePath)););
     /* absolutePath->mem[0] is always '/'. */
     if (absolutePath->size == 1) {
       abs_path_length = 0;
@@ -767,11 +763,7 @@ striType concat_path (const const_striType absolutePath,
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf("concat_path --> ");
-    prot_stri(result);
-    printf("\n");
-#endif
+    logFunction(printf("concat_path --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* concat_path */
 
@@ -794,14 +786,9 @@ void strAppend (striType *const destination, const_striType extension)
     const strElemType *extension_origin;
 
   /* strAppend */
-#ifdef TRACE_STR_RTL
-    printf("strAppend(");
-    prot_stri(*destination);
-    printf(", ");
-    prot_stri(extension);
-    printf(")");
-    prot_flush();
-#endif
+    logFunction(printf("strAppend(\"%s\", ", striAsUnquotedCStri(*destination));
+                printf("\"%s\")", striAsUnquotedCStri(extension));
+                fflush(stdout););
     stri_dest = *destination;
     extension_size = extension->size;
     extension_mem = extension->mem;
@@ -872,11 +859,7 @@ void strAppend (striType *const destination, const_striType extension)
       } /* if */
 #endif
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(*destination);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
 #else
@@ -896,14 +879,9 @@ void strAppend (striType *const destination, const_striType extension)
     striType new_stri;
 
   /* strAppend */
-#ifdef TRACE_STR_RTL
-    printf("strAppend(");
-    prot_stri(*destination);
-    printf(", ");
-    prot_stri(extension);
-    printf(")");
-    prot_flush();
-#endif
+    logFunction(printf("strAppend(\"%s\", ", striAsUnquotedCStri(*destination));
+                printf("\"%s\")", striAsUnquotedCStri(extension));
+                fflush(stdout););
     stri_dest = *destination;
     if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
       /* number of bytes does not fit into memSizeType */
@@ -950,11 +928,7 @@ void strAppend (striType *const destination, const_striType extension)
       } /* if */
 #endif
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(*destination);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
 #endif
@@ -975,14 +949,9 @@ void strAppendTemp (striType *const destination, const striType extension)
     striType stri_dest;
 
   /* strAppendTemp */
-#ifdef TRACE_STR_RTL
-    printf("strAppendTemp(");
-    prot_stri(*destination);
-    printf(", ");
-    prot_stri(extension);
-    printf(")");
-    prot_flush();
-#endif
+    logFunction(printf("strAppendTemp(\"%s\", ", striAsUnquotedCStri(*destination));
+                printf("\"%s\")", striAsUnquotedCStri(extension));
+                fflush(stdout););
     stri_dest = *destination;
     if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
       /* number of bytes does not fit into memSizeType */
@@ -1036,11 +1005,7 @@ void strAppendTemp (striType *const destination, const striType extension)
       } /* if */
 #endif
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(*destination);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppendTemp */
 
 
@@ -1163,9 +1128,8 @@ striType strChMult (const charType ch, const intType factor)
     striType result;
 
   /* strChMult */
-#ifdef TRACE_STR_RTL
-    printf("strChMult('\\" FMT_U32 ";', " FMT_D ")\n", ch, factor);
-#endif
+    logFunction(printf("strChMult('\\" FMT_U32 ";', " FMT_D ")\n",
+                       ch, factor););
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1275,11 +1239,7 @@ striType strCLit (const const_striType stri)
     striType result;
 
   /* strCLit */
-#ifdef TRACE_STR_RTL
-    printf("strCLit(");
-    prot_stri(stri);
-    printf(")\n");
-#endif
+    logFunction(printf("strCLit(\"%s\")\n", striAsUnquotedCStri(stri)););
     striSize = stri->size;
     if (unlikely(striSize > (MAX_STRI_LEN - 2) / 4 ||
                  !ALLOC_STRI_SIZE_OK(result, 4 * striSize + 2))) {
@@ -1411,14 +1371,9 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
     striType result;
 
   /* strConcat */
-#ifdef TRACE_STR_RTL
-    printf("strConcat(");
-    prot_stri(stri1);
-    printf(", ");
-    prot_stri(stri2);
-    printf(")");
-    prot_flush();
-#endif
+    logFunction(printf("strConcat(\"%s\", ", striAsUnquotedCStri(stri1));
+                printf("\"%s\")", striAsUnquotedCStri(stri2));
+                fflush(stdout););
     if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
       /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
@@ -1435,11 +1390,7 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
             stri2->size * sizeof(strElemType));
       } /* if */
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf("strConcat -> ");
-    prot_stri(result);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strConcat */
 
@@ -1462,9 +1413,7 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
     striType result;
 
   /* strConcatN */
-#ifdef TRACE_STR_RTL
-    printf("strConcatN(" FMT_U_MEM ")\n", arraySize);
-#endif
+    logFunction(printf("strConcatN(" FMT_U_MEM ")\n", arraySize););
     for (pos = arraySize; pos > 0; pos--) {
       /* printf("arr[%lu]->size=%lu\n", pos, striArray[pos - 1]->size);
       printf("arr[%lu]=(%08lx) ", pos, striArray[pos - 1]);
@@ -1490,11 +1439,7 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
         dest += elem_size;
       } /* for */
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf("strConcatN -> ");
-    prot_stri(result);
-    printf("\n");
-#endif
+    logFunction(printf("strConcatN --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strConcatN */
 
@@ -1568,15 +1513,9 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
 #endif
 
   /* strCopy */
-#ifdef TRACE_STR_RTL
-    printf("strCopy(");
-    prot_stri(*stri_to);
-    printf(", ");
-    prot_stri(stri_from);
-    printf(")");
-    prot_flush();
-#endif
-    /* printf("stri_to=%lu, stri_from=%lu\n", stri_to, stri_from); */
+    logFunction(printf("strCopy(\"%s\", ", striAsUnquotedCStri(*stri_to));
+                printf("\"%s\")", striAsUnquotedCStri(stri_from));
+                fflush(stdout););
     stri_dest = *stri_to;
     new_size = stri_from->size;
 #ifdef WITH_STRI_CAPACITY
@@ -1633,11 +1572,7 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
         *stri_to = stri_dest;
       } /* if */
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(*stri_to);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*stri_to)););
   } /* strCopy */
 
 #else
@@ -1650,15 +1585,9 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
     striType stri_dest;
 
   /* strCopy */
-#ifdef TRACE_STR_RTL
-    printf("strCopy(");
-    prot_stri(*stri_to);
-    printf(", ");
-    prot_stri(stri_from);
-    printf(")");
-    prot_flush();
-#endif
-    /* printf("stri_to=%lu, stri_from=%lu\n", stri_to, stri_from); */
+    logFunction(printf("strCopy(\"%s\", ", striAsUnquotedCStri(*stri_to));
+                printf("\"%s\")", striAsUnquotedCStri(stri_from));
+                fflush(stdout););
     stri_dest = *stri_to;
     /* printf("stri_dest=%lu\n", stri_dest); */
     new_size = stri_from->size;
@@ -1696,11 +1625,7 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
     /* Therefore memmove() is used instead of memcpy().     */
     memmove(stri_dest->mem, stri_from->mem,
         new_size * sizeof(strElemType));
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(*stri_to);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*stri_to)););
   } /* strCopy */
 
 #endif
@@ -1857,12 +1782,9 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
     memSizeType striSize;
 
   /* strHeadSlice */
-#ifdef TRACE_STR_RTL
-    printf("strHeadSlice(");
-    prot_stri(stri);
-    printf(", " FMT_D ")", stop);
-    prot_flush();
-#endif
+    logFunction(printf("strHeadSlice(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), stop);
+                fflush(stdout););
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
       SET_SLICE_CAPACITY(slice, 0);
@@ -1877,11 +1799,7 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(slice);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strHeadSlice */
 
 #endif
@@ -2515,10 +2433,8 @@ striType strMult (const const_striType stri, const intType factor)
     striType result;
 
   /* strMult */
-#ifdef TRACE_STR_RTL
-    printf("strMult(stri->size=" FMT_U_MEM ", " FMT_D ")\n",
-           stri->size, factor);
-#endif
+    logFunction(printf("strMult(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), factor););
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -2743,12 +2659,9 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
     memSizeType striSize;
 
   /* strRangeSlice */
-#ifdef TRACE_STR_RTL
-    printf("strRangeSlice(");
-    prot_stri(stri);
-    printf(", " FMT_D ", " FMT_D ")", start, stop);
-    prot_flush();
-#endif
+    logFunction(printf("strRangeSlice(\"%s\", " FMT_D ", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start, stop);
+                fflush(stdout););
     striSize = stri->size;
     if (unlikely(start < 1)) {
       start = 1;
@@ -2765,11 +2678,7 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(slice);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strRangeSlice */
 
 #endif
@@ -3548,12 +3457,9 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
     memSizeType striSize;
 
   /* strSubstrSlice */
-#ifdef TRACE_STR_RTL
-    printf("strSubstrSlice(");
-    prot_stri(stri);
-    printf(", " FMT_D ", " FMT_D ")", start, length);
-    prot_flush();
-#endif
+    logFunction(printf("strSubstrSlice(\"%s\", " FMT_D ", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start, length);
+                fflush(stdout););
     striSize = stri->size;
     if (unlikely(start < 1)) {
       if (length >= 1 && start > 1 - length) {
@@ -3575,11 +3481,7 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(slice);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strSubstrSlice */
 
 #endif
@@ -3647,12 +3549,9 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
     memSizeType striSize;
 
   /* strTailSlice */
-#ifdef TRACE_STR_RTL
-    printf("strTailSlice(");
-    prot_stri(stri);
-    printf(", " FMT_D ")", start);
-    prot_flush();
-#endif
+    logFunction(printf("strTailSlice(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start);
+                fflush(stdout););
     striSize = stri->size;
     if (unlikely(start < 1)) {
       start = 1;
@@ -3666,11 +3565,7 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-#ifdef TRACE_STR_RTL
-    printf(" --> ");
-    prot_stri(slice);
-    printf("\n");
-#endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strTailSlice */
 
 #endif
@@ -4000,9 +3895,7 @@ striType strZero (const intType factor)
     striType result;
 
   /* strZero */
-#ifdef TRACE_STR_RTL
-    printf("strZero(" FMT_D ")\n", factor);
-#endif
+    logFunction(printf("strZero(" FMT_D ")\n", factor););
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;

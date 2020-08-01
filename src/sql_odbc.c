@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #ifdef ODBC_INCLUDE
@@ -59,8 +62,6 @@
 #include "rtl_err.h"
 #include "dll_drv.h"
 #include "sql_drv.h"
-
-#undef VERBOSE_EXCEPTIONS
 
 
 typedef struct {
@@ -120,12 +121,6 @@ static sqlFuncType sqlFunc = NULL;
 #define SQLLEN_MAX (SQLLEN) (((SQLULEN) 1 << (8 * sizeof(SQLLEN) - 1)) - 1)
 #define SQLINTEGER_MAX (SQLINTEGER) (((SQLUINTEGER) 1 << (8 * sizeof(SQLINTEGER) - 1)) - 1)
 #define SQLSMALLINT_MAX (SQLSMALLINT) (((SQLUSMALLINT) 1 << (8 * sizeof(SQLSMALLINT) - 1)) - 1)
-
-#ifdef VERBOSE_EXCEPTIONS
-#define logError(logStatements) printf(" *** "); logStatements
-#else
-#define logError(logStatements)
-#endif
 
 
 #ifdef ODBC_DLL
@@ -293,12 +288,12 @@ static boolType findDll (void)
     boolType found = FALSE;
 
   /* findDll */
-    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos++) {
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
       logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
                  printf("%s\n", dllList[pos]);
                });
     } /* if */
@@ -329,7 +324,7 @@ char *strfill (char *s, unsigned int len, int fill)
 
 
 
-#ifdef VERBOSE_EXCEPTIONS
+#if VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE
 static void printError (SQLSMALLINT handleType, SQLHANDLE handle)
 
   {

@@ -451,7 +451,9 @@ objectType fil_pclose (listType arguments)
  *         use the standard path representation.
  *  @param parameters/arg_2 Space separated list of parameters for
  *         the 'command', or "" when there are no parameters.
- *  @param mode/arg_3 A pipe can only be opened with "r" (read) or "w" (write).
+ *  @param mode/arg_3 A pipe can be opened with the binary modes
+ *         "r" (read) and "w" (write) or with the text modes
+ *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  */

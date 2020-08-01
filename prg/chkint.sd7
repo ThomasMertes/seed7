@@ -13449,6 +13449,18 @@ const proc: check_str is func
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(        123  radix          1 ) or
+        not raisesRangeError(        123  radix         37 ) or
+        not raisesRangeError(intExpr(123) radix          1 ) or
+        not raisesRangeError(intExpr(123) radix         37 ) or
+        not raisesRangeError(        123  radix intExpr( 1)) or
+        not raisesRangeError(        123  radix intExpr(37)) or
+        not raisesRangeError(intExpr(123) radix intExpr( 1)) or
+        not raisesRangeError(intExpr(123) radix intExpr(37)) then
+      writeln(" ***** The radix operator does not raise RANGE_ERROR for an illegal base.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Integer str does work correct.");
     end if;

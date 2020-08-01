@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -53,8 +56,6 @@
 #undef EXTERN
 #define EXTERN
 #include "tim_drv.h"
-
-#undef TRACE_TIM_WIN
 
 
 /* Seconds between 1601-01-01 and 1970-01-01 */
@@ -82,10 +83,8 @@ void timAwait (intType year, intType month, intType day, intType hour,
     unsigned long wait_milliseconds;
 
   /* timAwait */
-#ifdef TRACE_TIM_WIN
-    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
-        year, month, day, hour, min, sec, micro_sec, time_zone);
-#endif
+    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+                       year, month, day, hour, min, sec, micro_sec, time_zone););
     await_time_struct.wYear         = (WORD) year;
     await_time_struct.wMonth        = (WORD) month;
     await_time_struct.wDay          = (WORD) day;
@@ -112,17 +111,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
         } else {
           wait_milliseconds -= (unsigned long) ((current_micro_sec - micro_sec) / 1000);
         } /* if */
-#ifdef TRACE_TIM_WIN
-        printf("%lu %lu < %lu %lu Sleep(%lu)\n",
-            current_second, current_micro_sec, await_second, micro_sec,
-            wait_milliseconds);
-#endif
         Sleep(wait_milliseconds);
       } /* if */
     } /* if */
-#ifdef TRACE_TIM_WIN
-    printf("END timAwait\n");
-#endif
+    logFunction(printf("timAwait -->\n"););
   } /* timAwait */
 
 
@@ -172,9 +164,7 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
     struct tm *local_time;
 
   /* timNow */
-#ifdef TRACE_TIM_WIN
-    printf("BEGIN timNow\n");
-#endif
+    logFunction(printf("timNow\n"););
     GetSystemTimeAsFileTime(&utc_time.filetime);
     utc_seconds = (time_t) (utc_time.nanosecs100 / 10000000 - SECONDS_1601_1970);
 #if defined USE_LOCALTIME_R
@@ -201,11 +191,9 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
       *time_zone = (unchecked_mkutc(local_time) - utc_seconds) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
-#ifdef TRACE_TIM_WIN
-    printf("END timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
-        *year, *month, *day, *hour, *min, *sec,
-        *micro_sec, *time_zone, *is_dst);
-#endif
+    logFunction(printf("timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+                       *year, *month, *day, *hour, *min, *sec,
+                       *micro_sec, *time_zone, *is_dst););
   } /* timNow */
 
 
@@ -227,9 +215,7 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
     static time_t time_zone_seconds = 1;
 
   /* alternate_localtime_r */
-#ifdef TRACE_TIM_WIN
-    printf("BEGIN alternate_localtime_r(%ld)\n", *utc_seconds);
-#endif
+    logFunction(printf("alternate_localtime_r(%ld)\n", *utc_seconds););
     if (time_zone_seconds == 1) {
       utc_time.nanosecs100 = SECONDS_1601_1970 * 10000000;
       /* FileTimeToLocalFileTime(&utc_time.filetime, &time_zone_delta.filetime);
