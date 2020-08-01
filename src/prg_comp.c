@@ -124,7 +124,7 @@ progtype aProg;
 
   /* prgDeclObjects */
     if (aProg->stack_current != NULL) {
-      copy_list(aProg->stack_current->local_object_list, &result, &err_info);
+      result = copy_list(aProg->stack_current->local_object_list, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -197,6 +197,24 @@ objecttype object;
 
 #ifdef ANSI_C
 
+void prgExec (progtype currentProg)
+#else
+
+void prgExec (currentProg)
+progtype currentProg;
+#endif
+
+  { /* prgExec */
+    interpr(currentProg);
+    fail_flag = FALSE;
+    fail_value = (objecttype) NULL;
+    fail_expression = (listtype) NULL;
+  } /* prgExec */
+
+
+
+#ifdef ANSI_C
+
 objecttype prgMatch (progtype currentProg, listtype curr_expr)
 #else
 
@@ -236,6 +254,27 @@ listtype curr_expr;
     printf("\n"); */
     return(result);
   } /* prgMatch */
+
+
+
+#ifdef ANSI_C
+
+objecttype prgStrAnalyze (stritype stri)
+#else
+
+objecttype prgStrAnalyze (stri)
+stritype stri;
+#endif
+
+  {
+    progtype result;
+
+  /* prgStrAnalyze */
+    option.source_file_name = "STRING";
+    result = analyze_string(stri);
+    /* ?? set_trace(option.exec_trace_level, -1, NULL); */
+    return(result);
+  } /* prgStrAnalyze */
 
 
 

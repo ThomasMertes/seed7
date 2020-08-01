@@ -103,7 +103,7 @@ const integer: SOCK_DGRAM is 2;
 
 (* Operations for socket files *)
 
-const type: socket is sub NULL_FILE struct
+const type: socket is sub null_file struct
     var PRIMITIVE_SOCKET: sock is PRIMITIVE_NULL_SOCKET;
     var socketAddress: addr is socketAddress.value;
   end struct;

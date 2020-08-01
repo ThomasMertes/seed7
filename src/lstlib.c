@@ -71,7 +71,7 @@ listtype arguments;
     if (TEMP_OBJECT(arg1)) {
       result = take_list(arg1);
     } else {
-      copy_list(take_list(arg1), &result, &err_info);
+      result = copy_list(take_list(arg1), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -80,7 +80,7 @@ listtype arguments;
       list2_start = take_list(arg2);
       arg2->value.listvalue = NULL;
     } else {
-      copy_list(take_list(arg2), &list2_start, &err_info);
+      list2_start = copy_list(take_list(arg2), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -133,7 +133,7 @@ listtype arguments;
         list_to->value.listvalue = take_list(list_from);
         list_from->value.listvalue = NULL;
       } else {
-        copy_list(take_list(list_from), &help_list, &err_info);
+        help_list = copy_list(take_list(list_from), &err_info);
         if (err_info != OKAY_NO_ERROR) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
@@ -170,7 +170,7 @@ listtype arguments;
       list_to->value.listvalue = take_list(list_from);
       list_from->value.listvalue = NULL;
     } else {
-      copy_list(take_list(list_from), &list_to->value.listvalue, &err_info);
+      list_to->value.listvalue = copy_list(take_list(list_from), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         list_to->value.listvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -335,10 +335,10 @@ listtype arguments;
         if (stop_element != NULL) {
           saved_list_rest = stop_element->next;
           stop_element->next = NULL;
-          copy_list(take_list(list), &result, &err_info);
+          result = copy_list(take_list(list), &err_info);
           stop_element->next = saved_list_rest;
         } else {
-          copy_list(take_list(list), &result, &err_info);
+          result = copy_list(take_list(list), &err_info);
         } /* if */
       } /* if */
     } else {
@@ -497,10 +497,10 @@ listtype arguments;
         if (stop_element != NULL) {
           saved_list_rest = stop_element->next;
           stop_element->next = NULL;
-          copy_list(start_element, &result, &err_info);
+          result = copy_list(start_element, &err_info);
           stop_element->next = saved_list_rest;
         } else {
-          copy_list(start_element, &result, &err_info);
+          result = copy_list(start_element, &err_info);
         } /* if */
       } /* if */
     } else {
@@ -549,7 +549,7 @@ listtype arguments;
           result = list_element->next;
           list_element->next = NULL;
         } else {
-          copy_list(list_element->next, &result, &err_info);
+          result = copy_list(list_element->next, &err_info);
         } /* if */
       } else {
         result = NULL;
@@ -559,7 +559,7 @@ listtype arguments;
         result = list_element;
         list->value.listvalue = NULL;
       } else {
-        copy_list(list_element, &result, &err_info);
+        result = copy_list(list_element, &err_info);
       } /* if */
     } /* if */
     if (err_info != OKAY_NO_ERROR) {

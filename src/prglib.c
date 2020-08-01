@@ -179,7 +179,7 @@ listtype arguments;
     isit_prog(arg_1(arguments));
     currentProg = take_prog(arg_1(arguments));
     if (currentProg->stack_current != NULL) {
-      copy_list(currentProg->stack_current->local_object_list, &object_list, &err_info);
+      object_list = copy_list(currentProg->stack_current->local_object_list, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -465,6 +465,29 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype prg_str_analyze (listtype arguments)
+#else
+
+objecttype prg_str_analyze (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype str1;
+    progtype result;
+
+  /* prg_str_analyze */
+    isit_stri(arg_1(arguments));
+    str1 = take_stri(arg_1(arguments));
+    result = analyze_string(str1);
+    set_trace(option.exec_trace_level, -1, NULL);
+    return(bld_prog_temp(result));
+  } /* prg_str_analyze */
+
+
+
+#ifdef ANSI_C
+
 objecttype prg_syobject (listtype arguments)
 #else
 
@@ -534,29 +557,6 @@ listtype arguments;
     } /* if */
     return(bld_reference_temp(result));
   } /* prg_sysvar */
-
-
-
-#ifdef ANSI_C
-
-objecttype prg_s_analyze (listtype arguments)
-#else
-
-objecttype prg_s_analyze (arguments)
-listtype arguments;
-#endif
-
-  {
-    stritype str1;
-    progtype result;
-
-  /* prg_s_analyze */
-    isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    result = analyze_string(str1);
-    set_trace(option.exec_trace_level, -1, NULL);
-    return(bld_prog_temp(result));
-  } /* prg_s_analyze */
 
 
 

@@ -2872,29 +2872,29 @@ const proc: readln (inout file: aFile) is func
   end func;
 
 
-(* NULL_FILE *)
+(* null_file *)
 
-const type: NULL_FILE is new struct
+const type: null_file is new struct
     var char: bufferChar is '\n';
     var boolean: io_empty is FALSE;
     var boolean: io_ok is TRUE;
   end struct;
 
-type_implements_interface(NULL_FILE, file);
+type_implements_interface(null_file, file);
 
-const func boolean: (ref NULL_FILE param) = (ref NULL_FILE param) is   action "ENU_EQ";
-const func boolean: (ref NULL_FILE param) <> (ref NULL_FILE param) is  action "ENU_NE";
+const func boolean: (ref null_file param) = (ref null_file param) is   action "ENU_EQ";
+const func boolean: (ref null_file param) <> (ref null_file param) is  action "ENU_NE";
 
-const file: STD_NULL is NULL_FILE.value;
+const file: STD_NULL is null_file.value;
 const file: (attr file) . value is STD_NULL;
 
-const proc: write (in NULL_FILE param, in string param) is noop;
-const string: gets (in NULL_FILE param, in integer param) is "";
+const proc: write (in null_file param, in string param) is noop;
+const string: gets (in null_file param, in integer param) is "";
 
-const func char: getc (inout NULL_FILE: aFile) is
+const func char: getc (inout null_file: aFile) is
   return gets(aFile, 1)[1];
 
-const func string: getwd (inout NULL_FILE: aFile) is func
+const func string: getwd (inout null_file: aFile) is func
   result
     var string: stri is "";
   local
@@ -2911,7 +2911,7 @@ const func string: getwd (inout NULL_FILE: aFile) is func
     aFile.bufferChar := buffer[1];
   end func;
 
-const func string: getln (inout NULL_FILE: aFile) is func
+const func string: getln (inout null_file: aFile) is func
   result
     var string: stri is "";
   local
@@ -2925,42 +2925,42 @@ const func string: getln (inout NULL_FILE: aFile) is func
     aFile.bufferChar := buffer[1];
   end func;
 
-const proc: writeln (inout NULL_FILE: aFile) is func
+const proc: writeln (inout null_file: aFile) is func
   begin
     write(aFile, "\n");
   end func;
 
-const boolean: eof (ref NULL_FILE param) is TRUE;
+const boolean: eof (ref null_file param) is TRUE;
 
-const boolean: hasNext (ref NULL_FILE param) is FALSE;
+const boolean: hasNext (ref null_file param) is FALSE;
 
-const func boolean: eoln (ref NULL_FILE: aFile) is
+const func boolean: eoln (ref null_file: aFile) is
   return aFile.bufferChar = '\n';
 
-const integer: length (ref NULL_FILE param) is 0;
+const integer: length (ref null_file param) is 0;
 
-const proc: seek (ref NULL_FILE param, in integer param) is noop;
+const proc: seek (ref null_file param, in integer param) is noop;
 
-const integer: tell (ref NULL_FILE param) is 1;
+const integer: tell (ref null_file param) is 1;
 
-const proc: backSpace (ref NULL_FILE: aFile) is noop;
+const proc: backSpace (ref null_file: aFile) is noop;
 
-const proc: (inout NULL_FILE: aFile) >> (inout string: stri) is func
+const proc: (inout null_file: aFile) >> (inout string: stri) is func
   begin
     stri := getln(aFile);
   end func;
 
-const proc: (inout NULL_FILE: aFile) >> (inout char: ch) is func
+const proc: (inout null_file: aFile) >> (inout char: ch) is func
   begin
     ch := getc(aFile);
   end func;
 
-const proc: close (ref NULL_FILE param) is noop;
-const proc: flush (ref NULL_FILE param) is noop;
+const proc: close (ref null_file param) is noop;
+const proc: flush (ref null_file param) is noop;
 
 (* Set of operations for external_file *)
 
-const type: external_file is sub NULL_FILE struct
+const type: external_file is sub null_file struct
     var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
     var string: name is "";
   end struct;
@@ -3340,7 +3340,7 @@ const proc: clear_box (ref text param) is DYNAMIC;
 
 const func array string: argv (PROGRAM) is     action "PRC_ARGS";
 const func string: name (PROGRAM) is           action "PRG_NAME";
-const func string: getenv (in string param) is action "PRC_GETENV";
+const func string: getenv (in string param) is action "STR_GETENV";
 
 (* DIRECTORY *)
 

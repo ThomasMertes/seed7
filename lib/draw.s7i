@@ -794,7 +794,7 @@ const proc: sound (in integer: freq, in integer: dur) is func
   end func;
 
 
-const type: graph_file is sub NULL_FILE struct
+const type: graph_file is sub null_file struct
     var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
     var integer: line_delta is 0;
     var integer: column_delta is 0;

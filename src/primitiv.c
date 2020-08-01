@@ -461,7 +461,6 @@ static primactrecord prim_act_table[] = {
     { "PRC_EXIT",            prc_exit,            },
     { "PRC_FOR_DOWNTO",      prc_for_downto,      },
     { "PRC_FOR_TO",          prc_for_to,          },
-    { "PRC_GETENV",          prc_getenv,          },
     { "PRC_HEAPSTAT",        prc_heapstat,        },
     { "PRC_HSIZE",           prc_hsize,           },
     { "PRC_IF",              prc_if,              },
@@ -496,9 +495,9 @@ static primactrecord prim_act_table[] = {
     { "PRG_NAME",            prg_name,            },
     { "PRG_NE",              prg_ne,              },
     { "PRG_PROG",            prg_prog,            },
+    { "PRG_STR_ANALYZE",     prg_str_analyze,     },
     { "PRG_SYOBJECT",        prg_syobject,        },
     { "PRG_SYSVAR",          prg_sysvar,          },
-    { "PRG_S_ANALYZE",       prg_s_analyze,       },
     { "PRG_VALUE",           prg_value,           },
 
 #ifdef WITH_REFERENCE
@@ -668,6 +667,7 @@ static primactrecord prim_act_table[] = {
     { "STR_ELEMCPY",         str_elemcpy,         },
     { "STR_EQ",              str_eq,              },
     { "STR_GE",              str_ge,              },
+    { "STR_GETENV",          str_getenv,          },
     { "STR_GT",              str_gt,              },
     { "STR_HASHCODE",        str_hashcode,        },
     { "STR_HEAD",            str_head,            },

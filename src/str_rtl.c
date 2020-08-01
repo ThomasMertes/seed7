@@ -766,6 +766,38 @@ stritype stri2;
 
 #ifdef ANSI_C
 
+stritype strGetenv (const const_stritype stri)
+#else
+
+stritype strGetenv (stri)
+stritype stri;
+#endif
+
+  {
+    uchartype env_name[250];
+    cstritype environment;
+    stritype result;
+
+  /* strGetenv */
+    if (compr_size(stri) + 1 > 250) {
+      environment = "";
+    } else {
+      stri_export(env_name, stri);
+      if ((environment = getenv(env_name)) == NULL) {
+        environment = "";
+      } /* if */
+    } /* if */
+    result = cstri_to_stri(environment);
+    if (result == NULL) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return(result);
+  } /* strGetenv */
+
+
+
+#ifdef ANSI_C
+
 booltype strGt (const const_stritype stri1, const const_stritype stri2)
 #else
 

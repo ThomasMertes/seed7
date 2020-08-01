@@ -256,7 +256,7 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg1 = take_reference(arg_1(arguments));
     isit_array(obj_arg1);
-    array_to_list(take_array(obj_arg1), &result, &err_info);
+    result = array_to_list(take_array(obj_arg1), &err_info);
     if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
@@ -771,8 +771,8 @@ listtype arguments;
     isit_reference(obj_arg1);
     if (CATEGORY_OF_OBJ(take_reference(obj_arg1)) == BLOCKOBJECT) {
 #ifdef NEW_LOCALTYPE
-      copy_list(take_reference(obj_arg1)->value.blockvalue->loc_init,
-          &result, &err_info);
+      result = copy_list(take_reference(obj_arg1)->value.blockvalue->loc_init,
+          &err_info);
 #endif
       if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -1070,7 +1070,7 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg1 = take_reference(arg_1(arguments));
     isit_struct(obj_arg1);
-    struct_to_list(take_struct(obj_arg1), &result, &err_info);
+    result = struct_to_list(take_struct(obj_arg1), &err_info);
     if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */

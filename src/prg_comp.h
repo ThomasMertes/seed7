@@ -33,7 +33,9 @@ listtype prgDeclObjects (progtype aProg);
 void prgDestr (progtype old_prog);
 inttype prgErrorCount (progtype aProg);
 objecttype prgEval (progtype currentProg, objecttype object);
+void prgExec (progtype currentProg);
 objecttype prgMatch (progtype currentProg, listtype curr_expr);
+objecttype prgStrAnalyze (stritype stri);
 objecttype prgSyobject (progtype currentProg, stritype stri1);
 objecttype prgSysvar (progtype aProg, stritype sysvarName);
 
@@ -45,7 +47,9 @@ listtype prgDeclObjects ();
 void prgDestr (progtype old_prog);
 inttype prgErrorCount ();
 objecttype prgEval ();
+void prgExec ();
 objecttype prgMatch ();
+objecttype prgStrAnalyze ();
 objecttype prgSyobject ();
 objecttype prgSysvar ();
 

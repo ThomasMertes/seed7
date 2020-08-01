@@ -444,7 +444,7 @@ booltype look_for_interfaces;
       printf("//ST1v//");
       trace1(object_type->match_obj);
       printf("=");
-      printf("%ld", (inttype) object_type);
+      printtype(object_type);
       fflush(stdout);
     } /* if */
     node_found = find_node(start_node->inout_param, object_type->match_obj);
@@ -473,7 +473,7 @@ booltype look_for_interfaces;
 #ifdef ANSI_C
 
 static objecttype match_subexpr_const (objecttype expr_object,
-    const_nodetype start_node, typetype object_type,listtype rest_of_expression,
+    const_nodetype start_node, typetype object_type, listtype rest_of_expression,
     booltype check_access_right, booltype look_for_interfaces)
 #else
 
@@ -498,7 +498,7 @@ booltype look_for_interfaces;
       printf("//ST1o//");
       trace1(object_type->match_obj);
       printf("=");
-      printf("%ld", (inttype) object_type);
+      printtype(object_type);
       fflush(stdout);
     } /* if */
     node_found = find_node(start_node->other_param, object_type->match_obj);
@@ -545,7 +545,9 @@ booltype look_for_interfaces;
 #endif
 
   {
+    typetype current_object_type;
     typelisttype interface_list;
+    booltype non_dynamic_match_removed;
     objecttype matched_object;
 
   /* match_subexpr_type */
@@ -559,6 +561,7 @@ booltype look_for_interfaces;
       printf("look_for_interfaces=%s, ", look_for_interfaces ? "TRUE" : "FALSE");
       fflush(stdout);
     } /* if */
+    non_dynamic_match_removed = FALSE;
     matched_object = NULL;
     if (is_variable_obj) {
       if (look_for_interfaces) {
@@ -578,17 +581,28 @@ booltype look_for_interfaces;
               matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
             pop_list(&matched_object->value.listvalue);
             SET_CATEGORY_OF_OBJ(expr_object, EXPROBJECT);
+            non_dynamic_match_removed = TRUE;
             matched_object = NULL;
           } /* if */
         } /* if */
       } /* if */
       if (matched_object == NULL) {
+        current_object_type = object_type;
         do {
           matched_object = match_subexpr_var(expr_object, start_node,
-              object_type, rest_of_expression, check_access_right,
+              current_object_type, rest_of_expression, check_access_right,
               look_for_interfaces);
-          object_type = object_type->meta;
-        } while (object_type != NULL && matched_object == NULL);
+          current_object_type = current_object_type->meta;
+        } while (current_object_type != NULL && matched_object == NULL);
+        if (matched_object == NULL && non_dynamic_match_removed) {
+          interface_list = object_type->interfaces;
+          while (interface_list != NULL && matched_object == NULL) {
+            matched_object = match_subexpr_var(expr_object, start_node,
+                interface_list->type_elem, rest_of_expression,
+                check_access_right, look_for_interfaces);
+            interface_list = interface_list->next;
+          } /* while */
+        } /* if */
       } /* if */
     } else {
       if (look_for_interfaces) {
@@ -608,17 +622,28 @@ booltype look_for_interfaces;
               matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
             pop_list(&matched_object->value.listvalue);
             SET_CATEGORY_OF_OBJ(expr_object, EXPROBJECT);
+            non_dynamic_match_removed = TRUE;
             matched_object = NULL;
           } /* if */
         } /* if */
       } /* if */
       if (matched_object == NULL) {
+        current_object_type = object_type;
         do {
           matched_object = match_subexpr_const(expr_object, start_node,
-              object_type, rest_of_expression,
+              current_object_type, rest_of_expression,
               check_access_right, look_for_interfaces);
-          object_type = object_type->meta;
-        } while (object_type != NULL && matched_object == NULL);
+          current_object_type = current_object_type->meta;
+        } while (current_object_type != NULL && matched_object == NULL);
+        if (matched_object == NULL && non_dynamic_match_removed) {
+          interface_list = object_type->interfaces;
+          while (interface_list != NULL && matched_object == NULL) {
+            matched_object = match_subexpr_const(expr_object, start_node,
+                interface_list->type_elem, rest_of_expression,
+                check_access_right, look_for_interfaces);
+            interface_list = interface_list->next;
+          } /* while */
+        } /* if */
       } /* if */
     } /* if */
 #ifdef TRACE_MATCH

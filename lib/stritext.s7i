@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const type: stritext is sub NULL_FILE struct
+const type: stritext is sub null_file struct
     var array string: content is 0 times "";
     var integer: line is 1;
     var integer: column is 1;

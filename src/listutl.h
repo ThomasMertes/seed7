@@ -52,9 +52,9 @@ void incl_list (listtype *, objecttype, errinfotype *);
 void excl_list (listtype *, const_objecttype);
 void pop_list (listtype *);
 void replace_list_elem (listtype, const_objecttype, objecttype);
-void copy_list (const_listtype, listtype *, errinfotype *err_info);
-void array_to_list (arraytype, listtype *, errinfotype *);
-void struct_to_list (structtype, listtype *, errinfotype *);
+listtype copy_list (const_listtype list_from, errinfotype *err_info);
+listtype array_to_list (arraytype, errinfotype *);
+listtype struct_to_list (structtype, errinfotype *);
 
 #else
 
@@ -66,8 +66,8 @@ void incl_list ();
 void excl_list ();
 void pop_list ();
 void replace_list_elem ();
-void copy_list ();
-void array_to_list ();
-void struct_to_list ();
+listtype copy_list ();
+listtype array_to_list ();
+listtype struct_to_list ();
 
 #endif

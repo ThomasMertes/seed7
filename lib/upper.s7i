@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const type: upper_file is sub NULL_FILE struct
+const type: upper_file is sub null_file struct
     var file: destination_file is STD_NULL;
   end struct;
 

@@ -43,84 +43,6 @@
 
 
 
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-static void emptylist (listtype list)
-#else
-
-static void emptylist (list)
-listtype list;
-#endif
-
-  {
-    register listtype help_list;
-
-  /* emptylist */
-    while (list != NULL) {
-      help_list = list;
-      list = list->next;
-      FREE_L_ELEM(help_list);
-    } /* while */
-  } /* emptylist */
-
-
-
-#ifdef ANSI_C
-
-static void copy_list (listtype list_from, listtype *list_to,
-    errinfotype *err_info)
-#else
-
-static void copy_list (list_from, list_to, err_info)
-listtype list_from;
-listtype *list_to;
-errinfotype *err_info;
-#endif
-
-  {
-    listtype help_element;
-
-  /* copy_list */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN copy_list\n");
-#endif
-    if (list_from != NULL) {
-      if (!ALLOC_L_ELEM(help_element)) {
-        *list_to = NULL;
-        *err_info = MEMORY_ERROR;
-      } else {
-        *list_to = help_element;
-        help_element->obj = list_from->obj;
-        list_from = list_from->next;
-      } /* if */
-      if (*err_info == OKAY_NO_ERROR) {
-        while (list_from != NULL && *err_info == OKAY_NO_ERROR) {
-          if (!ALLOC_L_ELEM(help_element->next)) {
-            *err_info = MEMORY_ERROR;
-          } else {
-            help_element = help_element->next;
-            help_element->obj = list_from->obj;
-            list_from = list_from->next;
-          } /* if */
-        } /* while */
-        help_element->next = NULL;
-      } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
-        emptylist(*list_to);
-        *list_to = NULL;
-      } /* if */
-    } else {
-      *list_to = NULL;
-    } /* if */
-#ifdef TRACE_RUNLIST
-    printf("END copy_list\n");
-#endif
-  } /* copy_list */
-#endif
-
-
-
 #ifdef ANSI_C
 
 void rflAppend (listtype *list_to, listtype list_from)
@@ -192,7 +114,7 @@ listtype list_from;
 
   /* rflCpy */
     if (list_from != *list_to) {
-      copy_list(list_from, &help_list, &err_info);
+      help_list = copy_list(list_from, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -218,7 +140,7 @@ listtype list_from;
     listtype result;
 
   /* rflCreate */
-    copy_list(list_from, &result, &err_info);
+    result = copy_list(list_from, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(MEMORY_ERROR);
       result = NULL;
@@ -356,10 +278,10 @@ inttype stop;
       if (stop_element != NULL) {
         saved_list_rest = stop_element->next;
         stop_element->next = NULL;
-        copy_list(list, &result, &err_info);
+        result = copy_list(list, &err_info);
         stop_element->next = saved_list_rest;
       } else {
-        copy_list(list, &result, &err_info);
+        result = copy_list(list, &err_info);
       } /* if */
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
@@ -571,10 +493,10 @@ inttype stop;
       if (stop_element != NULL) {
         saved_list_rest = stop_element->next;
         stop_element->next = NULL;
-        copy_list(start_element, &result, &err_info);
+        result = copy_list(start_element, &err_info);
         stop_element->next = saved_list_rest;
       } else {
-        copy_list(start_element, &result, &err_info);
+        result = copy_list(start_element, &err_info);
       } /* if */
     } else {
       result = NULL;
@@ -613,12 +535,12 @@ inttype start;
         list_element = list_element->next;
       } /* while */
       if (number >= start) {
-        copy_list(list_element->next, &result, &err_info);
+        result = copy_list(list_element->next, &err_info);
       } else {
         result = NULL;
       } /* if */
     } else {
-      copy_list(list_element, &result, &err_info);
+      result = copy_list(list_element, &err_info);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       raise_error(RANGE_ERROR);

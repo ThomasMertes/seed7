@@ -75,7 +75,7 @@ listtype arguments;
       list2_start = rfl_from;
       arg_3(arguments)->value.listvalue = NULL;
     } else {
-      copy_list(rfl_from, &list2_start, &err_info);
+      list2_start = copy_list(rfl_from, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -119,7 +119,7 @@ listtype arguments;
     if (TEMP_OBJECT(arg1)) {
       result = take_reflist(arg1);
     } else {
-      copy_list(take_reflist(arg1), &result, &err_info);
+      result = copy_list(take_reflist(arg1), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -128,7 +128,7 @@ listtype arguments;
       list2_start = take_reflist(arg2);
       arg2->value.listvalue = NULL;
     } else {
-      copy_list(take_reflist(arg2), &list2_start, &err_info);
+      list2_start = copy_list(take_reflist(arg2), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -181,7 +181,7 @@ listtype arguments;
         list_to->value.listvalue = take_reflist(list_from);
         list_from->value.listvalue = NULL;
       } else {
-        copy_list(take_reflist(list_from), &help_list, &err_info);
+        help_list = copy_list(take_reflist(list_from), &err_info);
         if (err_info != OKAY_NO_ERROR) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
@@ -218,7 +218,7 @@ listtype arguments;
       list_to->value.listvalue = take_reflist(list_from);
       list_from->value.listvalue = NULL;
     } else {
-      copy_list(take_reflist(list_from), &list_to->value.listvalue, &err_info);
+      list_to->value.listvalue = copy_list(take_reflist(list_from), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         list_to->value.listvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -482,7 +482,7 @@ listtype arguments;
     statement = arg_6(arguments);
     isit_reference (for_variable);
     isit_reflist(elementlist);
-    copy_list(take_list(elementlist), &helplist, &err_info);
+    helplist = copy_list(take_list(elementlist), &err_info);
     if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
@@ -542,10 +542,10 @@ listtype arguments;
         if (stop_element != NULL) {
           saved_list_rest = stop_element->next;
           stop_element->next = NULL;
-          copy_list(take_reflist(list), &result, &err_info);
+          result = copy_list(take_reflist(list), &err_info);
           stop_element->next = saved_list_rest;
         } else {
-          copy_list(take_reflist(list), &result, &err_info);
+          result = copy_list(take_reflist(list), &err_info);
         } /* if */
       } /* if */
     } else {
@@ -725,9 +725,9 @@ listtype arguments;
 
   /* rfl_not_elem */
     isit_reference(arg_1(arguments));
-    isit_reflist(arg_3(arguments));
+    isit_reflist(arg_4(arguments));
     searched_object = take_reference(arg_1(arguments));
-    list_element = take_reflist(arg_3(arguments));
+    list_element = take_reflist(arg_4(arguments));
     while (list_element != NULL && list_element->obj != searched_object) {
       list_element = list_element->next;
     } /* while */
@@ -822,10 +822,10 @@ listtype arguments;
         if (stop_element != NULL) {
           saved_list_rest = stop_element->next;
           stop_element->next = NULL;
-          copy_list(start_element, &result, &err_info);
+          result = copy_list(start_element, &err_info);
           stop_element->next = saved_list_rest;
         } else {
-          copy_list(start_element, &result, &err_info);
+          result = copy_list(start_element, &err_info);
         } /* if */
       } /* if */
     } else {
@@ -870,7 +870,7 @@ listtype arguments;
           list_to->value.listvalue = take_reflist(list_from);
           list_from->value.listvalue = NULL;
         } else {
-          copy_list(take_reflist(list_from), &help_list, &err_info);
+          help_list = copy_list(take_reflist(list_from), &err_info);
           if (err_info != OKAY_NO_ERROR) {
             return(raise_exception(SYS_MEM_EXCEPTION));
           } else {
@@ -921,7 +921,7 @@ listtype arguments;
           result = list_element->next;
           list_element->next = NULL;
         } else {
-          copy_list(list_element->next, &result, &err_info);
+          result = copy_list(list_element->next, &err_info);
         } /* if */
       } else {
         result = NULL;
@@ -931,7 +931,7 @@ listtype arguments;
         result = list_element;
         list->value.listvalue = NULL;
       } else {
-        copy_list(list_element, &result, &err_info);
+        result = copy_list(list_element, &err_info);
       } /* if */
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
@@ -977,12 +977,16 @@ listtype arguments;
   /* rfl_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT) {
-      copy_list(take_reflist(obj_arg), &result, &err_info);
+    if (obj_arg != NULL) {
+      if (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
+          CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
+          CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT) {
+        result = copy_list(take_reflist(obj_arg), &err_info);
+      } else {
+        run_error(REFLISTOBJECT, obj_arg);
+      } /* if */
     } else {
-      run_error(REFLISTOBJECT, obj_arg);
+      return(raise_exception(SYS_RNG_EXCEPTION));
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));

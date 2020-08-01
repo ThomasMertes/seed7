@@ -42,9 +42,9 @@ objecttype prg_match (listtype);
 objecttype prg_name (listtype);
 objecttype prg_ne (listtype);
 objecttype prg_prog (listtype);
+objecttype prg_str_analyze (listtype);
 objecttype prg_syobject (listtype);
 objecttype prg_sysvar (listtype);
-objecttype prg_s_analyze (listtype);
 objecttype prg_value (listtype);
 
 #else
@@ -64,9 +64,9 @@ objecttype prg_match ();
 objecttype prg_name ();
 objecttype prg_ne ();
 objecttype prg_prog ();
+objecttype prg_str_analyze ();
 objecttype prg_syobject ();
 objecttype prg_sysvar ();
-objecttype prg_s_analyze ();
 objecttype prg_value ();
 
 #endif

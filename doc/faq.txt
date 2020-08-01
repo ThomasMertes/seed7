@@ -159,11 +159,24 @@ Can I use something and declare it later?
 =========================================
 
 No, everything must be declared before it is used. The possibility to declare new
-statements and new operators on one side and the strong typing requirements with
+statements and new operators on one side and the static typing requirements with
 compile time checks of the parameters on the other side would make the job of analyzing
 expressions with undeclared functions very complex.
 
 Forward declarations help, if something needs to be used before it can be declared fully.
+
+
+Why does Seed7 use static type checking?
+========================================
+
+With static type checking all type checks are performed during compile-time.
+Typing errors can be caught earlier without the need to execute the program.
+This increases the reliability of the program.
+With dynamic typing it would be necessary to reach 100% code coverage to
+find all typing errors. Additionally the program execution can be more efficient
+with static type checking since there are no type checks necessary at run-time.
+
+Interface types can be used when an object can have several types at runtime.
 
 
 Are there automatic casts to the right type?

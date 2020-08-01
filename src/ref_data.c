@@ -138,7 +138,7 @@ objecttype obj_arg;
 
   /* refArrtolist */
     if (CATEGORY_OF_OBJ(obj_arg) == ARRAYOBJECT) {
-      array_to_list(take_array(obj_arg), &result, &err_info);
+      result = array_to_list(take_array(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -636,7 +636,7 @@ objecttype obj_arg;
 
   /* refScttolist */
     if (CATEGORY_OF_OBJ(obj_arg) == STRUCTOBJECT) {
-      struct_to_list(take_struct(obj_arg), &result, &err_info);
+      result = struct_to_list(take_struct(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -1011,10 +1011,11 @@ objecttype obj_arg;
     listtype result;
 
   /* rflValue */
-    if (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT) {
-      copy_list(take_reflist(obj_arg), &result, &err_info);
+    if (obj_arg != NULL &&
+        (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT)) {
+      result = copy_list(take_reflist(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -1046,7 +1047,7 @@ listtype list_from;
     if (CATEGORY_OF_OBJ(list_to) == MATCHOBJECT ||
         CATEGORY_OF_OBJ(list_to) == CALLOBJECT ||
         CATEGORY_OF_OBJ(list_to) == REFLISTOBJECT) {
-      copy_list(list_from, &help_list, &err_info);
+      help_list = copy_list(list_from, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
       } else {

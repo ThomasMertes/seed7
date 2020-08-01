@@ -40,11 +40,11 @@ const proc: seek (ref file param, ref bigInteger param) is DYNAMIC;
 const func bigInteger: bigTell (ref file param) is DYNAMIC;
 
 
-(* NULL_FILE *)
+(* null_file *)
 
-const bigInteger: bigLength (ref NULL_FILE param) is 0_;
-const proc: seek (ref NULL_FILE param, ref bigInteger param) is noop;
-const bigInteger: bigTell (ref NULL_FILE param) is 1_;
+const bigInteger: bigLength (ref null_file param) is 0_;
+const proc: seek (ref null_file param, ref bigInteger param) is noop;
+const bigInteger: bigTell (ref null_file param) is 1_;
 
 
 (* external_file *)

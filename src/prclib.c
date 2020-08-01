@@ -635,42 +635,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype prc_getenv (listtype arguments)
-#else
-
-objecttype prc_getenv (arguments)
-listtype arguments;
-#endif
-
-  {
-    stritype stri;
-    uchartype env_name[250];
-    cstritype environment;
-    stritype result;
-
-  /* prc_getenv */
-    isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    if (compr_size(stri) + 1 > 250) {
-      environment = "";
-    } else {
-      stri_export(env_name, stri);
-      if ((environment = getenv(env_name)) == NULL) {
-        environment = "";
-      } /* if */
-    } /* if */
-    result = cstri_to_stri(environment);
-    if (result == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      return(bld_stri_temp(result));
-    } /* if */
-  } /* prc_getenv */
-
-
-
-#ifdef ANSI_C
-
 objecttype prc_heapstat (listtype arguments)
 #else
 

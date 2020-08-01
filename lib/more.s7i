@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const type: more_file is sub NULL_FILE struct
+const type: more_file is sub null_file struct
     var file: out_file is STD_NULL;
     var file: command_file is STD_NULL;
     var integer: pagesize is 0;

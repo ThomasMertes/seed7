@@ -40,7 +40,7 @@ const func boolean: (ref program param) = (ref program param) is           actio
 const func boolean: (ref program param) <> (ref program param) is          action "PRG_NE";
 
 const func program: analyze (in string param) is                           action "PRG_ANALYZE";
-const func program: analyze_stri (in string param) is                      action "PRG_S_ANALYZE";
+const func program: analyze_stri (in string param) is                      action "PRG_STR_ANALYZE";
 const func reference: evaluate (ref program param, ref reference param) is action "PRG_EVAL";
 const proc: execute (ref program param) is                                 action "PRG_EXEC";
 

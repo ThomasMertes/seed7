@@ -36,7 +36,7 @@ const func char: busy_getc (ref KEYBOARD_FILE param) is DYNAMIC;
 const func boolean: keypressed (ref KEYBOARD_FILE param) is DYNAMIC;
 
 
-const type: SCREEN_KEYBD_FILE is sub NULL_FILE struct
+const type: SCREEN_KEYBD_FILE is sub null_file struct
   end struct;
 
 type_implements_interface(SCREEN_KEYBD_FILE, KEYBOARD_FILE);
@@ -120,7 +120,7 @@ const func string: getwd (inout SCREEN_KEYBD_FILE: keybd) is func
   end func;
 
 
-const type: GRAPH_KEYBD_FILE is sub NULL_FILE struct
+const type: GRAPH_KEYBD_FILE is sub null_file struct
   end struct;
 
 type_implements_interface(GRAPH_KEYBD_FILE, KEYBOARD_FILE);

@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const type: tee_file is sub NULL_FILE struct
+const type: tee_file is sub null_file struct
     var file: out_file1 is STD_NULL;
     var file: out_file2 is STD_NULL;
   end struct;

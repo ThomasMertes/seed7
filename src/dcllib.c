@@ -222,7 +222,7 @@ listtype arguments;
       printf("\n");
       err_object(PROC_EXPECTED, decl_res);
     } /* if */
-    copy_list(*local_object_insert_place, &element_list, &err_info);
+    element_list = copy_list(*local_object_insert_place, &err_info);
     /* printf("before pop_stack\n"); */
     pop_stack();
     /* printf("after pop_stack\n"); */

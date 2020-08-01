@@ -1130,9 +1130,9 @@ printf("\n"); */
         prot_nl();
       } /* if */
 #endif
-/* printf("match_expr ");
-trace1(match_expr);
-printf("\n"); */
+      /* printf("match_expr ");
+      trace1(match_expr);
+      printf("\n"); */
       if (match_prog_expression(prog.declaration_root, match_expr) != NULL &&
           (match_result = match_object(match_expr)) != NULL) {
 #ifdef WITH_PROTOCOL

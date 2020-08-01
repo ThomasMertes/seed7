@@ -521,6 +521,46 @@ const func boolean: endOfStatement (in string: symbol) is
   return symbol = ":" or symbol = "" or symbol = "'" or symbol = "REM" or symbol = "ELSE";
 
 
+const func boolean: isStringExpr (in string: symbol) is
+  return symbol[length(symbol)] = '$' or symbol[1] in defstr_any;
+
+
+const func boolean: isStringVar (in string: symbol) is
+  return symbol[length(symbol)] = '$' or symbol[1] in defstr_var;
+
+
+const func float: getNumericVar (in string: varName) is func
+  result
+    var float: result is 0.0;
+  begin
+    if varName in numeric_var then
+      result := numeric_var[varName];
+    end if;
+  end func;
+
+
+const proc: setNumericVar (in string: varName, in float: number) is func
+  begin
+    numeric_var @:= [varName] number;
+  end func;
+
+
+const func string: getStringVar (in string: varName) is func
+  result
+    var string: result is "";
+  begin
+    if varName in string_var then
+      result := string_var[varName];
+    end if;
+  end func;
+
+
+const proc: setStringVar (in string: varName, in string: stri) is func
+  begin
+    string_var @:= [varName] stri;
+  end func;
+
+
 const proc: line_marker is func
   begin
     if statement_label <> "" then
@@ -824,7 +864,7 @@ const proc: assign_input_number (in string: variable_name, in string: param1) is
   begin
     block
       num1 := float parse param1;
-      numeric_var @:= [variable_name] num1;
+      setNumericVar(variable_name, num1);
       line_marker;
       log << "INPUT ";
       log << variable_name;
@@ -849,7 +889,7 @@ const proc: assign_input_string (in string: variable_name, in string: param1) is
   local
     var float: num1 is 0.0;
   begin
-    string_var @:= [variable_name] param1;
+    setStringVar(variable_name, param1);
     line_marker;
     log << "INPUT ";
     log << variable_name;
@@ -927,28 +967,7 @@ const proc: define_function (in var string: variable_name,
   end func;
 
 
-const func float: get_num_value (in string: name) is func
-  result
-    var float: result is 0.0;
-  begin
-    if name in numeric_var then
-      result := numeric_var[name];
-    end if;
-  end func;
-
-
-const func string: get_str_value (in string: name) is func
-  result
-    var string: result is "";
-  begin
-    if name in string_var then
-      result := string_var[name];
-    end if;
-  end func;
-
-
 const func float: exec_expr (inout string: symbol, inout string: line) is forward;
-
 
 
 const proc: append_index (inout string: name, inout string: symbol, inout string: line) is func
@@ -1337,7 +1356,7 @@ const func string: exec_str_primary (
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(",", symbol, line);
-      if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+      if isStringExpr(symbol) then
         stri1 := exec_str_expr(symbol, line, unused_name);
         result := stri1 mult round(num1);
         log << "STRING$(";
@@ -1559,7 +1578,7 @@ const func string: exec_str_primary (
     elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
       if symbol not in def_fn_list then
         variable_name := get_name(symbol, line);
-        result := get_str_value(variable_name);
+        result := getStringVar(variable_name);
         log << variable_name;
         log << " is ";
         log << literal(result);
@@ -1751,7 +1770,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
     elsif symbol = "INSTR" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
-      if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+      if isStringExpr(symbol) then
         num1 := 1.0;
       else
         num1 := exec_expr(symbol, line);
@@ -2127,7 +2146,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
     elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
       if symbol not in def_fn_list then
         variable_name := get_name(symbol, line);
-        result := get_num_value(variable_name);
+        result := getNumericVar(variable_name);
         log << variable_name;
         log << " is ";
         log << result;
@@ -2154,7 +2173,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         end if;
       until symbol <> "_";
       append_index(variable_name, symbol, line);
-      result := get_num_value(variable_name);
+      result := getNumericVar(variable_name);
       log << variable_name;
       log << " is ";
       log << result;
@@ -2269,7 +2288,7 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
     var string: stri2 is "";
     var float: num is 0.0;
   begin
-    if (symbol[length(symbol)] = '$' or symbol[1] in defstr_any) and
+    if isStringExpr(symbol) and
         symbol <> "INT"    and symbol <> "ABS"    and symbol <> "LEN"    and
         symbol <> "ASC"    and symbol <> "INSTR"  and symbol <> "RND"    and
         symbol <> "SQR"    and symbol <> "CINT"   and symbol <> "FIX"    and
@@ -3138,12 +3157,12 @@ const proc: exec_let (in var string: variable_name,
     var float: num1 is 0.0;
     var string: unused_name is "";
   begin
-    if symbol[length(variable_name)] = '$' or variable_name[1] in defstr_var then
+    if isStringVar(variable_name) then
       append_index(variable_name, symbol, line);
       if symbol = "=" then
         symbol := get_symbol(line);
         param1 := exec_str_expr(symbol, line, unused_name);
-        string_var @:= [variable_name] param1;
+        setStringVar(variable_name, param1);
         line_marker;
         log << "LET ";
         log << variable_name;
@@ -3165,7 +3184,7 @@ const proc: exec_let (in var string: variable_name,
       if symbol = "=" then
         symbol := get_symbol(line);
         num1 := exec_expr(symbol, line);
-        numeric_var @:= [variable_name] num1;
+        setNumericVar(variable_name, num1);
         line_marker;
         log << "LET ";
         log << variable_name;
@@ -3197,7 +3216,7 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
   begin
     symbol := get_symbol(line);
     expect("(", symbol, line);
-    if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+    if isStringVar(symbol) then
       variable_name := get_name(symbol, line);
       expect(",", symbol, line);
       position := round(exec_expr(symbol, line));
@@ -3222,14 +3241,14 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
         stri := exec_str_expr(symbol, line, unused_name);
         length := length(stri);
       end if;
-      var_value := get_str_value(variable_name);
+      var_value := getStringVar(variable_name);
       if position <= length(var_value) then
         if succ(length(var_value) - position) < length then
           length := succ(length(var_value) - position);
         end if;
         var_value := var_value[ .. pred(position)] & stri[ .. length] &
             var_value[position + length ..];
-        string_var @:= [variable_name] var_value;
+        setStringVar(variable_name, var_value);
         log << ")=";
         log << literal(stri);
       else
@@ -3503,7 +3522,7 @@ const proc: exec_select (inout string: symbol, inout string: line) is func
     symbol := get_symbol(line);
     if symbol = "CASE" then
       symbol := get_symbol(line);
-      if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+      if isStringExpr(symbol) then
         param1 := exec_str_expr(symbol, line, unused_name);
         line_marker;
         log << "SELECT CASE ";
@@ -3708,7 +3727,7 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
       flush(log);
     else
       repeat
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+        if isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, unused_name);
           win << param1;
           log << literal(param1);
@@ -3783,7 +3802,7 @@ const proc: exec_print (inout file: outFile,
       flush(log);
     else
       repeat
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+        if isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, unused_name);
           outFile << param1;
           log << literal(param1);
@@ -3858,7 +3877,7 @@ const proc: exec_print_using (inout file: outFile,
   begin
     log << "USING ";
     symbol := get_symbol(line);
-    if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+    if isStringExpr(symbol) then
       param1 := exec_str_expr(symbol, line, unused_name);
       log << literal(param1);
       log << NL;
@@ -3872,7 +3891,7 @@ const proc: exec_print_using (inout file: outFile,
               if symbol = ";" or symbol = "," then
                 symbol := get_symbol(line);
               end if;
-              if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+              if isStringExpr(symbol) then
                 param2 := exec_str_expr(symbol, line, unused_name);
                 if ch1 = '!' then
                   outFile << param2[1 len 1] rpad 1;
@@ -4065,6 +4084,9 @@ const proc: exec_print_to_file (inout string: symbol, inout string: line) is fun
       err << index1;
       err << " NOT OPEN IN PRINT.";
       err << NL;
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
     end if;
   end func;
 
@@ -4081,7 +4103,7 @@ const proc: exec_write_to_file (inout string: symbol, inout string: line) is fun
     if file_value[index1] <> STD_NULL then
       while symbol = "," do
         symbol := get_symbol(line);
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+        if isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, variable_name);
           file_value[index1] << literal(param1);
           line_marker;
@@ -4114,6 +4136,9 @@ const proc: exec_write_to_file (inout string: symbol, inout string: line) is fun
       err << index1;
       err << " NOT OPEN IN WRITE.";
       err << NL;
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
     end if;
   end func;
 
@@ -4133,7 +4158,7 @@ const proc: exec_write (inout string: symbol, inout string: line) is func
       flush(log);
     else
       repeat
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+        if isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, variable_name);
           win << literal(param1);
           line_marker;
@@ -4172,10 +4197,10 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
   begin
     repeat
       symbol := get_symbol(line);
-      if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+      if isStringVar(symbol) then
         variable_name := get_name(symbol, line);
         param1 := get_data_field;
-        string_var @:= [variable_name] param1;
+        setStringVar(variable_name, param1);
         line_marker;
         log << "READ ";
         log << variable_name;
@@ -4190,7 +4215,7 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
         data_elem := trim(get_data_field);
         if data_elem = "" then
           (* Empty DATA fields can be read as 0.0 *)
-          numeric_var @:= [variable_name] 0.0;
+          setNumericVar(variable_name, 0.0);
           line_marker;
           log << "READ ";
           log << variable_name;
@@ -4207,7 +4232,7 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
           end if;
           block
             num1 := float parse param1;
-            numeric_var @:= [variable_name] num1;
+            setNumericVar(variable_name, num1);
             line_marker;
             log << "READ ";
             log << variable_name;
@@ -4258,10 +4283,10 @@ const proc: exec_input_from_file (inout string: symbol, inout string: line) is f
       while symbol = "," do
         symbol := get_symbol(line);
         skip_space_cr_lf(file_value[index1]);
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        if isStringVar(symbol) then
           variable_name := get_name(symbol, line);
           param1 := read_input_string(file_value[index1]);
-          string_var @:= [variable_name] param1;
+          setStringVar(variable_name, param1);
           line_marker;
           log << "INPUT #";
           log << index1;
@@ -4276,7 +4301,7 @@ const proc: exec_input_from_file (inout string: symbol, inout string: line) is f
           param1 := read_input_number(file_value[index1]);
           block
             num1 := float parse param1;
-            numeric_var @:= [variable_name] num1;
+            setNumericVar(variable_name, num1);
             line_marker;
             log << "INPUT #";
             log << index1;
@@ -4324,7 +4349,7 @@ const proc: read_input (inout file: inFile,
     while symbol = "," do
       symbol := get_symbol(line);
       skipSpace(inFile);
-      if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+      if isStringVar(symbol) then
         variable_name := get_name(symbol, line);
         param1 := read_input_string(inFile);
         assign_input_string(variable_name, param1);
@@ -4350,7 +4375,7 @@ const proc: exec_input (inout string: symbol, inout string: line) is func
     if symbol = ";" then
       symbol := get_symbol(line);
     end if;
-    if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+    if isStringExpr(symbol) then
       param1 := exec_str_expr(symbol, line, variable_name);
       if symbol = ";" or symbol = "," then
         win << param1;
@@ -4418,10 +4443,10 @@ const proc: exec_line_input_from_file (inout string: symbol, inout string: line)
     index1 := round(exec_expr(symbol, line));
     if file_value[index1] <> STD_NULL then
       expect(",", symbol, line);
-      if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+      if isStringVar(symbol) then
         variable_name := get_name(symbol, line);
         param1 := getln(file_value[index1]);
-        string_var @:= [variable_name] param1;
+        setStringVar(variable_name, param1);
         line_marker;
         log << "LINE INPUT #";
         log << index1;
@@ -4444,6 +4469,9 @@ const proc: exec_line_input_from_file (inout string: symbol, inout string: line)
       err << index1;
       err << " NOT OPEN IN LINE INPUT.";
       err << NL;
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
     end if;
   end func;
 
@@ -4457,13 +4485,13 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
     if symbol = ";" then
       symbol := get_symbol(line);
     end if;
-    if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+    if isStringExpr(symbol) then
       param1 := exec_str_expr(symbol, line, variable_name);
       if symbol = ";" or symbol = "," then
         symbol := get_symbol(line);
         win << param1;
         flush(win);
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        if isStringVar(symbol) then
           variable_name := get_name(symbol, line);
           line_marker;
           log << "LINE INPUT ";
@@ -4474,7 +4502,7 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
           readln(param2);
           win << NL;
           flush(win);
-          string_var @:= [variable_name] param2;
+          setStringVar(variable_name, param2);
           log << " <- ";
           log << literal(param2);
           log << NL;
@@ -4496,7 +4524,7 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
         readln(param2);
         win << NL;
         flush(win);
-        string_var @:= [variable_name] param2;
+        setStringVar(variable_name, param2);
         log << " <- ";
         log << literal(param2);
         log << NL;
@@ -5742,7 +5770,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         symbol := get_symbol(line);
         expect("=", symbol, line);
         num1 := exec_expr(symbol, line);
-        numeric_var @:= [variable_name] num1;
+        setNumericVar(variable_name, num1);
         expect("TO", symbol, line);
         num2 := exec_expr(symbol, line);
         if symbol = "STEP" then
@@ -5846,11 +5874,11 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
               end if;
             end if;
             if variable_name = forLoop[1].varName then
-              num1 := get_num_value(variable_name);
+              num1 := getNumericVar(variable_name);
               if (forLoop[1].stepValue > 0.0 and num1 + forLoop[1].stepValue <= forLoop[1].endValue) or
                  (forLoop[1].stepValue < 0.0 and num1 + forLoop[1].stepValue >= forLoop[1].endValue) then
                 line_marker;
-                numeric_var @:= [variable_name] num1 + forLoop[1].stepValue;
+                setNumericVar(variable_name, num1 + forLoop[1].stepValue);
                 file_line_number := forLoop[1].bodyLine;
                 statement_label := prg[file_line_number].linenum;
                 line := prg[file_line_number].line[forLoop[1].bodyColumn .. ];
@@ -6736,15 +6764,15 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         result := FALSE;
       elsif symbol = "SWAP" then
         symbol := get_symbol(line);
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        if isStringVar(symbol) then
           variable_name := get_name(symbol, line);
           expect(",", symbol, line);
-          if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+          if isStringVar(symbol) then
             variable2_name := get_name(symbol, line);
-            param1 := string_var[variable_name];
-            param2 := string_var[variable2_name];
-            string_var @:= [variable_name] param2;
-            string_var @:= [variable2_name] param1;
+            param1 := getStringVar(variable_name);
+            param2 := getStringVar(variable2_name);
+            setStringVar(variable_name, param2);
+            setStringVar(variable2_name, param1);
           else
             error_marker;
             err << "STRING VARIABLE EXPECTED - FOUND ";
@@ -6755,12 +6783,12 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         else
           variable_name := get_name(symbol, line);
           expect(",", symbol, line);
-          if symbol[length(symbol)] <> '$' and symbol[1] not in defstr_var then
+          if not isStringVar(symbol) then
             variable2_name := get_name(symbol, line);
-            num1 := numeric_var[variable_name];
-            num2 := numeric_var[variable2_name];
-            numeric_var @:= [variable_name] num2;
-            numeric_var @:= [variable2_name] num1;
+            num1 := getNumericVar(variable_name);
+            num2 := getNumericVar(variable2_name);
+            setNumericVar(variable_name, num2);
+            setNumericVar(variable2_name, num1);
           else
             error_marker;
             err << "NUMERIC VARIABLE EXPECTED - FOUND ";
@@ -6823,12 +6851,12 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
       elsif symbol = "CONST" then
         repeat
           symbol := get_symbol(line);
-          if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+          if isStringVar(symbol) then
             variable_name := get_name(symbol, line);
             if symbol = "=" then
               symbol := get_symbol(line);
               param3 := exec_str_expr(symbol, line, unused_name);
-              string_var @:= [variable_name] param3;
+              setStringVar(variable_name, param3);
               line_marker;
               log << "CONST ";
               log << variable_name;
@@ -6850,7 +6878,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             if symbol = "=" then
               symbol := get_symbol(line);
               num1 := exec_expr(symbol, line);
-              numeric_var @:= [variable_name] num1;
+              setNumericVar(variable_name, num1);
               line_marker;
               log << "CONST ";
               log << variable_name;
@@ -6883,7 +6911,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         if symbol = "=" then
           symbol := get_symbol(line);
           num1 := exec_expr(symbol, line);
-          numeric_var @:= [variable_name] num1;
+          setNumericVar(variable_name, num1);
           line_marker;
           log << variable_name;
           log << "=";
@@ -6957,7 +6985,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           else
             num1 := 1.0;
           end if;
-          numeric_var @:= [variable_name] get_num_value(variable_name) + num1;
+          setNumericVar(variable_name, getNumericVar(variable_name) + num1);
           line_marker;
           log << "INCR ";
           log << variable_name;
@@ -6978,7 +7006,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           else
             num1 := 1.0;
           end if;
-          numeric_var @:= [variable_name] get_num_value(variable_name) - num1;
+          setNumericVar(variable_name, getNumericVar(variable_name) - num1);
           line_marker;
           log << "DECR ";
           log << variable_name;
@@ -6989,7 +7017,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         end if;
       elsif symbol = "CHAIN" then
         symbol := get_symbol(line);
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+        if isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, variable_name);
           prg := 0 times lineType.value;
           label := label_hash.EMPTY_HASH;
@@ -7056,12 +7084,12 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         if symbol = "LET" then
           symbol := get_symbol(line);
         end if;
-        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        if isStringVar(symbol) then
           variable_name := get_name(symbol, line);
           if symbol = "=" then
             symbol := get_symbol(line);
             param3 := exec_str_expr(symbol, line, unused_name);
-            string_var @:= [variable_name] param3;
+            setStringVar(variable_name, param3);
             line_marker;
             log << "LET ";
             log << variable_name;
@@ -7083,7 +7111,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           if symbol = "=" then
             symbol := get_symbol(line);
             num1 := exec_expr(symbol, line);
-            numeric_var @:= [variable_name] num1;
+            setNumericVar(variable_name, num1);
             line_marker;
             log << "LET ";
             log << variable_name;

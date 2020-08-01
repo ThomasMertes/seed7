@@ -199,7 +199,7 @@ listtype list;
     incl_list(&fail_stack, curr_exec_object, &err_info);
     if (!fail_flag || fail_value == NULL) {
       fail_value = exception;
-      copy_list(list, &fail_expression, &err_info);
+      fail_expression = copy_list(list, &err_info);
     } /* if */
     fail_flag = TRUE;
     return(NULL);

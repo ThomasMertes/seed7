@@ -74,46 +74,51 @@ CONTENTS
   6.5     'inout' parameter
   6.6     Symbol parameter
   6.7     'attr' parameter
-  7.    THE FILE SYSTEM
-  7.1     Conversion to strings and back
-  7.2     Basic input and output operations
-  7.3     Input and output with conversion
-  7.4     Simple read and write statements
-  7.5     Standard input and output files
-  7.6     Access to operating system files
-  7.7     User defined file types
-  8.    DECLARATIONS
-  8.1     System declarations
-  8.2     Syntax declarations
-  8.3     Semantic declarations
-  9.    TOKENS
-  9.1     White space
-  9.1.1     Spaces
-  9.1.2     Comments
-  9.1.3     Line comments
-  9.2     Identifiers
-  9.2.1     Name identifiers
-  9.2.2     Special identifiers
-  9.2.3     Parentheses
-  9.3     Literals
-  9.3.1     Integer literals
-  9.3.2     String literals
-  9.3.3     Character literals
-  10.   EXPRESSIONS
-  10.1    Parentheses
-  10.2    Call expressions
-  10.3    Dot expressions
-  11.   OPERATING SYSTEM ACCESS
-  11.1    Directory access
-  11.2    Other directory operations
-  11.3    File operations
-  12.   PRIMITIVE ACTIONS
-  13.   ERRORS
-  13.1    Compile time errors
-  13.2    Exceptions
-  13.3    Handlers
-  13.4    Stack trace
-  13.5    Other errors and warnings
+  7.    OBJECT ORIENTATION
+  7.1     Interface and implementation
+  7.2     Dynamic dispatch
+  7.3     Inheritance
+  7.4     Multiple dispatch
+  8.    THE FILE SYSTEM
+  8.1     Conversion to strings and back
+  8.2     Basic input and output operations
+  8.3     Input and output with conversion
+  8.4     Simple read and write statements
+  8.5     Standard input and output files
+  8.6     Access to operating system files
+  8.7     User defined file types
+  9.    DECLARATIONS
+  9.1     System declarations
+  9.2     Syntax declarations
+  9.3     Semantic declarations
+  10.   TOKENS
+  10.1    White space
+  10.1.1    Spaces
+  10.1.2    Comments
+  10.1.3    Line comments
+  10.2    Identifiers
+  10.2.1    Name identifiers
+  10.2.2    Special identifiers
+  10.2.3    Parentheses
+  10.3    Literals
+  10.3.1    Integer literals
+  10.3.2    String literals
+  10.3.3    Character literals
+  11.   EXPRESSIONS
+  11.1    Parentheses
+  11.2    Call expressions
+  11.3    Dot expressions
+  12.   OPERATING SYSTEM ACCESS
+  12.1    Directory access
+  12.2    Other directory operations
+  12.3    File operations
+  13.   PRIMITIVE ACTIONS
+  14.   ERRORS
+  14.1    Compile time errors
+  14.2    Exceptions
+  14.3    Handlers
+  14.4    Stack trace
+  14.5    Other errors and warnings
 
 
 
@@ -1007,7 +1012,7 @@ CONTENTS
     const proc: (inout enumType param) := (in enumType param) is    action "ENU_CPY";
     const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param) is action "FIL_CPY";
     const proc: (inout file param) := (ref file param) is           action "CLS_CPY";
-    const proc: (inout file param) := (ref NULL_FILE param) is      action "CLS_CPY2";
+    const proc: (inout file param) := (ref null_file param) is      action "CLS_CPY2";
     const proc: (inout file param) := (ref external_file param) is  action "CLS_CPY2";
 
 
@@ -3270,9 +3275,10 @@ CONTENTS
 
     const func integer: total_length (ref array string: arr) is func
 
-  Since for array types 'in' parameters are defined to act as
-  'ref' parameters both definitions are equal. When possible
-  'in' parameters should be preferred over 'ref' parameters.
+  Since for array types (and also for struct types) 'in'
+  parameters are defined to act as 'ref' parameters both
+  definitions are equal. When possible 'in' parameters should
+  be preferred over 'ref' parameters.
 
   Semantics:
     When calling a function a formal 'ref' parameter is set to
@@ -3541,7 +3547,341 @@ CONTENTS
 
 
 
-7. THE FILE SYSTEM
+7. OBJECT ORIENTATION
+=====================
+
+    Many people will be familiar with object-orientation from
+  languages like C++, Smalltalk, and Java. Seed7 follows the
+  route of declaring "interfaces". An interface is a common
+  set of operations supported by an object. For instance
+  cars, motorcycles, lorries and vans can all accelerate or
+  brake, if they are legal to drive on the road they can all
+  indicate right and left.
+
+  This view isn't new. C provides a primitive form of
+  interfacing. When you write to a 'file' in C you use the same
+  interface ('fprintf') for harddisk files, console output and
+  printer output. The implementation does totally different
+  things for this files. UNIX has used the "everything is a
+  file" philosopy for ages (even network communication uses
+  the file' interface (see sockets)).
+
+  For short: An interface defines which methods are supported
+  while the implementation describes how this is done.
+  Several types with different method implementations can
+  share the same interface. 
+
+
+7.1 Interface and implementation
+
+  Seed7 uses interface types and implementation types.
+  Objects declared with an interface type refer to a value
+  which has an implementation type. The interface type of
+  an object can always be determined at compile-time. Several
+  implementation types can belong to one interface type (they
+  implement the interface type). E.g.: The types 'null_file',
+  'external_file' and 'socket' implement the 'file' interface.
+  An interface object can only refer to a value with an
+  implementation type that implements the interface. E.g.:
+  A 'shape' variable cannot refer to a 'socket'.
+
+  A new interface type is declared with:
+
+    const type: shape is new interface;
+
+  Interface (DYNAMIC) functions describe what can be done
+  with objects of an interface type. An interface function
+  for a 'shape' could be:
+
+    const proc: draw (in shape param, inout window param) is DYNAMIC;
+
+  Now we know that it is possible to 'draw' a 'shape' to a
+  'window'. How this drawing is done is described in the
+  implementation type. An implementation type for 'shape' is:
+
+    const type: circle is new struct
+        var integer: radius is 0;
+      end struct;
+
+  The fact that the type 'circle' is an implementation type of
+  'shape' is described with:
+
+    type_implements_interface(circle, shape);
+
+  The function which implements 'draw' for 'circle's is:
+
+    const proc: draw (in circle: aCircle, inout window: aWindow) is func
+      begin
+        circle(aWindow.win, aWindow.currX, aWindow.currY,
+            aCircle.radius, aWindow.foreground);
+      end func;
+
+  In the classic OOP philosopy a message is sent to an object.
+  In the method the receiving object is referred with 'self' or
+  'this'. The other parameters use the same mechanisms as in
+  procedural programming languages (value or reference parameter). 
+  Seed7 uses a different approach: All parameters get a user
+  defined name. In the above example the name 'aCircle' was used
+  for the 'self'/'this' parameter.
+
+  A function to create new circle objects can also be helpful:
+
+    const func circle: circle (in integer: radius) is func
+      result
+        var circle: result is circle.value;
+      begin
+        result.radius := radius;
+      end func;
+
+  Now we can draw a 'circle' object with:
+
+    draw(circle(50), aWindow);
+
+  Although the statement above does exactly what it should
+  do and the separation between interface and implementation
+  is obvious, most OO enthusiasts would not be thrilled. All
+  decisions which implementation function should be called
+  can be made at compile time. To please the OO fans such
+  decisions must be made at runtime. This decision process
+  is called dynamic dispatch.
+
+
+7.2 Dynamic dispatch
+
+    When the implementation types have different implementations
+  of the same function (method) a dynamic dispatch is necessary.
+  The type of the value, refered by an interface object, is not
+  known at compile-time. In this case the program must decide at
+  runtime which implementation of the function should be invoked.
+  This decision is based on the type of the value of an object.
+  A dynamic dispatch only takes place when a DYNAMIC (or
+  interface) function is called. When the program is analyzed
+  (in the interpreter or compiler) the interface functions take
+  precedence over normal functions when both are to be considered.
+
+  To demonstrate the dynamic dispatch we define the type 'line'
+  which also implements a 'shape':
+
+    const type: line is new struct
+        var integer: xLen is 0.0;
+        var integer: yLen is 0.0;
+      end func;
+
+    type_implements_interface(line, shape);
+
+    const proc: draw (in line: aLine, in window: aWindow) is func
+      begin
+        line(aWindow.win, aWindow.currX, aWindow.currY,
+            aLine.xLen, aLine.yLen, aWindow.foreground);
+      end func;
+
+    const func line: line (in integer: xLen, in integer: yLen) is func
+      result
+        var line: result is line.value;
+      begin
+        result.xLen := xLen;
+        result.yLen := yLen;
+      end func;
+
+  In addition we define a normal (not DYNAMIC) function 
+  which draws 'shape's to the 'currWindow':
+
+    const proc: draw (in shape: aShape) is func
+      begin
+        draw(aShape, currWindow);
+      end func;
+
+  In the example above the call of the (DYNAMIC) interface
+  function is 'draw(aShape, currWindow)'. The
+  interface function declared with
+
+    const proc: draw (in shape param, inout window param) is DYNAMIC;
+
+  decides which implementation function has to be called.
+  The dynamic dispatch works as follows:
+
+  - For all parameters which have an interface type the
+    parameter is replaced with its value. In this case the
+    parameter 'aShape' is replaced by a value of type
+    'circle' or 'line'.
+
+  - The same logic as in the analyze part of the compiler
+    is used to find the matching function. In this search
+    normal functions take precedence over interface functions.
+
+  - When a matching function is found it is called.
+
+  This process describes the principal logic of the dynamic
+  dispatch. In practice it is not necessary to execute the
+  analyze part of the compiler during the runtime. It is
+  possible to simplify this process with tables and function
+  pointers.
+
+
+7.3 Inheritance
+
+    When a new 'struct' type is defined it is possible to
+  inherit from an existing 'struct' type. E.g.:
+
+    const type: external_file is sub null_file struct
+        var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+        var string: name is "";
+      end struct;
+
+  That way the type 'external_file' inherits the fields and
+  methods of 'null_file', which is declared as:
+
+    const type: null_file is new struct
+      var char: bufferChar is '\n';
+      var boolean: io_empty is FALSE;
+      var boolean: io_ok is TRUE;
+    end struct;
+
+  In most situations it makes sense when the implementation
+  types inherit from a basic implementation type such as
+  'null_file'. That way it is possible to define functions
+  which are inherited by all derived implementation types.
+  In the standard library the function 'getln' is such a
+  function:
+
+    const func string: getln (inout null_file: aFile) is func
+      result
+        var string: stri is "";
+      local
+        var string: buffer is "";
+      begin
+        buffer := gets(aFile, 1);
+        while buffer <> "\n" and buffer <> "" do
+          stri &:= buffer;
+          buffer := gets(aFile, 1);
+        end while;
+        aFile.bufferChar := buffer[1];
+      end func;
+
+  All inherited types of 'null_file' inherit the function
+  'getln', but they are also free to redeclare it. In the
+  'getln' function above the function call 'gets(aFile, 1)'
+  uses the (DYNAMIC) interface function:
+
+    const func string: gets (inout file param, in integer param) is DYNAMIC;
+
+  In other OO languages the distinction between interface type
+  and basic implementation type is not done. Such languages
+  either use a dynamic dispatch for every method call (as Java
+  does) or need a keyword to request a dynamic dispatch (as C++
+  does with the 'virtual' keyword).
+
+  When assignments take place between inherited implementation
+  types it is important to note that structure assignments are
+  done with (deep) copies. Naturally such assignments can only
+  copy the elements that are present in both structures.
+  In the following example just the 'null_file' elements
+  are copied from 'anExternalFile' to 'aNullFile':
+
+    const proc: example is func
+      local
+        var null_file: aNullFile is null_file.value;
+        var external_file: anExternalFile is external_file.value;
+      begin
+        aNullFile := anExternalFile;
+        write(aNullFile, "hello");
+      end func;
+
+  Although the variable 'anExternalFile' is assigned to
+  'aNullFile', the statement 'write(aNullFile, "hello")'
+  calls the 'write' function (method) of the type 'null_file'.
+
+  A new interface type can also inherit from an existing
+  interface type:
+
+    const type: shape is sub object interface;
+
+  Although inheritance is a very powerful feature it should
+  be used with care. In many situations it makes more sense
+  that a new type has an element of another type (so called
+  has-a relation) instead of inheriting from that type (so
+  called is-a relation).
+
+
+7.4 Multiple dispatch
+
+    The Seed7 object system allows multiple dispatch (not to
+  be confused with multiple inheritance). The methods are
+  not assigned to one type (class). The decision which
+  function (method) is called at runtime is done based upon
+  the types of several arguments. The classic object
+  orientation is a special case where a method is connected
+  to one class and the dispatch decision is done based on
+  the type of the 'self' or 'this' parameter.
+  The classic object orientation is a single dispatch system.
+
+  In the following example the type 'Number' is introduced
+  which is capable to unify numerical types. The type
+  'Number' is an interface type which defines
+  the inferface function for the '+' operation:
+
+    const type: Number is sub object interface;
+
+    const func Number: (in Number param) + (in Number param) is DYNAMIC;
+
+  The interface type 'Number' can represent an 'Integer' or a 'Float':
+
+    const type: Integer is new struct
+        var integer: val is 0;
+      end struct;
+
+    type_implements_interface(Integer, Number);
+
+    const type: Float is new struct
+        var float: val is 0.0;
+      end struct;
+
+    type_implements_interface(Float, Number);
+
+  The declarations of the converting '+' operators are:
+
+    const func Float: (in Integer: a) + (in Float: b) is func
+      result
+        var Float: result is Float.value;
+      begin
+        result.val := flt(a.val) + b.val;
+      end func;
+
+    const func Float: (in Float: a) + (in Integer: b) is func
+      result
+        var Float: result is Float.value;
+      begin
+        result.val := a.val + flt(b.val);
+      end func;
+
+  The declarations of the normal '+' operators (which do not convert) are:
+
+    const func Integer: (in Integer: a) + (in Integer: b) is func
+      result
+        var Integer: result is Integer.value;
+      begin
+        result.val := a.val + b.val;
+      end func;
+
+    const func Float: (in Float: a) + (in Float: b) is func
+      result
+        var Float: result is Float.value;
+      begin
+        result.val := a.val + b.val;
+      end func;
+
+  The type 'Number' can be extended to support other
+  operators and there can be also implementations using
+  'complex', 'bigInteger', 'bigRational', etc. . That way
+  'Number' can be used as universal type for math
+  calculation. Further extending can lead to an universal
+  type. Such an universal type is loved by proponents of
+  dynamic typed languages, but there are also good reasons
+  to have destinct types for different purposes.
+
+
+
+8. THE FILE SYSTEM
 ==================
 
     The file system is used for communication in various ways.
@@ -3680,7 +4020,7 @@ CONTENTS
   In the following subchapters we discuss each of this goals.
 
 
-7.1 Conversion to strings and back
+8.1 Conversion to strings and back
 
     We archive the goal of doing i/o for arbitrary types with
   two conversion functions. In order to do i/o with a type
@@ -3812,7 +4152,7 @@ CONTENTS
      99.90
 
 
-7.2 Basic input and output operations
+8.2 Basic input and output operations
 
     To allow arbitrary user defined file-types beside the
   operating system files we chose a model in which the
@@ -3823,39 +4163,39 @@ CONTENTS
   defined. For the operating system files and for each user
   defined file a file-type must be declared which has the
   i/o methods defined. These file-types are derived (direct
-  or indirect) from the type NULL_FILE for which all i/o
+  or indirect) from the type 'null_file' for which all i/o
   methods are defined upon a base of basic string i/o
   methods. So for a new user defined file-type only the
   basic string i/o methods must be defined.
 
-  The two basic i/o methods defined for the NULL_FILE are
+  The two basic i/o methods defined for the 'null_file' are
 
-    const proc: write (ref NULL_FILE param, in string param) is noop;
-    const string: gets (ref NULL_FILE param, ref integer param) is "";
+    const proc: write (ref null_file param, in string param) is noop;
+    const string: gets (ref null_file param, ref integer param) is "";
 
-  This means that writing any string to the NULL_FILE has
+  This means that writing any string to the 'null_file' has
   no effect and reading any number of characters from the
-  NULL_FILE delivers the empty string. When a user defined
+  'null_file' delivers the empty string. When a user defined
   file type is declared these are the two methods that must
   be redefined for the new file-type. Based upon these
   two methods three more methods are defined for the
-  NULL_FILE named 'getc', 'getwd' and 'getln'.
+  'null_file' named 'getc', 'getwd' and 'getln'.
   This methods get a character, a word and a line
   respectively. A word is terminated by a space, a tab
   or a linefeed. A line is terminated by a linefeed.
   This methods need not to be redefined for an user defined
   file type but for performance reasons they can also be
   redefined. The definitions for 'getc', 'getwd' and 'getln' for
-  the NULL_FILE are
+  the 'null_file' are
 
-    const func char: getc (ref NULL_FILE: aFile) is func
+    const func char: getc (ref null_file: aFile) is func
       result
         var char: ch is ' ';
       begin
         ch := gets(aFile, 1)[1];
       end func;
 
-    const func string: getwd (inout NULL_FILE: aFile) is func
+    const func string: getwd (inout null_file: aFile) is func
       result
         var string: stri is "";
       local
@@ -3872,7 +4212,7 @@ CONTENTS
         aFile.bufferChar := buffer[1];
       end func;
 
-    const func string: getln (inout NULL_FILE: aFile) is func
+    const func string: getln (inout null_file: aFile) is func
       result
         var string: stri is "";
       local
@@ -3889,17 +4229,17 @@ CONTENTS
   Note that 'getwd' skips leading spaces and tabs while 'getc' and
   'getln' do not.
   When 'getc', 'getwd' or 'getln' is not defined for a new user defined
-  file type the declarations from the NULL_FILE are used instead.
+  file type the declarations from the 'null_file' are used instead.
   This declarations are based on the method 'gets' which must be
   defined for every new user defined file-type.
 
   Note that there is an assignment to the variable 'bufferChar'.
-  This variable is a component of NULL_FILE and therefore also
+  This variable is a component of 'null_file' and therefore also
   a component of all derived file types. This allows an
   eoln-function to test if the last 'getwd' or 'getln' reach the end
   of a line. Here is a definition of the eoln-function:
 
-    const func boolean: eoln (ref NULL_FILE: aFile) is func
+    const func boolean: eoln (ref null_file: aFile) is func
       result
         var boolean: result is TRUE;
       begin
@@ -3941,7 +4281,7 @@ CONTENTS
       end func;
 
 
-7.3 Input and output with conversion
+8.3 Input and output with conversion
 
     Normally we need a combination of an i/o operation with
   a conversion operation. There are several functions which are
@@ -4022,7 +4362,7 @@ CONTENTS
       end func;
 
 
-7.4 Simple read and write statements
+8.4 Simple read and write statements
 
     The simple input/output for the standard i/o-files are
   'read' and 'write' which are defined with 'enable_io'. Simple
@@ -4102,7 +4442,7 @@ CONTENTS
     number := integer parse stri;
 
 
-7.5 Standard input and output files
+8.5 Standard input and output files
 
     The standard i/o files are OUT for output and IN for input.
   This TWO are file-variables which are declared as follows:
@@ -4141,19 +4481,19 @@ CONTENTS
   example an 'open' procedure fails.
 
 
-7.6 Access to operating system files
+8.6 Access to operating system files
 
     The access to operating system files is done via files of
   the types 'external_file', KEYBOARD_FILE and SCREEN_FILE.
   The type 'external_file' is defined as:
 
-    const type: external_file is sub NULL_FILE struct
-        var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+    const type: external_file is sub null_file struct
+        var PRIMITIVE_FILE: ext_file is PRIMITIVE_null_file;
         var string: name is "";
       end struct;
 
   This means that every data item of the type 'external_file'
-  has the components from NULL_FILE and additionally the
+  has the components from 'null_file' and additionally the
   components ext_file and name. Note the type PRIMITIVE_FILE
   which points directly to an operating system file. Objects
   of type PRIMITIVE_FILE can only have operating system
@@ -4247,7 +4587,7 @@ CONTENTS
   returns a SCREEN_FILE.
 
 
-7.7 User defined file types
+8.7 User defined file types
 
     In addition to the predefined file types it is often
   necessary to define a new type of file. Such a new file
@@ -4268,15 +4608,15 @@ CONTENTS
 
   With the following declaration we define a new file type:
 
-    const type: NEW_FILE is sub NULL_FILE struct
+    const type: NEW_FILE is sub null_file struct
         ...
         (* Local data *)
         ...
       end struct;
 
   It is not necessary to derive the NEW_FILE type direct from
-  NULL_FILE. The NEW_FILE type may also be an indirect descendant
-  of NULL_FILE. So it is possible to create file type hierarchies.
+  'null_file'. The NEW_FILE type may also be an indirect descendant
+  of 'null_file'. So it is possible to create file type hierarchies.
 
   As next an open function is needed to generate a new NEW_FILE:
 
@@ -4313,7 +4653,7 @@ CONTENTS
 
 
 
-8. DECLARATIONS
+9. DECLARATIONS
 ===============
 
   Seed7 has three kinds of declarations:
@@ -4325,7 +4665,7 @@ CONTENTS
   which are described in detail in the following subchapters.
 
 
-8.1 System declarations
+9.1 System declarations
 
     With system declarations the analyzer and the interpreter
   are informed about which objects should be used for various system
@@ -4386,7 +4726,7 @@ CONTENTS
     $ system "main" is main;
 
 
-8.2 Syntax declarations
+9.2 Syntax declarations
 
     In many languages exist predefined constructs like statements
   and operators. This constructs have fixed syntax and semantics
@@ -4498,7 +4838,7 @@ CONTENTS
   Middle operands can have any priority.
 
 
-8.3 Semantic declarations
+9.3 Semantic declarations
 
     A semantic declaration declares an object in the database.
   For example
@@ -4542,7 +4882,7 @@ CONTENTS
 
 
 
-9. TOKENS
+10. TOKENS
 =========
 
     A program consists of a sequence of tokens which may be delimited
@@ -4560,7 +4900,7 @@ CONTENTS
       identifier | literal .
 
 
-9.1 White space
+10.1 White space
 
     There are three types of white space
 
@@ -4578,7 +4918,7 @@ CONTENTS
       { space | comment | line_comment } .
 
 
-9.1.1 Spaces
+10.1.1 Spaces
 
     There are several types of space characters which are ignored
   except as they separate tokens:
@@ -4591,7 +4931,7 @@ CONTENTS
       ' ' | TAB | CR | NL .
 
 
-9.1.2 Comments
+10.1.2 Comments
 
     Comments are introduced with the characters (* and are
   terminated with the characters *) . For example:
@@ -4608,7 +4948,7 @@ CONTENTS
       '(*' { any_character } '*)' .
 
 
-9.1.3 Line comments
+10.1.3 Line comments
 
     Line comments are introduced with the character # and are
   terminated with the end of the line.<br>
@@ -4625,7 +4965,7 @@ CONTENTS
       '#' { any_character } NL .
 
 
-9.2 Identifiers
+10.2 Identifiers
 
     There are three types of identifiers
 
@@ -4643,7 +4983,7 @@ CONTENTS
       name_identifier | special_identifier | parenthesis .
 
 
-9.2.1 Name identifiers
+10.2.1 Name identifiers
 
     A name identifier is a sequence of letters, digits and
   underscores ( _ ). The first character must be a letter or an
@@ -4682,7 +5022,7 @@ CONTENTS
       '_' .
 
 
-9.2.2 Special identifiers
+10.2.2 Special identifiers
 
     A special identifier is a sequence of special characters.
   Examples of special identifiers are:
@@ -4709,7 +5049,7 @@ CONTENTS
       '|' | '~' .
 
 
-9.2.3 Parentheses
+10.2.3 Parentheses
 
     A parenthesis is one of the following characters:
 
@@ -4725,7 +5065,7 @@ CONTENTS
       '(' | ')' | '[' | ']' | '{' | '}' .
 
 
-9.3 Literals
+10.3 Literals
 
     There are three types of literals
 
@@ -4739,7 +5079,7 @@ CONTENTS
       integer_literal | character_literal | string_literal .
 
 
-9.3.1 Integer literals
+10.3.1 Integer literals
 
     An integer literal is a sequence of digits which is taken to
   be decimal. The sequence of digits may be followed by the letter
@@ -4770,7 +5110,7 @@ CONTENTS
       letter | digit .
 
 
-9.3.2 String literals
+10.3.2 String literals
 
     A string literal is a sequence of characters surrounded by
   double quotes. For example:
@@ -4818,7 +5158,7 @@ CONTENTS
       '\' { space } '\' | '\' integer_literal '\' .
 
 
-9.3.3 Character literals
+10.3.3 Character literals
 
     A character literal is a character enclosed in single
   quotes. For example:
@@ -4841,7 +5181,7 @@ CONTENTS
 
 
 
-10. EXPRESSIONS
+11. EXPRESSIONS
 ===============
 
     There are two types of expressions. On one side there so
@@ -4853,7 +5193,7 @@ CONTENTS
   8.2. There are only few fixed predefined syntax rules:
 
 
-10.1 Parentheses
+11.1 Parentheses
 
     Parentheses can be used to override any precedence
   rules of predefined and user defined syntax constructs.
@@ -4869,7 +5209,7 @@ CONTENTS
       '(' expression ')' .
 
 
-10.2 Call expressions
+11.2 Call expressions
 
     Call expressions can also be used to form a list.
   For example
@@ -4906,7 +5246,7 @@ CONTENTS
       parentheses_expression | atom .
 
 
-10.3 Dot expressions
+11.3 Dot expressions
 
     Dot expressions start with a dot and have dots as separator
   between the elements of the list. For example
@@ -4944,7 +5284,7 @@ CONTENTS
 
 
 
-11. OPERATING SYSTEM ACCESS
+12. OPERATING SYSTEM ACCESS
 ===========================
 
     Seed7 provides a portable access to the services provided
@@ -4952,7 +5292,7 @@ CONTENTS
   POSIX and UNIX.
 
 
-11.1 Directory access
+12.1 Directory access
 
     A portable access to the contents of directories in the file
   system is provided. For example: After the declaration
@@ -5001,7 +5341,7 @@ CONTENTS
   changes in the program.
 
 
-11.2 Other directory operations
+12.2 Other directory operations
 
     In most operating systems each process has a current working
   directory. With the following statement
@@ -5019,7 +5359,7 @@ CONTENTS
     mkdir("my_dir");
 
 
-11.3 File operations
+12.3 File operations
 
     There are the following file operations accessible
 
@@ -5029,7 +5369,7 @@ CONTENTS
 
 
 
-12. PRIMITIVE ACTIONS
+13. PRIMITIVE ACTIONS
 =====================
 
     Not all functions can be described by calling other
@@ -5144,10 +5484,10 @@ CONTENTS
 
 
 
-13. ERRORS
+14. ERRORS
 ==========
 
-13.1 Compile time errors
+14.1 Compile time errors
 
   The compile time errors are not fatal (the program can
   execute) except for the error 1 (Out of heap space) which
@@ -5212,7 +5552,7 @@ CONTENTS
       Undefined error
 
 
-13.2 Exceptions
+14.2 Exceptions
 
   There are various exceptions which can be raised during
   program execution:
@@ -5256,7 +5596,7 @@ CONTENTS
       action ACT_ILLEGAL is executed.
 
 
-13.3 Handlers
+14.3 Handlers
 
   To catch an EXCEPTION the following handler construct can be used:
 
@@ -5268,7 +5608,7 @@ CONTENTS
     end block;
 
 
-13.4 Stack trace
+14.4 Stack trace
 
   When an EXCEPTION is not catched at any level the program is
   terminated and the hi interpreter generates a stack trace.
@@ -5284,7 +5624,7 @@ CONTENTS
     main {} no POSINFO
 
 
-13.5 Other errors and warnings
+14.5 Other errors and warnings
 
   No more memory. Program terminated.
     This error message is displayed after the compile time error 1

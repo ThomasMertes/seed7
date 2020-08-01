@@ -175,6 +175,7 @@ listtype arguments;
       modu_to->value.objvalue = take_reference(modu_from);
     } else {
       modu_to->value.objvalue = modu_from;
+      CLEAR_TEMP_FLAG(modu_from);
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* cls_create2 */

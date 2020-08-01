@@ -1,3 +1,24 @@
+20080217:
+- A new chapter about object orientation was added to the manual
+  (Many thanks for the feedback to Leonardo Cecchi, Malcolm McLean and Reinder Verlinde).
+- The manual was changed to mention that the 'in' parameter of arrays and structs
+  is a reference ('ref') parameter.
+- The faq was improved to contain a paragraph about static type checking.
+- The implementation type NULL_FILE was renamed to null_file.
+- The struct copy of the compiler (comp.sd7) was changed to leave the dynamic type unchanged.
+- The following primitive actions were added or improved in the compiler (comp.sd7):
+  FIL_ERR, FIL_IN, FIL_OUT, FLT_GROW, FLT_MCPY, HSH_INCL, HSH_LNG, INT_PLUS, PRG_EXEC,
+  PRG_STR_ANALYZE, SCR_CURSOR and STR_GETENV.
+- The primitive action CLS_CREATE2 was changed to call the CLEAR_TEMP_FLAG macro
+  (This is a fix for a bug found by Leonardo Cecchi).
+- The function match_subexpr_type was changed to allow normal (not DYNAMIC) interface
+  functions to be used for implementation values.
+- The primitive action PRC_GETENV was renamed to STR_GETENV.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- A bug in the primitive action RFL_NOT_ELEM was fixed.
+- The functions copy_list, array_to_list and struct_to_list were change to return the
+  created list.
+
 20080203:
 - The compiler (comp.sd7) was improved to allow the compilation of itself.
 - The compiler now compiles the programs rever.sd7 and sl.sd7.
