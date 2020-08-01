@@ -29,13 +29,14 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "windows.h"
 #include "conio.h"
 
-#include "version.h"
 #include "common.h"
 #include "scr_drv.h"
 #include "kbd_drv.h"

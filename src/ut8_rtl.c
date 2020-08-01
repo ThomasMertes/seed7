@@ -29,11 +29,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 
-#include "version.h"
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
@@ -250,6 +251,9 @@ chartype *termination_char;
         } /* if */
         memory[position++] = (strelemtype) ch;
       } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
       if (!ALLOC_STRI(result, position)) {
         FREE_BSTRI(buffer, memlength);
         raise_error(MEMORY_ERROR);
@@ -512,6 +516,9 @@ chartype *termination_char;
         memory[position++] = (strelemtype) ch;
         ch = getc(fil1);
       } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
       if (!ALLOC_STRI(result, position)) {
         FREE_BSTRI(buffer, memlength);
         raise_error(MEMORY_ERROR);

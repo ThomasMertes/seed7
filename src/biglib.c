@@ -25,11 +25,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 
-#include "version.h"
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
@@ -380,6 +381,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_iconv (listtype arguments)
+#else
+
+objecttype big_iconv (arguments)
+listtype arguments;
+#endif
+
+  { /* big_iconv */
+    isit_int(arg_3(arguments));
+    return(bld_bigint_temp(bigIConv(
+        take_int(arg_3(arguments)))));
+  } /* big_iconv */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_incr (listtype arguments)
 #else
 
@@ -579,6 +597,23 @@ listtype arguments;
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* big_odd */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_ord (listtype arguments)
+#else
+
+objecttype big_ord (arguments)
+listtype arguments;
+#endif
+
+  { /* big_ord */
+    isit_bigint(arg_1(arguments));
+    return(bld_int_temp(
+        bigOrd(take_bigint(arg_1(arguments)))));
+  } /* big_ord */
 
 
 

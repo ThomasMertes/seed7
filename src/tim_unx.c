@@ -29,13 +29,14 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdio.h"
 #include "time.h"
 #include "sys/time.h"
 #include "signal.h"
 #include "setjmp.h"
 
-#include "version.h"
 #include "common.h"
 
 #undef EXTERN

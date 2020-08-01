@@ -35,10 +35,11 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 
-#include "version.h"
 #ifdef ANSI_C
 #include "limits.h"
 #endif

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  bln_rtl.c     Primitive actions for the boolean type.           */
+/*  kbd_rtl.h     Primitive actions to do keyboard input.           */
 /*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,51 +23,22 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/bln_rtl.c                                       */
-/*  Changes: 1999, 2005  Thomas Mertes                              */
-/*  Content: Primitive actions for the boolean type.                */
+/*  File: seed7/src/kbd_rtl.h                                       */
+/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Content: Primitive actions to do keyboard input.                */
 /*                                                                  */
 /********************************************************************/
 
-#include "version.h"
-
-#include "stdlib.h"
-#include "stdio.h"
-
-#include "common.h"
-
-#undef EXTERN
-#define EXTERN
-#include "bln_rtl.h"
-
-
-
 #ifdef ANSI_C
 
-void blnCpy (booltype *dest, booltype source)
+stritype kbdLineRead (chartype *);
+stritype kbdStriRead (inttype);
+stritype kbdWordRead (chartype *);
+
 #else
 
-void blnCpy (dest, source)
-booltype *dest;
-booltype source;
+stritype kbdLineRead ();
+stritype kbdStriRead ();
+stritype kbdWordRead ();
+
 #endif
-
-  { /* blnCpy */
-    *dest = source;
-  } /* blnCpy */
-
-
-
-#ifdef ANSI_C
-
-void blnCreate (booltype *dest, booltype source)
-#else
-
-void blnCreate (dest, source)
-booltype *dest;
-booltype source;
-#endif
-
-  { /* blnCreate */
-    *dest = source;
-  } /* blnCreate */

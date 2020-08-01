@@ -1838,8 +1838,548 @@ const proc: check_string_append is func
   end func;
 
 
+const proc: check_string_split is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  split("", '+') <> [] ("") or
+        split("+", '+') <> [] ("", "") or
+        split("A", '+') <> [] ("A") or
+        split("++", '+') <> [] ("", "", "") or
+        split("+A", '+') <> [] ("", "A") or
+        split("A+", '+') <> [] ("A", "") or
+        split("AB", '+') <> [] ("AB") or
+        split("+++", '+') <> [] ("", "", "", "") or
+        split("A++", '+') <> [] ("A", "", "") or
+        split("+A+", '+') <> [] ("", "A", "") or
+        split("++A", '+') <> [] ("", "", "A") or
+        split("AB+", '+') <> [] ("AB", "") or
+        split("A+B", '+') <> [] ("A", "B") or
+        split("+AB", '+') <> [] ("", "AB") or
+        split("ABC", '+') <> [] ("ABC") or
+        split("++++", '+') <> [] ("", "", "", "", "") or
+        split("A+++", '+') <> [] ("A", "", "", "") or
+        split("+A++", '+') <> [] ("", "A", "", "") or
+        split("++A+", '+') <> [] ("", "", "A", "") or
+        split("+++A", '+') <> [] ("", "", "", "A") or
+        split("AB++", '+') <> [] ("AB", "", "") or
+        split("A+B+", '+') <> [] ("A", "B", "") or
+        split("A++B", '+') <> [] ("A", "", "B") or
+        split("+AB+", '+') <> [] ("", "AB", "") or
+        split("+A+B", '+') <> [] ("", "A", "B") or
+        split("++AB", '+') <> [] ("", "", "AB") or
+        split("ABC+", '+') <> [] ("ABC", "") or
+        split("AB+C", '+') <> [] ("AB", "C") or
+        split("A+BC", '+') <> [] ("A", "BC") or
+        split("+ABC", '+') <> [] ("", "ABC") or
+        split("ABCD", '+') <> [] ("ABCD") or
+        split("+++++", '+') <> [] ("", "", "", "", "", "") or
+        split("A++++", '+') <> [] ("A", "", "", "", "") or
+        split("+A+++", '+') <> [] ("", "A", "", "", "") or
+        split("++A++", '+') <> [] ("", "", "A", "", "") or
+        split("+++A+", '+') <> [] ("", "", "", "A", "") or
+        split("++++A", '+') <> [] ("", "", "", "", "A") or
+        split("AB+++", '+') <> [] ("AB", "", "", "") or
+        split("A+B++", '+') <> [] ("A", "B", "", "") or
+        split("A++B+", '+') <> [] ("A", "", "B", "") or
+        split("A+++B", '+') <> [] ("A", "", "", "B") or
+        split("+AB++", '+') <> [] ("", "AB", "", "") or
+        split("+A+B+", '+') <> [] ("", "A", "B", "") or
+        split("+A++B", '+') <> [] ("", "A", "", "B") or
+        split("++AB+", '+') <> [] ("", "", "AB", "") or
+        split("++A+B", '+') <> [] ("", "", "A", "B") or
+        split("+++AB", '+') <> [] ("", "", "", "AB") or
+        split("ABC++", '+') <> [] ("ABC", "", "") or
+        split("AB+C+", '+') <> [] ("AB", "C", "") or
+        split("AB++C", '+') <> [] ("AB", "", "C") or
+        split("A+BC+", '+') <> [] ("A", "BC", "") or
+        split("A+B+C", '+') <> [] ("A", "B", "C") or
+        split("A++BC", '+') <> [] ("A", "", "BC") or
+        split("+ABC+", '+') <> [] ("", "ABC", "") or
+        split("+AB+C", '+') <> [] ("", "AB", "C") or
+        split("+A+BC", '+') <> [] ("", "A", "BC") or
+        split("++ABC", '+') <> [] ("", "", "ABC") or
+        split("ABCD+", '+') <> [] ("ABCD", "") or
+        split("ABC+D", '+') <> [] ("ABC", "D") or
+        split("AB+CD", '+') <> [] ("AB", "CD") or
+        split("A+BCD", '+') <> [] ("A", "BCD") or
+        split("+ABCD", '+') <> [] ("", "ABCD") or
+        split("ABCDE", '+') <> [] ("ABCDE") or
+        split("++++++", '+') <> [] ("", "", "", "", "", "", "") or
+        split("A+++++", '+') <> [] ("A", "", "", "", "", "") or
+        split("+A++++", '+') <> [] ("", "A", "", "", "", "") or
+        split("++A+++", '+') <> [] ("", "", "A", "", "", "") or
+        split("+++A++", '+') <> [] ("", "", "", "A", "", "") or
+        split("++++A+", '+') <> [] ("", "", "", "", "A", "") or
+        split("+++++A", '+') <> [] ("", "", "", "", "", "A") or
+        split("AB++++", '+') <> [] ("AB", "", "", "", "") or
+        split("A+B+++", '+') <> [] ("A", "B", "", "", "") or
+        split("A++B++", '+') <> [] ("A", "", "B", "", "") or
+        split("A+++B+", '+') <> [] ("A", "", "", "B", "") or
+        split("A++++B", '+') <> [] ("A", "", "", "", "B") or
+        split("+AB+++", '+') <> [] ("", "AB", "", "", "") or
+        split("+A+B++", '+') <> [] ("", "A", "B", "", "") or
+        split("+A++B+", '+') <> [] ("", "A", "", "B", "") or
+        split("+A+++B", '+') <> [] ("", "A", "", "", "B") or
+        split("++AB++", '+') <> [] ("", "", "AB", "", "") or
+        split("++A+B+", '+') <> [] ("", "", "A", "B", "") or
+        split("++A++B", '+') <> [] ("", "", "A", "", "B") or
+        split("+++AB+", '+') <> [] ("", "", "", "AB", "") or
+        split("+++A+B", '+') <> [] ("", "", "", "A", "B") or
+        split("++++AB", '+') <> [] ("", "", "", "", "AB") or
+        split("ABC+++", '+') <> [] ("ABC", "", "", "") or
+        split("AB+C++", '+') <> [] ("AB", "C", "", "") or
+        split("AB++C+", '+') <> [] ("AB", "", "C", "") or
+        split("AB+++C", '+') <> [] ("AB", "", "", "C") or
+        split("A+BC++", '+') <> [] ("A", "BC", "", "") or
+        split("A+B+C+", '+') <> [] ("A", "B", "C", "") or
+        split("A+B++C", '+') <> [] ("A", "B", "", "C") or
+        split("A++BC+", '+') <> [] ("A", "", "BC", "") or
+        split("A++B+C", '+') <> [] ("A", "", "B", "C") or
+        split("A+++BC", '+') <> [] ("A", "", "", "BC") or
+        split("+ABC++", '+') <> [] ("", "ABC", "", "") or
+        split("+AB+C+", '+') <> [] ("", "AB", "C", "") or
+        split("+AB++C", '+') <> [] ("", "AB", "", "C") or
+        split("+A+BC+", '+') <> [] ("", "A", "BC", "") or
+        split("+A+B+C", '+') <> [] ("", "A", "B", "C") or
+        split("+A++BC", '+') <> [] ("", "A", "", "BC") or
+        split("++ABC+", '+') <> [] ("", "", "ABC", "") or
+        split("++AB+C", '+') <> [] ("", "", "AB", "C") or
+        split("++A+BC", '+') <> [] ("", "", "A", "BC") or
+        split("+++ABC", '+') <> [] ("", "", "", "ABC") or
+        split("ABCD++", '+') <> [] ("ABCD", "", "") or
+        split("ABC+D+", '+') <> [] ("ABC", "D", "") or
+        split("ABC++D", '+') <> [] ("ABC", "", "D") or
+        split("AB+CD+", '+') <> [] ("AB", "CD", "") or
+        split("AB+C+D", '+') <> [] ("AB", "C", "D") or
+        split("AB++CD", '+') <> [] ("AB", "", "CD") or
+        split("A+BCD+", '+') <> [] ("A", "BCD", "") or
+        split("A+BC+D", '+') <> [] ("A", "BC", "D") or
+        split("A+B+CD", '+') <> [] ("A", "B", "CD") or
+        split("A++BCD", '+') <> [] ("A", "", "BCD") or
+        split("+ABCD+", '+') <> [] ("", "ABCD", "") or
+        split("+ABC+D", '+') <> [] ("", "ABC", "D") or
+        split("+AB+CD", '+') <> [] ("", "AB", "CD") or
+        split("+A+BCD", '+') <> [] ("", "A", "BCD") or
+        split("++ABCD", '+') <> [] ("", "", "ABCD") or
+        split("ABCDE+", '+') <> [] ("ABCDE", "") or
+        split("ABCD+E", '+') <> [] ("ABCD", "E") or
+        split("ABC+DE", '+') <> [] ("ABC", "DE") or
+        split("AB+CDE", '+') <> [] ("AB", "CDE") or
+        split("A+BCDE", '+') <> [] ("A", "BCDE") or
+        split("+ABCDE", '+') <> [] ("", "ABCDE") or
+        split("ABCDEF", '+') <> [] ("ABCDEF") or
+        split("+++++++", '+') <> [] ("", "", "", "", "", "", "", "") or
+        split("A++++++", '+') <> [] ("A", "", "", "", "", "", "") or
+        split("+A+++++", '+') <> [] ("", "A", "", "", "", "", "") or
+        split("++A++++", '+') <> [] ("", "", "A", "", "", "", "") or
+        split("+++A+++", '+') <> [] ("", "", "", "A", "", "", "") or
+        split("++++A++", '+') <> [] ("", "", "", "", "A", "", "") or
+        split("+++++A+", '+') <> [] ("", "", "", "", "", "A", "") or
+        split("++++++A", '+') <> [] ("", "", "", "", "", "", "A") or
+        split("AB+++++", '+') <> [] ("AB", "", "", "", "", "") or
+        split("A+B++++", '+') <> [] ("A", "B", "", "", "", "") or
+        split("A++B+++", '+') <> [] ("A", "", "B", "", "", "") or
+        split("A+++B++", '+') <> [] ("A", "", "", "B", "", "") or
+        split("A++++B+", '+') <> [] ("A", "", "", "", "B", "") or
+        split("A+++++B", '+') <> [] ("A", "", "", "", "", "B") or
+        split("+AB++++", '+') <> [] ("", "AB", "", "", "", "") or
+        split("+A+B+++", '+') <> [] ("", "A", "B", "", "", "") or
+        split("+A++B++", '+') <> [] ("", "A", "", "B", "", "") or
+        split("+A+++B+", '+') <> [] ("", "A", "", "", "B", "") or
+        split("+A++++B", '+') <> [] ("", "A", "", "", "", "B") or
+        split("++AB+++", '+') <> [] ("", "", "AB", "", "", "") or
+        split("++A+B++", '+') <> [] ("", "", "A", "B", "", "") or
+        split("++A++B+", '+') <> [] ("", "", "A", "", "B", "") or
+        split("++A+++B", '+') <> [] ("", "", "A", "", "", "B") or
+        split("+++AB++", '+') <> [] ("", "", "", "AB", "", "") or
+        split("+++A+B+", '+') <> [] ("", "", "", "A", "B", "") or
+        split("+++A++B", '+') <> [] ("", "", "", "A", "", "B") or
+        split("++++AB+", '+') <> [] ("", "", "", "", "AB", "") or
+        split("++++A+B", '+') <> [] ("", "", "", "", "A", "B") or
+        split("+++++AB", '+') <> [] ("", "", "", "", "", "AB") or
+        split("ABC++++", '+') <> [] ("ABC", "", "", "", "") or
+        split("AB+C+++", '+') <> [] ("AB", "C", "", "", "") or
+        split("AB++C++", '+') <> [] ("AB", "", "C", "", "") or
+        split("AB+++C+", '+') <> [] ("AB", "", "", "C", "") or
+        split("AB++++C", '+') <> [] ("AB", "", "", "", "C") or
+        split("A+BC+++", '+') <> [] ("A", "BC", "", "", "") or
+        split("A+B+C++", '+') <> [] ("A", "B", "C", "", "") or
+        split("A+B++C+", '+') <> [] ("A", "B", "", "C", "") or
+        split("A+B+++C", '+') <> [] ("A", "B", "", "", "C") or
+        split("A++BC++", '+') <> [] ("A", "", "BC", "", "") or
+        split("A++B+C+", '+') <> [] ("A", "", "B", "C", "") or
+        split("A++B++C", '+') <> [] ("A", "", "B", "", "C") or
+        split("A+++BC+", '+') <> [] ("A", "", "", "BC", "") or
+        split("A+++B+C", '+') <> [] ("A", "", "", "B", "C") or
+        split("A++++BC", '+') <> [] ("A", "", "", "", "BC") or
+        split("+ABC+++", '+') <> [] ("", "ABC", "", "", "") or
+        split("+AB+C++", '+') <> [] ("", "AB", "C", "", "") or
+        split("+AB++C+", '+') <> [] ("", "AB", "", "C", "") or
+        split("+AB+++C", '+') <> [] ("", "AB", "", "", "C") or
+        split("+A+BC++", '+') <> [] ("", "A", "BC", "", "") or
+        split("+A+B+C+", '+') <> [] ("", "A", "B", "C", "") or
+        split("+A+B++C", '+') <> [] ("", "A", "B", "", "C") or
+        split("+A++BC+", '+') <> [] ("", "A", "", "BC", "") or
+        split("+A++B+C", '+') <> [] ("", "A", "", "B", "C") or
+        split("+A+++BC", '+') <> [] ("", "A", "", "", "BC") or
+        split("++ABC++", '+') <> [] ("", "", "ABC", "", "") or
+        split("++AB+C+", '+') <> [] ("", "", "AB", "C", "") or
+        split("++AB++C", '+') <> [] ("", "", "AB", "", "C") or
+        split("++A+BC+", '+') <> [] ("", "", "A", "BC", "") or
+        split("++A+B+C", '+') <> [] ("", "", "A", "B", "C") or
+        split("++A++BC", '+') <> [] ("", "", "A", "", "BC") or
+        split("+++ABC+", '+') <> [] ("", "", "", "ABC", "") or
+        split("+++AB+C", '+') <> [] ("", "", "", "AB", "C") or
+        split("+++A+BC", '+') <> [] ("", "", "", "A", "BC") or
+        split("++++ABC", '+') <> [] ("", "", "", "", "ABC") or
+        split("ABCD+++", '+') <> [] ("ABCD", "", "", "") or
+        split("ABC+D++", '+') <> [] ("ABC", "D", "", "") or
+        split("ABC++D+", '+') <> [] ("ABC", "", "D", "") or
+        split("ABC+++D", '+') <> [] ("ABC", "", "", "D") or
+        split("AB+CD++", '+') <> [] ("AB", "CD", "", "") or
+        split("AB+C+D+", '+') <> [] ("AB", "C", "D", "") or
+        split("AB+C++D", '+') <> [] ("AB", "C", "", "D") or
+        split("AB++CD+", '+') <> [] ("AB", "", "CD", "") or
+        split("AB++C+D", '+') <> [] ("AB", "", "C", "D") or
+        split("AB+++CD", '+') <> [] ("AB", "", "", "CD") or
+        split("A+BCD++", '+') <> [] ("A", "BCD", "", "") or
+        split("A+BC+D+", '+') <> [] ("A", "BC", "D", "") or
+        split("A+BC++D", '+') <> [] ("A", "BC", "", "D") or
+        split("A+B+CD+", '+') <> [] ("A", "B", "CD", "") or
+        split("A+B+C+D", '+') <> [] ("A", "B", "C", "D") or
+        split("A+B++CD", '+') <> [] ("A", "B", "", "CD") or
+        split("A++BCD+", '+') <> [] ("A", "", "BCD", "") or
+        split("A++BC+D", '+') <> [] ("A", "", "BC", "D") or
+        split("A++B+CD", '+') <> [] ("A", "", "B", "CD") or
+        split("A+++BCD", '+') <> [] ("A", "", "", "BCD") or
+        split("+ABCD++", '+') <> [] ("", "ABCD", "", "") or
+        split("+ABC+D+", '+') <> [] ("", "ABC", "D", "") or
+        split("+ABC++D", '+') <> [] ("", "ABC", "", "D") or
+        split("+AB+CD+", '+') <> [] ("", "AB", "CD", "") or
+        split("+AB+C+D", '+') <> [] ("", "AB", "C", "D") or
+        split("+AB++CD", '+') <> [] ("", "AB", "", "CD") or
+        split("+A+BCD+", '+') <> [] ("", "A", "BCD", "") or
+        split("+A+BC+D", '+') <> [] ("", "A", "BC", "D") or
+        split("+A+B+CD", '+') <> [] ("", "A", "B", "CD") or
+        split("+A++BCD", '+') <> [] ("", "A", "", "BCD") or
+        split("++ABCD+", '+') <> [] ("", "", "ABCD", "") or
+        split("++ABC+D", '+') <> [] ("", "", "ABC", "D") or
+        split("++AB+CD", '+') <> [] ("", "", "AB", "CD") or
+        split("++A+BCD", '+') <> [] ("", "", "A", "BCD") or
+        split("+++ABCD", '+') <> [] ("", "", "", "ABCD") or
+        split("ABCDE++", '+') <> [] ("ABCDE", "", "") or
+        split("ABCD+E+", '+') <> [] ("ABCD", "E", "") or
+        split("ABCD++E", '+') <> [] ("ABCD", "", "E") or
+        split("ABC+DE+", '+') <> [] ("ABC", "DE", "") or
+        split("ABC+D+E", '+') <> [] ("ABC", "D", "E") or
+        split("ABC++DE", '+') <> [] ("ABC", "", "DE") or
+        split("AB+CDE+", '+') <> [] ("AB", "CDE", "") or
+        split("AB+CD+E", '+') <> [] ("AB", "CD", "E") or
+        split("AB+C+DE", '+') <> [] ("AB", "C", "DE") or
+        split("AB++CDE", '+') <> [] ("AB", "", "CDE") or
+        split("A+BCDE+", '+') <> [] ("A", "BCDE", "") or
+        split("A+BCD+E", '+') <> [] ("A", "BCD", "E") or
+        split("A+BC+DE", '+') <> [] ("A", "BC", "DE") or
+        split("A+B+CDE", '+') <> [] ("A", "B", "CDE") or
+        split("A++BCDE", '+') <> [] ("A", "", "BCDE") or
+        split("+ABCDE+", '+') <> [] ("", "ABCDE", "") or
+        split("+ABCD+E", '+') <> [] ("", "ABCD", "E") or
+        split("+ABC+DE", '+') <> [] ("", "ABC", "DE") or
+        split("+AB+CDE", '+') <> [] ("", "AB", "CDE") or
+        split("+A+BCDE", '+') <> [] ("", "A", "BCDE") or
+        split("++ABCDE", '+') <> [] ("", "", "ABCDE") or
+        split("ABCDEF+", '+') <> [] ("ABCDEF", "") or
+        split("ABCDE+F", '+') <> [] ("ABCDE", "F") or
+        split("ABCD+EF", '+') <> [] ("ABCD", "EF") or
+        split("ABC+DEF", '+') <> [] ("ABC", "DEF") or
+        split("AB+CDEF", '+') <> [] ("AB", "CDEF") or
+        split("A+BCDEF", '+') <> [] ("A", "BCDEF") or
+        split("+ABCDEF", '+') <> [] ("", "ABCDEF") or
+        split("ABCDEFG", '+') <> [] ("ABCDEFG") then
+      writeln(" ***** split(string) does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("split(string) works correct");
+    end if;
+  end func;
+
+
+const proc: check_string_join is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  join([] (""), '+')                             <> "" or
+        join([] ("", ""), '+')                         <> "+" or
+        join([] ("A"), '+')                            <> "A" or
+        join([] ("", "", ""), '+')                     <> "++" or
+        join([] ("", "A"), '+')                        <> "+A" or
+        join([] ("A", ""), '+')                        <> "A+" or
+        join([] ("AB"), '+')                           <> "AB" or
+        join([] ("", "", "", ""), '+')                 <> "+++" or
+        join([] ("A", "", ""), '+')                    <> "A++" or
+        join([] ("", "A", ""), '+')                    <> "+A+" or
+        join([] ("", "", "A"), '+')                    <> "++A" or
+        join([] ("AB", ""), '+')                       <> "AB+" or
+        join([] ("A", "B"), '+')                       <> "A+B" or
+        join([] ("", "AB"), '+')                       <> "+AB" or
+        join([] ("ABC"), '+')                          <> "ABC" or
+        join([] ("", "", "", "", ""), '+')             <> "++++" or
+        join([] ("A", "", "", ""), '+')                <> "A+++" or
+        join([] ("", "A", "", ""), '+')                <> "+A++" or
+        join([] ("", "", "A", ""), '+')                <> "++A+" or
+        join([] ("", "", "", "A"), '+')                <> "+++A" or
+        join([] ("AB", "", ""), '+')                   <> "AB++" or
+        join([] ("A", "B", ""), '+')                   <> "A+B+" or
+        join([] ("A", "", "B"), '+')                   <> "A++B" or
+        join([] ("", "AB", ""), '+')                   <> "+AB+" or
+        join([] ("", "A", "B"), '+')                   <> "+A+B" or
+        join([] ("", "", "AB"), '+')                   <> "++AB" or
+        join([] ("ABC", ""), '+')                      <> "ABC+" or
+        join([] ("AB", "C"), '+')                      <> "AB+C" or
+        join([] ("A", "BC"), '+')                      <> "A+BC" or
+        join([] ("", "ABC"), '+')                      <> "+ABC" or
+        join([] ("ABCD"), '+')                         <> "ABCD" or
+        join([] ("", "", "", "", "", ""), '+')         <> "+++++" or
+        join([] ("A", "", "", "", ""), '+')            <> "A++++" or
+        join([] ("", "A", "", "", ""), '+')            <> "+A+++" or
+        join([] ("", "", "A", "", ""), '+')            <> "++A++" or
+        join([] ("", "", "", "A", ""), '+')            <> "+++A+" or
+        join([] ("", "", "", "", "A"), '+')            <> "++++A" or
+        join([] ("AB", "", "", ""), '+')               <> "AB+++" or
+        join([] ("A", "B", "", ""), '+')               <> "A+B++" or
+        join([] ("A", "", "B", ""), '+')               <> "A++B+" or
+        join([] ("A", "", "", "B"), '+')               <> "A+++B" or
+        join([] ("", "AB", "", ""), '+')               <> "+AB++" or
+        join([] ("", "A", "B", ""), '+')               <> "+A+B+" or
+        join([] ("", "A", "", "B"), '+')               <> "+A++B" or
+        join([] ("", "", "AB", ""), '+')               <> "++AB+" or
+        join([] ("", "", "A", "B"), '+')               <> "++A+B" or
+        join([] ("", "", "", "AB"), '+')               <> "+++AB" or
+        join([] ("ABC", "", ""), '+')                  <> "ABC++" or
+        join([] ("AB", "C", ""), '+')                  <> "AB+C+" or
+        join([] ("AB", "", "C"), '+')                  <> "AB++C" or
+        join([] ("A", "BC", ""), '+')                  <> "A+BC+" or
+        join([] ("A", "B", "C"), '+')                  <> "A+B+C" or
+        join([] ("A", "", "BC"), '+')                  <> "A++BC" or
+        join([] ("", "ABC", ""), '+')                  <> "+ABC+" or
+        join([] ("", "AB", "C"), '+')                  <> "+AB+C" or
+        join([] ("", "A", "BC"), '+')                  <> "+A+BC" or
+        join([] ("", "", "ABC"), '+')                  <> "++ABC" or
+        join([] ("ABCD", ""), '+')                     <> "ABCD+" or
+        join([] ("ABC", "D"), '+')                     <> "ABC+D" or
+        join([] ("AB", "CD"), '+')                     <> "AB+CD" or
+        join([] ("A", "BCD"), '+')                     <> "A+BCD" or
+        join([] ("", "ABCD"), '+')                     <> "+ABCD" or
+        join([] ("ABCDE"), '+')                        <> "ABCDE" or
+        join([] ("", "", "", "", "", "", ""), '+')     <> "++++++" or
+        join([] ("A", "", "", "", "", ""), '+')        <> "A+++++" or
+        join([] ("", "A", "", "", "", ""), '+')        <> "+A++++" or
+        join([] ("", "", "A", "", "", ""), '+')        <> "++A+++" or
+        join([] ("", "", "", "A", "", ""), '+')        <> "+++A++" or
+        join([] ("", "", "", "", "A", ""), '+')        <> "++++A+" or
+        join([] ("", "", "", "", "", "A"), '+')        <> "+++++A" or
+        join([] ("AB", "", "", "", ""), '+')           <> "AB++++" or
+        join([] ("A", "B", "", "", ""), '+')           <> "A+B+++" or
+        join([] ("A", "", "B", "", ""), '+')           <> "A++B++" or
+        join([] ("A", "", "", "B", ""), '+')           <> "A+++B+" or
+        join([] ("A", "", "", "", "B"), '+')           <> "A++++B" or
+        join([] ("", "AB", "", "", ""), '+')           <> "+AB+++" or
+        join([] ("", "A", "B", "", ""), '+')           <> "+A+B++" or
+        join([] ("", "A", "", "B", ""), '+')           <> "+A++B+" or
+        join([] ("", "A", "", "", "B"), '+')           <> "+A+++B" or
+        join([] ("", "", "AB", "", ""), '+')           <> "++AB++" or
+        join([] ("", "", "A", "B", ""), '+')           <> "++A+B+" or
+        join([] ("", "", "A", "", "B"), '+')           <> "++A++B" or
+        join([] ("", "", "", "AB", ""), '+')           <> "+++AB+" or
+        join([] ("", "", "", "A", "B"), '+')           <> "+++A+B" or
+        join([] ("", "", "", "", "AB"), '+')           <> "++++AB" or
+        join([] ("ABC", "", "", ""), '+')              <> "ABC+++" or
+        join([] ("AB", "C", "", ""), '+')              <> "AB+C++" or
+        join([] ("AB", "", "C", ""), '+')              <> "AB++C+" or
+        join([] ("AB", "", "", "C"), '+')              <> "AB+++C" or
+        join([] ("A", "BC", "", ""), '+')              <> "A+BC++" or
+        join([] ("A", "B", "C", ""), '+')              <> "A+B+C+" or
+        join([] ("A", "B", "", "C"), '+')              <> "A+B++C" or
+        join([] ("A", "", "BC", ""), '+')              <> "A++BC+" or
+        join([] ("A", "", "B", "C"), '+')              <> "A++B+C" or
+        join([] ("A", "", "", "BC"), '+')              <> "A+++BC" or
+        join([] ("", "ABC", "", ""), '+')              <> "+ABC++" or
+        join([] ("", "AB", "C", ""), '+')              <> "+AB+C+" or
+        join([] ("", "AB", "", "C"), '+')              <> "+AB++C" or
+        join([] ("", "A", "BC", ""), '+')              <> "+A+BC+" or
+        join([] ("", "A", "B", "C"), '+')              <> "+A+B+C" or
+        join([] ("", "A", "", "BC"), '+')              <> "+A++BC" or
+        join([] ("", "", "ABC", ""), '+')              <> "++ABC+" or
+        join([] ("", "", "AB", "C"), '+')              <> "++AB+C" or
+        join([] ("", "", "A", "BC"), '+')              <> "++A+BC" or
+        join([] ("", "", "", "ABC"), '+')              <> "+++ABC" or
+        join([] ("ABCD", "", ""), '+')                 <> "ABCD++" or
+        join([] ("ABC", "D", ""), '+')                 <> "ABC+D+" or
+        join([] ("ABC", "", "D"), '+')                 <> "ABC++D" or
+        join([] ("AB", "CD", ""), '+')                 <> "AB+CD+" or
+        join([] ("AB", "C", "D"), '+')                 <> "AB+C+D" or
+        join([] ("AB", "", "CD"), '+')                 <> "AB++CD" or
+        join([] ("A", "BCD", ""), '+')                 <> "A+BCD+" or
+        join([] ("A", "BC", "D"), '+')                 <> "A+BC+D" or
+        join([] ("A", "B", "CD"), '+')                 <> "A+B+CD" or
+        join([] ("A", "", "BCD"), '+')                 <> "A++BCD" or
+        join([] ("", "ABCD", ""), '+')                 <> "+ABCD+" or
+        join([] ("", "ABC", "D"), '+')                 <> "+ABC+D" or
+        join([] ("", "AB", "CD"), '+')                 <> "+AB+CD" or
+        join([] ("", "A", "BCD"), '+')                 <> "+A+BCD" or
+        join([] ("", "", "ABCD"), '+')                 <> "++ABCD" or
+        join([] ("ABCDE", ""), '+')                    <> "ABCDE+" or
+        join([] ("ABCD", "E"), '+')                    <> "ABCD+E" or
+        join([] ("ABC", "DE"), '+')                    <> "ABC+DE" or
+        join([] ("AB", "CDE"), '+')                    <> "AB+CDE" or
+        join([] ("A", "BCDE"), '+')                    <> "A+BCDE" or
+        join([] ("", "ABCDE"), '+')                    <> "+ABCDE" or
+        join([] ("ABCDEF"), '+')                       <> "ABCDEF" or
+        join([] ("", "", "", "", "", "", "", ""), '+') <> "+++++++" or
+        join([] ("A", "", "", "", "", "", ""), '+')    <> "A++++++" or
+        join([] ("", "A", "", "", "", "", ""), '+')    <> "+A+++++" or
+        join([] ("", "", "A", "", "", "", ""), '+')    <> "++A++++" or
+        join([] ("", "", "", "A", "", "", ""), '+')    <> "+++A+++" or
+        join([] ("", "", "", "", "A", "", ""), '+')    <> "++++A++" or
+        join([] ("", "", "", "", "", "A", ""), '+')    <> "+++++A+" or
+        join([] ("", "", "", "", "", "", "A"), '+')    <> "++++++A" or
+        join([] ("AB", "", "", "", "", ""), '+')       <> "AB+++++" or
+        join([] ("A", "B", "", "", "", ""), '+')       <> "A+B++++" or
+        join([] ("A", "", "B", "", "", ""), '+')       <> "A++B+++" or
+        join([] ("A", "", "", "B", "", ""), '+')       <> "A+++B++" or
+        join([] ("A", "", "", "", "B", ""), '+')       <> "A++++B+" or
+        join([] ("A", "", "", "", "", "B"), '+')       <> "A+++++B" or
+        join([] ("", "AB", "", "", "", ""), '+')       <> "+AB++++" or
+        join([] ("", "A", "B", "", "", ""), '+')       <> "+A+B+++" or
+        join([] ("", "A", "", "B", "", ""), '+')       <> "+A++B++" or
+        join([] ("", "A", "", "", "B", ""), '+')       <> "+A+++B+" or
+        join([] ("", "A", "", "", "", "B"), '+')       <> "+A++++B" or
+        join([] ("", "", "AB", "", "", ""), '+')       <> "++AB+++" or
+        join([] ("", "", "A", "B", "", ""), '+')       <> "++A+B++" or
+        join([] ("", "", "A", "", "B", ""), '+')       <> "++A++B+" or
+        join([] ("", "", "A", "", "", "B"), '+')       <> "++A+++B" or
+        join([] ("", "", "", "AB", "", ""), '+')       <> "+++AB++" or
+        join([] ("", "", "", "A", "B", ""), '+')       <> "+++A+B+" or
+        join([] ("", "", "", "A", "", "B"), '+')       <> "+++A++B" or
+        join([] ("", "", "", "", "AB", ""), '+')       <> "++++AB+" or
+        join([] ("", "", "", "", "A", "B"), '+')       <> "++++A+B" or
+        join([] ("", "", "", "", "", "AB"), '+')       <> "+++++AB" or
+        join([] ("ABC", "", "", "", ""), '+')          <> "ABC++++" or
+        join([] ("AB", "C", "", "", ""), '+')          <> "AB+C+++" or
+        join([] ("AB", "", "C", "", ""), '+')          <> "AB++C++" or
+        join([] ("AB", "", "", "C", ""), '+')          <> "AB+++C+" or
+        join([] ("AB", "", "", "", "C"), '+')          <> "AB++++C" or
+        join([] ("A", "BC", "", "", ""), '+')          <> "A+BC+++" or
+        join([] ("A", "B", "C", "", ""), '+')          <> "A+B+C++" or
+        join([] ("A", "B", "", "C", ""), '+')          <> "A+B++C+" or
+        join([] ("A", "B", "", "", "C"), '+')          <> "A+B+++C" or
+        join([] ("A", "", "BC", "", ""), '+')          <> "A++BC++" or
+        join([] ("A", "", "B", "C", ""), '+')          <> "A++B+C+" or
+        join([] ("A", "", "B", "", "C"), '+')          <> "A++B++C" or
+        join([] ("A", "", "", "BC", ""), '+')          <> "A+++BC+" or
+        join([] ("A", "", "", "B", "C"), '+')          <> "A+++B+C" or
+        join([] ("A", "", "", "", "BC"), '+')          <> "A++++BC" or
+        join([] ("", "ABC", "", "", ""), '+')          <> "+ABC+++" or
+        join([] ("", "AB", "C", "", ""), '+')          <> "+AB+C++" or
+        join([] ("", "AB", "", "C", ""), '+')          <> "+AB++C+" or
+        join([] ("", "AB", "", "", "C"), '+')          <> "+AB+++C" or
+        join([] ("", "A", "BC", "", ""), '+')          <> "+A+BC++" or
+        join([] ("", "A", "B", "C", ""), '+')          <> "+A+B+C+" or
+        join([] ("", "A", "B", "", "C"), '+')          <> "+A+B++C" or
+        join([] ("", "A", "", "BC", ""), '+')          <> "+A++BC+" or
+        join([] ("", "A", "", "B", "C"), '+')          <> "+A++B+C" or
+        join([] ("", "A", "", "", "BC"), '+')          <> "+A+++BC" or
+        join([] ("", "", "ABC", "", ""), '+')          <> "++ABC++" or
+        join([] ("", "", "AB", "C", ""), '+')          <> "++AB+C+" or
+        join([] ("", "", "AB", "", "C"), '+')          <> "++AB++C" or
+        join([] ("", "", "A", "BC", ""), '+')          <> "++A+BC+" or
+        join([] ("", "", "A", "B", "C"), '+')          <> "++A+B+C" or
+        join([] ("", "", "A", "", "BC"), '+')          <> "++A++BC" or
+        join([] ("", "", "", "ABC", ""), '+')          <> "+++ABC+" or
+        join([] ("", "", "", "AB", "C"), '+')          <> "+++AB+C" or
+        join([] ("", "", "", "A", "BC"), '+')          <> "+++A+BC" or
+        join([] ("", "", "", "", "ABC"), '+')          <> "++++ABC" or
+        join([] ("ABCD", "", "", ""), '+')             <> "ABCD+++" or
+        join([] ("ABC", "D", "", ""), '+')             <> "ABC+D++" or
+        join([] ("ABC", "", "D", ""), '+')             <> "ABC++D+" or
+        join([] ("ABC", "", "", "D"), '+')             <> "ABC+++D" or
+        join([] ("AB", "CD", "", ""), '+')             <> "AB+CD++" or
+        join([] ("AB", "C", "D", ""), '+')             <> "AB+C+D+" or
+        join([] ("AB", "C", "", "D"), '+')             <> "AB+C++D" or
+        join([] ("AB", "", "CD", ""), '+')             <> "AB++CD+" or
+        join([] ("AB", "", "C", "D"), '+')             <> "AB++C+D" or
+        join([] ("AB", "", "", "CD"), '+')             <> "AB+++CD" or
+        join([] ("A", "BCD", "", ""), '+')             <> "A+BCD++" or
+        join([] ("A", "BC", "D", ""), '+')             <> "A+BC+D+" or
+        join([] ("A", "BC", "", "D"), '+')             <> "A+BC++D" or
+        join([] ("A", "B", "CD", ""), '+')             <> "A+B+CD+" or
+        join([] ("A", "B", "C", "D"), '+')             <> "A+B+C+D" or
+        join([] ("A", "B", "", "CD"), '+')             <> "A+B++CD" or
+        join([] ("A", "", "BCD", ""), '+')             <> "A++BCD+" or
+        join([] ("A", "", "BC", "D"), '+')             <> "A++BC+D" or
+        join([] ("A", "", "B", "CD"), '+')             <> "A++B+CD" or
+        join([] ("A", "", "", "BCD"), '+')             <> "A+++BCD" or
+        join([] ("", "ABCD", "", ""), '+')             <> "+ABCD++" or
+        join([] ("", "ABC", "D", ""), '+')             <> "+ABC+D+" or
+        join([] ("", "ABC", "", "D"), '+')             <> "+ABC++D" or
+        join([] ("", "AB", "CD", ""), '+')             <> "+AB+CD+" or
+        join([] ("", "AB", "C", "D"), '+')             <> "+AB+C+D" or
+        join([] ("", "AB", "", "CD"), '+')             <> "+AB++CD" or
+        join([] ("", "A", "BCD", ""), '+')             <> "+A+BCD+" or
+        join([] ("", "A", "BC", "D"), '+')             <> "+A+BC+D" or
+        join([] ("", "A", "B", "CD"), '+')             <> "+A+B+CD" or
+        join([] ("", "A", "", "BCD"), '+')             <> "+A++BCD" or
+        join([] ("", "", "ABCD", ""), '+')             <> "++ABCD+" or
+        join([] ("", "", "ABC", "D"), '+')             <> "++ABC+D" or
+        join([] ("", "", "AB", "CD"), '+')             <> "++AB+CD" or
+        join([] ("", "", "A", "BCD"), '+')             <> "++A+BCD" or
+        join([] ("", "", "", "ABCD"), '+')             <> "+++ABCD" or
+        join([] ("ABCDE", "", ""), '+')                <> "ABCDE++" or
+        join([] ("ABCD", "E", ""), '+')                <> "ABCD+E+" or
+        join([] ("ABCD", "", "E"), '+')                <> "ABCD++E" or
+        join([] ("ABC", "DE", ""), '+')                <> "ABC+DE+" or
+        join([] ("ABC", "D", "E"), '+')                <> "ABC+D+E" or
+        join([] ("ABC", "", "DE"), '+')                <> "ABC++DE" or
+        join([] ("AB", "CDE", ""), '+')                <> "AB+CDE+" or
+        join([] ("AB", "CD", "E"), '+')                <> "AB+CD+E" or
+        join([] ("AB", "C", "DE"), '+')                <> "AB+C+DE" or
+        join([] ("AB", "", "CDE"), '+')                <> "AB++CDE" or
+        join([] ("A", "BCDE", ""), '+')                <> "A+BCDE+" or
+        join([] ("A", "BCD", "E"), '+')                <> "A+BCD+E" or
+        join([] ("A", "BC", "DE"), '+')                <> "A+BC+DE" or
+        join([] ("A", "B", "CDE"), '+')                <> "A+B+CDE" or
+        join([] ("A", "", "BCDE"), '+')                <> "A++BCDE" or
+        join([] ("", "ABCDE", ""), '+')                <> "+ABCDE+" or
+        join([] ("", "ABCD", "E"), '+')                <> "+ABCD+E" or
+        join([] ("", "ABC", "DE"), '+')                <> "+ABC+DE" or
+        join([] ("", "AB", "CDE"), '+')                <> "+AB+CDE" or
+        join([] ("", "A", "BCDE"), '+')                <> "+A+BCDE" or
+        join([] ("", "", "ABCDE"), '+')                <> "++ABCDE" or
+        join([] ("ABCDEF", ""), '+')                   <> "ABCDEF+" or
+        join([] ("ABCDE", "F"), '+')                   <> "ABCDE+F" or
+        join([] ("ABCD", "EF"), '+')                   <> "ABCD+EF" or
+        join([] ("ABC", "DEF"), '+')                   <> "ABC+DEF" or
+        join([] ("AB", "CDEF"), '+')                   <> "AB+CDEF" or
+        join([] ("A", "BCDEF"), '+')                   <> "A+BCDEF" or
+        join([] ("", "ABCDEF"), '+')                   <> "+ABCDEF" or
+        join([] ("ABCDEFG"), '+')                      <> "ABCDEFG" then
+      writeln(" ***** join(string) does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("join(string) works correct");
+    end if;
+  end func;
+
+
 const proc: main is func
 
+  local
+    var string: stri is "";
   begin
     writeln;
     check_string_literal();
@@ -1848,4 +2388,6 @@ const proc: main is func
     check_string_ops();
     check_string_funcs();
     check_string_append();
+    check_string_split();
+    check_string_join();
   end func;

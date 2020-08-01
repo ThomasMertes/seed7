@@ -1159,6 +1159,43 @@ const func type: array (in type: baseType) is func
           end if;
         end func;
 
+      if getobj((in baseType param) = (in baseType param)) <> NIL and
+          getobj((in baseType param) <> (in baseType param)) <> NIL then
+
+        const func boolean: (in arrayType: arr1) = (in arrayType: arr2) is func
+          result
+            var boolean: result is FALSE;
+          local
+            var integer: number is 1;
+          begin
+            if length(arr1) = length(arr2) then
+              result := TRUE;
+              for number range 1 to length(arr1) do
+                if arr1[number] <> arr2[number] then
+                  result := FALSE;
+                end if;
+              end for;
+            end if;
+          end func;
+
+        const func boolean: (in arrayType: arr1) <> (in arrayType: arr2) is func
+          result
+            var boolean: result is TRUE;
+          local
+            var integer: number is 1;
+          begin
+            if length(arr1) = length(arr2) then
+              result := FALSE;
+              for number range 1 to length(arr1) do
+                if arr1[number] <> arr2[number] then
+                  result := TRUE;
+                end if;
+              end for;
+            end if;
+          end func;
+
+      end if;
+
       if getobj((in baseType param) < (in baseType param)) <> NIL and
           getobj((in baseType param) > (in baseType param)) <> NIL then
 
@@ -1202,6 +1239,7 @@ const type: TEST_5 is array boolean;
 const type: TEST_6 is array array char;
 const type: TEST_7 is array array string;
 *)
+
 
 const func type: array [ (in type: indexType) ] (in type: baseType) is func
   result
@@ -1295,6 +1333,38 @@ const type: test_x is array [char] string;
 const type: test_y is array [char] string;
 const type: test_z is array [integer] string;
 *)
+
+
+(* Functions with arrays of strings *)
+
+const func array string: split (in string param, in char param) is action "STR_CHSPLIT";
+
+const func string: join (in array string: striArray, in char: delimiter) is func
+  result
+    var string: result is "";
+  local
+    var integer: pos is 0;
+  begin
+    result := striArray[1];
+    for pos range 2 to length(striArray) do
+      result &:= str(delimiter);
+      result &:= striArray[pos];
+    end for;
+  end func;
+
+const func string: join (in array string: striArray, in string: delimiter) is func
+  result
+    var string: result is "";
+  local
+    var integer: pos is 0;
+  begin
+    result := striArray[1];
+    for pos range 2 to length(striArray) do
+      result &:= delimiter;
+      result &:= striArray[pos];
+    end for;
+  end func;
+
 
 (* LIST
 
@@ -1610,26 +1680,26 @@ const func bitset: { (in integer: lower_value) .. (in integer: upper_value) } is
     end for;
   end func;
 
-const proc: for (inout integer: variable) range (in bitset: a_set) do
+const proc: for (inout integer: variable) range (in bitset: aSet) do
               (in proc: statements)
             end for is func
   begin
-    if card(a_set) > 0 then
-      for variable range min(a_set) to max(a_set) do
-        if variable in a_set then
+    if card(aSet) > 0 then
+      for variable range min(aSet) to max(aSet) do
+        if variable in aSet then
           statements;
         end if;
       end for;
     end if;
   end func;
 
-const func string: str (in bitset: a_set) is func
+const func string: str (in bitset: aSet) is func
   result
     var string: result is "{";
   local
     var integer: setElement is 0;
   begin
-    for setElement range a_set do
+    for setElement range aSet do
       if result <> "{" then
         result &:= ", ";
       end if;
@@ -1664,19 +1734,19 @@ const func bitset: (attr bitset) parse (in var string: stri) is func
 const type: set of (attr integer) is bitset;
 
 
-const func type: set of (in type: baseType) is func
+const func type: BITSET_OF (in type: baseType) is func
   result
     var type: setType is void;
   local
     var type: tupleType is void;
     var type: array_type is void;
   begin
-    setType := get_type(getfunc(set of (attr baseType)));
+    setType := get_type(getfunc(BITSET_OF(attr baseType)));
     if setType = void then
       global
       setType := newtype;
       IN_PARAM_IS_REFERENCE(setType);
-      const type: set of (attr baseType) is                                 setType;
+      const type: BITSET_OF (attr baseType) is                              setType;
       const type: base_type (attr setType) is                               baseType;
       const proc: (ref setType param) ::= (in setType param) is             action "SET_CREATE";
       const proc: destroy (ref setType param) is                            action "SET_DESTR";
@@ -1699,30 +1769,30 @@ const func type: set of (in type: baseType) is func
       const func setType: (attr setType) conv (in bitset param) is          action "SET_CONV";
       const setType: (attr setType) . EMPTY_SET is                          setType conv EMPTY_SET;
 
-      const func boolean: (in baseType: set_elem) in (in setType: a_set) is
-        return ord(set_elem) in bitset conv a_set;
+      const func boolean: (in baseType: aValue) in (in setType: aSet) is
+        return ord(aValue) in bitset conv aSet;
 
-      const func boolean: (in baseType: set_elem) not in (in setType: a_set) is
-        return ord(set_elem) not in bitset conv a_set;
+      const func boolean: (in baseType: aValue) not in (in setType: aSet) is
+        return ord(aValue) not in bitset conv aSet;
 
-      const proc: incl (inout setType: a_set, in baseType: set_elem) is func
+      const proc: incl (inout setType: aSet, in baseType: aValue) is func
         begin
-          incl(bitset var_conv a_set, ord(set_elem));
+          incl(bitset var_conv aSet, ord(aValue));
         end func;
 
-      const proc: excl (inout setType: a_set, in baseType: set_elem) is func
+      const proc: excl (inout setType: aSet, in baseType: aValue) is func
         begin
-          excl(bitset var_conv a_set, ord(set_elem));
+          excl(bitset var_conv aSet, ord(aValue));
         end func;
 
-      const func baseType: rand (in setType: a_set) is
-        return baseType conv rand(bitset conv a_set);
+      const func baseType: rand (in setType: aSet) is
+        return baseType conv rand(bitset conv aSet);
 
-      const func baseType: min (in setType: a_set) is
-        return baseType conv min(bitset conv a_set);
+      const func baseType: min (in setType: aSet) is
+        return baseType conv min(bitset conv aSet);
 
-      const func baseType: max (in setType: a_set) is
-        return baseType conv max(bitset conv a_set);
+      const func baseType: max (in setType: aSet) is
+        return baseType conv max(bitset conv aSet);
 
       const func setType: { (in baseType: value) } is
         return setType conv ( { ord(value) } );
@@ -1752,13 +1822,13 @@ const func type: set of (in type: baseType) is func
           end for;
         end func;
 
-      const proc: for (inout baseType: variable) range (in setType: a_set) do
+      const proc: for (inout baseType: variable) range (in setType: aSet) do
                     (in proc: statements)
                   end for is func
         begin
-          if card(a_set) > 0 then
-            for variable range min(a_set) to max(a_set) do
-              if variable in a_set then
+          if card(aSet) > 0 then
+            for variable range min(aSet) to max(aSet) do
+              if variable in aSet then
                 statements;
               end if;
             end for;
@@ -1766,13 +1836,13 @@ const func type: set of (in type: baseType) is func
         end func;
 
       if getobj(str(ref baseType param)) <> NIL then
-        const func string: str (in setType: a_set) is func
+        const func string: str (in setType: aSet) is func
           result
             var string: result is "{";
           local
             var baseType: setElement is baseType.value;
           begin
-            for setElement range a_set do
+            for setElement range aSet do
               if result <> "{" then
                 result &:= ", ";
               end if;
@@ -1786,10 +1856,141 @@ const func type: set of (in type: baseType) is func
     end if;
   end func;
 
+
+const func type: HASHSET_OF (in type: baseType) is func
+  result
+    var type: setType is void;
+  local
+    var type: tupleType is void;
+    var type: array_type is void;
+  begin
+    setType := get_type(getfunc(HASHSET_OF(attr baseType)));
+    if setType = void then
+      global
+      setType := newtype;
+      IN_PARAM_IS_REFERENCE(setType);
+      const type: HASHSET_OF (attr baseType) is                             setType;
+      const type: base_type (attr setType) is                               baseType;
+
+      const reference: (attr setType) . keyCreate   is getfunc((ref baseType param) ::= (in baseType param));
+      const reference: (attr setType) . keyDestroy  is getfunc(destroy(ref baseType param));
+      const reference: (attr setType) . keyCopy     is getfunc((inout baseType param) := (in baseType param));
+      const reference: (attr setType) . keyCompare  is getfunc(compare(in baseType param, in baseType param));
+      const reference: (attr setType) . dataCreate  is getfunc((ref boolean param) ::= (in boolean param));
+      const reference: (attr setType) . dataDestroy is getfunc(destroy(ref boolean param));
+      const reference: (attr setType) . dataCopy    is getfunc((inout boolean param) := (in boolean param));
+
+      const proc: CREATE (ref setType param, in setType param,
+                          in reference param, in reference param,
+                          in reference param, in reference param) is             action "HSH_CREATE";
+      const proc: DESTROY (ref setType param, in reference param,
+                           in reference param) is                                action "HSH_DESTR";
+      const proc: COPY (inout setType param, in setType param,
+                        in reference param, in reference param,
+                        in reference param, in reference param) is               action "HSH_CPY";
+
+      const proc: (ref setType: dest) ::= (in setType: source) is func
+        begin
+          CREATE(dest, source, setType.keyCreate, setType.keyDestroy,
+              setType.dataCreate, setType.dataDestroy);
+        end func;
+
+      const proc: destroy (ref setType: oldSet) is func
+        begin
+          DESTROY(oldSet, setType.keyDestroy, setType.dataDestroy);
+        end func;
+
+      const proc: (inout setType: dest) := (in setType: source) is func
+        begin
+          COPY(dest, source, setType.keyCreate, setType.keyDestroy,
+              setType.dataCreate, setType.dataDestroy);
+        end func;
+
+      const func setType: (attr setType) . _GENERATE_EMPTY_SET is                action "HSH_EMPTY";
+      const setType: (attr setType) . EMPTY_SET is                               setType._GENERATE_EMPTY_SET;
+      const setType: (attr setType) . value is                                   setType._GENERATE_EMPTY_SET;
+
+      const proc: INCL (inout setType param, in baseType param,
+                        in boolean param, in integer param,
+                        in reference param, in reference param,
+                        in reference param, in reference param) is               action "HSH_INCL";
+      const proc: EXCL (inout setType param, in baseType param,
+                        in integer param, in reference param,
+                        in reference param, in reference param) is               action "HSH_EXCL";
+      const func boolean: CONTAINS (in setType param, in baseType param,
+                                    in integer param, in reference param) is     action "HSH_CONTAINS";
+
+      const func boolean: (in baseType: aValue) in (in setType: aSet) is
+        return CONTAINS(aSet, aValue, hashCode(aValue), setType.keyCompare);
+
+      const func boolean: (in baseType: aValue) not in (in setType: aSet) is
+        return not CONTAINS(aSet, aValue, hashCode(aValue), setType.keyCompare);
+
+      const proc: incl (inout setType: aSet, in baseType: aValue) is func
+        begin
+          INCL(aSet, aValue, TRUE, hashCode(aValue), setType.keyCompare,
+              setType.keyCreate, setType.dataCreate, setType.dataCopy);
+        end func;
+
+      const proc: excl (inout setType: aSet, in baseType: aValue) is func
+        begin
+          EXCL(aSet, aValue, hashCode(aValue), setType.keyCompare,
+              setType.keyDestroy, setType.dataDestroy);
+        end func;
+
+      const func setType: { (in baseType: value) } is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var integer: number is 0;
+        begin
+          incl(result, value);
+        end func;
+
+      tupleType := tuple baseType;
+      array_type := array baseType;
+
+      const func setType: { (in tupleType: value) } is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var integer: number is 0;
+        begin
+          for number range 1 to length([] value) do
+            incl(result, ([] value)[number]);
+          end for;
+        end func;
+
+      end global;
+    end if;
+  end func;
+
+
+const func type: set of (in type: baseType) is func
+  result
+    var type: setType is void;
+  begin
+    setType := get_type(getfunc(set of (attr baseType)));
+    if setType = void then
+      if getobj(ord(ref baseType param)) <> NIL then
+        setType := BITSET_OF(baseType);
+      else
+        setType := HASHSET_OF(baseType);
+      end if;
+      global
+
+      const type: set of (attr baseType) is setType;
+
+      end global;
+    end if;
+  end func;
+
+
 const type: TEST_A is set of integer;
 const type: TEST_B is set of char;
 const type: TEST_C is set of char;
 const type: TEST_D is set of boolean;
+const type: TEST_E is set of string;
 
 const set of char: alpha is {'A' .. 'Z'} | {'a' .. 'z'};
 const set of char: alnum is {'A' .. 'Z'} | {'a' .. 'z'} | {'0' .. '9'};

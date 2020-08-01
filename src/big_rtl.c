@@ -29,11 +29,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 
-#include "version.h"
 #include "common.h"
 #include "heaputl.h"
 #include "int_rtl.h"
@@ -1907,6 +1908,39 @@ biginttype big2;
 
 #ifdef ANSI_C
 
+biginttype bigIConv (inttype number)
+#else
+
+biginttype bigIConv (number)
+inttype number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigIConv */
+    result_size = sizeof(inttype) / sizeof(bigdigittype);
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_BIG(result_size);
+      result->size = result_size;
+      for (pos = 0; pos < result_size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      normalize(result);
+      return(result);
+    } /* if */
+  } /* bigIConv */
+
+
+
+#ifdef ANSI_C
+
 void bigIncr (biginttype *big_variable)
 #else
 
@@ -2050,6 +2084,41 @@ inttype exp;
 
 
 
+#ifdef HAS_LONGTYPE_64
+#ifdef ANSI_C
+
+biginttype bigLConv (longtype number)
+#else
+
+biginttype bigLConv (number)
+longtype number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigLConv */
+    result_size = sizeof(longtype) / sizeof(bigdigittype);
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_BIG(result_size);
+      result->size = result_size;
+      for (pos = 0; pos < result_size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      normalize(result);
+      return(result);
+    } /* if */
+  } /* bigLConv */
+#endif
+
+
+
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
@@ -2073,6 +2142,39 @@ biginttype big1;
       return(result);
     } /* if */
   } /* bigLd */
+#endif
+
+
+
+#ifdef HAS_LONGTYPE_64
+#ifdef ANSI_C
+
+longtype bigLOrd (biginttype big1)
+#else
+
+longtype bigLOrd (big1)
+biginttype big1;
+#endif
+
+  {
+    memsizetype pos;
+    longtype result;
+
+  /* bigLOrd */
+    if (big1->size > sizeof(longtype) / sizeof(bigdigittype)) {
+      raise_error(RANGE_ERROR);
+      return(0);
+    } else {
+      pos = big1->size - 1;
+      result = big1->bigdigits[pos];
+      while (pos > 0) {
+        pos--;
+        result <<= 8 * sizeof(bigdigittype);
+        result |= (inttype) big1->bigdigits[pos];
+      } /* while */
+      return(result);
+    } /* if */
+  } /* bigLOrd */
 #endif
 
 
@@ -2431,6 +2533,37 @@ biginttype big2;
       return(FALSE);
     } /* if */
   } /* bigNe */
+
+
+
+#ifdef ANSI_C
+
+inttype bigOrd (biginttype big1)
+#else
+
+inttype bigOrd (big1)
+biginttype big1;
+#endif
+
+  {
+    memsizetype pos;
+    inttype result;
+
+  /* bigOrd */
+    if (big1->size > sizeof(inttype) / sizeof(bigdigittype)) {
+      raise_error(RANGE_ERROR);
+      return(0);
+    } else {
+      pos = big1->size - 1;
+      result = big1->bigdigits[pos];
+      while (pos > 0) {
+        pos--;
+        result <<= 8 * sizeof(bigdigittype);
+        result |= (inttype) big1->bigdigits[pos];
+      } /* while */
+      return(result);
+    } /* if */
+  } /* bigOrd */
 
 
 
@@ -3027,3 +3160,71 @@ biginttype big1;
       return(result);
     } /* if */
   } /* bigSucc */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigUIConv (uinttype number)
+#else
+
+biginttype bigUIConv (number)
+uinttype number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigUIConv */
+    result_size = sizeof(uinttype) / sizeof(bigdigittype) + 1;
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_BIG(result_size);
+      result->size = result_size;
+      for (pos = 0; pos < result->size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      normalize(result);
+      return(result);
+    } /* if */
+  } /* bigUIConv */
+
+
+
+#ifdef HAS_LONGTYPE_64
+#ifdef ANSI_C
+
+biginttype bigULConv (ulongtype number)
+#else
+
+biginttype bigULConv (number)
+ulongtype number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigULConv */
+    result_size = sizeof(ulongtype) / sizeof(bigdigittype) + 1;
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_BIG(result_size);
+      result->size = result_size;
+      for (pos = 0; pos < result->size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      normalize(result);
+      return(result);
+    } /* if */
+  } /* bigULConv */
+#endif

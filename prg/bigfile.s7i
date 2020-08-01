@@ -1,0 +1,61 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bigfile.s7i   bigInteger versions of seek, tell and length      *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(* PRIMITIVE_FILE *)
+
+const func bigInteger: bigLength (ref PRIMITIVE_FILE param) is        action "FIL_BIG_LNG";
+const proc: seek (ref PRIMITIVE_FILE param, ref bigInteger param) is  action "FIL_BIG_SEEK";
+const func bigInteger: bigTell (ref PRIMITIVE_FILE param) is          action "FIL_BIG_TELL";
+
+
+(* file *)
+
+const func bigInteger: bigLength (ref file param) is DYNAMIC;
+const proc: seek (ref file param, ref bigInteger param) is DYNAMIC;
+const func bigInteger: bigTell (ref file param) is DYNAMIC;
+
+
+(* NULL_FILE *)
+
+const bigInteger: bigLength (ref NULL_FILE param) is 0_;
+const proc: seek (ref NULL_FILE param, ref bigInteger param) is noop;
+const bigInteger: bigTell (ref NULL_FILE param) is 1_;
+
+
+(* external_file *)
+
+const func bigInteger: bigLength (ref external_file: aFile) is
+  return bigLength(aFile.ext_file);
+
+const proc: seek (ref external_file: aFile, in bigInteger: pos) is func
+  begin
+    seek(aFile.ext_file, pos);
+  end func;
+
+const func bigInteger: bigTell (ref external_file: aFile) is
+  return bigTell(aFile.ext_file);

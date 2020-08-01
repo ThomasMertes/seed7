@@ -25,11 +25,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 
-#include "version.h"
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
@@ -38,6 +39,7 @@
 #include "striutl.h"
 #include "runerr.h"
 #include "memory.h"
+#include "kbd_rtl.h"
 #include "kbd_drv.h"
 #include "scr_drv.h"
 
@@ -111,31 +113,13 @@ listtype arguments;
 
   {
     objecttype ch_variable;
-    char line[2049];
-    memsizetype position;
-    stritype result;
-    int ch;
 
   /* kbd_line_read */
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    position = 0;
-    ch = kbdGetc();
-    while (ch != '\n' && ch != EOF && position < 2048) {
-      line[position] = (char) ch;
-      ch = kbdGetc();
-      position++;
-    } /* while */
-    if (!ALLOC_STRI(result, position)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      COUNT_STRI(position);
-      result->size = position;
-      memcpy(result->mem, line, (SIZE_TYPE) position);
-      ch_variable->value.charvalue = (chartype) ch;
-      return(bld_stri_temp(result));
-    } /* if */
+    return(bld_stri_temp(
+        kbdLineRead(&ch_variable->value.charvalue)));
   } /* kbd_line_read */
 
 
@@ -164,30 +148,10 @@ objecttype kbd_stri_read (arguments)
 listtype arguments;
 #endif
 
-  {
-    inttype length;
-    memsizetype bytes_requested;
-    memsizetype position;
-    stritype result;
-
-  /* kbd_stri_read */
+  { /* kbd_stri_read */
     isit_int(arg_2(arguments));
-    length = take_int(arg_2(arguments));
-    if (length < 0) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
-    } else {
-      bytes_requested = (memsizetype) length;
-      if (!ALLOC_STRI(result, bytes_requested)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        COUNT_STRI(bytes_requested);
-        for (position = 0; position < bytes_requested; position++) {
-          result->mem[position] = (strelemtype) kbdGetc();
-        } /* for */
-        result->size = bytes_requested;
-        return(bld_stri_temp(result));
-      } /* if */
-    } /* if */
+    return(bld_stri_temp(
+        kbdStriRead(take_int(arg_2(arguments)))));
   } /* kbd_stri_read */
 
 
@@ -203,32 +167,11 @@ listtype arguments;
 
   {
     objecttype ch_variable;
-    char line[2049];
-    memsizetype position;
-    stritype result;
-    int ch;
 
   /* kbd_word_read */
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    do {
-      ch = kbdGetc();
-    } while (ch == ' ' || ch == '\t');
-    position = 0;
-    while (ch != ' ' && ch != '\t' &&
-        ch != '\n' && ch != EOF && position < 2048) {
-      line[position] = (char) ch;
-      ch = kbdGetc();
-      position++;
-    } /* while */
-    if (!ALLOC_STRI(result, position)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      COUNT_STRI(position);
-      result->size = position;
-      memcpy(result->mem, line, (SIZE_TYPE) position);
-      ch_variable->value.charvalue = (chartype) ch;
-      return(bld_stri_temp(result));
-    } /* if */
+    return(bld_stri_temp(
+        kbdWordRead(&ch_variable->value.charvalue)));
   } /* kbd_word_read */

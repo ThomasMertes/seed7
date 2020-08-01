@@ -25,11 +25,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdio.h"
 #include "stdlib.h"
 #include "signal.h"
 
-#include "version.h"
 #include "common.h"
 #include "kbd_drv.h"
 #include "scr_drv.h"

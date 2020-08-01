@@ -63,6 +63,7 @@ wumpus.sd7   Hunt the Wumpus game
   Seed7 include files:
 bigint.s7i   bigInteger point support library                  
 bigrat.s7i   Big rational number support library               
+bigfile.s7i  bigInteger versions of seek, tell and length      
 dir.s7i      Read directorys as files                          
 dna_base.s7i Bacterial dna fight programming game interface    
 draw.s7i     Graphic library                                   

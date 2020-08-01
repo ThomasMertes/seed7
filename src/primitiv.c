@@ -25,9 +25,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdio.h"
 
-#include "version.h"
 #include "common.h"
 #include "data.h"
 #include "actutl.h"
@@ -109,6 +110,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_GROW",          big_grow,          },
     { "BIG_GT",            big_gt,            },
     { "BIG_HASHCODE",      big_hashcode,      },
+    { "BIG_ICONV",         big_iconv,         },
     { "BIG_INCR",          big_incr,          },
     { "BIG_IPOW",          big_ipow,          },
     { "BIG_LE",            big_le,            },
@@ -119,6 +121,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_MULT",          big_mult,          },
     { "BIG_NE",            big_ne,            },
     { "BIG_ODD",           big_odd,           },
+    { "BIG_ORD",           big_ord,           },
     { "BIG_PARSE",         big_parse,         },
     { "BIG_PLUS",          big_plus,          },
     { "BIG_PRED",          big_pred,          },
@@ -256,6 +259,9 @@ static primactrecord prim_act_table[] = {
     { "ENU_SIZE",          enu_size,          },
     { "ENU_VALUE",         enu_value,         },
 
+    { "FIL_BIG_LNG",       fil_big_lng,       },
+    { "FIL_BIG_SEEK",      fil_big_seek,      },
+    { "FIL_BIG_TELL",      fil_big_tell,      },
     { "FIL_CLOSE",         fil_close,         },
     { "FIL_CPY",           fil_cpy,           },
     { "FIL_CREATE",        fil_create,        },
@@ -580,6 +586,7 @@ static primactrecord prim_act_table[] = {
 
     { "STR_APPEND",        str_append,        },
     { "STR_CAT",           str_cat,           },
+    { "STR_CHSPLIT",       str_chsplit,       },
     { "STR_CLIT",          str_clit,          },
     { "STR_CMP",           str_cmp,           },
     { "STR_CNT",           act_illegal,       },

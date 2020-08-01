@@ -41,13 +41,21 @@ void bigDestr (biginttype);
 biginttype bigDiv (biginttype, biginttype);
 booltype bigEq (biginttype, biginttype);
 void bigGrow (biginttype *, biginttype);
+biginttype bigIConv (inttype);
 void bigIncr (biginttype *);
 biginttype bigIPow (biginttype, inttype);
+#ifdef HAS_LONGTYPE_64
+  biginttype bigLConv (longtype);
+#endif
+#ifdef HAS_LONGTYPE_64
+  longtype bigLOrd (biginttype);
+#endif
 biginttype bigMDiv (biginttype, biginttype);
 biginttype bigMinus (biginttype);
 biginttype bigMod (biginttype, biginttype);
 biginttype bigMult (biginttype, biginttype);
 booltype bigNe (biginttype, biginttype);
+inttype bigOrd (biginttype);
 biginttype bigParse (stritype);
 biginttype bigPred (biginttype);
 biginttype bigRand (biginttype, biginttype);
@@ -56,6 +64,10 @@ biginttype bigSbtr (biginttype, biginttype);
 void bigShrink (biginttype *, biginttype);
 stritype bigStr (biginttype);
 biginttype bigSucc (biginttype);
+biginttype bigUIConv (uinttype);
+#ifdef HAS_LONGTYPE_64
+  biginttype bigULConv (ulongtype);
+#endif
 
 #else
 
@@ -69,13 +81,21 @@ void bigDestr ();
 biginttype bigDiv ();
 booltype bigEq ();
 void bigGrow ();
+biginttype bigIConv ();
 void bigIncr ();
 biginttype bigIPow ();
+#ifdef HAS_LONGTYPE_64
+  biginttype bigLConv ();
+#endif
+#ifdef HAS_LONGTYPE_64
+  longtype bigLOrd ();
+#endif
 biginttype bigMDiv ();
 biginttype bigMinus ();
 biginttype bigMod ();
 biginttype bigMult ();
 booltype bigNe ();
+inttype bigOrd ();
 biginttype bigParse ();
 biginttype bigPred ();
 biginttype bigRand ();
@@ -84,5 +104,9 @@ biginttype bigSbtr ();
 void bigShrink ();
 stritype bigStr ();
 biginttype bigSucc ();
+biginttype bigUIConv ();
+#ifdef HAS_LONGTYPE_64
+  biginttype bigULConv ();
+#endif
 
 #endif

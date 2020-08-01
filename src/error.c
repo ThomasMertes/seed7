@@ -28,10 +28,11 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdio.h"
 #include "stdlib.h"
 
-#include "version.h"
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"

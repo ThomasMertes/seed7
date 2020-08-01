@@ -63,18 +63,36 @@ typedef int booltype;
 #define WIDE_CHAR_STRINGS
 #undef  MMAP_ABLE_STRI
 #define BIGDIGIT_SIZE 16
+#undef  HAS_LONGTYPE_64
 
+
+#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS == 64
+#define HAS_LONGTYPE_64
+#define USE_LSEEK
+#endif
+
+#if defined USE_FSEEKO64
+#define HAS_LONGTYPE_64
+#endif
+
+typedef long int           inttype;
+typedef unsigned long int  uinttype;
+
+#ifdef HAS_LONGTYPE_64
+typedef long long int      longtype;
+typedef unsigned long long ulongtype;
+#endif
 
 typedef float              floattype;
-typedef long int           inttype;
 typedef unsigned long int  chartype;
+typedef uinttype           bitsettype;
+
 #ifdef WIDE_CHAR_STRINGS
 typedef unsigned long int  strelemtype;
 #else
 typedef unsigned char      strelemtype;
 #endif
-typedef unsigned long int  uinttype;
-typedef uinttype           bitsettype;
+
 #if BIGDIGIT_SIZE == 8
 typedef unsigned char      bigdigittype;
 typedef unsigned short int doublebigdigittype;
@@ -85,6 +103,7 @@ typedef unsigned long int  doublebigdigittype;
 typedef unsigned long int  bigdigittype;
 typedef unsigned long long doublebigdigittype;
 #endif
+
 typedef unsigned long int  memsizetype;
 typedef signed char        smallpriortype;
 typedef int                prior_type;

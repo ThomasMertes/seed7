@@ -33,7 +33,7 @@ AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
 ROBJ1 = big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o int_rtl.o
-ROBJ2 = set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
+ROBJ2 = kbd_rtl.o set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
 DOBJ1 = $(SCREEN_OBJ) tim_unx.o drw_x11.o
 OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 A_OBJ = $(ROBJ1) $(ROBJ2) $(DOBJ1)
@@ -49,7 +49,7 @@ ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c arrutl.c executl.c blockutl.c
 GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
 RSRC1 = big_rtl.c bln_rtl.c chr_rtl.c cmd_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c int_rtl.c
-RSRC2 = set_rtl.c str_rtl.c ut8_rtl.c heaputl.c striutl.c
+RSRC2 = kbd_rtl.c set_rtl.c str_rtl.c ut8_rtl.c heaputl.c striutl.c
 DSRC1 = $(SCREEN_SRC) tim_unx.c drw_x11.c
 SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
@@ -121,6 +121,7 @@ version.h:
 	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
 	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
+	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c

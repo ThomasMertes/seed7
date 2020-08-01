@@ -38,9 +38,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdio.h"
 
-#include "version.h"
 #include "common.h"
 
 #undef EXTERN

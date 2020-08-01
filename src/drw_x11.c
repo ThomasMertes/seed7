@@ -29,6 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -42,7 +44,6 @@
 #endif
 #include <X11/keysym.h>
 
-#include "version.h"
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"

@@ -25,10 +25,11 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 
-#include "version.h"
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
@@ -54,6 +55,59 @@
 #ifndef SEEK_END
 #define SEEK_END 2
 #endif
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_big_lng (listtype arguments)
+#else
+
+objecttype fil_big_lng (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_big_lng */
+    isit_file(arg_1(arguments));
+    return(bld_bigint_temp(
+        filBigLng(take_file(arg_1(arguments)))));
+  } /* fil_big_lng */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_big_seek (listtype arguments)
+#else
+
+objecttype fil_big_seek (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_big_seek */
+    isit_file(arg_1(arguments));
+    isit_bigint(arg_2(arguments));
+    filBigSeek(take_file(arg_1(arguments)),
+          take_bigint(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* fil_big_seek */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_big_tell (listtype arguments)
+#else
+
+objecttype fil_big_tell (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_big_tell */
+    isit_file(arg_1(arguments));
+    return(bld_bigint_temp(
+        filBigTell(take_file(arg_1(arguments)))));
+  } /* fil_big_tell */
 
 
 

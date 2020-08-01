@@ -29,12 +29,13 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "unistd.h"
 
-#include "version.h"
 #include "inf_conf.h"
 
 #ifndef USE_TERMCAP

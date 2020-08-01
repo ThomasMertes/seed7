@@ -25,11 +25,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "time.h"
 
-#include "version.h"
 #include "common.h"
 #include "data.h"
 #include "syvarutl.h"

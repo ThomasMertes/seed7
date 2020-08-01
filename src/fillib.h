@@ -27,6 +27,9 @@
 
 #ifdef ANSI_C
 
+objecttype fil_big_lng (listtype);
+objecttype fil_big_seek (listtype);
+objecttype fil_big_tell (listtype);
 objecttype fil_close (listtype);
 objecttype fil_cpy (listtype);
 objecttype fil_create (listtype);
@@ -52,6 +55,9 @@ objecttype fil_write (listtype);
 
 #else
 
+objecttype fil_big_lng ();
+objecttype fil_big_seek ();
+objecttype fil_big_tell ();
 objecttype fil_close ();
 objecttype fil_cpy ();
 objecttype fil_create ();

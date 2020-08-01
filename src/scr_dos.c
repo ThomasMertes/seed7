@@ -29,12 +29,13 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "dos.h"
 
-#include "version.h"
 #include "common.h"
 #include "kbd_drv.h"
 

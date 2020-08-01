@@ -40,7 +40,7 @@ const func string: getf (in string: file_name) is func
   end func;
 
 
-const proc: putf (in string: file_name, ref string: stri) is func
+const proc: putf (in string: file_name, in string: stri) is func
   local
     var file: work_file is STD_NULL;
   begin
@@ -63,8 +63,29 @@ const func array string: readf (in string: file_name) is func
     work_file := open(file_name, "r");
     if work_file <> STD_NULL then
       while not eof(work_file) do
-        result &:= [] getln(work_file)
+        result &:= [] getln(work_file);
       end while;
+      if work_file.bufferChar <> '\n' and
+          result[length(result)] = "" then
+        result := result[..pred(length(result))];
+      end if;
       close(work_file);
+    end if;
+  end func;
+
+
+const proc: writef (in string: file_name, in array string: data) is func
+  local
+    var file: work_file is STD_NULL;
+    var integer: line is 0;
+  begin
+    if length(data) <> 0 then
+      work_file := open(file_name, "w");
+      if work_file <> STD_NULL then
+        for line range 1 to length(data) do
+          writeln(work_file, data[line]);
+        end for;
+        close(work_file);
+      end if;
     end if;
   end func;

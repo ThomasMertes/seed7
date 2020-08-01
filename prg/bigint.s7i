@@ -31,7 +31,7 @@ $ system "bigInteger" is bigInteger;
 
 const proc: destroy (ref bigInteger param) is                              action "BIG_DESTR";
 const proc: (ref bigInteger param) ::= (ref bigInteger param) is           action "BIG_CREATE";
-IN_PARAM_IS_VALUE(bigInteger);
+IN_PARAM_IS_REFERENCE(bigInteger);
 
 const func bigInteger: + (ref bigInteger param) is                         action "BIG_PLUS";
 const func bigInteger: - (ref bigInteger param) is                         action "BIG_MINUS";
@@ -61,6 +61,8 @@ const func bigInteger: succ (in bigInteger param) is                       actio
 const func bigInteger: pred (in bigInteger param) is                       action "BIG_PRED";
 const func bigInteger: abs (in bigInteger param) is                        action "BIG_ABS";
 const func boolean: odd (in bigInteger param) is                           action "BIG_ODD";
+const func integer: ord (in bigInteger param) is                           action "BIG_ORD";
+const func bigInteger: (attr bigInteger) conv (in integer param) is        action "BIG_ICONV";
 const func string: str (ref bigInteger param) is                           action "BIG_STR";
 const func string: c_literal (in bigInteger param) is                      action "BIG_CLIT";
 const func bigInteger: rand (in bigInteger param, in bigInteger param) is  action "BIG_RAND";

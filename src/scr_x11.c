@@ -29,10 +29,11 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 
-#include "version.h"
 #include "common.h"
 
 #include <X11/Xlib.h>

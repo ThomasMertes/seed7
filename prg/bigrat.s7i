@@ -228,7 +228,9 @@ const func string: (in bigRational: rat1) digits (in integer: number) is func
     var string: result is "";
   begin
     result := str((rat1.numerator * 10_ ** number) div rat1.denominator);
-    result := "0" mult (number + 1 - length(result)) & result;
+    if number + 1 - length(result) > 0 then
+      result := "0" mult (number + 1 - length(result)) & result;
+    end if;
     result := result[ .. length(result) - number] & "." & result[length(result) - number + 1 .. ];
   end func;
 

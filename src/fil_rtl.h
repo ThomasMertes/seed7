@@ -31,6 +31,9 @@
 
 #ifdef ANSI_C
 
+biginttype filBigLng (filetype);
+void filBigSeek (filetype, biginttype);
+biginttype filBigTell (filetype);
 stritype filLineRead (filetype, chartype *);
 stritype filLit (filetype);
 inttype filLng (filetype);
@@ -41,6 +44,9 @@ void filWrite (filetype, stritype);
 
 #else
 
+biginttype filBigLng ();
+void filBigSeek ();
+biginttype filBigTell ();
 stritype filLineRead ();
 stritype filLit ();
 inttype filLng ();

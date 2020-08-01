@@ -29,13 +29,14 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "time.h"
 #include "sys/types.h"
 #include "sys/timeb.h"
 
-#include "version.h"
 #include "common.h"
 
 #undef EXTERN

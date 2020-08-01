@@ -29,14 +29,18 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "sys/types.h"
+#include "unistd.h"
 
-#include "version.h"
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "big_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -44,7 +48,254 @@
 #include "fil_rtl.h"
 
 
-#define BUFFER_SIZE 2048
+#if defined USE_LSEEK || defined USE_FSEEKO
+typedef off_t              offsettype;
+#elif defined USE_FSEEKO64
+typedef off64_t            offsettype;
+#else
+typedef long               offsettype;
+#endif
+
+#define BUFFER_SIZE 4096
+
+
+
+#ifdef ANSI_C
+
+biginttype filBigLng (filetype fil1)
+#else
+
+biginttype filBigLng (fil1)
+filetype fil1;
+#endif
+
+  {
+    offsettype current_file_position;
+    offsettype file_length;
+
+  /* filBigLng */
+#if defined USE_LSEEK
+    fflush(fil1);
+    current_file_position = lseek(fileno(fil1), (offsettype) 0, SEEK_CUR);
+    if (current_file_position == (offsettype) -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else {
+      file_length = lseek(fileno(fil1), (offsettype) 0, SEEK_END);
+      if (file_length == (offsettype) -1) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (lseek(fileno(fil1), current_file_position, SEEK_SET) == (offsettype) -1) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (sizeof(offsettype) == 8) {
+        return(bigULConv(file_length));
+      } else {
+        return(bigUIConv(file_length));
+      } /* if */
+    } /* if */
+#elif defined USE_FSEEKO
+    current_file_position = ftello(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else if (fseeko(fil1, (offsettype) 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else {
+      printf("current_file_position %lld\n", current_file_position);
+      file_length = ftello(fil1);
+      printf("file_length %lld\n", file_length);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (fseeko(fil1, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (sizeof(offsettype) == 8) {
+	printf("file_length %lld\n", file_length);
+        return(bigULConv(file_length));
+      } else {
+        return(bigUIConv(file_length));
+      } /* if */
+    } /* if */
+#elif defined USE_FSEEKO64
+    current_file_position = ftello64(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else if (fseeko64(fil1, (offsettype) 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else {
+      file_length = ftello64(fil1);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (fseeko64(fil1, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (sizeof(offsettype) == 8) {
+        return(bigULConv(file_length));
+      } else {
+        return(bigUIConv(file_length));
+      } /* if */
+    } /* if */
+#else
+    current_file_position = ftell(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else if (fseek(fil1, (offsettype) 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else {
+      file_length = ftell(fil1);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (fseek(fil1, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        return(NULL);
+      } else if (sizeof(offsettype) == 8) {
+        return(bigULConv(file_length));
+      } else {
+        return(bigUIConv(file_length));
+      } /* if */
+    } /* if */
+#endif
+  } /* filBigLng */
+
+
+
+#ifdef ANSI_C
+
+void filBigSeek (filetype fil1, biginttype big_position)
+#else
+
+void filBigSeek (fil1, big_position)
+filetype fil1;
+biginttype big_position;
+#endif
+
+  {
+    offsettype file_position;
+
+  /* filBigSeek */
+#if defined USE_LSEEK
+    fflush(fil1);
+    if (sizeof(offsettype) == 8) {
+      file_position = bigLOrd(big_position);
+    } else {
+      file_position = bigOrd(big_position);
+    } /* if */
+    if (file_position <= 0) {
+      raise_error(RANGE_ERROR);
+      return;
+    } else if (lseek(fileno(fil1), file_position - 1, SEEK_SET) == (offsettype) -1) {
+      raise_error(FILE_ERROR);
+      return;
+    } /* if */
+#elif defined USE_FSEEKO
+    if (sizeof(offsettype) == 8) {
+      file_position = bigLOrd(big_position);
+    } else {
+      file_position = bigOrd(big_position);
+    } /* if */
+    if (file_position <= 0) {
+      raise_error(RANGE_ERROR);
+      return;
+    } else if (fseeko(fil1, file_position - 1, SEEK_SET) != 0) {
+      raise_error(FILE_ERROR);
+      return;
+    } /* if */
+#elif defined USE_FSEEKO64
+    if (sizeof(offsettype) == 8) {
+      file_position = bigLOrd(big_position);
+    } else {
+      file_position = bigOrd(big_position);
+    } /* if */
+    if (file_position <= 0) {
+      raise_error(RANGE_ERROR);
+      return;
+    } else if (fseeko64(fil1, file_position - 1, SEEK_SET) != 0) {
+      raise_error(FILE_ERROR);
+      return;
+    } /* if */
+#else
+    if (sizeof(offsettype) == 8) {
+      file_position = bigLOrd(big_position);
+    } else {
+      file_position = bigOrd(big_position);
+    } /* if */
+    if (file_position <= 0) {
+      raise_error(RANGE_ERROR);
+      return;
+    } else if (fseek(fil1, file_position - 1, SEEK_SET) != 0) {
+      raise_error(FILE_ERROR);
+      return;
+    } /* if */
+#endif
+  } /* filBigSeek */
+
+
+
+#ifdef ANSI_C
+
+biginttype filBigTell (filetype fil1)
+#else
+
+biginttype filBigTell (fil1)
+filetype fil1;
+#endif
+
+  {
+    offsettype current_file_position;
+
+  /* filBigTell */
+#if defined USE_LSEEK
+    fflush(fil1);
+    current_file_position = lseek(fileno(fil1), (offsettype) 0, SEEK_CUR);
+    if (current_file_position == (offsettype) -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else if (sizeof(offsettype) == 8) {
+      return(bigULConv(current_file_position + 1));
+    } else {
+      return(bigUIConv(current_file_position + 1));
+    } /* if */
+#elif defined USE_FSEEKO
+    current_file_position = ftello(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else if (sizeof(offsettype) == 8) {
+      return(bigULConv(current_file_position + 1));
+    } else {
+      return(bigUIConv(current_file_position + 1));
+    } /* if */
+#elif defined USE_FSEEKO64
+    current_file_position = ftello64(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else if (sizeof(offsettype) == 8) {
+      return(bigULConv(current_file_position + 1));
+    } else {
+      return(bigUIConv(current_file_position + 1));
+    } /* if */
+#else
+    current_file_position = ftell(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(NULL);
+    } else if (sizeof(offsettype) == 8) {
+      return(bigULConv(current_file_position + 1));
+    } else {
+      return(bigUIConv(current_file_position + 1));
+    } /* if */
+#endif
+  } /* filBigTell */
 
 
 
@@ -88,6 +339,9 @@ chartype *termination_char;
         } /* if */
         memory[position++] = (strelemtype) ch;
       } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
       if (!RESIZE_STRI(result, memlength, position)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -151,15 +405,111 @@ filetype fil1;
 #endif
 
   {
-    long current_file_position;
-    inttype file_length;
+    offsettype current_file_position;
+    offsettype file_length;
 
   /* filLng */
+#if defined USE_LSEEK
+    fflush(fil1);
+    current_file_position = lseek(fileno(fil1), (offsettype) 0, SEEK_CUR);
+    if (current_file_position == (offsettype) -1) {
+      raise_error(FILE_ERROR);
+      return(0);
+    } else {
+      file_length = lseek(fileno(fil1), (offsettype) 0, SEEK_END);
+      if (file_length == (offsettype) -1) {
+        raise_error(FILE_ERROR);
+        return(0);
+      } else {
+        if (lseek(fileno(fil1), current_file_position, SEEK_SET) == (offsettype) -1) {
+          raise_error(FILE_ERROR);
+          return(0);
+        } else {
+          if (file_length > MAX_INTEGER) {
+            raise_error(RANGE_ERROR);
+            return(0);
+          } else {
+            return(file_length);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+#elif defined USE_FSEEKO
+    current_file_position = ftello(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(0);
+    } else if (fseeko(fil1, 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      return(0);
+    } else {
+      file_length = ftello(fil1);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        return(0);
+      } else if (fseeko(fil1, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        return(0);
+      } else {
+        if (file_length > MAX_INTEGER) {
+          raise_error(RANGE_ERROR);
+          return(0);
+        } else {
+          return(file_length);
+        } /* if */
+      } /* if */
+    } /* if */
+#elif defined USE_FSEEKO64
+    current_file_position = ftello64(fil1);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(0);
+    } else if (fseeko64(fil1, 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      return(0);
+    } else {
+      file_length = ftello64(fil1);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        return(0);
+      } else if (fseeko64(fil1, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        return(0);
+      } else {
+        if (file_length > MAX_INTEGER) {
+          raise_error(RANGE_ERROR);
+          return(0);
+        } else {
+          return(file_length);
+        } /* if */
+      } /* if */
+    } /* if */
+#else
     current_file_position = ftell(fil1);
-    fseek(fil1, 0, SEEK_END);
-    file_length = (inttype) ftell(fil1);
-    fseek(fil1, current_file_position, SEEK_SET);
-    return(file_length);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      return(0);
+    } else if (fseek(fil1, 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      return(0);
+    } else {
+      file_length = ftell(fil1);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        return(0);
+      } else if (fseek(fil1, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        return(0);
+      } else {
+        if (file_length > MAX_INTEGER) {
+          raise_error(RANGE_ERROR);
+          return(0);
+        } else {
+          return(file_length);
+        } /* if */
+      } /* if */
+    } /* if */
+#endif
   } /* filLng */
 
 
@@ -368,6 +718,9 @@ chartype *termination_char;
         memory[position++] = (strelemtype) ch;
         ch = getc(fil1);
       } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
       if (!RESIZE_STRI(result, memlength, position)) {
         raise_error(MEMORY_ERROR);
         return(NULL);

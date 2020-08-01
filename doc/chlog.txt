@@ -126,3 +126,15 @@
   were added.
 - The compiler support for bigInteger was improved.
 - The documentation (manual and faq) was improved.
+
+20061204:
+- The functions bigLength, seek, bigTell were added to support files with 64 bit offsets.
+- The file functions getwd, getln, read and readln were changed to remove '\r' before '\n'.
+- Parameters of type bigInteger were changed to use call by reference.
+- The functions ord and conv for the bigInteger type were added.
+- The putf function (to copy a string to a file) was changed and a writef function was added.
+- Functions to split and join strings and a check for that functions were added.
+- Comparisons = and <> for arrays were added.
+- An implementation for 'set of string' based on the 'hash' type was added.
+- Keyboard functionality was moved into the new file kbd_rtl.c.
+- A new makefile makefile.msy for MinGW MSYS compilation was added.

@@ -29,11 +29,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
 #include "stdio.h"
 #include "string.h"
 #include "windows.h"
 
-#include "version.h"
 #include "common.h"
 
 #undef EXTERN
