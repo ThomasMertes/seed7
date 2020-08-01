@@ -1,0 +1,150 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bin32.s7i     32-bit binary value support library               *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Binary values with 32 bits.
+ *  This type is intended for bit operations that are not defined
+ *  for integer values. The internal representation is the same as
+ *  for integer.
+ *)
+const type: bin32 is subtype object;
+
+const proc: destroy (ref bin32 param)                          is action "GEN_DESTR";
+const proc: (ref bin32 param) ::= (ref bin32 param)            is action "INT_CREATE";
+IN_PARAM_IS_VALUE(bin32);
+
+const proc: (inout bin32: dest) := (in bin32: source)          is action "INT_CPY";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: (attr integer) conv (in bin32: binValue)   is action "INT_CONV";
+
+
+(**
+ *  Convert to bin32.
+ *  @return the unchanged value as bin32.
+ *)
+const func bin32: (attr bin32) conv (in integer: anInt)        is action "INT_CONV";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: ord (in bin32: binValue) is
+  return integer conv binValue;
+
+
+(**
+ *  Convert to bin32.
+ *  @return the unchanged value as bin32.
+ *)
+const func bin32: bin32 (in integer: number) is
+  return bin32 conv number;
+
+
+const bin32: (attr bin32) . value   is bin32(0);
+
+
+(**
+ *  Convert to bin32.
+ *  @return the unchanged value as bin32.
+ *)
+const func bin32: bin32 (in char: ch) is
+  return bin32(ord(ch));
+
+
+(**
+ *  Check if two bin32 values are equal.
+ *  @return TRUE if the two values are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bin32: binary1) = (in bin32: binary2)  is action "INT_EQ";
+
+
+(**
+ *  Check if two bin32 values are not equal.
+ *  @return FALSE if both values are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in bin32: binary1) <> (in bin32: binary2) is action "INT_NE";
+
+
+(**
+ *  Compute a bitwise ''and'' of two bin32 values.
+ *  @return the bitwise ''and'' of the two values.
+ *)
+const func bin32: (in bin32: binary1) & (in bin32: binary2)    is action "INT_AND";
+
+
+(**
+ *  Compute a bitwise inclusive ''or'' of two bin32 values.
+ *  @return the bitwise inclusive ''or'' of the two values.
+ *)
+const func bin32: (in bin32: binary1) | (in bin32: binary2)    is action "INT_OR";
+
+
+(**
+ *  Compute a bitwise ''xor'' of two bin32 values.
+ *  @return the bitwise ''xor'' of the two values.
+ *)
+const func bin32: (in bin32: binary1) >< (in bin32: binary2)   is action "INT_XOR";
+
+
+(**
+ *  Shift a bin32 value left by lshift bits.
+ *  @return the left shifted value.
+ *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *)
+const func bin32: (in bin32: binValue) << (in integer: lshift) is action "INT_LSHIFT";
+
+
+(**
+ *  Shift a bin32 value right by rshift bits.
+ *  @return the right shifted value.
+ *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *)
+const func bin32: (in bin32: binValue) >> (in integer: lshift) is action "INT_URSHIFT";
+
+
+(**
+ *  Shift a bin32 value left by lshift bits and assign the result back to ''binValue''.
+ *)
+const proc: (inout bin32: binValue) <<:= (in integer: lshift)  is action "INT_LSHIFT_ASSIGN";
+
+
+(**
+ *  Shift a bin32 value right by rshift bits and assign the result back to ''binValue''.
+ *)
+const proc: (inout bin32: binValue) >>:= (in integer: rshift)  is action "INT_URSHIFT_ASSIGN";
+
+
+const type: _bin32Array is array bin32;

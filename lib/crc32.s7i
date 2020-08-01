@@ -1,0 +1,70 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  crc32.s7i     CRC-32 cyclic redundancy check support library    *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bin32.s7i";
+
+
+const func array bin32: createCrc32Table is func
+  result
+    var array bin32: crc32Table is [0] (bin32(0));
+  local
+    var bin32: c is bin32.value; # crc shift register
+    var integer: i is 0;         # counter for all possible eight bit values
+    var integer: k is 0;         # byte being shifted into crc apparatus
+  begin
+    for i range 1 to 255 do
+      c := bin32(i);
+      for k range 8 downto 1 do
+        if c & bin32(1) = bin32(1) then
+          c := (c >> 1) >< bin32(16#edb88320);
+        else
+          c >>:= 1;
+        end if;
+      end for;
+      crc32Table &:= c;
+    end for;
+  end func;
+
+
+const array bin32: crc32Table is createCrc32Table;
+
+
+(**
+ *  Compute the CRC-32 cyclic redundancy check code.
+ *)
+const func bin32: crc32 (in string: stri) is func
+  result
+    var bin32: crc is bin32(16#ffffffff);
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      crc := crc32Table[ord(crc >< bin32(ch)) mod 256] >< crc >> 8;
+    end for;
+    crc := crc >< bin32(16#ffffffff);
+  end func;

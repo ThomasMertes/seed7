@@ -215,6 +215,7 @@ tokentype get_expr_token (tokentype *tokens, prioritytype priority,
             previous_token->alternative->alternative = token_found;
             token_found = previous_token->alternative;
           } /* if */
+          break;
       } /* switch */
     } /* if */
 #ifdef TRACE_TOKEN

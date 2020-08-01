@@ -753,7 +753,7 @@ static void kbd_init (void)
       erase_ch[0] = (char) term_descr.c_cc[VERASE];
       erase_ch[1] = '\0';
       /* printf("erase_ch %d\n", erase_ch[0]); */
-      term_descr.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
+      term_descr.c_lflag &= (unsigned int) ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
       term_descr.c_cc[VINTR] = (cc_t) -1;
       term_descr.c_cc[VQUIT] = (cc_t) -1;
       term_descr.c_cc[VSTOP] = (cc_t) -1;

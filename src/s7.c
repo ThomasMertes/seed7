@@ -360,8 +360,12 @@ int main (int argc, char **argv)
               /* printf("%d%d\n",
                  trace.actions,
                  trace.check_actions); */
-              interpret(currentProg, option.argv, option.argv_start,
-                        option.exec_options, option.prot_file_name);
+              if (currentProg->main_object == NULL) {
+                printf("*** Declaration for main missing\n");
+              } else {
+                interpret(currentProg, option.argv, option.argv_start,
+                          option.exec_options, option.prot_file_name);
+              } /* if */
             } /* if */
           } /* if */
         } /* if */

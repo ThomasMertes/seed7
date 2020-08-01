@@ -71,6 +71,10 @@ objecttype gen_destr (listtype arguments)
 
 
 
+/**
+ *  Compute the absolute value of an integer number.
+ *  @return the absolute value.
+ */
 objecttype int_abs (listtype arguments)
 
   {
@@ -87,6 +91,10 @@ objecttype int_abs (listtype arguments)
 
 
 
+/**
+ *  Add two integer numbers.
+ *  @return the sum of the two numbers.
+ */
 objecttype int_add (listtype arguments)
 
   { /* int_add */
@@ -98,6 +106,21 @@ objecttype int_add (listtype arguments)
 
 
 
+objecttype int_and (listtype arguments)
+
+  { /* int_and */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_int_temp(
+        take_int(arg_1(arguments)) & take_int(arg_3(arguments)));
+  } /* int_and */
+
+
+
+/**
+ *  Binomial coefficient
+ *  @return n over k
+ */
 objecttype int_binom (listtype arguments)
 
   { /* int_binom */
@@ -109,6 +132,12 @@ objecttype int_binom (listtype arguments)
 
 
 
+/**
+ *  Number of bits in the minimal two's-complement representation.
+ *  The high bits equivalent to the sign bit are not part of the
+ *  minimal two's-complement representation.
+ *  @return the number of bits.
+ */
 objecttype int_bit_length (listtype arguments)
 
   { /* int_bit_length */
@@ -119,6 +148,12 @@ objecttype int_bit_length (listtype arguments)
 
 
 
+/**
+ *  Compare two integer numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objecttype int_cmp (listtype arguments)
 
   {
@@ -143,6 +178,10 @@ objecttype int_cmp (listtype arguments)
 
 
 
+/**
+ *  Convert to integer.
+ *  @return the unchanged number.
+ */
 objecttype int_conv (listtype arguments)
 
   { /* int_conv */
@@ -179,6 +218,10 @@ objecttype int_create (listtype arguments)
 
 
 
+/**
+ *  Decrement an integer variable.
+ *  Decrements the number by 1.
+ */
 objecttype int_decr (listtype arguments)
 
   {
@@ -194,6 +237,15 @@ objecttype int_decr (listtype arguments)
 
 
 
+/**
+ *  Integer division truncated towards zero.
+ *  The remainder of this division is computed with int_rem.
+ *  This function assumes that the C operator / truncates
+ *  towards zero. Tests in chkint.sd7 find out, if this
+ *  assumption is wrong.
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
 objecttype int_div (listtype arguments)
 
   {
@@ -213,6 +265,11 @@ objecttype int_div (listtype arguments)
 
 
 
+/**
+ *  Check if two integer numbers are equal.
+ *  @return TRUE if the two numbers are equal,
+ *          FALSE otherwise.
+ */
 objecttype int_eq (listtype arguments)
 
   { /* int_eq */
@@ -228,6 +285,12 @@ objecttype int_eq (listtype arguments)
 
 
 
+/**
+ *  Compute the factorial of a number.
+ *  @return the factorial of the number.
+ *  @exception NUMERIC_ERROR The number is negative or the result
+ *             does not fit into an integer.
+ */
 objecttype int_fact (listtype arguments)
 
   {
@@ -245,6 +308,11 @@ objecttype int_fact (listtype arguments)
 
 
 
+/**
+ *  Check if number1 is greater than or equal to number2.
+ *  @return TRUE if number1 is greater than or equal to number2,
+ *          FALSE otherwise.
+ */
 objecttype int_ge (listtype arguments)
 
   { /* int_ge */
@@ -260,6 +328,9 @@ objecttype int_ge (listtype arguments)
 
 
 
+/**
+ *  Increment an integer variable by a delta.
+ */
 objecttype int_grow (listtype arguments)
 
   {
@@ -276,6 +347,11 @@ objecttype int_grow (listtype arguments)
 
 
 
+/**
+ *  Check if number1 is greater than number2.
+ *  @return TRUE if number1 is greater than number2,
+ *          FALSE otherwise.
+ */
 objecttype int_gt (listtype arguments)
 
   { /* int_gt */
@@ -291,6 +367,10 @@ objecttype int_gt (listtype arguments)
 
 
 
+/**
+ *  Compute the hash value of an integer number.
+ *  @return the hash value.
+ */
 objecttype int_hashcode (listtype arguments)
 
   { /* int_hashcode */
@@ -300,6 +380,10 @@ objecttype int_hashcode (listtype arguments)
 
 
 
+/**
+ *  Increment an integer variable.
+ *  Increments the number by 1.
+ */
 objecttype int_incr (listtype arguments)
 
   {
@@ -315,6 +399,11 @@ objecttype int_incr (listtype arguments)
 
 
 
+/**
+ *  Check if number1 is less than or equal to number2.
+ *  @return TRUE if number1 is less than or equal to number2,
+ *          FALSE otherwise.
+ */
 objecttype int_le (listtype arguments)
 
   { /* int_le */
@@ -330,6 +419,12 @@ objecttype int_le (listtype arguments)
 
 
 
+/**
+ *  Compute the truncated base 2 logarithm of an integer number.
+ *  The definition of log2 is extended by defining log2(0) = -1.
+ *  @return the truncated base 2 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
 objecttype int_log2 (listtype arguments)
 
   { /* int_log2 */
@@ -340,6 +435,11 @@ objecttype int_log2 (listtype arguments)
 
 
 
+/**
+ *  Index of the lowest-order one bit.
+ *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ */
 objecttype int_lowest_set_bit (listtype arguments)
 
   { /* int_lowest_set_bit */
@@ -361,6 +461,11 @@ objecttype int_lpad0 (listtype arguments)
 
 
 
+/**
+ *  Shift an integer number left by lshift bits.
+ *  A << B is equivalent to A * 2_ ** B
+ *  @return the left shifted number.
+ */
 objecttype int_lshift (listtype arguments)
 
   { /* int_lshift */
@@ -372,6 +477,9 @@ objecttype int_lshift (listtype arguments)
 
 
 
+/**
+ *  Shift a number left by lshift bits and assign the result back to number.
+ */
 objecttype int_lshift_assign (listtype arguments)
 
   {
@@ -388,6 +496,11 @@ objecttype int_lshift_assign (listtype arguments)
 
 
 
+/**
+ *  Check if number1 is less than number2.
+ *  @return TRUE if number1 is less than number2,
+ *          FALSE otherwise.
+ */
 objecttype int_lt (listtype arguments)
 
   { /* int_lt */
@@ -403,6 +516,13 @@ objecttype int_lt (listtype arguments)
 
 
 
+/**
+ *  Integer division truncated towards negative infinity.
+ *  The modulo (remainder) of this division is computed with int_mod.
+ *  Therefore this division is called modulo division (mdiv).
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
 objecttype int_mdiv (listtype arguments)
 
   {
@@ -431,6 +551,10 @@ objecttype int_mdiv (listtype arguments)
 
 
 
+/**
+ *  Minus sign, negate an integer number.
+ *  @return the negated value of the number.
+ */
 objecttype int_minus (listtype arguments)
 
   { /* int_minus */
@@ -441,6 +565,12 @@ objecttype int_minus (listtype arguments)
 
 
 
+/**
+ *  Compute the modulo (remainder) of the integer division int_mdiv.
+ *  The modulo has the same sign as the divisor.
+ *  @return the modulo of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
 objecttype int_mod (listtype arguments)
 
   {
@@ -466,6 +596,10 @@ objecttype int_mod (listtype arguments)
 
 
 
+/**
+ *  Multiply two integer numbers.
+ *  @return the product of the two numbers.
+ */
 objecttype int_mult (listtype arguments)
 
   { /* int_mult */
@@ -477,6 +611,9 @@ objecttype int_mult (listtype arguments)
 
 
 
+/**
+ *  Multiply an integer number by a factor and assign the result back to number.
+ */
 objecttype int_mult_assign (listtype arguments)
 
   {
@@ -493,6 +630,11 @@ objecttype int_mult_assign (listtype arguments)
 
 
 
+/**
+ *  Check if two integer numbers are not equal.
+ *  @return FALSE if both numbers are equal,
+ *          TRUE otherwise.
+ */
 objecttype int_ne (listtype arguments)
 
   { /* int_ne */
@@ -508,6 +650,10 @@ objecttype int_ne (listtype arguments)
 
 
 
+/**
+ *  Convert to integer.
+ *  @return the unchanged number.
+ */
 objecttype int_odd (listtype arguments)
 
   { /* int_odd */
@@ -521,6 +667,21 @@ objecttype int_odd (listtype arguments)
 
 
 
+objecttype int_or (listtype arguments)
+
+  { /* int_or */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_int_temp(
+        take_int(arg_1(arguments)) | take_int(arg_3(arguments)));
+  } /* int_or */
+
+
+
+/**
+ *  Convert to integer.
+ *  @return the unchanged number.
+ */
 objecttype int_ord (listtype arguments)
 
   { /* int_ord */
@@ -530,6 +691,17 @@ objecttype int_ord (listtype arguments)
 
 
 
+/**
+ *  Convert a string to an integer number.
+ *  The string must contain an integer literal consisting of an
+ *  optional + or - sign, followed by a sequence of digits. Other
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed. The sequence of digits is taken to be decimal.
+ *  @return the integer result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or it does not contain
+ *             an integer literal or when the integer literal is too big
+ *             or too small to be represented as integer value.
+ */
 objecttype int_parse (listtype arguments)
 
   { /* int_parse */
@@ -540,6 +712,10 @@ objecttype int_parse (listtype arguments)
 
 
 
+/**
+ *  Plus sign for integer numbers.
+ *  @return its operand unchanged.
+ */
 objecttype int_plus (listtype arguments)
 
   { /* int_plus */
@@ -549,6 +725,11 @@ objecttype int_plus (listtype arguments)
 
 
 
+/**
+ *  Compute the exponentiation of a integer base by an integer exponent.
+ *  @return the result of the exponentation.
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ */
 objecttype int_pow (listtype arguments)
 
   { /* int_pow */
@@ -560,6 +741,10 @@ objecttype int_pow (listtype arguments)
 
 
 
+/**
+ *  Predecessor of an integer number.
+ *  @return number - 1
+ */
 objecttype int_pred (listtype arguments)
 
   { /* int_pred */
@@ -569,6 +754,16 @@ objecttype int_pred (listtype arguments)
 
 
 
+/**
+ *  Convert an integer number to a string using a radix.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with lower case letters.
+ *  E.g.: 10 is encoded with a, 11 with b, etc.
+ *  For negative numbers a minus sign is prepended.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype int_radix (listtype arguments)
 
   { /* int_radix */
@@ -580,6 +775,16 @@ objecttype int_radix (listtype arguments)
 
 
 
+/**
+ *  Convert an integer number to a string using a radix.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with upper case letters.
+ *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *  For negative numbers a minus sign is prepended.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype int_RADIX (listtype arguments)
 
   { /* int_RADIX */
@@ -591,6 +796,13 @@ objecttype int_RADIX (listtype arguments)
 
 
 
+/**
+ *  Compute pseudo-random number in the range [low, high].
+ *  The random values are uniform distributed.
+ *  @return a random number such that low <= rand(low, high) and
+ *          rand(low, high) <= high holds.
+ *  @exception RANGE_ERROR The range is empty (low > high holds).
+ */
 objecttype int_rand (listtype arguments)
 
   { /* int_rand */
@@ -602,6 +814,12 @@ objecttype int_rand (listtype arguments)
 
 
 
+/**
+ *  Compute the remainder of the integer division int_div.
+ *  The remainder has the same sign as the dividend.
+ *  @return the remainder of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
 objecttype int_rem (listtype arguments)
 
   {
@@ -621,6 +839,11 @@ objecttype int_rem (listtype arguments)
 
 
 
+/**
+ *  Shift an integer number right by rshift bits.
+ *  A >> B is equivalent to A mdiv 2_ ** B
+ *  @return the right shifted number.
+ */
 objecttype int_rshift (listtype arguments)
 
   { /* int_rshift */
@@ -645,6 +868,9 @@ objecttype int_rshift (listtype arguments)
 
 
 
+/**
+ *  Shift a number right by rshift bits and assign the result back to number.
+ */
 objecttype int_rshift_assign (listtype arguments)
 
   {
@@ -670,20 +896,10 @@ objecttype int_rshift_assign (listtype arguments)
 
 
 
-#ifdef OUT_OF_ORDER
-objecttype int_urshift (listtype arguments)
-
-  { /* int_urshift */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    return bld_stri_temp((inttype)
-        (((uinttype) (take_int(arg_1(arguments)))) >>
-        take_int(arg_3(arguments))));
-  } /* int_urshift */
-#endif
-
-
-
+/**
+ *  Compute the subtraction of two integer numbers.
+ *  @return the difference of the two numbers.
+ */
 objecttype int_sbtr (listtype arguments)
 
   { /* int_sbtr */
@@ -695,6 +911,9 @@ objecttype int_sbtr (listtype arguments)
 
 
 
+/**
+ *  Decrement an integer variable by a delta.
+ */
 objecttype int_shrink (listtype arguments)
 
   {
@@ -711,6 +930,11 @@ objecttype int_shrink (listtype arguments)
 
 
 
+/**
+ *  Compute the integer square root of an integer number.
+ *  @return the integer square root.
+ *  @exception NUMERIC_ERROR When number is negative.
+ */
 objecttype int_sqrt (listtype arguments)
 
   { /* int_sqrt */
@@ -721,6 +945,13 @@ objecttype int_sqrt (listtype arguments)
 
 
 
+/**
+ *  Convert an integer number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype int_str (listtype arguments)
 
   { /* int_str */
@@ -731,12 +962,46 @@ objecttype int_str (listtype arguments)
 
 
 
+/**
+ *  Successor of an integer number.
+ *  @return number + 1
+ */
 objecttype int_succ (listtype arguments)
 
   { /* int_succ */
     isit_int(arg_1(arguments));
     return bld_int_temp(take_int(arg_1(arguments)) + 1);
   } /* int_succ */
+
+
+
+objecttype int_urshift (listtype arguments)
+
+  { /* int_urshift */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_int_temp((inttype)
+        ((uinttype) (take_int(arg_1(arguments))) >>
+        take_int(arg_3(arguments))));
+  } /* int_urshift */
+
+
+
+objecttype int_urshift_assign (listtype arguments)
+
+  {
+    objecttype int_variable;
+
+  /* int_urshift_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    int_variable->value.intvalue = (inttype)
+        ((uinttype) (int_variable->value.intvalue) >>
+        take_int(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* int_urshift_assign */
 
 
 
@@ -754,3 +1019,14 @@ objecttype int_value (listtype arguments)
       return bld_int_temp(take_int(obj_arg));
     } /* if */
   } /* int_value */
+
+
+
+objecttype int_xor (listtype arguments)
+
+  { /* int_xor */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_int_temp(
+        take_int(arg_1(arguments)) ^ take_int(arg_3(arguments)));
+  } /* int_xor */

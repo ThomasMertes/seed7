@@ -657,31 +657,30 @@ objecttype drw_image (listtype arguments)
     arraytype arr_line;
     objecttype curr_column;
     int32type *pixel_elem;
-    inttype width;
-    inttype height;
-    inttype line;
-    inttype column;
+    memsizetype height;
+    memsizetype width;
+    memsizetype line;
+    memsizetype column;
     int32type *image_data;
     wintype result;
 
   /* drw_image */
     isit_array(arg_1(arguments));
     arr_image = take_array(arg_1(arguments));
-    height = arr_image->max_position - arr_image->min_position + 1;
-    if (height <= 0) {
+    height = arraySize(arr_image);
+    if (height == 0) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       curr_line = &arr_image->arr[0];
       isit_array(curr_line);
       arr_line = take_array(curr_line);
-      width = arr_line->max_position - arr_line->min_position + 1;
-      if (width <= 0) {
+      width = arraySize(arr_line);
+      if (width == 0) {
         return raise_exception(SYS_RNG_EXCEPTION);
       } else {
         curr_column = &arr_line->arr[0];
         isit_int(curr_column);
-        if (width > MAX_MEMSIZETYPE ||
-            height > MAX_MEMSIZETYPE / sizeof(int32type) / (memsizetype) width ||
+        if (height > MAX_MEMSIZETYPE / sizeof(int32type) / (memsizetype) width ||
             (image_data = (int32type *) malloc((memsizetype) height * (memsizetype) width *
                                                sizeof(int32type))) == NULL) {
           return raise_exception(SYS_MEM_EXCEPTION);

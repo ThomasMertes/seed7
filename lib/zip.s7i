@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  zip.s7i       Zip format support library                        *)
+(*  zip.s7i       Zip compression support library                   *)
 (*  Copyright (C) 2009  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -26,8 +26,8 @@
 (********************************************************************)
 
 
-include "gzip.s7i";
-include "binary.s7i";
+include "inflate.s7i";
+include "bytedata.s7i";
 
 
 const func integer: rpos (inout file: inFile, in string: stri) is func
@@ -73,16 +73,16 @@ const func local_file_header: get_local_header (inout file: inFile) is func
   begin
     header.signature := gets(inFile, 4);
     if header.signature = "PK\3\\4\" then
-      header.version_needed_to_extract   := get_uint16_le(inFile);
-      header.general_purpose_bit_flag    := get_uint16_le(inFile);
-      header.compression_method          := get_uint16_le(inFile);
-      header.last_mod_file_time          := get_uint16_le(inFile);
-      header.last_mod_file_date          := get_uint16_le(inFile);
-      header.crc_32                      := get_uint32_le(inFile);
-      header.compressed_size             := get_uint32_le(inFile);
-      header.uncompressed_size           := get_uint32_le(inFile);
-      header.file_name_length            := get_uint16_le(inFile);
-      header.extra_field_length          := get_uint16_le(inFile);
+      header.version_needed_to_extract   := getUInt16Le(inFile);
+      header.general_purpose_bit_flag    := getUInt16Le(inFile);
+      header.compression_method          := getUInt16Le(inFile);
+      header.last_mod_file_time          := getUInt16Le(inFile);
+      header.last_mod_file_date          := getUInt16Le(inFile);
+      header.crc_32                      := getUInt32Le(inFile);
+      header.compressed_size             := getUInt32Le(inFile);
+      header.uncompressed_size           := getUInt32Le(inFile);
+      header.file_name_length            := getUInt16Le(inFile);
+      header.extra_field_length          := getUInt16Le(inFile);
       header.file_name                   := gets(inFile, header.file_name_length);
       header.extra_field                 := gets(inFile, header.extra_field_length);
     end if;
@@ -126,13 +126,13 @@ const func end_of_central_directory: get_end_of_central_directory (inout file: i
   begin
     endOfCentDir.signature := gets(inFile, 4);
     if endOfCentDir.signature = "PK\5\\6\" then
-      endOfCentDir.number_of_this_disk                          := get_uint16_le(inFile);
-      endOfCentDir.disk_number_with_start_of_central_directory  := get_uint16_le(inFile);
-      endOfCentDir.entries_in_central_directory_on_this_disk    := get_uint16_le(inFile);
-      endOfCentDir.entries_in_central_directory                 := get_uint16_le(inFile);
-      endOfCentDir.size_of_central_directory                    := get_uint32_le(inFile);
-      endOfCentDir.offset_of_start_of_central_directory         := get_uint32_le(inFile);
-      endOfCentDir.file_comment_length                          := get_uint16_le(inFile);
+      endOfCentDir.number_of_this_disk                          := getUInt16Le(inFile);
+      endOfCentDir.disk_number_with_start_of_central_directory  := getUInt16Le(inFile);
+      endOfCentDir.entries_in_central_directory_on_this_disk    := getUInt16Le(inFile);
+      endOfCentDir.entries_in_central_directory                 := getUInt16Le(inFile);
+      endOfCentDir.size_of_central_directory                    := getUInt32Le(inFile);
+      endOfCentDir.offset_of_start_of_central_directory         := getUInt32Le(inFile);
+      endOfCentDir.file_comment_length                          := getUInt16Le(inFile);
       endOfCentDir.file_comment                                 := gets(inFile, endOfCentDir.file_comment_length);
     end if;
   end func;
@@ -196,22 +196,22 @@ const func central_file_header: get_central_header (inout file: inFile) is func
   begin
     centralHeader.signature := gets(inFile, 4);
     if centralHeader.signature = "PK\1\\2\" then
-      centralHeader.version_made_by                 := get_uint16_le(inFile);
-      centralHeader.version_needed_to_extract       := get_uint16_le(inFile);
-      centralHeader.general_purpose_bit_flag        := get_uint16_le(inFile);
-      centralHeader.compression_method              := get_uint16_le(inFile);
-      centralHeader.last_mod_file_time              := get_uint16_le(inFile);
-      centralHeader.last_mod_file_date              := get_uint16_le(inFile);
-      centralHeader.crc_32                          := get_uint32_le(inFile);
-      centralHeader.compressed_size                 := get_uint32_le(inFile);
-      centralHeader.uncompressed_size               := get_uint32_le(inFile);
-      centralHeader.file_name_length                := get_uint16_le(inFile);
-      centralHeader.extra_field_length              := get_uint16_le(inFile);
-      centralHeader.file_comment_length             := get_uint16_le(inFile);
-      centralHeader.disk_number_start               := get_uint16_le(inFile);
-      centralHeader.internal_file_attributes        := get_uint16_le(inFile);
-      centralHeader.external_file_attributes        := get_uint32_le(inFile);
-      centralHeader.relative_offset_of_local_header := get_uint32_le(inFile);
+      centralHeader.version_made_by                 := getUInt16Le(inFile);
+      centralHeader.version_needed_to_extract       := getUInt16Le(inFile);
+      centralHeader.general_purpose_bit_flag        := getUInt16Le(inFile);
+      centralHeader.compression_method              := getUInt16Le(inFile);
+      centralHeader.last_mod_file_time              := getUInt16Le(inFile);
+      centralHeader.last_mod_file_date              := getUInt16Le(inFile);
+      centralHeader.crc_32                          := getUInt32Le(inFile);
+      centralHeader.compressed_size                 := getUInt32Le(inFile);
+      centralHeader.uncompressed_size               := getUInt32Le(inFile);
+      centralHeader.file_name_length                := getUInt16Le(inFile);
+      centralHeader.extra_field_length              := getUInt16Le(inFile);
+      centralHeader.file_comment_length             := getUInt16Le(inFile);
+      centralHeader.disk_number_start               := getUInt16Le(inFile);
+      centralHeader.internal_file_attributes        := getUInt16Le(inFile);
+      centralHeader.external_file_attributes        := getUInt32Le(inFile);
+      centralHeader.relative_offset_of_local_header := getUInt32Le(inFile);
       centralHeader.file_name                       := gets(inFile, centralHeader.file_name_length);
       centralHeader.extra_field                     := gets(inFile, centralHeader.extra_field_length);
       centralHeader.file_comment                    := gets(inFile, centralHeader.file_comment_length);

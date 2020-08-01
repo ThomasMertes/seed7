@@ -30,6 +30,7 @@ objecttype big_add            (listtype arguments);
 objecttype big_bit_length     (listtype arguments);
 objecttype big_clit           (listtype arguments);
 objecttype big_cmp            (listtype arguments);
+objecttype big_conv           (listtype arguments);
 objecttype big_cpy            (listtype arguments);
 objecttype big_create         (listtype arguments);
 objecttype big_decr           (listtype arguments);

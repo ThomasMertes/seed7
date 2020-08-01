@@ -520,15 +520,15 @@ const proc: tarXtract (in string: inFileName, in array string: arg_list,
   end func;
 
 
-const proc: tarXtract (in string: inFileName) is func
-  begin
-    tarXtract(inFileName, 0 times "", FALSE, FALSE);
-  end func;
-
-
 const proc: tarXtract (in string: inFileName, in boolean: do_view) is func
   begin
     tarXtract(inFileName, 0 times "", do_view, FALSE);
+  end func;
+
+
+const proc: tarXtract (in string: inFileName) is func
+  begin
+    tarXtract(inFileName, 0 times "", FALSE, FALSE);
   end func;
 
 
@@ -567,13 +567,17 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
 
 
 const proc: tarCreate (in string: outFileName, in array string: arg_list,
-    in boolean: do_view) is func
+    in boolean: do_view, in boolean: do_zip) is func
   local
     var file: outFile is STD_NULL;
     var string: name is "";
     var integer: lastSlashPos is 0;
+    var string: uncompressed is "";
   begin
     outFile := open(outFileName, "w");
+    if outFile <> STD_NULL and do_zip then
+      outFile := openGzipFile(outFile);
+    end if;
     if outFile <> STD_NULL then
       for name range arg_list do
         lastSlashPos := rpos(name, "/");
@@ -584,5 +588,19 @@ const proc: tarCreate (in string: outFileName, in array string: arg_list,
               "", [] (name[succ(lastSlashPos) ..]), do_view);
         end if;
       end for;
+      close(outFile);
     end if;
+  end func;
+
+
+const proc: tarCreate (in string: outFileName, in array string: arg_list,
+    in boolean: do_view) is func
+  begin
+    tarCreate(outFileName, arg_list, do_view, FALSE);
+  end func;
+
+
+const proc: tarCreate (in string: outFileName, in array string: arg_list) is func
+  begin
+    tarCreate(outFileName, arg_list, FALSE, FALSE);
   end func;

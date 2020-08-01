@@ -133,7 +133,11 @@ settype setBaselit (const inttype number)
 
 
 
-inttype setCard (const const_settype set1)
+/**
+ *  Compute the cardinality of a set.
+ *  @return the number of elements in 'aSet'.
+ */
+inttype setCard (const const_settype aSet)
 
   {
     const unsigned char *byte;
@@ -142,8 +146,8 @@ inttype setCard (const const_settype set1)
     inttype result;
 
   /* setCard */
-    byte = (const unsigned char *) set1->bitset;
-    for (byteCount = sizeof(bitsettype) * bitsetSize(set1);
+    byte = (const unsigned char *) aSet->bitset;
+    for (byteCount = sizeof(bitsettype) * bitsetSize(aSet);
         byteCount != 0; byteCount--, byte++) {
       card += (uinttype) card_byte[(int) *byte];
     } /* for */
@@ -358,6 +362,11 @@ void setDestr (const const_settype old_set)
 
 
 
+/**
+ *  Difference of two sets.
+ *  @return the difference of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 settype setDiff (const const_settype set1, const const_settype set2)
 
   {
@@ -409,7 +418,13 @@ settype setDiff (const const_settype set1, const const_settype set2)
 
 
 
-booltype setElem (const inttype number, const const_settype set1)
+/**
+ *  Set membership test.
+ *  Determine if 'number' is a member of the set 'aSet'.
+ *  @return TRUE when 'number' is a member of  'aSet',
+ *          FALSE otherwise.
+ */
+booltype setElem (const inttype number, const const_settype aSet)
 
   {
     inttype position;
@@ -418,10 +433,10 @@ booltype setElem (const inttype number, const const_settype set1)
 
   /* setElem */
     position = bitset_pos(number);
-    if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = bitsetIndex(set1, position);
+    if (position >= aSet->min_position && position <= aSet->max_position) {
+      bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (bitsettype) 1 << bit_index) {
+      if (aSet->bitset[bitset_index] & (bitsettype) 1 << bit_index) {
         return TRUE;
       } else {
         return FALSE;
@@ -451,6 +466,11 @@ settype setEmpty (void)
 
 
 
+/**
+ *  Check if two sets are equal.
+ *  @return TRUE if the two sets are equal,
+ *          FALSE otherwise.
+ */
 booltype setEq (const const_settype set1, const const_settype set2)
 
   {
@@ -540,6 +560,10 @@ booltype setEq (const const_settype set1, const const_settype set2)
 
 
 
+/**
+ *  Remove 'number' from the set 'set_to'.
+ *  When 'number' is not element of 'set_to' then 'set_to' stays unchanged.
+ */
 void setExcl (settype *const set_to, const inttype number)
 
   {
@@ -565,6 +589,10 @@ void setExcl (settype *const set_to, const inttype number)
 
 
 
+/**
+ *  Compute the hash value of a bitset.
+ *  @return the hash value.
+ */
 inttype setHashCode (const const_settype set1)
 
   {
@@ -583,6 +611,11 @@ inttype setHashCode (const const_settype set1)
 
 
 
+/**
+ *  Convert an integer number to a bitset.
+ *  @return a bitset which corresponds to the given integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 settype setIConv (inttype number)
 
   {
@@ -613,6 +646,11 @@ settype setIConv (inttype number)
 
 
 
+/**
+ *  Add 'number' to the set 'set_to'.
+ *  When 'number' is already in 'set_to' then 'set_to' stays unchanged.
+ *  @exception MEMORY_ERROR When there is not enough memory.
+ */
 void setIncl (settype *const set_to, const inttype number)
 
   {
@@ -673,6 +711,11 @@ void setIncl (settype *const set_to, const inttype number)
 
 
 
+/**
+ *  Intersection of two sets.
+ *  @return the intersection of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 settype setIntersect (const const_settype set1, const const_settype set2)
 
   {
@@ -743,6 +786,14 @@ booltype setIsEmpty (const const_settype set1)
 
 
 
+/**
+ *  Determine if 'set1' is a proper subset of 'set2'.
+ *  'set1' is a proper subset of 'set2' when
+ *   set1 <= set2 and set1 <> set2
+ *  holds.
+ *  @return TRUE if 'set1' is a proper subset of 'set2',
+ *          FALSE otherwise.
+ */
 booltype setIsProperSubset (const const_settype set1, const const_settype set2)
 
   {
@@ -843,6 +894,14 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
 
 
 
+/**
+ *  Determine if 'set1' is a subset of 'set2'.
+ *  'set1' is a subset of 'set2' when no element X exists for which
+ *   X in set1 and X not in set2
+ *  holds.
+ *  @return TRUE if 'set1' is a subset of 'set2',
+ *          FALSE otherwise.
+ */
 booltype setIsSubset (const const_settype set1, const const_settype set2)
 
   {
@@ -919,7 +978,15 @@ booltype setIsSubset (const const_settype set1, const const_settype set2)
 
 
 
-inttype setMax (const const_settype set1)
+/**
+ *  Maximal element of a set.
+ *  Delivers the element from 'aSet' for which the following condition holds:
+ *   element >= X
+ *  for all X which are in the set.
+ *  @return the maximal element of 'aSet'.
+ *  @exception RANGE_ERROR When 'aSet' is the empty set.
+ */
+inttype setMax (const const_settype aSet)
 
   {
     memsizetype bitset_index;
@@ -927,13 +994,13 @@ inttype setMax (const const_settype set1)
     inttype result;
 
   /* setMax */
-    bitset_index = bitsetSize(set1);
+    bitset_index = bitsetSize(aSet);
     while (bitset_index > 0) {
       bitset_index--;
-      curr_bitset = set1->bitset[bitset_index];
+      curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
         result = uintMostSignificantBit(curr_bitset);
-        result += (set1->min_position + (inttype) bitset_index) << bitset_shift;
+        result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
         return result;
       } /* if */
     } /* while */
@@ -943,7 +1010,15 @@ inttype setMax (const const_settype set1)
 
 
 
-inttype setMin (const const_settype set1)
+/**
+ *  Minimal element of a set.
+ *  Delivers the element from 'aSet' for which the following condition holds:
+ *   element <= X
+ *  for all X which are in the set.
+ *  @return the minimum element of 'aSet'.
+ *  @exception RANGE_ERROR When 'aSet' is the empty set.
+ */
+inttype setMin (const const_settype aSet)
 
   {
     memsizetype bitset_size;
@@ -952,13 +1027,13 @@ inttype setMin (const const_settype set1)
     inttype result;
 
   /* setMin */
-    bitset_size = bitsetSize(set1);
+    bitset_size = bitsetSize(aSet);
     bitset_index = 0;
     while (bitset_index < bitset_size) {
-      curr_bitset = set1->bitset[bitset_index];
+      curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
         result = uintLeastSignificantBit(curr_bitset);
-        result += (set1->min_position + (inttype) bitset_index) << bitset_shift;
+        result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
         return result;
       } /* if */
       bitset_index++;
@@ -1011,7 +1086,13 @@ inttype setNext (const const_settype set1, const inttype number)
 
 
 
-inttype setRand (const const_settype set1)
+/**
+ *  Compute pseudo-random number which is element of 'aSet'.
+ *  The random values are uniform distributed.
+ *  @return a random number such that rand(aSet) in aSet holds.
+ *  @exception RANGE_ERROR When 'aSet' is empty.
+ */
+inttype setRand (const const_settype aSet)
 
   {
     inttype num_elements;
@@ -1022,21 +1103,21 @@ inttype setRand (const const_settype set1)
     inttype result;
 
   /* setRand */
-    num_elements = setCard(set1);
+    num_elements = setCard(aSet);
     if (unlikely(num_elements == 0)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
       elem_index = intRand(1, num_elements);
-      bitset_size = bitsetSize(set1);
+      bitset_size = bitsetSize(aSet);
       bitset_index = 0;
       while (bitset_index < bitset_size) {
-        curr_bitset = set1->bitset[bitset_index];
+        curr_bitset = aSet->bitset[bitset_index];
         while (curr_bitset != 0) {
           result = uintLeastSignificantBit(curr_bitset);
           elem_index--;
           if (elem_index == 0) {
-            result += (set1->min_position + (inttype) bitset_index) << bitset_shift;
+            result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
             return result;
           } /* if */
           curr_bitset &= ~((bitsettype) 1 << result);
@@ -1094,11 +1175,17 @@ settype setRangelit (const inttype lowerValue, const inttype upperValue)
 
 
 
-inttype setSConv (const const_settype set1)
+/**
+ *  Convert a bitset to integer.
+ *  @return an integer which corresponds to the given bitset.
+ *  @exception RANGE_ERROR When 'aSet' contains negative values or
+ *             when it does not fit into an integer.
+ */
+inttype setSConv (const const_settype aSet)
 
   { /* setSConv */
-    if (likely(set1->min_position == 0 && set1->max_position == 0)) {
-      return (inttype) set1->bitset[0];
+    if (likely(aSet->min_position == 0 && aSet->max_position == 0)) {
+      return (inttype) aSet->bitset[0];
     } else {
       raise_error(RANGE_ERROR);
       return 0;
@@ -1107,6 +1194,11 @@ inttype setSConv (const const_settype set1)
 
 
 
+/**
+ *  Symmetric difference of two sets.
+ *  @return the symmetric difference of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 settype setSymdiff (const const_settype set1, const const_settype set2)
 
   {
@@ -1207,6 +1299,11 @@ inttype setToInt (const const_settype set1, const inttype lowestBitNum)
 
 
 
+/**
+ *  Union of two sets.
+ *  @return the union of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 settype setUnion (const const_settype set1, const const_settype set2)
 
   {

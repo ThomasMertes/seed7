@@ -117,6 +117,16 @@ int _matherr (struct _exception *a)
 
 
 
+/**
+ *  Compare two float numbers.
+ *  Because fltCmp is used to sort float values, a total
+ *  order of all float values is needed. Therefore fltCmp
+ *  considers NaN as equal to itself and greater than
+ *  Infinity.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 inttype fltCmp (floattype number1, floattype number2)
 
   { /* fltCmp */
@@ -180,6 +190,15 @@ void fltCpy (floattype *dest, floattype source)
 
 
 
+/**
+ *  Convert a float to a string in decimal fixed point notation.
+ *  The 'precision' parameter specifies the number of digits after
+ *  the decimal point. When the 'precision' is zero the decimal
+ *  point is omitted. When all digits in the result are 0 a negative
+ *  sign is omitted.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 stritype fltDgts (floattype number, inttype digits_precision)
 
   {
@@ -282,6 +301,10 @@ booltype fltGt (floattype number1, floattype number2)
 
 
 
+/**
+ *  Compute the exponentiation of a float 'base' by an integer 'exponent'.
+ *  @return the result of the exponentation.
+ */
 floattype fltIPow (floattype base, inttype exponent)
 
   {
@@ -353,6 +376,16 @@ floattype fltIPow (floattype base, inttype exponent)
 
 
 
+/**
+ *  Determine if a number is -0.0.
+ *  This function is the only possibility to determine if a number
+ *  is -0.0. The comparison operators (=, <>, <, >, <=, >=) and
+ *  the function 'compare' treat 0.0 and -0.0 as equal. The
+ *  'digits' operator and the 'str' function convert -0.0 to
+ *  the string "0.0".
+ *  @return TRUE if the number is -0.0,
+ *          FALSE otherwise.
+ */
 booltype fltIsNegativeZero (floattype number)
 
   { /* fltIsNegativeZero */
@@ -391,6 +424,11 @@ booltype fltLt (floattype number1, floattype number2)
 
 
 
+/**
+ *  Convert a string to a float number.
+ *  @return the float result of the conversion.
+ *  @exception RANGE_ERROR When the string contains not a float literal.
+ */
 floattype fltParse (const const_stritype stri)
 
   {
@@ -485,28 +523,34 @@ floattype fltPow (floattype base, floattype exponent)
 
 
 
-floattype fltRand (floattype lower_limit, floattype upper_limit)
+/**
+ *  Compute pseudo-random number in the range [low, high].
+ *  The random values are uniform distributed.
+ *  @return the computed pseudo-random number.
+ *  @exception RANGE_ERROR The range is empty (low > high holds).
+ */
+floattype fltRand (floattype low, floattype high)
 
   {
     double factor;
     floattype result;
 
   /* fltRand */
-    /* printf("fltRand(%f, %f)\n", lower_limit, upper_limit); */
-    if (lower_limit > upper_limit) {
+    /* printf("fltRand(%f, %f)\n", low, high); */
+    if (low > high) {
       raise_error(RANGE_ERROR);
       return 0.0;
     } else {
-      factor = upper_limit - lower_limit;
+      factor = high - low;
       if (factor == POSITIVE_INFINITY) {
         do {
           result = (floattype) uint_rand();
-        } while (result < lower_limit || result > upper_limit);
+        } while (result < low || result > high);
       } else {
         do {
           result = ((floattype) uint_rand()) / ((floattype) UINTTYPE_MAX);
-          result = lower_limit + factor * result;
-        } while (result < lower_limit || result > upper_limit);
+          result = low + factor * result;
+        } while (result < low || result > high);
       } /* if */
       return result;
     } /* if */
@@ -514,7 +558,19 @@ floattype fltRand (floattype lower_limit, floattype upper_limit)
 
 
 
-stritype fltSci (floattype number, inttype digits_precision)
+/**
+ *  Convert a float to a string in scientific notation.
+ *  Scientific notation uses a decimal float with optional sign, which
+ *  has only one digit before the decimal point. The float is followed
+ *  by the letter e and an exponent, which is always signed.
+ *  The 'precision' parameter specifies the number of digits after
+ *  the decimal point. When the 'precision' is zero the decimal
+ *  point is omitted. When all digits in the result are 0 a negative
+ *  sign is omitted.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+stritype fltSci (floattype number, inttype precision)
 
   {
     char buffer[2001];
@@ -529,11 +585,11 @@ stritype fltSci (floattype number, inttype digits_precision)
     stritype result;
 
   /* fltSci */
-    if (digits_precision < 0) {
-      digits_precision = 0;
+    if (precision < 0) {
+      precision = 0;
     } /* if */
-    if (digits_precision > 1000) {
-      digits_precision = 1000;
+    if (precision > 1000) {
+      precision = 1000;
     } /* if */
     if (isnan(number)) {
       buffer_ptr = "NaN";
@@ -543,13 +599,13 @@ stritype fltSci (floattype number, inttype digits_precision)
       buffer_ptr = "-Infinity";
     } else {
 #ifdef USE_VARIABLE_FORMATS
-      sprintf(buffer, "%1.*e", (int) digits_precision, number);
+      sprintf(buffer, "%1.*e", (int) precision, number);
 #else
-      if (digits_precision > MAX_FORM) {
-        sprintf(form_buffer, "%%1.%lde", digits_precision);
+      if (precision > MAX_FORM) {
+        sprintf(form_buffer, "%%1.%lde", precision);
         sprintf(buffer, form_buffer, number);
       } else {
-        sprintf(buffer, form[digits_precision], number);
+        sprintf(buffer, form[precision], number);
       } /* if */
 #endif
       startPos = 0;
@@ -607,6 +663,12 @@ stritype fltSci (floattype number, inttype digits_precision)
 
 
 
+/**
+ *  Convert a float number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 stritype fltStr (floattype number)
 
   {

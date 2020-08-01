@@ -976,7 +976,7 @@ booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
     } else {
       pollFd[0].fd = (int) sock;
       pollFd[0].events = POLLIN;
-      poll_result = os_poll(pollFd, 1, seconds * 1000 + micro_seconds / 1000);
+      poll_result = os_poll(pollFd, 1, (int) seconds * 1000 + (int) (micro_seconds / 1000));
       if (unlikely(poll_result < 0)) {
         raise_error(FILE_ERROR);
         result = FALSE;

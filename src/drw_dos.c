@@ -267,6 +267,7 @@ wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
 
   { /* drwGetPixel */
+    return 0;
   } /* drwGetPixel */
 
 
@@ -279,7 +280,7 @@ inttype drwHeight (const_wintype actual_window)
 
 
 
-wintype drwImage (int32type *image_data, inttype width, inttype height)
+wintype drwImage (int32type *image_data, memsizetype width, memsizetype height)
 
   { /* drwImage */
     return NULL;

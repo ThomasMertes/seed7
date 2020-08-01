@@ -225,19 +225,21 @@ objecttype arr_arrlit2 (listtype arguments)
     objecttype result;
 
   /* arr_arrlit2 */
+    /* printf("begin arr_arrlit2\n"); */
     isit_int(arg_2(arguments));
     start_position = take_int(arg_2(arguments));
     arr_arg = arg_4(arguments);
     isit_array(arr_arg);
     arr1 = take_array(arr_arg);
     result_size = arraySize(arr1);
-    if (start_position < MIN_MEM_INDEX ||
-        start_position > MAX_MEM_INDEX - result_size + 1) {
+    if (start_position < MIN_MEM_INDEX || start_position > MAX_MEM_INDEX ||
+        (result_size != 0 && start_position > (inttype) (MAX_MEM_INDEX - result_size + 1)) ||
+        (result_size == 0 && start_position == MIN_MEM_INDEX)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (TEMP_OBJECT(arr_arg)) {
         arr1->min_position = start_position;
-        arr1->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
+        arr1->max_position = arrayMaxPos(start_position, result_size);
         result = arr_arg;
         result->type_of = NULL;
         arg_4(arguments) = NULL;
@@ -246,7 +248,7 @@ objecttype arr_arrlit2 (listtype arguments)
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result_array->min_position = start_position;
-        result_array->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
+        result_array->max_position = arrayMaxPos(start_position, result_size);
         if (!crea_array(result_array->arr, arr1->arr, result_size)) {
           FREE_ARRAY(result_array, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -254,6 +256,7 @@ objecttype arr_arrlit2 (listtype arguments)
         result = bld_array_temp(result_array);
       } /* if */
     } /* if */
+    /* printf("end arr_arrlit2\n"); */
     return result;
   } /* arr_arrlit2 */
 

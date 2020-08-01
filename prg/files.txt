@@ -93,12 +93,13 @@ array.s7i    Support for arrays with integer index
 bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   Unlimited precision integer support library
 bigrat.s7i   Big rational number support library
-binary.s7i   Functions to read binary data from string or file
+bin32.s7i    32-bit binary value support library
 bitmapfont.s7i Font implementation type for bitmap fonts
 bitset.s7i   Support for sets of integer numbers
 bitsetof.s7i Support for bitsets of a base type
 boolean.s7i  Boolean support library
 bstring.s7i  Byte string support library
+bytedata.s7i Convert to and from strings with byte data
 cards.s7i    Playing card pictures of a french deck
 category.s7i Category support library
 cgi.s7i      Support for the Common Gateway Interface
@@ -109,8 +110,10 @@ clib_file.s7i Type for FILE * files from the C runtime library
 color.s7i    Functions for color processing
 complex.s7i  Complex support library
 console.s7i  Text implementation type for text console/window.
+crc32.s7i    CRC-32 cyclic redundancy check support library
 cronos16.s7i Cronos vector font with capHeight 16.
 cronos27.s7i Cronos vector font with capHeight 27.
+deflate.s7i  Deflate compression algorithm
 dialog.s7i   Dialog support library
 dir.s7i      Implementation type to read directories as files
 draw.s7i     Portable graphic library
@@ -134,13 +137,14 @@ gethttp.s7i  Support to get data with the HTTP protocol
 graph.s7i    Basic graphic library
 graph_file.s7i Implementation type to display graphic text
 gtkserver.s7i Gtk-server connection library
-gzip.s7i     Gzip uncompression function
+gzip.s7i     Gzip compression support library
 hash.s7i     Hash map support library
 hashsetof.s7i Support for hashsets of a base type
 html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
 idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window
+inflate.s7i  Inflate uncompression algorithm
 inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 keybd.s7i    Read from keyboard without buffering and echo
@@ -206,5 +210,5 @@ window.s7i   Filter file for text windows with random access
 wrinum.s7i   Functions to write numbers
 xml_ent.s7i  XML entity handling library
 xmldom.s7i   Simple XML dom parser
-zip.s7i      Zip format support library
+zip.s7i      Zip compression support library
 dna_base.s7i Bacterial dna fight programming game interface

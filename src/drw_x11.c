@@ -968,7 +968,7 @@ inttype drwHeight (const_wintype actual_window)
 
 
 
-wintype drwImage (int32type *image_data, inttype width, inttype height)
+wintype drwImage (int32type *image_data, memsizetype width, memsizetype height)
 
   {
     XImage *image;
@@ -978,8 +978,8 @@ wintype drwImage (int32type *image_data, inttype width, inttype height)
 #ifdef TRACE_X11
     printf("drwImage(%ld, %ld)\n", width, height);
 #endif
-    if (!inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (width < 1 || width > UINT_MAX ||
+        height < 1 || height > UINT_MAX) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {

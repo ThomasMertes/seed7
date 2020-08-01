@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  binary.s7i    Functions to read binary data from string or file *)
-(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*  bytedata.s7i  Convert to and from strings with byte data        *)
+(*  Copyright (C) 2009, 2013  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -29,7 +29,12 @@
 include "file.s7i";
 
 
-const func string: get_asciiz (in string: stri, inout integer: currPos) is func
+(**
+ *  Get a zero terminated string from ''stri'' starting from ''currPos''.
+ *  CurrPos is advanced after the zero ('\0\') character.
+ *  @return the zero terminated string without the zero ('\0\') character.
+ *)
+const func string: getAsciiz (in string: stri, inout integer: currPos) is func
   result
     var string: resultStri is "";
   local
@@ -48,9 +53,45 @@ const func string: get_asciiz (in string: stri, inout integer: currPos) is func
 
 
 (**
+ *  Convert 16 lower bits of an integer into two little endian chars.
+ *)
+const func string: int16AsTwoBytesLe (in integer: number) is
+  return str(chr( number        mod 256)) &
+         str(chr((number >>  8) mod 256));
+
+
+(**
+ *  Convert 32 lower bits of an integer into four little endian chars.
+ *)
+const func string: int32AsFourBytesLe (in integer: number) is
+  return str(chr( number        mod 256)) &
+         str(chr((number >>  8) mod 256)) &
+         str(chr((number >> 16) mod 256)) &
+         str(chr((number >> 24) mod 256));
+
+
+(**
+ *  Convert 16 lower bits of an integer into two big endian chars.
+ *)
+const func string: int16AsTwoBytesBe (in integer: number) is
+  return str(chr((number >>  8) mod 256)) &
+         str(chr( number        mod 256));
+
+
+(**
+ *  Convert 32 lower bits of an integer into four big endian chars.
+ *)
+const func string: int32AsFourBytesBe (in integer: number) is
+  return str(chr((number >> 24) mod 256)) &
+         str(chr((number >> 16) mod 256)) &
+         str(chr((number >>  8) mod 256)) &
+         str(chr( number        mod 256));
+
+
+(**
  *  Read two bytes from a file and return their little endian value.
  *)
-const func integer: get_uint16_le (inout file: in_file) is func
+const func integer: getUInt16Le (inout file: in_file) is func
   result
     var integer: number is 0;
   local
@@ -65,7 +106,7 @@ const func integer: get_uint16_le (inout file: in_file) is func
 (**
  *  Read four bytes from a file and return their little endian value.
  *)
-const func integer: get_uint32_le (inout file: in_file) is func
+const func integer: getUInt32Le (inout file: in_file) is func
   result
     var integer: number is 0;
   local
@@ -82,7 +123,7 @@ const func integer: get_uint32_le (inout file: in_file) is func
 (**
  *  Read two bytes from a file and return their big endian value.
  *)
-const func integer: get_uint16_be (inout file: in_file) is func
+const func integer: getUInt16Be (inout file: in_file) is func
   result
     var integer: number is 0;
   local
@@ -97,7 +138,7 @@ const func integer: get_uint16_be (inout file: in_file) is func
 (**
  *  Read four bytes from a file and return their big endian value.
  *)
-const func integer: get_uint32_be (inout file: in_file) is func
+const func integer: getUInt32Be (inout file: in_file) is func
   result
     var integer: number is 0;
   local

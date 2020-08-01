@@ -66,6 +66,25 @@ const func boolean: (in program: prog1) = (in program: prog2)            is acti
 const func boolean: (in program: prog1) <> (in program: prog2)           is action "PRG_NE";
 
 
+(**
+ *  Returns the name of the program without path and extension.
+ *  This function does not follow symbolic links.
+ *  It determines, with which name a program was called.
+ *  When a symbolic link refers to a program, the name of
+ *  the symbolic link is returned.
+ *  @return the name of the program.
+ *)
+const func string: name (in program: aProgram)                           is action "PRG_NAME";
+
+
+(**
+ *  Return the absolute path of the program.
+ *  This function does follow symbolic links.
+ *  @return the absolute path of the program.
+ *)
+const func string: path (in program: aProgram)                           is action "PRG_PATH";
+
+
 const type: singleParseOption is new enum
     TRACE_ACTIONS,         # Trace primitive actions
     TRACE_DO_ACTION_CHECK, # Do action check

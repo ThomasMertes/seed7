@@ -112,30 +112,29 @@ wintype drwRtlImage (const const_rtlArraytype image)
     const_rtlObjecttype *curr_column;
     rtlArraytype arr_line;
     int32type *pixel_elem;
-    inttype width;
-    inttype height;
-    inttype line;
-    inttype column;
+    memsizetype height;
+    memsizetype width;
+    memsizetype line;
+    memsizetype column;
     int32type *image_data;
     wintype result;
 
   /* drwRtlImage */
-    height = image->max_position - image->min_position + 1;
+    height = arraySize(image);
     /* printf("drwRtlImage: height=%d\n", height); */
-    if (height <= 0) {
+    if (height == 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       curr_line = &image->arr[0];
       arr_line = curr_line->value.arrayvalue;
-      width = arr_line->max_position - arr_line->min_position + 1;
+      width = arraySize(arr_line);
       /* printf("drwRtlImage: width=%d\n", width); */
-      if (width <= 0) {
+      if (width == 0) {
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-        if (width > MAX_MEMSIZETYPE ||
-            height > MAX_MEMSIZETYPE / sizeof(int32type) / (memsizetype) width ||
+        if (height > MAX_MEMSIZETYPE / sizeof(int32type) / (memsizetype) width ||
             (image_data = (int32type *) malloc((memsizetype) height * (memsizetype) width *
                                                sizeof(int32type))) == NULL) {
           raise_error(MEMORY_ERROR);

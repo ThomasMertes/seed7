@@ -99,7 +99,7 @@ objecttype set_arrlit (listtype arguments)
         for (array_index = 1; array_index < length; array_index++) {
           setIncl(&result, take_int(&arr1->arr[array_index]));
           if (fail_flag) {
-            FREE_SET(result, (uinttype) (result->max_position - result->min_position + 1));
+            FREE_SET(result, bitsetSize(result));
             return fail_value;
           } /* if */
         } /* for */
@@ -300,7 +300,7 @@ objecttype set_destr (listtype arguments)
     isit_set(arg_1(arguments));
     old_set = take_set(arg_1(arguments));
     if (old_set != NULL) {
-      FREE_SET(old_set, (uinttype) (old_set->max_position - old_set->min_position + 1));
+      FREE_SET(old_set, bitsetSize(old_set));
       arg_1(arguments)->value.setvalue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));

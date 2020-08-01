@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  integer.s7i   Integer support library                           *)
-(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -81,8 +81,8 @@ const func integer: (in integer: factor1) * (in integer: factor2)      is action
 
 
 (**
- *  Computes an integer division of two numbers.
- *  This integer division is truncated towards zero.
+ *  Integer division truncated towards zero.
+ *  The remainder of this division is computed with ''rem''.
  *  For the operations ''div'' and ''rem'' holds for all A:
  *   (A div B) * B + A rem B = A           when B <> 0
  *   -A div B = -(A div B)                 when B <> 0
@@ -96,9 +96,8 @@ const func integer: (in integer: dividend) div (in integer: divisor)   is action
 
 
 (**
- *  Computes the remainder of an integer division of two numbers.
- *  This is the reminder of integer division ''div''.
- *  The result has the same sign as the dividend.
+ *  Compute the remainder of the integer division ''div''.
+ *  The remainder has the same sign as the dividend.
  *   A rem B
  *  is equivalent to
  *   A - (A div B) * B
@@ -109,8 +108,9 @@ const func integer: (in integer: dividend) rem (in integer: divisor)   is action
 
 
 (**
- *  Computes an integer modulo division of two numbers.
- *  This integer division is truncated towards negative infinity.
+ *  Integer division truncated towards negative infinity.
+ *  The modulo (remainder) of this division is computed with ''mod''.
+ *  Therefore this division is called modulo division (''mdiv'').
  *  For the operations ''mdiv'' and ''mod'' holds for all A:
  *   (A mdiv B) * B + A mod B = A          when B <> 0
  *   -A mdiv B = A mdiv -B                 when B <> 0
@@ -124,9 +124,8 @@ const func integer: (in integer: dividend) mdiv (in integer: divisor)  is action
 
 
 (**
- *  Computes the modulo of an integer division of two numbers.
- *  The modulo is the remainder of integer division ''mdiv''.
- *  The result has the same sign as the divisor.
+ *  Compute the modulo (remainder) of the integer division ''mdiv''.
+ *  The modulo has the same sign as the divisor.
  *   A mod B
  *  is equivalent to
  *   A - (A mdiv B) * B
@@ -152,7 +151,7 @@ const func integer: (in integer: base) ** (in integer: exponent)       is action
  *  Shift an integer number left by lshift bits.
  *  A << B is equivalent to A * 2_ ** B
  *  @return the left shifted number.
- *  @exception NUMERIC_ERROR The shift count is negative.
+ *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
  *)
 const func integer: (in integer: number) << (in integer: lshift)    is action "INT_LSHIFT";
 
@@ -161,19 +160,19 @@ const func integer: (in integer: number) << (in integer: lshift)    is action "I
  *  Shift an integer number right by rshift bits.
  *  A >> B is equivalent to A mdiv 2_ ** B
  *  @return the right shifted number.
- *  @exception NUMERIC_ERROR The shift count is negative.
+ *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
  *)
 const func integer: (in integer: number) >> (in integer: rshift)    is action "INT_RSHIFT";
 
 
 (**
- *  Increment an integer number by a delta.
+ *  Increment an integer variable by a delta.
  *)
 const proc: (inout integer: number) +:= (in integer: delta)         is action "INT_GROW";
 
 
 (**
- *  Decrement an integer number by a delta.
+ *  Decrement an integer variable by a delta.
  *)
 const proc: (inout integer: number) -:= (in integer: delta)         is action "INT_SHRINK";
 
@@ -383,7 +382,8 @@ const func string: (in integer: number) lpad0 (in integer: length) is action "IN
 
 
 (**
- *  Increment an integer number.
+ *  Increment an integer variable.
+ *  Increments ''number'' by 1.
  *  This is equivalent to:
  *   number := succ(number);
  *)
@@ -391,7 +391,8 @@ const proc: incr (inout integer: number)                         is action "INT_
 
 
 (**
- *  Decrement an integer number.
+ *  Decrement an integer variable.
+ *  Decrements ''number'' by 1.
  *  This is equivalent to:
  *   number := pred(number);
  *)
@@ -429,8 +430,8 @@ const func integer: lowestSetBit (in integer: number)            is action "INT_
  *  Convert a [[string]] to an ''integer'' number.
  *  The [[string]] must contain an integer literal consisting of an
  *  optional + or - sign, followed by a sequence of digits. Other
- *  characters as well as leading or trailing whitespace characters are
- *  not allowed. The sequence of digits is taken to be decimal.
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''integer'' result of the conversion.
  *  @exception RANGE_ERROR When the string is empty or it does not contain
  *             an integer literal or when the integer literal is too big

@@ -56,6 +56,6 @@ inttype intParse (const const_stritype stri);
 inttype intPow (inttype base, inttype exponent);
 stritype intRadix (inttype number, inttype base, booltype upperCase);
 stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase);
-inttype intRand (inttype lower_limit, inttype upper_limit);
+inttype intRand (inttype low, inttype high);
 inttype intSqrt (inttype number);
 stritype intStr (inttype number);

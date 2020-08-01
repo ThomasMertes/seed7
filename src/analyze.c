@@ -374,9 +374,12 @@ static stritype getProgramName (const const_stritype source_file_name)
     name_len = source_file_name->size;
     if (name_len > 4 &&
         source_file_name->mem[name_len - 4] == '.' &&
-        source_file_name->mem[name_len - 3] == 's' &&
-        source_file_name->mem[name_len - 2] == 'd' &&
-        source_file_name->mem[name_len - 1] == '7') {
+        ((source_file_name->mem[name_len - 3] == 's' &&
+          source_file_name->mem[name_len - 2] == 'd' &&
+          source_file_name->mem[name_len - 1] == '7') ||
+         (source_file_name->mem[name_len - 3] == 's' &&
+          source_file_name->mem[name_len - 2] == '7' &&
+          source_file_name->mem[name_len - 1] == 'i'))) {
       name_len -= 4;
     } /* if */
     lastSlashPos = strRChPos(source_file_name, (chartype) '/');
@@ -461,10 +464,7 @@ static progtype analyze_prog (const const_stritype source_file_argument,
         if (SYS_MAIN_OBJECT == NULL) {
           prog.error_count++;
           printf("*** System declaration for main missing\n");
-        } else if (CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) == FORWARDOBJECT) {
-          prog.error_count++;
-          printf("*** Declaration for main missing\n");
-        } else {
+        } else if (CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) != FORWARDOBJECT) {
 /*          printf("main defined as: ");
           trace1(SYS_MAIN_OBJECT);
           printf("\n"); */

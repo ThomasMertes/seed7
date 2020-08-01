@@ -299,7 +299,8 @@ objecttype prg_match_expr (listtype arguments)
 objecttype prg_name (listtype arguments)
 
   { /* prg_name */
-    return bld_stri_temp(strCreate(prog.program_name));
+    isit_prog(arg_1(arguments));
+    return bld_stri_temp(strCreate(take_prog(arg_1(arguments))->program_name));
   } /* prg_name */
 
 
@@ -318,10 +319,27 @@ objecttype prg_ne (listtype arguments)
 
 
 
+objecttype prg_own_name (listtype arguments)
+
+  { /* prg_own_name */
+    return bld_stri_temp(strCreate(prog.program_name));
+  } /* prg_own_name */
+
+
+
+objecttype prg_own_path (listtype arguments)
+
+  { /* prg_own_path */
+    return bld_stri_temp(strCreate(prog.program_path));
+  } /* prg_own_path */
+
+
+
 objecttype prg_path (listtype arguments)
 
   { /* prg_path */
-    return bld_stri_temp(strCreate(prog.program_path));
+    isit_prog(arg_1(arguments));
+    return bld_stri_temp(strCreate(take_prog(arg_1(arguments))->program_path));
   } /* prg_path */
 
 

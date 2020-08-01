@@ -53,6 +53,20 @@ const func file: openStrifile (in string: content) is func
 
 
 (**
+ *  Open a ''strifile'' with an empty string content.
+ *  @return the file opened.
+ *)
+const func file: openStrifile is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var strifile: new_strifile is strifile.value;
+  begin
+    newFile := toInterface(new_strifile);
+  end func;
+
+
+(**
  *  Write the [[string]] ''stri'' to ''outStrifile''.
  *)
 const proc: write (inout strifile: outStrifile, in string: stri) is func

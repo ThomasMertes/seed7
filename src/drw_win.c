@@ -1365,7 +1365,7 @@ inttype drwHeight (const_wintype actual_window)
 
 
 
-wintype drwImage (int32type *image_data, inttype width, inttype height)
+wintype drwImage (int32type *image_data, memsizetype width, memsizetype height)
 
   {
     inttype xPos;
@@ -1373,15 +1373,15 @@ wintype drwImage (int32type *image_data, inttype width, inttype height)
     wintype result;
 
   /* drwImage */
-    if (!inIntRange(width) || !inIntRange(height) ||
-        width < 1 || height < 1) {
+    if (width < 1 || width > INTTYPE_MAX ||
+        height < 1 || height > INTTYPE_MAX) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       if (init_called == 0) {
         dra_init();
       } /* if */
-      result = drwNewPixmap(width, height);
+      result = drwNewPixmap((inttype) width, (inttype) height);
       if (result != NULL) {
         for (yPos = 0; yPos < height; yPos++) {
           for (xPos = 0; xPos < width; xPos++) {

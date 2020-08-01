@@ -279,7 +279,6 @@ const func type: func (in type: baseType) is func
 
 
 const type: EXCEPTION      is newtype;
-const type: LEGAL          is newtype;
 
 const type: DISCRETE       is subtype object;
 const type: integer        is subtype DISCRETE;

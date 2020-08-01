@@ -28,7 +28,7 @@
 
 include "stdio.s7i";
 include "graph.s7i";
-include "binary.s7i";
+include "bytedata.s7i";
 include "color.s7i";
 include "float.s7i";
 include "math.s7i";
@@ -644,14 +644,14 @@ const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
     if bmp_file <> STD_NULL then
       stri := gets(bmp_file, 2);
       if stri = "BM" then
-        size :=   get_uint32_le(bmp_file);
+        size :=   getUInt32Le(bmp_file);
         stri :=   gets(bmp_file, 4);        (* reserved1, reserved2 *)
-        offset := get_uint32_le(bmp_file);
+        offset := getUInt32Le(bmp_file);
         stri :=   gets(bmp_file, 4);        (* header size *)
-        width :=  get_uint32_le(bmp_file);
-        height := get_uint32_le(bmp_file);
-        planes := get_uint16_le(bmp_file);
-        bits :=   get_uint16_le(bmp_file);
+        width :=  getUInt32Le(bmp_file);
+        height := getUInt32Le(bmp_file);
+        planes := getUInt16Le(bmp_file);
+        bits :=   getUInt16Le(bmp_file);
         stri :=   gets(bmp_file, 26);
         padding := -(3 * width) mod 4;
         image := newPixmap(width, height);

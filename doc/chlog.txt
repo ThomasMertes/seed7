@@ -1,3 +1,56 @@
+20130602:
+- The implementation of the type integer has been changed to use a
+  64-bit value.
+- Documentation comments have been added to bigint.s7i, integer.s7i,
+  string.s7i, arr_rtl.c, big_gmp.c, biglib.c, big_rtl.c, flt_rtl.c,
+  intlib.c, int_rtl.c, set_rtl.c and str_rtl.c.
+- The new library bin32.s7i, which defines bit operations for 32-bit
+  values, has been added.
+- The new library crc32.s7i, which supports the CRC-32 cyclic
+  redundancy check, has been added.
+- The new library deflate.s7i, which supports the deflate compression
+  algorithm, has been added.
+- The library binary.s7i has been renamed to bytedata.s7i. The
+  functions get_asciiz, get_uint16_le, get_uint32_le, get_uint16_be
+  and get_uint32_be have been renamed to getAsciiz, getUInt16Le,
+  getUInt32Le, getUInt16Be and getUInt32Be respectively. Definitions
+  of the functions int16AsTwoBytesLe, int32AsFourBytesLe,
+  int16AsTwoBytesBe and int32AsFourBytesBe have been added.
+- The functions getBitLe, getBitsLe, getNonCompressedBlock,
+  getLiteralOrLength, getDistance, decodeLength, decodeDistance,
+  decodeFixedHuffmanCodes, getHuffmanValue, computeConversionTable,
+  decodeDynamicHuffmanCodes, processCompressedBlock and inflate have
+  been moved from gzip.s7i to the new library inflate.s7i.
+- The functions gzip, openGzipFile, close and write have been added
+  to the library gzip.s7i.
+- The functions 'name' and 'path' have been added to the library
+  progs.s7i.
+- The function openStrifile has been added to strifile.s7i.
+- The library tar.s7i and the example program tar7.sd7 have been
+  improved to allow the creation of compressed archives.
+- The compiler has been improved to support the actions BIG_CONV,
+  BIN_AND, BIN_OR, BIN_XOR, INT_AND, INT_OR, INT_XOR, INT_URSHIFT,
+  INT_URSHIFT_ASSIGN, PRG_OWN_NAME and PRG_OWN_PATH.
+- Optional checks for integer shift operations have been added to
+  the compiler.
+- The function bigFromInt64 and bigToInt64 in big_gmp.c have been
+  improved.
+- Several functions in big_gmp.c have been improved to free temporary
+  values with mpz_clear().
+- The function big_conv() has been added to biglib.c.
+- The functions drw_image and drwRtlImage have been improved.
+- The functions drwImage in drw_win.c and drw_x11.c have been
+  improved.
+- The meaning of the actions PRG_NAME and PRG_PATH has changed. The
+  new actions PRG_OWN_NAME and PRG_OWN_PATH are used as replacement.
+- The functions strRPos2, strRIPos2 and strRepl2 have been added to
+  str_rtl.c. This functions use a modified Boyer–Moore string search
+  algorithm.
+- Usages of the macro arraySize have been added to drwlib.c,
+  drw_rtl.c, libpath.c and prg_comp.c.
+- The macro arrayMaxPos has been defined in common.h and used in 
+  arrlib.c and arr_rtl.c.
+
 20130519:
 - The support for K&R C has been removed. Now an ANSI C compiler is
   required to compile Seed7. For many years all officially supported

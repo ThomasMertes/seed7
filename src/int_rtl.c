@@ -447,6 +447,10 @@ inttype uintCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2
 
 
 
+/**
+ *  Binomial coefficient
+ *  @return n over k
+ */
 inttype intBinom (inttype n_number, inttype k_number)
 
   {
@@ -511,6 +515,12 @@ inttype intBitLength (inttype number)
 
 
 
+/**
+ *  Compare two integer numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 inttype intCmp (inttype number1, inttype number2)
 
   { /* intCmp */
@@ -590,6 +600,7 @@ void intDestrGeneric (rtlGenerictype old_value)
 
 /**
  *  Compute the truncated base 2 logarithm of an integer number.
+ *  The definition of intLog2 is extended by defining intLog2(0) = -1.
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */
@@ -692,6 +703,17 @@ stritype intLpad0 (inttype number, const inttype pad_size)
 
 
 
+/**
+ *  Convert a string to an integer number.
+ *  The string must contain an integer literal consisting of an
+ *  optional + or - sign, followed by a sequence of digits. Other
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed. The sequence of digits is taken to be decimal.
+ *  @return the integer result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or it does not contain
+ *             an integer literal or when the integer literal is too big
+ *             or too small to be represented as integer value.
+ */
 inttype intParse (const const_stritype stri)
 
   {
@@ -746,6 +768,11 @@ inttype intParse (const const_stritype stri)
 
 
 
+/**
+ *  Compute the exponentiation of a integer base by an integer exponent.
+ *  @return the result of the exponentation.
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ */
 inttype intPow (inttype base, inttype exponent)
 
   {
@@ -780,6 +807,7 @@ inttype intPow (inttype base, inttype exponent)
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with letters.
  *  The parameter upperCase decides about the letter case.
+ *  For negative numbers a minus sign is prepended.
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -879,7 +907,14 @@ stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
 
 
 
-inttype intRand (inttype lower_limit, inttype upper_limit)
+/**
+ *  Compute pseudo-random number in the range [low, high].
+ *  The random values are uniform distributed.
+ *  @return a random number such that low <= rand(low, high) and
+ *          rand(low, high) <= high holds.
+ *  @exception RANGE_ERROR The range is empty (low > high holds).
+ */
+inttype intRand (inttype low, inttype high)
 
   {
     uinttype scale_limit;
@@ -888,15 +923,15 @@ inttype intRand (inttype lower_limit, inttype upper_limit)
     inttype result;
 
   /* intRand */
-    if (unlikely(lower_limit >= upper_limit)) {
-      if (lower_limit == upper_limit) {
-        result = lower_limit;
+    if (unlikely(low >= high)) {
+      if (low == high) {
+        result = low;
       } else {
         raise_error(RANGE_ERROR);
         result = 0;
       } /* if */
     } else {
-      scale_limit = (uinttype) (upper_limit - lower_limit);
+      scale_limit = (uinttype) high - (uinttype) low;
       if (scale_limit == UINTTYPE_MAX) {
         rand_val = uint_rand();
       } else {
@@ -906,13 +941,18 @@ inttype intRand (inttype lower_limit, inttype upper_limit)
           rand_val = uint_rand();
         } while (rand_val > rand_max);
       } /* if */
-      result = (inttype) ((uinttype) lower_limit + rand_val % scale_limit);
+      result = (inttype) ((uinttype) low + rand_val % scale_limit);
     } /* if */
     return result;
   } /* intRand */
 
 
 
+/**
+ *  Compute the integer square root of an integer number.
+ *  @return the integer square root.
+ *  @exception NUMERIC_ERROR When number is negative.
+ */
 inttype intSqrt (inttype number)
 
   {
@@ -940,6 +980,7 @@ inttype intSqrt (inttype number)
 /**
  *  Convert an integer number to a string.
  *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */

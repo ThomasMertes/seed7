@@ -115,10 +115,12 @@ static void free_args (objecttype arg_v)
 
   {
     arraytype arg_array;
+    memsizetype arg_array_size;
 
   /* free_args */
     arg_array = arg_v->value.arrayvalue;
-    FREE_ARRAY(arg_array, (uinttype) (arg_array->max_position - arg_array->min_position + 1));
+    arg_array_size = arraySize(arg_array);
+    FREE_ARRAY(arg_array, arg_array_size);
     FREE_OBJECT(arg_v);
   } /* free_args */
 
@@ -430,6 +432,22 @@ objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr)
     } /* if */
     return result;
   } /* prgMatchExpr */
+
+
+
+const_stritype prgName (const const_progtype aProg)
+
+  { /* prgName */
+    return aProg->program_name;
+  } /* prgName */
+
+
+
+const_stritype prgPath (const const_progtype aProg)
+
+  { /* prgPath */
+    return aProg->program_path;
+  } /* prgPath */
 
 
 

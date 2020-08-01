@@ -43,7 +43,7 @@ const func array string: argv (PROGRAM)                is action "PRC_ARGS";
  *  returns the name of the symbolic link.
  *  @return the name of the program.
  *)
-const func string: name (PROGRAM)                      is action "PRG_NAME";
+const func string: name (PROGRAM)                      is action "PRG_OWN_NAME";
 
 
 (**
@@ -53,7 +53,7 @@ const func string: name (PROGRAM)                      is action "PRG_NAME";
  *  The function path(PROGRAM) does follow symbolic links.
  *  @return the absolute path of the program.
  *)
-const func string: path (PROGRAM)                      is action "PRG_PATH";
+const func string: path (PROGRAM)                      is action "PRG_OWN_PATH";
 
 
 (**

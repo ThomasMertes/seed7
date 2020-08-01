@@ -320,6 +320,7 @@ typedef int errinfotype;
 #define arraySize(arr) (memsizetype) ((uinttype) (arr)->max_position - (uinttype) (arr)->min_position + 1)
 #define arraySize2(min_position,max_position) (memsizetype) ((uinttype) (max_position) - (uinttype) (min_position) + 1)
 #define arrayIndex(arr,pos) (memsizetype) ((uinttype) (pos) - (uinttype) (arr)->min_position)
+#define arrayMaxPos(min_position,size) (inttype) ((uinttype) min_position + (uinttype) size - 1)
 
 #define bitsetSize(set) (memsizetype) ((uinttype) (set)->max_position - (uinttype) (set)->min_position + 1)
 #define bitsetSize2(min_position,max_position) (memsizetype) ((uinttype) (max_position) - (uinttype) (min_position) + 1)

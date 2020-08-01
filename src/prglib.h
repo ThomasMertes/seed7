@@ -40,6 +40,8 @@ objecttype prg_match          (listtype arguments);
 objecttype prg_match_expr     (listtype arguments);
 objecttype prg_name           (listtype arguments);
 objecttype prg_ne             (listtype arguments);
+objecttype prg_own_name       (listtype arguments);
+objecttype prg_own_path       (listtype arguments);
 objecttype prg_path           (listtype arguments);
 objecttype prg_prog           (listtype arguments);
 objecttype prg_str_parse      (listtype arguments);

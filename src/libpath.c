@@ -57,6 +57,7 @@ void find_include_file (const_stritype include_file_name, errinfotype *err_info)
 
   {
     booltype found;
+    memsizetype lib_path_size;
     memsizetype position;
     stritype curr_path;
     memsizetype length;
@@ -71,9 +72,8 @@ void find_include_file (const_stritype include_file_name, errinfotype *err_info)
         open_infile(include_file_name, in_file.write_library_names, in_file.write_line_numbers, err_info);
       } else {
         found = FALSE;
-        for (position = 0; !found && *err_info == OKAY_NO_ERROR &&
-            position <= (memsizetype) (lib_path->max_position - lib_path->min_position);
-            position++) {
+        lib_path_size = arraySize(lib_path);
+        for (position = 0; !found && *err_info == OKAY_NO_ERROR && position < lib_path_size; position++) {
           curr_path = lib_path->arr[position].value.strivalue;
           if (curr_path->size == 0) {
             open_infile(include_file_name, in_file.write_library_names, in_file.write_line_numbers, err_info);
@@ -122,7 +122,7 @@ static void print_lib_path (void)
     stritype stri;
 
   /* print_lib_path */
-    length = (memsizetype) (lib_path->max_position - lib_path->min_position + 1);
+    length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
       stri = lib_path->arr[position].value.strivalue;
       prot_stri(stri);
@@ -282,7 +282,7 @@ void free_lib_path (void)
     stritype stri;
 
   /* free_lib_path */
-    length = (memsizetype) (lib_path->max_position - lib_path->min_position + 1);
+    length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
       stri = lib_path->arr[position].value.strivalue;
       FREE_STRI(stri, stri->size);

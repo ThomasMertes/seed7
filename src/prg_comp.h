@@ -39,6 +39,8 @@ progtype prgFilParse (const const_stritype fileName, const const_settype options
 listtype prgGlobalObjects (const const_progtype aProg);
 objecttype prgMatch (const const_progtype aProg, listtype curr_expr);
 objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr);
+const_stritype prgName (const const_progtype aProg);
+const_stritype prgPath (const const_progtype aProg);
 progtype prgStrParse (const const_stritype stri, const const_settype options,
                       const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
 objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName);

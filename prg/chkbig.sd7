@@ -1007,7 +1007,8 @@ const proc: chkOrd is func
         ord(1000000001_) <> 1000000001 or
         ord(1000000002_) <> 1000000002 or
         ord(2147483646_) <> 2147483646 or
-        ord(2147483647_) <> 2147483647 then
+        ord(2147483647_) <> 2147483647 or
+        ord(1234567890123456_) <> 1234567890123456 then
       writeln("Conversion of a positive bigInteger to integer does not work correct.");
       okay := FALSE;
     end if;
@@ -1091,7 +1092,8 @@ const proc: chkOrd is func
         ord(-1000000002_) <> -1000000002 or
         ord(-2147483646_) <> -2147483646 or
         ord(-2147483647_) <> -2147483647 or
-        ord(-2147483648_) <> pred(-2147483647) then
+        ord(-2147483648_) <> pred(-2147483647) or
+        ord(-1234567890123456_) <> -1234567890123456 then
       writeln("Conversion of a negative bigInteger to integer does not work correct.");
       okay := FALSE;
     end if;
@@ -1188,7 +1190,8 @@ const proc: chkConv is func
         bigInteger conv 1000000001 <> 1000000001_ or
         bigInteger conv 1000000002 <> 1000000002_ or
         bigInteger conv 2147483646 <> 2147483646_ or
-        bigInteger conv 2147483647 <> 2147483647_ then
+        bigInteger conv 2147483647 <> 2147483647_ or
+        bigInteger conv 1234567890123456 <> 1234567890123456_ then
       writeln("Conversion of a positive integer to bigInteger does not work correct.");
       okay := FALSE;
     end if;
@@ -1272,7 +1275,8 @@ const proc: chkConv is func
         bigInteger conv (-1000000002) <> -1000000002_ or
         bigInteger conv (-2147483646) <> -2147483646_ or
         bigInteger conv (-2147483647) <> -2147483647_ or
-        bigInteger conv pred(-2147483647) <> -2147483648_ then
+        bigInteger conv pred(-2147483647) <> -2147483648_ or
+        bigInteger conv (-1234567890123456) <> -1234567890123456_ then
       writeln("Conversion of a negative integer to bigInteger does not work correct.");
       okay := FALSE;
     end if;
@@ -1280,7 +1284,7 @@ const proc: chkConv is func
     if okay then
       writeln("Conversion of integer to bigInteger works correct.");
     else
-      writeln(" ***** Conversion of bigInteger to integer does not work correct.");
+      writeln(" ***** Conversion of integer to bigInteger does not work correct.");
       writeln;
     end if;
   end func;

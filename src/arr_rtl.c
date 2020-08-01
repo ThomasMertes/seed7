@@ -377,34 +377,39 @@ stritype examineSearchPath (const const_stritype fileName)
 
 
 
-void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype arr_from)
+/**
+ *  Append the array 'extension' to the array 'arr_variable'.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             array.
+ */
+void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype extension)
 
   {
     rtlArraytype arr_to;
     memsizetype new_size;
     memsizetype arr_to_size;
-    memsizetype arr_from_size;
+    memsizetype extension_size;
 
   /* arrAppend */
-    arr_from_size = arraySize(arr_from);
-    if (arr_from_size != 0) {
+    extension_size = arraySize(extension);
+    if (extension_size != 0) {
       arr_to = *arr_variable;
       arr_to_size = arraySize(arr_to);
-      if (arr_to_size > MAX_RTL_ARR_LEN - arr_from_size ||
-          arr_to->max_position > (inttype) (MAX_MEM_INDEX - arr_from_size)) {
+      if (arr_to_size > MAX_RTL_ARR_LEN - extension_size ||
+          arr_to->max_position > (inttype) (MAX_MEM_INDEX - extension_size)) {
         raise_error(MEMORY_ERROR);
       } else {
-        new_size = arr_to_size + arr_from_size;
+        new_size = arr_to_size + extension_size;
         arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
         if (arr_to == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_RTL_ARRAY(arr_to_size, new_size);
           *arr_variable = arr_to;
-          arr_to->max_position += (inttype) arr_from_size;
-          memcpy(&arr_to->arr[arr_to_size], arr_from->arr,
-              (size_t) (arr_from_size * sizeof(rtlObjecttype)));
-          FREE_RTL_ARRAY(arr_from, arr_from_size);
+          arr_to->max_position += (inttype) extension_size;
+          memcpy(&arr_to->arr[arr_to_size], extension->arr,
+              (size_t) (extension_size * sizeof(rtlObjecttype)));
+          FREE_RTL_ARRAY(extension, extension_size);
         } /* if */
       } /* if */
     } /* if */
@@ -419,13 +424,14 @@ rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1)
 
   /* arrArrlit2 */
     result_size = arraySize(arr1);
-    if (start_position < MIN_MEM_INDEX ||
-        start_position > MAX_MEM_INDEX - result_size + 1) {
+    if (start_position < MIN_MEM_INDEX || start_position > MAX_MEM_INDEX ||
+        (result_size != 0 && start_position > (inttype) (MAX_MEM_INDEX - result_size + 1)) ||
+        (result_size == 0 && start_position == MIN_MEM_INDEX)) {
       raise_error(RANGE_ERROR);
       arr1 = NULL;
     } else {
       arr1->min_position = start_position;
-      arr1->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
+      arr1->max_position = arrayMaxPos(start_position, result_size);
     } /* if */
     return arr1;
   } /* arrArrlit2 */
@@ -472,6 +478,12 @@ rtlArraytype arrBaselit2 (inttype start_position, const rtlGenerictype element)
 
 
 
+/**
+ *  Concatenate two arrays.
+ *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             array.
+ */
 rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
 
   {
@@ -566,6 +578,11 @@ rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element
 
 
 
+/**
+ *  Get a sub array ending at the position 'stop'.
+ *  @return the sub array ending at the stop position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
 
   {
@@ -650,10 +667,15 @@ rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
 
 
 /**
- *  Index access when the array is destroyed after indexing.
- *  To avoid problems the indexed element is removed from the array.
+ *  Access one element from the array 'arr_temp'.
+ *  The compiler uses this function when the array is destroyed
+ *  after the indexing. To avoid problems the indexed element is
+ *  removed from the array.
+ *  @return the element with the specified 'position' from 'arr_temp'.
+ *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
+ *                         greater than maxIdx(arr)
  */
-rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos)
+rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype position)
 
   {
     rtlArraytype arr1;
@@ -663,11 +685,11 @@ rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos)
 
   /* arrIdxTemp */
     arr1 = *arr_temp;
-    if (pos >= arr1->min_position && pos <= arr1->max_position) {
+    if (position >= arr1->min_position && position <= arr1->max_position) {
       length = arraySize(arr1);
-      result = arr1->arr[pos - arr1->min_position].value.genericvalue;
-      if (pos != arr1->max_position) {
-        arr1->arr[pos - arr1->min_position].value.genericvalue =
+      result = arr1->arr[position - arr1->min_position].value.genericvalue;
+      if (position != arr1->max_position) {
+        arr1->arr[position - arr1->min_position].value.genericvalue =
             arr1->arr[length - 1].value.genericvalue;
       } /* if */
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - 1);
@@ -715,6 +737,11 @@ rtlArraytype arrMalloc (inttype min_position, inttype max_position)
 
 
 
+/**
+ *  Append the given 'element' to the array 'arr_variable'.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             array.
+ */
 void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element)
 
   {
@@ -744,6 +771,11 @@ void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element)
 
 
 
+/**
+ *  Get a sub array from the position 'start' to the position 'stop'.
+ *  @return the substring from position start to stop.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop)
 
   {
@@ -865,6 +897,12 @@ rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newS
 
 
 
+/**
+ *  Remove the element with 'position' from 'arr' and return the removed element.
+ *  @return the removed element.
+ *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
+ *                         greater than maxIdx(arr)
+ */
 rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position)
 
   {
@@ -920,6 +958,11 @@ rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGe
 
 
 
+/**
+ *  Get a sub array from the position 'start' with maximum length 'len'.
+ *  @return the substring from position start with maximum length len.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype len)
 
   {
@@ -1025,6 +1068,11 @@ rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
 
 
 
+/**
+ *  Get a sub array beginning at the position 'start'.
+ *  @return the sub array beginning at the start position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
 
   {
