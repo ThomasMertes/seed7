@@ -139,70 +139,6 @@ doublebigdigittype carry;
 
 #ifdef ANSI_C
 
-static bigdigittype multsub_bigdigit (biginttype big1, biginttype big2,
-    memsizetype pos1, bigdigittype multiplier)
-#else
-
-static bigdigittype multsub_bigdigit (big1, big2, pos1, multiplier)
-biginttype big1;
-biginttype big2;
-memsizetype pos1;
-bigdigittype multiplier;
-#endif
-
-  {
-    memsizetype pos;
-    doublebigdigittype mult_carry = 0;
-    doublebigdigittype sbtr_carry = 1;
-
-  /* multsub_bigdigit */
-    for (pos = 0; pos < big2->size; pos++) {
-      printf("multsub_bigdigit: big2->bigdigits[%lu]=%x, multiplier=%x\n",
-          pos, big2->bigdigits[pos], multiplier);
-      mult_carry += big2->bigdigits[pos] * multiplier;
-      printf("big1[%u]=%x, mult_carry=%lx, ~mult_carry=%x\n",
-          pos + pos1, big1->bigdigits[pos + pos1], mult_carry, ~mult_carry & BIGDIGIT_MASK);
-      printf("big1[%u]=%x, sbtr_carry=%lx, sbtr_carry+mult_carry=%x\n",
-          pos + pos1, big1->bigdigits[pos + pos1], sbtr_carry, sbtr_carry + (~mult_carry & BIGDIGIT_MASK));
-      sbtr_carry += big1->bigdigits[pos + pos1] + (~mult_carry & BIGDIGIT_MASK);
-      printf("big1[%u]=%x, sbtr_carry=%lx\n",
-          pos + pos1, big1->bigdigits[pos + pos1], sbtr_carry);
-      big1->bigdigits[pos + pos1] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
-      mult_carry >>= 8 * sizeof(bigdigittype);
-      sbtr_carry >>= 8 * sizeof(bigdigittype);
-      printf("big1[%u]=%x, mult_carry=%lx, sbtr_carry=%lx\n",
-		  pos + pos1, big1->bigdigits[pos + pos1], mult_carry, sbtr_carry);
-    } /* for */
-    printf("-------------------------------------\n");
-    for (pos += pos1; pos < big1->size; pos++) {
-      printf("multsub_bigdigit: big2->bigdigits[%lu]=%x, multiplier=%x\n",
-          pos, big2->bigdigits[pos], multiplier);
-      printf("big1[%u]=%x, mult_carry=%lx, ~mult_carry=%x\n",
-          pos, big1->bigdigits[pos], mult_carry, ~mult_carry & BIGDIGIT_MASK);
-      printf("big1[%u]=%x, sbtr_carry=%lx, sbtr_carry+mult_carry=%x\n",
-          pos, big1->bigdigits[pos], sbtr_carry, sbtr_carry + (~mult_carry & BIGDIGIT_MASK));
-      sbtr_carry += big1->bigdigits[pos] + (~mult_carry & BIGDIGIT_MASK);
-      printf("big1[%u]=%x, sbtr_carry=%lx\n",
-          pos, big1->bigdigits[pos], sbtr_carry);
-      big1->bigdigits[pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
-      mult_carry >>= 8 * sizeof(bigdigittype);
-      sbtr_carry >>= 8 * sizeof(bigdigittype);
-      printf("big1[%u]=%x, mult_carry=%lx, sbtr_carry=%lx\n",
-		  pos, big1->bigdigits[pos], mult_carry, sbtr_carry);
-    } /* for */
-    printf("mult_carry=%lx, sbtr_carry=%lx\n", mult_carry, sbtr_carry);
-    return((sbtr_carry + BIGDIGIT_MASK) & BIGDIGIT_MASK);
-    /*
-      sbtr_carry += big1->bigdigits[pos + pos1] + (~mult_carry & BIGDIGIT_MASK);
-      big1->bigdigits[pos + pos1] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
-      sbtr_carry >>= 8 * sizeof(bigdigittype);
-    */
-  } /* multsub_bigdigit */
-
-
-
-#ifdef ANSI_C
-
 static biginttype mult10_bigdigit (biginttype big1, doublebigdigittype carry)
 #else
 
@@ -443,27 +379,544 @@ biginttype big1;
 
 
 
+/**
+ *  Shifts the big integer big1 to the left by lshift bits.
+ *  Bits which are shifted out at the left of big1 are lost.
+ *  At the right of big1 zero bits are shifted in.
+ */
 #ifdef ANSI_C
 
-static void lshift_bigint (biginttype big1, int shift)
+static void uBigLShift (biginttype big1, unsigned int lshift)
 #else
 
-static void lshift_bigint (big1, shift)
+static void uBigLShift (big1, lshift)
 biginttype big1;
-int shift;
+unsigned int lshift;
 #endif
 
   {
     memsizetype pos;
     doublebigdigittype carry = 0;
 
-  /* lshift_bigint */
+  /* uBigLShift */
     for (pos = 0; pos < big1->size; pos++) {
-      carry |= big1->bigdigits[pos] << shift;
+      carry |= big1->bigdigits[pos] << lshift;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       carry >>= 8 * sizeof(bigdigittype);
     } /* for */
-  } /* lshift_bigint */
+  } /* uBigLShift */
+
+
+
+/**
+ *  Shifts the big integer big1 to the right by rshift bits.
+ *  Bits which are shifted out at the right of big1 are lost.
+ *  At the left of big1 zero bits are shifted in.
+ */
+#ifdef ANSI_C
+
+static void uBigRShift (biginttype big1, unsigned int rshift)
+#else
+
+static void uBigRShift (big1, rshift)
+biginttype big1;
+unsigned int rshift;
+#endif
+
+  {
+    unsigned int lshift = 8 * sizeof(bigdigittype) - rshift;
+    bigdigittype low_digit = big1->bigdigits[0];
+    bigdigittype high_digit;
+    memsizetype pos;
+
+  /* uBigRShift */
+    for (pos = 1; pos < big1->size; pos++) {
+      high_digit = big1->bigdigits[pos];
+      big1->bigdigits[pos - 1] = (bigdigittype)
+          ((low_digit >> rshift) | (high_digit << lshift));
+      low_digit = high_digit;
+    } /* for */
+    big1->bigdigits[pos - 1] = (bigdigittype) (low_digit >> rshift);
+  } /* uBigRShift */
+
+
+
+/**
+ *  Computes an integer division of big1 by one digit for
+ *  nonnegative big integers. The digit must not be zero.
+ */
+#ifdef ANSI_C
+
+static void uBigDiv1 (biginttype big1, bigdigittype digit, biginttype result)
+#else
+
+static void uBigDiv1 (big1, digit, result)
+biginttype big1;
+bigdigittype digit;
+biginttype result;
+#endif
+
+  {
+    memsizetype pos;
+    doublebigdigittype carry = 0;
+
+  /* uBigDiv1 */
+    for (pos = big1->size; pos > 0; pos--) {
+      carry <<= 8 * sizeof(bigdigittype);
+      carry += big1->bigdigits[pos - 1];
+      result->bigdigits[pos - 1] = (bigdigittype) (carry / digit);
+      carry %= digit;
+    } /* for */
+  } /* uBigDiv1 */
+
+
+
+/**
+ *  Computes an integer division of big1 by one digit for
+ *  signed big integers. The memory for the result is
+ *  requested and the normalized result is returned. This
+ *  function handles also the special case of a division by
+ *  zero.
+ */
+#ifdef ANSI_C
+
+static biginttype bigDiv1 (biginttype big1, bigdigittype digit)
+#else
+
+static biginttype bigDiv1 (big1, digit)
+biginttype big1;
+bigdigittype digit;
+#endif
+
+  {
+    booltype negative = FALSE;
+    biginttype big1_help = NULL;
+    biginttype result;
+
+  /* bigDiv1 */
+    if (digit == 0) {
+      raise_error(NUMERIC_ERROR);
+      return(NULL);
+    } else {
+      if (!ALLOC_BIG(result, big1->size + 1)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } else {
+        COUNT_BIG(big1->size + 1);
+        result->size = big1->size + 1;
+        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+          negative = TRUE;
+          big1_help = alloc_positive_copy_of_negative_big(big1);
+          big1 = big1_help;
+          if (big1_help == NULL) {
+            FREE_BIG(result, result->size);
+            return(NULL);
+          } /* if */
+        } /* if */
+        result->bigdigits[result->size - 1] = 0;
+        if (IS_NEGATIVE(digit)) {
+          negative = !negative;
+          digit = -digit;
+        } /* if */
+        uBigDiv1(big1, digit, result);
+        if (negative) {
+          negate_positive_big(result);
+        } /* if */
+        normalize(result);
+        if (big1_help != NULL) {
+          FREE_BIG(big1_help, big1_help->size);
+        } /* if */
+        return(result);
+      } /* if */
+    } /* if */
+  } /* bigDiv1 */
+
+
+
+/**
+ *  Computes an integer division of big1 by big2 for signed big
+ *  integers when big1 has less digits than big2. The memory for
+ *  the result is requested and the normalized result is returned.
+ *  Normally big1->size < big2->size implies abs(big1) < abs(big2).
+ *  When abs(big1) < abs(big2) holds the result is 0. The cases
+ *  when big1->size < big2->size and abs(big1) = abs(big2) are if
+ *  big1->size + 1 == big2->size and big1 = 0x8000 (0x80000000...)
+ *  and big2 = 0x00008000 (0x000080000000...). In this cases the
+ *  result is -1. In all other cases the result is 0.
+ */
+#ifdef ANSI_C
+
+static biginttype bigDivSizeLess (biginttype big1, biginttype big2)
+#else
+
+static biginttype bigDivSizeLess (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    memsizetype pos;
+    biginttype result;
+
+  /* bigDivSizeLess */
+    if (!ALLOC_BIG(result, 1)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_BIG(1);
+      result->size = 1;
+      if (big1->size + 1 == big2->size &&
+          big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
+          big2->bigdigits[big2->size - 1] == 0 &&
+          big2->bigdigits[big2->size - 2] == BIGDIGIT_SIGN) {
+        result->bigdigits[0] = BIGDIGIT_MASK;
+        for (pos = 0; pos < big1->size - 1; pos++) {
+          if (big1->bigdigits[pos] != 0 || big2->bigdigits[pos] != 0) {
+            result->bigdigits[0] = 0;
+          } /* if */
+        } /* for */
+      } else {
+        result->bigdigits[0] = 0;
+      } /* if */
+      return(result);
+    } /* if */
+  } /* bigDivSizeLess */
+
+
+
+/**
+ *  Multiplies big2 with multiplier and subtracts the result from
+ *  big1 at the digit position pos1 of big1. Big1, big2 and
+ *  multiplier are nonnegative big integer values.
+ */
+#ifdef ANSI_C
+
+static bigdigittype uBigMultSub (biginttype big1, biginttype big2,
+    bigdigittype multiplier, memsizetype pos1)
+#else
+
+static bigdigittype uBigMultSub (big1, big2, multiplier, pos1)
+biginttype big1;
+biginttype big2;
+bigdigittype multiplier;
+memsizetype pos1;
+#endif
+
+  {
+    memsizetype pos;
+    doublebigdigittype mult_carry = 0;
+    doublebigdigittype sbtr_carry = 1;
+
+  /* uBigMultSub */
+    for (pos = 0; pos < big2->size; pos++) {
+      mult_carry += big2->bigdigits[pos] * multiplier;
+      sbtr_carry += big1->bigdigits[pos + pos1] + (~mult_carry & BIGDIGIT_MASK);
+      big1->bigdigits[pos + pos1] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
+      mult_carry >>= 8 * sizeof(bigdigittype);
+      sbtr_carry >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    for (pos += pos1; pos < big1->size; pos++) {
+      sbtr_carry += big1->bigdigits[pos] + (~mult_carry & BIGDIGIT_MASK);
+      big1->bigdigits[pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
+      mult_carry >>= 8 * sizeof(bigdigittype);
+      sbtr_carry >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    return((sbtr_carry + BIGDIGIT_MASK) & BIGDIGIT_MASK);
+  } /* uBigMultSub */
+
+
+
+/**
+ *  Adds big2 to big1 at the digit position pos1. Big1 and big2
+ *  are nonnegative big integer values.
+ */
+#ifdef ANSI_C
+
+static void uBigAddTo (biginttype big1, biginttype big2, memsizetype pos1)
+#else
+
+static void uBigAddTo (big1, big2, pos1)
+biginttype big1;
+biginttype big2;
+memsizetype pos1;
+#endif
+
+  {
+    memsizetype pos;
+    doublebigdigittype carry = 0;
+
+  /* uBigAddTo */
+    for (pos = 0; pos < big2->size; pos++) {
+      carry += big1->bigdigits[pos + pos1] + big2->bigdigits[pos];
+      big1->bigdigits[pos + pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    for (; pos < big1->size; pos++) {
+      carry += big1->bigdigits[pos + pos1];
+      big1->bigdigits[pos + pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+    } /* for */
+  } /* uBigAddTo */
+
+
+
+/**
+ *  Computes an integer division of big1 by big2 for nonnegative big
+ *  integers. The remainder is delivered in big1. There are several
+ *  preconditions. Big2 must have at least 2 digits and big1 must have
+ *  at least one digit more than big2. The most significant bit of big2
+ *  must be set. The most significant digit of big1 must be less than
+ *  the most significant digit of big2. The computations to meet this
+ *  predonditions are done outside this function. The special cases
+ *  with a one digit big2 or a big1 with less digits than big2 are
+ *  handled in other functions. This algorithm based on the algorithm
+ *  from D.E. Knuth described in "The art of computer programming"
+ *  volume 2 (Seminumerical algorithms).
+ */
+#ifdef ANSI_C
+
+static void uBigDiv (biginttype big1, biginttype big2, biginttype result)
+#else
+
+static void uBigDiv (big1, big2, result)
+biginttype big1;
+biginttype big2;
+biginttype result;
+#endif
+
+  {
+    memsizetype pos1;
+    doublebigdigittype twodigits;
+    doublebigdigittype remainder;
+    bigdigittype quotientdigit;
+    bigdigittype borrow;
+
+  /* uBigDiv */
+    for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
+      twodigits = (big1->bigdigits[pos1] << 8 * sizeof(bigdigittype)) | big1->bigdigits[pos1 - 1];
+      if (big1->bigdigits[pos1] == big2->bigdigits[big2->size - 1]) {
+        quotientdigit = BIGDIGIT_MASK;
+      } else {
+        quotientdigit = twodigits / big2->bigdigits[big2->size - 1];
+      } /* if */
+      remainder = twodigits - quotientdigit * big2->bigdigits[big2->size - 1];
+      while (remainder <= BIGDIGIT_MASK &&
+          big2->bigdigits[big2->size - 2] * quotientdigit >
+          (remainder << 8 * sizeof(bigdigittype) | big1->bigdigits[pos1 - 2])) {
+        quotientdigit--;
+        remainder = twodigits - quotientdigit * big2->bigdigits[big2->size - 1];
+      } /* while */
+      borrow = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
+      if (borrow != 0) {
+        uBigAddTo(big1, big2, pos1 - big2->size);
+        quotientdigit--;
+      } /* if */
+      result->bigdigits[pos1 - big2->size] = quotientdigit;
+    } /* for */
+  } /* uBigDiv */
+
+
+
+/**
+ *  Computes the remainder of a integer division of big1 by
+ *  one digit for nonnegative big integers. The digit must
+ *  not be zero.
+ */
+#ifdef ANSI_C
+
+static bigdigittype uBigRem1 (biginttype big1, bigdigittype digit)
+#else
+
+static bigdigittype uBigRem1 (big1, digit)
+biginttype big1;
+bigdigittype digit;
+#endif
+
+  {
+    memsizetype pos;
+    doublebigdigittype carry = 0;
+
+  /* uBigRem1 */
+    for (pos = big1->size; pos > 0; pos--) {
+      carry <<= 8 * sizeof(bigdigittype);
+      carry += big1->bigdigits[pos - 1];
+      carry %= digit;
+    } /* for */
+    return(carry);
+  } /* uBigRem1 */
+
+
+
+/**
+ *  Computes the remainder of the integer division big1 by one digit
+ *  for signed big integers. The memory for the result is requested
+ *  and the normalized result is returned. This function handles also
+ *  the special case of a division by zero.
+ */
+#ifdef ANSI_C
+
+static biginttype bigRem1 (biginttype big1, bigdigittype digit)
+#else
+
+static biginttype bigRem1 (big1, digit)
+biginttype big1;
+bigdigittype digit;
+#endif
+
+  {
+    booltype negative = FALSE;
+    biginttype big1_help = NULL;
+    biginttype result;
+
+  /* bigRem1 */
+    if (!ALLOC_BIG(result, 1)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_BIG(1);
+      result->size = 1;
+      if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        negative = TRUE;
+        big1_help = alloc_positive_copy_of_negative_big(big1);
+        big1 = big1_help;
+        if (big1_help == NULL) {
+          FREE_BIG(result, result->size);
+          return(NULL);
+        } /* if */
+      } /* if */
+      if (IS_NEGATIVE(digit)) {
+        digit = -digit;
+      } /* if */
+      result->bigdigits[0] = uBigRem1(big1, digit);
+      if (negative) {
+        negate_positive_big(result);
+      } /* if */
+      normalize(result);
+      if (big1_help != NULL) {
+        FREE_BIG(big1_help, big1_help->size);
+      } /* if */
+      return(result);
+    } /* if */
+  } /* bigRem1 */
+
+
+
+/**
+ *  Computes the remainder of the integer division big1 by big2 for
+ *  signed big integers when big1 has less digits than big2. The memory
+ *  for the result is requested and the normalized result is returned.
+ *  Normally big1->size < big2->size implies abs(big1) < abs(big2).
+ *  When abs(big1) < abs(big2) holds the result is big1. The cases
+ *  when big1->size < big2->size and abs(big1) = abs(big2) are if
+ *  big1->size + 1 == big2->size and big1 = 0x8000 (0x80000000...)
+ *  and big2 = 0x00008000 (0x000080000000...). In this cases the
+ *  result is 0. In all other cases the result is big1.
+ */
+#ifdef ANSI_C
+
+static biginttype bigRemSizeLess (biginttype big1, biginttype big2)
+#else
+
+static biginttype bigRemSizeLess (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    memsizetype pos;
+    booltype resultIs0;
+    biginttype result;
+
+  /* bigRemSizeLess */
+    if (big1->size + 1 == big2->size &&
+        big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
+        big2->bigdigits[big2->size - 1] == 0 &&
+        big2->bigdigits[big2->size - 2] == BIGDIGIT_SIGN) {
+      resultIs0 = TRUE;
+      for (pos = 0; pos < big1->size - 1; pos++) {
+        if (big1->bigdigits[pos] != 0 || big2->bigdigits[pos] != 0) {
+          resultIs0 = FALSE;
+        } /* if */
+      } /* for */
+    } else {
+      resultIs0 = FALSE;
+    } /* if */
+    if (resultIs0) {
+      if (!ALLOC_BIG(result, 1)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT_BIG(1);
+        result->size = 1;
+        result->bigdigits[0] = 0;
+      } /* if */
+    } else {
+      if (!ALLOC_BIG(result, big1->size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT_BIG(big1->size);
+        result->size = big1->size;
+        memcpy(result->bigdigits, big1->bigdigits,
+            (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+      } /* if */
+    } /* if */
+    return(result);
+  } /* bigRemSizeLess */
+
+
+
+/**
+ *  Computes the remainder of an integer division of big1 by big2
+ *  for nonnegative big integers. The remainder is delivered in
+ *  big1. There are several preconditions for this function. Big2
+ *  must have at least 2 digits and big1 must have at least one
+ *  digit more than big2. The most significant bit of big2 must be
+ *  set. The most significant digit of big1 must be less than the
+ *  most significant digit of big2. The computations to meet this
+ *  predonditions are done outside this function. The special cases
+ *  with a one digit big2 or a big1 with less digits than big2 are
+ *  handled in other functions. This algorithm based on the algorithm
+ *  from D.E. Knuth described in "The art of computer programming"
+ *  volume 2 (Seminumerical algorithms).
+ */
+#ifdef ANSI_C
+
+static void uBigRem (biginttype big1, biginttype big2)
+#else
+
+static void uBigRem (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    memsizetype pos1;
+    doublebigdigittype twodigits;
+    doublebigdigittype remainder;
+    bigdigittype quotientdigit;
+    bigdigittype borrow;
+
+  /* uBigRem */
+    for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
+      twodigits = (big1->bigdigits[pos1] << 8 * sizeof(bigdigittype)) | big1->bigdigits[pos1 - 1];
+      if (big1->bigdigits[pos1] == big2->bigdigits[big2->size - 1]) {
+        quotientdigit = BIGDIGIT_MASK;
+      } else {
+        quotientdigit = twodigits / big2->bigdigits[big2->size - 1];
+      } /* if */
+      remainder = twodigits - quotientdigit * big2->bigdigits[big2->size - 1];
+      while (remainder <= BIGDIGIT_MASK &&
+          big2->bigdigits[big2->size - 2] * quotientdigit >
+          (remainder << 8 * sizeof(bigdigittype) | big1->bigdigits[pos1 - 2])) {
+        quotientdigit--;
+        remainder = twodigits - quotientdigit * big2->bigdigits[big2->size - 1];
+      } /* while */
+      borrow = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
+      if (borrow != 0) {
+        uBigAddTo(big1, big2, pos1 - big2->size);
+        quotientdigit--;
+      } /* if */
+    } /* for */
+  } /* uBigRem */
 
 
 
@@ -761,111 +1214,67 @@ biginttype big2;
     booltype negative = FALSE;
     biginttype big1_help = NULL;
     biginttype big2_help = NULL;
-    memsizetype pos1;
-    memsizetype pos2;
-    doublebigdigittype twodigits;
-    bigdigittype quotientdigit;
-    doublebigdigittype borrow;
-    doublebigdigittype carry = 0;
+    unsigned int shift;
     biginttype result;
 
   /* bigDiv */
-    if (!ALLOC_BIG(big1_help, big1->size + 2)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
+    if (big2->size == 1) {
+      result = bigDiv1(big1, big2->bigdigits[0]);
+      return(result);
+    } else if (big1->size < big2->size) {
+      result = bigDivSizeLess(big1, big2);
+      return(result);
     } else {
-      COUNT_BIG(big1->size + 2);
-      if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-        negative = TRUE;
-        positive_copy_of_negative_big(big1_help, big1);
+      if (!ALLOC_BIG(big1_help, big1->size + 2)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
       } else {
-        big1_help->size = big1->size;
-        memcpy(big1_help->bigdigits, big1->bigdigits,
-            (SIZE_TYPE) big1->size * sizeof(bigdigittype));
-      } /* if */
-      big1_help->bigdigits[big1_help->size] = 0;
-      big1_help->size++;
-    } /* if */
-    if (!ALLOC_BIG(big2_help, big2->size + 1)) {
-      FREE_BIG(big1_help,  big1->size + 2);
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      COUNT_BIG(big2->size + 1);
-      if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
-        negative = TRUE;
-        positive_copy_of_negative_big(big1_help, big2);
-      } else {
-        big2_help->size = big2->size;
-        memcpy(big2_help->bigdigits, big2->bigdigits,
-            (SIZE_TYPE) big2->size * sizeof(bigdigittype));
-      } /* if */
-    } /* if */
-    if (!ALLOC_BIG(result, big1_help->size - big2_help->size)) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      COUNT_BIG(big1_help->size - big2_help->size);
-      result->size = big1_help->size - big2_help->size;
-      printf("most_significant_bit(%x)=%lu\n",
-          big2_help->bigdigits[big2_help->size - 1],
-          most_significant_bit(big2_help->bigdigits[big2_help->size - 1]));
-      lshift_bigint(big1_help, 8 * sizeof(bigdigittype) - most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1);
-      lshift_bigint(big2_help, 8 * sizeof(bigdigittype) - most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1);
-      prot_bigint(big1_help);
-      printf("\n");
-      prot_bigint(big2_help);
-      printf("\n");
-      printf("big1_help->size=%d\n", big1_help->size);
-      printf("big2_help->size=%d\n", big2_help->size);
-      for (pos1 = big1_help->size - 1; pos1 >= big2_help->size; pos1--) {
-        twodigits = (big1_help->bigdigits[pos1] << 8 * sizeof(bigdigittype)) | big1_help->bigdigits[pos1 - 1];
-	printf("twodigits=%08lx\n", twodigits);
-        printf("big2_help->bigdigits[big2_help->size - 1]=%x\n", big2_help->bigdigits[big2_help->size - 1]);
-        quotientdigit = twodigits / big2_help->bigdigits[big2_help->size - 1];
-        printf("%08lx / %x = %x\n", twodigits, big2_help->bigdigits[big2_help->size - 1], quotientdigit);
-	printf("quotientdigit=%x\n", quotientdigit);
-        printf("while (%lx > %lx)\n",
-            big2_help->bigdigits[big2_help->size - 2] * quotientdigit,
-            (twodigits - quotientdigit * big1_help->bigdigits[pos1 - 1]) <<
-            8 * sizeof(bigdigittype) + big1_help->bigdigits[pos1 - 2]);
-        while (big2_help->bigdigits[big2_help->size - 2] * quotientdigit >
-            (twodigits - quotientdigit * big1_help->bigdigits[pos1 - 1]) <<
-            8 * sizeof(bigdigittype) + big1_help->bigdigits[pos1 - 2]) {
-          quotientdigit--;
-          printf("quotientdigit--\n");
-        } /* while */  
-	printf("quotientdigit=%x\n", quotientdigit);
-        borrow = multsub_bigdigit(big1_help, big2_help, pos1 - big2_help->size, quotientdigit);
-        prot_bigint(big1_help);
-        printf("\n");
-        printf("borrow = %x\n", borrow);
-        if (borrow != 0) {
-          /* add(&big1_help->bigdigits[pos1 - big2_help->size], big2_help); */
-          quotientdigit--;
+        COUNT_BIG(big1->size + 2);
+        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+          negative = TRUE;
+          positive_copy_of_negative_big(big1_help, big1);
+        } else {
+          big1_help->size = big1->size;
+          memcpy(big1_help->bigdigits, big1->bigdigits,
+              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
         } /* if */
-	printf("quotientdigit=%x\n", quotientdigit);
-        printf("pos1=%u, big2_help->size=%u, pos1 - big2_help->size=%d\n",
-            pos1, big2_help->size, pos1 - big2_help->size);
-        result->bigdigits[pos1 - big2_help->size] = quotientdigit;
-		printf("result->bigdigits[%d] = %x\n",
-			pos1 - big2_help->size, result->bigdigits[pos1 - big2_help->size]);
-      } /* for */
-      result->size = big1_help->size - big2_help->size;
-      printf("unsigned result: ");
-      prot_bigint(result);
-      printf("\n");
-      if (negative) {
-        negate_positive_big(result);
+        big1_help->bigdigits[big1_help->size] = 0;
+        big1_help->size++;
       } /* if */
-      normalize(result);
-    } /* if */
-    if (big1_help != NULL) {
+      if (!ALLOC_BIG(big2_help, big2->size + 1)) {
+        FREE_BIG(big1_help,  big1->size + 2);
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } else {
+        COUNT_BIG(big2->size + 1);
+        if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+          negative = !negative;
+          positive_copy_of_negative_big(big2_help, big2);
+        } else {
+          big2_help->size = big2->size;
+          memcpy(big2_help->bigdigits, big2->bigdigits,
+              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+        } /* if */
+      } /* if */
+      if (!ALLOC_BIG(result, big1_help->size - big2_help->size + 1)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT_BIG(big1_help->size - big2_help->size + 1);
+        result->size = big1_help->size - big2_help->size + 1;
+        result->bigdigits[result->size - 1] = 0;
+        shift = 8 * sizeof(bigdigittype) - most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1;
+        uBigLShift(big1_help, shift);
+        uBigLShift(big2_help, shift);
+        uBigDiv(big1_help, big2_help, result);
+        if (negative) {
+          negate_positive_big(result);
+        } /* if */
+        normalize(result);
+      } /* if */
       FREE_BIG(big1_help, big1_help->size);
-    } /* if */
-    if (big2_help != NULL) {
       FREE_BIG(big2_help, big2_help->size);
+      return(result);
     } /* if */
-    return(result);
   } /* bigDiv */
 
 
@@ -1014,7 +1423,7 @@ inttype exp;
         if (exp & 1) {
           result->size = base->size;
           memcpy(result->bigdigits, base->bigdigits,
-	      (SIZE_TYPE) base->size * sizeof(bigdigittype));
+              (SIZE_TYPE) base->size * sizeof(bigdigittype));
         } else {
           result->size = 1;
           result->bigdigits[0] = 1;
@@ -1267,6 +1676,76 @@ biginttype big1;
       return(result);
     } /* if */
   } /* bigPred */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigRem (biginttype big1, biginttype big2)
+#else
+
+biginttype bigRem (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    booltype negative = FALSE;
+    biginttype big2_help = NULL;
+    unsigned int shift;
+    biginttype result;
+
+  /* bigRem */
+    if (big2->size == 1) {
+      result = bigRem1(big1, big2->bigdigits[0]);
+      return(result);
+    } else if (big1->size < big2->size) {
+      result = bigRemSizeLess(big1, big2);
+      return(result);
+    } else {
+      if (!ALLOC_BIG(result, big1->size + 2)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } else {
+        COUNT_BIG(big1->size + 2);
+        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+          negative = TRUE;
+          positive_copy_of_negative_big(result, big1);
+        } else {
+          result->size = big1->size;
+          memcpy(result->bigdigits, big1->bigdigits,
+              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+        } /* if */
+        result->bigdigits[result->size] = 0;
+        result->size++;
+      } /* if */
+      if (!ALLOC_BIG(big2_help, big2->size + 1)) {
+        FREE_BIG(result,  big1->size + 2);
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } else {
+        COUNT_BIG(big2->size + 1);
+        if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+          positive_copy_of_negative_big(big2_help, big2);
+        } else {
+          big2_help->size = big2->size;
+          memcpy(big2_help->bigdigits, big2->bigdigits,
+              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+        } /* if */
+      } /* if */
+      shift = 8 * sizeof(bigdigittype) - most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1;
+      uBigLShift(result, shift);
+      uBigLShift(big2_help, shift);
+      uBigRem(result, big2_help);
+      uBigRShift(result, shift);
+      if (negative) {
+        negate_positive_big(result);
+      } /* if */
+      normalize(result);
+      FREE_BIG(big2_help, big2_help->size);
+      return(result);
+    } /* if */
+  } /* bigRem */
 
 
 

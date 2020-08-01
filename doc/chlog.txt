@@ -93,3 +93,8 @@
 - A lot of testcases have been added to the chkbig.sd7 program.
 - The compiler was improved to support more bigInteger functionality.
 - The makefile was changed to work on BSD (suggested by Dave Bodenstab).
+
+20061008:
+- The bigInteger library was improved to support division and remainder.
+- Testcases for division and remainder were added to the chkbig.sd7 program.
+- The compiler was improved to support bigInteger division and remainder.

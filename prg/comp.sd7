@@ -1566,6 +1566,18 @@ const proc: process_big_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_big_div (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigDiv(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_big_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1625,6 +1637,18 @@ const proc: process_big_pred (in ref_list: params, inout expr_type: c_expr) is f
     prepare_bigint_result(c_expr);
     c_expr.result_expr := "bigPred(";
     get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_rem (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigRem(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[3], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -5719,6 +5743,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_big_cmp(params, c_expr);
     elsif action_name = "BIG_CPY" then
       process_big_cpy(params, c_expr);
+    elsif action_name = "BIG_DIV" then
+      process_big_div(params, c_expr);
     elsif action_name = "BIG_EQ" then
       process_big_eq(params, c_expr);
     elsif action_name = "BIG_MINUS" then
@@ -5733,6 +5759,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_big_sbtr(params, c_expr);
     elsif action_name = "BIG_PRED" then
       process_big_pred(params, c_expr);
+    elsif action_name = "BIG_REM" then
+      process_big_rem(params, c_expr);
     elsif action_name = "BIG_STR" then
       process_big_str(params, c_expr);
     elsif action_name = "BIG_SUCC" then

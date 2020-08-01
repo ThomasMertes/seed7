@@ -292,8 +292,8 @@ listtype arguments;
     big1 = take_bigint(arg_1(arguments));
     big2 = take_bigint(arg_3(arguments));
     if (big1->size == big2->size &&
-		memcmp(big1->bigdigits, big2->bigdigits,
-		(SIZE_TYPE) big1->size * sizeof(bigdigittype)) == 0) {
+        memcmp(big1->bigdigits, big2->bigdigits,
+        (SIZE_TYPE) big1->size * sizeof(bigdigittype)) == 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -426,8 +426,8 @@ listtype arguments;
     big1 = take_bigint(arg_1(arguments));
     big2 = take_bigint(arg_3(arguments));
     if (big1->size != big2->size ||
-		memcmp(big1->bigdigits, big2->bigdigits,
-		(SIZE_TYPE) big1->size * sizeof(bigdigittype)) != 0) {
+        memcmp(big1->bigdigits, big2->bigdigits,
+        (SIZE_TYPE) big1->size * sizeof(bigdigittype)) != 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -522,6 +522,24 @@ listtype arguments;
     return(bld_bigint_temp(
         bigPred(take_bigint(arg_1(arguments)))));
   } /* big_pred */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_rem (listtype arguments)
+#else
+
+objecttype big_rem (arguments)
+listtype arguments;
+#endif
+
+  { /* big_rem */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    return(bld_bigint_temp(
+        bigRem(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+  } /* big_rem */
 
 
 

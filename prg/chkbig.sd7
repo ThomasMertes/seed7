@@ -3304,9 +3304,243 @@ const proc: chkDivision is func
   local
     var boolean: okay is TRUE;
   begin
-    ignore(-(bigInteger parse "65538" * bigInteger parse "32768"));
-    if  bigInteger parse            "4295229444" div bigInteger parse  "65538" <> bigInteger parse            "65538" or
-        bigInteger parse  "18446744073709551616" div bigInteger parse  "65535" <> bigInteger parse  "281479271743489" then
+    if  bigInteger parse                 "32766" div bigInteger parse       "1" <> bigInteger parse   "32766" or
+        bigInteger parse                 "32767" div bigInteger parse       "1" <> bigInteger parse   "32767" or
+        bigInteger parse                 "32768" div bigInteger parse       "1" <> bigInteger parse   "32768" or
+        bigInteger parse                 "32769" div bigInteger parse       "1" <> bigInteger parse   "32769" or
+        bigInteger parse                 "32770" div bigInteger parse       "1" <> bigInteger parse   "32770" or
+        bigInteger parse                 "65534" div bigInteger parse       "1" <> bigInteger parse   "65534" or
+        bigInteger parse                 "65535" div bigInteger parse       "1" <> bigInteger parse   "65535" or
+        bigInteger parse                 "65536" div bigInteger parse       "1" <> bigInteger parse   "65536" or
+        bigInteger parse                 "65537" div bigInteger parse       "1" <> bigInteger parse   "65537" or
+        bigInteger parse                 "65538" div bigInteger parse       "1" <> bigInteger parse   "65538" or
+        bigInteger parse                 "32766" div bigInteger parse   "32766" <> bigInteger parse   "1" or
+        bigInteger parse                 "32767" div bigInteger parse   "32767" <> bigInteger parse   "1" or
+        bigInteger parse                 "32768" div bigInteger parse   "32768" <> bigInteger parse   "1" or
+        bigInteger parse                 "32769" div bigInteger parse   "32769" <> bigInteger parse   "1" or
+        bigInteger parse                 "32770" div bigInteger parse   "32770" <> bigInteger parse   "1" or
+        bigInteger parse                 "65534" div bigInteger parse   "65534" <> bigInteger parse   "1" or
+        bigInteger parse                 "65535" div bigInteger parse   "65535" <> bigInteger parse   "1" or
+        bigInteger parse                 "65536" div bigInteger parse   "65536" <> bigInteger parse   "1" or
+        bigInteger parse                 "65537" div bigInteger parse   "65537" <> bigInteger parse   "1" or
+        bigInteger parse                 "65538" div bigInteger parse   "65538" <> bigInteger parse   "1" or
+        bigInteger parse                 "32765" div bigInteger parse   "32766" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" div bigInteger parse   "32767" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" div bigInteger parse   "32768" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" div bigInteger parse   "32769" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" div bigInteger parse   "32770" <> bigInteger parse   "0" or
+        bigInteger parse                 "65533" div bigInteger parse   "65534" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" div bigInteger parse   "65535" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" div bigInteger parse   "65536" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" div bigInteger parse   "65537" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" div bigInteger parse   "65538" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse            "2147483647" div bigInteger parse  "2147483648" <> bigInteger parse   "0" or
+        bigInteger parse            "2147483648" div bigInteger parse  "2147483648" <> bigInteger parse   "1" or
+        bigInteger parse            "2147483648" div bigInteger parse  "2147483649" <> bigInteger parse   "0" or
+        bigInteger parse       "140737488355327" div bigInteger parse  "140737488355328" <> bigInteger parse   "0" or
+        bigInteger parse       "140737488355328" div bigInteger parse  "140737488355328" <> bigInteger parse   "1" or
+        bigInteger parse       "140737488355328" div bigInteger parse  "140737488355329" <> bigInteger parse   "0" or
+        bigInteger parse   "9223372036854775807" div bigInteger parse   "32768" <> bigInteger parse   "281474976710655" or
+        bigInteger parse  "18446744073709551616" div bigInteger parse   "32767" <> bigInteger parse   "562967133814800" or
+        bigInteger parse   "9223090561878065152" div bigInteger parse   "32767" <> bigInteger parse   "281474976710656" or
+        bigInteger parse            "4295229444" div bigInteger parse   "65538" <> bigInteger parse             "65538" or
+        bigInteger parse  "18446744073709551616" div bigInteger parse   "65535" <> bigInteger parse   "281479271743489" or
+        bigInteger parse  "18446744073709551616" div bigInteger parse  "131071" <> bigInteger parse   "140738562105344" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse  "140737488355329" <> bigInteger parse  "65535" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse  "140737488420863" <> bigInteger parse  "65535" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse  "140737488420864" <> bigInteger parse  "65535" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse  "140741783322623" <> bigInteger parse  "65534" or
+        bigInteger parse   "1152921504606846976" div bigInteger parse   "17596481011711" <> bigInteger parse  "65520" or
+        bigInteger parse   "9223231303661387776" div bigInteger parse  "140739636002821" <> bigInteger parse  "65533" or
+
+        bigInteger parse                 "32766" div bigInteger parse      "-1" <> bigInteger parse  "-32766" or
+        bigInteger parse                 "32767" div bigInteger parse      "-1" <> bigInteger parse  "-32767" or
+        bigInteger parse                 "32768" div bigInteger parse      "-1" <> bigInteger parse  "-32768" or
+        bigInteger parse                 "32769" div bigInteger parse      "-1" <> bigInteger parse  "-32769" or
+        bigInteger parse                 "32770" div bigInteger parse      "-1" <> bigInteger parse  "-32770" or
+        bigInteger parse                 "65534" div bigInteger parse      "-1" <> bigInteger parse  "-65534" or
+        bigInteger parse                 "65535" div bigInteger parse      "-1" <> bigInteger parse  "-65535" or
+        bigInteger parse                 "65536" div bigInteger parse      "-1" <> bigInteger parse  "-65536" or
+        bigInteger parse                 "65537" div bigInteger parse      "-1" <> bigInteger parse  "-65537" or
+        bigInteger parse                 "65538" div bigInteger parse      "-1" <> bigInteger parse  "-65538" or
+        bigInteger parse                 "32766" div bigInteger parse  "-32766" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32767" div bigInteger parse  "-32767" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32768" div bigInteger parse  "-32768" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32769" div bigInteger parse  "-32769" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32770" div bigInteger parse  "-32770" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65534" div bigInteger parse  "-65534" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65535" div bigInteger parse  "-65535" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65536" div bigInteger parse  "-65536" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65537" div bigInteger parse  "-65537" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65538" div bigInteger parse  "-65538" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32765" div bigInteger parse  "-32766" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" div bigInteger parse  "-32767" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" div bigInteger parse  "-32768" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" div bigInteger parse  "-32769" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" div bigInteger parse  "-32770" <> bigInteger parse   "0" or
+        bigInteger parse                 "65533" div bigInteger parse  "-65534" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" div bigInteger parse  "-65535" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" div bigInteger parse  "-65536" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" div bigInteger parse  "-65537" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" div bigInteger parse  "-65538" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse            "2147483647" div bigInteger parse "-2147483648" <> bigInteger parse    "0" or
+        bigInteger parse            "2147483648" div bigInteger parse "-2147483648" <> bigInteger parse   "-1" or
+        bigInteger parse            "2147483648" div bigInteger parse "-2147483649" <> bigInteger parse    "0" or
+        bigInteger parse       "140737488355327" div bigInteger parse "-140737488355328" <> bigInteger parse   "0" or
+        bigInteger parse       "140737488355328" div bigInteger parse "-140737488355328" <> bigInteger parse  "-1" or
+        bigInteger parse       "140737488355328" div bigInteger parse "-140737488355329" <> bigInteger parse   "0" or
+        bigInteger parse   "9223372036854775807" div bigInteger parse  "-32768" <> bigInteger parse  "-281474976710655" or
+        bigInteger parse  "18446744073709551616" div bigInteger parse  "-32767" <> bigInteger parse  "-562967133814800" or
+        bigInteger parse   "9223090561878065152" div bigInteger parse  "-32767" <> bigInteger parse  "-281474976710656" or
+        bigInteger parse            "4295229444" div bigInteger parse  "-65538" <> bigInteger parse            "-65538" or
+        bigInteger parse  "18446744073709551616" div bigInteger parse  "-65535" <> bigInteger parse  "-281479271743489" or
+        bigInteger parse  "18446744073709551616" div bigInteger parse "-131071" <> bigInteger parse  "-140738562105344" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse "-140737488355329" <> bigInteger parse "-65535" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse "-140737488420863" <> bigInteger parse "-65535" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse "-140737488420864" <> bigInteger parse "-65535" or
+        bigInteger parse   "9223372036854775808" div bigInteger parse "-140741783322623" <> bigInteger parse "-65534" or
+        bigInteger parse   "1152921504606846976" div bigInteger parse  "-17596481011711" <> bigInteger parse "-65520" or
+        bigInteger parse   "9223231303661387776" div bigInteger parse "-140739636002821" <> bigInteger parse "-65533" or
+
+        bigInteger parse                "-32766" div bigInteger parse       "1" <> bigInteger parse  "-32766" or
+        bigInteger parse                "-32767" div bigInteger parse       "1" <> bigInteger parse  "-32767" or
+        bigInteger parse                "-32768" div bigInteger parse       "1" <> bigInteger parse  "-32768" or
+        bigInteger parse                "-32769" div bigInteger parse       "1" <> bigInteger parse  "-32769" or
+        bigInteger parse                "-32770" div bigInteger parse       "1" <> bigInteger parse  "-32770" or
+        bigInteger parse                "-65534" div bigInteger parse       "1" <> bigInteger parse  "-65534" or
+        bigInteger parse                "-65535" div bigInteger parse       "1" <> bigInteger parse  "-65535" or
+        bigInteger parse                "-65536" div bigInteger parse       "1" <> bigInteger parse  "-65536" or
+        bigInteger parse                "-65537" div bigInteger parse       "1" <> bigInteger parse  "-65537" or
+        bigInteger parse                "-65538" div bigInteger parse       "1" <> bigInteger parse  "-65538" or
+        bigInteger parse                "-32766" div bigInteger parse   "32766" <> bigInteger parse  "-1" or
+        bigInteger parse                "-32767" div bigInteger parse   "32767" <> bigInteger parse  "-1" or
+        bigInteger parse                "-32768" div bigInteger parse   "32768" <> bigInteger parse  "-1" or
+        bigInteger parse                "-32769" div bigInteger parse   "32769" <> bigInteger parse  "-1" or
+        bigInteger parse                "-32770" div bigInteger parse   "32770" <> bigInteger parse  "-1" or
+        bigInteger parse                "-65534" div bigInteger parse   "65534" <> bigInteger parse  "-1" or
+        bigInteger parse                "-65535" div bigInteger parse   "65535" <> bigInteger parse  "-1" or
+        bigInteger parse                "-65536" div bigInteger parse   "65536" <> bigInteger parse  "-1" or
+        bigInteger parse                "-65537" div bigInteger parse   "65537" <> bigInteger parse  "-1" or
+        bigInteger parse                "-65538" div bigInteger parse   "65538" <> bigInteger parse  "-1" or
+        bigInteger parse                "-32765" div bigInteger parse   "32766" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" div bigInteger parse   "32767" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" div bigInteger parse   "32768" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" div bigInteger parse   "32769" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" div bigInteger parse   "32770" <> bigInteger parse   "0" or
+        bigInteger parse                "-65533" div bigInteger parse   "65534" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" div bigInteger parse   "65535" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" div bigInteger parse   "65536" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" div bigInteger parse   "65537" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" div bigInteger parse   "65538" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" div bigInteger parse  "18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse           "-2147483647" div bigInteger parse  "2147483648" <> bigInteger parse    "0" or
+        bigInteger parse           "-2147483648" div bigInteger parse  "2147483648" <> bigInteger parse   "-1" or
+        bigInteger parse           "-2147483648" div bigInteger parse  "2147483649" <> bigInteger parse    "0" or
+        bigInteger parse      "-140737488355327" div bigInteger parse  "140737488355328" <> bigInteger parse   "0" or
+        bigInteger parse      "-140737488355328" div bigInteger parse  "140737488355328" <> bigInteger parse  "-1" or
+        bigInteger parse      "-140737488355328" div bigInteger parse  "140737488355329" <> bigInteger parse   "0" or
+        bigInteger parse  "-9223372036854775807" div bigInteger parse   "32768" <> bigInteger parse  "-281474976710655" or
+        bigInteger parse "-18446744073709551616" div bigInteger parse   "32767" <> bigInteger parse  "-562967133814800" or
+        bigInteger parse  "-9223090561878065152" div bigInteger parse   "32767" <> bigInteger parse  "-281474976710656" or
+        bigInteger parse           "-4295229444" div bigInteger parse   "65538" <> bigInteger parse            "-65538" or
+        bigInteger parse "-18446744073709551616" div bigInteger parse   "65535" <> bigInteger parse  "-281479271743489" or
+        bigInteger parse "-18446744073709551616" div bigInteger parse  "131071" <> bigInteger parse  "-140738562105344" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse  "140737488355329" <> bigInteger parse "-65535" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse  "140737488420863" <> bigInteger parse "-65535" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse  "140737488420864" <> bigInteger parse "-65535" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse  "140741783322623" <> bigInteger parse "-65534" or
+        bigInteger parse  "-1152921504606846976" div bigInteger parse   "17596481011711" <> bigInteger parse "-65520" or
+        bigInteger parse  "-9223231303661387776" div bigInteger parse  "140739636002821" <> bigInteger parse "-65533" or
+
+        bigInteger parse                "-32766" div bigInteger parse      "-1" <> bigInteger parse   "32766" or
+        bigInteger parse                "-32767" div bigInteger parse      "-1" <> bigInteger parse   "32767" or
+        bigInteger parse                "-32768" div bigInteger parse      "-1" <> bigInteger parse   "32768" or
+        bigInteger parse                "-32769" div bigInteger parse      "-1" <> bigInteger parse   "32769" or
+        bigInteger parse                "-32770" div bigInteger parse      "-1" <> bigInteger parse   "32770" or
+        bigInteger parse                "-65534" div bigInteger parse      "-1" <> bigInteger parse   "65534" or
+        bigInteger parse                "-65535" div bigInteger parse      "-1" <> bigInteger parse   "65535" or
+        bigInteger parse                "-65536" div bigInteger parse      "-1" <> bigInteger parse   "65536" or
+        bigInteger parse                "-65537" div bigInteger parse      "-1" <> bigInteger parse   "65537" or
+        bigInteger parse                "-65538" div bigInteger parse      "-1" <> bigInteger parse   "65538" or
+        bigInteger parse                "-32766" div bigInteger parse  "-32766" <> bigInteger parse   "1" or
+        bigInteger parse                "-32767" div bigInteger parse  "-32767" <> bigInteger parse   "1" or
+        bigInteger parse                "-32768" div bigInteger parse  "-32768" <> bigInteger parse   "1" or
+        bigInteger parse                "-32769" div bigInteger parse  "-32769" <> bigInteger parse   "1" or
+        bigInteger parse                "-32770" div bigInteger parse  "-32770" <> bigInteger parse   "1" or
+        bigInteger parse                "-65534" div bigInteger parse  "-65534" <> bigInteger parse   "1" or
+        bigInteger parse                "-65535" div bigInteger parse  "-65535" <> bigInteger parse   "1" or
+        bigInteger parse                "-65536" div bigInteger parse  "-65536" <> bigInteger parse   "1" or
+        bigInteger parse                "-65537" div bigInteger parse  "-65537" <> bigInteger parse   "1" or
+        bigInteger parse                "-65538" div bigInteger parse  "-65538" <> bigInteger parse   "1" or
+        bigInteger parse                "-32765" div bigInteger parse  "-32766" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" div bigInteger parse  "-32767" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" div bigInteger parse  "-32768" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" div bigInteger parse  "-32769" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" div bigInteger parse  "-32770" <> bigInteger parse   "0" or
+        bigInteger parse                "-65533" div bigInteger parse  "-65534" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" div bigInteger parse  "-65535" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" div bigInteger parse  "-65536" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" div bigInteger parse  "-65537" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" div bigInteger parse  "-65538" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" div bigInteger parse "-18446744073709551616" <> bigInteger parse   "0" or
+        bigInteger parse           "-2147483647" div bigInteger parse "-2147483648" <> bigInteger parse   "0" or
+        bigInteger parse           "-2147483648" div bigInteger parse "-2147483648" <> bigInteger parse   "1" or
+        bigInteger parse           "-2147483648" div bigInteger parse "-2147483649" <> bigInteger parse   "0" or
+        bigInteger parse      "-140737488355327" div bigInteger parse "-140737488355328" <> bigInteger parse   "0" or
+        bigInteger parse      "-140737488355328" div bigInteger parse "-140737488355328" <> bigInteger parse   "1" or
+        bigInteger parse      "-140737488355328" div bigInteger parse "-140737488355329" <> bigInteger parse   "0" or
+        bigInteger parse  "-9223372036854775807" div bigInteger parse  "-32768" <> bigInteger parse   "281474976710655" or
+        bigInteger parse "-18446744073709551616" div bigInteger parse  "-32767" <> bigInteger parse   "562967133814800" or
+        bigInteger parse  "-9223090561878065152" div bigInteger parse  "-32767" <> bigInteger parse   "281474976710656" or
+        bigInteger parse           "-4295229444" div bigInteger parse  "-65538" <> bigInteger parse             "65538" or
+        bigInteger parse "-18446744073709551616" div bigInteger parse  "-65535" <> bigInteger parse   "281479271743489" or
+        bigInteger parse "-18446744073709551616" div bigInteger parse "-131071" <> bigInteger parse   "140738562105344" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse "-140737488355329" <> bigInteger parse  "65535" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse "-140737488420863" <> bigInteger parse  "65535" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse "-140737488420864" <> bigInteger parse  "65535" or
+        bigInteger parse  "-9223372036854775808" div bigInteger parse "-140741783322623" <> bigInteger parse  "65534" or
+        bigInteger parse  "-1152921504606846976" div bigInteger parse  "-17596481011711" <> bigInteger parse  "65520" or
+        bigInteger parse  "-9223231303661387776" div bigInteger parse "-140739636002821" <> bigInteger parse  "65533" then
+
+#        bigInteger parse                 "32766" div bigInteger parse       "0" <> bigInteger parse   "1" then
       writeln("Division of bigInteger does not work correct.");
       okay := FALSE;
     end if;
@@ -3315,6 +3549,259 @@ const proc: chkDivision is func
       writeln("Division of bigInteger works correct.");
     else
       writeln(" ***** Division of bigInteger does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chkRemainder is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bigInteger parse                 "32766" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" rem bigInteger parse   "32766" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" rem bigInteger parse   "32767" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" rem bigInteger parse   "32768" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" rem bigInteger parse   "32769" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" rem bigInteger parse   "32770" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" rem bigInteger parse   "65534" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" rem bigInteger parse   "65535" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" rem bigInteger parse   "65536" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" rem bigInteger parse   "65537" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" rem bigInteger parse   "65538" <> bigInteger parse   "0" or
+        bigInteger parse                 "32765" rem bigInteger parse   "32766" <> bigInteger parse   "32765" or
+        bigInteger parse                 "32766" rem bigInteger parse   "32767" <> bigInteger parse   "32766" or
+        bigInteger parse                 "32767" rem bigInteger parse   "32768" <> bigInteger parse   "32767" or
+        bigInteger parse                 "32768" rem bigInteger parse   "32769" <> bigInteger parse   "32768" or
+        bigInteger parse                 "32769" rem bigInteger parse   "32770" <> bigInteger parse   "32769" or
+        bigInteger parse                 "65533" rem bigInteger parse   "65534" <> bigInteger parse   "65533" or
+        bigInteger parse                 "65534" rem bigInteger parse   "65535" <> bigInteger parse   "65534" or
+        bigInteger parse                 "65535" rem bigInteger parse   "65536" <> bigInteger parse   "65535" or
+        bigInteger parse                 "65536" rem bigInteger parse   "65537" <> bigInteger parse   "65536" or
+        bigInteger parse                 "65537" rem bigInteger parse   "65538" <> bigInteger parse   "65537" or
+        bigInteger parse                 "32766" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "32766" or
+        bigInteger parse                 "32767" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "32767" or
+        bigInteger parse                 "32768" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "32768" or
+        bigInteger parse                 "32769" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "32769" or
+        bigInteger parse                 "32770" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "32770" or
+        bigInteger parse                 "65534" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "65534" or
+        bigInteger parse                 "65535" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "65535" or
+        bigInteger parse                 "65536" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "65536" or
+        bigInteger parse                 "65537" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "65537" or
+        bigInteger parse                 "65538" rem bigInteger parse  "18446744073709551616" <> bigInteger parse   "65538" or
+        bigInteger parse            "2147483647" rem bigInteger parse  "2147483648" <> bigInteger parse  "2147483647" or
+        bigInteger parse            "2147483648" rem bigInteger parse  "2147483648" <> bigInteger parse           "0" or
+        bigInteger parse            "2147483648" rem bigInteger parse  "2147483649" <> bigInteger parse  "2147483648" or
+        bigInteger parse       "140737488355327" rem bigInteger parse  "140737488355328" <> bigInteger parse  "140737488355327" or
+        bigInteger parse       "140737488355328" rem bigInteger parse  "140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse       "140737488355328" rem bigInteger parse  "140737488355329" <> bigInteger parse  "140737488355328" or
+        bigInteger parse   "9223372036854775807" rem bigInteger parse   "32768" <> bigInteger parse            "32767" or
+        bigInteger parse  "18446744073709551616" rem bigInteger parse   "32767" <> bigInteger parse               "16" or
+        bigInteger parse   "9223090561878065152" rem bigInteger parse   "32767" <> bigInteger parse                "0" or
+        bigInteger parse            "4295229444" rem bigInteger parse   "65538" <> bigInteger parse                "0" or
+        bigInteger parse  "18446744073709551616" rem bigInteger parse   "65535" <> bigInteger parse                "1" or
+        bigInteger parse  "18446744073709551616" rem bigInteger parse  "131071" <> bigInteger parse             "8192" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse  "140737488355329" <> bigInteger parse  "140737488289793" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse  "140737488420863" <> bigInteger parse  "140733193519103" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse  "140737488420864" <> bigInteger parse  "140733193453568" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse  "140741783322623" <> bigInteger parse       "8590000126" or
+        bigInteger parse   "1152921504606846976" rem bigInteger parse   "17596481011711" <> bigInteger parse      "68719542256" or
+        bigInteger parse   "9223231303661387776" rem bigInteger parse  "140739636002821" <> bigInteger parse  "140737488519183" or
+
+        bigInteger parse                 "32766" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" rem bigInteger parse  "-32766" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" rem bigInteger parse  "-32767" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" rem bigInteger parse  "-32768" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" rem bigInteger parse  "-32769" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" rem bigInteger parse  "-32770" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" rem bigInteger parse  "-65534" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" rem bigInteger parse  "-65535" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" rem bigInteger parse  "-65536" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" rem bigInteger parse  "-65537" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" rem bigInteger parse  "-65538" <> bigInteger parse   "0" or
+        bigInteger parse                 "32765" rem bigInteger parse  "-32766" <> bigInteger parse   "32765" or
+        bigInteger parse                 "32766" rem bigInteger parse  "-32767" <> bigInteger parse   "32766" or
+        bigInteger parse                 "32767" rem bigInteger parse  "-32768" <> bigInteger parse   "32767" or
+        bigInteger parse                 "32768" rem bigInteger parse  "-32769" <> bigInteger parse   "32768" or
+        bigInteger parse                 "32769" rem bigInteger parse  "-32770" <> bigInteger parse   "32769" or
+        bigInteger parse                 "65533" rem bigInteger parse  "-65534" <> bigInteger parse   "65533" or
+        bigInteger parse                 "65534" rem bigInteger parse  "-65535" <> bigInteger parse   "65534" or
+        bigInteger parse                 "65535" rem bigInteger parse  "-65536" <> bigInteger parse   "65535" or
+        bigInteger parse                 "65536" rem bigInteger parse  "-65537" <> bigInteger parse   "65536" or
+        bigInteger parse                 "65537" rem bigInteger parse  "-65538" <> bigInteger parse   "65537" or
+        bigInteger parse                 "32766" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "32766" or
+        bigInteger parse                 "32767" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "32767" or
+        bigInteger parse                 "32768" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "32768" or
+        bigInteger parse                 "32769" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "32769" or
+        bigInteger parse                 "32770" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "32770" or
+        bigInteger parse                 "65534" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "65534" or
+        bigInteger parse                 "65535" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "65535" or
+        bigInteger parse                 "65536" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "65536" or
+        bigInteger parse                 "65537" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "65537" or
+        bigInteger parse                 "65538" rem bigInteger parse "-18446744073709551616" <> bigInteger parse   "65538" or
+        bigInteger parse            "2147483647" rem bigInteger parse "-2147483648" <> bigInteger parse  "2147483647" or
+        bigInteger parse            "2147483648" rem bigInteger parse "-2147483648" <> bigInteger parse           "0" or
+        bigInteger parse            "2147483648" rem bigInteger parse "-2147483649" <> bigInteger parse  "2147483648" or
+        bigInteger parse       "140737488355327" rem bigInteger parse "-140737488355328" <> bigInteger parse  "140737488355327" or
+        bigInteger parse       "140737488355328" rem bigInteger parse "-140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse       "140737488355328" rem bigInteger parse "-140737488355329" <> bigInteger parse  "140737488355328" or
+        bigInteger parse   "9223372036854775807" rem bigInteger parse  "-32768" <> bigInteger parse            "32767" or
+        bigInteger parse  "18446744073709551616" rem bigInteger parse  "-32767" <> bigInteger parse               "16" or
+        bigInteger parse   "9223090561878065152" rem bigInteger parse  "-32767" <> bigInteger parse                "0" or
+        bigInteger parse            "4295229444" rem bigInteger parse  "-65538" <> bigInteger parse                "0" or
+        bigInteger parse  "18446744073709551616" rem bigInteger parse  "-65535" <> bigInteger parse                "1" or
+        bigInteger parse  "18446744073709551616" rem bigInteger parse "-131071" <> bigInteger parse             "8192" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse "-140737488355329" <> bigInteger parse  "140737488289793" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse "-140737488420863" <> bigInteger parse  "140733193519103" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse "-140737488420864" <> bigInteger parse  "140733193453568" or
+        bigInteger parse   "9223372036854775808" rem bigInteger parse "-140741783322623" <> bigInteger parse       "8590000126" or
+        bigInteger parse   "1152921504606846976" rem bigInteger parse  "-17596481011711" <> bigInteger parse      "68719542256" or
+        bigInteger parse   "9223231303661387776" rem bigInteger parse "-140739636002821" <> bigInteger parse  "140737488519183" or
+
+        bigInteger parse                "-32766" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" rem bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" rem bigInteger parse   "32766" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" rem bigInteger parse   "32767" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" rem bigInteger parse   "32768" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" rem bigInteger parse   "32769" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" rem bigInteger parse   "32770" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" rem bigInteger parse   "65534" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" rem bigInteger parse   "65535" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" rem bigInteger parse   "65536" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" rem bigInteger parse   "65537" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" rem bigInteger parse   "65538" <> bigInteger parse   "0" or
+        bigInteger parse                "-32765" rem bigInteger parse   "32766" <> bigInteger parse  "-32765" or
+        bigInteger parse                "-32766" rem bigInteger parse   "32767" <> bigInteger parse  "-32766" or
+        bigInteger parse                "-32767" rem bigInteger parse   "32768" <> bigInteger parse  "-32767" or
+        bigInteger parse                "-32768" rem bigInteger parse   "32769" <> bigInteger parse  "-32768" or
+        bigInteger parse                "-32769" rem bigInteger parse   "32770" <> bigInteger parse  "-32769" or
+        bigInteger parse                "-65533" rem bigInteger parse   "65534" <> bigInteger parse  "-65533" or
+        bigInteger parse                "-65534" rem bigInteger parse   "65535" <> bigInteger parse  "-65534" or
+        bigInteger parse                "-65535" rem bigInteger parse   "65536" <> bigInteger parse  "-65535" or
+        bigInteger parse                "-65536" rem bigInteger parse   "65537" <> bigInteger parse  "-65536" or
+        bigInteger parse                "-65537" rem bigInteger parse   "65538" <> bigInteger parse  "-65537" or
+        bigInteger parse                "-32766" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-32766" or
+        bigInteger parse                "-32767" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-32767" or
+        bigInteger parse                "-32768" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-32768" or
+        bigInteger parse                "-32769" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-32769" or
+        bigInteger parse                "-32770" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-32770" or
+        bigInteger parse                "-65534" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-65534" or
+        bigInteger parse                "-65535" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-65535" or
+        bigInteger parse                "-65536" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-65536" or
+        bigInteger parse                "-65537" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-65537" or
+        bigInteger parse                "-65538" rem bigInteger parse  "18446744073709551616" <> bigInteger parse  "-65538" or
+        bigInteger parse           "-2147483647" rem bigInteger parse  "2147483648" <> bigInteger parse "-2147483647" or
+        bigInteger parse           "-2147483648" rem bigInteger parse  "2147483648" <> bigInteger parse           "0" or
+        bigInteger parse           "-2147483648" rem bigInteger parse  "2147483649" <> bigInteger parse "-2147483648" or
+        bigInteger parse      "-140737488355327" rem bigInteger parse  "140737488355328" <> bigInteger parse "-140737488355327" or
+        bigInteger parse      "-140737488355328" rem bigInteger parse  "140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse      "-140737488355328" rem bigInteger parse  "140737488355329" <> bigInteger parse "-140737488355328" or
+        bigInteger parse  "-9223372036854775807" rem bigInteger parse   "32768" <> bigInteger parse           "-32767" or
+        bigInteger parse "-18446744073709551616" rem bigInteger parse   "32767" <> bigInteger parse              "-16" or
+        bigInteger parse  "-9223090561878065152" rem bigInteger parse   "32767" <> bigInteger parse                "0" or
+        bigInteger parse           "-4295229444" rem bigInteger parse   "65538" <> bigInteger parse                "0" or
+        bigInteger parse "-18446744073709551616" rem bigInteger parse   "65535" <> bigInteger parse               "-1" or
+        bigInteger parse "-18446744073709551616" rem bigInteger parse  "131071" <> bigInteger parse            "-8192" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse  "140737488355329" <> bigInteger parse "-140737488289793" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse  "140737488420863" <> bigInteger parse "-140733193519103" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse  "140737488420864" <> bigInteger parse "-140733193453568" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse  "140741783322623" <> bigInteger parse      "-8590000126" or
+        bigInteger parse  "-1152921504606846976" rem bigInteger parse   "17596481011711" <> bigInteger parse     "-68719542256" or
+        bigInteger parse  "-9223231303661387776" rem bigInteger parse  "140739636002821" <> bigInteger parse "-140737488519183" or
+
+        bigInteger parse                "-32766" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" rem bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" rem bigInteger parse  "-32766" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" rem bigInteger parse  "-32767" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" rem bigInteger parse  "-32768" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" rem bigInteger parse  "-32769" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" rem bigInteger parse  "-32770" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" rem bigInteger parse  "-65534" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" rem bigInteger parse  "-65535" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" rem bigInteger parse  "-65536" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" rem bigInteger parse  "-65537" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" rem bigInteger parse  "-65538" <> bigInteger parse   "0" or
+        bigInteger parse                "-32765" rem bigInteger parse  "-32766" <> bigInteger parse  "-32765" or
+        bigInteger parse                "-32766" rem bigInteger parse  "-32767" <> bigInteger parse  "-32766" or
+        bigInteger parse                "-32767" rem bigInteger parse  "-32768" <> bigInteger parse  "-32767" or
+        bigInteger parse                "-32768" rem bigInteger parse  "-32769" <> bigInteger parse  "-32768" or
+        bigInteger parse                "-32769" rem bigInteger parse  "-32770" <> bigInteger parse  "-32769" or
+        bigInteger parse                "-65533" rem bigInteger parse  "-65534" <> bigInteger parse  "-65533" or
+        bigInteger parse                "-65534" rem bigInteger parse  "-65535" <> bigInteger parse  "-65534" or
+        bigInteger parse                "-65535" rem bigInteger parse  "-65536" <> bigInteger parse  "-65535" or
+        bigInteger parse                "-65536" rem bigInteger parse  "-65537" <> bigInteger parse  "-65536" or
+        bigInteger parse                "-65537" rem bigInteger parse  "-65538" <> bigInteger parse  "-65537" or
+        bigInteger parse                "-32766" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32766" or
+        bigInteger parse                "-32767" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32767" or
+        bigInteger parse                "-32768" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32768" or
+        bigInteger parse                "-32769" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32769" or
+        bigInteger parse                "-32770" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32770" or
+        bigInteger parse                "-65534" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65534" or
+        bigInteger parse                "-65535" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65535" or
+        bigInteger parse                "-65536" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65536" or
+        bigInteger parse                "-65537" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65537" or
+        bigInteger parse                "-65538" rem bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65538" or
+        bigInteger parse           "-2147483647" rem bigInteger parse "-2147483648" <> bigInteger parse "-2147483647" or
+        bigInteger parse           "-2147483648" rem bigInteger parse "-2147483648" <> bigInteger parse           "0" or
+        bigInteger parse           "-2147483648" rem bigInteger parse "-2147483649" <> bigInteger parse "-2147483648" or
+        bigInteger parse      "-140737488355327" rem bigInteger parse "-140737488355328" <> bigInteger parse "-140737488355327" or
+        bigInteger parse      "-140737488355328" rem bigInteger parse "-140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse      "-140737488355328" rem bigInteger parse "-140737488355329" <> bigInteger parse "-140737488355328" or
+        bigInteger parse  "-9223372036854775807" rem bigInteger parse  "-32768" <> bigInteger parse           "-32767" or
+        bigInteger parse "-18446744073709551616" rem bigInteger parse  "-32767" <> bigInteger parse              "-16" or
+        bigInteger parse  "-9223090561878065152" rem bigInteger parse  "-32767" <> bigInteger parse                "0" or
+        bigInteger parse           "-4295229444" rem bigInteger parse  "-65538" <> bigInteger parse                "0" or
+        bigInteger parse "-18446744073709551616" rem bigInteger parse  "-65535" <> bigInteger parse               "-1" or
+        bigInteger parse "-18446744073709551616" rem bigInteger parse "-131071" <> bigInteger parse            "-8192" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse "-140737488355329" <> bigInteger parse "-140737488289793" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse "-140737488420863" <> bigInteger parse "-140733193519103" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse "-140737488420864" <> bigInteger parse "-140733193453568" or
+        bigInteger parse  "-9223372036854775808" rem bigInteger parse "-140741783322623" <> bigInteger parse      "-8590000126" or
+        bigInteger parse  "-1152921504606846976" rem bigInteger parse  "-17596481011711" <> bigInteger parse     "-68719542256" or
+        bigInteger parse  "-9223231303661387776" rem bigInteger parse "-140739636002821" <> bigInteger parse "-140737488519183" then
+
+      writeln("Remainder of bigInteger division does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Remainder of bigInteger division works correct.");
+    else
+      writeln(" ***** Remainder of bigInteger division does not work correct.");
       writeln;
     end if;
   end func;
@@ -3438,7 +3925,8 @@ const proc: main is func
     chkAddition;
     chkSubtraction;
     chkMultiplication;
-    # chkDivision;
+    chkDivision;
+    chkRemainder;
     chkCompare;
     # testConversion(10);
   end func;

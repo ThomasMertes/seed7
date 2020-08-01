@@ -43,7 +43,7 @@ const func bigInteger: (ref bigInteger param) + (ref bigInteger param) is  actio
 const func bigInteger: (ref bigInteger param) - (ref bigInteger param) is  action "BIG_SBTR";
 const func bigInteger: (ref bigInteger param) * (ref bigInteger param) is  action "BIG_MULT";
 const func bigInteger: (in bigInteger param) div (in bigInteger param) is  action "BIG_DIV";
-# const func bigInteger: (in bigInteger param) rem (in bigInteger param) is  action "BIG_REM";
+const func bigInteger: (in bigInteger param) rem (in bigInteger param) is  action "BIG_REM";
 # const func bigInteger: (in bigInteger param) mdiv (in bigInteger param) is action "BIG_MDIV";
 # const func bigInteger: (in bigInteger param) mod (in bigInteger param) is  action "BIG_MOD";
 # const func bigInteger: (ref bigInteger param) ** (ref integer param) is    action "BIG_IPOW";

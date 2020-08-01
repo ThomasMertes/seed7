@@ -113,6 +113,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_PARSE",         big_parse,         },
     { "BIG_PLUS",          big_plus,          },
     { "BIG_PRED",          big_pred,          },
+    { "BIG_REM",           big_rem,           },
     { "BIG_SBTR",          big_sbtr,          },
     { "BIG_STR",           big_str,           },
     { "BIG_SUCC",          big_succ,          },
