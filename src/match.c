@@ -837,6 +837,7 @@ booltype look_for_interfaces;
       printf("check_access_right=%s, ",  check_access_right  ? "TRUE" : "FALSE");
       printf("look_for_interfaces=%s, ", look_for_interfaces ? "TRUE" : "FALSE");
       prot_list(match_expr);
+      /*
       printf(" in sy{ ");
       printnodes(start_node->symbol);
       printf("} attr{ ");
@@ -846,6 +847,7 @@ booltype look_for_interfaces;
       printf("} other_param{ ");
       printnodes(start_node->other_param);
       printf("} does ");
+      */
       fflush(stdout);
     } /* if */
     if (match_expr == NULL) {

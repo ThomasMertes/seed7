@@ -83,11 +83,11 @@ listtype list;
 #endif
 #ifdef DEBUG_EXEC
     printf("before matching\n");
-    trace1(list->OBJ);
+    trace1(list->obj);
     printf("\n");
-    trace1(list->next->OBJ);
+    trace1(list->next->obj);
     printf("\n");
-    trace1(list->next->next->OBJ);
+    trace1(list->next->next->obj);
     printf("\n");
 #endif
     /* printf(".");
@@ -98,13 +98,15 @@ listtype list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
     if ((object = match_expression(&expr_object)) != NULL) {
 #ifdef DEBUG_EXEC
-    printf("before executing\n");
-    trace1(list->OBJ);
-    printf("\n");
-    trace1(list->next->OBJ);
-    printf("\n");
-    trace1(list->next->next->OBJ);
-    printf("\n");
+      printf("before executing\n");
+      trace1(object);
+      printf("\n");
+      trace1(list->obj);
+      printf("\n");
+      trace1(list->next->obj);
+      printf("\n");
+      trace1(list->next->next->obj);
+      printf("\n");
 #endif
       result = exec_call(object);
     } else {
@@ -112,11 +114,13 @@ listtype list;
     } /* if */
 #ifdef DEBUG_EXEC
     printf("after executing\n");
-    trace1(list->OBJ);
+    trace1(object);
     printf("\n");
-    trace1(list->next->OBJ);
+    trace1(list->obj);
     printf("\n");
-    trace1(list->next->next->OBJ);
+    trace1(list->next->obj);
+    printf("\n");
+    trace1(list->next->next->obj);
     printf("\n");
 #endif
 #ifdef TRACE_EXEC

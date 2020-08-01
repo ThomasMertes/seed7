@@ -39,6 +39,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "tim_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -204,20 +205,31 @@ uinttype uint_rand ()
     printf("BEGIN uint_rand\n");
 #endif
     if (seed_necessary) {
+      uinttype mycro_sec = (uinttype) timMycroSec();
+
       high_seed = (uinttype) time(NULL);
       high_seed = high_seed ^ (high_seed << 16);
       low_seed = (uinttype) clock();
       low_seed = (low_seed ^ (low_seed << 16)) ^ high_seed;
-/*    printf("%10lo %010lo seed\n", high_seed, low_seed); */
+      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
+      high_seed ^= mycro_sec ^ mycro_sec << 8 ^ mycro_sec << 16 ^ mycro_sec << 24;
+#if INTTYPE_SIZE >= 64
+      high_seed ^= mycro_sec << 32 ^ mycro_sec << 40 ^ mycro_sec << 48 ^ mycro_sec << 56;
+#endif
+      low_seed ^= mycro_sec ^ mycro_sec << 8 ^ mycro_sec << 16 ^ mycro_sec << 24;
+#if INTTYPE_SIZE >= 64
+      low_seed ^= mycro_sec << 32 ^ mycro_sec << 40 ^ mycro_sec << 48 ^ mycro_sec << 56;
+#endif
+      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
       seed_necessary = FALSE;
     } /* if */
     /* SEED = SEED * 1073741825 + 1234567891 */
     uint2_mult(high_seed, low_seed, (uinttype) 0L, (uinttype) 1073741825L,
         &high_seed, &low_seed);
-/*  printf("%10lo %010lo\n", high_seed, low_seed); */
+    /* printf("%10lo %010lo\n", high_seed, low_seed); */
     uint2_add(high_seed, low_seed, (uinttype) 0L, (uinttype) 1234567891L,
         &high_seed, &low_seed);
-/*  printf("%10lo %010lo\n", high_seed, low_seed); */
+    /* printf("%10lo %010lo\n", high_seed, low_seed); */
 #ifdef TRACE_RANDOM
     printf("END uint_rand ==> %08x\n", (unsigned int) high_seed);
 #endif

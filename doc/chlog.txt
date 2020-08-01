@@ -1,3 +1,12 @@
+20101010:
+- The first steps towards support of bitmap fonts were done.
+- The standard bitmap font was defined for the sizes 10, 12, 14, 16, 18 and 24.
+- A new example program (testfont.sd7), which writes with the standard font
+  in various sizes, was added.
+- The initialisation of the random number generator in the function
+  uint_rand in "int_rtl.c" was improved.
+- The function timMycroSec was defined in "tim_unx.c" and "tim_win.c".
+
 20100919:
 - The chapter explaining string indexing in the manual was improved.
 - The compiler (comp.sd7) and the hi interpreter were improved to support the

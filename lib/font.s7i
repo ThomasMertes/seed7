@@ -1,0 +1,48 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  font.s7i      Defines the font interface.                       *)
+(*  Copyright (C) 2010  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: font is sub object interface;
+
+const func integer: xHeight (in font: aFont)                 is DYNAMIC;
+const func integer: capHeight (in font: aFont)               is DYNAMIC;
+const func integer: lineHeight (in font: aFont)              is DYNAMIC;
+const func integer: ascent (in font: aFont)                  is DYNAMIC;
+const func integer: descent (in font: aFont)                 is DYNAMIC;
+const func integer: baseLineDelta (in font: aFont)           is DYNAMIC;
+const func integer: columnWidth (in font: aFont)             is DYNAMIC;
+const func integer: width (in font: aFont, in string: stri)  is DYNAMIC;
+const func integer: numOfCharsInWidth (in font: aFont,
+    in string: stri, in integer: allowedWidth)               is DYNAMIC;
+
+const func integer: compare (in font: font1, in font: font2) is action "ITF_CMP";
+const func integer: hashCode (in font: aFont)                is action "ITF_HASHCODE";
+
+const type: emptyFont is new struct
+  end struct;
+
+type_implements_interface(emptyFont, font);

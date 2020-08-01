@@ -286,6 +286,27 @@ inttype time_zone;
 
 #ifdef ANSI_C
 
+inttype timMycroSec (void)
+#else
+
+inttype timMycroSec ()
+#endif
+
+  {
+    struct timeval time_val;
+    inttype mycro_sec;
+
+  /* timMycroSec */
+    gettimeofday(&time_val, NULL);
+    mycro_sec = time_val.tv_usec;
+    /* printf("timMycroSec() ==> %lu\n", mycro_sec); */
+    return mycro_sec;
+  } /* timMycroSec */
+
+
+
+#ifdef ANSI_C
+
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
     booltype *is_dst)

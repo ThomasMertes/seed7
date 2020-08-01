@@ -136,6 +136,30 @@ inttype time_zone;
 
 #ifdef ANSI_C
 
+inttype timMycroSec (void)
+#else
+
+inttype timMycroSec ()
+#endif
+
+  {
+    union {
+      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      FILETIME filetime;
+    } utc_time;
+    inttype mycro_sec;
+
+  /* timMycroSec */
+    GetSystemTimeAsFileTime(&utc_time.filetime);
+    mycro_sec = (utc_time.nanosecs100 / 10) % 1000000;
+    /* printf("timMycroSec() ==> %lu\n", mycro_sec); */
+    return mycro_sec;
+  } /* timMycroSec */
+
+
+
+#ifdef ANSI_C
+
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -250,7 +274,7 @@ struct tm *tm_result;
     tm_result->tm_min   = local_time_struct.wMinute;
     tm_result->tm_sec   = local_time_struct.wSecond;
     tm_result->tm_isdst = mkutc(tm_result) - *utc_seconds != time_zone_seconds;
-    return(tm_result);
+    return tm_result;
   } /* alternate_localtime_r */
 #endif
 
@@ -314,6 +338,6 @@ os_utimbuf_struct *utime_buf;
         CloseHandle(filehandle);
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* alternate_utime */
 #endif

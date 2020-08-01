@@ -71,6 +71,7 @@ sudoku7.sd7  Sudoku program
 tak.sd7      Little benchmark computing tak(18, 12, 6)         
 tar7.sd7     Tar archiving utility                             
 tch.sd7      The hitchhikers guide ...                         
+testfont.sd7 Program to demonstrate bitmap fonts.              
 tet.sd7      Tetris game with text output                      
 tetg.sd7     Tetris game with graphical output                 
 toutf8.sd7   Convert a file to UTF-8                           
@@ -87,6 +88,7 @@ bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   bigInteger point support library                  
 bigrat.s7i   Big rational number support library               
 binary.s7i   Functions to read binary data from string or file 
+bitmapfont.s7i   Defines bitmapFont and bitmapFontFile.          
 cards.s7i    Playing card pictures of a french deck            
 cgi.s7i      Support for the Common Gateway Interface          
 charsets.s7i Codepages for various character sets              
@@ -99,6 +101,7 @@ echo.s7i     Filter file which generates an echo of the input
 encoding.s7i Encoding and decoding functions                   
 field.s7i    Filter file which reads the input fieldwise       
 float.s7i    Floating point support library                    
+font.s7i     Defines the font interface.                       
 getf.s7i     Read and write whole files into and from strings  
 gethttp.s7i  Support to get data with the HTTP protocol        
 graph.s7i    Graphic library                                   
@@ -116,6 +119,7 @@ more.s7i     Filter file which shows another file screenwise
 multiscr.s7i Demonstration for several file filters            
 pic16.s7i    Pictures in the size 16 x 16                      
 pic32.s7i    Pictures in the size 32 x 32                      
+pixmapfont.s7i   Defines pixmapFontType and the font cache.      
 progs.s7i    Program handling support library                  
 rational.s7i Rational number support library                   
 reverse.s7i  Filter file which writes right to left on output  
@@ -127,6 +131,12 @@ shell.s7i    Support for shell commands
 socket.s7i   Socket library                                    
 sokoban1.s7i Classic sokoban levels 1 to 90.                   
 stars.s7i    List of stars with name, RA, DEC and magnitude V  
+stdfont10.s7i  Standard bitmap font with capHeight 10.          
+stdfont12.s7i  Standard bitmap font with capHeight 12.          
+stdfont14.s7i  Standard bitmap font with capHeight 14.          
+stdfont16.s7i  Standard bitmap font with capHeight 16.          
+stdfont18.s7i  Standard bitmap font with capHeight 18.          
+stdfont24.s7i  Standard bitmap font with capHeight 24.          
 strifile.s7i string file library (uses a string)               
 stritext.s7i string text library (uses an array string)        
 syntax.s7i   Syntax definition of the standard Seed7 library   

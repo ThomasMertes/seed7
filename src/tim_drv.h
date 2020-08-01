@@ -37,6 +37,7 @@
 
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
+inttype timMycroSec (void);
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
     booltype *is_dst);
@@ -50,6 +51,7 @@ int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf);
 #else
 
 void timAwait ();
+inttype timMycroSec ();
 void timNow ();
 #ifdef USE_ALTERNATE_LOCALTIME_R
 struct tm *alternate_localtime_r ();

@@ -1,0 +1,138 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  testfont.sd7  Program to demonstrate bitmap fonts.              *)
+(*  Copyright (C) 2010  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "bitmapfont.s7i";
+  include "stdfont10.s7i";
+  include "stdfont12.s7i";
+  include "stdfont14.s7i";
+  include "stdfont16.s7i";
+  include "stdfont18.s7i";
+  include "stdfont24.s7i";
+
+var text: screen is text.value;
+
+
+const proc: main is func
+  begin
+    screen(1024, 768);
+    clear(curr_win, white);
+    KEYBOARD := GRAPH_KEYBOARD;
+    screen := openBitmapFontFile(curr_win);
+    color(screen, black, white);
+    setFont(screen, stdFont24);
+    setPosXY(screen, 6,  40);
+    write(screen, " !\"#$%&'()*+,-./0123456789:;<=>?");
+    setFont(screen, stdFont18);
+    setPosXY(screen, 6,  70);
+    write(screen, " !\"#$%&'()*+,-./0123456789:;<=>?");
+    setFont(screen, stdFont16);
+    setPosXY(screen, 6,  95);
+    write(screen, " !\"#$%&'()*+,-./0123456789:;<=>?");
+    setFont(screen, stdFont14);
+    setPosXY(screen, 6, 118);
+    write(screen, " !\"#$%&'()*+,-./0123456789:;<=>?");
+    setFont(screen, stdFont12);
+    setPosXY(screen, 6, 137);
+    write(screen, " !\"#$%&'()*+,-./0123456789:;<=>?");
+    setFont(screen, stdFont10);
+    setPosXY(screen, 6, 154);
+    write(screen, " !\"#$%&'()*+,-./0123456789:;<=>?");
+    setFont(screen, stdFont24);
+    setPosXY(screen, 6, 190);
+    write(screen, "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+    setFont(screen, stdFont18);
+    setPosXY(screen, 6, 220);
+    write(screen, "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+    setFont(screen, stdFont16);
+    setPosXY(screen, 6, 245);
+    write(screen, "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+    setFont(screen, stdFont14);
+    setPosXY(screen, 6, 268);
+    write(screen, "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+    setFont(screen, stdFont12);
+    setPosXY(screen, 6, 287);
+    write(screen, "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+    setFont(screen, stdFont10);
+    setPosXY(screen, 6, 304);
+    write(screen, "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_");
+    setFont(screen, stdFont24);
+    setPosXY(screen, 6, 340);
+    write(screen, "`abcdefghijklmnopqrstuvwxyz{|}~");
+    setFont(screen, stdFont18);
+    setPosXY(screen, 6, 370);
+    write(screen, "`abcdefghijklmnopqrstuvwxyz{|}~");
+    setFont(screen, stdFont16);
+    setPosXY(screen, 6, 395);
+    write(screen, "`abcdefghijklmnopqrstuvwxyz{|}~");
+    setFont(screen, stdFont14);
+    setPosXY(screen, 6, 418);
+    write(screen, "`abcdefghijklmnopqrstuvwxyz{|}~");
+    setFont(screen, stdFont12);
+    setPosXY(screen, 6, 437);
+    write(screen, "`abcdefghijklmnopqrstuvwxyz{|}~");
+    setFont(screen, stdFont10);
+    setPosXY(screen, 6, 454);
+    write(screen, "`abcdefghijklmnopqrstuvwxyz{|}~");
+    setFont(screen, stdFont24);
+    setPosXY(screen, 6, 490);
+    write(screen, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+    setFont(screen, stdFont18);
+    setPosXY(screen, 6, 520);
+    write(screen, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+    setFont(screen, stdFont16);
+    setPosXY(screen, 6, 545);
+    write(screen, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+    setFont(screen, stdFont14);
+    setPosXY(screen, 6, 568);
+    write(screen, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+    setFont(screen, stdFont12);
+    setPosXY(screen, 6, 587);
+    write(screen, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+    setFont(screen, stdFont10);
+    setPosXY(screen, 6, 604);
+    write(screen, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+    setFont(screen, stdFont24);
+    setPosXY(screen, 6, 640);
+    write(screen, "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€");
+    setFont(screen, stdFont18);
+    setPosXY(screen, 6, 670);
+    write(screen, "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€");
+    setFont(screen, stdFont16);
+    setPosXY(screen, 6, 695);
+    write(screen, "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€");
+    setFont(screen, stdFont14);
+    setPosXY(screen, 6, 718);
+    write(screen, "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€");
+    setFont(screen, stdFont12);
+    setPosXY(screen, 6, 737);
+    write(screen, "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€");
+    setFont(screen, stdFont10);
+    setPosXY(screen, 6, 754);
+    write(screen, "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€");
+    readln(KEYBOARD);
+  end func;
