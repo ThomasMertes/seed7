@@ -46,6 +46,23 @@
 
 #ifdef ANSI_C
 
+objecttype big_abs (listtype arguments)
+#else
+
+objecttype big_abs (arguments)
+listtype arguments;
+#endif
+
+  { /* big_abs */
+    isit_bigint(arg_1(arguments));
+    return(bld_bigint_temp(
+        bigAbs(take_bigint(arg_1(arguments)))));
+  } /* big_abs */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_add (listtype arguments)
 #else
 
@@ -240,6 +257,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_div (listtype arguments)
+#else
+
+objecttype big_div (arguments)
+listtype arguments;
+#endif
+
+  { /* big_div */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    return(bld_bigint_temp(
+        bigDiv(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+  } /* big_div */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_eq (listtype arguments)
 #else
 
@@ -403,6 +438,26 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_odd (listtype arguments)
+#else
+
+objecttype big_odd (arguments)
+listtype arguments;
+#endif
+
+  { /* big_odd */
+    isit_bigint(arg_1(arguments));
+    if (take_bigint(arg_1(arguments))->bigdigits[0] & 1) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* big_odd */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_parse (listtype arguments)
 #else
 
@@ -455,6 +510,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_pred (listtype arguments)
+#else
+
+objecttype big_pred (arguments)
+listtype arguments;
+#endif
+
+  { /* big_pred */
+    isit_bigint(arg_1(arguments));
+    return(bld_bigint_temp(
+        bigPred(take_bigint(arg_1(arguments)))));
+  } /* big_pred */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_sbtr (listtype arguments)
 #else
 
@@ -485,3 +557,20 @@ listtype arguments;
     return(bld_stri_temp(bigStr(
         take_bigint(arg_1(arguments)))));
   } /* big_str */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_succ (listtype arguments)
+#else
+
+objecttype big_succ (arguments)
+listtype arguments;
+#endif
+
+  { /* big_succ */
+    isit_bigint(arg_1(arguments));
+    return(bld_bigint_temp(
+        bigSucc(take_bigint(arg_1(arguments)))));
+  } /* big_succ */

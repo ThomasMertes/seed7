@@ -42,10 +42,12 @@ const proc: (inout bigInteger param) := (ref bigInteger param) is          actio
 const func bigInteger: (ref bigInteger param) + (ref bigInteger param) is  action "BIG_ADD";
 const func bigInteger: (ref bigInteger param) - (ref bigInteger param) is  action "BIG_SBTR";
 const func bigInteger: (ref bigInteger param) * (ref bigInteger param) is  action "BIG_MULT";
-# const func bigInteger: (ref bigInteger param) / (ref bigInteger param) is  action "BIG_DIV";
+const func bigInteger: (in bigInteger param) div (in bigInteger param) is  action "BIG_DIV";
+# const func bigInteger: (in bigInteger param) rem (in bigInteger param) is  action "BIG_REM";
+# const func bigInteger: (in bigInteger param) mdiv (in bigInteger param) is action "BIG_MDIV";
+# const func bigInteger: (in bigInteger param) mod (in bigInteger param) is  action "BIG_MOD";
 # const func bigInteger: (ref bigInteger param) ** (ref integer param) is    action "BIG_IPOW";
 # const func bigInteger: (ref bigInteger param) ** (ref bigInteger param) is action "BIG_POW";
-# const func string: (ref bigInteger param) digits (ref integer param) is    action "BIG_DGTS";
 const func boolean: (ref bigInteger param) = (ref bigInteger param) is     action "BIG_EQ";
 # const func boolean: (ref bigInteger param) < (ref bigInteger param) is     action "BIG_LT";
 # const func boolean: (ref bigInteger param) > (ref bigInteger param) is     action "BIG_GT";
@@ -55,8 +57,10 @@ const func boolean: (ref bigInteger param) <> (ref bigInteger param) is    actio
 const func integer: compare (in bigInteger param, in bigInteger param) is  action "BIG_CMP";
 const func integer: hashCode (in bigInteger param) is                      action "BIG_HASHCODE";
 
-# const func bigInteger: succ (in bigInteger param) is                       action "BIG_SUCC";
-# const func bigInteger: pred (in bigInteger param) is                       action "BIG_PRED";
+const func bigInteger: succ (in bigInteger param) is                       action "BIG_SUCC";
+const func bigInteger: pred (in bigInteger param) is                       action "BIG_PRED";
+const func bigInteger: abs (in bigInteger param) is                        action "BIG_ABS";
+const func boolean: odd (in bigInteger param) is                           action "BIG_ODD";
 const func string: str (ref bigInteger param) is                           action "BIG_STR";
 const func bigInteger: (attr bigInteger) parse (in string param) is        action "BIG_PARSE";
 

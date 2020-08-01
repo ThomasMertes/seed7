@@ -86,3 +86,10 @@
 - A new include file (bigint.s7i) and a new example program (chkbig.sd7) were added.
 - Changes in the compiler to support some bigInteger functionality were done.
 - Support for the str_elemcpy action was added to the compiler.
+
+20060926:
+- The bigInteger library was improved to support addition, subtraction,
+  multiplication, negation, absolute value, string conversions and more.
+- A lot of testcases have been added to the chkbig.sd7 program.
+- The compiler was improved to support more bigInteger functionality.
+- The makefile was changed to work on BSD (suggested by Dave Bodenstab).

@@ -56,7 +56,7 @@ A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
 
 hi: $(OBJ) seed7_05.a
 	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
-	make ../prg/hi
+	$(MAKE) ../prg/hi
 	./hi level
 #	cp hi /usr/local/bin/hi
 

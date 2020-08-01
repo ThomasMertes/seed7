@@ -479,9 +479,9 @@ inttype exp;
       } /* if */
       exp = exp >> 1;
       while (exp != 0) {
-        base = base * base;
+        base *= base;
         if (exp & 1) {
-          result = result * base;
+          result *= base;
         } /* if */
         exp = exp >> 1;
       } /* while */

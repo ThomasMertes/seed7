@@ -1619,11 +1619,43 @@ const proc: process_big_parse (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_big_pred (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigPred(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_sbtr (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigSbtr(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_big_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr &:= "bigStr(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_succ (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigSucc(";
     get_bigint_arg(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
@@ -5697,8 +5729,14 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_big_ne(params, c_expr);
     elsif action_name = "BIG_PARSE" then
       process_big_parse(params, c_expr);
+    elsif action_name = "BIG_SBTR" then
+      process_big_sbtr(params, c_expr);
+    elsif action_name = "BIG_PRED" then
+      process_big_pred(params, c_expr);
     elsif action_name = "BIG_STR" then
       process_big_str(params, c_expr);
+    elsif action_name = "BIG_SUCC" then
+      process_big_succ(params, c_expr);
     elsif action_name = "BLN_AND" then
       process_bln_and(params, c_expr);
     elsif action_name = "BLN_CPY" then
