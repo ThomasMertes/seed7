@@ -82,7 +82,7 @@ char **argv;
       if (option.source_file_name == NULL) {
         printf("*** Sourcefile missing\n");
       } else {
-        currentProg = analyze((ustritype) option.source_file_name);
+        currentProg = analyze((const_ustritype) option.source_file_name);
         if (!option.analyze_only && currentProg != NULL &&
             (currentProg->error_count == 0 || option.execute_always)) {
 /*        PRIME_OBJECTS(); */

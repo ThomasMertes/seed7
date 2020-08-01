@@ -1466,7 +1466,7 @@ objecttype traceobject;
           if (traceobject->value.progvalue == NULL) {
             prot_cstri("NULL");
           } else {
-            prot_cstri((cstritype) traceobject->value.progvalue->source_file_name);
+            prot_cstri((const_cstritype) traceobject->value.progvalue->source_file_name);
           } /* if */
           break;
         case SYMBOLOBJECT:

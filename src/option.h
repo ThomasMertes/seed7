@@ -26,7 +26,7 @@
 /********************************************************************/
 
 typedef struct {
-    char *source_file_name;
+    const_cstritype source_file_name;
     char *prot_file_name;
     booltype analyze_only;
     booltype execute_always;

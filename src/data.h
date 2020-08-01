@@ -308,9 +308,9 @@ typedef struct helemstruct {
   } helemrecord;
 
 typedef struct hashstruct {
-    int bits;
-    int mask;
-    int table_size;
+    unsigned int bits;
+    unsigned int mask;
+    unsigned int table_size;
     memsizetype size;
     helemtype table[1];
   } hashrecord;
@@ -367,7 +367,7 @@ typedef struct {
 typedef struct progstruct {
     uinttype usage_count;
     objecttype main_object;
-    ustritype source_file_name;
+    const_ustritype source_file_name;
     unsigned int error_count;
     idroottype ident;
     findidtype id_for;

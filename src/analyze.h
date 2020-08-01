@@ -27,7 +27,7 @@
 
 #ifdef ANSI_C
 
-progtype analyze (ustritype source_file_name);
+progtype analyze (const_ustritype source_file_name);
 progtype analyze_string (stritype input_string);
 
 #else

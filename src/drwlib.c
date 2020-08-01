@@ -684,7 +684,7 @@ listtype arguments;
   {
     wintype actual_window;
     inttype x, y, col;
-    const_bstritype point_list;
+    bstritype point_list;
 
   /* drw_fpolyLine */
     isit_win(arg_1(arguments));
@@ -1232,7 +1232,7 @@ listtype arguments;
   {
     wintype actual_window;
     inttype x, y, col;
-    const_bstritype point_list;
+    bstritype point_list;
 
   /* drw_polyLine */
     isit_win(arg_1(arguments));

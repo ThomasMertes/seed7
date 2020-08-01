@@ -1991,7 +1991,7 @@ bstritype point_list;
 #ifdef ANSI_C
 
 void drwPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+    inttype x1, inttype y1, bstritype point_list, inttype col)
 #else
 
 void drwPolyLine (actual_window, x1, y1, point_list, col)
@@ -2025,7 +2025,7 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+    inttype x1, inttype y1, bstritype point_list, inttype col)
 #else
 
 void drwFPolyLine (actual_window, x1, y1, point_list, col)
@@ -2485,7 +2485,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwSetTransparentColor (const_wintype pixmap, inttype col)
+void drwSetTransparentColor (wintype pixmap, inttype col)
 #else
 
 void drwSetTransparentColor (pixmap, col)

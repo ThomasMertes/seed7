@@ -401,7 +401,7 @@ nodetype objects;
 
 #ifdef ANSI_C
 
-static progtype analyze_prog (ustritype source_file_name, errinfotype *err_info)
+static progtype analyze_prog (const_ustritype source_file_name, errinfotype *err_info)
 #else
 
 static progtype analyze_prog (source_file_name, err_info)
@@ -509,7 +509,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze (ustritype source_file_name)
+progtype analyze (const_ustritype source_file_name)
 #else
 
 progtype analyze (source_file_name)
@@ -530,8 +530,8 @@ ustritype source_file_name;
 #endif
     init_analyze();
     resultProg = NULL;
-    len = strlen((cstritype) source_file_name);
-    if (len > 4 && strcmp((cstritype) &source_file_name[len - 4], ".sd7") == 0) {
+    len = strlen((const_cstritype) source_file_name);
+    if (len > 4 && strcmp((const_cstritype) &source_file_name[len - 4], ".sd7") == 0) {
       name_len = len;
       add_extension = FALSE;
     } else {
@@ -609,7 +609,7 @@ stritype input_string;
     if (input_bstri != NULL) {
       open_string(input_bstri, &err_info);
       if (err_info == OKAY_NO_ERROR) {
-        resultProg = analyze_prog((ustritype) "STRING", &err_info);
+        resultProg = analyze_prog((const_ustritype) "STRING", &err_info);
         if (err_info == MEMORY_ERROR) {
           err_warning(OUT_OF_HEAP_SPACE);
           resultProg = NULL;

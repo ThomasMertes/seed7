@@ -50,7 +50,7 @@
 
 
 #define TABLE_BITS 10
-#define TABLE_SIZE(bits) (1 << (bits))
+#define TABLE_SIZE(bits) ((unsigned int) 1 << (bits))
 #define TABLE_MASK(bits) (TABLE_SIZE(bits)-1)
 #define ARRAY_SIZE_INCREMENT 512
 
@@ -98,7 +98,7 @@ objecttype data_destr_func;
 #endif
 
   {
-    int number;
+    unsigned int number;
     helemtype *curr_helem;
 
   /* free_hash */
@@ -155,11 +155,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static hashtype new_hash (int bits, errinfotype *err_info)
+static hashtype new_hash (unsigned int bits, errinfotype *err_info)
 #else
 
 static hashtype new_hash (bits, err_info)
-int bits;
+unsigned int bits;
 errinfotype *err_info;
 #endif
 
@@ -237,8 +237,8 @@ errinfotype *err_info;
 #endif
 
   {
-    int new_size;
-    int number;
+    unsigned int new_size;
+    unsigned int number;
     helemtype *source_helem;
     helemtype *dest_helem;
     hashtype dest_hash;
@@ -527,7 +527,7 @@ objecttype data_copy_func;
 #endif
 
   {
-    int number;
+    unsigned int number;
     helemtype *curr_helem;
 
   /* for_hash */
@@ -581,7 +581,7 @@ objecttype key_copy_func;
 #endif
 
   {
-    int number;
+    unsigned int number;
     helemtype *curr_helem;
 
   /* for_key_hash */
@@ -645,7 +645,7 @@ objecttype key_copy_func;
 #endif
 
   {
-    int number;
+    unsigned int number;
     helemtype *curr_helem;
 
   /* for_data_key_hash */

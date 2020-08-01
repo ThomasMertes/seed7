@@ -58,7 +58,7 @@
 
 
 #define TABLE_BITS 10
-#define TABLE_SIZE(bits) (1 << (bits))
+#define TABLE_SIZE(bits) ((unsigned int) 1 << (bits))
 #define TABLE_MASK(bits) (TABLE_SIZE(bits)-1)
 #define ARRAY_SIZE_INCREMENT 512
 
@@ -103,7 +103,7 @@ destrfunctype data_destr_func;
 #endif
 
   {
-    int number;
+    unsigned int number;
     const rtlHelemtype *curr_helem;
 
   /* free_hash */
@@ -160,11 +160,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static rtlHashtype new_hash (int bits, errinfotype *err_info)
+static rtlHashtype new_hash (unsigned int bits, errinfotype *err_info)
 #else
 
 static rtlHashtype new_hash (bits, err_info)
-int bits;
+unsigned int bits;
 errinfotype *err_info;
 #endif
 
@@ -238,8 +238,8 @@ errinfotype *err_info;
 #endif
 
   {
-    int new_size;
-    int number;
+    unsigned int new_size;
+    unsigned int number;
     const rtlHelemtype *source_helem;
     rtlHelemtype *dest_helem;
     rtlHashtype dest_hash;

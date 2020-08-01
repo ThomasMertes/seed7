@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  scanfile.s7i  File scanner functions                            *)
-(*  Copyright (C) 2007, 2008  Thomas Mertes                         *)
+(*  Copyright (C) 2007, 2008, 2009  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -166,6 +166,36 @@ const func string: getLineComment (inout file: inFile) is func
 
 
 (**
+ *  Reads a white space delimited word from a 'file'.
+ *  Before reading the word it skips whitespace characters. A word is
+ *  a sequence of characters which does not contain a whitespace
+ *  character. When the function is called it is assumed that
+ *  inFile.bufferChar contains the first character to be handled.
+ *  When the function is left inFile.bufferChar contains the
+ *  character after the word.
+ *  @return the word or "" when no word was found.
+ *)
+const func string: getWord (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    while character in white_space_char do
+      character := getc(inFile);
+    end while;
+    if character <> EOF then
+      repeat
+        symbol &:= str(character);
+        character := getc(inFile);
+      until character in white_space_char or character = EOF;
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
  *  Reads a sequence of digits from a 'file'.
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
@@ -261,6 +291,31 @@ const func string: getNumber (inout file: inFile) is func
       character := getc(inFile);
     end if;
     inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a sequence of non digits from a 'file'.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains a digit or EOF.
+ *  @return the non digit sequence or "" when a digit was found.
+ *)
+const func string: getNonDigits (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar not in digit_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character not in digit_char do
+        symbol &:= str(character);
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
   end func;
 
 
@@ -817,6 +872,33 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
 
 
 (**
+ *  Reads a text quoted with " or ' from a 'file'.
+ *  The introducing and the closing character ( " or ' ) of the quoted
+ *  text must be identical. When the function is called it is assumed
+ *  that inFile.bufferChar contains the introducing " or ' . When the
+ *  function is left inFile.bufferChar contains the character after
+ *  the closing character.
+ *  @return the string literal without introducing or closing
+ *          characters ( " or ' ).
+ *)
+const func string: getQuotedText (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: quoteChar is ' ';
+    var char: character is ' ';
+  begin
+    quoteChar := inFile.bufferChar;
+    character := getc(inFile);
+    while character <> quoteChar and character <> EOF do
+      symbol &:= str(character);
+      character := getc(inFile);
+    end while;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
  *  Skips a XML comment from a 'file'.
  *  The XML comment starts with <!-- and ends with --> . When the
  *  function is called it is assumed that the character in
@@ -1040,14 +1122,14 @@ const func string: getSymbolInXmlTag (inout file: inFile) is func
       when equals_or_end_tag:
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
+      when {EOF}:
+        symbol := "";
       otherwise:
-        if inFile.bufferChar <> EOF then
-          repeat
-            symbol &:= str(inFile.bufferChar);
-            inFile.bufferChar := getc(inFile);
-          until inFile.bufferChar in white_space_or_end_tag or
-              inFile.bufferChar = EOF;
-        end if;
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_or_end_tag or
+            inFile.bufferChar = EOF;
     end case;
   end func;
 
@@ -1166,6 +1248,8 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
       when right_angle_bracket:
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
+      when {EOF}:
+        symbol := "";
       otherwise:
         repeat
           symbol &:= str(inFile.bufferChar);

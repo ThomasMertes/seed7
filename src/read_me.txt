@@ -243,6 +243,11 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
      return float values. Gcc has the opinion that only double
      parameters and double results should be used and warns about
      that.
+   - Warnings about unused parameter 'arguments'. The primitive
+     actions all use one parameter named 'arguments'. This is
+     necessary to access primitive actions with function
+     pointers. Some primitive actions do not use 'arguments'
+     which causes this warning.
    - Warnings about signed/unsigned instead of unsigned/signed
      because of the prototype.
    - Warnings about 'variablename' may be used uninitialized:

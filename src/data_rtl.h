@@ -99,9 +99,9 @@ typedef struct rtlHelemstruct {
   } rtlHelemrecord;
 
 typedef struct rtlHashstruct {
-    int bits;
-    int mask;
-    int table_size;
+    unsigned int bits;
+    unsigned int mask;
+    unsigned int table_size;
     memsizetype size;
     rtlHelemtype table[1];
   } rtlHashrecord;

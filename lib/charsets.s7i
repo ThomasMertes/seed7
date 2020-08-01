@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  charsets.s7i  Codepages for various character sets              *)
-(*  Copyright (C) 2006, 2008  Thomas Mertes                         *)
+(*  Copyright (C) 2006, 2008, 2009  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -1108,6 +1108,42 @@ const string: tis_620 is "\
     \เแโใไๅๆ็่้๊๋์ํ๎๏\
     \๐๑๒๓๔๕๖๗๘๙๚๛????";
 
+const string: armscii_8 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \????????????????\
+    \????????????????\
+    \\160\?և։)(»«—.՝,-֊…՜\
+    \՛՞ԱաԲբԳգԴդԵեԶզԷէ\
+    \ԸըԹթԺժԻիԼլԽխԾծԿկ\
+    \ՀհՁձՂղՃճՄմՅյՆնՇշ\
+    \ՈոՉչՊպՋջՌռՍսՎվՏտ\
+    \ՐրՑցՒւՓփՔքՕօՖֆ՚?";
+
+const string: geostd8 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \€?‚?„…†‡?‰?‹????\
+    \?‘’“”•–—???›????\
+    \\160\¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \აბგდევზჱთიკლმნჲო\
+    \პჟრსტჳუფქღყშჩცძწ\
+    \ჭხჴჯჰჵ??????????\
+    \?????????????№??";
+
 const string: viscii is "\
     \\0\\AẲ\C\DẴẪ\G\H\I\J\K\L\M\N\O\
     \\P\Q\R\SỶ\U\V\W\XỸ\Z\e\28\\29\Ỵ\31\\
@@ -1125,6 +1161,24 @@ const string: viscii is "\
     \ĐứÒÓÔạỷừửÙÚỹỵÝỡư\
     \àáâãảăữẫèéêẻìíĩỉ\
     \đựòóôõỏọụùúũủýợỮ";
+
+const string: ns_4551_1 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZÆØÅ^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyzæøå~\127\\
+    \\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\\
+    \\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\\
+    \\160\¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+    \àáâãäåæçèéêëìíîï\
+    \ðñòóôõö÷øùúûüýþÿ";
 
 const string: ebcdic is "\
     \\0\\A\B\C?\t?\127\\     # NUL, SOH, STX, ETX, PF, HT, LC, DEL
@@ -1269,15 +1323,189 @@ const proc: conv2unicode (inout string: stri, in string: codepage) is func
   end func;
 
 
+const func string: utf16beToStri (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: index is 0;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for index range 1 to length(stri) div 2 do
+      ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
+        if index < length(stri) div 2 then
+          incr(index);
+          ch2 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+          if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
+            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
+                               (ord(ch2) - 16#DC00) + 16#10000));
+          else
+            raise RANGE_ERROR;
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        result &:= str(ch1);
+      end if;
+    end for;
+  end func;
+
+
+const func string: utf16leToStri (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: index is 0;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for index range 1 to length(stri) div 2 do
+      ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
+        if index < length(stri) div 2 then
+          incr(index);
+          ch2 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+          if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
+            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
+                               (ord(ch2) - 16#DC00) + 16#10000));
+          else
+            raise RANGE_ERROR;
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        result &:= str(ch1);
+      end if;
+    end for;
+  end func;
+
+
+const func string: removeUtf16SurrogatePairs (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: index is 0;
+    var integer: startPos is 1;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for index range 1 to length(stri) do
+      ch1 := stri[index];
+      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
+        if index < length(stri) then
+          ch2 := stri[succ(index)];
+          if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
+            result &:= stri[startPos .. pred(index)];
+            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
+                               (ord(ch2) - 16#DC00) + 16#10000));
+            startPos := succ(index);
+            incr(index);
+          else
+            raise RANGE_ERROR;
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end for;
+    result &:= stri[startPos ..];
+  end func;
+
+
+const func string: utf7ToStri (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    const array integer: decode is [] (                      # -1 is illegal
+        62, -1, -1, -1, 63,                                  # + /
+        52, 53, 54, 55, 56, 57, 58, 59, 60, 61,              # 0 - 9
+        -1, -1, -1, -1, -1, -1, -1,                          # =
+         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,  # A - M
+        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  # N - Z
+        -1, -1, -1, -1, -1, -1,
+        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,  # a - m
+        39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51); # n - z
+    var integer: startPos is 1;
+    var integer: plusPos is 0;
+    var integer: minusPos is 0;
+    var integer: index is 0;
+    var char: ch is ' ';
+    var integer: charNum is 0;
+    var integer: accumulator is 0;
+    var integer: numBits is 0;
+    var integer: number is 0;
+    var boolean: okay is FALSE;
+    var string: unicodeStri is "";
+  begin
+    plusPos := pos(stri, "+");
+    while plusPos <> 0 do
+      result &:= stri[startPos .. pred(plusPos)];
+      minusPos := pos(stri, "-", succ(plusPos));
+      if minusPos = 0 then
+        result &:= "+";
+        minusPos := plusPos;
+      elsif minusPos = succ(plusPos) then
+        result &:= "+";
+      else
+        okay := TRUE;
+        unicodeStri := "";
+        accumulator := 0;
+        numBits := 0;
+        for index range succ(plusPos) to pred(minusPos) do
+          ch := stri[index];
+          if ch >= '+' and ch <= 'z' then
+            number := decode[ord(stri[index]) - ord(pred('+'))];
+            if number >= 0 then
+              accumulator := (accumulator << 6) + number;
+              numBits +:= 6;
+              if numBits >= 16 then
+                numBits -:= 16;
+                charNum := accumulator >> numBits;
+                accumulator -:= charNum << numBits;
+                unicodeStri &:= str(chr(charNum));
+              end if;
+            else
+              okay := FALSE;
+              index := minusPos;
+            end if;
+          else
+            okay := FALSE;
+            index := minusPos;
+          end if;
+        end for;
+        if okay then
+          if accumulator <> 0 then
+            raise RANGE_ERROR;
+          else
+            result &:= removeUtf16SurrogatePairs(unicodeStri);
+          end if;
+        else
+          result &:= "+";
+          minusPos := plusPos;
+        end if;
+      end if;
+      startPos := succ(minusPos);
+      plusPos := pos(stri, "+", startPos);
+    end while;
+    result &:= stri[startPos ..];
+  end func;
+
+
 const proc: conv2unicodeByName (inout string: stri,
     in var string: charset) is func
   begin
     charset := upper(charset);
-    if charset = "UTF-8" then
+    if  charset = "UTF-8" or
+        charset = "UTF8" then
       stri := utf8ToStri(stri);
     elsif charset = "ISO-8859-1" or
+          charset = "ISO_8859-1" or
           charset = "ANSI_X3.4-1968" or
           charset = "US-ASCII" or
+          charset = "ASCII" or
           charset = "" then
       noop;
     elsif charset =     "ISO-8859-2" then
@@ -1338,8 +1566,20 @@ const proc: conv2unicodeByName (inout string: stri,
       conv2unicode(stri, koi8_u);
     elsif charset =     "TIS-620" then
       conv2unicode(stri, tis_620);
+    elsif charset =     "ARMSCII-8" then
+      conv2unicode(stri, armscii_8);
+    elsif charset =     "GEOSTD8" then
+      conv2unicode(stri, geostd8);
     elsif charset =     "VISCII" then
       conv2unicode(stri, viscii);
+    elsif charset =     "NS_4551-1" then
+      conv2unicode(stri, ns_4551_1);
+    elsif charset =     "UTF-16BE" then
+      stri := utf16beToStri(stri);
+    elsif charset =     "UTF-16LE" then
+      stri := utf16leToStri(stri);
+    elsif charset = "UTF-7" then
+      stri := utf7ToStri(stri);
     else
       writeln("Unknown charset: " <& literal(charset));
     end if;

@@ -68,15 +68,15 @@ void drwPPoint (const_wintype, inttype, inttype, inttype);
 void drwConvPointList (bstritype, inttype *);
 bstritype drwGenPointList (inttype *, memsizetype);
 inttype drwLngPointList (bstritype);
-void drwPolyLine (const_wintype, inttype, inttype, const_bstritype, inttype);
-void drwFPolyLine (const_wintype, inttype, inttype, const_bstritype, inttype);
+void drwPolyLine (const_wintype, inttype, inttype, bstritype, inttype);
+void drwFPolyLine (const_wintype, inttype, inttype, bstritype, inttype);
 void drwPut (const_wintype, const_wintype, inttype, inttype);
 void drwRect (const_wintype, inttype, inttype, inttype, inttype);
 void drwPRect (const_wintype, inttype, inttype, inttype, inttype, inttype);
 inttype drwRgbColor (inttype, inttype, inttype);
 void drwBackground (inttype);
 void drwColor (inttype);
-void drwSetTransparentColor (const_wintype, inttype);
+void drwSetTransparentColor (wintype, inttype);
 void drwText (const_wintype, inttype, inttype, stritype, inttype, inttype);
 inttype drwWidth (const_wintype);
 
