@@ -58,24 +58,28 @@
 
 
 
-static void free_helem (hashElemType old_helem, objectType key_destr_func,
+static memSizeType free_helem (hashElemType old_helem, objectType key_destr_func,
     objectType data_destr_func)
 
-  { /* free_helem */
+  {
+    memSizeType freed = 1;
+
+  /* free_helem */
     param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
     if (CATEGORY_OF_OBJ(&old_helem->data) != FORWARDOBJECT) {
       /* FORWARDOBJECT is used as magic category in hsh_idx */
       param2_call(data_destr_func, &old_helem->data, SYS_DESTR_OBJECT);
     } /* if */
     if (old_helem->next_less != NULL) {
-      free_helem(old_helem->next_less, key_destr_func,
-          data_destr_func);
+      freed += free_helem(old_helem->next_less, key_destr_func,
+                          data_destr_func);
     } /* if */
     if (old_helem->next_greater != NULL) {
-      free_helem(old_helem->next_greater, key_destr_func,
-          data_destr_func);
+      freed += free_helem(old_helem->next_greater, key_destr_func,
+                          data_destr_func);
     } /* if */
     FREE_RECORD(old_helem, hashElemRecord, count.helem);
+    return freed;
   } /* free_helem */
 
 
@@ -84,22 +88,22 @@ static void free_hash (hashType old_hash, objectType key_destr_func,
     objectType data_destr_func)
 
   {
+    memSizeType to_free;
     unsigned int number;
     hashElemType *table;
 
   /* free_hash */
     if (old_hash != NULL) {
-      if (old_hash->size != 0) {
+      to_free = old_hash->size;
+      if (to_free != 0) {
         number = old_hash->table_size;
         table = old_hash->table;
-        while (number != 0) {
+        do {
           do {
             number--;
-          } while (number != 0 && table[number] == NULL);
-          if (number != 0 || table[number] != NULL) {
-            free_helem(table[number], key_destr_func, data_destr_func);
-          } /* if */
-        } /* while */
+          } while (table[number] == NULL);
+          to_free -= free_helem(table[number], key_destr_func, data_destr_func);
+        } while (to_free != 0);
       } /* if */
       FREE_HASH(old_hash, old_hash->table_size);
     } /* if */
@@ -152,7 +156,8 @@ static hashType new_hash (unsigned int bits)
 
 
 static hashElemType create_helem (hashElemType source_helem,
-    objectType key_create_func, objectType data_create_func, errInfoType *err_info)
+    objectType key_create_func, objectType data_create_func,
+    errInfoType *err_info)
 
   {
     hashElemType dest_helem;
@@ -192,38 +197,47 @@ static hashElemType create_helem (hashElemType source_helem,
 
 
 static hashType create_hash (hashType source_hash,
-    objectType key_create_func, objectType data_create_func, errInfoType *err_info)
+    objectType key_create_func, objectType data_create_func,
+    errInfoType *err_info)
 
   {
-    unsigned int new_size;
+    unsigned int table_size;
     unsigned int number;
     hashElemType *source_helem;
     hashElemType *dest_helem;
     hashType dest_hash;
 
   /* create_hash */
-    new_size = source_hash->table_size;
-    if (unlikely(!ALLOC_HASH(dest_hash, new_size))) {
+    table_size = source_hash->table_size;
+    if (unlikely(!ALLOC_HASH(dest_hash, table_size))) {
       *err_info = MEMORY_ERROR;
     } else {
       dest_hash->bits = source_hash->bits;
       dest_hash->mask = source_hash->mask;
-      dest_hash->table_size = source_hash->table_size;
+      dest_hash->table_size = table_size;
       dest_hash->size = source_hash->size;
-      number = source_hash->table_size;
-      source_helem = &source_hash->table[0];
-      dest_helem = &dest_hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        if (*source_helem != NULL) {
-          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func,
-                                     err_info);
-        } else {
-          *dest_helem = NULL;
-        } /* if */
-        number--;
-        source_helem++;
-        dest_helem++;
-      } /* while */
+      if (source_hash->size == 0) {
+        memset(dest_hash->table, 0, table_size * sizeof(hashElemType));
+      } else {
+        number = table_size;
+        source_helem = &source_hash->table[0];
+        dest_helem = &dest_hash->table[0];
+        while (number > 0) {
+          while (number > 0 && *source_helem == NULL) {
+            *dest_helem = NULL;
+            number--;
+            source_helem++;
+            dest_helem++;
+          } /* while */
+          if (number > 0 && *source_helem != NULL) {
+            *dest_helem = create_helem(*source_helem, key_create_func,
+                                       data_create_func, err_info);
+            number--;
+            source_helem++;
+            dest_helem++;
+          } /* if */
+        } /* while */
+      } /* if */
     } /* if */
     return dest_hash;
   } /* create_hash */
@@ -628,22 +642,25 @@ objectType hsh_cpy (listType arguments)
     is_variable(dest);
     hsh_dest = take_hash(dest);
     hsh_source = take_hash(source);
-    key_create_func  = take_reference(arg_3(arguments));
-    key_destr_func   = take_reference(arg_4(arguments));
-    data_create_func = take_reference(arg_5(arguments));
-    data_destr_func  = take_reference(arg_6(arguments));
-    free_hash(hsh_dest, key_destr_func, data_destr_func);
-    if (TEMP2_OBJECT(source)) {
-      dest->value.hashValue = hsh_source;
-      source->value.hashValue = NULL;
-    } else {
-      dest->value.hashValue = create_hash(hsh_source,
-          key_create_func, data_create_func, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_hash(dest->value.hashValue, key_destr_func,
-            data_destr_func);
-        dest->value.hashValue = NULL;
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+    /* The following check avoids an error for: aHash := aHash; */
+    if (hsh_dest != hsh_source) {
+      key_create_func  = take_reference(arg_3(arguments));
+      key_destr_func   = take_reference(arg_4(arguments));
+      data_create_func = take_reference(arg_5(arguments));
+      data_destr_func  = take_reference(arg_6(arguments));
+      free_hash(hsh_dest, key_destr_func, data_destr_func);
+      if (TEMP2_OBJECT(source)) {
+        dest->value.hashValue = hsh_source;
+        source->value.hashValue = NULL;
+      } else {
+        dest->value.hashValue = create_hash(hsh_source,
+            key_create_func, data_create_func, &err_info);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          free_hash(dest->value.hashValue, key_destr_func,
+              data_destr_func);
+          dest->value.hashValue = NULL;
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        } /* if */
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;

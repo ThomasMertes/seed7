@@ -97,8 +97,8 @@ static void free_hash (const const_rtlHashType old_hash,
 
   /* free_hash */
     if (old_hash != NULL) {
-      if (old_hash->size != 0) {
-        to_free = old_hash->size;
+      to_free = old_hash->size;
+      if (to_free != 0) {
         number = old_hash->table_size;
         table = old_hash->table;
         do {
@@ -195,39 +195,43 @@ static rtlHashType create_hash (const const_rtlHashType source_hash,
     errInfoType *err_info)
 
   {
-    unsigned int new_size;
+    unsigned int table_size;
     unsigned int number;
     const rtlHashElemType *source_helem;
     rtlHashElemType *dest_helem;
     rtlHashType dest_hash;
 
   /* create_hash */
-    new_size = source_hash->table_size;
-    if (unlikely(!ALLOC_RTL_HASH(dest_hash, new_size))) {
+    table_size = source_hash->table_size;
+    if (unlikely(!ALLOC_RTL_HASH(dest_hash, table_size))) {
       *err_info = MEMORY_ERROR;
     } else {
       dest_hash->bits = source_hash->bits;
       dest_hash->mask = source_hash->mask;
-      dest_hash->table_size = source_hash->table_size;
+      dest_hash->table_size = table_size;
       dest_hash->size = source_hash->size;
-      number = source_hash->table_size;
-      source_helem = &source_hash->table[0];
-      dest_helem = &dest_hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        while (number > 0 && *source_helem == NULL) {
-          *dest_helem = NULL;
-          number--;
-          source_helem++;
-          dest_helem++;
+      if (source_hash->size == 0) {
+        memset(dest_hash->table, 0, table_size * sizeof(rtlHashElemType));
+      } else {
+        number = table_size;
+        source_helem = &source_hash->table[0];
+        dest_helem = &dest_hash->table[0];
+        while (number > 0) {
+          while (number > 0 && *source_helem == NULL) {
+            *dest_helem = NULL;
+            number--;
+            source_helem++;
+            dest_helem++;
+          } /* while */
+          if (number > 0 && *source_helem != NULL) {
+            *dest_helem = create_helem(*source_helem, key_create_func,
+                                       data_create_func, err_info);
+            number--;
+            source_helem++;
+            dest_helem++;
+          } /* if */
         } /* while */
-        if (number > 0 && *source_helem != NULL) {
-          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func,
-                                     err_info);
-          number--;
-          source_helem++;
-          dest_helem++;
-        } /* if */
-      } /* while */
+      } /* if */
     } /* if */
     return dest_hash;
   } /* create_hash */
@@ -245,6 +249,8 @@ static void copy_hash (const rtlHashType dest_hash, const const_rtlHashType sour
     rtlHashElemType *dest_helem;
 
   /* copy_hash */
+    logFunction(printf("copy_hash(" FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) dest_hash, (memSizeType) source_hash););
     dest_hash->bits = source_hash->bits;
     dest_hash->mask = source_hash->mask;
     dest_hash->size = source_hash->size;
@@ -265,6 +271,7 @@ static void copy_hash (const rtlHashType dest_hash, const const_rtlHashType sour
       source_helem++;
       dest_helem++;
     } /* while */
+    logFunction(printf("copy_hash -->\n"););
   } /* copy_hash */
 
 
@@ -479,10 +486,15 @@ void hshCpy (rtlHashType *const dest, const const_rtlHashType source,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshCpy */
+    logFunction(printf("hshCpy(" FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) *dest, (memSizeType) source););
     if ((*dest)->table_size == source->table_size) {
-      copy_hash(*dest, source,
-          key_create_func, data_create_func,
-          key_destr_func, data_destr_func, &err_info);
+      /* The following check avoids an error for: aHash := aHash; */
+      if (*dest != source) {
+        copy_hash(*dest, source,
+            key_create_func, data_create_func,
+            key_destr_func, data_destr_func, &err_info);
+      } /* if */
     } else {
       free_hash(*dest, key_destr_func, data_destr_func);
       *dest = create_hash(source,
@@ -493,6 +505,7 @@ void hshCpy (rtlHashType *const dest, const const_rtlHashType source,
       *dest = NULL;
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("hshCpy -->\n"););
   } /* hshCpy */
 
 

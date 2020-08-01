@@ -133,28 +133,28 @@ bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2)
 intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2)
 
   {
-    intType result;
+    intType signumValue;
 
   /* bstCmp */
     if (bstri1->size < bstri2->size) {
       if (memcmp(bstri1->mem, bstri2->mem, bstri1->size * sizeof(ucharType)) <= 0) {
-        result = -1;
+        signumValue = -1;
       } else {
-        result = 1;
+        signumValue = 1;
       } /* if */
     } else {
-      result = memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(ucharType));
-      if (result == 0) {
+      signumValue = memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(ucharType));
+      if (signumValue == 0) {
         if (bstri1->size > bstri2->size) {
-          result = 1;
+          signumValue = 1;
         } /* if */
-      } else if (result > 0) {
-        result = 1;
+      } else if (signumValue > 0) {
+        signumValue = 1;
       } else {
-        result = -1;
+        signumValue = -1;
       } /* if */
     } /* if */
-    return result;
+    return signumValue;
   } /* bstCmp */
 
 

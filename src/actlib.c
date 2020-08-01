@@ -149,16 +149,41 @@ objectType act_gen (listType arguments)
 
 /**
  *  Convert an integer number to an action.
- *  @param ordinal/arg_3 Number to be converted.
+ *  @param ordinal/arg_1 Number to be converted.
  *  @return an action which corresponds to the given integer.
  *  @exception RANGE_ERROR Number not in allowed range.
  */
-objectType act_iconv (listType arguments)
+objectType act_iconv1 (listType arguments)
 
   {
     intType ordinal;
 
-  /* act_iconv */
+  /* act_iconv1 */
+    isit_int(arg_1(arguments));
+    ordinal = take_int(arg_1(arguments));
+    if (ordinal < 0 || (uintType) ordinal >= actTable.size) {
+      logError(printf("act_iconv(" FMT_D "): No such action exists.\n",
+                      ordinal););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      return bld_action_temp(actTable.table[ordinal].action);
+    } /* if */
+  } /* act_iconv1 */
+
+
+
+/**
+ *  Convert an integer number to an action.
+ *  @param ordinal/arg_3 Number to be converted.
+ *  @return an action which corresponds to the given integer.
+ *  @exception RANGE_ERROR Number not in allowed range.
+ */
+objectType act_iconv3 (listType arguments)
+
+  {
+    intType ordinal;
+
+  /* act_iconv3 */
     isit_int(arg_3(arguments));
     ordinal = take_int(arg_3(arguments));
     if (ordinal < 0 || (uintType) ordinal >= actTable.size) {
@@ -168,7 +193,7 @@ objectType act_iconv (listType arguments)
     } else {
       return bld_action_temp(actTable.table[ordinal].action);
     } /* if */
-  } /* act_iconv */
+  } /* act_iconv3 */
 
 
 
@@ -218,14 +243,12 @@ objectType act_ne (listType arguments)
 objectType act_ord (listType arguments)
 
   {
-    const_actEntryType actEntry;
-    intType result;
+    intType ordinal;
 
   /* act_ord */
     isit_action(arg_1(arguments));
-    actEntry = getActEntry(take_action(arg_1(arguments)));
-    result = actEntry - actTable.table;
-    return bld_int_temp(result);
+    ordinal = getActEntry(take_action(arg_1(arguments))) - actTable.table;
+    return bld_int_temp(ordinal);
   } /* act_ord */
 
 
@@ -241,15 +264,15 @@ objectType act_ord (listType arguments)
 objectType act_str (listType arguments)
 
   {
-    striType result;
+    striType actionName;
 
   /* act_str */
     isit_action(arg_1(arguments));
-    result = cstri_to_stri(getActEntry(take_action(arg_1(arguments)))->name);
-    if (result == NULL) {
+    actionName = cstri_to_stri(getActEntry(take_action(arg_1(arguments)))->name);
+    if (actionName == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return bld_stri_temp(result);
+      return bld_stri_temp(actionName);
     } /* if */
   } /* act_str */
 

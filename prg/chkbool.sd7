@@ -1548,48 +1548,6 @@ const proc: check_str is func
     end if;
   end func;
 
-(*!
-const func integer: test1 is func
-  result
-    var integer: number is 0;
-  begin
-    writeln("test1");
-  end func;
-
-
-const func integer: test2 is func
-  result
-    var integer: number is 0;
-  begin
-    writeln("test2");
-  end func;
-
-
-const func integer: test3 is func
-  result
-    var integer: number is 0;
-  begin
-    writeln("test3");
-  end func;
-
-
-var boolean: test4_result is TRUE;
-
-const varfunc boolean: test4 (in integer: number) is
-  return var test4_result;
-
-const func boolean: test5 (in integer: number) is
-  return TRUE;
-
-var array boolean: boolArr is [](FALSE, TRUE);
-
-(*
-$ trace "+m";
-    ignore(test1 <> 0 and test5(test2));
-$ trace "-m";
-*)
-!*)
-
 
 const proc: main is func
 
@@ -1602,10 +1560,4 @@ const proc: main is func
     check_compare;
     check_ord();
     check_str();
-(*!
-    TRACE_OPTIONS("+a");
-    if test1 <> 0 and test4(test2) (* boolArr[succ(test3)] *) then
-      writeln("tests TRUE");
-    end if;
-!*)
   end func;

@@ -329,15 +329,15 @@ objectType big_eq (listType arguments)
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
-objectType big_fromBStriBe (listType arguments)
+objectType big_from_bstri_be (listType arguments)
 
-  { /* big_fromBStriBe */
+  { /* big_from_bstri_be */
     isit_bstri(arg_1(arguments));
     isit_bool(arg_2(arguments));
     return bld_bigint_temp(
         bigFromBStriBe(take_bstri(arg_1(arguments)),
                        take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
-  } /* big_fromBStriBe */
+  } /* big_from_bstri_be */
 
 
 
@@ -351,15 +351,15 @@ objectType big_fromBStriBe (listType arguments)
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
-objectType big_fromBStriLe (listType arguments)
+objectType big_from_bstri_le (listType arguments)
 
-  { /* big_fromBStriLe */
+  { /* big_from_bstri_le */
     isit_bstri(arg_1(arguments));
     isit_bool(arg_2(arguments));
     return bld_bigint_temp(
         bigFromBStriLe(take_bstri(arg_1(arguments)),
                        take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
-  } /* big_fromBStriLe */
+  } /* big_from_bstri_le */
 
 
 
@@ -1020,15 +1020,15 @@ objectType big_succ (listType arguments)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType big_toBStriBe (listType arguments)
+objectType big_to_bstri_be (listType arguments)
 
-  { /* big_toBStriBe */
+  { /* big_to_bstri_be */
     isit_bigint(arg_1(arguments));
     isit_bool(arg_2(arguments));
     return bld_bstri_temp(
         bigToBStriBe(take_bigint(arg_1(arguments)),
                      take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
-  } /* big_toBStriBe */
+  } /* big_to_bstri_be */
 
 
 
@@ -1045,15 +1045,15 @@ objectType big_toBStriBe (listType arguments)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType big_toBStriLe (listType arguments)
+objectType big_to_bstri_le (listType arguments)
 
-  { /* big_toBStriLe */
+  { /* big_to_bstri_le */
     isit_bigint(arg_1(arguments));
     isit_bool(arg_2(arguments));
     return bld_bstri_temp(
         bigToBStriLe(take_bigint(arg_1(arguments)),
                      take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
-  } /* big_toBStriLe */
+  } /* big_to_bstri_le */
 
 
 

@@ -584,35 +584,35 @@ objectType sql_eq_stmt (listType arguments)
 
 
 
-objectType sql_errCode (listType arguments)
+objectType sql_err_code (listType arguments)
 
-  { /* sql_errCode */
+  { /* sql_err_code */
     return bld_int_temp(sqlErrCode());
-  } /* sql_errCode */
+  } /* sql_err_code */
 
 
 
-objectType sql_errDbFunc (listType arguments)
+objectType sql_err_db_func (listType arguments)
 
-  { /* sql_errDbFunc */
+  { /* sql_err_db_func */
     return bld_stri_temp(sqlErrDbFunc());
-  } /* sql_errDbFunc */
+  } /* sql_err_db_func */
 
 
 
-objectType sql_errLibFunc (listType arguments)
+objectType sql_err_lib_func (listType arguments)
 
-  { /* sql_errLibFunc */
+  { /* sql_err_lib_func */
     return bld_stri_temp(sqlErrLibFunc());
-  } /* sql_errLibFunc */
+  } /* sql_err_lib_func */
 
 
 
-objectType sql_errMessage (listType arguments)
+objectType sql_err_message (listType arguments)
 
-  { /* sql_errMessage */
+  { /* sql_err_message */
     return bld_stri_temp(sqlErrMessage());
-  } /* sql_errMessage */
+  } /* sql_err_message */
 
 
 

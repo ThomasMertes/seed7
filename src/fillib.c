@@ -450,11 +450,11 @@ objectType fil_open (listType arguments)
  *  Open the null device of the operation system for reading and writing.
  *  @return the null device opened, or NULL if it could not be opened.
  */
-objectType fil_openNullDevice (listType arguments)
+objectType fil_open_null_device (listType arguments)
 
-  { /* fil_openNullDevice */
+  { /* fil_open_null_device */
     return bld_file_temp(filOpenNullDevice());
-  } /* fil_openNullDevice */
+  } /* fil_open_null_device */
 
 
 

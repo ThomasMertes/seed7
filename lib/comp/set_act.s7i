@@ -303,7 +303,7 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
       c_expr.expr &:= integerLiteral(max(aBitset));
       c_expr.expr &:= ")";
     elsif card(aBitset) = 2 or
-        card(aBitset) = 3 and (min(aBitset) < 0 or max(aBitset) > 31) then
+        card(aBitset) = 3 and (min(aBitset) < 0 or max(aBitset) >= ccConf.INTTYPE_SIZE) then
       incr(countOptimizations);
       c_expr.expr &:= "(";
       integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
@@ -318,7 +318,7 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
         c_expr.expr &:= integerLiteral(number);
       end for;
       c_expr.expr &:= ")";
-    elsif min(aBitset) >= 0 and max(aBitset) <= 31 then
+    elsif min(aBitset) >= 0 and max(aBitset) < ccConf.INTTYPE_SIZE then
       incr(countOptimizations);
       c_expr.expr &:= "(";
       integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
@@ -331,12 +331,14 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
         c_expr.expr &:= ">=0&&";
         c_expr.expr &:= integer_name;
       end if;
-      c_expr.expr &:= "<=31&&";
+      c_expr.expr &:= "<=";
+      c_expr.expr &:= str(max(aBitset));
+      c_expr.expr &:= "&&";
       c_expr.expr &:= bitsetElemAsHex(aBitset, 0);
       c_expr.expr &:= ">>";
       c_expr.expr &:= integer_name;
       c_expr.expr &:= "&1)";
-    elsif max(aBitset) - min(aBitset) <= 31 then
+    elsif max(aBitset) - min(aBitset) < ccConf.INTTYPE_SIZE then
       incr(countOptimizations);
       c_expr.expr &:= "(";
       integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);

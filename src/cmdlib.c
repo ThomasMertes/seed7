@@ -581,11 +581,11 @@ objectType cmd_get_mtime (listType arguments)
  *  @return the search path of the system.
  *  @exception MEMORY_ERROR Not enough memory to create the result.
  */
-objectType cmd_getSearchPath (listType arguments)
+objectType cmd_get_search_path (listType arguments)
 
-  { /* cmd_getSearchPath */
+  { /* cmd_get_search_path */
     return toArrayType(cmdGetSearchPath());
-  } /* cmd_getSearchPath */
+  } /* cmd_get_search_path */
 
 
 
@@ -600,11 +600,11 @@ objectType cmd_getSearchPath (listType arguments)
  *             result string.
  *  @exception FILE_ERROR Not able to determine the home directory.
  */
-objectType cmd_homeDir (listType arguments)
+objectType cmd_home_dir (listType arguments)
 
-  { /* cmd_homeDir */
+  { /* cmd_home_dir */
     return bld_stri_temp(cmdHomeDir());
-  } /* cmd_homeDir */
+  } /* cmd_home_dir */
 
 
 
@@ -891,12 +891,12 @@ objectType cmd_set_mtime (listType arguments)
  *  @exception RANGE_ERROR The path cannot be converted to the
  *             system string type or a system function returns an error.
  */
-objectType cmd_setSearchPath (listType arguments)
+objectType cmd_set_search_path (listType arguments)
 
   {
     rtlArrayType searchPath;
 
-  /* cmd_setSearchPath */
+  /* cmd_set_search_path */
     isit_array(arg_1(arguments));
     searchPath = gen_rtl_array(take_array(arg_1(arguments)));
     if (unlikely(searchPath == NULL)) {
@@ -906,7 +906,7 @@ objectType cmd_setSearchPath (listType arguments)
       FREE_RTL_ARRAY(searchPath, ARRAY_LENGTH(searchPath));
     } /* if */
     return SYS_EMPTY_OBJECT;
-  } /* cmd_setSearchPath */
+  } /* cmd_set_search_path */
 
 
 

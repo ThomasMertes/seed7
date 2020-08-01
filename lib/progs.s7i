@@ -334,6 +334,7 @@ const func integer: arrayMaxIdx (in reference: arrayRef)                 is acti
 const func ref_list: structToList (in reference: structRef)              is action "REF_SCTTOLIST";
 const func ref_list: hashDataToList (in reference: hashRef)              is action "REF_HSHDATATOLIST";
 const func ref_list: hashKeysToList (in reference: hashRef)              is action "REF_HSHKEYSTOLIST";
+const func integer: hashLength (in reference: hashRef)                   is action "REF_HSHLENGTH";
 const func reference: interfaceToStruct (in reference: interfaceRef)     is action "REF_ITFTOSCT";
 
 
@@ -388,7 +389,7 @@ const func PRIMITIVE_WINDOW: getValue (in reference: aReference,
 const func process: getValue (in reference: aReference, attr process)        is action "PCS_VALUE";
 # const func type: getValue (in reference: aReference, attr type)            is action "TYP_VALUE";
 
-const proc: setValue(inout reference: listRef, in ref_list: list)      is action "RFL_SETVALUE";
+const proc: setValue(inout reference: listRef, in ref_list: list)      is action "RFL_SET_VALUE";
 
 const func integer: typeNumber  (in type: aType)                       is action "TYP_NUM";
 const func reference: typeObject (in type: aType)                      is action "TYP_MATCHOBJ";

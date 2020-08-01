@@ -1,4 +1,68 @@
-20180107
+20180304:
+- In fil_rtl.c and ut8_rlt.c the functions filLineRead, filWordRead,
+  ut8LineRead and ut8WordRead have been improved to use
+  getc_unlocked() instead of getc(). This way the performance of the
+  functions has been improved by a factor of 2 (filLineRead has been
+  measured with gcc and valgrind).
+- In listutl.c the performance of the function copy_list has been
+  improved by 15% (measured with gcc and valgrind).
+- In getf.s7i the performance of the function readf has been improved
+  by a factor of 4 (measured with gcc and valgrind).
+- The functions free_helem and free_hash in hshlib.c have been
+  improved to stop searching for helems as soon as the last helem
+  has been freed. This improves the performance free_hash by 36%
+  (measured with gcc and valgrind).
+- In fil_rtl.c the function read_and_alloc_stri and filGets have been
+  improved to have less usages of err_info and num_of_chars_read.
+- In soc_rtl.c the function receive_and_alloc_stri has been improved
+  to have less usages of err_info and better logError messages.
+- In hsh_rtl.c and hshlib.c the function create_hash has been
+  improved to use memset to initialize empty hash tables.
+- The functions bstCmp, genericCmp, ptrCmp, rflCmp and typCmp have
+  been improved to use a result variable named signumValue.
+- Interpreter and compiler have been improved to support the actions
+  ACT_ICONV1, ACT_ICONV3, INT_ICONV1, INT_ICONV3 and REF_HSHLENGTH.
+- The libraries integer.s7i, bin32.s7i, bin64.s7i, category.s7i and
+  graph.s7i have been improved to use the new primitive actions.
+- The function boolean(), which converts a string to a boolean value,
+  has been added to boolean.s7i.
+- The function char(), which converts a string to a char value, has
+  been added to char.s7i.
+- The function float(), which converts a string to a float value, has
+  been added to float.s7i.
+- The compiler has been improved to support the actions ACT_GEN and
+  TYP_VARFUNC.
+- The compiler now uses the function process_call_by_name_expr to
+  create code for loop conditions, loop bodies and other call by name
+  parameters.
+- The functions process_match and process_inline_param have been
+  added to the compiler.
+- The compiler has been improved to implement functions, which just
+  call one of the special actions HSH_CONTAINS, HSH_EXCL, HSH_INCL,
+  HSH_KEYS, SET_BASELIT, SET_CONV, SET_ELEM, SET_EXCL, SET_INCL,
+  SET_NOT_ELEM, as inline functions. This allows optimizations for
+  the types set of char and set of string.
+- The compiler has been improved to optimize the action HSH_CONTAINS,
+  when the hash table is constant.
+- The compiler optimizations for the actions SET_ELEM and
+  SET_NOT_ELEM have been improved.
+- A test, that checks for-loops over hash tables, has been added to
+  chkhsh.sd7.
+- Set membership tests for char and string have been added to
+  chkset.sd7.
+- Functions to handle inline parameters have been moved from s7c.sd7
+  to the new file comp/inline.s7i.
+- The program chkccomp.c has been improved to determine the presence
+  of the functions flockfile(), funlockfile() and getc_unlocked().
+- The function match_object3 has been added to match.c. This function
+  assures that BLOCKOBJECT and ACTOBJECT objects are always preceeded
+  by a MATCHOBJECT.
+- The action RFL_SETVALUE has been ranamed to RFL_SET_VALUE.
+- Several C run-time library functions (in *lib.c files) have been
+  renamed such that action name and function name correspond to each
+  other.
+
+20180107:
 - Interpreter and compiler have been improved to allow support
   for case statements with hashsets in the when parts. This allows
   e.g. case statements with string, bigInteger, type and other

@@ -509,9 +509,9 @@ objectType soc_sendto (listType arguments)
 
 
 
-objectType soc_setOptBool (listType arguments)
+objectType soc_set_opt_bool (listType arguments)
 
-  { /* soc_setOptBool */
+  { /* soc_set_opt_bool */
     isit_socket(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_bool(arg_3(arguments));
@@ -519,7 +519,7 @@ objectType soc_setOptBool (listType arguments)
                   take_int(arg_2(arguments)),
                   take_bool(arg_3(arguments)) == SYS_TRUE_OBJECT);
     return SYS_EMPTY_OBJECT;
-  } /* soc_setOptBool */
+  } /* soc_set_opt_bool */
 
 
 

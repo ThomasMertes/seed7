@@ -384,16 +384,17 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
     buffer.next = NULL;
     while (chars_missing - result_size >= LIST_BUFFER_SIZE &&
            bytes_in_buffer == LIST_BUFFER_SIZE &&
-           input_ready &&
-           *err_info == OKAY_NO_ERROR) {
+           input_ready) {
       bytes_in_buffer = (memSizeType) recv((os_socketType) inSocket,
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(LIST_BUFFER_SIZE), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == (memSizeType) (-1) && result_size == 0)) {
         logError(printf("receive_and_alloc_stri: "
-                        "recv(%d, *, " FMT_U_MEM ", 0) failed.\n",
-                        inSocket, (memSizeType) LIST_BUFFER_SIZE););
+                        "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        inSocket, (memSizeType) LIST_BUFFER_SIZE,
+                        ERROR_INFORMATION););
         *err_info = FILE_ERROR;
         result = NULL;
       } else {
@@ -406,6 +407,8 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
                             inSocket, chars_missing, sizeof(struct bufferStruct)););
             *err_info = MEMORY_ERROR;
             result = NULL;
+            /* Leave the while loop by setting bytes_in_buffer to zero. */
+            bytes_in_buffer = 0;
           } else {
             currBuffer = currBuffer->next;
             currBuffer->next = NULL;
@@ -416,16 +419,17 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
     } /* while */
     if (chars_missing > result_size &&
         bytes_in_buffer == LIST_BUFFER_SIZE &&
-        input_ready &&
-        *err_info == OKAY_NO_ERROR) {
+        input_ready) {
       bytes_in_buffer = (memSizeType) recv((os_socketType) inSocket,
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(chars_missing - result_size), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == (memSizeType) (-1) && result_size == 0)) {
         logError(printf("receive_and_alloc_stri: "
-                        "recv(%d, *, " FMT_U_MEM ", 0) failed.\n",
-                        inSocket, chars_missing - result_size););
+                        "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        inSocket, chars_missing - result_size,
+                        ERROR_INFORMATION););
         *err_info = FILE_ERROR;
         result = NULL;
       } else {
@@ -1951,9 +1955,10 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
         break;
       case SOC_OPT_REUSEADDR: {
           int so_reuseaddr = optval;
-          if (setsockopt((os_socketType) sock,
-                         SOL_SOCKET, SO_REUSEADDR,
-                         (const char *) &so_reuseaddr, sizeof(so_reuseaddr)) != 0) {
+          if (unlikely(setsockopt((os_socketType) sock,
+                                  SOL_SOCKET, SO_REUSEADDR,
+                                  (const char *) &so_reuseaddr,
+                                  sizeof(so_reuseaddr)) != 0)) {
             logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
                             "setsockopt(%d, ...) failed:\n"
                             "%s=%d\nerror: %s\n",
@@ -1982,7 +1987,7 @@ socketType socSocket (intType domain, intType type, intType protocol)
   /* socSocket */
     logFunction(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D ")\n",
                        domain, type, protocol););
-    if (!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol)) {
+    if (unlikely(!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol))) {
       logError(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D "): "
                       "domain, type or protocol not in allowed range.\n",
                       domain, type, protocol););

@@ -103,8 +103,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ACT_CPY, function, params, c_expr);
       elsif action_name = "ACT_EQ" then
         process(ACT_EQ, function, params, c_expr);
-      elsif action_name = "ACT_ICONV" then
-        process(ACT_ICONV, function, params, c_expr);
+      elsif action_name = "ACT_GEN" then
+        process(ACT_GEN, function, params, c_expr);
+      elsif action_name = "ACT_ICONV1" then
+        process(ACT_ICONV1, function, params, c_expr);
+      elsif action_name = "ACT_ICONV3" then
+        process(ACT_ICONV3, function, params, c_expr);
       elsif action_name = "ACT_NE" then
         process(ACT_NE, function, params, c_expr);
       elsif action_name = "ACT_ORD" then
@@ -952,8 +956,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_BYTES_LE_UNSIGNED, function, params, c_expr);
       elsif action_name = "INT_CMP" then
         process(INT_CMP, function, params, c_expr);
-      elsif action_name = "INT_CONV" then
-        process(INT_CONV, function, params, c_expr);
       elsif action_name = "INT_CPY" then
         process(INT_CPY, function, params, c_expr);
       elsif action_name = "INT_DECR" then
@@ -970,6 +972,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_GT, function, params, c_expr);
       elsif action_name = "INT_HASHCODE" then
         process(INT_HASHCODE, function, params, c_expr);
+      elsif action_name = "INT_ICONV1" then
+        process(INT_ICONV1, function, params, c_expr);
+      elsif action_name = "INT_ICONV3" then
+        process(INT_ICONV3, function, params, c_expr);
       elsif action_name = "INT_INCR" then
         process(INT_INCR, function, params, c_expr);
       elsif action_name = "INT_LE" then
@@ -1002,8 +1008,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_NEGATE, function, params, c_expr);
       elsif action_name = "INT_ODD" then
         process(INT_ODD, function, params, c_expr);
-      elsif action_name = "INT_ORD" then
-        process(INT_ORD, function, params, c_expr);
       elsif action_name = "INT_PARSE" then
         process(INT_PARSE, function, params, c_expr);
       elsif action_name = "INT_PLUS" then
@@ -1277,6 +1281,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_HSHDATATOLIST, function, params, c_expr);
       elsif action_name = "REF_HSHKEYSTOLIST" then
         process(REF_HSHKEYSTOLIST, function, params, c_expr);
+      elsif action_name = "REF_HSHLENGTH" then
+        process(REF_HSHLENGTH, function, params, c_expr);
       elsif action_name = "REF_ISVAR" then
         process(REF_ISVAR, function, params, c_expr);
       elsif action_name = "REF_ITFTOSCT" then
@@ -1355,8 +1361,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(RFL_NOT_ELEM, function, params, c_expr);
       elsif action_name = "RFL_POS" then
         process(RFL_POS, function, params, c_expr);
-      elsif action_name = "RFL_SETVALUE" then
-        process(RFL_SETVALUE, function, params, c_expr);
+      elsif action_name = "RFL_SET_VALUE" then
+        process(RFL_SET_VALUE, function, params, c_expr);
       elsif action_name = "RFL_TAIL" then
         process(RFL_TAIL, function, params, c_expr);
       elsif action_name = "RFL_VALUE" then
@@ -1731,6 +1737,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(TYP_VALUE, function, params, c_expr);
       elsif action_name = "TYP_VARCONV" then
         process(TYP_VARCONV, function, params, c_expr);
+      elsif action_name = "TYP_VARFUNC" then
+        process(TYP_VARFUNC, function, params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;

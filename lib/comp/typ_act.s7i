@@ -40,6 +40,7 @@ const ACTION: TYP_RESULT     is action "TYP_RESULT";
 const ACTION: TYP_STR        is action "TYP_STR";
 const ACTION: TYP_VALUE      is action "TYP_VALUE";
 const ACTION: TYP_VARCONV    is action "TYP_VARCONV";
+const ACTION: TYP_VARFUNC    is action "TYP_VARFUNC";
 
 
 const proc: typ_prototypes (inout file: c_prog) is func
@@ -57,6 +58,7 @@ const proc: typ_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "typeType    typResult (typeType);");
     declareExtern(c_prog, "striType    typStr (typeType);");
     declareExtern(c_prog, "typeType    typValue (const const_objRefType);");
+    declareExtern(c_prog, "typeType    typVarfunc (typeType);");
   end func;
 
 
@@ -104,7 +106,7 @@ const proc: process (TYP_FUNC, in reference: function,
   begin
     compDataLibraryUsed := TRUE;
     c_expr.expr &:= "typFunc(";
-    process_expr(params[1], c_expr);
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -242,5 +244,16 @@ const proc: process (TYP_VARCONV, in reference: function,
   begin
     c_expr.expr &:= "(";
     process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (TYP_VARFUNC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "typVarfunc(";
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;

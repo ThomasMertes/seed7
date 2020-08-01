@@ -76,14 +76,15 @@ const func array string: readf (in string: file_name) is func
   result
     var array string: data is 0 times "";
   local
-    var file: work_file is STD_NULL;
+    var string: contents is "";
   begin
-    work_file := open(file_name, "r");
-    if work_file <> STD_NULL then
-      while hasNext(work_file) do
-        data &:= [] getln(work_file);
-      end while;
-      close(work_file);
+    contents := replace(getf(file_name), "\r\n", "\n");
+    if contents <> "" then
+      if endsWith(contents, "\n") then
+        data := split(contents[.. pred(length(contents))], "\n");
+      else
+        data := split(contents, "\n");
+      end if;
     end if;
   end func;
 

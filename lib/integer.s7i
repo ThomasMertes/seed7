@@ -377,14 +377,14 @@ const func boolean: odd (in integer: number)                     is action "INT_
  *  Convert to integer.
  *  @return the unchanged number.
  *)
-const func integer: ord (in integer: number)                     is action "INT_ORD";
+const func integer: ord (in integer: number)                     is action "INT_ICONV1";
 
 
 (**
  *  Convert to integer.
  *  @return the unchanged number.
  *)
-const func integer: (attr integer) conv (in integer: number)     is action "INT_CONV";
+const func integer: (attr integer) conv (in integer: number)     is action "INT_ICONV3";
 
 
 (**

@@ -86,10 +86,9 @@ void free_list (listType list)
 memSizeType list_length (const_listType list)
 
   {
-    memSizeType length;
+    memSizeType length = 0;
 
   /* list_length */
-    length = 0;
     while (list != NULL) {
       list = list->next;
       length++;
@@ -106,14 +105,14 @@ listType *append_element_to_list (listType *list_insert_place, objectType object
     listType help_element;
 
   /* append_element_to_list */
-    if (ALLOC_L_ELEM(help_element)) {
+    if (unlikely(!ALLOC_L_ELEM(help_element))) {
+      *err_info = MEMORY_ERROR;
+      return NULL;
+    } else {
       help_element->next = NULL;
       help_element->obj = object;
       *list_insert_place = help_element;
       return &help_element->next;
-    } else {
-      *err_info = MEMORY_ERROR;
-      return NULL;
     } /* if */
   } /* append_element_to_list */
 
@@ -128,7 +127,7 @@ static objectType copy_expression2 (objectType object_from, errInfoType *err_inf
     objectType object_to;
 
   /* copy_expression2 */
-    if (!ALLOC_OBJECT(object_to)) {
+    if (unlikely(!ALLOC_OBJECT(object_to))) {
       *err_info = MEMORY_ERROR;
     } else {
       object_to->type_of = object_from->type_of;
@@ -138,12 +137,12 @@ static objectType copy_expression2 (objectType object_from, errInfoType *err_inf
       SET_ANY_FLAG(object_to, HAS_POSINFO(object_from));
       list_from_elem = object_from->value.listValue;
       if (list_from_elem != NULL) {
-        if (ALLOC_L_ELEM(list_to_elem)) {
+        if (likely(ALLOC_L_ELEM(list_to_elem))) {
           object_to->value.listValue = list_to_elem;
           list_to_elem->obj = copy_expression(list_from_elem->obj, err_info);
           list_from_elem = list_from_elem->next;
           while (list_from_elem != NULL) {
-            if (ALLOC_L_ELEM(new_elem)) {
+            if (likely(ALLOC_L_ELEM(new_elem))) {
               list_to_elem->next = new_elem;
               list_to_elem = new_elem;
               if (CATEGORY_OF_OBJ(list_from_elem->obj) == EXPROBJECT ||
@@ -261,7 +260,7 @@ void incl_list (listType *list, objectType element_object,
     logFunction(printf("incl_list(" FMT_U_MEM ", " FMT_U_MEM ")\n",
                        (memSizeType) *list,
                        (memSizeType) element_object););
-    if (!ALLOC_L_ELEM(help_element)) {
+    if (unlikely(!ALLOC_L_ELEM(help_element))) {
       *err_info = MEMORY_ERROR;
     } else {
       help_element->next = *list;
@@ -343,6 +342,15 @@ void replace_list_elem (listType list, const_objectType elem1,
 
 
 
+/**
+ *  Copy the given list 'list_from'.
+ *  For performance reasons list elements are taken directly
+ *  from the free list (flist.list_elems).
+ *  @param list_from Possibly empty list to be copied.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when a memory allocation failed.
+ *  @return the copied list.
+ */
 listType copy_list (const_listType list_from, errInfoType *err_info)
 
   {
@@ -364,19 +372,22 @@ listType copy_list (const_listType list_from, errInfoType *err_info)
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!HEAP_L_E(help_element, listRecord)) {
-          list_to = NULL;
+        if (unlikely(!HEAP_L_E(list_to, listRecord))) {
+          logError(printf("copy_list: malloc failed.\n"););
           *err_info = MEMORY_ERROR;
         } else {
-          list_to = help_element;
+          help_element = list_to;
           help_element->obj = list_from->obj;
           list_from = list_from->next;
         } /* if */
       } /* if */
-      if (*err_info == OKAY_NO_ERROR) {
-        while (list_from != NULL && *err_info == OKAY_NO_ERROR) {
-          if (!HEAP_L_E(help_element->next, listRecord)) {
+      if (list_to != NULL) {
+        while (list_from != NULL) {
+          if (unlikely(!HEAP_L_E(help_element->next, listRecord))) {
+            free_list(list_to);
+            logError(printf("copy_list: malloc failed.\n"););
             *err_info = MEMORY_ERROR;
+            return NULL;
           } else {
             help_element = help_element->next;
             help_element->obj = list_from->obj;
@@ -384,10 +395,6 @@ listType copy_list (const_listType list_from, errInfoType *err_info)
           } /* if */
         } /* while */
         help_element->next = NULL;
-      } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
-        free_list(list_to);
-        list_to = NULL;
       } /* if */
     } else {
       list_to = NULL;
@@ -398,6 +405,15 @@ listType copy_list (const_listType list_from, errInfoType *err_info)
 
 
 
+/**
+ *  Generate a list with the elements of the given array 'arr_from'.
+ *  For performance reasons list elements are taken directly
+ *  from the free list (flist.list_elems).
+ *  @param arr_from Possibly empty array.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when a memory allocation failed.
+ *  @return the generated list with elements from 'arr_from'.
+ */
 listType array_to_list (arrayType arr_from, errInfoType *err_info)
 
   {
@@ -422,21 +438,22 @@ listType array_to_list (arrayType arr_from, errInfoType *err_info)
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!HEAP_L_E(help_element, listRecord)) {
-          list_to = NULL;
+        if (unlikely(!HEAP_L_E(list_to, listRecord))) {
+          logError(printf("array_to_list: malloc failed.\n"););
           *err_info = MEMORY_ERROR;
         } else {
-          list_to = help_element;
+          help_element = list_to;
           help_element->obj = &arr_from->arr[0];
           position = 1;
         } /* if */
       } /* if */
       if (list_to != NULL) {
-        while (position < arr_from_size && list_to != NULL) {
-          if (!HEAP_L_E(help_element->next, listRecord)) {
+        while (position < arr_from_size) {
+          if (unlikely(!HEAP_L_E(help_element->next, listRecord))) {
             free_list(list_to);
-            list_to = NULL;
+            logError(printf("array_to_list: malloc failed.\n"););
             *err_info = MEMORY_ERROR;
+            return NULL;
           } else {
             help_element = help_element->next;
             help_element->obj = &arr_from->arr[position];
@@ -454,6 +471,15 @@ listType array_to_list (arrayType arr_from, errInfoType *err_info)
 
 
 
+/**
+ *  Generate a list with the elements of the given struct 'stru_from'.
+ *  For performance reasons list elements are taken directly
+ *  from the free list (flist.list_elems).
+ *  @param stru_from Possibly empty struct.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when a memory allocation failed.
+ *  @return the generated list with elements from 'stru_from'.
+ */
 listType struct_to_list (structType stru_from, errInfoType *err_info)
 
   {
@@ -476,21 +502,22 @@ listType struct_to_list (structType stru_from, errInfoType *err_info)
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!HEAP_L_E(help_element, listRecord)) {
-          list_to = NULL;
+        if (unlikely(!HEAP_L_E(list_to, listRecord))) {
+          logError(printf("struct_to_list: malloc failed.\n"););
           *err_info = MEMORY_ERROR;
         } else {
-          list_to = help_element;
+          help_element = list_to;
           help_element->obj = &stru_from->stru[0];
           position = 1;
         } /* if */
       } /* if */
       if (list_to != NULL) {
-        while (position < stru_from->size && list_to != NULL) {
-          if (!HEAP_L_E(help_element->next, listRecord)) {
+        while (position < stru_from->size) {
+          if (unlikely(!HEAP_L_E(help_element->next, listRecord))) {
             free_list(list_to);
-            list_to = NULL;
+            logError(printf("struct_to_list: malloc failed.\n"););
             *err_info = MEMORY_ERROR;
+            return NULL;
           } else {
             help_element = help_element->next;
             help_element->obj = &stru_from->stru[position];

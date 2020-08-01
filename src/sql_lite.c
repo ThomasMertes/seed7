@@ -1699,7 +1699,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->executeSuccessful)) {
-      dbLibError("sqlFetch", "SQLExecute",
+      dbLibError("sqlFetch", "sqlite3_step",
                  "Execute was not successful.\n");
       logError(printf("sqlFetch: Execute was not successful.\n"););
       preparedStmt->fetchOkay = FALSE;

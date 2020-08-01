@@ -850,14 +850,16 @@ striType uintStr (uintType number)
  */
 intType genericCmp (const genericType value1, const genericType value2)
 
-  { /* genericCmp */
+  {
+    intType signumValue;
+
+  /* genericCmp */
     if (value1 < value2) {
-      return -1;
-    } else if (value1 > value2) {
-      return 1;
+      signumValue = -1;
     } else {
-      return 0;
+      signumValue = value1 > value2;
     } /* if */
+    return signumValue;
   } /* genericCmp */
 
 
@@ -930,14 +932,16 @@ void genericDestr (genericType old_value)
  */
 intType ptrCmp (const void *const value1, const void *const value2)
 
-  { /* ptrCmp */
+  {
+    intType signumValue;
+
+  /* ptrCmp */
     if ((memSizeType) value1 < (memSizeType) value2) {
-      return -1;
-    } else if ((memSizeType) value1 > (memSizeType) value2) {
-      return 1;
+      signumValue = -1;
     } else {
-      return 0;
+      signumValue = (memSizeType) value1 > (memSizeType) value2;
     } /* if */
+    return signumValue;
   } /* ptrCmp */
 
 

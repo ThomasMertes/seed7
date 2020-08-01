@@ -107,7 +107,7 @@ const proc: process_else (in reference: else_part, in boolean: insertKeyword,
       params := params[2 ..];
       functionCategory := category(function);
       if functionCategory = CONSTENUMOBJECT then
-        process_expr(params[2], c_param2);
+        process_call_by_name_expr(params[2], c_param2);
         if insertKeyword then
           c_expr.expr &:= "else {\n";
         end if;
@@ -147,7 +147,7 @@ const proc: process_const_prc_if (in boolean: condition, in reference: statement
     incr(countOptimizations);
     if condition then
       c_expr.expr &:= "/* Optimized: if TRUE */ {\n";
-      process_expr(statement, c_statement);
+      process_call_by_name_expr(statement, c_statement);
       process_statements(c_statement, c_expr);
       c_expr.expr &:= "}\n";
     else
@@ -170,7 +170,7 @@ const proc: process (PRC_IF, in reference: function,
       process_const_prc_if(getValue(evaluatedParam, boolean), params[4], c_expr);
     else
       process_expr(params[2], c_condition);
-      process_expr(params[4], c_statement);
+      process_call_by_name_expr(params[4], c_statement);
       if c_condition.temp_num <> 0 then
         c_expr.expr &:= "{\n";
         appendWithDiagnostic(c_condition.temp_decls, c_expr);
@@ -205,7 +205,7 @@ const proc: process_const_prc_if_elsif (in boolean: condition, in reference: the
     c_expr.expr &:= str(condition);
     c_expr.expr &:= " */ {\n";
     if condition then
-      process_expr(thenPart, c_then_part);
+      process_call_by_name_expr(thenPart, c_then_part);
       process_statements(c_then_part, c_expr);
     else
       process_else(elsePart, FALSE, c_else_part);
@@ -231,7 +231,7 @@ const proc: process (PRC_IF_ELSIF, in reference: function,
           params[4], params[5], c_expr);
     else
       process_expr(params[2], c_condition);
-      process_expr(params[4], c_then_part);
+      process_call_by_name_expr(params[4], c_then_part);
       c_else_part.temp_num := c_condition.temp_num;
       process_else(params[5], TRUE, c_else_part);
       if c_else_part.temp_num <> 0 then
@@ -271,7 +271,7 @@ const proc: process_const_prc_if_noop (in boolean: condition, in reference: stat
       c_expr.expr &:= "/* Optimized: elsif TRUE */\n";
     else
       c_expr.expr &:= "/* Optimized: elsif FALSE */ {\n";
-      process_expr(statement, c_statement);
+      process_call_by_name_expr(statement, c_statement);
       process_statements(c_statement, c_expr);
       c_expr.expr &:= "}\n";
     end if;
@@ -329,9 +329,9 @@ const proc: process (PRC_WHILE, in reference: function,
     var string: statementFile is "";
     var integer: statementLine is 0;
   begin
-    process_expr(params[2], c_condition);
+    process_call_by_name_expr(params[2], c_condition);
     c_statement.temp_num := c_condition.temp_num;
-    process_expr(params[4], c_statement);
+    process_call_by_name_expr(params[4], c_statement);
     if c_condition.temp_num <> 0 then
       c_expr.expr &:= "{\n";
       appendWithDiagnostic(c_condition.temp_decls, c_expr);
@@ -361,9 +361,9 @@ const proc: process (PRC_REPEAT, in reference: function,
     var expr_type: c_condition is expr_type.value;
     var expr_type: c_statement is expr_type.value;
   begin
-    process_expr(params[4], c_condition);
+    process_call_by_name_expr(params[4], c_condition);
     c_statement.temp_num := c_condition.temp_num;
-    process_expr(params[2], c_statement);
+    process_call_by_name_expr(params[2], c_statement);
     if c_condition.temp_num <> 0 then
       c_expr.expr &:= "{\n";
       appendWithDiagnostic(c_condition.temp_decls, c_expr);
@@ -507,7 +507,7 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
           statement.expr &:= ") {\n";
         end if;
       end if;
-      process_expr(statements, statement);
+      process_call_by_name_expr(statements, statement);
       statement.expr &:= "}\n";
     end if;
     doLocalDeclsOfStatement(statement, c_expr);
@@ -601,7 +601,7 @@ const proc: process_when (in reference: when_expr, in var bitset: allWhenValues,
     function := params[1];
     params := params[2 ..];
     process_case_labels(params[2], allWhenValues, c_expr);
-    process_expr(params[4], c_expr);
+    process_call_by_name_expr(params[4], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "break;\n";
     if length(params) >= 5 then
@@ -633,7 +633,7 @@ const proc: process (PRC_CASE_DEF, in reference: function,
     c_expr.expr &:= ") {\n";
     process_when(params[4], bitset.EMPTY_SET, c_expr);
     c_expr.expr &:= "default:\n";
-    process_expr(params[7], c_expr);
+    process_call_by_name_expr(params[7], c_expr);
     c_expr.expr &:= "break;\n";
     c_expr.expr &:= "}\n";
   end func;
@@ -699,7 +699,7 @@ const proc: process_when (in integer: numOfCaseStmt, in integer: numOfWhenPart,
     function := params[1];
     params := params[2 ..];
     process_case_labels(numOfCaseStmt, numOfWhenPart, params[2], c_expr);
-    process_expr(params[4], c_expr);
+    process_call_by_name_expr(params[4], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "break;\n";
     if length(params) >= 5 then
@@ -772,7 +772,7 @@ const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
     process_when(numOfCaseStmt, 1, params[4], statement);
     statement.expr &:= diagnosticLine(params[7]);
     statement.expr &:= "default:\n";
-    process_expr(params[7], statement);
+    process_call_by_name_expr(params[7], statement);
     setDiagnosticLine(statement);
     statement.expr &:= "break;\n";
     setDiagnosticLine(statement);
@@ -803,7 +803,7 @@ const proc: process (PRC_BLOCK, in reference: function,
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
-    process_expr(params[2], c_expr);
+    process_call_by_name_expr(params[2], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     current_catch := params[4];
@@ -821,7 +821,7 @@ const proc: process (PRC_BLOCK, in reference: function,
       c_expr.expr &:= "if (";
       process_expr(catch_value, c_expr);
       c_expr.expr &:= " == fail_value - 1) {\n";
-      process_expr(catch_expr[5], c_expr);
+      process_call_by_name_expr(catch_expr[5], c_expr);
       if length(catch_expr) >= 6 then
         c_expr.expr &:= diagnosticLine(current_catch);
         c_expr.expr &:= "} else\n";
@@ -863,14 +863,14 @@ const proc: process (PRC_BLOCK_CATCH_ALL, in reference: function,
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
-    process_expr(params[2], c_expr);
+    process_call_by_name_expr(params[2], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "} else {\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
-    process_expr(params[6], c_expr);
+    process_call_by_name_expr(params[6], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
@@ -900,7 +900,7 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
-    process_expr(params[2], c_expr);
+    process_call_by_name_expr(params[2], c_expr);
     current_catch := params[4];
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
@@ -918,7 +918,7 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
       c_expr.expr &:= "if (";
       process_expr(catch_value, c_expr);
       c_expr.expr &:= " == fail_value - 1) {\n";
-      process_expr(catch_expr[5], c_expr);
+      process_call_by_name_expr(catch_expr[5], c_expr);
       if length(catch_expr) >= 6 then
         c_expr.expr &:= diagnosticLine(current_catch);
         c_expr.expr &:= "} else\n";
@@ -928,7 +928,7 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
         incr(c_expr.currentLine);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "} else {\n";
-        process_expr(params[7], c_expr);
+        process_call_by_name_expr(params[7], c_expr);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "}\n";
         current_catch := NIL;
@@ -979,7 +979,7 @@ const proc: process_prc_semicol (in ref_list: params, inout expr_type: c_expr) i
     var ref_list: semicolParams is ref_list.EMPTY;
     var boolean: finished is FALSE;
   begin
-    process_expr(params[1], c_expr);
+    process_call_by_name_expr(params[1], c_expr);
     statement := params[3];
     repeat
       if category(statement) = CALLOBJECT then
@@ -988,14 +988,14 @@ const proc: process_prc_semicol (in ref_list: params, inout expr_type: c_expr) i
             category(semicolParams[1]) = ACTOBJECT and
             str(getValue(semicolParams[1], ACTION)) = "PRC_NOOP" and
             str(semicolParams[3]) = ";" then
-          process_expr(semicolParams[2], c_expr);
+          process_call_by_name_expr(semicolParams[2], c_expr);
           statement := semicolParams[4];
         else
-          process_expr(statement, c_expr);
+          process_call_by_name_expr(statement, c_expr);
           finished := TRUE;
         end if;
       else
-        process_expr(statement, c_expr);
+        process_call_by_name_expr(statement, c_expr);
         finished := TRUE;
       end if;
     until finished;
@@ -1026,7 +1026,7 @@ const proc: do_noop_param (in reference: formal_param, in reference: actual_para
       else
         c_expr.expr &:= "/* ";
         c_expr.expr &:= str(paramCategory);
-        if paramCategory = CALLOBJECT then
+        if paramCategory = MATCHOBJECT then
           paramCategory := category(getValue(actual_param, ref_list)[1]);
           c_expr.expr &:= " ";
           c_expr.expr &:= str(paramCategory);

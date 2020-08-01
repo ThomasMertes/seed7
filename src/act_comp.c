@@ -48,6 +48,33 @@
 
 
 /**
+ *  Convert a string to an action.
+ *  @param actionName Name of the action to be converted.
+ *  @return an action which corresponds to the given string.
+ *  @exception RANGE_ERROR No such action exists.
+ */
+actType actGen (striType actionName)
+
+  {
+    actType anAction;
+
+  /* actGen */
+    logFunction(printf("actGen(\"%s\")\n",
+                       striAsUnquotedCStri(actionName)););
+    anAction = findAction(actionName);
+    if (unlikely(anAction == NULL)) {
+      logError(printf("act_gen(\"%s\"): No such action exists.\n",
+                      striAsUnquotedCStri(actionName)););
+      raise_error(RANGE_ERROR);
+    } /* if */
+    logFunction(printf("actGen --> " FMT_U_MEM "\n",
+                       (memSizeType) anAction););
+    return anAction;
+  } /* actGen */
+
+
+
+/**
  *  Convert an integer number to an action.
  *  @param ordinal Number to be converted.
  *  @return an action which corresponds to the given integer.
@@ -59,6 +86,7 @@ actType actIConv (intType ordinal)
     actType anAction;
 
   /* actIConv */
+    logFunction(printf("actIConv(" FMT_D ")\n", ordinal););
     if (unlikely(ordinal < 0 || (uintType) ordinal >= actTable.size)) {
       logError(printf("actIConv(" FMT_D "): "
                       "Number not in allowed range of 0 .. %lu.\n",
@@ -68,6 +96,8 @@ actType actIConv (intType ordinal)
     } else {
       anAction = actTable.table[ordinal].action;
     } /* if */
+    logFunction(printf("actIConv --> " FMT_U_MEM "\n",
+                       (memSizeType) anAction););
     return anAction;
   } /* actIConv */
 
@@ -85,7 +115,10 @@ intType actOrd (actType anAction)
     intType ordinal;
 
   /* actOrd */
+    logFunction(printf("actOrd(" FMT_U_MEM ")\n",
+                       (memSizeType) anAction););
     ordinal = getActEntry(anAction) - actTable.table;
+    logFunction(printf("actOrd --> " FMT_D "\n", ordinal););
     return ordinal;
   } /* actOrd */
 
@@ -102,12 +135,16 @@ intType actOrd (actType anAction)
 striType actStr (actType anAction)
 
   {
-    striType result;
+    striType actionName;
 
   /* actStr */
-    result = cstri_to_stri(getActEntry(anAction)->name);
-    if (unlikely(result == NULL)) {
+    logFunction(printf("actStr(" FMT_U_MEM ")\n",
+                       (memSizeType) anAction););
+    actionName = cstri_to_stri(getActEntry(anAction)->name);
+    if (unlikely(actionName == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return result;
+    logFunction(printf("actStr --> \"%s\"\n",
+                       striAsUnquotedCStri(actionName)););
+    return actionName;
   } /* actStr */

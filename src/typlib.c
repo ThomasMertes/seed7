@@ -93,10 +93,8 @@ objectType typ_cmp (listType arguments)
     typ2 = (memSizeType) take_type(arg_2(arguments));
     if (typ1 < typ2) {
       signumValue = -1;
-    } else if (typ1 > typ2) {
-      signumValue = 1;
     } else {
-      signumValue = 0;
+      signumValue = typ1 > typ2;
     } /* if */
     return bld_int_temp(signumValue);
   } /* typ_cmp */

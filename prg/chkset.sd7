@@ -6739,6 +6739,587 @@ const proc: check_elem is func
   end func;
 
 
+const proc: check_elem_char is func
+  local
+    var boolean: okay is TRUE;
+    var char: ch is '\A';
+    const set of char: set_a         is {'\A'};
+    const set of char: set_b         is {'\B'};
+    const set of char: set_a_b       is {'\A', '\B'};
+    const set of char: set_b_c       is {'\B', '\C'};
+    const set of char: set_a_b_c     is {'\A', '\B', '\C'};
+    const set of char: set_b_c_d     is {'\B', '\C', '\D'};
+    const set of char: set_a_e_g     is {'\A', '\E', '\G'};
+    const set of char: set_b_e_g     is {'\B', '\E', '\G'};
+    const set of char: set_a_b_c_d   is {'\A', '\B', '\C', '\D'};
+    const set of char: set_b_c_d_e   is {'\B', '\C', '\D', '\E'};
+    const set of char: set_a_c_e_g   is {'\A', '\C', '\E', '\G'};
+    const set of char: set_b_c_e_g   is {'\B', '\C', '\E', '\G'};
+    const set of char: set_a_b_c_d_e is {'\A', '\B', '\C', '\D', '\E'};
+    const set of char: set_b_c_d_e_f is {'\B', '\C', '\D', '\E', '\F'};
+    const set of char: set_a_c_e_g_k is {'\A', '\C', '\E', '\G', '\K'};
+    const set of char: set_b_c_e_g_k is {'\B', '\C', '\E', '\G', '\K'};
+    const set of char: set_a_unicode is {'\A', 'ä', 'Ǝ', 'ʘ', 'Γ'};
+    const set of char: set_b_unicode is {'\B', 'ä', 'Ǝ', 'ʘ', 'Γ'};
+    const set of char: set_1_3_5     is {'1', '3', '5'};
+    const set of char: set_2_3_5     is {'2', '3', '5'};
+    const set of char: set_1_3_5_7   is {'1', '3', '5', '7'};
+    const set of char: set_2_3_5_7   is {'2', '3', '5', '7'};
+    const set of char: set_1_3_5_7_9 is {'1', '3', '5', '7', '9'};
+    const set of char: set_2_3_5_7_9 is {'2', '3', '5', '7', '9'};
+    const set of char: set_1_unicode is {'1', 'Ǝ', 'ʘ', 'Γ', 'Ш'};
+    const set of char: set_2_unicode is {'2', 'Ǝ', 'ʘ', 'Γ', 'Ш'};
+  begin
+    if      '\A'     in (set of char).EMPTY_SET         or
+       not ('\A' not in (set of char).EMPTY_SET)        or
+            '\A'     in {'\B'}                          or
+       not ('\A' not in {'\B'})                         or
+            '\A' not in {'\A'}                          or
+       not ('\A'     in {'\A'})                         or
+            '\A'     in {'\B', '\C'}                    or
+       not ('\A' not in {'\B', '\C'})                   or
+            '\A' not in {'\A', '\B'}                    or
+       not ('\A'     in {'\A', '\B'})                   or
+            '\A'     in {'\B', '\C', '\D'}              or
+       not ('\A' not in {'\B', '\C', '\D'})             or
+            '\A' not in {'\A', '\B', '\C'}              or
+       not ('\A'     in {'\A', '\B', '\C'})             or
+            '\A'     in {'\B', '\E', '\G'}              or
+       not ('\A' not in {'\B', '\E', '\G'})             or
+            '\A' not in {'\A', '\E', '\G'}              or
+       not ('\A'     in {'\A', '\E', '\G'})             or
+            '\A'     in {'\B', '\C', '\D', '\E'}        or
+       not ('\A' not in {'\B', '\C', '\D', '\E'})       or
+            '\A' not in {'\A', '\B', '\C', '\D'}        or
+       not ('\A'     in {'\A', '\B', '\C', '\D'})       or
+            '\A'     in {'\B', '\C', '\E', '\G'}        or
+       not ('\A' not in {'\B', '\C', '\E', '\G'})       or
+            '\A' not in {'\A', '\C', '\E', '\G'}        or
+       not ('\A'     in {'\A', '\C', '\E', '\G'})       or
+            '\A'     in {'\B', '\C', '\D', '\E', '\F'}  or
+       not ('\A' not in {'\B', '\C', '\D', '\E', '\F'}) or
+            '\A' not in {'\A', '\B', '\C', '\D', '\E'}  or
+       not ('\A'     in {'\A', '\B', '\C', '\D', '\E'}) or
+            '\A'     in {'\B', '\C', '\E', '\G', '\K'}  or
+       not ('\A' not in {'\B', '\C', '\E', '\G', '\K'}) or
+            '\A' not in {'\A', '\C', '\E', '\G', '\K'}  or
+       not ('\A'     in {'\A', '\C', '\E', '\G', '\K'}) or
+            '\A'     in {'\B', 'ä', 'Ǝ', 'ʘ', 'Γ'}  or
+       not ('\A' not in {'\B', 'ä', 'Ǝ', 'ʘ', 'Γ'}) or
+            '\A' not in {'\A', 'ä', 'Ǝ', 'ʘ', 'Γ'}  or
+       not ('\A'     in {'\A', 'ä', 'Ǝ', 'ʘ', 'Γ'}) or
+            '1'     in {'2', '3', '5'}            or
+       not ('1' not in {'2', '3', '5'})           or
+            '1' not in {'1', '3', '5'}            or
+       not ('1'     in {'1', '3', '5'})           or
+            '1'     in {'2', '3', '5', '7'}       or
+       not ('1' not in {'2', '3', '5', '7'})      or
+            '1' not in {'1', '3', '5', '7'}       or
+       not ('1'     in {'1', '3', '5', '7'})      or
+            '1'     in {'2', '3', '5', '7', '9'}  or
+       not ('1' not in {'2', '3', '5', '7', '9'}) or
+            '1' not in {'1', '3', '5', '7', '9'}  or
+       not ('1'     in {'1', '3', '5', '7', '9'}) or
+            '1'     in {'2', 'Ǝ', 'ʘ', 'Γ', 'Ш'}  or
+       not ('1' not in {'2', 'Ǝ', 'ʘ', 'Γ', 'Ш'}) or
+            '1' not in {'1', 'Ǝ', 'ʘ', 'Γ', 'Ш'}  or
+       not ('1'     in {'1', 'Ǝ', 'ʘ', 'Γ', 'Ш'}) then
+      writeln("set membership test for char fails. (1)");
+      okay := FALSE;
+    end if;
+
+    if      '\A'     in (set of char).EMPTY_SET  or
+       not ('\A' not in (set of char).EMPTY_SET) or
+            '\A'     in set_b          or
+       not ('\A' not in set_b)         or
+            '\A' not in set_a          or
+       not ('\A'     in set_a)         or
+            '\A'     in set_b_c        or
+       not ('\A' not in set_b_c)       or
+            '\A' not in set_a_b        or
+       not ('\A'     in set_a_b)       or
+            '\A'     in set_b_c_d      or
+       not ('\A' not in set_b_c_d)     or
+            '\A' not in set_a_b_c      or
+       not ('\A'     in set_a_b_c)     or
+            '\A'     in set_b_e_g      or
+       not ('\A' not in set_b_e_g)     or
+            '\A' not in set_a_e_g      or
+       not ('\A'     in set_a_e_g)     or
+            '\A'     in set_b_c_d_e    or
+       not ('\A' not in set_b_c_d_e)   or
+            '\A' not in set_a_b_c_d    or
+       not ('\A'     in set_a_b_c_d)   or
+            '\A'     in set_b_c_e_g    or
+       not ('\A' not in set_b_c_e_g)   or
+            '\A' not in set_a_c_e_g    or
+       not ('\A'     in set_a_c_e_g)   or
+            '\A'     in set_b_c_d_e_f  or
+       not ('\A' not in set_b_c_d_e_f) or
+            '\A' not in set_a_b_c_d_e  or
+       not ('\A'     in set_a_b_c_d_e) or
+            '\A'     in set_b_c_e_g_k  or
+       not ('\A' not in set_b_c_e_g_k) or
+            '\A' not in set_a_c_e_g_k  or
+       not ('\A'     in set_a_c_e_g_k) or
+            '\A'     in set_b_unicode  or
+       not ('\A' not in set_b_unicode) or
+            '\A' not in set_a_unicode  or
+       not ('\A'     in set_a_unicode) or
+            '1'     in set_2_3_5      or
+       not ('1' not in set_2_3_5)     or
+            '1' not in set_1_3_5      or
+       not ('1'     in set_1_3_5)     or
+            '1'     in set_2_3_5_7    or
+       not ('1' not in set_2_3_5_7)   or
+            '1' not in set_1_3_5_7    or
+       not ('1'     in set_1_3_5_7)   or
+            '1'     in set_2_3_5_7_9  or
+       not ('1' not in set_2_3_5_7_9) or
+            '1' not in set_1_3_5_7_9  or
+       not ('1'     in set_1_3_5_7_9) or
+            '1'     in set_2_unicode  or
+       not ('1' not in set_2_unicode) or
+            '1' not in set_1_unicode  or
+       not ('1'     in set_1_unicode) then
+      writeln("set membership test for char fails. (2)");
+      okay := FALSE;
+    end if;
+
+    if      ch     in (set of char).EMPTY_SET         or
+       not (ch not in (set of char).EMPTY_SET)        or
+            ch     in {'\B'}                          or
+       not (ch not in {'\B'})                         or
+            ch not in {'\A'}                          or
+       not (ch     in {'\A'})                         or
+            ch     in {'\B', '\C'}                    or
+       not (ch not in {'\B', '\C'})                   or
+            ch not in {'\A', '\B'}                    or
+       not (ch     in {'\A', '\B'})                   or
+            ch     in {'\B', '\C', '\D'}              or
+       not (ch not in {'\B', '\C', '\D'})             or
+            ch not in {'\A', '\B', '\C'}              or
+       not (ch     in {'\A', '\B', '\C'})             or
+            ch     in {'\B', '\E', '\G'}              or
+       not (ch not in {'\B', '\E', '\G'})             or
+            ch not in {'\A', '\E', '\G'}              or
+       not (ch     in {'\A', '\E', '\G'})             or
+            ch     in {'\B', '\C', '\D', '\E'}        or
+       not (ch not in {'\B', '\C', '\D', '\E'})       or
+            ch not in {'\A', '\B', '\C', '\D'}        or
+       not (ch     in {'\A', '\B', '\C', '\D'})       or
+            ch     in {'\B', '\C', '\E', '\G'}        or
+       not (ch not in {'\B', '\C', '\E', '\G'})       or
+            ch not in {'\A', '\C', '\E', '\G'}        or
+       not (ch     in {'\A', '\C', '\E', '\G'})       or
+            ch     in {'\B', '\C', '\D', '\E', '\F'}  or
+       not (ch not in {'\B', '\C', '\D', '\E', '\F'}) or
+            ch not in {'\A', '\B', '\C', '\D', '\E'}  or
+       not (ch     in {'\A', '\B', '\C', '\D', '\E'}) or
+            ch     in {'\B', '\C', '\E', '\G', '\K'}  or
+       not (ch not in {'\B', '\C', '\E', '\G', '\K'}) or
+            ch not in {'\A', '\C', '\E', '\G', '\K'}  or
+       not (ch     in {'\A', '\C', '\E', '\G', '\K'}) or
+            ch     in {'\B', 'ä', 'Ǝ', 'ʘ', 'Γ'}  or
+       not (ch not in {'\B', 'ä', 'Ǝ', 'ʘ', 'Γ'}) or
+            ch not in {'\A', 'ä', 'Ǝ', 'ʘ', 'Γ'}  or
+       not (ch     in {'\A', 'ä', 'Ǝ', 'ʘ', 'Γ'}) then
+      writeln("set membership test for char fails. (3)");
+      okay := FALSE;
+    end if;
+
+    if      ch     in (set of char).EMPTY_SET  or
+       not (ch not in (set of char).EMPTY_SET) or
+            ch     in set_b          or
+       not (ch not in set_b)         or
+            ch not in set_a          or
+       not (ch     in set_a)         or
+            ch     in set_b_c        or
+       not (ch not in set_b_c)       or
+            ch not in set_a_b        or
+       not (ch     in set_a_b)       or
+            ch     in set_b_c_d      or
+       not (ch not in set_b_c_d)     or
+            ch not in set_a_b_c      or
+       not (ch     in set_a_b_c)     or
+            ch     in set_b_e_g      or
+       not (ch not in set_b_e_g)     or
+            ch not in set_a_e_g      or
+       not (ch     in set_a_e_g)     or
+            ch     in set_b_c_d_e    or
+       not (ch not in set_b_c_d_e)   or
+            ch not in set_a_b_c_d    or
+       not (ch     in set_a_b_c_d)   or
+            ch     in set_b_c_e_g    or
+       not (ch not in set_b_c_e_g)   or
+            ch not in set_a_c_e_g    or
+       not (ch     in set_a_c_e_g)   or
+            ch     in set_b_c_d_e_f  or
+       not (ch not in set_b_c_d_e_f) or
+            ch not in set_a_b_c_d_e  or
+       not (ch     in set_a_b_c_d_e) or
+            ch     in set_b_c_e_g_k  or
+       not (ch not in set_b_c_e_g_k) or
+            ch not in set_a_c_e_g_k  or
+       not (ch     in set_a_c_e_g_k) or
+            ch     in set_b_unicode  or
+       not (ch not in set_b_unicode) or
+            ch not in set_a_unicode  or
+       not (ch     in set_a_unicode) then
+      writeln("set membership test for char fails. (4)");
+      okay := FALSE;
+    end if;
+
+    ch := '1';
+    if      ch     in {'2', '3', '5'}            or
+       not (ch not in {'2', '3', '5'})           or
+            ch not in {'1', '3', '5'}            or
+       not (ch     in {'1', '3', '5'})           or
+            ch     in {'2', '3', '5', '7'}       or
+       not (ch not in {'2', '3', '5', '7'})      or
+            ch not in {'1', '3', '5', '7'}       or
+       not (ch     in {'1', '3', '5', '7'})      or
+            ch     in {'2', '3', '5', '7', '9'}  or
+       not (ch not in {'2', '3', '5', '7', '9'}) or
+            ch not in {'1', '3', '5', '7', '9'}  or
+       not (ch     in {'1', '3', '5', '7', '9'}) or
+            ch     in {'2', 'Ǝ', 'ʘ', 'Γ', 'Ш'}  or
+       not (ch not in {'2', 'Ǝ', 'ʘ', 'Γ', 'Ш'}) or
+            ch not in {'1', 'Ǝ', 'ʘ', 'Γ', 'Ш'}  or
+       not (ch     in {'1', 'Ǝ', 'ʘ', 'Γ', 'Ш'}) or
+            ch     in set_2_3_5      or
+       not (ch not in set_2_3_5)     or
+            ch not in set_1_3_5      or
+       not (ch     in set_1_3_5)     or
+            ch     in set_2_3_5_7    or
+       not (ch not in set_2_3_5_7)   or
+            ch not in set_1_3_5_7    or
+       not (ch     in set_1_3_5_7)   or
+            ch     in set_2_3_5_7_9  or
+       not (ch not in set_2_3_5_7_9) or
+            ch not in set_1_3_5_7_9  or
+       not (ch     in set_1_3_5_7_9) or
+            ch     in set_2_unicode  or
+       not (ch not in set_2_unicode) or
+            ch not in set_1_unicode  or
+       not (ch     in set_1_unicode) then
+      writeln("set membership test for char fails. (5)");
+      okay := FALSE;
+    end if;
+
+    if  '\1000000;' not in {'\1000000;'}        or
+              '\0;' not in {'\0;', '\1000000;'} or
+        '\1000000;' not in {'\0;', '\1000000;'} then
+      writeln("set membership test for char fails. (6)");
+      okay := FALSE;
+    end if;
+
+    if  ch     in {'\1000000;'}          or
+        ch     in {'\0;', '\1000000;'}   or
+        ch not in {'\0;' .. '\1000000;'} then
+      writeln("set membership test for char fails. (7)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("set membership test for char works correct.");
+    else
+      writeln(" ***** set membership test for char does not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_elem_string is func
+  local
+    var boolean: okay is TRUE;
+    var string: stri is "a";
+    const set of string: set_a         is {"a"};
+    const set of string: set_b         is {"b"};
+    const set of string: set_a_b       is {"a", "b"};
+    const set of string: set_b_c       is {"b", "c"};
+    const set of string: set_a_b_c     is {"a", "b", "c"};
+    const set of string: set_b_c_d     is {"b", "c", "d"};
+    const set of string: set_a_e_g     is {"a", "e", "g"};
+    const set of string: set_b_e_g     is {"b", "e", "g"};
+    const set of string: set_a_b_c_d   is {"a", "b", "c", "d"};
+    const set of string: set_b_c_d_e   is {"b", "c", "d", "e"};
+    const set of string: set_a_c_e_g   is {"a", "c", "e", "g"};
+    const set of string: set_b_c_e_g   is {"b", "c", "e", "g"};
+    const set of string: set_a_b_c_d_e is {"a", "b", "c", "d", "e"};
+    const set of string: set_b_c_d_e_f is {"b", "c", "d", "e", "f"};
+    const set of string: set_a_c_e_g_k is {"a", "c", "e", "g", "k"};
+    const set of string: set_b_c_e_g_k is {"b", "c", "e", "g", "k"};
+    const set of string: set_a_unicode is {"a", "ä", "Ǝ", "ʘ", "Γ"};
+    const set of string: set_b_unicode is {"b", "ä", "Ǝ", "ʘ", "Γ"};
+    const set of string: set_1_3_5     is {"1", "3", "5"};
+    const set of string: set_2_3_5     is {"2", "3", "5"};
+    const set of string: set_1_3_5_7   is {"1", "3", "5", "7"};
+    const set of string: set_2_3_5_7   is {"2", "3", "5", "7"};
+    const set of string: set_1_3_5_7_9 is {"1", "3", "5", "7", "9"};
+    const set of string: set_2_3_5_7_9 is {"2", "3", "5", "7", "9"};
+    const set of string: set_1_unicode is {"1", "Ǝ", "ʘ", "Γ", "Ш"};
+    const set of string: set_2_unicode is {"2", "Ǝ", "ʘ", "Γ", "Ш"};
+  begin
+    if      "a"     in (set of string).EMPTY_SET    or
+       not ("a" not in (set of string).EMPTY_SET)   or
+            "a"     in {"b"}                      or
+       not ("a" not in {"b"})                     or
+            "a" not in {"a"}                      or
+       not ("a"     in {"a"})                     or
+            "a"     in {"b", "c"}                 or
+       not ("a" not in {"b", "c"})                or
+            "a" not in {"a", "b"}                 or
+       not ("a"     in {"a", "b"})                or
+            "a"     in {"b", "c", "d"}            or
+       not ("a" not in {"b", "c", "d"})           or
+            "a" not in {"a", "b", "c"}            or
+       not ("a"     in {"a", "b", "c"})           or
+            "a"     in {"b", "e", "g"}            or
+       not ("a" not in {"b", "e", "g"})           or
+            "a" not in {"a", "e", "g"}            or
+       not ("a"     in {"a", "e", "g"})           or
+            "a"     in {"b", "c", "d", "e"}       or
+       not ("a" not in {"b", "c", "d", "e"})      or
+            "a" not in {"a", "b", "c", "d"}       or
+       not ("a"     in {"a", "b", "c", "d"})      or
+            "a"     in {"b", "c", "e", "g"}       or
+       not ("a" not in {"b", "c", "e", "g"})      or
+            "a" not in {"a", "c", "e", "g"}       or
+       not ("a"     in {"a", "c", "e", "g"})      or
+            "a"     in {"b", "c", "d", "e", "f"}  or
+       not ("a" not in {"b", "c", "d", "e", "f"}) or
+            "a" not in {"a", "b", "c", "d", "e"}  or
+       not ("a"     in {"a", "b", "c", "d", "e"}) or
+            "a"     in {"b", "c", "e", "g", "k"}  or
+       not ("a" not in {"b", "c", "e", "g", "k"}) or
+            "a" not in {"a", "c", "e", "g", "k"}  or
+       not ("a"     in {"a", "c", "e", "g", "k"}) or
+            "a"     in {"b", "ä", "Ǝ", "ʘ", "Γ"}  or
+       not ("a" not in {"b", "ä", "Ǝ", "ʘ", "Γ"}) or
+            "a" not in {"a", "ä", "Ǝ", "ʘ", "Γ"}  or
+       not ("a"     in {"a", "ä", "Ǝ", "ʘ", "Γ"}) or
+            "1"     in {"2", "3", "5"}            or
+       not ("1" not in {"2", "3", "5"})           or
+            "1" not in {"1", "3", "5"}            or
+       not ("1"     in {"1", "3", "5"})           or
+            "1"     in {"2", "3", "5", "7"}       or
+       not ("1" not in {"2", "3", "5", "7"})      or
+            "1" not in {"1", "3", "5", "7"}       or
+       not ("1"     in {"1", "3", "5", "7"})      or
+            "1"     in {"2", "3", "5", "7", "9"}  or
+       not ("1" not in {"2", "3", "5", "7", "9"}) or
+            "1" not in {"1", "3", "5", "7", "9"}  or
+       not ("1"     in {"1", "3", "5", "7", "9"}) or
+            "1"     in {"2", "Ǝ", "ʘ", "Γ", "Ш"}  or
+       not ("1" not in {"2", "Ǝ", "ʘ", "Γ", "Ш"}) or
+            "1" not in {"1", "Ǝ", "ʘ", "Γ", "Ш"}  or
+       not ("1"     in {"1", "Ǝ", "ʘ", "Γ", "Ш"}) then
+      writeln("set membership test for string fails. (1)");
+      okay := FALSE;
+    end if;
+
+    if      "a"     in (set of string).EMPTY_SET  or
+       not ("a" not in (set of string).EMPTY_SET) or
+            "a"     in set_b          or
+       not ("a" not in set_b)         or
+            "a" not in set_a          or
+       not ("a"     in set_a)         or
+            "a"     in set_b_c        or
+       not ("a" not in set_b_c)       or
+            "a" not in set_a_b        or
+       not ("a"     in set_a_b)       or
+            "a"     in set_b_c_d      or
+       not ("a" not in set_b_c_d)     or
+            "a" not in set_a_b_c      or
+       not ("a"     in set_a_b_c)     or
+            "a"     in set_b_e_g      or
+       not ("a" not in set_b_e_g)     or
+            "a" not in set_a_e_g      or
+       not ("a"     in set_a_e_g)     or
+            "a"     in set_b_c_d_e    or
+       not ("a" not in set_b_c_d_e)   or
+            "a" not in set_a_b_c_d    or
+       not ("a"     in set_a_b_c_d)   or
+            "a"     in set_b_c_e_g    or
+       not ("a" not in set_b_c_e_g)   or
+            "a" not in set_a_c_e_g    or
+       not ("a"     in set_a_c_e_g)   or
+            "a"     in set_b_c_d_e_f  or
+       not ("a" not in set_b_c_d_e_f) or
+            "a" not in set_a_b_c_d_e  or
+       not ("a"     in set_a_b_c_d_e) or
+            "a"     in set_b_c_e_g_k  or
+       not ("a" not in set_b_c_e_g_k) or
+            "a" not in set_a_c_e_g_k  or
+       not ("a"     in set_a_c_e_g_k) or
+            "a"     in set_b_unicode  or
+       not ("a" not in set_b_unicode) or
+            "a" not in set_a_unicode  or
+       not ("a"     in set_a_unicode) or
+            "1"     in set_2_3_5      or
+       not ("1" not in set_2_3_5)     or
+            "1" not in set_1_3_5      or
+       not ("1"     in set_1_3_5)     or
+            "1"     in set_2_3_5_7    or
+       not ("1" not in set_2_3_5_7)   or
+            "1" not in set_1_3_5_7    or
+       not ("1"     in set_1_3_5_7)   or
+            "1"     in set_2_3_5_7_9  or
+       not ("1" not in set_2_3_5_7_9) or
+            "1" not in set_1_3_5_7_9  or
+       not ("1"     in set_1_3_5_7_9) or
+            "1"     in set_2_unicode  or
+       not ("1" not in set_2_unicode) or
+            "1" not in set_1_unicode  or
+       not ("1"     in set_1_unicode) then
+      writeln("set membership test for string fails. (2)");
+      okay := FALSE;
+    end if;
+
+    if      stri     in (set of string).EMPTY_SET    or
+       not (stri not in (set of string).EMPTY_SET)   or
+            stri     in {"b"}                      or
+       not (stri not in {"b"})                     or
+            stri not in {"a"}                      or
+       not (stri     in {"a"})                     or
+            stri     in {"b", "c"}                 or
+       not (stri not in {"b", "c"})                or
+            stri not in {"a", "b"}                 or
+       not (stri     in {"a", "b"})                or
+            stri     in {"b", "c", "d"}            or
+       not (stri not in {"b", "c", "d"})           or
+            stri not in {"a", "b", "c"}            or
+       not (stri     in {"a", "b", "c"})           or
+            stri     in {"b", "e", "g"}            or
+       not (stri not in {"b", "e", "g"})           or
+            stri not in {"a", "e", "g"}            or
+       not (stri     in {"a", "e", "g"})           or
+            stri     in {"b", "c", "d", "e"}       or
+       not (stri not in {"b", "c", "d", "e"})      or
+            stri not in {"a", "b", "c", "d"}       or
+       not (stri     in {"a", "b", "c", "d"})      or
+            stri     in {"b", "c", "e", "g"}       or
+       not (stri not in {"b", "c", "e", "g"})      or
+            stri not in {"a", "c", "e", "g"}       or
+       not (stri     in {"a", "c", "e", "g"})      or
+            stri     in {"b", "c", "d", "e", "f"}  or
+       not (stri not in {"b", "c", "d", "e", "f"}) or
+            stri not in {"a", "b", "c", "d", "e"}  or
+       not (stri     in {"a", "b", "c", "d", "e"}) or
+            stri     in {"b", "c", "e", "g", "k"}  or
+       not (stri not in {"b", "c", "e", "g", "k"}) or
+            stri not in {"a", "c", "e", "g", "k"}  or
+       not (stri     in {"a", "c", "e", "g", "k"}) or
+            stri     in {"b", "ä", "Ǝ", "ʘ", "Γ"}  or
+       not (stri not in {"b", "ä", "Ǝ", "ʘ", "Γ"}) or
+            stri not in {"a", "ä", "Ǝ", "ʘ", "Γ"}  or
+       not (stri     in {"a", "ä", "Ǝ", "ʘ", "Γ"}) then
+      writeln("set membership test for string fails. (3)");
+      okay := FALSE;
+    end if;
+
+    if      stri     in (set of string).EMPTY_SET  or
+       not (stri not in (set of string).EMPTY_SET) or
+            stri     in set_b          or
+       not (stri not in set_b)         or
+            stri not in set_a          or
+       not (stri     in set_a)         or
+            stri     in set_b_c        or
+       not (stri not in set_b_c)       or
+            stri not in set_a_b        or
+       not (stri     in set_a_b)       or
+            stri     in set_b_c_d      or
+       not (stri not in set_b_c_d)     or
+            stri not in set_a_b_c      or
+       not (stri     in set_a_b_c)     or
+            stri     in set_b_e_g      or
+       not (stri not in set_b_e_g)     or
+            stri not in set_a_e_g      or
+       not (stri     in set_a_e_g)     or
+            stri     in set_b_c_d_e    or
+       not (stri not in set_b_c_d_e)   or
+            stri not in set_a_b_c_d    or
+       not (stri     in set_a_b_c_d)   or
+            stri     in set_b_c_e_g    or
+       not (stri not in set_b_c_e_g)   or
+            stri not in set_a_c_e_g    or
+       not (stri     in set_a_c_e_g)   or
+            stri     in set_b_c_d_e_f  or
+       not (stri not in set_b_c_d_e_f) or
+            stri not in set_a_b_c_d_e  or
+       not (stri     in set_a_b_c_d_e) or
+            stri     in set_b_c_e_g_k  or
+       not (stri not in set_b_c_e_g_k) or
+            stri not in set_a_c_e_g_k  or
+       not (stri     in set_a_c_e_g_k) or
+            stri     in set_b_unicode  or
+       not (stri not in set_b_unicode) or
+            stri not in set_a_unicode  or
+       not (stri     in set_a_unicode) then
+      writeln("set membership test for string fails. (4)");
+      okay := FALSE;
+    end if;
+
+    stri := "1";
+    if      stri     in {"2", "3", "5"}            or
+       not (stri not in {"2", "3", "5"})           or
+            stri not in {"1", "3", "5"}            or
+       not (stri     in {"1", "3", "5"})           or
+            stri     in {"2", "3", "5", "7"}       or
+       not (stri not in {"2", "3", "5", "7"})      or
+            stri not in {"1", "3", "5", "7"}       or
+       not (stri     in {"1", "3", "5", "7"})      or
+            stri     in {"2", "3", "5", "7", "9"}  or
+       not (stri not in {"2", "3", "5", "7", "9"}) or
+            stri not in {"1", "3", "5", "7", "9"}  or
+       not (stri     in {"1", "3", "5", "7", "9"}) or
+            stri     in {"2", "Ǝ", "ʘ", "Γ", "Ш"}  or
+       not (stri not in {"2", "Ǝ", "ʘ", "Γ", "Ш"}) or
+            stri not in {"1", "Ǝ", "ʘ", "Γ", "Ш"}  or
+       not (stri     in {"1", "Ǝ", "ʘ", "Γ", "Ш"}) or
+            stri     in set_2_3_5                  or
+       not (stri not in set_2_3_5)     or
+            stri not in set_1_3_5      or
+       not (stri     in set_1_3_5)     or
+            stri     in set_2_3_5_7    or
+       not (stri not in set_2_3_5_7)   or
+            stri not in set_1_3_5_7    or
+       not (stri     in set_1_3_5_7)   or
+            stri     in set_2_3_5_7_9  or
+       not (stri not in set_2_3_5_7_9) or
+            stri not in set_1_3_5_7_9  or
+       not (stri     in set_1_3_5_7_9) or
+            stri     in set_2_unicode  or
+       not (stri not in set_2_unicode) or
+            stri not in set_1_unicode  or
+       not (stri     in set_1_unicode) then
+      writeln("set membership test for string fails. (5)");
+      okay := FALSE;
+    end if;
+
+    if  "\1000000;" not in {"\1000000;"}        or
+              "\0;" not in {"\0;", "\1000000;"} or
+        "\1000000;" not in {"\0;", "\1000000;"} then
+      writeln("set membership test for string fails. (6)");
+      okay := FALSE;
+    end if;
+
+    if  stri     in {"\1000000;"}          or
+        stri     in {"\0;", "\1000000;"}   then
+      writeln("set membership test for string fails. (7)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("set membership test for string works correct.");
+    else
+      writeln(" ***** set membership test for string does not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_min is func
   local
     var boolean: okay is TRUE;
@@ -7115,6 +7696,8 @@ const proc: main is func
     check_intersection;
     check_difference;
     check_elem;
+    check_elem_char;
+    check_elem_string;
     check_min;
     check_max;
     check_str;

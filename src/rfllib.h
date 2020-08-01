@@ -48,7 +48,7 @@ objectType rfl_ne        (listType arguments);
 objectType rfl_not_elem  (listType arguments);
 objectType rfl_pos       (listType arguments);
 objectType rfl_range     (listType arguments);
-objectType rfl_setValue  (listType arguments);
+objectType rfl_set_value (listType arguments);
 objectType rfl_tail      (listType arguments);
 objectType rfl_trace     (listType arguments);
 objectType rfl_value     (listType arguments);

@@ -331,10 +331,8 @@ objectType ref_cmp (listType arguments)
     ref2 = (memSizeType) take_reference(arg_2(arguments));
     if (ref1 < ref2) {
       signumValue = -1;
-    } else if (ref1 > ref2) {
-      signumValue = 1;
     } else {
-      signumValue = 0;
+      signumValue = ref1 > ref2;
     } /* if */
     return bld_int_temp(signumValue);
   } /* ref_cmp */
@@ -492,6 +490,16 @@ objectType ref_hshkeystolist (listType arguments)
     return bld_reflist_temp(refHshKeysToList(
         take_reference(arg_1(arguments))));
   } /* ref_hshkeystolist */
+
+
+
+objectType ref_hshlength (listType arguments)
+
+  { /* ref_hshlength */
+    isit_reference(arg_1(arguments));
+    return bld_int_temp(refHshLength(
+        take_reference(arg_1(arguments))));
+  } /* ref_hshlength */
 
 
 

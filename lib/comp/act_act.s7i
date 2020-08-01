@@ -26,7 +26,9 @@
 
 const ACTION: ACT_CPY    is action "ACT_CPY";
 const ACTION: ACT_EQ     is action "ACT_EQ";
-const ACTION: ACT_ICONV  is action "ACT_ICONV";
+const ACTION: ACT_GEN    is action "ACT_GEN";
+const ACTION: ACT_ICONV1 is action "ACT_ICONV1";
+const ACTION: ACT_ICONV3 is action "ACT_ICONV3";
 const ACTION: ACT_NE     is action "ACT_NE";
 const ACTION: ACT_ORD    is action "ACT_ORD";
 const ACTION: ACT_STR    is action "ACT_STR";
@@ -36,6 +38,7 @@ const ACTION: ACT_VALUE  is action "ACT_VALUE";
 const proc: act_prototypes (inout file: c_prog) is func
 
   begin
+    declareExtern(c_prog, "actType     actGen (striType);");
     declareExtern(c_prog, "actType     actIConv (intType);");
     declareExtern(c_prog, "intType     actOrd (actType);");
     declareExtern(c_prog, "striType    actStr (actType);");
@@ -89,7 +92,29 @@ const proc: process (ACT_EQ, in reference: function,
   end func;
 
 
-const proc: process (ACT_ICONV, in reference: function,
+const proc: process (ACT_GEN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "actGen(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (ACT_ICONV1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "actIConv(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (ACT_ICONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin

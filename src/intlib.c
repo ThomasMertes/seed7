@@ -237,12 +237,12 @@ objectType int_bit_length (listType arguments)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-objectType int_bytesBe2Int (listType arguments)
+objectType int_bytes_be_2_int (listType arguments)
 
-  { /* int_bytesBe2Int */
+  { /* int_bytes_be_2_int */
     isit_stri(arg_1(arguments));
     return bld_int_temp(intBytesBe2Int(take_stri(arg_1(arguments))));
-  } /* int_bytesBe2Int */
+  } /* int_bytes_be_2_int */
 
 
 
@@ -256,12 +256,12 @@ objectType int_bytesBe2Int (listType arguments)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-objectType int_bytesBe2UInt (listType arguments)
+objectType int_bytes_be_2_uint (listType arguments)
 
-  { /* int_bytesBe2UInt */
+  { /* int_bytes_be_2_uint */
     isit_stri(arg_1(arguments));
     return bld_int_temp(intBytesBe2UInt(take_stri(arg_1(arguments))));
-  } /* int_bytesBe2UInt */
+  } /* int_bytes_be_2_uint */
 
 
 
@@ -273,12 +273,12 @@ objectType int_bytesBe2UInt (listType arguments)
  *  @return a string with the shortest binary representation of 'number'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType int_bytesBeSigned (listType arguments)
+objectType int_bytes_be_signed (listType arguments)
 
-  { /* int_bytesBeSigned */
+  { /* int_bytes_be_signed */
     isit_int(arg_1(arguments));
     return bld_stri_temp(intBytesBe(take_int(arg_1(arguments)), TRUE));
-  } /* int_bytesBeSigned */
+  } /* int_bytes_be_signed */
 
 
 
@@ -291,12 +291,12 @@ objectType int_bytesBeSigned (listType arguments)
  *  @exception RANGE_ERROR When 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType int_bytesBeUnsigned (listType arguments)
+objectType int_bytes_be_unsigned (listType arguments)
 
-  { /* int_bytesBeUnsigned */
+  { /* int_bytes_be_unsigned */
     isit_int(arg_1(arguments));
     return bld_stri_temp(intBytesBe(take_int(arg_1(arguments)), FALSE));
-  } /* int_bytesBeUnsigned */
+  } /* int_bytes_be_unsigned */
 
 
 
@@ -312,12 +312,12 @@ objectType int_bytesBeUnsigned (listType arguments)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-objectType int_bytesLe2Int (listType arguments)
+objectType int_bytes_le_2_int (listType arguments)
 
-  { /* int_bytesLe2Int */
+  { /* int_bytes_le_2_int */
     isit_stri(arg_1(arguments));
     return bld_int_temp(intBytesLe2Int(take_stri(arg_1(arguments))));
-  } /* int_bytesLe2Int */
+  } /* int_bytes_le_2_int */
 
 
 
@@ -331,12 +331,12 @@ objectType int_bytesLe2Int (listType arguments)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-objectType int_bytesLe2UInt (listType arguments)
+objectType int_bytes_le_2_uint (listType arguments)
 
-  { /* int_bytesLe2UInt */
+  { /* int_bytes_le_2_uint */
     isit_stri(arg_1(arguments));
     return bld_int_temp(intBytesLe2UInt(take_stri(arg_1(arguments))));
-  } /* int_bytesLe2UInt */
+  } /* int_bytes_le_2_uint */
 
 
 
@@ -348,12 +348,12 @@ objectType int_bytesLe2UInt (listType arguments)
  *  @return a string with the shortest binary representation of 'number'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType int_bytesLeSigned (listType arguments)
+objectType int_bytes_le_signed (listType arguments)
 
-  { /* int_bytesLeSigned */
+  { /* int_bytes_le_signed */
     isit_int(arg_1(arguments));
     return bld_stri_temp(intBytesLe(take_int(arg_1(arguments)), TRUE));
-  } /* int_bytesLeSigned */
+  } /* int_bytes_le_signed */
 
 
 
@@ -366,12 +366,12 @@ objectType int_bytesLeSigned (listType arguments)
  *  @exception RANGE_ERROR When 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType int_bytesLeUnsigned (listType arguments)
+objectType int_bytes_le_unsigned (listType arguments)
 
-  { /* int_bytesLeUnsigned */
+  { /* int_bytes_le_unsigned */
     isit_int(arg_1(arguments));
     return bld_stri_temp(intBytesLe(take_int(arg_1(arguments)), FALSE));
-  } /* int_bytesLeUnsigned */
+  } /* int_bytes_le_unsigned */
 
 
 
@@ -400,19 +400,6 @@ objectType int_cmp (listType arguments)
     } /* if */
     return bld_int_temp(signumValue);
   } /* int_cmp */
-
-
-
-/**
- *  Convert to integer.
- *  @return the unchanged number.
- */
-objectType int_conv (listType arguments)
-
-  { /* int_conv */
-    isit_int(arg_3(arguments));
-    return bld_int_temp(take_int(arg_3(arguments)));
-  } /* int_conv */
 
 
 
@@ -615,6 +602,32 @@ objectType int_hashcode (listType arguments)
     isit_int(arg_1(arguments));
     return bld_int_temp(take_int(arg_1(arguments)));
   } /* int_hashcode */
+
+
+
+/**
+ *  Convert to integer.
+ *  @return the unchanged number.
+ */
+objectType int_iconv1 (listType arguments)
+
+  { /* int_iconv1 */
+    isit_int(arg_1(arguments));
+    return bld_int_temp(take_int(arg_1(arguments)));
+  } /* int_iconv1 */
+
+
+
+/**
+ *  Convert to integer.
+ *  @return the unchanged number.
+ */
+objectType int_iconv3 (listType arguments)
+
+  { /* int_iconv3 */
+    isit_int(arg_3(arguments));
+    return bld_int_temp(take_int(arg_3(arguments)));
+  } /* int_iconv3 */
 
 
 
@@ -1089,19 +1102,6 @@ objectType int_odd (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_odd */
-
-
-
-/**
- *  Convert to integer.
- *  @return the unchanged number.
- */
-objectType int_ord (listType arguments)
-
-  { /* int_ord */
-    isit_int(arg_1(arguments));
-    return bld_int_temp(take_int(arg_1(arguments)));
-  } /* int_ord */
 
 
 

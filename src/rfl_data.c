@@ -108,7 +108,7 @@ listType rflCat (listType list1, const listType list2)
 inline intType rflCmp (const_listType list1, const_listType list2)
 
   {
-    intType result;
+    intType signumValue;
 
   /* rflCmp */
     while (list1 != NULL && list2 != NULL &&
@@ -116,18 +116,20 @@ inline intType rflCmp (const_listType list1, const_listType list2)
       list1 = list1->next;
       list2 = list2->next;
     } /* while */
-    if (list1 == NULL && list2 == NULL) {
-      result = 0;
-    } else if (list1 == NULL) {
-      result = -1;
+    if (list1 == NULL) {
+      if (list2 == NULL) {
+        signumValue = 0;
+      } else {
+        signumValue = -1;
+      } /* if */
     } else if (list2 == NULL) {
-      result = 1;
+      signumValue = 1;
     } else if ((memSizeType) (list1->obj) < (memSizeType) (list2->obj)) {
-      result = -1;
+      signumValue = -1;
     } else {
-      result = 1;
+      signumValue = (memSizeType) (list1->obj) > (memSizeType) (list2->obj);
     } /* if */
-    return result;
+    return signumValue;
   } /* rflCmp */
 
 
@@ -449,15 +451,14 @@ void rflIncl (listType *list, objectType elem)
 intType rflLng (const_listType list)
 
   {
-    intType result;
+    intType length = 0;
 
   /* rflLng */
-    result = 0;
     while (list != NULL) {
       list = list->next;
-      result++;
+      length++;
     } /* while */
-    return result;
+    return length;
   } /* rflLng */
 
 

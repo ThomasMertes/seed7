@@ -242,6 +242,16 @@ const func boolean: (attr boolean) parse (in string: stri) is forward;
 
 
 (**
+ *  Convert a [[string]] to a boolean value.
+ *  @return the boolean result of the conversion.
+ *  @exception RANGE_ERROR When the string is not equal to
+ *             "TRUE" or "FALSE".
+ *)
+const func boolean: boolean (in string: stri) is
+    return boolean parse stri;
+
+
+(**
  *  Compute pseudo-random boolean value in the range [low, high].
  *  The random values are uniform distributed.
  *  @return a random number such that low <= rand(low, high) and

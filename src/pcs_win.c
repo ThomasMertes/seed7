@@ -270,10 +270,8 @@ intType pcsCmp (const const_processType process1, const const_processType proces
       signumValue = 1;
     } else if (to_pid(process1) < to_pid(process2)) {
       signumValue = -1;
-    } else if (to_pid(process1) == to_pid(process2)) {
-      signumValue = 0;
     } else {
-      signumValue = 1;
+      signumValue = to_pid(process1) > to_pid(process2);
     } /* if */
     return signumValue;
   } /* pcsCmp */

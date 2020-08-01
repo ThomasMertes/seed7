@@ -91,6 +91,7 @@ const proc: create_name (in reference: current_object, in integer: object_number
 
 
 const proc: process_expr (in reference: current_expression, inout expr_type: c_expr) is forward;
+const proc: process_call_by_name_expr (in var reference: current_expression, inout expr_type: c_expr) is forward;
 
 
 const proc: prepare_typed_result (in type: aType, inout expr_type: c_expr) is func

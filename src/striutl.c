@@ -1655,7 +1655,7 @@ bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
     bstriType bstri;
 
   /* stri_to_bstri */
-    if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(bstri, stri->size))) {
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri, stri->size))) {
       *err_info = MEMORY_ERROR;
     } else {
       bstri->size = stri->size;

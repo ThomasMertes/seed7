@@ -1056,7 +1056,7 @@ const proc: process (STR_FOR, in reference: function,
     statement.expr &:= "->mem[";
     statement.expr &:= index_name;
     statement.expr &:= "];\n";
-    process_expr(params[6], statement);
+    process_call_by_name_expr(params[6], statement);
     statement.expr &:= "}\n";
     doLocalDeclsOfStatement(statement, c_expr);
   end func;

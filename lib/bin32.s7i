@@ -48,28 +48,28 @@ const proc: (inout bin32: dest) := (in bin32: source)          is action "INT_CP
  *  Convert to integer.
  *  @return the unchanged value as integer.
  *)
-const func integer: (attr integer) conv (in bin32: binValue)   is action "INT_CONV";
+const func integer: (attr integer) conv (in bin32: binValue)   is action "INT_ICONV3";
 
 
 (**
  *  Convert to bin32.
  *  @return the unchanged value as bin32.
  *)
-const func bin32: (attr bin32) conv (in integer: anInt)        is action "INT_CONV";
+const func bin32: (attr bin32) conv (in integer: anInt)        is action "INT_ICONV3";
 
 
 (**
  *  Convert to integer.
  *  @return the unchanged value as integer.
  *)
-const func integer: ord (in bin32: binValue)                   is action "INT_ORD";
+const func integer: ord (in bin32: binValue)                   is action "INT_ICONV1";
 
 
 (**
  *  Convert to bin32.
  *  @return the unchanged value as bin32.
  *)
-const func bin32: bin32 (in integer: number)                   is action "INT_ORD";
+const func bin32: bin32 (in integer: number)                   is action "INT_ICONV1";
 
 
 const bin32: (attr bin32) . value   is bin32(0);

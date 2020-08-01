@@ -30,6 +30,10 @@ const set of category: constantExpressionCategories is {
     FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT,
     PROCESSOBJECT, ENUMLITERALOBJECT, REFLISTOBJECT, SYMBOLOBJECT};
 
+const set of string: specialActions is
+    {"HSH_CONTAINS", "HSH_EXCL", "HSH_INCL", "HSH_KEYS", "SET_BASELIT",
+     "SET_CONV", "SET_ELEM", "SET_EXCL", "SET_INCL", "SET_NOT_ELEM"};
+
 
 const func boolean: isPureFunction (in reference: function) is forward;
 
@@ -50,24 +54,34 @@ const func boolean: isConstantCall (in reference: current_expression,
          "ITF_CPY", "LST_CPY", "PCS_CPY", "POL_CPY", "PRC_CPY", "PRG_CPY",
          "REF_CPY", "RFL_CPY", "SCT_CPY", "SET_CPY", "SOC_CPY", "SQL_CPY_DB",
          "SQL_CPY_STMT", "STR_CPY", "TYP_CPY"};
-    var ref_list: params is ref_list.EMPTY;
+    var ref_list: formal_params is ref_list.EMPTY;
+    var ref_list: actual_params is ref_list.EMPTY;
     var reference: function is NIL;
-    var reference: obj is NIL;
+    var integer: number is 0;
+    var reference: formal_param is NIL;
+    var reference: actual_param is NIL;
+    var category: paramCategory is category.value;
     var string: action_name is "";
   begin
-    # write(file(current_expression) <& "(" <& line(current_expression) <& "): ");
-    params := getValue(current_expression, ref_list);
-    function := params[1];
-    params := params[2 ..];
+    # write("isConstantCall: " <& file(current_expression) <& "(" <& line(current_expression) <& "): ");
+    actual_params := getValue(current_expression, ref_list);
+    function := actual_params[1];
+    actual_params := actual_params[2 ..];
     if category(function) in constantExpressionCategories then
       isConstantCall := TRUE;
     elsif isPureFunction(function) then
       # write(" {isPureFunction(" <& str(function) <& ")}");
       isConstantCall := TRUE;
-      for obj range params until not isConstantCall do
-        if not isConstant(obj, local_objects) then
-          # write(" [not isConstant(" <& str(obj) <& ") " <& str(category(obj)) <& "]");
-          isConstantCall := FALSE;
+      formal_params := formalParams(function);
+      for number range 1 to length(actual_params) do
+        formal_param := formal_params[number];
+        actual_param := actual_params[number];
+        paramCategory := category(formal_param);
+        if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
+          if not isConstant(actual_param, local_objects) then
+            # write(" [not isConstant(" <& str(actual_param) <& ") " <& str(category(actual_param)) <& "]");
+            isConstantCall := FALSE;
+          end if;
         end if;
       end for;
     else
@@ -77,20 +91,20 @@ const func boolean: isConstantCall (in reference: current_expression,
         action_name := str(getValue(function, ACTION));
         if action_name = "PRC_NOOP" then
           isConstantCall := TRUE;
-          for obj range params until not isConstantCall do
-            if not isConstant(obj, local_objects) then
-              # write(" [not isConstant(" <& str(obj) <& ") " <& str(category(obj)) <& "]");
+          for actual_param range actual_params until not isConstantCall do
+            if not isConstant(actual_param, local_objects) then
+              # write(" [not isConstant(" <& str(actual_param) <& ") " <& str(category(actual_param)) <& "]");
               isConstantCall := FALSE;
             end if;
           end for;
         elsif action_name in copyActions then
-          # writeln(str(params[1]) <& " := ...");
+          # writeln(str(actual_params[1]) <& " := ...");
           noop;
         end if;
       end if;
       # writeln;
     end if;
-    # writeln(" -- > " <& isConstantCall);
+    # writeln("isConstantCall: " <& file(current_expression) <& "(" <& line(current_expression) <& ") --> " <& isConstantCall);
   end func;
 
 
@@ -102,6 +116,7 @@ const func boolean: isConstant (in reference: current_expression,
   local
     var category: exprCategory is category.value;
   begin
+    # write("isConstant: " <& file(current_expression) <& "(" <& line(current_expression) <& "): ");
     if current_expression in local_objects then
       # write(" [local " <& str(current_expression) <& "]");
       isConstant := TRUE;
@@ -113,6 +128,7 @@ const func boolean: isConstant (in reference: current_expression,
         isConstant := TRUE;
       end if;
     end if;
+    # writeln(" --> " <& isConstant);
   end func;
 
 
@@ -127,7 +143,7 @@ const func boolean: isPureBlockFunction (in reference: function) is func
     var reference: obj is NIL;
     var boolean_obj_hash: local_objects is boolean_obj_hash.value;
   begin
-    # write(str(function));
+    # writeln("isPureBlockFunction: " <& str(function));
     function_type := getType(function);
     result_object := resultVar(function);
     if not isVarfunc(function_type) then
@@ -136,12 +152,12 @@ const func boolean: isPureBlockFunction (in reference: function) is func
       end if;
       local_object_list &:= formalParams(function) & localVars(function);
       for obj range local_object_list do
-        # write(" " <& str(obj));
+        # writeln("isPureBlockFunction local: " <& str(obj));
         local_objects @:= [obj] TRUE;
       end for;
       isPureBlockFunction := isConstant(body(function), local_objects);
     end if;
-    # writeln(" " <& isPureBlockFunction);
+    # writeln("isPureBlockFunction: " <& str(function) <& " --> " <& isPureBlockFunction);
   end func;
 
 
@@ -151,7 +167,8 @@ const func boolean: isPureFunction (in reference: function) is func
     var boolean: isPureFunction is FALSE;
   local
     const set of string: pureFunctionActions is
-        {"ARR_ARRLIT", "ARR_ARRLIT2", "ARR_BASELIT", "ARR_BASELIT2", "ARR_CAT",
+        {"ACT_EQ", "ACT_NE", "ACT_ORD", "ACT_STR",
+         "ARR_ARRLIT", "ARR_ARRLIT2", "ARR_BASELIT", "ARR_BASELIT2", "ARR_CAT",
          "ARR_CONV", "ARR_EMPTY", "ARR_EXTEND", "ARR_GEN", "ARR_HEAD", "ARR_IDX",
          "ARR_LNG", "ARR_MAXIDX", "ARR_MINIDX", "ARR_RANGE", "ARR_SORT",
          "ARR_SUBARR", "ARR_TAIL", "ARR_TIMES",
@@ -193,11 +210,11 @@ const func boolean: isPureFunction (in reference: function) is func
          "INT_ABS", "INT_ADD", "INT_BINOM", "INT_BIT_LENGTH", "INT_BYTES_BE",
          "INT_BYTES_BE_2_INT", "INT_BYTES_BE_2_UINT", "INT_BYTES_BE_SIGNED",
          "INT_BYTES_BE_UNSIGNED", "INT_BYTES_LE_2_INT", "INT_BYTES_LE_2_UINT",
-         "INT_BYTES_LE_SIGNED", "INT_BYTES_LE_UNSIGNED", "INT_CMP", "INT_CONV",
-         "INT_DIV", "INT_EQ", "INT_FACT", "INT_GE", "INT_GT", "INT_HASHCODE",
-         "INT_LE", "INT_LOG10", "INT_LOG2", "INT_LOWEST_SET_BIT", "INT_LPAD0",
-         "INT_LSHIFT", "INT_LT", "INT_MDIV", "INT_MOD", "INT_MULT", "INT_NE",
-         "INT_NEGATE", "INT_ODD", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW",
+         "INT_BYTES_LE_SIGNED", "INT_BYTES_LE_UNSIGNED", "INT_CMP", "INT_DIV",
+         "INT_EQ", "INT_FACT", "INT_GE", "INT_GT", "INT_HASHCODE", "INT_ICONV1",
+         "INT_ICONV3", "INT_LE", "INT_LOG10", "INT_LOG2", "INT_LOWEST_SET_BIT",
+         "INT_LPAD0", "INT_LSHIFT", "INT_LT", "INT_MDIV", "INT_MOD", "INT_MULT",
+         "INT_NE", "INT_NEGATE", "INT_ODD", "INT_PARSE", "INT_PLUS", "INT_POW",
          "INT_PRED", "INT_radix", "INT_RADIX", "INT_REM", "INT_RSHIFT",
          "INT_SBTR", "INT_SQRT", "INT_STR", "INT_SUCC", "INT_VALUE",
          "ITF_CMP", "ITF_EQ", "ITF_HASHCODE", "ITF_NE",
@@ -230,6 +247,7 @@ const func boolean: isPureFunction (in reference: function) is func
     var string: action_name is "";
     var reference: obj is NIL;
   begin
+    # writeln("isPureFunction: " <& str(function));
     functionCategory := category(function);
     if functionCategory = ACTOBJECT then
       action_name := str(getValue(function, ACTION));
@@ -237,6 +255,7 @@ const func boolean: isPureFunction (in reference: function) is func
     elsif functionCategory = BLOCKOBJECT then
       isPureFunction := isPureBlockFunction(function);
     end if;
+    # writeln("isPureFunction: " <& str(function) <& " --> " <& isPureFunction);
   end func;
 
 
@@ -252,6 +271,7 @@ const func boolean: isConstantCall (in reference: current_expression) is func
     var reference: function is NIL;
     var reference: obj is NIL;
   begin
+    # write("isConstantCall: " <& file(current_expression) <& "(" <& line(current_expression) <& "): ");
     params := getValue(current_expression, ref_list);
     function := params[1];
     params := params[2 ..];
@@ -265,6 +285,7 @@ const func boolean: isConstantCall (in reference: current_expression) is func
     elsif category(function) in constantExpressionCategories then
       isConstantCall := TRUE;
     end if;
+    # writeln("isConstantCall --> " <& isConstantCall);
   end func;
 
 
@@ -275,6 +296,7 @@ const func boolean: isConstant (in reference: current_expression) is func
   local
     var category: exprCategory is category.value;
   begin
+    # write("isConstant: " <& file(current_expression) <& "(" <& line(current_expression) <& "): ");
     if not isVar(current_expression) then
       exprCategory := category(current_expression);
       if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
@@ -287,6 +309,7 @@ const func boolean: isConstant (in reference: current_expression) is func
         isConstant := TRUE;
       end if;
     end if;
+    # writeln("isConstant --> " <& isConstant);
   end func;
 
 
@@ -303,15 +326,99 @@ const func boolean: isConstantExpr (in reference: current_expression) is func
         isConstantExpr := isConstantCall(current_expression);
       end if;
     end if;
+    # writeln("isConstantExpr --> " <& isConstantExpr);
   end func;
 
 
-const func boolean: getConstant (in reference: currExpr, in category: exprCategory,
+const func reference: evaluate (in reference: current_expression,
+    in ref_list: arguments) is func
+  result
+    var reference: evaluatedExpr is NIL;
+  local
+    var reference: currExpr is NIL;
+  begin
+    currExpr := alloc(current_expression);
+    setValue(currExpr, arguments);
+    block
+      evaluatedExpr := evaluate(prog, currExpr);
+    exception
+      catch NUMERIC_ERROR:  noop;
+      catch OVERFLOW_ERROR: noop;
+      catch RANGE_ERROR:    noop;
+      catch FILE_ERROR:     noop;
+      catch DATABASE_ERROR: noop;
+    end block;
+  end func;
+
+
+const func boolean: canEvaluateSpecialAction (in reference: current_expression,
+    inout reference: evaluatedExpr) is func
+
+  result
+    var boolean: okay is FALSE;
+  local
+    var category: exprCategory is category.value;
+    var ref_list: formal_params is ref_list.EMPTY;
+    var ref_list: actual_params is ref_list.EMPTY;
+    var ref_list: new_actual_params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var integer: number is 0;
+    var reference: formal_param is NIL;
+    var reference: actual_param is NIL;
+    var category: paramCategory is category.value;
+    var boolean: inlineParamFound is FALSE;
+  begin
+    if not isVar(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+        actual_params := getValue(current_expression, ref_list);
+        function := actual_params[1];
+        actual_params := actual_params[2 ..];
+        if category(function) = ACTOBJECT and
+            str(getValue(function, ACTION)) in specialActions then
+          formal_params := formalParams(function);
+          new_actual_params &:= make_list(function);
+          for number range 1 to length(actual_params) do
+            formal_param := formal_params[number];
+            actual_param := actual_params[number];
+            paramCategory := category(formal_param);
+            if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT and
+                not isConstant(actual_param) and actual_param in inlineParam and
+                inlineParam[actual_param][1].paramValue <> NIL then
+              inlineParamFound := TRUE;
+              new_actual_params &:= make_list(inlineParam[actual_param][1].paramValue);
+            else
+              new_actual_params &:= make_list(actual_param);
+            end if;
+          end for;
+          if inlineParamFound then
+            evaluatedExpr := evaluate(current_expression, new_actual_params);
+            if evaluatedExpr <> NIL then
+              if category(evaluatedExpr) in constantExpressionCategories then
+                incr(countEvaluations);
+                okay := TRUE;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+    # writeln("isExprCallingSpecialAction --> " <& isConstantExpr);
+  end func;
+
+
+const func boolean: getConstant (in var reference: currExpr, in category: exprCategory,
     inout reference: evaluatedExpr) is func
   result
     var boolean: okay is FALSE;
   begin
-    if evaluate_const_expr >= 1 and category(currExpr) = exprCategory and
+    if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
+      okay := TRUE;
+    elsif currExpr in inlineParam and
+          inlineParam[currExpr][1].paramValue <> NIL then
+       evaluatedExpr := inlineParam[currExpr][1].paramValue;
+       okay := TRUE;
+    elsif evaluate_const_expr >= 1 and category(currExpr) = exprCategory and
         not isVar(currExpr) then
       evaluatedExpr := currExpr;
       incr(countEvaluations);
@@ -330,17 +437,24 @@ const func boolean: getConstant (in reference: currExpr, in category: exprCatego
         catch OVERFLOW_ERROR: noop;
         catch RANGE_ERROR:    noop;
         catch FILE_ERROR:     noop;
+        catch DATABASE_ERROR: noop;
       end block;
     end if;
   end func;
 
 
-const func boolean: getConstant (in reference: currExpr,
+const func boolean: getConstant (in var reference: currExpr,
     inout reference: evaluatedExpr) is func
   result
     var boolean: okay is FALSE;
   begin
-    if evaluate_const_expr >= 1 and category(currExpr) in constantExpressionCategories and
+    if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
+      okay := TRUE;
+    elsif currExpr in inlineParam and
+          inlineParam[currExpr][1].paramValue <> NIL then
+       evaluatedExpr := inlineParam[currExpr][1].paramValue;
+       okay := TRUE;
+    elsif evaluate_const_expr >= 1 and category(currExpr) in constantExpressionCategories and
         not isVar(currExpr) then
       evaluatedExpr := currExpr;
       incr(countEvaluations);
@@ -359,6 +473,25 @@ const func boolean: getConstant (in reference: currExpr,
         catch OVERFLOW_ERROR: noop;
         catch RANGE_ERROR:    noop;
         catch FILE_ERROR:     noop;
+        catch DATABASE_ERROR: noop;
       end block;
+    end if;
+  end func;
+
+
+const func boolean: isFunctionCallingSpecialAction (in reference: function) is func
+  result
+    var boolean: isFunctionCallingSpecialAction is FALSE;
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: calledFunction is NIL;
+  begin
+    if category(body(function)) = CALLOBJECT then
+      calledFunction := getValue(body(function), ref_list)[1];
+      if category(calledFunction) = ACTOBJECT and
+          str(getValue(calledFunction, ACTION)) in specialActions then
+        # writeln(str(getValue(calledFunction, ACTION)));
+        isFunctionCallingSpecialAction := TRUE;
+      end if;
     end if;
   end func;

@@ -100,11 +100,9 @@ static int actEntryMapCmp (const void *act_ptr1, const void *act_ptr2)
     if ((memSizeType) (*(const actEntryType *) act_ptr1)->action <
         (memSizeType) (*(const actEntryType *) act_ptr2)->action) {
       signumValue = -1;
-    } else if ((*(const actEntryType *) act_ptr1)->action ==
-               (*(const actEntryType *) act_ptr2)->action) {
-      signumValue = 0;
     } else {
-      signumValue = 1;
+      signumValue = (memSizeType) (*(const actEntryType *) act_ptr1)->action >
+                    (memSizeType) (*(const actEntryType *) act_ptr2)->action;
     } /* if */
     logFunction(printf("actEntryMapCmp --> %d\n", signumValue););
     return signumValue;

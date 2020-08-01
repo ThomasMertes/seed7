@@ -60,19 +60,46 @@ const proc: hsh_prototypes (inout file: c_prog) is func
   end func;
 
 
+const proc: process_const_hsh_contains (in reference: aSetRef, in reference: param2,
+    in reference: param3, in reference: param4, inout expr_type: c_expr) is func
+
+  begin
+    if hashLength(aSetRef) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "0/*FALSE*/";
+    else
+      c_expr.expr &:= "hshContains(";
+      process_expr(aSetRef, c_expr);
+      c_expr.expr &:= ", ";
+      getGenericValue(param2, c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ", (compareType)(";
+      process_expr(param4, c_expr);
+      c_expr.expr &:= "))";
+    end if;
+  end func;
+
+
 const proc: process (HSH_CONTAINS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "hshContains(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getGenericValue(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", (compareType)(";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= "))";
+    if getConstant(params[1], HASHOBJECT, evaluatedParam) then
+      process_const_hsh_contains(evaluatedParam, params[2], params[3], params[4], c_expr);
+    else
+      c_expr.expr &:= "hshContains(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getGenericValue(params[2], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ", (compareType)(";
+      process_expr(params[4], c_expr);
+      c_expr.expr &:= "))";
+    end if;
   end func;
 
 
@@ -340,7 +367,7 @@ const proc: process_hsh_for_generic (in reference: forDataVariable,
       c_expr.expr &:= ";\n";
     end if;
 
-    process_expr(statement, c_expr);
+    process_call_by_name_expr(statement, c_expr);
 
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (";

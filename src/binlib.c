@@ -154,14 +154,14 @@ objectType bin_cmp (listType arguments)
  *  Get 64 bits from a bitset starting with lowestBitNum/arg_2.
  *  @return a bit pattern with 64 bits from set1/arg_1.
  */
-objectType bin_getBinaryFromSet (listType arguments)
+objectType bin_get_binary_from_set (listType arguments)
 
-  { /* bin_getBinaryFromSet */
+  { /* bin_get_binary_from_set */
     isit_set(arg_1(arguments));
     isit_int(arg_2(arguments));
     return bld_binary_temp(
         setToUInt(take_set(arg_1(arguments)), take_int(arg_2(arguments))));
-  } /* bin_getBinaryFromSet */
+  } /* bin_get_binary_from_set */
 
 
 

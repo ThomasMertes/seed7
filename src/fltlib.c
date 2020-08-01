@@ -195,20 +195,20 @@ objectType flt_atan2 (listType arguments)
  *  @param bits(arg_1 Bits to be converted to a float.
  *  @return a float from bits in double-precision float representation.
  */
-objectType flt_bits2Double (listType arguments)
+objectType flt_bits2double (listType arguments)
 
   {
     double2BitsType conv;
     floatType number;
 
-  /* flt_bits2Double */
+  /* flt_bits2double */
     isit_int(arg_1(arguments));
     conv.bits = (uintType) take_int(arg_1(arguments));
     number = conv.aDouble;
-    logFunction(printf("flt_bits2Double(" FMT_D ") --> " FMT_E "\n",
+    logFunction(printf("flt_bits2double(" FMT_D ") --> " FMT_E "\n",
                        take_int(arg_1(arguments)), number););
     return bld_float_temp(number);
-  } /* flt_bits2Double */
+  } /* flt_bits2double */
 
 
 
@@ -217,29 +217,29 @@ objectType flt_bits2Double (listType arguments)
  *  @param bits/arg_1 Bits to be converted to a float.
  *  @return a float from bits in single-precision float representation.
  */
-objectType flt_bits2Single (listType arguments)
+objectType flt_bits2single (listType arguments)
 
   {
     intType bits;
     float2BitsType conv;
     floatType number;
 
-  /* flt_bits2Single */
+  /* flt_bits2single */
     isit_int(arg_1(arguments));
     bits = take_int(arg_1(arguments));
     if (unlikely((uintType) bits > UINT32TYPE_MAX)) {
-      logError(printf("flt_bits2Single(" FMT_D
+      logError(printf("flt_bits2single(" FMT_D
                       "): Argument does not fit in 32 bits.\n",
                       bits););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       conv.bits = (uint32Type) bits;
       number = conv.aFloat;
-      logFunction(printf("flt_bits2Single(" FMT_D ") --> " FMT_E "\n",
+      logFunction(printf("flt_bits2single(" FMT_D ") --> " FMT_E "\n",
                          bits, number););
       return bld_float_temp(number);
     } /* if */
-  } /* flt_bits2Single */
+  } /* flt_bits2single */
 
 
 
@@ -508,22 +508,22 @@ objectType flt_div_assign (listType arguments)
  *  @param number/arg_1 Float value to be converted to bin64.
  *  @return 64 bits in IEEE 754 double-precision float representation.
  */
-objectType flt_double2Bits (listType arguments)
+objectType flt_double2bits (listType arguments)
 
   {
     floatType number;
     double2BitsType conv;
     intType bits;
 
-  /* flt_double2Bits */
+  /* flt_double2bits */
     isit_float(arg_1(arguments));
     number = take_float(arg_1(arguments));
     conv.aDouble = number;
     bits = (intType) (uintType) conv.bits;
-    logFunction(printf("flt_double2Bits(" FMT_E ") --> " FMT_D "\n",
+    logFunction(printf("flt_double2bits(" FMT_E ") --> " FMT_D "\n",
                        number, bits););
     return bld_int_temp(bits);
-  } /* flt_double2Bits */
+  } /* flt_double2bits */
 
 
 
@@ -1203,22 +1203,22 @@ objectType flt_sin (listType arguments)
  *  @param number/arg_1 Float value to be converted to bin32.
  *  @return 32 bits in IEEE 754 single-precision float representation.
  */
-objectType flt_single2Bits (listType arguments)
+objectType flt_single2bits (listType arguments)
 
   {
     floatType number;
     float2BitsType conv;
     intType bits;
 
-  /* flt_single2Bits */
+  /* flt_single2bits */
     isit_float(arg_1(arguments));
     number = take_float(arg_1(arguments));
     conv.aFloat = (float) number;
     bits = (intType) (uintType) conv.bits;
-    logFunction(printf("flt_single2Bits(" FMT_E ") --> " FMT_D "\n",
+    logFunction(printf("flt_single2bits(" FMT_E ") --> " FMT_D "\n",
                        number, bits););
     return bld_int_temp(bits);;
-  } /* flt_single2Bits */
+  } /* flt_single2bits */
 
 
 

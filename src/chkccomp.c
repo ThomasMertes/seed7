@@ -2654,6 +2654,16 @@ static void determineOsFunctions (FILE *versionFile)
 #endif
     if (!compileAndLinkOk("#include <stdio.h>\n"
                           "int main(int argc,char *argv[]){\n"
+                          "flockfile(stdin);\n"
+                          "printf(\"%d\\n\", getc_unlocked(stdin)==' ');\n"
+                          "funlockfile(stdin);\n"
+                          "return 0;}\n")) {
+      fprintf(versionFile, "#define flockfile(aFile)\n");
+      fprintf(versionFile, "#define funlockfile(aFile)\n");
+      fprintf(versionFile, "#define getc_unlocked(aFile) getc(aFile)\n");
+    } /* if */
+    if (!compileAndLinkOk("#include <stdio.h>\n"
+                          "int main(int argc,char *argv[]){\n"
                           "printf(\"%d\\n\", fileno(stdin)==0);\n"
                           "return 0;}\n") &&
         compileAndLinkOk("#include <stdio.h>\n"

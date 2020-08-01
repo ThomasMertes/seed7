@@ -299,7 +299,9 @@ objectType match_object (objectType object)
     objectType result;
 
   /* match_object */
-    logFunction(printf("match_object\n"););
+    logFunction(printf("match_object(");
+                trace1(object);
+                printf(")\n"););
     if (trace.match) {
       printf("\nbegin match_object ");
       trace1(object);
@@ -362,12 +364,18 @@ objectType match_object (objectType object)
       trace1(result);
       printf("\n");
     } /* if */
-    logFunction(printf("match_object -->\n"););
+    logFunction(printf("match_object --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* match_object */
 
 
 
+/**
+ *  Assure that objects are preceeded by a MATCHOBJECT.
+ *  This function is used when a "match" has several parameters.
+ */
 static objectType match_object2 (objectType object, const_objectType expr_object)
 
   {
@@ -375,7 +383,9 @@ static objectType match_object2 (objectType object, const_objectType expr_object
     objectType result;
 
   /* match_object2 */
-    logFunction(printf("match_object2\n"););
+    logFunction(printf("match_object2(");
+                trace1(object);
+                printf(")\n"););
     if (trace.match) {
       printf("\nbegin match_object2 ");
       trace1(object);
@@ -440,9 +450,65 @@ static objectType match_object2 (objectType object, const_objectType expr_object
       trace1(result);
       printf("\n");
     } /* if */
-    logFunction(printf("match_object2 -->\n"););
+    logFunction(printf("match_object2 --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* match_object2 */
+
+
+
+/**
+ *  Assure that BLOCKOBJECT and ACTOBJECT objects are preceeded by a MATCHOBJECT.
+ *  This function is used when a "match" has no parameters.
+ */
+static objectType match_object3 (objectType object, const_objectType expr_object)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
+
+  /* match_object3 */
+    logFunction(printf("match_object3(");
+                trace1(object);
+                printf(")\n"););
+    if (trace.match) {
+      printf("\nbegin match_object3 ");
+      trace1(object);
+      printf("\n");
+    } /* if */
+    switch (CATEGORY_OF_OBJ(object)) {
+      case BLOCKOBJECT:
+      case ACTOBJECT:
+        if (ALLOC_OBJECT(result)) {
+          result->type_of = object->type_of;
+          if (HAS_POSINFO(expr_object)) {
+            result->descriptor.posinfo = expr_object->descriptor.posinfo;
+            INIT_CATEGORY_OF_POSINFO(result, MATCHOBJECT);
+          } else {
+            result->descriptor.property = prog->property.literal;
+            INIT_CATEGORY_OF_OBJ(result, MATCHOBJECT);
+          } /* if */
+          result->value.listValue = NULL;
+          incl_list(&result->value.listValue, object, &err_info);
+        } /* if */
+        break;
+      default:
+        result = object;
+        break;
+    } /* switch */
+    if (trace.match) {
+      printf("end match_object3 ");
+      trace1(object);
+      printf(" ==> ");
+      trace1(result);
+      printf("\n");
+    } /* if */
+    logFunction(printf("match_object3 --> ");
+                trace1(result);
+                printf("\n"););
+    return result;
+  } /* match_object3 */
 
 
 
@@ -843,6 +909,10 @@ static objectType match_subexpr (objectType expr_object,
           matched_object = match_subexpr_type(expr_object, start_node,
               object_type, (boolType) VAR_OBJECT(current_element),
               rest_of_expression, check_access_right, look_for_interfaces);
+          if (matched_object != NULL) {
+            current_element = match_object3(current_element, expr_object);
+            match_expr->obj = current_element;
+          } /* if */
 #ifdef OUT_OF_ORDER
           if (matched_object != NULL) {
             if (CATEGORY_OF_OBJ(current_element) == DECLAREDOBJECT) {
@@ -963,7 +1033,9 @@ objectType match_expression (objectType expr_object)
     objectType matched_object;
 
   /* match_expression */
-    logFunction(printf("match_expression\n"););
+    logFunction(printf("match_expression(");
+                trace1(expr_object);
+                printf(")\n"););
     expr_list = expr_object->value.listValue;
     if (trace.match) {
       printf("begin match ");
@@ -1000,7 +1072,9 @@ objectType match_expression (objectType expr_object)
       printf(" @\n");
       fflush(stdout);
     } /* if */
-    logFunction(printf("match_expression\n"););
+    logFunction(printf("match_expression --> ");
+                trace1(matched_object);
+                printf("\n"););
     return matched_object;
   } /* match_expression */
 
@@ -1014,7 +1088,9 @@ objectType match_prog_expression (const_nodeType start_node,
     objectType matched_object;
 
   /* match_prog_expression */
-    logFunction(printf("match_expression\n"););
+    logFunction(printf("match_prog_expression(");
+                trace1(expr_object);
+                printf(")\n"););
     expr_list = expr_object->value.listValue;
     if (trace.match) {
       printf("begin match ");
@@ -1039,6 +1115,8 @@ objectType match_prog_expression (const_nodeType start_node,
       printf(" @\n");
       fflush(stdout);
     } /* if */
-    logFunction(printf("match_expression -->\n"););
+    logFunction(printf("match_prog_expression --> ");
+                trace1(matched_object);
+                printf("\n"););
     return matched_object;
   } /* match_prog_expression */

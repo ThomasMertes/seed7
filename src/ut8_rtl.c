@@ -649,7 +649,7 @@ striType ut8Gets (fileType inFile, intType length)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("ut8Gets(%d, " FMT_D ") --> \"%s\"",
+    logFunction(printf("ut8Gets(%d, " FMT_D ") --> \"%s\"\n",
                        safe_fileno(inFile), length, striAsUnquotedCStri(result)););
     return result;
   } /* ut8Gets */
@@ -682,6 +682,8 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
     striType result;
 
   /* ut8LineRead */
+    logFunction(printf("ut8LineRead(%d, '\\" FMT_U32 ";')\n",
+                       safe_fileno(inFile), *terminationChar););
     memlength = READ_STRI_INIT_SIZE;
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(buffer, memlength))) {
       raise_error(MEMORY_ERROR);
@@ -689,12 +691,14 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
     } else {
       memory = buffer->mem;
       position = 0;
-      while ((ch = getc(inFile)) != (int) '\n' && ch != EOF) {
+      flockfile(inFile);
+      while ((ch = getc_unlocked(inFile)) != (int) '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_BSTRI_CHECK_SIZE(resized_buffer, buffer, memlength, newmemlength);
           if (unlikely(resized_buffer == NULL)) {
             FREE_BSTRI(buffer, memlength);
+            funlockfile(inFile);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
@@ -705,11 +709,17 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
         } /* if */
         memory[position++] = (ucharType) ch;
       } /* while */
+      funlockfile(inFile);
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
       if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
         FREE_BSTRI(buffer, memlength);
+        logError(printf("ut8LineRead(%d, '\\" FMT_U32 ";'): "
+                        "getc_unlocked(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(inFile), *terminationChar,
+                        safe_fileno(inFile), errno, strerror(errno)););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -720,6 +730,10 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
           if (unlikely(utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0)) {
             FREE_BSTRI(buffer, memlength);
             FREE_STRI(result, position);
+            logError(printf("ut8LineRead(%d, '\\" FMT_U32 ";'): "
+                            "The file contains an illegal encoding.\n",
+                            safe_fileno(inFile), *terminationChar,
+                            safe_fileno(inFile)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -739,6 +753,9 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("ut8LineRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
+                       safe_fileno(inFile), *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* ut8LineRead */
 
@@ -839,6 +856,8 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
     striType result;
 
   /* ut8WordRead */
+    logFunction(printf("ut8WordRead(%d, '\\" FMT_U32 ";')\n",
+                       safe_fileno(inFile), *terminationChar););
     memlength = READ_STRI_INIT_SIZE;
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(buffer, memlength))) {
       raise_error(MEMORY_ERROR);
@@ -846,8 +865,9 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
     } else {
       memory = buffer->mem;
       position = 0;
+      flockfile(inFile);
       do {
-        ch = getc(inFile);
+        ch = getc_unlocked(inFile);
       } while (ch == (int) ' ' || ch == (int) '\t');
       while (ch != (int) ' ' && ch != (int) '\t' &&
           ch != (int) '\n' && ch != EOF) {
@@ -856,6 +876,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
           REALLOC_BSTRI_CHECK_SIZE(resized_buffer, buffer, memlength, newmemlength);
           if (unlikely(resized_buffer == NULL)) {
             FREE_BSTRI(buffer, memlength);
+            funlockfile(inFile);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
@@ -865,13 +886,19 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
           memlength = newmemlength;
         } /* if */
         memory[position++] = (ucharType) ch;
-        ch = getc(inFile);
+        ch = getc_unlocked(inFile);
       } /* while */
+      funlockfile(inFile);
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
       if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
         FREE_BSTRI(buffer, memlength);
+        logError(printf("ut8WordRead(%d, '\\" FMT_U32 ";'): "
+                        "getc_unlocked(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(inFile), *terminationChar,
+                        safe_fileno(inFile), errno, strerror(errno)););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -882,6 +909,10 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
           if (unlikely(utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0)) {
             FREE_BSTRI(buffer, memlength);
             FREE_STRI(result, position);
+            logError(printf("ut8WordRead(%d, '\\" FMT_U32 ";'): "
+                            "The file contains an illegal encoding.\n",
+                            safe_fileno(inFile), *terminationChar,
+                            safe_fileno(inFile)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -901,6 +932,9 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("ut8WordRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
+                       safe_fileno(inFile), *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* ut8WordRead */
 
@@ -919,8 +953,12 @@ void ut8Write (fileType outFile, const const_striType stri)
     ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* ut8Write */
+    logFunction(printf("ut8Write(%d, \"%s\")\n",
+                       safe_fileno(outFile), striAsUnquotedCStri(stri)););
 #if FWRITE_WRONG_FOR_READ_ONLY_FILES
     if (unlikely(stri->size > 0 && (outFile->flags & _F_WRIT) == 0)) {
+      logError(printf("ut8Write: Attempt to write to read only file: %d.\n",
+                      safe_fileno(outFile)););
       raise_error(FILE_ERROR);
       return;
     } /* if */
@@ -928,16 +966,25 @@ void ut8Write (fileType outFile, const const_striType stri)
     for (str = stri->mem, len = stri->size; len >= WRITE_STRI_BLOCK_SIZE;
         str += WRITE_STRI_BLOCK_SIZE, len -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, str, WRITE_STRI_BLOCK_SIZE);
-      if (unlikely(size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile))) {
+      if (unlikely(size != fwrite(stri_buffer, 1, (size_t) size, outFile))) {
+        logError(printf("ut8Write: fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        size, safe_fileno(outFile),
+                        errno, strerror(errno)););
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* for */
     if (len > 0) {
       size = stri_to_utf8(stri_buffer, str, len);
-      if (unlikely(size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile))) {
+      if (unlikely(size != fwrite(stri_buffer, 1, (size_t) size, outFile))) {
+        logError(printf("ut8Write: fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        size, safe_fileno(outFile),
+                        errno, strerror(errno)););
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* if */
+    logFunction(printf("ut8Write -->\n"););
   } /* ut8Write */

@@ -311,10 +311,8 @@ objectType drw_cmp (listType arguments)
     ref2 = (memSizeType) take_win(arg_2(arguments));
     if (ref1 < ref2) {
       signumValue = -1;
-    } else if (ref1 > ref2) {
-      signumValue = 1;
     } else {
-      signumValue = 0;
+      signumValue = ref1 > ref2;
     } /* if */
     return bld_int_temp(signumValue);
   } /* drw_cmp */

@@ -50,6 +50,7 @@ objectType ref_getref        (listType arguments);
 objectType ref_hashcode      (listType arguments);
 objectType ref_hshdatatolist (listType arguments);
 objectType ref_hshkeystolist (listType arguments);
+objectType ref_hshlength     (listType arguments);
 objectType ref_issymb        (listType arguments);
 objectType ref_isvar         (listType arguments);
 objectType ref_itftosct      (listType arguments);

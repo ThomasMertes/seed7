@@ -240,6 +240,8 @@ const string: chkset_output is "\n\
   \set intersection works correct.\n\
   \set difference test works correct.\n\
   \set membership test works correct.\n\
+  \set membership test for char works correct.\n\
+  \set membership test for string works correct.\n\
   \min(bitset) works correct.\n\
   \max(bitset) works correct.\n\
   \str(bitset) works correct.\n\
@@ -256,7 +258,8 @@ const string: chkhsh_output is "\n\
   \Hash tables with complex keys work correct.\n\
   \Hash tables with char keys work correct.\n\
   \Hash tables with string keys work correct.\n\
-  \The keys function for hash tables works correct.\n";
+  \The keys function for hash tables works correct.\n\
+  \The for loop for hash tables works correct.\n";
 
 const string: chkexc_output is "\n\
   \Integer exceptions work correct.\n\

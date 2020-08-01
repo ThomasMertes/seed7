@@ -25,6 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
+actType actGen (striType actionName);
 actType actIConv (intType ordinal);
 intType actOrd (actType anAction);
 striType actStr (actType anAction);

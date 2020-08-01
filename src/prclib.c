@@ -103,7 +103,7 @@ static objectType process_local_decl (objectType local_decl,
           local_var = local_element->obj;
           if (CATEGORY_OF_OBJ(local_var) != LOCALVOBJECT) {
             /* printf("U "); trace1(local_var); printf("\n"); */
-            if (ALLOC_OBJECT(init_value)) {
+            if (likely(ALLOC_OBJECT(init_value))) {
               init_value->type_of =     local_var->type_of;
               init_value->descriptor.property = NULL;
               init_value->value =       local_var->value;
@@ -374,7 +374,7 @@ objectType prc_case (listType arguments)
         set_value = take_set(when_values);
       } /* if */
       if (setElem(switch_value, set_value)) {
-        if (when_statement != NULL) {
+        if (unlikely(when_statement != NULL)) {
           err_info = ACTION_ERROR;
           err_arguments = current_when->value.listValue->next;
         } else {
@@ -439,7 +439,7 @@ objectType prc_case_def (listType arguments)
         set_value = take_set(when_values);
       } /* if */
       if (setElem(switch_value, set_value)) {
-        if (when_statement != NULL) {
+        if (unlikely(when_statement != NULL)) {
           err_info = ACTION_ERROR;
           err_arguments = current_when->value.listValue->next;
         } else {
@@ -610,7 +610,7 @@ objectType prc_cpy (listType arguments)
     trace1(source);
     printf("\n"); */
     if (CATEGORY_OF_OBJ(source) == BLOCKOBJECT) {
-      if (ALLOC_OBJECT(block_value)) {
+      if (likely(ALLOC_OBJECT(block_value))) {
         memcpy(block_value, source, sizeof(objectRecord));
         SET_CATEGORY_OF_OBJ(dest, MATCHOBJECT);
         dest->value.listValue = NULL;
@@ -716,7 +716,7 @@ objectType prc_for_downto (listType arguments)
     upper_limit = take_int(arg_4(arguments));
     lower_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
-    if (lower_limit == INTTYPE_MIN) {
+    if (unlikely(lower_limit == INTTYPE_MIN)) {
       logError(printf("prc_for_downto(var1, " FMT_D ", " FMT_D "): "
                       "Lower limit of integer.first not allowed.\n",
                       upper_limit, lower_limit););
@@ -784,7 +784,7 @@ objectType prc_for_to (listType arguments)
     lower_limit = take_int(arg_4(arguments));
     upper_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
-    if (upper_limit == INTTYPE_MAX) {
+    if (unlikely(upper_limit == INTTYPE_MAX)) {
       logError(printf("prc_for_to(var1, " FMT_D ", " FMT_D "): "
                       "Upper limit of integer.last not allowed.\n",
                       lower_limit, upper_limit););
@@ -920,7 +920,7 @@ objectType prc_include (listType arguments)
       err_stri(WRONG_PATH_DELIMITER, include_file_name);
     } else {
       find_include_file(include_file_name, &err_info);
-      if (err_info == MEMORY_ERROR) {
+      if (unlikely(err_info == MEMORY_ERROR)) {
         err_warning(OUT_OF_HEAP_SPACE);
       } else if (unlikely(err_info != OKAY_NO_ERROR)) {
         /* FILE_ERROR or RANGE_ERROR */

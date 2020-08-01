@@ -83,17 +83,16 @@ static arrayType add_stri_to_array (const strElemType *stri_elems,
   /* add_stri_to_array */
     if (ALLOC_STRI_SIZE_OK(new_stri, length)) {
       new_stri->size = length;
-      memcpy(new_stri->mem, stri_elems,
-             length * sizeof(strElemType));
+      memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (*used_max_position >= work_array->max_position) {
-        if (work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
+        if (unlikely(work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA)) {
           resized_work_array = NULL;
         } else {
           resized_work_array = REALLOC_ARRAY(work_array,
               (uintType) work_array->max_position,
               (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
         } /* if */
-        if (resized_work_array == NULL) {
+        if (unlikely(resized_work_array == NULL)) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
@@ -104,7 +103,7 @@ static arrayType add_stri_to_array (const strElemType *stri_elems,
         } /* if */
       } /* if */
     } /* if */
-    if (new_stri != NULL) {
+    if (likely(new_stri != NULL)) {
       work_array->arr[*used_max_position].type_of = take_type(SYS_STRI_TYPE);
       work_array->arr[*used_max_position].descriptor.property = NULL;
       work_array->arr[*used_max_position].value.striValue = new_stri;
@@ -113,7 +112,7 @@ static arrayType add_stri_to_array (const strElemType *stri_elems,
     } else {
       for (position = 0; position < (uintType) *used_max_position; position++) {
         FREE_STRI(work_array->arr[position].value.striValue,
-            work_array->arr[position].value.striValue->size);
+                  work_array->arr[position].value.striValue->size);
       } /* for */
       FREE_ARRAY(work_array, (uintType) work_array->max_position);
       work_array = NULL;

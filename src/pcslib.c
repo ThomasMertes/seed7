@@ -59,13 +59,13 @@
  *  @return the error output file of ''process'' or
  *          NULL, if stderr has been redirected.
  */
-objectType pcs_childStdErr (listType arguments)
+objectType pcs_child_stderr (listType arguments)
 
-  { /* pcs_childStdErr */
+  { /* pcs_child_stderr */
     isit_process(arg_1(arguments));
     return bld_file_temp(
         pcsChildStdErr(take_process(arg_1(arguments))));
-  } /* pcs_childStdErr */
+  } /* pcs_child_stderr */
 
 
 
@@ -76,13 +76,13 @@ objectType pcs_childStdErr (listType arguments)
  *  @return the standard input file of ''process'' or
  *          NULL, if stdin has been redirected.
  */
-objectType pcs_childStdIn (listType arguments)
+objectType pcs_child_stdin (listType arguments)
 
-  { /* pcs_childStdIn */
+  { /* pcs_child_stdin */
     isit_process(arg_1(arguments));
     return bld_file_temp(
         pcsChildStdIn(take_process(arg_1(arguments))));
-  } /* pcs_childStdIn */
+  } /* pcs_child_stdin */
 
 
 
@@ -93,13 +93,13 @@ objectType pcs_childStdIn (listType arguments)
  *  @return the standard output file of ''process'' or
  *          NULL, if stdout has been redirected.
  */
-objectType pcs_childStdOut (listType arguments)
+objectType pcs_child_stdout (listType arguments)
 
-  { /* pcs_childStdOut */
+  { /* pcs_child_stdout */
     isit_process(arg_1(arguments));
     return bld_file_temp(
         pcsChildStdOut(take_process(arg_1(arguments))));
-  } /* pcs_childStdOut */
+  } /* pcs_child_stdout */
 
 
 

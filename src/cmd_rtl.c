@@ -750,20 +750,20 @@ static rtlArrayType add_stri_to_array (const striType stri,
   /* add_stri_to_array */
     logFunction(printf("add_stri_to_array\n"););
     if (*used_max_position >= work_array->max_position) {
-      if (work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
-        resized_work_array = NULL;
+      if (unlikely(work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA)) {
+        *err_info = MEMORY_ERROR;
       } else {
         resized_work_array = REALLOC_RTL_ARRAY(work_array,
             (uintType) work_array->max_position,
             (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-      } /* if */
-      if (resized_work_array == NULL) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        work_array = resized_work_array;
-        COUNT3_RTL_ARRAY((uintType) work_array->max_position,
-            (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-        work_array->max_position += ARRAY_SIZE_DELTA;
+        if (unlikely(resized_work_array == NULL)) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          work_array = resized_work_array;
+          COUNT3_RTL_ARRAY((uintType) work_array->max_position,
+              (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
+          work_array->max_position += ARRAY_SIZE_DELTA;
+        } /* if */
       } /* if */
     } /* if */
     if (*err_info == OKAY_NO_ERROR) {

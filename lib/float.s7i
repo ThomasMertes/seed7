@@ -315,6 +315,15 @@ const func float: (attr float) parse (in string: stri)         is action "FLT_PA
 
 
 (**
+ *  Convert a [[string]] to a float number.
+ *  @return the float result of the conversion.
+ *  @exception RANGE_ERROR When the string contains not a float literal.
+ *)
+const func float: float (in string: stri) is
+    return float parse stri;
+
+
+(**
  *  Convert a ''float'' to a [[string]] in decimal fixed point notation.
  *  The number is rounded to the specified number of digits (''precision'').
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of

@@ -55,9 +55,9 @@ const proc: destroy (ref pixel: aValue)                    is action "GEN_DESTR"
 const proc: (inout pixel: dest) := (in pixel: source)      is action "INT_CPY";
 const func boolean: (in pixel: pix1) = (in pixel: pix2)    is action "INT_EQ";
 const func boolean: (in pixel: pix1) <> (in pixel: pix2)   is action "INT_NE";
-const func pixel: (attr pixel) conv (in integer: num)      is action "INT_CONV";
-const func integer: (attr integer) conv (in pixel: aPixel) is action "INT_CONV";
-const func integer: ord (in pixel: aPixel)                 is action "INT_ORD";
+const func pixel: (attr pixel) conv (in integer: num)      is action "INT_ICONV3";
+const func integer: (attr integer) conv (in pixel: aPixel) is action "INT_ICONV3";
+const func integer: ord (in pixel: aPixel)                 is action "INT_ICONV1";
 const pixel: (attr pixel) . value                          is pixel conv 0;
 
 

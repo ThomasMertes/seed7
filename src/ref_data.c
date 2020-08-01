@@ -411,6 +411,27 @@ listType refHshKeysToList (const const_objectType aReference)
 
 
 
+intType refHshLength (const const_objectType aReference)
+
+  {
+    intType length;
+
+  /* refHshLength */
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != HASHOBJECT)) {
+      logError(printf("refHshLength(");
+               trace1(aReference);
+               printf("): Category is not HASHOBJECT.\n"););
+      raise_error(RANGE_ERROR);
+      length = 0;
+    } else {
+      length = (intType) take_hash(aReference)->size;
+    } /* if */
+    return length;
+  } /* refHshLength */
+
+
+
 boolType refIsVar (const const_objectType aReference)
 
   { /* refIsVar */

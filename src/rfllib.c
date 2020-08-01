@@ -683,12 +683,11 @@ objectType rfl_lng (listType arguments)
 
   {
     listType list_element;
-    intType length;
+    intType length = 0;
 
   /* rfl_lng */
     isit_reflist(arg_1(arguments));
     list_element = take_reflist(arg_1(arguments));
-    length = 0;
     while (list_element != NULL) {
       list_element = list_element->next;
       length++;
@@ -862,7 +861,7 @@ objectType rfl_range (listType arguments)
 
 
 
-objectType rfl_setValue (listType arguments)
+objectType rfl_set_value (listType arguments)
 
   {
     objectType list_to;
@@ -870,7 +869,7 @@ objectType rfl_setValue (listType arguments)
     listType help_list;
     errInfoType err_info = OKAY_NO_ERROR;
 
-  /* rfl_setValue */
+  /* rfl_set_value */
     isit_reference(arg_1(arguments));
     is_variable(arg_1(arguments));
     list_to = take_reference(arg_1(arguments));
@@ -898,7 +897,7 @@ objectType rfl_setValue (listType arguments)
       run_error(REFLISTOBJECT, list_to);
     } /* if */
     return SYS_EMPTY_OBJECT;
-  } /* rfl_setValue */
+  } /* rfl_set_value */
 
 
 

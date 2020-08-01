@@ -38,7 +38,6 @@ const ACTION: INT_BYTES_LE_2_UINT   is action "INT_BYTES_LE_2_UINT";
 const ACTION: INT_BYTES_LE_SIGNED   is action "INT_BYTES_LE_SIGNED";
 const ACTION: INT_BYTES_LE_UNSIGNED is action "INT_BYTES_LE_UNSIGNED";
 const ACTION: INT_CMP               is action "INT_CMP";
-const ACTION: INT_CONV              is action "INT_CONV";
 const ACTION: INT_CPY               is action "INT_CPY";
 const ACTION: INT_DECR              is action "INT_DECR";
 const ACTION: INT_DIV               is action "INT_DIV";
@@ -47,6 +46,8 @@ const ACTION: INT_FACT              is action "INT_FACT";
 const ACTION: INT_GE                is action "INT_GE";
 const ACTION: INT_GT                is action "INT_GT";
 const ACTION: INT_HASHCODE          is action "INT_HASHCODE";
+const ACTION: INT_ICONV1            is action "INT_ICONV1";
+const ACTION: INT_ICONV3            is action "INT_ICONV3";
 const ACTION: INT_INCR              is action "INT_INCR";
 const ACTION: INT_LE                is action "INT_LE";
 const ACTION: INT_LOG10             is action "INT_LOG10";
@@ -63,7 +64,6 @@ const ACTION: INT_MULT_ASSIGN       is action "INT_MULT_ASSIGN";
 const ACTION: INT_NE                is action "INT_NE";
 const ACTION: INT_NEGATE            is action "INT_NEGATE";
 const ACTION: INT_ODD               is action "INT_ODD";
-const ACTION: INT_ORD               is action "INT_ORD";
 const ACTION: INT_PARSE             is action "INT_PARSE";
 const ACTION: INT_PLUS              is action "INT_PLUS";
 const ACTION: INT_POW               is action "INT_POW";
@@ -1219,16 +1219,6 @@ const proc: process (INT_CMP, in reference: function,
   end func;
 
 
-const proc: process (INT_CONV, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
 const proc: process (INT_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -1515,6 +1505,26 @@ const proc: process (INT_HASHCODE, in reference: function,
   begin
     c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (INT_ICONV1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (INT_ICONV3, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -2753,16 +2763,6 @@ const proc: process (INT_ODD, in reference: function,
     c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")&1";
-  end func;
-
-
-const proc: process (INT_ORD, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
   end func;
 
 

@@ -79,10 +79,8 @@ objectType chr_cmp (listType arguments)
     char2 = take_char(arg_2(arguments));
     if (char1 < char2) {
       signumValue = -1;
-    } else if (char1 > char2) {
-      signumValue = 1;
     } else {
-      signumValue = 0;
+      signumValue = char1 > char2;
     } /* if */
     return bld_int_temp(signumValue);
   } /* chr_cmp */

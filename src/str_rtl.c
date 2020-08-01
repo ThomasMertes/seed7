@@ -53,6 +53,8 @@
 #define CHAR_DELTA_BEYOND  128
 #define INITIAL_ARRAY_SIZE 256
 #define ARRAY_SIZE_DELTA   256
+#define BOYER_MOORE_SEARCHED_STRI_THRESHOLD    2
+#define BOYER_MOORE_MAIN_STRI_THRESHOLD     1400
 
 /* memset_to_strelem is not used because it is */
 /* only better for lengths greater than 7.     */
@@ -673,13 +675,14 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (*used_max_position >= work_array->max_position) {
-        if (work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
+        if (unlikely(work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA)) {
           resized_work_array = NULL;
         } else {
           resized_work_array = REALLOC_RTL_ARRAY(work_array,
-              (uintType) work_array->max_position, (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
+              (uintType) work_array->max_position,
+              (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
         } /* if */
-        if (resized_work_array == NULL) {
+        if (unlikely(resized_work_array == NULL)) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
@@ -2348,7 +2351,8 @@ intType strIPos (const const_striType mainStri, const const_striType searched,
       if (searched_size != 0 && main_size >= searched_size &&
           (uintType) fromIndex - 1 <= main_size - searched_size) {
         main_size -= (memSizeType) fromIndex - 1;
-        if (searched_size >= 2 && main_size >= 1400) {
+        if (searched_size >= BOYER_MOORE_SEARCHED_STRI_THRESHOLD &&
+            main_size >= BOYER_MOORE_MAIN_STRI_THRESHOLD) {
           return strIPos2(mainStri, searched, fromIndex);
         } else {
           searched_mem = searched->mem;
@@ -2944,7 +2948,8 @@ intType strPos (const const_striType mainStri, const const_striType searched)
     main_size = mainStri->size;
     searched_size = searched->size;
     if (searched_size != 0 && main_size >= searched_size) {
-      if (searched_size >= 2 && main_size >= 1400) {
+      if (searched_size >= BOYER_MOORE_SEARCHED_STRI_THRESHOLD &&
+          main_size >= BOYER_MOORE_MAIN_STRI_THRESHOLD) {
         return strPos2(mainStri, searched);
       } else {
         searched_mem = searched->mem;
@@ -3302,7 +3307,8 @@ striType strRepl (const const_striType mainStri,
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, guessed_result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      if (searched_size >= 2 && main_size >= 1400) {
+      if (searched_size >= BOYER_MOORE_SEARCHED_STRI_THRESHOLD &&
+          main_size >= BOYER_MOORE_MAIN_STRI_THRESHOLD) {
         result_size = strRepl2(mainStri, searched, replacement, result);
       } else {
         copy_start = mainStri->mem;
@@ -3462,7 +3468,8 @@ intType strRIPos (const const_striType mainStri, const const_striType searched,
         main_size = mainStri->size;
         searched_size = searched->size;
         if (searched_size != 0 && main_size >= searched_size) {
-          if (searched_size >= 2 && main_size >= 1400) {
+          if (searched_size >= BOYER_MOORE_SEARCHED_STRI_THRESHOLD &&
+              main_size >= BOYER_MOORE_MAIN_STRI_THRESHOLD) {
             return strRIPos2(mainStri, searched, fromIndex);
           } else {
             searched_mem = searched->mem;
@@ -3627,7 +3634,8 @@ intType strRPos (const const_striType mainStri, const const_striType searched)
     main_size = mainStri->size;
     searched_size = searched->size;
     if (searched_size != 0 && searched_size <= main_size) {
-      if (searched_size >= 2 && main_size >= 1400) {
+      if (searched_size >= BOYER_MOORE_SEARCHED_STRI_THRESHOLD &&
+          main_size >= BOYER_MOORE_MAIN_STRI_THRESHOLD) {
         return strRPos2(mainStri, searched);
       } else {
         searched_mem = searched->mem;

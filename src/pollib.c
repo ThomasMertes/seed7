@@ -132,9 +132,9 @@ static void initPollOps (void)
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *  @exception FILE_ERROR A limit of the operating system was reached.
  */
-objectType pol_addCheck (listType arguments)
+objectType pol_add_check (listType arguments)
 
-  { /* pol_addCheck */
+  { /* pol_add_check */
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -145,7 +145,7 @@ objectType pol_addCheck (listType arguments)
                 take_int(arg_3(arguments)),
                 (genericType) (memSizeType) take_interface(arg_4(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* pol_addCheck */
+  } /* pol_add_check */
 
 
 
@@ -253,42 +253,42 @@ objectType pol_empty (listType arguments)
 
 
 
-objectType pol_getCheck (listType arguments)
+objectType pol_get_check (listType arguments)
 
   {
     intType result;
 
-  /* pol_getCheck */
+  /* pol_get_check */
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     result = polGetCheck(take_poll(arg_1(arguments)),
                           take_socket(arg_2(arguments)));
     return bld_int_temp(result);
-  } /* pol_getCheck */
+  } /* pol_get_check */
 
 
 
-objectType pol_getFinding (listType arguments)
+objectType pol_get_finding (listType arguments)
 
   {
     intType result;
 
-  /* pol_getFinding */
+  /* pol_get_finding */
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     result = polGetFinding(take_poll(arg_1(arguments)),
                            take_socket(arg_2(arguments)));
     return bld_int_temp(result);
-  } /* pol_getFinding */
+  } /* pol_get_finding */
 
 
 
-objectType pol_hasNext (listType arguments)
+objectType pol_has_next (listType arguments)
 
   {
     objectType result;
 
-  /* pol_hasNext */
+  /* pol_has_next */
     isit_poll(arg_1(arguments));
     if (polHasNext(take_poll(arg_1(arguments)))) {
       result = SYS_TRUE_OBJECT;
@@ -296,41 +296,41 @@ objectType pol_hasNext (listType arguments)
       result = SYS_FALSE_OBJECT;
     } /* if */
     return result;
-  } /* pol_hasNext */
+  } /* pol_has_next */
 
 
 
-objectType pol_iterChecks (listType arguments)
+objectType pol_iter_checks (listType arguments)
 
-  { /* pol_iterChecks */
+  { /* pol_iter_checks */
     isit_poll(arg_1(arguments));
     isit_int(arg_2(arguments));
     polIterChecks(take_poll(arg_1(arguments)),
                   take_int(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* pol_iterChecks */
+  } /* pol_iter_checks */
 
 
 
-objectType pol_iterFindings (listType arguments)
+objectType pol_iter_findings (listType arguments)
 
-  { /* pol_iterFindings */
+  { /* pol_iter_findings */
     isit_poll(arg_1(arguments));
     isit_int(arg_2(arguments));
     polIterFindings(take_poll(arg_1(arguments)),
                     take_int(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* pol_iterFindings */
+  } /* pol_iter_findings */
 
 
 
-objectType pol_nextFile (listType arguments)
+objectType pol_next_file (listType arguments)
 
   {
     objectType nextFile;
 
-  /* pol_nextFile */
-    /* printf("pol_nextFile ");
+  /* pol_next_file */
+    /* printf("pol_next_file ");
     trace1(arg_2(arguments));
     printf("\n"); */
     isit_poll(arg_1(arguments));
@@ -343,11 +343,11 @@ objectType pol_nextFile (listType arguments)
     if (nextFile->value.structValue->usage_count != 0) {
       nextFile->value.structValue->usage_count++;
     } /* if */
-    /* printf("pol_nextFile ->");
+    /* printf("pol_next_file ->");
     trace1(nextFile);
     printf("\n"); */
     return bld_interface_temp(nextFile);
-  } /* pol_nextFile */
+  } /* pol_next_file */
 
 
 
@@ -374,9 +374,9 @@ objectType pol_poll (listType arguments)
  *         field of pollData/arg_1.
  *  @exception RANGE_ERROR Illegal value for eventsToCheck/arg_3.
  */
-objectType pol_removeCheck (listType arguments)
+objectType pol_remove_check (listType arguments)
 
-  { /* pol_removeCheck */
+  { /* pol_remove_check */
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -384,7 +384,7 @@ objectType pol_removeCheck (listType arguments)
                    take_socket(arg_2(arguments)),
                    take_int(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* pol_removeCheck */
+  } /* pol_remove_check */
 
 
 

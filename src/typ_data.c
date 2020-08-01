@@ -55,14 +55,16 @@
  */
 intType typCmp (const const_typeType type1, const const_typeType type2)
 
-  { /* typCmp */
+  {
+    intType signumValue;
+
+  /* typCmp */
     if ((memSizeType) type1 < (memSizeType) type2) {
-      return -1;
-    } else if ((memSizeType) type1 > (memSizeType) type2) {
-      return 1;
+      signumValue = -1;
     } else {
-      return 0;
+      signumValue = (memSizeType) type1 > (memSizeType) type2;
     } /* if */
+    return signumValue;
   } /* typCmp */
 
 

@@ -1349,6 +1349,52 @@ const proc: chkKeysFunction is func
   end func;
 
 
+const proc: chkForLoop is func
+  local
+    var boolean: okay is TRUE;
+    var integerIntegerHash: aHash is integerIntegerHash.value;
+    var bitset: checkKeySet is bitset.value;
+    var bitset: checkValueSet is bitset.value;
+    var integer: number is 0;
+  begin
+    for number range 1 to 1000 do
+      aHash @:= [number] number;
+    end for;
+    checkValueSet := {1 .. 1000};
+    for number range aHash do
+      excl(checkValueSet, number);
+    end for;
+    if checkValueSet <> bitset.value then
+      writeln(" ***** for loop over the values does not work correkt.");
+      okay := FALSE;
+    end if;
+    checkKeySet := {1 .. 1000};
+    for key number range aHash do
+      excl(checkKeySet, number);
+    end for;
+    if checkKeySet <> bitset.value then
+      writeln(" ***** for loop over the keys does not work correkt.");
+      okay := FALSE;
+    end if;
+    checkKeySet := {1 .. 1000};
+    checkValueSet := {1 .. 1000};
+    for key number range aHash do
+      excl(checkKeySet, number);
+      excl(checkValueSet, number);
+    end for;
+    if checkKeySet <> bitset.value or checkValueSet <> bitset.value then
+      writeln(" ***** for loop over keys and values does not work correkt.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("The for loop for hash tables works correct.");
+    else
+      writeln(" ***** The for loop for hash tables does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
   begin
     writeln;
@@ -1362,4 +1408,5 @@ const proc: main is func
     chkCharHash;
     chkStringHash;
     chkKeysFunction;
+    chkForLoop;
   end func;
