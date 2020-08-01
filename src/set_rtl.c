@@ -90,41 +90,40 @@ static inline const bitSetType *bitsetNonZero (register const bitSetType *bitset
 
   /* bitsetNonZero */
     if (len != 0) {
-      bitset--;
       blockCount = (len + 31) >> 5;
       switch (len & 31) {
-        case  0: do { if (unlikely(* ++bitset != 0)) return bitset;
-        case 31:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 30:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 29:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 28:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 27:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 26:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 25:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 24:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 23:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 22:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 21:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 20:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 19:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 18:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 17:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 16:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 15:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 14:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 13:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 12:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 11:      if (unlikely(* ++bitset != 0)) return bitset;
-        case 10:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  9:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  8:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  7:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  6:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  5:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  4:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  3:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  2:      if (unlikely(* ++bitset != 0)) return bitset;
-        case  1:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  0: do { if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 31:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 30:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 29:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 28:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 27:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 26:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 25:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 24:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 23:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 22:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 21:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 20:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 19:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 18:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 17:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 16:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 15:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 14:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 13:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 12:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 11:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case 10:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  9:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  8:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  7:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  6:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  5:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  4:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  3:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  2:      if (unlikely(*bitset != 0)) return bitset; bitset++;
+        case  1:      if (unlikely(*bitset != 0)) return bitset; bitset++;
                 } while (--blockCount > 0);
       } /* switch */
     } /* if */
@@ -908,16 +907,16 @@ setType setIntersect (const const_setType set1, const const_setType set2)
 boolType setIsEmpty (const const_setType set1)
 
   {
-    memSizeType index_beyond;
-    memSizeType bitset_index;
+    register memSizeType bitset_index;
 
   /* setIsEmpty */
-    index_beyond = bitsetSize(set1);
-    for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
+    bitset_index = bitsetSize(set1);
+    do {
+      bitset_index--;
       if (set1->bitset[bitset_index] != 0) {
         return FALSE;
       } /* if */
-    } /* for */
+    } while (bitset_index != 0);
     return TRUE;
   } /* setIsEmpty */
 

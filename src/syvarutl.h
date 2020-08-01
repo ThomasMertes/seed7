@@ -48,11 +48,13 @@
 #define DESTR_OBJECT(prog)          (prog)->sys_var[20]
 #define ORD_OBJECT(prog)            (prog)->sys_var[21]
 #define IN_OBJECT(prog)             (prog)->sys_var[22]
-#define PROT_OUTFILE_OBJECT(prog)   (prog)->sys_var[23]
-#define FLUSH_OBJECT(prog)          (prog)->sys_var[24]
-#define WRITE_OBJECT(prog)          (prog)->sys_var[25]
-#define WRLN_OBJECT(prog)           (prog)->sys_var[26]
-#define MAIN_OBJECT(prog)           (prog)->sys_var[27]
+#define DOT_OBJECT(prog)            (prog)->sys_var[23]
+#define VALUE_OBJECT(prog)          (prog)->sys_var[24]
+#define PROT_OUTFILE_OBJECT(prog)   (prog)->sys_var[25]
+#define FLUSH_OBJECT(prog)          (prog)->sys_var[26]
+#define WRITE_OBJECT(prog)          (prog)->sys_var[27]
+#define WRLN_OBJECT(prog)           (prog)->sys_var[28]
+#define MAIN_OBJECT(prog)           (prog)->sys_var[29]
 
 #define SYS_EMPTY_OBJECT          EMPTY_OBJECT(prog)
 #define SYS_MEM_EXCEPTION         MEM_EXCEPTION(prog)
@@ -77,6 +79,8 @@
 #define SYS_DESTR_OBJECT          DESTR_OBJECT(prog)
 #define SYS_ORD_OBJECT            ORD_OBJECT(prog)
 #define SYS_IN_OBJECT             IN_OBJECT(prog)
+#define SYS_DOT_OBJECT            DOT_OBJECT(prog)
+#define SYS_VALUE_OBJECT          VALUE_OBJECT(prog)
 #define SYS_PROT_OUTFILE_OBJECT   PROT_OUTFILE_OBJECT(prog)
 #define SYS_FLUSH_OBJECT          FLUSH_OBJECT(prog)
 #define SYS_WRITE_OBJECT          WRITE_OBJECT(prog)

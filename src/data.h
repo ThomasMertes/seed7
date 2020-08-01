@@ -277,6 +277,7 @@ typedef struct typeStruct {
     objectType copy_call_obj;
     objectType ord_call_obj;
     objectType in_call_obj;
+    objectType value_obj;
   } typeRecord;
 
 typedef struct listStruct {
@@ -331,7 +332,7 @@ typedef struct structStruct {
     objectRecord stru[1];
   } structRecord;
 
-#define NUMBER_OF_SYSVARS 28
+#define NUMBER_OF_SYSVARS 30
 
 typedef objectType sysType[NUMBER_OF_SYSVARS];
 

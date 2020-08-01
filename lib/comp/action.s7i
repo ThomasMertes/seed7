@@ -187,6 +187,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIG_DECR, function, params, c_expr);
       elsif action_name = "BIG_DIV" then
         process(BIG_DIV, function, params, c_expr);
+      elsif action_name = "BIG_DIV_REM" then
+        process(BIG_DIV_REM, function, params, c_expr);
       elsif action_name = "BIG_EQ" then
         process(BIG_EQ, function, params, c_expr);
       elsif action_name = "BIG_FROM_BSTRI_BE" then

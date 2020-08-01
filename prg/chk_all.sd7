@@ -193,6 +193,7 @@ const string: chkbig_output is "\n\
   \Multiplication assignment of bigInteger works correct.\n\
   \Division of bigInteger works correct.\n\
   \Remainder of bigInteger division works correct.\n\
+  \Division of bigInteger with divRem works correct.\n\
   \Modulo division of bigInteger works correct.\n\
   \Modulo of bigInteger division works correct.\n\
   \Power of bigInteger works correct.\n\

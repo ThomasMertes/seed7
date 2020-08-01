@@ -233,6 +233,35 @@ FOR_DECLS(char);
 FOR_DECLS(boolean);
 
 
+const proc: FOR_ENUM_DECLS (in type: aType) is func
+  begin
+
+    const proc: for (inout aType: variable) range (attr aType) do
+        (in proc: statements) end for is func
+      begin
+        for variable range aType.first to aType.last do
+          statements;
+        end for;
+      end func;
+
+  end func;
+
+
+(**
+ *  For-loop which loops a given number of times.
+ *)
+const proc: for (in integer: numRepeats) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: count is 0;
+  begin
+    for count range 1 to numRepeats do
+      statements;
+    end for;
+  end func;
+
+
 (**
  *  For-loop which loops over the [[char|characters]] of a [[string]]
  *)

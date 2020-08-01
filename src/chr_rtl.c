@@ -445,14 +445,16 @@ striType chrCLitToBuffer (charType character, striType buffer)
  */
 intType chrCmp (charType char1, charType char2)
 
-  { /* chrCmp */
+  {
+    intType signumValue;
+
+  /* chrCmp */
     if (char1 < char2) {
-      return -1;
-    } else if (char1 > char2) {
-      return 1;
+      signumValue = -1;
     } else {
-      return 0;
+      signumValue = char1 > char2;
     } /* if */
+    return signumValue;
   } /* chrCmp */
 
 

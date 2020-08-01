@@ -36,6 +36,7 @@ objectType big_create         (listType arguments);
 objectType big_decr           (listType arguments);
 objectType big_destr          (listType arguments);
 objectType big_div            (listType arguments);
+objectType big_div_rem        (listType arguments);
 objectType big_eq             (listType arguments);
 objectType big_fromBStriBe    (listType arguments);
 objectType big_fromBStriLe    (listType arguments);

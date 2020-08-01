@@ -36,7 +36,9 @@
 
 #include "common.h"
 #include "data.h"
+#include "heaputl.h"
 #include "syvarutl.h"
+#include "executl.h"
 #include "objutl.h"
 #include "runerr.h"
 #include "big_drv.h"
@@ -258,6 +260,42 @@ objectType big_div (listType arguments)
     return bld_bigint_temp(
         bigDiv(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_div */
+
+
+
+/**
+ *  Quotient and remainder of integer division truncated towards zero.
+ *  Compute quotient and remainder of the integer division ''div''.
+ *  @return quotRem with quotient and remainder of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
+objectType big_div_rem (listType arguments)
+
+  {
+    objectType valueObj;
+    structType quotRem;
+
+  /* big_div_rem */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    valueObj = getValue(curr_exec_object->type_of->result_type->match_obj);
+    if (!ALLOC_STRUCT(quotRem, 2)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      quotRem->usage_count = 1;
+      quotRem->size = 2;
+      quotRem->stru[0].value.bigIntValue = bigDivRem(
+          take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)),
+          &quotRem->stru[1].value.bigIntValue);
+      quotRem->stru[0].type_of = SYS_BIGINT_TYPE->value.typeValue;
+      quotRem->stru[0].descriptor.property = take_struct(valueObj)->stru[0].descriptor.property;
+      INIT_CATEGORY_OF_OBJ(&quotRem->stru[0], BIGINTOBJECT);
+      quotRem->stru[1].type_of = SYS_BIGINT_TYPE->value.typeValue;
+      quotRem->stru[1].descriptor.property = take_struct(valueObj)->stru[1].descriptor.property;
+      INIT_CATEGORY_OF_OBJ(&quotRem->stru[1], BIGINTOBJECT);
+      return bld_struct_temp(quotRem);
+    } /* if */
+  } /* big_div_rem */
 
 
 

@@ -271,6 +271,40 @@ const func integer: compare (in bigInteger: number1, in bigInteger:number2) is a
 const func integer: hashCode (in bigInteger: number)                     is action "BIG_HASHCODE";
 
 
+const type: quotRem is new struct
+    var bigInteger: quotient is 0_;
+    var bigInteger: remainder is 0_;
+  end struct;
+
+
+const func quotRem: quotRem (in bigInteger: quotient, in bigInteger: remainder) is func
+  result
+    var quotRem: quotRemValue is quotRem.value;
+  begin
+    quotRemValue.quotient := quotient;
+    quotRemValue.remainder := remainder;
+  end func;
+
+
+const func boolean: (in quotRem: quotRem1) = (in quotRem: quotRem2)  is
+    return quotRem1.quotient = quotRem2.quotient and
+           quotRem1.remainder = quotRem2.remainder;
+
+
+const func boolean: (in quotRem: quotRem1) <> (in quotRem: quotRem2)  is
+    return quotRem1.quotient <> quotRem2.quotient or
+           quotRem1.remainder <> quotRem2.remainder;
+
+
+(**
+ *  Quotient and remainder of integer division truncated towards zero.
+ *  Compute quotient and remainder of the integer division ''div''.
+ *  @return quotRem with quotient and remainder of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
+const func quotRem: (in bigInteger: dividend) divRem (in bigInteger: divisor) is action "BIG_DIV_REM";
+
+
 (**
  *  Successor of a ''bigInteger'' number.
  *  succ(A) is equivalent to A+1 .

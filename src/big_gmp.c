@@ -510,6 +510,41 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
 
 
 /**
+ *  Integer division truncated towards zero.
+ *  The memory for the quotient is requested and the normalized
+ *  quotient is returned. The memory for the remainder is
+ *  requested and the normalized remainder is assigned to
+ *  *remainderAddr.
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
+bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType divisor,
+    bigIntType *remainderAddr)
+
+  {
+    bigIntType quotient;
+
+  /* bigDivRem */
+    logFunction(printf("bigDivRem(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
+    if (unlikely(mpz_sgn(divisor) == 0)) {
+      logError(printf("bigDiv(%s, %s): Division by zero.\n",
+                      bigHexCStri(dividend), bigHexCStri(divisor)););
+      raise_error(NUMERIC_ERROR);
+      quotient = NULL;
+    } else {
+      ALLOC_BIG(quotient);
+      mpz_init(quotient);
+      mpz_tdiv_qr(quotient, *remainderAddr, dividend, divisor);
+    } /* if */
+    logFunction(printf("bigDivRem --> %s", bigHexCStri(quotient));
+                printf(" (%s)\n", bigHexCStri(*remainderAddr)););
+    return quotient;
+  } /* bigDivRem */
+
+
+
+/**
  *  Check if two 'bigInteger' numbers are equal.
  *  @return TRUE if both numbers are equal,
  *          FALSE otherwise.

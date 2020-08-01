@@ -1077,7 +1077,8 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     const func boolean: (in enumType: enum_val1) >= (in enumType: enum_val2) is
       return ord(enum_val1) >= ord(enum_val2);
 
-    FOR_DECLS(enumType);(* Necessary for this is <= < >= > *)
+    FOR_DECLS(enumType);  (* Necessary for this is <= < >= > *)
+    FOR_ENUM_DECLS(enumType);
     CASE_DECLS(enumType);
     SUBRANGE_TYPES(enumType);
     end global;

@@ -84,6 +84,7 @@ typeType new_type (progType owningProg, typeType meta_type, typeType result_type
           created_type->copy_call_obj = NULL;
           created_type->ord_call_obj = NULL;
           created_type->in_call_obj = NULL;
+          created_type->value_obj = NULL;
           list_elem->obj = match_obj;
           list_elem->next = owningProg->types;
           owningProg->types = list_elem;

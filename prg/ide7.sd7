@@ -179,7 +179,12 @@ const proc: main is func
         end if;
       elsif terminate.activated then
         if currentProgram <> process.value then
-          kill(currentProgram);
+          block
+            kill(currentProgram);
+          exception
+            catch FILE_ERROR:
+              noop;
+          end block;
           currentProgram := process.value;
         end if;
       end if;

@@ -58,10 +58,12 @@ typedef BOOLTYPE boolType;
 #ifndef fileno
 #define fileno   _fileno
 #endif
+#ifndef isatty
+#define isatty   _isatty
+#endif
 #define kbhit    _kbhit
 #define setmode  _setmode
 #define fdopen   _fdopen
-#define isatty   _isatty
 #define fseeki64 _fseeki64
 #define ftelli64 _ftelli64
 #endif
@@ -469,10 +471,11 @@ typedef int errInfoType;
 #define FILE_ERROR      5
 #define DATABASE_ERROR  6
 #define ACTION_ERROR    7
-#define CREATE_ERROR    8
-#define DESTROY_ERROR   9
-#define COPY_ERROR     10
-#define IN_ERROR       11
+#define CREATE_ERROR    7
+#define DESTROY_ERROR   7
+#define COPY_ERROR      7
+#define IN_ERROR        7
+#define VALUE_ERROR     7
 
 
 #if HAS_SIGSETJMP

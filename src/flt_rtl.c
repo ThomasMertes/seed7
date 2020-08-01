@@ -69,7 +69,9 @@
 #if FLOAT_ZERO_DIV_ERROR
 const rtlValueUnion f_const[] =
 #if FLOATTYPE_DOUBLE
-    {{0xfff8000000000000}, {0x7ff0000000000000}, {0xfff0000000000000}};
+    {{GENERIC_SUFFIX(0xfff8000000000000)},
+     {GENERIC_SUFFIX(0x7ff0000000000000)},
+     {GENERIC_SUFFIX(0xfff0000000000000)}};
 #else
     {{0xffc00000}, {0x7f800000}, {0xff800000}};
 #endif
@@ -78,7 +80,7 @@ const rtlValueUnion f_const[] =
 #if USE_NEGATIVE_ZERO_BITPATTERN
 static const rtlValueUnion neg_zero_const =
 #if FLOATTYPE_DOUBLE
-    {0x8000000000000000};
+    {GENERIC_SUFFIX(0x8000000000000000)};
 #else
     {0x80000000};
 #endif
@@ -306,20 +308,15 @@ intType fltCmp (floatType number1, floatType number2)
       signumValue = (os_isnan(number1) != 0) - (os_isnan(number2) != 0);
     } /* if */
 #else
-    if (os_isnan(number1)) {
-      if (os_isnan(number2)) {
-        signumValue = 0;
-      } else {
-        signumValue = 1;
-      } /* if */
-    } else if (os_isnan(number2)) {
+    if (unlikely(os_isnan(number1))) {
+      /* The expression isnan(NaN) can return any value except 0. */
+      signumValue = os_isnan(number2) != 0;
+    } else if (unlikely(os_isnan(number2))) {
       signumValue = -1;
     } else if (number1 < number2) {
       signumValue = -1;
-    } else if (number1 > number2) {
-      signumValue = 1;
     } else {
-      signumValue = 0;
+      signumValue = number1 > number2;
     } /* if */
 #endif
     logFunction(printf("fltCmp --> " FMT_D "\n", signumValue););

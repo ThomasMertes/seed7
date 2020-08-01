@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  setpaths.c    Write definitions for Seed7 specific paths.       */
-/*  Copyright (C) 2011, 2015  Thomas Mertes                         */
+/*  Copyright (C) 2011, 2015, 2017  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Setpaths                                                */
 /*  File: seed7/src/setpaths.c                                      */
-/*  Changes: 2011, 2015  Thomas Mertes                              */
+/*  Changes: 2011, 2015, 2017  Thomas Mertes                        */
 /*  Content: Program to write definitions for Seed7 specific paths. */
 /*                                                                  */
 /********************************************************************/
@@ -306,7 +306,8 @@ int main (int argc, char **argv)
       } /* if */
     } /* for */
     if (s7_lib_dir != NULL) {
-#if !defined C_COMPILER && defined C_COMPILER_SCRIPT
+#ifdef C_COMPILER_SCRIPT
+#if !defined C_COMPILER
       printf("#define C_COMPILER \"%s/%s\"\n",
              s7_lib_dir, C_COMPILER_SCRIPT);
       fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", stdout);
@@ -315,10 +316,12 @@ int main (int argc, char **argv)
       printf("#define GET_CC_VERSION_INFO \"\\\"%s/%s\\\" %s\"\n",
              s7_lib_dir, C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
 #endif
+#endif
       printf("#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
     } else {
       get_cwd_to_buffer(buffer);
-#if !defined C_COMPILER && defined C_COMPILER_SCRIPT
+#ifdef C_COMPILER_SCRIPT
+#if !defined C_COMPILER
       printf("#define C_COMPILER \"");
       write_as_utf8(buffer);
       printf("/%s\"\n", C_COMPILER_SCRIPT);
@@ -328,6 +331,7 @@ int main (int argc, char **argv)
       printf("#define GET_CC_VERSION_INFO \"\\\"");
       write_as_utf8(buffer);
       printf("/%s\\\" %s\"\n", C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
+#endif
 #endif
       printf("#define S7_LIB_DIR \"");
       write_as_utf8(buffer);

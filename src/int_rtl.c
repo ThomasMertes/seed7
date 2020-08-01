@@ -551,10 +551,9 @@ int uint16MostSignificantBit (uint16Type number)
 int uint32MostSignificantBit (uint32Type number)
 
   {
-    int result;
+    int result = 0;
 
   /* uint32MostSignificantBit */
-    result = 0;
     if (number > 0xffff) {
       number >>= 16;
       result = 16;
@@ -573,10 +572,9 @@ int uint32MostSignificantBit (uint32Type number)
 int uint64MostSignificantBit (uint64Type number)
 
   {
-    int result;
+    int result = 0;
 
   /* uint64MostSignificantBit */
-    result = 0;
     if (number > 0xffffffff) {
       number >>= 32;
       result = 32;
@@ -627,20 +625,13 @@ int uint16LeastSignificantBit (uint16Type number)
 int uint32LeastSignificantBit (uint32Type number)
 
   {
-    int result;
+    static const int MULTIPLY_DE_BRUIJN_BIT_POSITION[32] = {
+         0,  1, 28,  2, 29, 14, 24,  3, 30, 22, 20, 15, 25, 17,  4,  8,
+        31, 27, 13, 23, 21, 19, 16,  7, 26, 12, 18,  6, 11,  5, 10,  9};
 
   /* uint32LeastSignificantBit */
-    result = 0;
-    if ((number & 0xffff) == 0) {
-      number >>= 16;
-      result = 16;
-    } /* if */
-    if ((number & 0xff) == 0) {
-      number >>= 8;
-      result += 8;
-    } /* if */
-    result += least_significant[number & 0xff];
-    return result;
+    return MULTIPLY_DE_BRUIJN_BIT_POSITION[
+      ((uint32Type) ((number & -number) * UINT32_SUFFIX(0x077cb531))) >> 27];
   } /* uint32LeastSignificantBit */
 
 
@@ -649,24 +640,15 @@ int uint32LeastSignificantBit (uint32Type number)
 int uint64LeastSignificantBit (uint64Type number)
 
   {
-    int result;
+    static const int MULTIPLY_DE_BRUIJN_BIT_POSITION[64] = {
+         0,  1,  2, 53,  3,  7, 54, 27,  4, 38, 41,  8, 34, 55, 48, 28,
+        62,  5, 39, 46, 44, 42, 22,  9, 24, 35, 59, 56, 49, 18, 29, 11,
+        63, 52,  6, 26, 37, 40, 33, 47, 61, 45, 43, 21, 23, 58, 17, 10,
+        51, 25, 36, 32, 60, 20, 57, 16, 50, 31, 19, 15, 30, 14, 13, 12};
 
   /* uint64LeastSignificantBit */
-    result = 0;
-    if ((number & 0xffffffff) == 0) {
-      number >>= 32;
-      result = 32;
-    } /* if */
-    if ((number & 0xffff) == 0) {
-      number >>= 16;
-      result += 16;
-    } /* if */
-    if ((number & 0xff) == 0) {
-      number >>= 8;
-      result += 8;
-    } /* if */
-    result += least_significant[number & 0xff];
-    return result;
+    return MULTIPLY_DE_BRUIJN_BIT_POSITION[
+        (uint64Type) ((number & -number) * UINT64_SUFFIX(0x022fdd63cc95386d)) >> 58];
   } /* uint64LeastSignificantBit */
 #endif
 

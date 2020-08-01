@@ -433,12 +433,11 @@ boolType hshContains (const const_rtlHashType aHashMap, const genericType aKey,
   {
     const_rtlHashElemType hashelem;
     intType cmp;
-    boolType result;
+    boolType result = FALSE;
 
   /* hshContains */
     logFunction(printf("hshContains(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, hashcode););
-    result = FALSE;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
 /*
@@ -630,14 +629,13 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
 
   {
     rtlHashElemType hashelem;
-    rtlHashElemType result_hashelem;
+    rtlHashElemType result_hashelem = NULL;
     intType cmp;
     genericType result;
 
   /* hshIdx */
     logFunction(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, hashcode););
-    result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericValue, aKey);
@@ -681,14 +679,13 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
 
   {
     rtlHashElemType hashelem;
-    rtlHashElemType result_hashelem;
+    rtlHashElemType result_hashelem = NULL;
     intType cmp;
     rtlObjectType *result;
 
   /* hshIdxAddr */
     logFunction(printf("hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, hashcode););
-    result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericValue, aKey);
@@ -733,14 +730,13 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
 
   {
     rtlHashElemType hashelem;
-    rtlHashElemType result_hashelem;
+    rtlHashElemType result_hashelem = NULL;
     intType cmp;
     rtlObjectType *result;
 
   /* hshIdxAddr2 */
     logFunction(printf("hshIdxAddr2(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, hashcode););
-    result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericValue, aKey);
@@ -843,7 +839,7 @@ genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericTy
 
   {
     rtlHashElemType hashelem;
-    rtlHashElemType result_hashelem;
+    rtlHashElemType result_hashelem = NULL;
     intType cmp;
     genericType result;
 
@@ -851,7 +847,6 @@ genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericTy
     logFunction(printf("hshIdxWithDefault(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, defaultData, hashcode););
-    result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericValue, aKey);

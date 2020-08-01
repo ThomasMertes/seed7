@@ -33,6 +33,7 @@ const ACTION: BIG_CONV            is action "BIG_CONV";
 const ACTION: BIG_CPY             is action "BIG_CPY";
 const ACTION: BIG_DECR            is action "BIG_DECR";
 const ACTION: BIG_DIV             is action "BIG_DIV";
+const ACTION: BIG_DIV_REM         is action "BIG_DIV_REM";
 const ACTION: BIG_EQ              is action "BIG_EQ";
 const ACTION: BIG_FROM_BSTRI_BE   is action "BIG_FROM_BSTRI_BE";
 const ACTION: BIG_FROM_BSTRI_LE   is action "BIG_FROM_BSTRI_LE";
@@ -99,6 +100,7 @@ const proc: big_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        bigDestr (const const_bigIntType);");
     declareExtern(c_prog, "void        bigDestrGeneric (const genericType);");
     declareExtern(c_prog, "bigIntType  bigDiv (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigDivRem (const const_bigIntType, const const_bigIntType, bigIntType *);");
     declareExtern(c_prog, "boolType    bigEq (const const_bigIntType, const const_bigIntType);");
     declareExtern(c_prog, "boolType    bigEqSignedDigit (const const_bigIntType, intType);");
     if ccConf.INTTYPE_SIZE = 64 then
@@ -763,6 +765,45 @@ const proc: process (BIG_DIV, in reference: function,
       getAnyParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ")";
     end if;
+  end func;
+
+
+const proc: process (BIG_DIV_REM, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: diagnosticLine is "";
+    var type: quotRemType is void;
+    var string: quotRemName is "";
+  begin
+    diagnosticLine := diagnosticLine(function);
+    quotRemType := resultType(getType(function));
+    prepare_typed_result(quotRemType, c_expr);
+    quotRemName := defineTempVariable(type_name(quotRemType), "quotRem_", c_expr);
+    c_expr.result_expr &:= "(\n";
+    c_expr.result_expr &:= process_sct_alloc(quotRemType, quotRemName, 2, diagnosticLine);
+    c_expr.result_expr &:= ",\n";
+    c_expr.result_expr &:= diagnosticLine;
+    c_expr.result_expr &:= quotRemName;
+    c_expr.result_expr &:= "->usage_count = 1,\n";
+    c_expr.result_expr &:= diagnosticLine;
+    c_expr.result_expr &:= quotRemName;
+    c_expr.result_expr &:= "->type_num = ";
+    c_expr.result_expr &:= str(typeNumber(quotRemType));
+    c_expr.result_expr &:= ",\n";
+    c_expr.result_expr &:= diagnosticLine;
+    c_expr.result_expr &:= quotRemName;
+    c_expr.result_expr &:= "->stru[0].value.bigIntValue = bigDivRem(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", &";
+    c_expr.result_expr &:= quotRemName;
+    c_expr.result_expr &:= "->stru[1].value.bigIntValue";
+    c_expr.result_expr &:= "),\n";
+    c_expr.result_expr &:= diagnosticLine;
+    c_expr.result_expr &:= quotRemName;
+    c_expr.result_expr &:= ")";
   end func;
 
 

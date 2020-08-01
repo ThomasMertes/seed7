@@ -156,6 +156,13 @@ void memset_to_strelem (register strElemType *const dest,
 boolType memcpy_from_strelem (register const ustriType dest,
                               register const strElemType *const src,
                               memSizeType len);
+#if HAS_WMEMCHR && WCHAR_T_SIZE == 32
+#define memchr_strelem(mem, ch, len) \
+    (const strElemType *) wmemchr((const wchar_t *) mem, (wchar_t) ch, (size_t) len)
+#else
+const strElemType *memchr_strelem (register const strElemType *mem,
+    const strElemType ch, memSizeType len);
+#endif
 #if STACK_LIKE_ALLOC_FOR_OS_STRI
 boolType heapAllocOsStri (os_striType *var, memSizeType len);
 void heapFreeOsStri (const_os_striType var);

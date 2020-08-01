@@ -333,6 +333,51 @@ static void type_in_call_obj (objectType elem_obj,
 
 
 
+static objectType type_value_call_obj (objectType type_obj, errInfoType *err_info)
+
+  {
+    objectRecord expr_object;
+    listRecord expr_list[3];
+    objectType match_result;
+    objectType value_call_obj = NULL;
+
+  /* type_value_call_obj */
+#ifdef WITH_PROTOCOL
+    if (trace.executil) {
+      prot_cstri("match - type_value_call_obj: type_obj= ");
+      trace1(type_obj);
+      prot_nl();
+    } /* if */
+#endif
+    expr_object.type_of = take_type(SYS_EXPR_TYPE);
+    expr_object.descriptor.property = NULL;
+    expr_object.value.listValue = expr_list;
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
+
+    expr_list[0].next = &expr_list[1];
+    expr_list[1].next = &expr_list[2];
+    expr_list[2].next = NULL;
+    expr_list[0].obj = type_obj;
+    expr_list[1].obj = SYS_DOT_OBJECT;
+    expr_list[2].obj = SYS_VALUE_OBJECT;
+
+    match_result = match_expression(&expr_object);
+    if (match_result != NULL) {
+      match_result = match_object(match_result);
+      if (match_result != NULL) {
+        value_call_obj = match_result->value.listValue->obj;
+        FREE_L_ELEM(match_result->value.listValue);
+        /* FREE_OBJECT(match_result) is not necessary, */
+        /* because match_result == &expr_object holds. */
+      } /* if */
+    } /* if */
+    logFunction(printf("type_value_call_obj -> " FMT_U_MEM "\n",
+                       (memSizeType) value_call_obj););
+    return value_call_obj;
+  } /* type_value_call_obj */
+
+
+
 static void old_do_create (objectType destination, objectType source,
     errInfoType *err_info)
 
@@ -815,6 +860,40 @@ boolType do_in (objectType elem_obj, objectType set_obj,
     } /* if */
     return result;
   } /* do_in */
+
+
+
+objectType getValue (objectType type_obj)
+
+  {
+    objectType value_call_obj;
+    objectRecord call_object;
+    listRecord call_list[4];
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* getValue */
+    if (take_type(type_obj)->value_obj == NULL) {
+      value_call_obj = type_value_call_obj(type_obj, &err_info);
+      if (value_call_obj != NULL) {
+        call_object.type_of = NULL;
+        call_object.descriptor.property = NULL;
+        call_object.value.listValue = call_list;
+        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
+
+        call_list[0].next = &call_list[1];
+        call_list[1].next = &call_list[2];
+        call_list[2].next = &call_list[3];
+        call_list[3].next = NULL;
+        call_list[0].obj = value_call_obj;
+        call_list[1].obj = type_obj;
+        call_list[2].obj = SYS_DOT_OBJECT;
+        call_list[3].obj = SYS_VALUE_OBJECT;
+
+        take_type(type_obj)->value_obj = exec_call(&call_object);
+      } /* if */
+    } /* if */
+    return take_type(type_obj)->value_obj;
+  } /* getValue */
 
 
 

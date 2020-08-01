@@ -123,6 +123,7 @@ static const actEntryRecord actEntryTable[] = {
     { "BIG_DECR",                big_decr,                },
     { "BIG_DESTR",               big_destr,               },
     { "BIG_DIV",                 big_div,                 },
+    { "BIG_DIV_REM",             big_div_rem,             },
     { "BIG_EQ",                  big_eq,                  },
     { "BIG_FROM_BSTRI_BE",       big_fromBStriBe,         },
     { "BIG_FROM_BSTRI_LE",       big_fromBStriLe,         },

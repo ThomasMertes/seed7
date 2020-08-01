@@ -69,6 +69,8 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "destroy",
     "ord",
     "in",
+    "dot",
+    "value",
     "prot_outfile",
     "flush",
     "write",

@@ -476,11 +476,10 @@ static bigIntType normalize (bigIntType big1)
 static void negate_positive_big (const bigIntType big1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 1;
 
   /* negate_positive_big */
-    pos = 0;
     do {
       carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -495,11 +494,10 @@ static void positive_copy_of_negative_big (const bigIntType dest,
     const const_bigIntType big1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 1;
 
   /* positive_copy_of_negative_big */
-    pos = 0;
     do {
       carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       dest->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -547,10 +545,9 @@ static bigIntType alloc_positive_copy_of_negative_big (const const_bigIntType bi
 static inline void uBigMultByPowerOf10AndAdd (const bigIntType big1, doubleBigDigitType carry)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
 
   /* uBigMultByPowerOf10AndAdd */
-    pos = 0;
     do {
       carry += (doubleBigDigitType) big1->bigdigits[pos] * POWER_OF_10_IN_BIGDIGIT;
       big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -575,10 +572,9 @@ static inline void uBigMultiplyAndAdd (const bigIntType big1, bigDigitType facto
     doubleBigDigitType carry)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
 
   /* uBigMultiplyAndAdd */
-    pos = 0;
     do {
       carry += (doubleBigDigitType) big1->bigdigits[pos] * factor;
       big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -742,7 +738,7 @@ static inline bigDigitType uBigDivideByDigit (const bigIntType big1,
 static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shift)
 
   {
-    memSizeType mostSignificantDigitPos;
+    memSizeType mostSignificantDigitPos = 0;
     boolType negative;
     memSizeType bits_necessary;
     boolType okay;
@@ -759,7 +755,6 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
   /* bigParseBasedPow2 */
     logFunction(printf("bigParseBasedPow2(\"%s\", %u)\n",
                        striAsUnquotedCStri(stri), shift););
-    mostSignificantDigitPos = 0;
     if (likely(stri->size != 0)) {
       if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
@@ -881,7 +876,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int ba
   {
     boolType okay;
     boolType negative;
-    memSizeType position;
+    memSizeType position = 0;
     uint8Type based_digit_size;
     uint8Type based_digits_in_bigdigit;
     bigDigitType power_of_base_in_bigdigit;
@@ -895,7 +890,6 @@ static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int ba
   /* bigParseBased2To36 */
     logFunction(printf("bigParseBased2To36(\"%s\", %u)\n",
                        striAsUnquotedCStri(stri), base););
-    position = 0;
     if (likely(stri->size != 0)) {
       if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
@@ -1109,19 +1103,18 @@ static memSizeType binaryToStri (bigIntType unsignedBig, striType buffer,
 
 
 static memSizeType basicRadix2To36 (const bigIntType unsignedBig,
-    striType buffer, unsigned int base, boolType upperCase, memSizeType pos)
+    striType buffer, unsigned int base, const const_ustriType digits,
+    memSizeType pos)
 
   {
-    const_ustriType digits;
     bigDigitType divisor_digit;
     uint8Type digits_in_bigdigit;
     bigDigitType digit;
     int digit_pos;
 
   /* basicRadix2To36 */
-    logFunction(printf("basicRadix2To36(%s, *, %u, %d, " FMT_U_MEM ")\n",
-                       bigHexCStri(unsignedBig), base, upperCase, pos););
-    digits = digitTable[upperCase];
+    logFunction(printf("basicRadix2To36(%s, *, %u, *, " FMT_U_MEM ")\n",
+                       bigHexCStri(unsignedBig), base, pos););
     divisor_digit = powerOfRadixInBigdigit[base - 2];
     /* printf("divisor_digit: " FMT_U_DIG "\n", divisor_digit); */
     digits_in_bigdigit = radixDigitsInBigdigit[base - 2];
@@ -1155,7 +1148,7 @@ static memSizeType basicRadix2To36 (const bigIntType unsignedBig,
 
 
 static memSizeType binaryRadix2To36 (bigIntType unsignedBig,
-    striType buffer, unsigned int base, boolType upperCase,
+    striType buffer, unsigned int base, const const_ustriType digits,
     unsigned int exponent, boolType zeroPad, memSizeType pos)
 
   {
@@ -1165,9 +1158,9 @@ static memSizeType binaryRadix2To36 (bigIntType unsignedBig,
     memSizeType endPos;
 
   /* binaryRadix2To36 */
-    logFunction(printf("binaryRadix2To36(%s, *, %u, %d, %u, %u, "
+    logFunction(printf("binaryRadix2To36(%s, *, %u, *, %u, %u, "
                        FMT_U_MEM ")\n", bigHexCStri(unsignedBig),
-                       base, upperCase, exponent, zeroPad, pos););
+                       base, exponent, zeroPad, pos););
     if (exponent > 8) {
       exponent--;
       divisor = getConversionDivisor(base, exponent);
@@ -1175,12 +1168,12 @@ static memSizeType binaryRadix2To36 (bigIntType unsignedBig,
         quotient = bigDivRem(unsignedBig, divisor, &remainder);
         if (quotient != NULL) {
           if (zeroPad || (quotient->size > 1 || quotient->bigdigits[0] != 0)) {
-            pos = binaryRadix2To36(remainder, buffer, base, upperCase,
+            pos = binaryRadix2To36(remainder, buffer, base, digits,
                                   exponent, TRUE, pos);
-            pos = binaryRadix2To36(quotient, buffer, base, upperCase,
+            pos = binaryRadix2To36(quotient, buffer, base, digits,
                                   exponent, zeroPad, pos);
           } else {
-            pos = binaryRadix2To36(remainder, buffer, base, upperCase,
+            pos = binaryRadix2To36(remainder, buffer, base, digits,
                                   exponent, FALSE, pos);
           } /* if */
           FREE_BIG(remainder, remainder->size);
@@ -1189,7 +1182,7 @@ static memSizeType binaryRadix2To36 (bigIntType unsignedBig,
       } /* if */
     } else {
       endPos = pos;
-      pos = basicRadix2To36(unsignedBig, buffer, base, upperCase, pos);
+      pos = basicRadix2To36(unsignedBig, buffer, base, digits, pos);
       if (zeroPad) {
         /* printf(FMT_U_MEM " " FMT_U_MEM " " FMT_U_MEM
                " insert " FMT_U_MEM " zero digits.\n",
@@ -1409,9 +1402,10 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          /* pos = basicRadix2To36(unsigned_big, result, base, upperCase,
-                                result_size - 1); */
-          pos = binaryRadix2To36(unsigned_big, result, base, upperCase, (unsigned int) 
+          /* pos = basicRadix2To36(unsigned_big, result, base,
+                                digitTable[upperCase], result_size - 1); */
+          pos = binaryRadix2To36(unsigned_big, result, base,
+                                 digitTable[upperCase], (unsigned int)
                                  memSizeMostSignificantBit(result_size) + 1,
                                  FALSE, result_size - 1);
           FREE_BIG(unsigned_big, big1->size);
@@ -1457,10 +1451,9 @@ static void uBigLShift (const bigIntType big1, const unsigned int lshift)
 
   {
     doubleBigDigitType carry = 0;
-    memSizeType pos;
+    memSizeType pos = 0;
 
   /* uBigLShift */
-    pos = 0;
     do {
       carry |= ((doubleBigDigitType) big1->bigdigits[pos]) << lshift;
       big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -1482,11 +1475,10 @@ static void uBigRShift (const bigIntType big1, const unsigned int rshift)
   {
     unsigned int lshift = BIGDIGIT_SIZE - rshift;
     bigDigitType low_digit;
-    bigDigitType high_digit;
+    bigDigitType high_digit = 0;
     memSizeType pos;
 
   /* uBigRShift */
-    high_digit = 0;
     for (pos = big1->size - 1; pos != 0; pos--) {
       low_digit = big1->bigdigits[pos];
       big1->bigdigits[pos] = (bigDigitType)
@@ -1508,10 +1500,9 @@ static void uBigRShift (const bigIntType big1, const unsigned int rshift)
 static void uBigIncr (const bigIntType big1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
 
   /* uBigIncr */
-    pos = 0;
     if (unlikely(big1->bigdigits[pos] == BIGDIGIT_MASK)) {
       if (big1->size == 1) {
         big1->bigdigits[pos] = 0;
@@ -1540,10 +1531,9 @@ static void uBigIncr (const bigIntType big1)
 static void uBigDecr (const bigIntType big1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
 
   /* uBigDecr */
-    pos = 0;
     if (unlikely(big1->bigdigits[pos] == 0)) {
       do {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
@@ -1699,12 +1689,11 @@ static bigDigitType uBigMultSub (const bigIntType big1, const const_bigIntType b
     const bigDigitType multiplier, const memSizeType pos1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType mult_carry = 0;
     doubleBigDigitType sbtr_carry = 1;
 
   /* uBigMultSub */
-    pos = 0;
     do {
       mult_carry += (doubleBigDigitType) big2->bigdigits[pos] * multiplier;
       sbtr_carry += big1->bigdigits[pos1 + pos] + (~mult_carry & BIGDIGIT_MASK);
@@ -1738,11 +1727,10 @@ static void uBigAddTo (const bigIntType big1, const const_bigIntType big2,
     const memSizeType pos1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 0;
 
   /* uBigAddTo */
-    pos = 0;
     do {
       carry += (doubleBigDigitType) big1->bigdigits[pos1 + pos] + big2->bigdigits[pos];
       big1->bigdigits[pos1 + pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -2271,12 +2259,11 @@ static bigIntType bigRemSizeLess (const const_bigIntType dividend,
 static void bigAddTo (const bigIntType big1, const const_bigIntType big2)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 0;
     doubleBigDigitType big2_sign;
 
   /* bigAddTo */
-    pos = 0;
     do {
       carry += (doubleBigDigitType) big1->bigdigits[pos] + big2->bigdigits[pos];
       big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -2416,11 +2403,10 @@ static void uBigDigitAdd (const bigDigitType *const big1, const memSizeType size
     const bigDigitType *const big2, const memSizeType size2, bigDigitType *const result)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 0;
 
   /* uBigDigitAdd */
-    pos = 0;
     do {
       carry += (doubleBigDigitType) big1[pos] + big2[pos];
       result[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -2441,11 +2427,10 @@ static void uBigDigitSbtrFrom (bigDigitType *const big1, const memSizeType size1
     const bigDigitType *const big2, const memSizeType size2)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 1;
 
   /* uBigDigitSbtrFrom */
-    pos = 0;
     do {
       carry += (doubleBigDigitType) big1[pos] +
           (~big2[pos] & BIGDIGIT_MASK);
@@ -2466,11 +2451,10 @@ static void uBigDigitAddTo (bigDigitType *const big1,  const memSizeType size1,
     const bigDigitType *const big2, const memSizeType size2)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 0;
 
   /* uBigDigitAddTo */
-    pos = 0;
     do {
       carry += (doubleBigDigitType) big1[pos] + big2[pos];
       big1[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -2544,11 +2528,10 @@ static void uBigDigitMult (const bigDigitType *const factor1,
 
   {
     memSizeType pos1;
-    memSizeType pos2;
+    memSizeType pos2 = 0;
     doubleBigDigitType carry = 0;
 
   /* uBigDigitMult */
-    pos2 = 0;
     do {
       carry += (doubleBigDigitType) factor1[0] * factor2[pos2];
       product[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -2921,11 +2904,10 @@ static void uBigMult (const const_bigIntType factor1, const const_bigIntType fac
 
   {
     memSizeType pos1;
-    memSizeType pos2;
+    memSizeType pos2 = 0;
     doubleBigDigitType carry = 0;
 
   /* uBigMult */
-    pos2 = 0;
     do {
       carry += (doubleBigDigitType) factor1->bigdigits[0] * factor2->bigdigits[pos2];
       product->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -3273,10 +3255,9 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
 static int uBigIsNot0 (const const_bigIntType big)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
 
   /* uBigIsNot0 */
-    pos = 0;
     do {
       if (big->bigdigits[pos] != 0) {
         return TRUE;
@@ -3748,14 +3729,14 @@ intType bigCmp (const const_bigIntType big1, const const_bigIntType big2)
     memSizeType pos;
 
   /* bigCmp */
-    big1_negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
+    pos = big1->size;
+    big1_negative = IS_NEGATIVE(big1->bigdigits[pos - 1]);
     big2_negative = IS_NEGATIVE(big2->bigdigits[big2->size - 1]);
     if (big1_negative != big2_negative) {
       return big1_negative ? -1 : 1;
-    } else if (big1->size != big2->size) {
-      return (big1->size < big2->size) != big1_negative ? -1 : 1;
+    } else if (pos != big2->size) {
+      return (pos < big2->size) != big1_negative ? -1 : 1;
     } else {
-      pos = big1->size;
       do {
         pos--;
         if (big1->bigdigits[pos] != big2->bigdigits[pos]) {
@@ -3807,28 +3788,20 @@ intType bigCmpSignedDigit (const const_bigIntType big1, intType number)
         signumValue = 1;
       } else if (big1->size != 1) {
         signumValue = -1;
-      } else if (big1->bigdigits[0] != (bigDigitType) number) {
-        if (big1->bigdigits[0] < (bigDigitType) number) {
-          signumValue = -1;
-        } else {
-          signumValue = 1;
-        } /* if */
+      } else if (big1->bigdigits[0] < (bigDigitType) number) {
+        signumValue = -1;
       } else {
-        signumValue = 0;
+        signumValue = big1->bigdigits[0] > (bigDigitType) number;
       } /* if */
     } else {
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
         signumValue = -1;
       } else if (big1->size != 1) {
         signumValue = 1;
-      } else if (big1->bigdigits[0] != (bigDigitType) number) {
-        if (big1->bigdigits[0] < (bigDigitType) number) {
-          signumValue = -1;
-        } else {
-          signumValue = 1;
-        } /* if */
+      } else if (big1->bigdigits[0] < (bigDigitType) number) {
+        signumValue = -1;
       } else {
-        signumValue = 0;
+        signumValue = big1->bigdigits[0] > (bigDigitType) number;
       } /* if */
     } /* if */
     return signumValue;
@@ -4256,7 +4229,8 @@ bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType di
       FREE_BIG(divisor_help, divisor->size + 1);
       *remainderAddr = remainder;
     } /* if */
-    logFunction(printf("bigDivRem --> %s\n", bigHexCStri(quotient)););
+    logFunction(printf("bigDivRem --> %s", bigHexCStri(quotient));
+                printf(" (%s)\n", bigHexCStri(*remainderAddr)););
     return quotient;
   } /* bigDivRem */
 
@@ -4851,7 +4825,7 @@ void bigIncr (bigIntType *const big_variable)
 
   {
     bigIntType big1;
-    memSizeType pos;
+    memSizeType pos = 0;
     boolType negative;
     bigIntType resized_big1;
 
@@ -4859,7 +4833,6 @@ void bigIncr (bigIntType *const big_variable)
     logFunction(printf("bigIncr(%s)\n", bigHexCStri(*big_variable)););
     big1 = *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
-    pos = 0;
     if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
       if (big1->size == 1) {
         big1->bigdigits[pos] = 0;
@@ -5459,13 +5432,12 @@ intType bigLowestSetBit (const const_bigIntType big1)
 
   {
     memSizeType big1_size;
-    memSizeType pos;
+    memSizeType pos = 0;
     intType result;
 
   /* bigLowestSetBit */
     logFunction(printf("bigLowestSetBit(%s)\n", bigHexCStri(big1)););
     big1_size = big1->size;
-    pos = 0;
     while (pos < big1_size && big1->bigdigits[pos] == 0) {
       pos++;
     } /* while */
@@ -6219,7 +6191,7 @@ bigIntType bigNegate (const const_bigIntType big1)
 bigIntType bigNegateTemp (bigIntType big1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     doubleBigDigitType carry = 1;
     boolType negative;
     bigIntType resized_big1;
@@ -6227,7 +6199,6 @@ bigIntType bigNegateTemp (bigIntType big1)
   /* bigNegateTemp */
     logFunction(printf("bigNegateTemp(%s)\n", bigHexCStri(big1)););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
-    pos = 0;
     do {
       carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
@@ -6332,14 +6303,13 @@ bigIntType bigParse (const const_striType stri)
     memSizeType result_size;
     boolType okay;
     boolType negative;
-    memSizeType position;
+    memSizeType position = 0;
     memSizeType limit;
     bigDigitType bigDigit;
     bigIntType result;
 
   /* bigParse */
     logFunction(printf("bigParse(\"%s\")\n", striAsUnquotedCStri(stri)););
-    position = 0;
     if (likely(stri->size != 0)) {
       if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
@@ -6537,14 +6507,13 @@ bigIntType bigPred (const const_bigIntType big1)
 bigIntType bigPredTemp (bigIntType big1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     boolType negative;
     bigIntType resized_big1;
 
   /* bigPredTemp */
     logFunction(printf("bigPredTemp(%s)\n", bigHexCStri(big1)););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
-    pos = 0;
     if (big1->bigdigits[pos] == 0) {
       if (big1->size == 1) {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
@@ -7453,14 +7422,13 @@ bigIntType bigSucc (const const_bigIntType big1)
 bigIntType bigSuccTemp (bigIntType big1)
 
   {
-    memSizeType pos;
+    memSizeType pos = 0;
     boolType negative;
     bigIntType resized_big1;
 
   /* bigSuccTemp */
     logFunction(printf("bigSuccTemp(%s)\n", bigHexCStri(big1)););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
-    pos = 0;
     if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
       if (big1->size == 1) {
         big1->bigdigits[pos] = 0;

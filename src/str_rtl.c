@@ -61,46 +61,23 @@
 
 
 #if HAS_WMEMCMP && WCHAR_T_SIZE == 32
-#define strelem_memcmp(mem1, mem2, number) \
-    wmemcmp((const wchar_t *) mem1, (const wchar_t *) mem2, number)
+#define strelem_memcmp(mem1, mem2, len) \
+    wmemcmp((const wchar_t *) mem1, (const wchar_t *) mem2, len)
 #else
 
 
 
 static inline int strelem_memcmp (const strElemType *mem1,
-    const strElemType *mem2, size_t number)
+    const strElemType *mem2, size_t len)
 
   { /* strelem_memcmp */
-    for (; number > 0; mem1++, mem2++, number--) {
+    for (; len > 0; mem1++, mem2++, len--) {
       if (*mem1 != *mem2) {
         return *mem1 < *mem2 ? -1 : 1;
       } /* if */
     } /* for */
     return 0;
   } /* strelem_memcmp */
-
-#endif
-
-
-
-#if HAS_WMEMCHR && WCHAR_T_SIZE == 32
-#define search_strelem(mem, ch, beyond) \
-    (const strElemType *) wmemchr((const wchar_t *) mem, (wchar_t) ch, (size_t) (beyond - mem))
-#else
-
-
-
-static inline const strElemType *search_strelem (const strElemType *mem,
-    const strElemType ch, const strElemType *const beyond)
-
-  { /* search_strelem */
-    for (; mem != beyond; mem++) {
-      if (*mem == ch) {
-        return mem;
-      } /* if */
-    } /* for */
-    return NULL;
-  } /* search_strelem */
 
 #endif
 
@@ -126,10 +103,10 @@ static inline const strElemType *search_strelem2 (const strElemType *mem,
 
 
 static inline const strElemType *rsearch_strelem (const strElemType *mem,
-    const strElemType ch, size_t number)
+    const strElemType ch, size_t len)
 
   { /* rsearch_strelem */
-    for (; number > 0; mem--, number--) {
+    for (; len > 0; mem--, len--) {
       if (*mem == ch) {
         return mem;
       } /* if */
@@ -1458,8 +1435,8 @@ intType strChIPos (const const_striType mainStri, const charType searched,
     } else {
       if ((uintType) fromIndex <= mainStri->size) {
         main_mem = mainStri->mem;
-        found_pos = search_strelem(&main_mem[fromIndex - 1], searched,
-            &main_mem[mainStri->size]);
+        found_pos = memchr_strelem(&main_mem[fromIndex - 1], searched,
+            mainStri->size - fromIndex + 1);
         if (found_pos != NULL) {
           return ((intType) (found_pos - main_mem)) + 1;
         } /* if */
@@ -1523,7 +1500,7 @@ intType strChPos (const const_striType mainStri, const charType searched)
                        striAsUnquotedCStri(mainStri), searched););
     if (mainStri->size >= 1) {
       main_mem = mainStri->mem;
-      found_pos = search_strelem(main_mem, searched, &main_mem[mainStri->size]);
+      found_pos = memchr_strelem(main_mem, searched, mainStri->size);
       if (found_pos != NULL) {
         return ((intType) (found_pos - main_mem)) + 1;
       } /* if */
@@ -1553,7 +1530,8 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
       used_max_position = 0;
       search_start = mainStri->mem;
       search_end = &mainStri->mem[mainStri->size];
-      while ((found_pos = search_strelem(search_start, delimiter, search_end)) != NULL &&
+      while ((found_pos = memchr_strelem(search_start, delimiter,
+          (memSizeType) (search_end - search_start))) != NULL &&
           result_array != NULL) {
         result_array = add_stri_to_array(search_start,
             (memSizeType) (found_pos - search_start), result_array,
@@ -2385,7 +2363,8 @@ intType strIPos (const const_striType mainStri, const const_striType searched,
           search_start = &main_mem[searched_size - 1];
           search_end = &main_mem[main_size];
           while (search_start < search_end) {
-            search_start = search_strelem(search_start, ch_n, search_end);
+            search_start = memchr_strelem(search_start, ch_n,
+                (memSizeType) (search_end - search_start));
             if (search_start == NULL) {
               return 0;
             } else {
@@ -2778,12 +2757,11 @@ boolType strLt (const const_striType stri1, const const_striType stri2)
 striType strLtrim (const const_striType stri)
 
   {
-    memSizeType start;
+    memSizeType start = 0;
     memSizeType striSize;
     striType result;
 
   /* strLtrim */
-    start = 0;
     striSize = stri->size;
     if (striSize >= 1) {
       while (start < striSize && stri->mem[start] <= ' ') {
@@ -2981,7 +2959,8 @@ intType strPos (const const_striType mainStri, const const_striType searched)
         search_start = &main_mem[searched_size - 1];
         search_end = &main_mem[main_size];
         while (search_start < search_end) {
-          search_start = search_strelem(search_start, ch_n, search_end);
+          search_start = memchr_strelem(search_start, ch_n,
+              (memSizeType) (search_end - search_start));
           if (search_start == NULL) {
             return 0;
           } else {
@@ -3335,7 +3314,8 @@ striType strRepl (const const_striType mainStri,
           search_start = main_mem;
           search_end = &main_mem[main_size - searched_size + 1];
           while (search_start < search_end &&
-              (search_start = search_strelem(search_start, ch_1, search_end)) != NULL) {
+              (search_start = memchr_strelem(search_start, ch_1,
+                  (memSizeType) (search_end - search_start))) != NULL) {
             if (memcmp(search_start, searched_mem,
                 searched_size * sizeof(strElemType)) == 0) {
               memcpy(result_end, copy_start,
@@ -3414,7 +3394,7 @@ static intType strRIPos2 (const const_striType mainStri, const const_striType se
       } /* if */
     } /* for */
     ch_1 = searched_mem[0];
-    ch_1_pos = search_strelem(&searched_mem[1], ch_1, &searched_mem[searched_size]);
+    ch_1_pos = memchr_strelem(&searched_mem[1], ch_1, searched_size - 1);
     if (ch_1_pos == NULL) {
       delta = searched_size;
     } else {
@@ -3593,7 +3573,7 @@ static intType strRPos2 (const const_striType mainStri, const const_striType sea
       } /* if */
     } /* for */
     ch_1 = searched_mem[0];
-    ch_1_pos = search_strelem(&searched_mem[1], ch_1, &searched_mem[searched_size]);
+    ch_1_pos = memchr_strelem(&searched_mem[1], ch_1, searched_size - 1);
     if (ch_1_pos == NULL) {
       delta = searched_size;
     } else {
@@ -3727,7 +3707,8 @@ rtlArrayType strSplit (const const_striType mainStri,
       if (delimiter_size != 0 && mainStri->size >= delimiter_size) {
         ch_1 = delimiter_mem[0];
         search_end = &mainStri->mem[mainStri->size - delimiter_size + 1];
-        while ((found_pos = search_strelem(search_start, ch_1, search_end)) != NULL &&
+        while ((found_pos = memchr_strelem(search_start, ch_1,
+            (memSizeType) (search_end - search_start))) != NULL &&
             result_array != NULL) {
           if (memcmp(found_pos, delimiter_mem,
               delimiter_size * sizeof(strElemType)) == 0) {
@@ -4027,12 +4008,11 @@ striType strToUtf8 (const const_striType stri)
 striType strTrim (const const_striType stri)
 
   {
-    memSizeType start;
+    memSizeType start = 0;
     memSizeType striSize;
     striType result;
 
   /* strTrim */
-    start = 0;
     striSize = stri->size;
     if (striSize >= 1) {
       while (start < striSize && stri->mem[start] <= ' ') {

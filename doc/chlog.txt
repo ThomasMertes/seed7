@@ -1,3 +1,53 @@
+20170807:
+- Experimental support to compute quotient and remainder of a
+  bigInteger with the operator divRem has been added to the library
+  bigint.s7i.
+- The function str in bigrat.s7i has been improved to use the new
+  operator divRem.
+- The program ide7.sd7 has been improved to ignore an attempt to kill
+  a nonexisting process.
+- Support for a for-loop that loops over all values of an enumeration
+  has been added to forloop.s7i.
+- Support for a for-loop which loops a given number of times has been
+  added to forloop.s7i.
+- Syntax definitions for the divRem operator and the new for-loops
+  have been added to syntax.s7i.
+- Checks for the divRem operator have been added to chkbig.sd7.
+- Interpreter and compiler have been improved to support the action
+  BIG_DIV_REM.
+- The function bigDivRem has been added to big_gmp.c.
+- The function big_div_rem has been added to biglib.c.
+- The performance of the function uint32LeastSignificantBit() has
+  been improved by 15% (measured with gcc and valgrind when all
+  unsigned 32-bit values are computed).
+- The performance of the function uint64LeastSignificantBit() has
+  been improved by 10% (measured with gcc and valgrind when
+  4294967294 random unsigned 64-bit values are computed).
+- In set_rtl.c the functions bitsetNonZero() and setIsEmpty() have
+  been improved.
+- The function memchr_strelem() has been added to striutl.c. This
+  function uses loop unrolling inspired by Duff's device. This
+  function is used when sizeof(wchar_t) != 4 holds. In case
+  sizeof(wchar_t) == 4 holds (wchar_t has the same size as the
+  Seed7 characters) the macro memchr_strelem is defined as wmemchr.
+- In lib/comp/create.s7i the function process_sct_alloc has been
+  improved. Now it can be used as expression.
+- In big_rtl.c the functions basicRadix2To36 and binaryRadix2To36
+  have been improved to use the parameter 'digits' instead of the
+  parameter 'upperCase'.
+- The functions bigCmp, chrCmp and fltCmp have been improved.
+- The program chkccomp.c has been improved to check if system()
+  returns the correct result of the process.
+- The program chkccomp.c has been improved to determine if isatty()
+  or _isatty() should be used.
+- The functions type_value_call_obj and getValue have been added to
+  executl.c. The function getValue determines the default value of
+  a type.
+- The program setpaths.c has been improved to use preprocessor macros
+  only when they are defined.
+- The program setwpath.c has been improved to include direct.h when
+  USE_DIRWIN is defined.
+
 20170702:
 - The performance of the function bigStr() in big_rtl.c has been
   improved by a factor of 2.7 (measured with gcc and valgrind when

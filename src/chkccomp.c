@@ -831,6 +831,43 @@ static void checkPopen (FILE *versionFile)
 
 
 
+static void checkSystemResult (FILE *versionFile)
+
+  {
+    int testResult;
+    char buffer[BUFFER_SIZE];
+    char fileName[NAME_SIZE];
+
+  /* checkSystemResult */
+    if (assertCompAndLnk("int main (int argc, char *argv[])\n"
+                         "{ return 0; }\n")) {
+      sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
+      if (rename(fileName, "ctest_b" EXECUTABLE_FILE_EXTENSION) == 0) {
+        sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                        "int main(int argc, char *argv[])\n"
+                        "{char buffer[5]; int retVal; retVal=system(\""
+                        ".%s%cctest_b%s"
+                        "\");\n"
+                        "printf(\"%%d\\n\", retVal); return 0;}\n",
+                        PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
+                        EXECUTABLE_FILE_EXTENSION);
+        if (assertCompAndLnk(buffer)) {
+          testResult = doTest();
+          fprintf(versionFile, "#define SYSTEM_RESULT_FOR_RETURN_0 %d\n", testResult);
+          if (testResult != 0) {
+            fprintf(logFile, "\n *** System result for return 0 is %d\n", testResult);
+          } /* if */
+        } /* if */
+        doRemove("ctest_b" EXECUTABLE_FILE_EXTENSION);
+      } else {
+        fprintf(logFile, "\n *** Unable to rename %s to ctest_b%s\n",
+                fileName, EXECUTABLE_FILE_EXTENSION);
+      } /* if */
+    } /* if */
+  } /* checkSystemResult */
+
+
+
 static int getSizeof (const char *typeName)
 
   {
@@ -2617,6 +2654,23 @@ static void determineOsFunctions (FILE *versionFile)
       fprintf(versionFile, "#define FILENO_WORKS_FOR_NULL %d\n", doTest() == 1);
     } /* if */
 #endif
+    if (!compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "printf(\"%d\\n\", isatty(0)==0);\n"
+                          "return 0;}\n")) {
+      if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                           "int main(int argc,char *argv[]){\n"
+                           "printf(\"%d\\n\", isatty(0)==0);\n"
+                           "return 0;}\n")) {
+        fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
+      } else if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                                  "int main(int argc,char *argv[]){\n"
+                                  "printf(\"%d\\n\", _isatty(0)==0);\n"
+                                  "return 0;}\n")) {
+        fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
+        fprintf(versionFile, "#define isatty _isatty\n");
+      } /* if */
+    } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{SetErrorMode(SEM_NOGPFAULTERRORBOX);\n"
@@ -3868,6 +3922,7 @@ int main (int argc, char **argv)
     removeDirDefinition = defineRemoveDir();
     determineOsFunctions(versionFile);
     checkPopen(versionFile);
+    checkSystemResult(versionFile);
     if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{printf(\"%d\\n\", fseek(stdin, 0,  SEEK_SET) == 0);\n"
                          "return 0;}\n")) {

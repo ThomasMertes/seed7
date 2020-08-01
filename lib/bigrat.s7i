@@ -487,8 +487,8 @@ const func string: str (in bigRational: number) is func
   result
     var string: stri is "";
   local
-    var bigInteger: remainder is 0_;
     var BIG_REMAINDER_HASH_TYPE: remainderHash is BIG_REMAINDER_HASH_TYPE.value;
+    var quotRem: quotAndRem is quotRem.value;
     var integer: pos is 0;
   begin
     if number.denominator = 0_ then
@@ -500,20 +500,20 @@ const func string: str (in bigRational: number) is func
         stri := "-Infinity";
       end if;
     else
-      stri := str(abs(number.numerator) div number.denominator);
+      quotAndRem := abs(number.numerator) divRem number.denominator;
+      stri := str(quotAndRem.quotient);
       stri &:= ".";
-      remainder := abs(number.numerator) rem number.denominator;
-      if remainder = 0_ then
+      if quotAndRem.remainder = 0_ then
         stri &:= "0";
       else
         repeat
-          remainderHash @:= [remainder] length(stri);
-          remainder *:= 10_;
-          stri &:= str(remainder div number.denominator);
-          remainder := remainder rem number.denominator;
-        until remainder = 0_ or remainder in remainderHash;
-        if remainder <> 0_ then
-          pos := remainderHash[remainder];
+          remainderHash @:= [quotAndRem.remainder] length(stri);
+          quotAndRem.remainder *:= 10_;
+          quotAndRem := quotAndRem.remainder divRem number.denominator;
+          stri &:= str(quotAndRem.quotient);
+        until quotAndRem.remainder = 0_ or quotAndRem.remainder in remainderHash;
+        if quotAndRem.remainder <> 0_ then
+          pos := remainderHash[quotAndRem.remainder];
           stri := stri[.. pos] & "(" & stri[succ(pos) ..] & ")";
         end if;
       end if;

@@ -454,6 +454,64 @@ boolType memcpy_from_strelem (register const ustriType dest,
     return check >= 256;
   } /* memcpy_from_strelem */
 
+
+
+#if !HAS_WMEMCHR || WCHAR_T_SIZE != 32
+/**
+ *  Scan the first len Seed7 characters for the character ch.
+ *  This function uses loop unrolling inspired by Duff's device.
+ *  @return a pointer to the matching character or NULL, if the
+ *          character does not occur in the given string area.
+ */
+const strElemType *memchr_strelem (register const strElemType *mem,
+    const strElemType ch, memSizeType len)
+
+  {
+    register memSizeType blockCount;
+
+  /* memchr_strelem */
+    if (len != 0) {
+      blockCount = (len + 31) >> 5;
+      switch (len & 31) {
+        case  0: do { if (unlikely(*mem == ch)) return mem; mem++;
+        case 31:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 30:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 29:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 28:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 27:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 26:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 25:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 24:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 23:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 22:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 21:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 20:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 19:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 18:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 17:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 16:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 15:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 14:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 13:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 12:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 11:      if (unlikely(*mem == ch)) return mem; mem++;
+        case 10:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  9:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  8:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  7:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  6:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  5:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  4:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  3:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  2:      if (unlikely(*mem == ch)) return mem; mem++;
+        case  1:      if (unlikely(*mem == ch)) return mem; mem++;
+                } while (--blockCount > 0);
+      } /* switch */
+    } /* if */
+    return NULL;
+  } /* memchr_strelem */
+
+#endif
 #else
 
 
@@ -491,6 +549,8 @@ void memset_to_strelem (register strElemType *const dest,
 
 /**
  *  Copy len Seed7 characters to a byte string.
+ *  @return TRUE when one of the characters does not fit into a byte,
+ *          FALSE otherwise.
  */
 boolType memcpy_from_strelem (register const ustriType dest,
     register const strElemType *const src, memSizeType len)
@@ -506,6 +566,27 @@ boolType memcpy_from_strelem (register const ustriType dest,
     return check >= 256;
   } /* memcpy_from_strelem */
 
+
+
+#if !HAS_WMEMCHR || WCHAR_T_SIZE != 32
+/**
+ *  Scan the first len Seed7 characters for the character ch.
+ *  @return a pointer to the matching character or NULL, if the
+ *          character does not occur in the given string area.
+ */
+const strElemType *memchr_strelem (register const strElemType *mem,
+    const strElemType ch, memSizeType len)
+
+  { /* memchr_strelem */
+    for (; len > 0; mem++, len--) {
+      if (*mem == ch) {
+        return mem;
+      } /* if */
+    } /* for */
+    return NULL;
+  } /* memchr_strelem */
+
+#endif
 #endif
 
 
@@ -564,27 +645,6 @@ void heapFreeOsStri (const_os_striType var)
     stack_alloc = old_stack_alloc->previous;
     free(old_stack_alloc);
   } /* heapFreeOsStri */
-#endif
-
-
-
-#if OS_PATH_HAS_DRIVE_LETTERS || EMULATE_ROOT_CWD
-static const strElemType *stri_charpos (const_striType stri, strElemType ch)
-
-  {
-    const strElemType *mem;
-    size_t number;
-
-  /* stri_charpos */
-    mem = stri->mem;
-    number = stri->size;
-    for (; number > 0; mem++, number--) {
-      if (*mem == ch) {
-        return mem;
-      } /* if */
-    } /* for */
-    return NULL;
-  } /* stri_charpos */
 #endif
 
 
@@ -688,10 +748,9 @@ memSizeType utf8_to_stri (strElemType *const dest_stri,
 memSizeType utf8_bytes_missing (const const_ustriType ustri, const size_t len)
 
   {
-    memSizeType result;
+    memSizeType result = 0;
 
   /* utf8_bytes_missing */
-    result = 0;
     if (len >= 1 && *ustri > 0x7F) {
       if (ustri[0] >= 0xC0 && ustri[0] <= 0xDF) {
         /* ustri[0]   range 192 to 223 (leading bits 110.....) */
@@ -2390,7 +2449,7 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
                       striAsUnquotedCStri(std_path)););
       *err_info = RANGE_ERROR;
       result = NULL;
-    } else if (unlikely(stri_charpos(std_path, '\\') != NULL)) {
+    } else if (unlikely(memchr_strelem(std_path->mem, '\\', std_path->size) != NULL)) {
       logError(printf("cp_to_os_path(\"%s\"): Path contains a backslash.",
                       striAsUnquotedCStri(std_path)););
       *err_info = RANGE_ERROR;
@@ -2545,12 +2604,11 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
   {
     memSizeType inPos;
     memSizeType outPos;
-    boolType quote_path;
+    boolType quote_path = FALSE;
 
   /* escape_command */
     logFunction(printf("escape_command(\"" FMT_S_OS "\", *, %d)\n",
                        inBuffer, *err_info););
-    quote_path = FALSE;
     for (inPos = 0, outPos = 0; inBuffer[inPos] != '\0'; inPos++, outPos++) {
       switch (inBuffer[inPos]) {
 #ifdef ESCAPE_SHELL_COMMANDS
@@ -2630,9 +2688,10 @@ os_striType cp_to_command (const const_striType commandPath,
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(parameters)););
 #if EMULATE_ROOT_CWD
-    if (stri_charpos(commandPath, '/') != NULL) {
+    if (memchr_strelem(commandPath->mem, '/', commandPath->size) != NULL) {
       os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
-    } else if (unlikely(stri_charpos(commandPath, '\\') != NULL)) {
+    } else if (unlikely(memchr_strelem(commandPath->mem, '\\',
+                                       commandPath->size) != NULL)) {
       *err_info = RANGE_ERROR;
       os_commandPath = NULL;
     } else {

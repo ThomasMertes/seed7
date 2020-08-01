@@ -30,11 +30,11 @@
 #include "stdio.h"
 #include "string.h"
 #include "wchar.h"
-#ifdef USE_DIRECT
-#include "direct.h"
-#endif
 #ifdef USE_DIRENT
 #include "dirent.h"
+#endif
+#if defined USE_DIRECT || defined USE_DIRDOS || defined USE_DIRWIN
+#include "direct.h"
 #endif
 #include "windows.h"
 

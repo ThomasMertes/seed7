@@ -33,6 +33,7 @@ void do_destroy (objectType old_obj, errInfoType *err_info);
 intType do_ord (objectType any_obj, errInfoType *err_info);
 boolType do_in (objectType elem_obj, objectType set_obj,
     errInfoType *err_info);
+objectType getValue (objectType type_obj);
 objectType param1_call (objectType function_obj, objectType param1);
 objectType param2_call (objectType function_obj, objectType param1,
     objectType param2);

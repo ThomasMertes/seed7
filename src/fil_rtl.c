@@ -44,6 +44,9 @@
 #if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
+#ifdef ISATTY_INCLUDE_IO_H
+#include "io.h"
+#endif
 #include "errno.h"
 
 #include "common.h"

@@ -33,7 +33,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#include "ctype.h"
+#include "wchar.h"
 
 #include "common.h"
 #include "data.h"
@@ -69,20 +69,6 @@ static inline int strelem_memcmp (const strElemType *mem1,
     } /* for */
     return 0;
   } /* strelem_memcmp */
-
-
-
-static inline const strElemType *search_strelem (const strElemType *mem,
-    const strElemType ch, size_t number)
-
-  { /* search_strelem */
-    for (; number > 0; mem++, number--) {
-      if (*mem == ch) {
-        return mem;
-      } /* if */
-    } /* for */
-    return NULL;
-  } /* search_strelem */
 
 
 
@@ -137,7 +123,7 @@ static arrayType add_stri_to_array (const strElemType *stri_elems,
 
 
 
-static arrayType strChSplit (const const_striType main_stri,
+static arrayType strChSplit (const const_striType mainStri,
     const charType delimiter)
 
   {
@@ -150,14 +136,16 @@ static arrayType strChSplit (const const_striType main_stri,
     arrayType result_array;
 
   /* strChSplit */
+    logFunction(printf("strChSplit(\"%s\", '\\" FMT_U32 ";')\n",
+                       striAsUnquotedCStri(mainStri), delimiter););
     if (ALLOC_ARRAY(result_array, INITIAL_ARRAY_SIZE)) {
       result_array->min_position = 1;
       result_array->max_position = INITIAL_ARRAY_SIZE;
       used_max_position = 0;
-      search_start = main_stri->mem;
-      search_end = &main_stri->mem[main_stri->size];
-      while ((found_pos = search_strelem(search_start,
-          delimiter, (memSizeType) (search_end - search_start))) != NULL &&
+      search_start = mainStri->mem;
+      search_end = &mainStri->mem[mainStri->size];
+      while ((found_pos = memchr_strelem(search_start, delimiter,
+          (memSizeType) (search_end - search_start))) != NULL &&
           result_array != NULL) {
         result_array = add_stri_to_array(search_start,
             (memSizeType) (found_pos - search_start), result_array,
@@ -196,7 +184,7 @@ static arrayType strChSplit (const const_striType main_stri,
 
 
 
-static arrayType strSplit (const const_striType main_stri,
+static arrayType strSplit (const const_striType mainStri,
     const const_striType delimiter)
 
   {
@@ -219,13 +207,13 @@ static arrayType strSplit (const const_striType main_stri,
       used_max_position = 0;
       delimiter_size = delimiter->size;
       delimiter_mem = delimiter->mem;
-      search_start = main_stri->mem;
+      search_start = mainStri->mem;
       segment_start = search_start;
-      if (delimiter_size != 0 && main_stri->size >= delimiter_size) {
+      if (delimiter_size != 0 && mainStri->size >= delimiter_size) {
         ch_1 = delimiter_mem[0];
-        search_end = &main_stri->mem[main_stri->size - delimiter_size + 1];
-        while ((found_pos = search_strelem(search_start,
-            ch_1, (memSizeType) (search_end - search_start))) != NULL &&
+        search_end = &mainStri->mem[mainStri->size - delimiter_size + 1];
+        while ((found_pos = memchr_strelem(search_start, ch_1,
+            (memSizeType) (search_end - search_start))) != NULL &&
             result_array != NULL) {
           if (memcmp(found_pos, delimiter_mem,
               delimiter_size * sizeof(strElemType)) == 0) {
@@ -241,7 +229,7 @@ static arrayType strSplit (const const_striType main_stri,
       } /* if */
       if (result_array != NULL) {
         result_array = add_stri_to_array(segment_start,
-            (memSizeType) (&main_stri->mem[main_stri->size] - segment_start),
+            (memSizeType) (&mainStri->mem[mainStri->size] - segment_start),
             result_array, &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_ARRAY(result_array,

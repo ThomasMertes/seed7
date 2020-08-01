@@ -92,75 +92,64 @@ const proc: process_arr_create_declaration (in type: object_type,
   end func;
 
 
-const proc: process_sct_alloc (in type: object_type, in string: variableName,
-    in integer: numElements, in string: diagnosticLine, inout expr_type: c_expr) is func
+const func string: process_sct_alloc (in type: object_type, in string: variableName,
+    in integer: numElements, in string: diagnosticLine) is func
 
+  result
+    var string: allocExpr is "";
   local
     const integer: maxFlistLen is 1 << 16;
   begin
     if structFreelist then
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "if (flist_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " != NULL) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= variableName;
-      c_expr.expr &:= "=(";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= ")(flist_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= ");\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "flist_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "=flist_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "->next;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "flist_allowed_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "++;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "} else {\n";
+      allocExpr := diagnosticLine;
+      allocExpr &:= "flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= " != NULL ? (";
+      allocExpr &:= variableName;
+      allocExpr &:= "=(";
+      allocExpr &:= type_name(object_type);
+      allocExpr &:= ")(flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "), ";
+      allocExpr &:= "flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "=flist_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "->next, ";
+      allocExpr &:= "flist_allowed_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "++) : (\n";
     end if;
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= variableName;
-    c_expr.expr &:= "=(";
-    c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(malloc(sizeof(struct rtlStructStruct) - sizeof(rtlObjectType) + \n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "  ";
-    c_expr.expr &:= str(numElements);
-    c_expr.expr &:= " * sizeof(rtlObjectType)));\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "if (unlikely(";
-    c_expr.expr &:= variableName;
-    c_expr.expr &:= " == NULL)) {\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "raiseError(MEMORY_ERROR);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
+    allocExpr &:= diagnosticLine;
+    allocExpr &:= variableName;
+    allocExpr &:= "=(";
+    allocExpr &:= type_name(object_type);
+    allocExpr &:= ")(malloc(sizeof(struct rtlStructStruct) - sizeof(rtlObjectType) + ";
+    allocExpr &:= str(numElements);
+    allocExpr &:= " * sizeof(rtlObjectType))),\n";
+    allocExpr &:= diagnosticLine;
+    allocExpr &:= "unlikely(";
+    allocExpr &:= variableName;
+    allocExpr &:= " == NULL) ? ";
+    allocExpr &:= "intRaiseError(MEMORY_ERROR) ";
+    allocExpr &:= ": 0";
     if structFreelist then
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "if (unlikely(flist_was_full_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= ")) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "flist_was_full_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "=0;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "if (flist_allowed_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "<";
-      c_expr.expr &:= str(maxFlistLen);
-      c_expr.expr &:= ") {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "flist_allowed_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "<<=1;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}}}\n";
+      allocExpr &:= ",\n";
+      allocExpr &:= diagnosticLine;
+      allocExpr &:= "unlikely(flist_was_full_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= ") ? (";
+      allocExpr &:= "flist_was_full_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "=0, ";
+      allocExpr &:= "flist_allowed_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "<";
+      allocExpr &:= str(maxFlistLen);
+      allocExpr &:= " ? ";
+      allocExpr &:= "flist_allowed_";
+      allocExpr &:= str(typeNumber(object_type));
+      allocExpr &:= "<<=1 : 0) : 0)";
     end if;
   end func;
 
@@ -212,7 +201,8 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
-    process_sct_alloc(object_type, "a", length(elements), diagnosticLine, c_expr);
+    c_expr.expr &:= process_sct_alloc(object_type, "a", length(elements), diagnosticLine);
+    c_expr.expr &:= ";\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->usage_count = 1;\n";
     c_expr.expr &:= diagnosticLine;
