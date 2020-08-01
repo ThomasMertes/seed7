@@ -190,16 +190,14 @@ stritype *exePath;
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
+    stritype arg_0_temp;
     rtlArraytype arg_v;
 
   /* getArgv */
-    if (arg_0 != NULL) {
-      *arg_0 = cp_from_os_path(argv[0]);
-      if (*arg_0 == NULL) {
-        err_info = MEMORY_ERROR;
-      } /* if */
-    } /* if */
-    if (exePath != NULL && arg_0 != NULL && *arg_0 != NULL) {
+    *arg_0 = cp_from_os_path(argv[0]);
+    if (*arg_0 == NULL) {
+      err_info = MEMORY_ERROR;
+    } else {
       *exePath = getExecutablePath(*arg_0);
       if (*exePath == NULL) {
         err_info = MEMORY_ERROR;
@@ -208,7 +206,7 @@ stritype *exePath;
     if (err_info == OKAY_NO_ERROR) {
       arg_v = copyArgv(argc - 1, &argv[1]);
     } else {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       arg_v = NULL;
     } /* if */
     return arg_v;
@@ -246,13 +244,10 @@ stritype *exePath;
       raise_error(MEMORY_ERROR);
       arg_v = NULL;
     } else {
-      if (arg_0 != NULL) {
-        *arg_0 = cp_from_os_path(w_argv[0]);
-        if (*arg_0 == NULL) {
-          err_info = MEMORY_ERROR;
-        } /* if */
-      } /* if */
-      if (exePath != NULL && arg_0 != NULL && *arg_0 != NULL) {
+      *arg_0 = cp_from_os_path(w_argv[0]);
+      if (*arg_0 == NULL) {
+        err_info = MEMORY_ERROR;
+      } else {
         *exePath = getExecutablePath(*arg_0);
         if (*exePath == NULL) {
           err_info = MEMORY_ERROR;
@@ -267,13 +262,10 @@ stritype *exePath;
       freeUtf16Argv(w_argv);
     } /* if */
 #else
-    if (arg_0 != NULL) {
-      *arg_0 = cp_from_os_path(argv[0]);
-      if (*arg_0 == NULL) {
-        err_info = MEMORY_ERROR;
-      } /* if */
-    } /* if */
-    if (exePath != NULL && arg_0 != NULL && *arg_0 != NULL) {
+    *arg_0 = cp_from_os_path(argv[0]);
+    if (*arg_0 == NULL) {
+      err_info = MEMORY_ERROR;
+    } else {
       *exePath = getExecutablePath(*arg_0);
       if (*exePath == NULL) {
         err_info = MEMORY_ERROR;

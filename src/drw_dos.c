@@ -144,34 +144,6 @@ inttype gkbButtonYpos ()
 
 #ifdef ANSI_C
 
-inttype gkbXpos (void)
-#else
-
-inttype gkbXpos ()
-#endif
-
-  { /* gkbXpos */
-    return(0);
-  } /* gkbXpos */
-
-
-
-#ifdef ANSI_C
-
-inttype gkbYpos (void)
-#else
-
-inttype gkbYpos ()
-#endif
-
-  { /* gkbYpos */
-    return(0);
-  } /* gkbYpos */
-
-
-
-#ifdef ANSI_C
-
 inttype drwPointerXpos (const_wintype actual_window)
 #else
 

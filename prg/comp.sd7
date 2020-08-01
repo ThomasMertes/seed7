@@ -161,6 +161,7 @@ const type: setOfCategory is set of category;
 const type: inline_param_value_hash is hash [reference] ref_list;
 const type: inline_param_hash is hash [reference] array integer;
 const type: funcparam_data_hash is hash [reference] string;
+const type: element_repeat_count_hash is hash [reference] integer;
 
 var typeCategoryHash: typeCategory is typeCategoryHash.EMPTY_HASH;
 var type_hash: array_element is type_hash.EMPTY_HASH;
@@ -189,6 +190,7 @@ var inline_param_value_hash: inline_param_value is inline_param_value_hash.EMPTY
 var inline_param_hash: inline_param is inline_param_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_reference is funcparam_data_hash.EMPTY_HASH;
+var element_repeat_count_hash: element_repeat_count is element_repeat_count_hash.EMPTY_HASH;
 
 var boolean: write_object_declaration is TRUE;
 
@@ -648,7 +650,10 @@ const func string: stringLiteral (in string: stri) is func
     if stri not in stri_const_table then
       stri_const_table @:= [stri] length(stri_const_table);
     end if;
-    expr := "str[";
+    if ALLOW_STRITYPE_SLICES then
+      expr := "&";
+    end if;
+    expr &:= "str[";
     expr &:= str(stri_const_table[stri]);
     expr &:= "]";
     expr &:= stringInComment(stri);
@@ -2007,6 +2012,106 @@ const func boolean: isActionExpression (in reference: current_expression, in str
   end func;
 
 
+const set of category: constantExpressionCategories is {
+    TYPEOBJECT, INTOBJECT, BIGINTOBJECT, CHAROBJECT,
+    STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
+    SETOBJECT, FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT,
+    WINOBJECT, ENUMLITERALOBJECT, REFLISTOBJECT, SYMBOLOBJECT};
+
+
+const func boolean: isPureFunction (in reference: function) is forward;
+
+
+const func boolean: isConstant (in reference: current_expression,
+    in boolean_obj_hash: local_objects) is forward;
+
+
+const func boolean: isConstantCall (in reference: current_expression,
+    in boolean_obj_hash: local_objects) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var reference: obj is NIL;
+  begin
+    params := getValue(current_expression, ref_list);
+    function := params[1];
+    params := params[2 ..];
+    if category(function) in constantExpressionCategories then
+      result := TRUE;
+    elsif isPureFunction(function) then
+      # write(" {isPureFunction(" <& str(function) <& ")}");
+      result := TRUE;
+      for obj range params until not result do
+        if not isConstant(obj, local_objects) then
+          # write(" [not isConstant(" <& str(obj) <& ") " <& str(category(obj)) <& "]");
+          result := FALSE;
+        end if;
+      end for;
+(*
+    else
+      # write(" [not isPureFunction(" <& str(function) <& ") " <& str(category(function)) <& "]");
+      if category(function) = ACTOBJECT then
+        # write(" [" <& str(getValue(function, ACTION)) <& "]");
+      end if;
+*)
+    end if;
+  end func;
+
+
+const func boolean: isConstant (in reference: current_expression,
+    in boolean_obj_hash: local_objects) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var category: exprCategory is category.value;
+  begin
+    if current_expression in local_objects then
+      # write(" [local " <& str(current_expression) <& "]");
+      result := TRUE;
+    elsif not isVar(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+        result := isConstantCall(current_expression, local_objects);
+      elsif exprCategory in constantExpressionCategories then
+        result := TRUE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: isPureBlockFunction (in reference: function) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var type: function_type is void;
+    var reference: result_object is NIL;
+    var ref_list: local_object_list is ref_list.EMPTY;
+    var reference: obj is NIL;
+    var boolean_obj_hash: local_objects is boolean_obj_hash.value;
+  begin
+    # write(str(function));
+    function_type := getType(function);
+    result_object := func_result(function);
+    if not is_varfunc(function_type) then
+      if result_object <> NIL then
+        local_object_list := make_list(result_object);
+      end if;
+      local_object_list &:= params(function) & local_vars(function);
+      for obj range local_object_list do
+        # write(" " <& str(obj));
+        local_objects @:= [obj] TRUE;
+      end for;
+      result := isConstant(body(function), local_objects);
+    end if;
+    # writeln(" " <& result);
+  end func;
+
+
 const func boolean: isPureFunction (in reference: function) is func
 
   result
@@ -2031,7 +2136,7 @@ const func boolean: isPureFunction (in reference: function) is func
          "CHR_GT", "CHR_HASHCODE", "CHR_ICONV", "CHR_LE", "CHR_LOW", "CHR_LT",
          "CHR_NE", "CHR_ORD", "CHR_PRED", "CHR_STR", "CHR_SUCC", "CHR_UP",
          "CHR_VALUE",
-         "ENU_CONV", "ENU_EQ", "ENU_NE", "ENU_VALUE",
+         "ENU_CONV", "ENU_EQ", "ENU_ICONV2", "ENU_NE", "ENU_ORD2", "ENU_VALUE",
          "FIL_EQ", "FIL_NE", "FIL_VALUE",
          "FLT_A2TAN", "FLT_ABS", "FLT_ACOS", "FLT_ADD", "FLT_ASIN", "FLT_ATAN",
          "FLT_CEIL", "FLT_CMP", "FLT_COS", "FLT_COSH", "FLT_DGTS", "FLT_DIV",
@@ -2072,6 +2177,8 @@ const func boolean: isPureFunction (in reference: function) is func
          "STR_RPOS", "STR_SPLIT", "STR_STR", "STR_SUBSTR", "STR_TAIL",
          "STR_TOUTF8", "STR_TRIM", "STR_UP", "STR_UTF8TOSTRI", "STR_VALUE",
          "TYP_CMP", "TYP_EQ", "TYP_NE"};
+    const set of string: specialFunctionActions is
+        {"PRC_FOR_DOWNTO", "PRC_FOR_TO", "SET_INCL", "TYP_VARCONV"};
     var category: functionCategory is category.value;
     var string: action_name is "";
     var reference: obj is NIL;
@@ -2079,7 +2186,9 @@ const func boolean: isPureFunction (in reference: function) is func
     functionCategory := category(function);
     if functionCategory = ACTOBJECT then
       action_name := str(getValue(function, ACTION));
-      result := action_name in pureFunctionActions;
+      result := action_name in pureFunctionActions or action_name in specialFunctionActions;
+    elsif functionCategory = BLOCKOBJECT then
+      result := isPureBlockFunction(function);
     end if;
   end func;
 
@@ -2115,11 +2224,6 @@ const func boolean: isConstant (in reference: current_expression) is func
   result
     var boolean: result is FALSE;
   local
-    const set of category: constantExpressionCategories is {
-        INTOBJECT, BIGINTOBJECT, CHAROBJECT,
-        STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
-        SETOBJECT, FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT,
-        WINOBJECT, ENUMLITERALOBJECT, SYMBOLOBJECT};
     var category: exprCategory is category.value;
   begin
     if not isVar(current_expression) then
@@ -13022,9 +13126,9 @@ const proc: process_const_str_eq (in reference: param1, in string: stri_b,
         c_expr.expr &:= str(length(stri_b));
         c_expr.expr &:= "&&memcmp(";
         c_expr.expr &:= stri_a_name;
-        c_expr.expr &:= "->mem,";
+        c_expr.expr &:= "->mem,(";
         c_expr.expr &:= stringLiteral(stri_b);
-        c_expr.expr &:= "->mem,";
+        c_expr.expr &:= ")->mem,";
         c_expr.expr &:= str(length(stri_b));
         c_expr.expr &:= "*sizeof(strelemtype))==0)";
       end if;
@@ -13202,8 +13306,9 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
         c_expr.expr &:= c_literal(stri[index]);
       end if;
     else
+      c_expr.expr &:= "(";
       c_expr.expr &:= stringLiteral(stri);
-      c_expr.expr &:= "->mem[";
+      c_expr.expr &:= ")->mem[";
       if array_range_check then
         incr(c_expr.temp_num);
         index_name := "idx_" & str(c_expr.temp_num);
@@ -13585,9 +13690,9 @@ const proc: process_const_str_ne (in reference: param1, in string: stri_b,
         c_expr.expr &:= str(length(stri_b));
         c_expr.expr &:= "||memcmp(";
         c_expr.expr &:= stri_a_name;
-        c_expr.expr &:= "->mem,";
+        c_expr.expr &:= "->mem,(";
         c_expr.expr &:= stringLiteral(stri_b);
-        c_expr.expr &:= "->mem,";
+        c_expr.expr &:= ")->mem,";
         c_expr.expr &:= str(length(stri_b));
         c_expr.expr &:= "*sizeof(strelemtype))!=0)";
       end if;
@@ -17030,7 +17135,12 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         if evaluated_expression <> NIL then
           incr(countEvaluations);
           c_expr.expr &:= "/* evaluate ";
-          c_expr.expr &:= str(getValue(getValue(current_expression, ref_list)[1], ACTION));
+          if category(getValue(current_expression, ref_list)[1]) = ACTOBJECT then
+            c_expr.expr &:= str(getValue(getValue(current_expression, ref_list)[1], ACTION));
+          elsif category(getValue(current_expression, ref_list)[1]) = BLOCKOBJECT then
+            c_expr.expr &:= "o_";
+            create_name2(getValue(current_expression, ref_list)[1], c_expr.expr);
+          end if;
           c_expr.expr &:= " */ ";
           setVar(evaluated_expression, FALSE);
           current_expression := evaluated_expression;
@@ -18686,6 +18796,7 @@ const proc: process_dynamic_param_implements (in reference: current_object,
     c_expr.expr &:= "{\n";
     c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+    (*
     c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
     if isPointerParam(formal_param) then
@@ -18702,6 +18813,7 @@ const proc: process_dynamic_param_implements (in reference: current_object,
     c_expr.expr &:= diagnosticLine(current_object);
     print_parameter_list(formal_params, c_expr);
     c_expr.expr &:= "printf(\")\\n\");\n";
+    *)
     c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "}\n";
   end func;
@@ -18750,6 +18862,7 @@ const proc: process_dynamic_param_enumeration (in reference: current_object,
     c_expr.expr &:= "default: {\n";
     c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+    (*
     c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
     if isPointerParam(formal_param) then
       c_expr.expr &:= "*o_";
@@ -18764,6 +18877,7 @@ const proc: process_dynamic_param_enumeration (in reference: current_object,
     c_expr.expr &:= "(\");\n";
     print_parameter_list(formal_params, c_expr);
     c_expr.expr &:= "printf(\")\\n\");\n";
+    *)
     c_expr.expr &:= "} break;\n";
     c_expr.expr &:= "}\n";
   end func;
@@ -18811,6 +18925,7 @@ const proc: process_dynamic_condition (in reference: current_object,
             param_type := getType(formal_param);
             if param_type in implements then
               c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+              (*
               c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
               if isPointerParam(formal_param) then
                 c_expr.expr &:= "((interfacetype) *o_";
@@ -18819,8 +18934,10 @@ const proc: process_dynamic_condition (in reference: current_object,
               end if;
               create_name(formal_param, c_expr.expr);
               c_expr.expr &:= ")->type_num);\n";
+              *)
            elsif param_type in enum_literal then
               c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+              (*
               c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
               if isPointerParam(formal_param) then
                 c_expr.expr &:= "*o_";
@@ -18829,6 +18946,7 @@ const proc: process_dynamic_condition (in reference: current_object,
               end if;
               create_name(formal_param, c_expr.expr);
               c_expr.expr &:= ");\n";
+              *)
             else
               c_expr.expr &:= "printf(\"other param_type\\n\");\n";
             end if;
@@ -19109,8 +19227,7 @@ const proc: process_arr_times_declaration (in reference: current_object,
     c_expr.expr &:= "arraytype a;\n";
     c_expr.expr &:= "memsizetype i;\n";
     c_expr.expr &:= "if (n < 0) {\n";
-    process_raise_error("RANGE_ERROR", NIL, c_expr);
-    c_expr.expr &:= ";\n";
+    c_expr.expr &:= "raise_error(RANGE_ERROR);\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "a=(arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  (memsizetype)(n) * sizeof(rtlObjecttype)));\n";
@@ -19886,7 +20003,11 @@ const proc: write_file_head is func
     writeln(c_prog, "stritype         arg_0;");
     writeln(c_prog, "stritype         programPath;");
     writeln(c_prog, "arraytype        arg_v;");
-    writeln(c_prog, "extern stritype  str[];");
+    if ALLOW_STRITYPE_SLICES then
+      writeln(c_prog, "extern struct stristruct str[];");
+    else
+      writeln(c_prog, "extern stritype  str[];");
+    end if;
     writeln(c_prog, "extern bstritype bst[];");
     writeln(c_prog, "extern settype   set[];");
     writeln(c_prog, "extern typetype  typ[];");
@@ -20538,12 +20659,104 @@ const proc: write_signal_handlers is func
   end func;
 
 
+const func boolean: identical_values (in reference: object1, in reference: object2) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var category: objectCategory is category.value;
+    var reference: element1 is NIL;
+    var ref_list: element_list2 is ref_list.EMPTY;
+    var integer: index2 is 0;
+  begin
+    objectCategory := category(object1);
+    if objectCategory = INTOBJECT then
+      result := getValue(object1, integer) = getValue(object2, integer);
+    elsif objectCategory = BIGINTOBJECT then
+      result := getValue(object1, bigInteger) = getValue(object2, bigInteger);
+    elsif objectCategory = CHAROBJECT then
+      result := getValue(object1, char) = getValue(object2, char);
+    elsif objectCategory = STRIOBJECT then
+      result := getValue(object1, string) = getValue(object2, string);
+    elsif objectCategory = BSTRIOBJECT then
+      result := getValue(object1, bstring) = getValue(object2, bstring);
+    elsif objectCategory = SETOBJECT then
+      result := getValue(object1, bitset) = getValue(object2, bitset);
+    elsif objectCategory = FLOATOBJECT then
+      result := getValue(object1, float) = getValue(object2, float);
+    elsif objectCategory = REFOBJECT then
+      result := getValue(object1, reference) = getValue(object2, reference);
+    elsif objectCategory = FILEOBJECT then
+      result := getValue(object1, PRIMITIVE_FILE) = getValue(object2, PRIMITIVE_FILE);
+    elsif objectCategory = CONSTENUMOBJECT or objectCategory = VARENUMOBJECT then
+      result := getValue(object1, reference) = getValue(object2, reference);
+    elsif objectCategory = ARRAYOBJECT then
+      if array_min_index(object1) = array_min_index(object2) and
+          array_max_index(object1) = array_max_index(object2) then
+        result := TRUE;
+        element_list2 := array_to_list(object2);
+        index2 := 1;
+        for element1 range array_to_list(object1) until not result do
+          result := identical_values(element1, element_list2[index2]);
+          incr(index2);
+        end for;
+      end if;
+    elsif objectCategory = STRUCTOBJECT then
+      result := TRUE;
+      element_list2 := struct_to_list(object2);
+      index2 := 1;
+      for element1 range struct_to_list(object1) until not result do
+        result := identical_values(element1, element_list2[index2]);
+        incr(index2);
+      end for;
+    end if;
+  end func;
+
+
+const func ref_list: determine_multiple_array_elements (in ref_list: array_list) is func
+
+  result
+    var ref_list: elements_to_walk is ref_list.EMPTY;
+  local
+    var reference: element is NIL;
+    var reference: previous_element is NIL;
+    var reference: repeat_block_element is NIL;
+    var integer: repeat_count is 0;
+  begin
+    for element range array_list do
+      if previous_element <> NIL then
+        if identical_values(previous_element, element) then
+          if repeat_block_element = NIL then
+            repeat_block_element := previous_element;
+            repeat_count := 2;
+          else
+            incr(repeat_count);
+          end if;
+        else
+          elements_to_walk &:= make_list(element);
+          if repeat_block_element <> NIL then
+            element_repeat_count @:= [repeat_block_element] repeat_count;
+            repeat_block_element := NIL;
+          end if;
+        end if;
+      else
+        elements_to_walk &:= make_list(element);
+      end if;
+      previous_element := element;
+    end for;
+    if repeat_block_element <> NIL then
+      element_repeat_count @:= [repeat_block_element] repeat_count;
+    end if;
+  end func;
+
+
 const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_list) is func
 
   local
     var reference: current_object is NIL;
     var reference: struct_of_interface is NIL;
     var category: objectCategory is category.value;
+    var ref_list: elements_to_walk is ref_list.EMPTY;
   begin
     for current_object range const_list do
       objectCategory := category(current_object);
@@ -20563,7 +20776,8 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
         if current_object not in const_table then
           const_table @:= [current_object] length(const_table);
         end if;
-        walk_const_list(array_to_list(current_object), sorted_list);
+        elements_to_walk := determine_multiple_array_elements(array_to_list(current_object));
+        walk_const_list(elements_to_walk, sorted_list);
         sorted_list &:= make_list(current_object);
       elsif objectCategory = STRUCTOBJECT then
         if current_object not in const_table then
@@ -20827,40 +21041,32 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
       end if;
     end for;
     c_expr.expr &:= "};\n\n";
-    for number range sort(keys(stri_index)) do
-      stri := stri_index[number][1];
-      c_expr.expr &:= "/* str[";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "] */ static struct stristruct stri_";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "={";
-      c_expr.expr &:= str(length(stri));
-      c_expr.expr &:= ",";
-      if WITH_STRI_CAPACITY then
-        c_expr.expr &:= str(length(stri));
-        c_expr.expr &:= ",";
-      end if;
-      if stri = "" then
-        c_expr.expr &:= "NULL";
-      else
-        c_expr.expr &:= "&striChars[";
-        c_expr.expr &:= str(pred(pos(striChars, stri)));
-        c_expr.expr &:= "]";
-      end if;
-      c_expr.expr &:= "};\n";
-    end for;
-    c_expr.expr &:= "stritype str[]={\n";
+    c_expr.expr &:= "struct stristruct str[]={\n";
     if length(stri_const_table) > 0 then
       for number range sort(keys(stri_index)) do
         stri := stri_index[number][1];
-        c_expr.expr &:= "&stri_";
+        c_expr.expr &:= "/* str[";
         c_expr.expr &:= str(number);
+        c_expr.expr &:= "] */ {";
+        c_expr.expr &:= str(length(stri));
         c_expr.expr &:= ",";
+        if WITH_STRI_CAPACITY then
+          c_expr.expr &:= str(length(stri));
+          c_expr.expr &:= ",";
+        end if;
+        if stri = "" then
+          c_expr.expr &:= "NULL";
+        else
+          c_expr.expr &:= "&striChars[";
+          c_expr.expr &:= str(pred(pos(striChars, stri)));
+          c_expr.expr &:= "]";
+        end if;
+        c_expr.expr &:= "},";
         c_expr.expr &:= stringInComment(stri);
         c_expr.expr &:= "\n";
       end for;
     else
-      c_expr.expr &:= "(stritype) NULL";
+      c_expr.expr &:= "(struct stristruct) 0";
     end if;
     c_expr.expr &:= "};\n\n";
   end func;
@@ -21153,10 +21359,10 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
 const proc: init_array_constants (in reference: const_object, inout expr_type: c_expr) is func
 
   local
-    # var type: object_type is void;
     var ref_list: array_list is ref_list.EMPTY;
     var integer: number is 0;
     var integer: elem_num is 0;
+    var integer: elem_after_repeat_block is 0;
     var reference: element is NIL;
   begin
     number := const_table[const_object];
@@ -21176,17 +21382,34 @@ const proc: init_array_constants (in reference: const_object, inout expr_type: c
     c_expr.expr &:= "]->max_position=";
     c_expr.expr &:= str(pred(array_min_index(const_object) + length(array_list)));
     c_expr.expr &:= ";\n";
-    # object_type := getType(const_object);
-    # if array_element[const_object] then
-    elem_num := 1;
+    elem_num := 0;
+    elem_after_repeat_block := 0;
     for element range array_list do
-      c_expr.expr &:= "arr[";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "]->arr[";
-      c_expr.expr &:= str(pred(elem_num));
-      c_expr.expr &:= "]";
-      init_const_value(element, c_expr);
-      c_expr.expr &:= ";\n";
+      if element in element_repeat_count then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= "int idx;\n";
+        c_expr.expr &:= "for (idx=";
+        c_expr.expr &:= str(elem_num);
+        c_expr.expr &:= "; idx < ";
+        c_expr.expr &:= str(elem_num + element_repeat_count[element]);
+        c_expr.expr &:= "; idx++) {\n";
+        c_expr.expr &:= "arr[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]->arr[idx]";
+        init_const_value(element, c_expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= "}\n";
+        elem_after_repeat_block := elem_num + element_repeat_count[element];
+      elsif elem_num >= elem_after_repeat_block then
+        c_expr.expr &:= "arr[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]->arr[";
+        c_expr.expr &:= str(elem_num);
+        c_expr.expr &:= "]";
+        init_const_value(element, c_expr);
+        c_expr.expr &:= ";\n";
+      end if;
       incr(elem_num);
     end for;
   end func;
@@ -21320,12 +21543,14 @@ const proc: init_values (inout expr_type: c_expr) is func
     var reference: struct_of_interface is NIL;
     var reference: const_object is NIL;
     var integer: number is 0;
+    var ref_list: elements_to_walk is ref_list.EMPTY;
   begin
     const_index := flip(const_table);
     for number range sort(keys(const_index)) do
       const_object := const_index[number][1];
       if category(const_object) = ARRAYOBJECT then
-        walk_const_list(array_to_list(const_object), sorted_list);
+        elements_to_walk := determine_multiple_array_elements(array_to_list(const_object));
+        walk_const_list(elements_to_walk, sorted_list);
         sorted_list &:= make_list(const_object);
       elsif category(const_object) = STRUCTOBJECT then
         walk_const_list(struct_to_list(const_object), sorted_list);

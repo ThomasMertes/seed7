@@ -1,3 +1,17 @@
+20110403:
+- The compiler (comp.sd7) was improved to generate less code to initialize
+  arrays. Repeated elements in array initialisations are recognized and
+  the initialisation is done with loops instead of individual assignments.
+  When compiling panic.sd7 this optimisation reduces the size of the
+  generated C program by 77% and the size of the executable by 69%.
+- The compiler (comp.sd7) was improved to generate string literals with
+  reduced space requirements.
+- The function 'getArgv' in "arr_rtl.c" was changed to assume that the
+  parameters 'arg_0' and 'exePath' are not NULL.
+- The code, to recognize constant expressions in the compiler, was improved.
+- The superfluous functions 'gkbXpos' and 'gkbYpos' were removed from
+  "drw_dos.c".
+
 20110320:
 - An explaination where the interpreter looks for include files, was added to
   the FAQ.
@@ -981,7 +995,7 @@
 - A new library named xml_ent.s7i, which supports XML entity handling, was added.
 - The compiler comp.sd7 was improved to create more prototype definitions of extern
   library functions.
-- The interpreter (hi) and the compiler (comp.sd7) were improved to accept a UTF-8
+- The interpreter (hi) and the compiler (comp.sd7) were improved to accept an UTF-8
   byte order mark at the beginning of a source or include/library file.
 - The types gmpBiginttype and rtlBiginttype in the files big_gmp.c and big_rtl.c were
   replaced with biginttype (defined in common.h).

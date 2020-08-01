@@ -232,6 +232,7 @@ char **argv;
 
   {
     rtlArraytype arg_v;
+    stritype arg_0;
     progtype currentProg;
 
   /* main */
@@ -239,10 +240,11 @@ char **argv;
     printf("BEGIN HI\n");
 #endif
     set_trace(NULL, -1, NULL);
-    arg_v = getArgv(argc, argv, NULL, NULL);
+    arg_v = getArgv(argc, argv, &arg_0, &programPath);
     if (arg_v == NULL) {
       printf("\n*** No more memory. Program terminated.\n");
     } else {
+      FREE_STRI(arg_0, arg_0->size);
       processOptions(arg_v);
       if (option.version_info) {
         printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2011 Thomas Mertes\n", LEVEL);
@@ -263,7 +265,6 @@ char **argv;
         if (option.source_file_name == NULL) {
           printf("*** Sourcefile missing\n");
         } else {
-          programPath = getProgramPath(option.source_file_name);
           currentProg = analyze(option.source_file_name);
           if (!option.analyze_only && currentProg != NULL &&
               (currentProg->error_count == 0 || option.execute_always)) {

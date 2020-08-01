@@ -132,6 +132,8 @@ const bstring: (attr bstring) . value                                   is _GENE
 
 const func char: (in bstring param) [ (in integer param) ]              is action "BST_IDX";
 const func integer: length (ref bstring param)                          is action "BST_LNG";
+const func boolean: (ref bstring param) = (ref bstring param)           is action "BST_EQ";
+const func boolean: (ref bstring param) <> (ref bstring param)          is action "BST_NE";
 const func integer: hashCode (ref bstring param)                        is action "BST_HASHCODE";
 const func integer: compare (ref bstring param, ref bstring param)      is action "BST_CMP";
 

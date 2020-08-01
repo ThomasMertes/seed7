@@ -723,7 +723,7 @@ errinfotype *err_info;
       lib_path->min_position = 1;
       lib_path->max_position = 0;
 
-      /* Add directory of the source file to the lib_path */
+      /* Add directory of the source file to the lib_path. */
       dir_path_size = 0;
       for (position = 0; position < source_file_name->size; position++) {
         if (source_file_name->mem[position] == '/') {
@@ -740,7 +740,7 @@ errinfotype *err_info;
       } /* if */
 
 #ifdef SEED7_LIBRARY
-      /* Add the hardcoded library of the interpreter to the lib_path */
+      /* Add the hardcoded library of the interpreter to the lib_path. */
       path = stri_to_path(cstri_to_stri(SEED7_LIBRARY));
       if (path == NULL) {
         *err_info = MEMORY_ERROR;
@@ -749,11 +749,38 @@ errinfotype *err_info;
         FREE_STRI(path, path->size);
       } /* if */
 #else
-      /* When the path to the current program ends with "prg": */
-      /* Replace it with "lib" and add it to the lib_path      */
-      prot_cstri("programPath: ");
-      prot_stri(programPath);
-      prot_nl();
+      /* When the path to the interpreter or to               */
+      /* the current executable ends with "bin":              */
+      /* Replace "bin" with "lib" and add it to the lib_path. */
+      /* prot_cstri("programPath: ");
+         prot_stri(programPath);
+         prot_nl(); */
+      dir_path_size = 0;
+      for (position = 0; position < programPath->size; position++) {
+        if (programPath->mem[position] == '/') {
+          dir_path_size = position;
+        } /* if */
+      } /* for */
+      if (dir_path_size >= 4 &&
+          programPath->mem[dir_path_size - 4] == '/' &&
+          programPath->mem[dir_path_size - 3] == 'b' &&
+          programPath->mem[dir_path_size - 2] == 'i' &&
+          programPath->mem[dir_path_size - 1] == 'n') {
+        if (!ALLOC_STRI_SIZE_OK(path, dir_path_size)) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          path->size = dir_path_size;
+          memcpy(path->mem, programPath->mem, (dir_path_size - 3) * sizeof(strelemtype));
+          path->mem[dir_path_size - 3] = 'l';
+          path->mem[dir_path_size - 2] = 'i';
+          path->mem[dir_path_size - 1] = 'b';
+          /* prot_cstri("path: ");
+             prot_stri(path);
+             prot_nl(); */
+          append_to_lib_path(path, err_info);
+          FREE_STRI(path, path->size);
+        } /* if */
+      } /* if */
 #endif
 
       /* Add the SEED7_LIBRARY environment variable to the lib_path */

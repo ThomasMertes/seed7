@@ -224,7 +224,7 @@ const func string: gets (in socket: aSocket, in integer: leng) is
  *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left the inFile.bufferChar contains ' ',
+ *  When the function is left the aSocket.bufferChar contains ' ',
  *  '\t', '\n' or EOF.
  *)
 const func string: getwd (inout socket: aSocket) is
@@ -236,7 +236,7 @@ const func string: getwd (inout socket: aSocket) is
  *  The function accepts lines ending with "\n", "\r\n" or EOF.
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left the inFile.bufferChar contains '\n' or
+ *  When the function is left the aSocket.bufferChar contains '\n' or
  *  EOF.
  *)
 const func string: getln (inout socket: aSocket) is
