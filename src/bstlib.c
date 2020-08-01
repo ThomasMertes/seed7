@@ -435,9 +435,21 @@ objecttype bst_lng (arguments)
 listtype arguments;
 #endif
 
-  { /* bst_lng */
+  {
+    bstritype bstri;
+
+  /* bst_lng */
     isit_bstri(arg_1(arguments));
-    return bld_int_temp((inttype) take_bstri(arg_1(arguments))->size);
+    bstri = take_bstri(arg_1(arguments));
+#if POINTER_SIZE > INTTYPE_SIZE
+    if (bstri->size > MAX_MEM_INDEX) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      return bld_int_temp((inttype) bstri->size);
+    } /* if */
+#else
+    return bld_int_temp((inttype) bstri->size);
+#endif
   } /* bst_lng */
 
 

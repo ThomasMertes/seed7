@@ -30,14 +30,17 @@ $ include "seed7_05.s7i";
   include "time.s7i";
   include "mahjng32.s7i";
   include "duration.s7i";
+  include "vecfont10.s7i";
+  include "pixmap_file.s7i";
 
 
 var text: screen is STD_NULL;
 
-const integer: WINDOW_WIDTH is 1024;
-const integer: WINDOW_HEIGHT is 768;
-const integer: UPPER_BORDER is 12 + 64 + 12;
-const integer: LEFT_BORDER is 28;
+const integer: WINDOW_WIDTH is 1016;
+const integer: WINDOW_HEIGHT is 704;
+const integer: UPPER_BORDER is 46;
+const integer: LEFT_BORDER is 24;
+const integer: MENUE_BAR_HEIGHT is 18;
 const integer: PIXMAP_WIDTH is 48;
 const integer: PIXMAP_HEIGHT is 64;
 const integer: TILE_BORDER is 8;
@@ -443,20 +446,23 @@ const array string: nine is [](
 
 
 const proc: writeButtons is func
+  local
+    var integer: yPos is 0;
   begin
-    rect(0, 0, WINDOW_WIDTH, 20, light_gray);
+    yPos := (MENUE_BAR_HEIGHT - 10) div 2 + 10;
+    rect(0, 0, WINDOW_WIDTH, MENUE_BAR_HEIGHT, light_gray);
     color(screen, black, light_gray);
-    setPosXY(screen, 5, 14);
+    setPosXY(screen, 5, yPos);
     write(screen, "New");
-    setPosXY(screen, 45, 14);
+    setPosXY(screen, 55, yPos);
     write(screen, "Quit");
-    setPosXY(screen, 85, 14);
+    setPosXY(screen, 105, yPos);
     write(screen, "Demo");
-    setPosXY(screen, 125, 14);
+    setPosXY(screen, 155, yPos);
     write(screen, "Undo");
-    setPosXY(screen, 165, 14);
+    setPosXY(screen, 205, yPos);
     write(screen, "Redo");
-    setPosXY(screen, 205, 14);
+    setPosXY(screen, 255, yPos);
     write(screen, "Help");
   end func;
 
@@ -473,7 +479,7 @@ const func char: getCommand is func
       xPos := getxpos(KEYBOARD);
       yPos := getypos(KEYBOARD);
       if yPos <= 20 then
-        case xPos div 40 of
+        case xPos div 50 of
           when {0}: result := 'N';
           when {1}: result := 'Q';
           when {2}: result := 'D';
@@ -1225,8 +1231,8 @@ const proc: showPossibleMatches (in positionType: pos1, in boolean: marked) is f
 
 const proc: updateNumbers is func
   begin
-    draw_number(920, 30, 2 * (72 - moveNumber) lpad 3);
-    draw_number(920, 70, countPossibleMoves lpad 3);
+    draw_number(WINDOW_WIDTH - 104, 30, 2 * (72 - moveNumber) lpad 3);
+    draw_number(WINDOW_WIDTH - 104, 70, countPossibleMoves lpad 3);
   end func;
 
 
@@ -1862,25 +1868,28 @@ const proc: dealTiles2 is func
   end func;
 
 
+const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri) is func
+  begin
+    setPosXY(screen, (WINDOW_WIDTH - width(vecFont10, stri)) div 2, yPos);
+    writeln(screen, stri);
+  end func;
+
+
 const proc: main is func
   local
     var char: command is ' ';
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(curr_win, BACKGROUND);
-    screen := open(curr_win, 16);
     KEYBOARD := GRAPH_KEYBOARD;
+    screen := openPixmapFontFile(curr_win);
+    setFont(screen, vecFont10);
     color(screen, white, BACKGROUND);
-    setPos(screen, 2, 80);
-    writeln(screen, "M A H J O N G");
-    setPos(screen, 3, 70);
-    writeln(screen, "Copyright (C) 2007  Thomas Mertes");
-    setPos(screen, 4, 47);
-    writeln(screen, "This program is free software under the terms of the GNU General Public License");
-    setPos(screen, 25, 61);
-    writeln(screen, "Mahjong is written in the Seed7 programming language");
-    setPos(screen, 26, 67);
-    writeln(screen, "Homepage:   http://seed7.sourceforge.net");
+    writeCentered(screen, 14, "M A H J O N G");
+    writeCentered(screen, 29, "Copyright (C) 2007  Thomas Mertes");
+    writeCentered(screen, 344, "This program is free software under the terms of the GNU General Public License");
+    writeCentered(screen, 359, "Mahjong is written in the Seed7 programming language");
+    writeCentered(screen, 374, "Homepage:   http://seed7.sourceforge.net");
     DRAW_FLUSH;
     digit_pixmap := [0](
       create_pixmap(zero,  2),
@@ -1895,8 +1904,7 @@ const proc: main is func
       create_pixmap(nine,  2));
     dealTiles2;
     drawBoardWithFlush;
-    setPos(screen, 47, 73);
-    writeln(screen, "Press any key to start game");
+    writeCentered(screen, 700, "Press any key to start game");
     dealTiles(command);
     if command <> 'Q' and not doQuit then
       repeat

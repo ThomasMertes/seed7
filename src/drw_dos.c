@@ -329,7 +329,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwClear (const_wintype actual_window, inttype col)
+void drwClear (wintype actual_window, inttype col)
 #else
 
 void drwClear (actual_window, col)

@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "draw.s7i";
+include "font.s7i";
+include "pixmapfont.s7i";
 include "text.s7i";
 include "null_file.s7i";
 

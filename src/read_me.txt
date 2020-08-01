@@ -265,8 +265,8 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
  --- Errors such as
 
-    scr_inf.c:57:18: error: term.h: No such file or directory
-    kbd_inf.c:55:18: error: term.h: No such file or directory
+    con_inf.c:54:18: error: term.h: No such file or directory
+    kbd_inf.c:53:18: error: term.h: No such file or directory
     trm_inf.c:47:18: error: term.h: No such file or directory
 
   indicate that the curses or ncurses development package is

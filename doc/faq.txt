@@ -195,12 +195,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-10-07 the number of lines is:
+than 150000 lines of Seed7. For version 2012-10-21 the number of lines is:
 
-   102459  C source files (*.c)
+   102494  C source files (*.c)
     10117  C header files (*.h)
-   110830  Seed7 source files (*.sd7)
-    80143  Seed7 library/include files (*.s7i)
+   110865  Seed7 source files (*.sd7)
+    81387  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -336,8 +336,8 @@ you can search for C development libraries and header files.
 
 Errors such as
 
-  scr_inf.c:57:18: error: term.h: No such file or directory
-  kbd_inf.c:55:18: error: term.h: No such file or directory
+  con_inf.c:54:18: error: term.h: No such file or directory
+  kbd_inf.c:53:18: error: term.h: No such file or directory
   trm_inf.c:47:18: error: term.h: No such file or directory
 
 indicate that the curses or ncurses development package is missing.

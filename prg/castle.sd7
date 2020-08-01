@@ -1084,7 +1084,7 @@ const proc: initRoomData is func
     var integer: line is 0;
     var directionType: direction is NORTH;
   begin
-    dat_file := open("castle.dat", "r");
+    dat_file := open(dir(PROGRAM) & "/castle.dat", "r");
     for number range 1 to MAX_ROOM do
       for line range 1 to ROOM_LINES do
         room[number].data[line] := getln(dat_file);

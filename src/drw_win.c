@@ -77,6 +77,7 @@ typedef struct win_winstruct {
     unsigned int height;
     unsigned int brutto_width_delta;
     unsigned int brutto_height_delta;
+    inttype clear_col;
     struct win_winstruct *next;
   } win_winrecord, *win_wintype;
 
@@ -95,6 +96,7 @@ static win_wintype window_list = NULL;
 #define to_height(win)               (((win_wintype) win)->height)
 #define to_brutto_width_delta(win)   (((win_wintype) win)->brutto_width_delta)
 #define to_brutto_height_delta(win)  (((win_wintype) win)->brutto_height_delta)
+#define to_clear_col(win)            (((win_wintype) win)->clear_col)
 
 #ifndef WM_NCMOUSELEAVE
 #define WM_NCMOUSELEAVE 674
@@ -285,7 +287,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             /* printf("drawRectangle left=%ld, top=%ld, right=%ld, bottom=%ld\n",
                 rect2.left, rect.top, rect.right, rect2.bottom); */
             drawRectangle(paint_window, rect2.left, rect.top, rect.right, rect2.bottom,
-                RGB(255, 255, 255));
+                to_clear_col(paint_window));
                 /* GetBkColor(paint_window->hWnd)); */
           } /* if */
           if (rect.bottom >= 0 && (unsigned int) rect.bottom >= paint_window->height) {
@@ -297,7 +299,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             /* printf("drawRectangle left=%ld, top=%ld, right=%ld, bottom=%ld\n",
                 rect.left, rect2.top, rect.right, rect.bottom); */
             drawRectangle(paint_window, rect.left, rect2.top, rect.right, rect.bottom,
-                RGB(255, 255, 255));
+                to_clear_col(paint_window));
                 /* GetBkColor(paint_window->hWnd)); */
           } /* if */
         } else {
@@ -1205,7 +1207,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwClear (const_wintype actual_window, inttype col)
+void drwClear (wintype actual_window, inttype col)
 #else
 
 void drwClear (actual_window, col)
@@ -1223,6 +1225,7 @@ inttype col;
 #ifdef TRACE_WIN
     printf("drwClear(%lu, %lx)\n", actual_window, col);
 #endif
+    to_clear_col(actual_window) = col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     if (current_pen == NULL || current_brush == NULL) {
@@ -1230,8 +1233,9 @@ inttype col;
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
+      /* The main window is cleared with the real window size. */
       Rectangle(to_hdc(actual_window), 0, 0,
-          to_width(actual_window), to_height(actual_window));
+          drwWidth(actual_window), drwHeight(actual_window));
       SelectObject(to_hdc(actual_window), old_pen);
       SelectObject(to_hdc(actual_window), old_brush);
       if (to_backup_hdc(actual_window) != 0) {
@@ -1783,6 +1787,7 @@ stritype window_name;
             result->is_pixmap = FALSE;
             result->width = width;
             result->height = height;
+            result->clear_col = (inttype) RGB(0, 0, 0); /* black */
             result->backup_hdc = CreateCompatibleDC(result->hdc);
             result->backup = CreateCompatibleBitmap(result->hdc, width, height);
             SelectObject(result->backup_hdc, result->backup);
@@ -1886,6 +1891,7 @@ inttype height;
           result->is_pixmap = FALSE;
           result->width = width;
           result->height = height;
+          result->clear_col = (inttype) RGB(0, 0, 0); /* black */
           result->backup_hdc = CreateCompatibleDC(result->hdc);
           result->backup = CreateCompatibleBitmap(result->hdc, width, height);
           SelectObject(result->backup_hdc, result->backup);

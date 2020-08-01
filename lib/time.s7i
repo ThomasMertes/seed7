@@ -275,13 +275,19 @@ const func time: (attr time) parse (in var string: stri) is func
             stri := stri[2 ..];
             result.second := integer parse getint(stri);
             if stri <> "" then
-              raise RANGE_ERROR;
+              if stri[1] <> '.' then
+                raise RANGE_ERROR;
+              end if;
+              stri := stri[2 ..];
+              result.micro_second := integer parse ((getint(stri) & "00000X")[.. 6]);
+              if stri <> "" then
+                raise RANGE_ERROR;
+              end if;
             end if;
           end if;
         end if;
       end if;
     end if;
-    result.micro_second := 0;
     result.timeZone := 0;
     result.daylightSavingTime := FALSE;
     if result.month < 1 or result.month > 12 or

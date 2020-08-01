@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "vectorfont.s7i";
+
+
 const func vectorFont: genCronos27 is func
   result
     var vectorFont: result is vectorFont.value;

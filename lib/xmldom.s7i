@@ -43,6 +43,8 @@ const type: xmlNode is sub object interface;
 
 const func string: getAttrValue (in xmlNode: aNode, in string: attrName) is DYNAMIC;
 const func attrHashType: getAttributes (in xmlNode: aNode)               is DYNAMIC;
+const func array xmlNode: getSubNodes (in xmlNode: aNode)                is DYNAMIC;
+const func string: getContent (in xmlNode: aNode)                        is DYNAMIC;
 const proc: writeXml (in xmlNode: aNode)                                 is DYNAMIC;
 const proc: writeXml (inout file: outFile, in xmlNode: aNode)            is DYNAMIC;
 const varfunc string:        (in xmlNode: aNode) . name                  is DYNAMIC;
@@ -59,6 +61,9 @@ const type: xmlBaseNode is new struct
 
 type_implements_interface(xmlBaseNode, xmlNode);
 
+
+const func array xmlNode: getSubNodes (in xmlBaseNode: aBaseNode) is
+  return (array xmlNode).value;
 
 const proc: writeXml (in xmlBaseNode: aBaseNode) is func
   begin
@@ -84,6 +89,9 @@ const type: xmlText is sub xmlBaseNode struct
 
 
 type_implements_interface(xmlText, xmlNode);
+
+const func string: getContent (in xmlText: aText) is
+  return aText.content;
 
 const proc: writeXml (in xmlText: aText) is func
   begin
@@ -149,6 +157,9 @@ const type: xmlContainer is sub xmlElement struct
 
 
 type_implements_interface(xmlContainer, xmlNode);
+
+const func array xmlNode: getSubNodes (in xmlContainer: aContainer) is
+  return aContainer.subNodes;
 
 const proc: writeXml (in xmlContainer: aContainer) is func
   local
@@ -349,4 +360,14 @@ const func xmlNode: readHtml (inout file: inFile) is func
     end while;
     result := readHtmlNode(inFile, symbol);
     # TRACE_OBJ(result); writeln;
+  end func;
+
+
+const proc: for (inout xmlNode: nodeVar) range (in xmlNode: parent) do
+              (ref proc: statements)
+            end for                               is func
+  begin
+    for nodeVar range getSubNodes(parent) do
+      statements;
+    end for;
   end func;

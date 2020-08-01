@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "bitmapfont.s7i";
+
+
 const func bitmapFont: genStdFont18 is func
   result
     var bitmapFont: result is bitmapFont.value;

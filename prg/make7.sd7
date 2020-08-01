@@ -23,7 +23,6 @@
 
 
 $ include "seed7_05.s7i";
-  include "osfiles.s7i";
   include "make.s7i";
 
 
@@ -45,7 +44,9 @@ const proc: main is func
       if length(curr_arg) >= 2 and curr_arg[1] = '-' then
         if curr_arg = "-f" and number < length(argv(PROGRAM)) then
           incr(number);
-          make_option @:= [curr_arg[.. 2]] argv(PROGRAM)[number]
+          make_option @:= [curr_arg[.. 2]] argv(PROGRAM)[number];
+        else
+          make_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
         end if;
       elsif target = "" then
         target := curr_arg;
@@ -54,7 +55,7 @@ const proc: main is func
     end while;
     if "-v" in make_option or "-h" in make_option or "-?" in make_option then
       writeln("Make7 Version 1.0 - Make utility to manage the compilation process");
-      writeln("Copyright (C) 2010 Thomas Mertes");
+      writeln("Copyright (C) 2010 - 2012 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Make7 is written in the Seed7 programming language");

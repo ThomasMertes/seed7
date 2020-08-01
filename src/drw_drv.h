@@ -58,7 +58,7 @@ void drwCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius);
 void drwPCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col);
-void drwClear (const_wintype actual_window, inttype col);
+void drwClear (wintype actual_window, inttype col);
 void drwCopyArea (const_wintype src_window, const_wintype dest_window,
     inttype src_x, inttype src_y, inttype width, inttype height,
     inttype dest_x, inttype dest_y);

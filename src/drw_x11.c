@@ -79,6 +79,7 @@ typedef struct x11_winstruct {
     booltype is_pixmap;
     unsigned int width;
     unsigned int height;
+    inttype clear_col;
   } x11_winrecord, *x11_wintype;
 
 typedef const struct x11_winstruct *const_x11_wintype;
@@ -89,6 +90,7 @@ typedef const struct x11_winstruct *const_x11_wintype;
 #define is_pixmap(win)    (((const_x11_wintype) win)->is_pixmap)
 #define to_width(win)     (((const_x11_wintype) win)->width)
 #define to_height(win)    (((const_x11_wintype) win)->height)
+#define to_clear_col(win) (((const_x11_wintype) win)->clear_col)
 
 #define to_var_window(win)    (((x11_wintype) win)->window)
 #define to_var_backup(win)    (((x11_wintype) win)->backup)
@@ -96,6 +98,7 @@ typedef const struct x11_winstruct *const_x11_wintype;
 #define is_var_pixmap(win)    (((x11_wintype) win)->is_pixmap)
 #define to_var_width(win)     (((x11_wintype) win)->width)
 #define to_var_height(win)    (((x11_wintype) win)->height)
+#define to_var_clear_col(win) (((x11_wintype) win)->clear_col)
 
 Visual *default_visual;
 
@@ -176,7 +179,7 @@ int height;
        printf("yPos + height=%d, to_height(expose_window)=%d\n",
            yPos + height, to_height(expose_window)); */
     if (xPos + width > to_width(expose_window)) {
-      XSetForeground(mydisplay, mygc, mybackground);
+      XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
       if (xPos >= to_width(expose_window)) {
         xClear = xPos;
         clearWidth = width;
@@ -202,7 +205,7 @@ int height;
       XFillRectangle(mydisplay, to_window(expose_window), mygc,
           xClear, yPos, clearWidth, height);
     } else if (yPos + height > to_height(expose_window)) {
-      XSetForeground(mydisplay, mygc, mybackground);
+      XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
       if (yPos >= to_height(expose_window)) {
         yClear = yPos;
         clearHeight = height;
@@ -828,7 +831,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwClear (const_wintype actual_window, inttype col)
+void drwClear (wintype actual_window, inttype col)
 #else
 
 void drwClear (actual_window, col)
@@ -840,9 +843,11 @@ inttype col;
 #ifdef TRACE_X11
     printf("drwClear(%lu, %08lx)\n", actual_window, col);
 #endif
+    to_var_clear_col(actual_window) = col;
     XSetForeground(mydisplay, mygc, (unsigned) col);
+    /* The main window is cleared with the real window size. */
     XFillRectangle(mydisplay, to_window(actual_window), mygc, 0, 0,
-        to_width(actual_window), to_height(actual_window));
+        drwWidth(actual_window), drwHeight(actual_window));
     if (to_backup(actual_window) != 0) {
       XFillRectangle(mydisplay, to_backup(actual_window), mygc, 0, 0,
           to_width(actual_window), to_height(actual_window));

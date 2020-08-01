@@ -208,10 +208,15 @@ const proc: main is func
     writeln;
     writeln("usage: ftp7 host [port]");
     writeln;
-    writeHelp;
-    IN := open_echo(KEYBOARD, OUT);
-    IN := open_line(IN);
-    if length(argv(PROGRAM)) >= 1 then
+    if length(argv(PROGRAM)) = 0 then
+      writeln("Use  ftp7 -?  to get more information about ftp7.");
+      writeln;
+    elsif length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "-?" then
+      writeHelp;
+    else
+      writeHelp;
+      IN := open_echo(KEYBOARD, OUT);
+      IN := open_line(IN);
       if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
         block
           ftpControlPort := integer parse (argv(PROGRAM)[2]);
@@ -241,7 +246,5 @@ const proc: main is func
         end while;
         close(ftp);
       end if;
-    else
-      writeln(" ***** Host name missing.");
     end if;
   end func;

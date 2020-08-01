@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "bitmapfont.s7i";
+
+
 const func bitmapFont: genStdFont10 is func
   result
     var bitmapFont: result is bitmapFont.value;
@@ -146,11 +149,11 @@ const func bitmapFont: genStdFont10 is func
         "  XXXXX     ",
         " XXXXXXX    ",
         " XX   XX    ",
-        "   XXX      ",
+        "  XXXXX     ",
         "   XXX    X ",
-        "  XX XX  XX ",
+        "  XXXXX  XX ",
         " XX   XXXX  ",
-        " XXX  XXXX  ",
+        " XX   XXXX  ",
         "  XXXXX  XX ",
         "   XXX    X ",
         "            ",
@@ -609,7 +612,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX XX  ",
         " XX   XX ",
         " XXXXXXX ",
-        "XXXXXXXXX",
+        " XXXXXXX ",
         "XX     XX",
         "XX     XX",
         "         ",
@@ -1731,8 +1734,8 @@ const func bitmapFont: genStdFont10 is func
         "  XXXX  ",
         " XX  XX ",
         " XX  XX ",
-        "  XXXXX ",
-        "   XXX  ",
+        "  XXXX  ",
+        "   XXXX ",
         "     XX ",
         " XXXXXX ",
         "  XXXX  "));
@@ -2139,7 +2142,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX XX  ",
         " XX   XX ",
         " XXXXXXX ",
-        "XXXXXXXXX",
+        " XXXXXXX ",
         "XX     XX",
         "XX     XX",
         "         ",
@@ -2156,7 +2159,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX XX  ",
         " XX   XX ",
         " XXXXXXX ",
-        "XXXXXXXXX",
+        " XXXXXXX ",
         "XX     XX",
         "XX     XX",
         "         ",
@@ -2173,7 +2176,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX XX  ",
         " XX   XX ",
         " XXXXXXX ",
-        "XXXXXXXXX",
+        " XXXXXXX ",
         "XX     XX",
         "XX     XX",
         "         ",
@@ -2190,7 +2193,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX XX  ",
         " XX   XX ",
         " XXXXXXX ",
-        "XXXXXXXXX",
+        " XXXXXXX ",
         "XX     XX",
         "XX     XX",
         "         ",
@@ -2207,7 +2210,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX XX  ",
         " XX   XX ",
         " XXXXXXX ",
-        "XXXXXXXXX",
+        " XXXXXXX ",
         "XX     XX",
         "XX     XX",
         "         ",
@@ -2224,7 +2227,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX XX  ",
         " XX   XX ",
         " XXXXXXX ",
-        "XXXXXXXXX",
+        " XXXXXXX ",
         "XX     XX",
         "XX     XX",
         "         ",
@@ -2241,7 +2244,7 @@ const func bitmapFont: genStdFont10 is func
         "  XX  XXXXX  ",
         " XXXXXXXXXX  ",
         " XXXXXXX     ",
-        "XXX   XX     ",
+        " XX   XX     ",
         "XX    XXXXXX ",
         "XX    XXXXXX ",
         "             ",

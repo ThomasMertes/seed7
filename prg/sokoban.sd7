@@ -791,7 +791,7 @@ const proc: playLevel is func
 
 const proc: main is func
   begin
-    screen(1024, 768);
+    screen(992, 544);
     KEYBOARD := GRAPH_KEYBOARD;
     screen := open(curr_win, 16);
     win := open_window(screen, 1, 109, 50, 80);

@@ -1,0 +1,640 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  makedata.s7i  Function and data structure to read makefiles     *)
+(*  Copyright (C) 2010 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "osfiles.s7i";
+include "chartype.s7i";
+include "scanfile.s7i";
+include "scanstri.s7i";
+
+
+const set of char: target_name_char is {'!' .. '~'} - {':', '='};
+const set of char: macro_name_char is {'!' .. '~'} - {')', '='};
+
+const type: ruleType is new struct
+    var string: name is "";
+    var array string: dependencies is 0 times "";
+    var array string: commands is 0 times "";
+    var boolean: commandsDone is FALSE;
+  end struct;
+
+const type: rule_hash is hash [string] ruleType;
+const type: string_hash is hash [string] string;
+
+const type: makeDataType is new struct
+    var file: makefile is STD_NULL;
+    var rule_hash: rules is rule_hash.value;
+    var rule_hash: patternRules is rule_hash.value;
+    var string_hash: macros is string_hash.value;
+    var string: nameOfFirstRule is "";
+    var boolean: executeCommands is TRUE;
+    var boolean: inSilentMode is FALSE;
+    var boolean: doIgnoreErrors is FALSE;
+  end struct;
+
+
+const func boolean: wildcard_match (in string: main_stri, in string: pattern) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var integer: main_length is 0;
+    var integer: main_index is 1;
+    var string: pattern_tail is "";
+  begin
+    if pattern = "" then
+      result := main_stri = "";
+    else
+      case pattern[1] of
+        when {'*'}:
+          if pattern = "*" then
+            result := TRUE;
+          else
+            main_length := length(main_stri);
+            pattern_tail := pattern[2 .. ];
+            while main_index <= main_length and not result do
+              result := wildcard_match(main_stri[main_index .. ], pattern_tail);
+              incr(main_index);
+            end while;
+          end if;
+        when {'?'}:
+          if main_stri <> "" then
+            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+          end if;
+        otherwise:
+          if main_stri <> "" and main_stri[1] = pattern[1] then
+            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+          end if;
+      end case;
+    end if;
+  end func;
+
+
+const func array string: findMatchingFiles (in string: pattern) is func
+  result
+    var array string: result is 0 times "";
+  local
+    var integer: slashPos is 0;
+    var string: path is "";
+    var array string: dirContent is 0 times "";
+    var string: filePattern is "";
+    var string: fileName is "";
+  begin
+    slashPos := rpos(pattern, '/');
+    if slashPos <> 0 then
+      path := pattern[.. pred(slashPos)];
+      filePattern := pattern[succ(slashPos) ..];
+      dirContent := readDir(path);
+      path &:= "/";
+    else
+      filePattern := pattern;
+      dirContent := readDir(".");
+    end if;
+    for fileName range dirContent do
+      if wildcard_match(fileName, filePattern) then
+        result &:= [] (path & fileName);
+      end if;
+    end for;
+  end func;
+
+
+const func string: applyMacros (in string_hash: macros, in string: stri, in boolean: leaveUndefMacros) is func
+  result
+    var string: result is "";
+  local
+    var integer: dollarPos is 0;
+    var integer: closeParenPos is 0;
+    var string: name is "";
+  begin
+    result := stri;
+    dollarPos := pos(result, '$');
+    while dollarPos <> 0 do
+      if dollarPos < length(result) then
+        if result[succ(dollarPos)] in {'(', '{'} then
+          if result[succ(dollarPos)] = '(' then
+            closeParenPos := pos(result, ')', dollarPos + 2);
+          else
+            closeParenPos := pos(result, '}', dollarPos + 2);
+          end if;
+          if closeParenPos <> 0 then
+            name := result[dollarPos + 2 .. pred(closeParenPos)];
+            if name in macros then
+              result := result[.. pred(dollarPos)] &
+                  applyMacros(macros, macros[name], leaveUndefMacros) & result[succ(closeParenPos) ..];
+            elsif not leaveUndefMacros then
+              result := result[.. pred(dollarPos)] & result[succ(closeParenPos) ..];
+            end if;
+          end if;
+        elsif result[succ(dollarPos)] = '$' then
+          incr(dollarPos);
+        end if;
+      end if;
+      dollarPos := pos(result, '$', succ(dollarPos));
+    end while;
+  end func;
+
+
+const func string: getMacroName (inout file: makefile) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := str(makefile.bufferChar);
+    makefile.bufferChar := getc(makefile);
+    while makefile.bufferChar in macro_name_char do
+      symbol &:= makefile.bufferChar;
+      makefile.bufferChar := getc(makefile);
+    end while;
+  end func;
+
+
+const func string: getMacroParameter (inout file: makefile) is func
+  result
+    var string: result is "";
+  begin
+    while makefile.bufferChar <> ')' and makefile.bufferChar <> EOF do
+      if makefile.bufferChar = '(' then
+        result &:= "(";
+        makefile.bufferChar := getc(makefile);
+        result &:= getMacroParameter(makefile);
+        result &:= ")";
+      else
+        result &:= makefile.bufferChar;
+      end if;
+      makefile.bufferChar := getc(makefile);
+    end while;
+  end func;
+
+
+const func string: getMacro (inout file: makefile, in string_hash: macros) is func
+  result
+    var string: result is "";
+  local
+    var string: name is "";
+    var array string: matches is 0 times "";
+  begin
+    makefile.bufferChar := getc(makefile);
+    if makefile.bufferChar = '(' then
+      makefile.bufferChar := getc(makefile);
+      name := getMacroName(makefile);
+      if makefile.bufferChar = ')' then
+        makefile.bufferChar := getc(makefile);
+        if name in macros then
+          result := macros[name];
+        else
+          result := "$(" & name & ")";
+        end if;
+      elsif makefile.bufferChar in space_or_tab then
+        skipSpaceOrTab(makefile);
+        if name = "wildcard" then
+          matches := findMatchingFiles(getMacroName(makefile));
+          if length(matches) <> 0 then
+            result := join(matches, ' ');
+          end if;
+        elsif name = "strip" then
+          name := getMacroParameter(makefile);
+          result := trim(applyMacros(macros, name, TRUE));
+        end if;
+        skipSpaceOrTab(makefile);
+        if makefile.bufferChar = ')' then
+          makefile.bufferChar := getc(makefile);
+        end if;
+      end if;
+    else
+      result := "$";
+    end if;
+  end func;
+
+
+const func string: getLineWithMacrosApplied (inout makeDataType: makeData) is func
+  result
+    var string: data is "";
+  local
+    var file: makefile is STD_NULL;
+  begin
+    makefile := makeData.makefile;
+    data := "";
+    while makefile.bufferChar <> '\n' and makefile.bufferChar <> EOF do
+      if makefile.bufferChar = '\r' then
+        makefile.bufferChar := getc(makefile);
+        if makefile.bufferChar <> '\n' then
+          data &:= '\r';
+        end if;
+      elsif makefile.bufferChar = '\\' then
+        makefile.bufferChar := getc(makefile);
+        if makefile.bufferChar = '\r' then
+          makefile.bufferChar := getc(makefile);
+          if makefile.bufferChar = '\n' then
+            makefile.bufferChar := getc(makefile);
+          else
+            data &:= "\\\r";
+          end if;
+        elsif makefile.bufferChar = '\n' then
+          makefile.bufferChar := getc(makefile);
+        else
+          data &:= '\\';
+        end if;
+      elsif makefile.bufferChar = '$' then
+        data &:= getMacro(makefile, makeData.macros);
+      else
+        data &:= makefile.bufferChar;
+        makefile.bufferChar := getc(makefile);
+      end if;
+    end while;
+  end func;
+
+
+const func string: getTargetName (inout file: makefile) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := str(makefile.bufferChar);
+    makefile.bufferChar := getc(makefile);
+    while makefile.bufferChar in target_name_char do
+      symbol &:= makefile.bufferChar;
+      makefile.bufferChar := getc(makefile);
+    end while;
+  end func;
+
+
+const proc: find_endif_directive (inout file: makefile) is func
+  local
+    var string: command is "";
+  begin
+    repeat
+      if makefile.bufferChar = '!' then
+        makefile.bufferChar := getc(makefile);
+        command := lower(getWord(makefile));
+        skipLine(makefile);
+        makefile.bufferChar := getc(makefile);
+        if command = "if" then
+          find_endif_directive(makefile);
+        end if;
+      else
+        skipLine(makefile);
+        makefile.bufferChar := getc(makefile);
+      end if;
+    until command = "endif";
+  end func;
+
+
+const proc: find_endif_or_else_directive (inout file: makefile) is func
+  local
+    var string: command is "";
+  begin
+    repeat
+      if makefile.bufferChar = '!' then
+        makefile.bufferChar := getc(makefile);
+        command := lower(getWord(makefile));
+        skipLine(makefile);
+        makefile.bufferChar := getc(makefile);
+        if command = "if" then
+          find_endif_directive(makefile);
+        end if;
+      else
+        skipLine(makefile);
+        makefile.bufferChar := getc(makefile);
+      end if;
+    until command = "endif" or command = "else";
+  end func;
+
+
+const proc: execIf (inout file: makefile, in string_hash: macros) is func
+  local
+    var string: functionName is "";
+    var string: fileName is "";
+    var string: value2 is "";
+    var boolean: cond is FALSE;
+    var string: command is "";
+  begin
+    # writeln("if");
+    skipSpaceOrTab(makefile);
+    functionName := getName(makefile);
+    if functionName = "exist" and makefile.bufferChar = '(' then
+      makefile.bufferChar := getc(makefile);
+      fileName := getMacroParameter(makefile);
+      skipLine(makefile);
+      makefile.bufferChar := getc(makefile);
+      if fileType(fileName) = FILE_ABSENT then
+        # writeln("skip");
+        find_endif_or_else_directive(makefile);
+      end if;
+    end if;
+  end func;
+
+
+const func string: getExpression (inout file: makefile, in string_hash: macros) is func
+  result
+    var string: exprResult is "";
+  begin
+    skipSpaceOrTab(makefile);
+    if makefile.bufferChar = '$' then
+      exprResult := getMacro(makefile, macros);
+    else
+      exprResult := getName(makefile);
+    end if;
+  end func;
+
+
+const proc: find_endif (inout file: makefile) is func
+  local
+    var string: command is "";
+  begin
+    repeat
+      command := getTargetName(makefile);
+      skipLine(makefile);
+      makefile.bufferChar := getc(makefile);
+      if command = "ifeq" or command = "ifneq" then
+        find_endif(makefile);
+      end if;
+    until command = "endif";
+  end func;
+
+
+const proc: find_endif_or_else (inout file: makefile) is func
+  local
+    var string: command is "";
+  begin
+    repeat
+      command := getTargetName(makefile);
+      skipLine(makefile);
+      makefile.bufferChar := getc(makefile);
+      if command = "ifeq" or command = "ifneq" then
+        find_endif(makefile);
+      end if;
+    until command = "endif" or command = "else";
+  end func;
+
+
+const proc: execIfeq (inout file: makefile, in string_hash: macros, in boolean: equal) is func
+  local
+    var string: value1 is "";
+    var string: value2 is "";
+    var boolean: cond is FALSE;
+    var string: command is "";
+  begin
+    # writeln("ifeq");
+    if makefile.bufferChar = '(' then
+      makefile.bufferChar := getc(makefile);
+      value1 := getExpression(makefile, macros);
+      # writeln("value1=" <& literal(value1));
+      skipSpaceOrTab(makefile);
+      if makefile.bufferChar = ',' then
+        makefile.bufferChar := getc(makefile);
+        value2 := getExpression(makefile, macros);
+        # writeln("value2=" <& literal(value2));
+        skipLine(makefile);
+        makefile.bufferChar := getc(makefile);
+        if (value1 = value2) <> equal then
+          # writeln("skip");
+          find_endif_or_else(makefile);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: readRule (inout makeDataType: makeData, in string: name) is func
+  local
+    var file: makefile is STD_NULL;
+    var string: dependencies is "";
+    var string: dependency is "";
+    var string: command is "";
+    var ruleType: rule is ruleType.value;
+  begin
+    makefile := makeData.makefile;
+    rule.name := name;
+    skipSpaceOrTab(makefile);
+    dependencies := getLineWithMacrosApplied(makeData);
+    # write(name <& ":");
+    while dependencies <> "" do
+      dependency := getWord(dependencies);
+      rule.dependencies &:= [] (dependency);
+      skipWhiteSpace(dependencies);
+      # write(" " <& dependency);
+    end while;
+    # writeln;
+    makefile.bufferChar := getc(makefile);
+    while makefile.bufferChar = '\t' or makefile.bufferChar = ' ' or
+        makefile.bufferChar = '\r' or makefile.bufferChar = '\n' do
+      skipSpaceOrTab(makefile);
+      if makefile.bufferChar = '\r' then
+        makefile.bufferChar := getc(makefile);
+      end if;
+      if makefile.bufferChar = '\n' then
+        makefile.bufferChar := getc(makefile);
+      else
+        command := getLineWithMacrosApplied(makeData);
+        rule.commands &:= [] (command);
+        makefile.bufferChar := getc(makefile);
+        # writeln("\t" <& command);
+      end if;
+    end while;
+    if length(makeData.rules) = 0 then
+      makeData.nameOfFirstRule := name;
+    end if;
+    if pos(name, '%') <> 0 then
+      if name not in makeData.patternRules then
+        makeData.patternRules @:= [name] rule;
+      end if;
+    elsif name in makeData.rules then
+      if length(rule.commands) = 0 then
+        makeData.rules[name].dependencies &:= rule.dependencies;
+      elsif length(makeData.rules[name].commands) = 0 then
+        makeData.rules[name].dependencies &:= rule.dependencies;
+        makeData.rules[name].commands := rule.commands;
+      else
+        writeln(" *** Rule " <& name <& " redefined");
+      end if;
+    else
+      makeData.rules @:= [name] rule;
+    end if;
+  end func;
+
+
+const proc: includeMakefile (inout makeDataType: makeData, in boolean: ignoreError) is forward;
+
+
+const proc: readMakefile (inout makeDataType: makeData) is func
+  local
+    var file: makefile is STD_NULL;
+    var string: name is "";
+    var array string: alternateTargets is 0 times "";
+    var string: data is "";
+  begin
+    makefile := makeData.makefile;
+    makefile.bufferChar := getc(makefile);
+    while makefile.bufferChar <> EOF do
+      skipWhiteSpace(makefile);
+      # writeln(literal(makefile.bufferChar));
+      if makefile.bufferChar = '#' then
+        skipLineComment(makefile);
+        makefile.bufferChar := getc(makefile);
+      elsif makefile.bufferChar = '!' then
+        # nmake commands like if, include, endif, ...
+        # currently ignored
+        makefile.bufferChar := getc(makefile);
+        name := lower(getWord(makefile));
+        if name = "if" then
+          execIf(makefile, makeData.macros);
+        elsif name = "include" then
+          includeMakefile(makeData, name = "-include");
+          makefile := makeData.makefile;
+        elsif name = "endif" then
+          skipLineComment(makefile);
+          makefile.bufferChar := getc(makefile);
+        else
+          writeln(" *** Unknown directive !" <& name);
+          skipLineComment(makefile);
+          makefile.bufferChar := getc(makefile);
+        end if;
+      elsif makefile.bufferChar in target_name_char then
+        name := getTargetName(makefile);
+        # writeln(name);
+        skipSpace(makefile);
+        if makefile.bufferChar = '=' then
+          makefile.bufferChar := getc(makefile);
+          skipSpace(makefile);
+          data := getLineWithMacrosApplied(makeData);
+          makeData.macros @:= [name] data;
+          # writeln(name <& " = " <& data);
+          makefile.bufferChar := getc(makefile);
+        elsif makefile.bufferChar = '+' then
+          makefile.bufferChar := getc(makefile);
+          if makefile.bufferChar = '=' then
+            makefile.bufferChar := getc(makefile);
+            skipSpace(makefile);
+            data := getLineWithMacrosApplied(makeData);
+            if name in makeData.macros then
+              makeData.macros @:= [name] makeData.macros[name] & data;
+            else
+              makeData.macros @:= [name] data;
+            end if;
+            # writeln(name <& " = " <& data);
+            makefile.bufferChar := getc(makefile);
+          end if;
+        elsif makefile.bufferChar = ':' then
+          makefile.bufferChar := getc(makefile);
+          if makefile.bufferChar = '=' then
+            makefile.bufferChar := getc(makefile);
+            skipSpace(makefile);
+            data := getLineWithMacrosApplied(makeData);
+            makeData.macros @:= [name] data;
+            # writeln(name <& " := " <& data);
+            makefile.bufferChar := getc(makefile);
+          else
+            name := applyMacros(makeData.macros, name, TRUE);
+            readRule(makeData, name);
+          end if;
+        elsif name = "ifeq" then
+          execIfeq(makefile, makeData.macros, TRUE);
+        elsif name = "ifneq" then
+          execIfeq(makefile, makeData.macros, FALSE);
+        elsif name = "else" then
+          skipLine(makefile);
+          makefile.bufferChar := getc(makefile);
+          find_endif(makefile);
+        elsif name = "endif" then
+          skipLine(makefile);
+          makefile.bufferChar := getc(makefile);
+        elsif name = "include" or name = "-include" then
+          includeMakefile(makeData, name = "-include");
+          makefile := makeData.makefile;
+        elsif name = ".SILENT" then
+          makeData.inSilentMode := TRUE;
+          skipLine(makefile);
+          makefile.bufferChar := getc(makefile);
+        else
+          name := applyMacros(makeData.macros, name, TRUE);
+          alternateTargets := 0 times "";
+          while makefile.bufferChar in target_name_char do
+            alternateTargets &:= getTargetName(makefile);
+            skipSpace(makefile);
+          end while;
+          if makefile.bufferChar = ':' then
+            makefile.bufferChar := getc(makefile);
+            readRule(makeData, name);
+          else
+            writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");
+            makefile.bufferChar := getc(makefile);
+          end if;
+        end if;
+      elsif makefile.bufferChar <> EOF then
+        writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");
+        makefile.bufferChar := getc(makefile);
+      end if;
+    end while;
+  end func;
+
+
+const proc: includeMakefile (inout makeDataType: makeData, in boolean: ignoreError) is func
+  local
+    var string: includeFiles is "";
+    var string: fileName is "";
+    var file: makefile is STD_NULL;
+    var file: surroundingFile is STD_NULL;
+  begin
+    skipSpace(makeData.makefile);
+    includeFiles := getLineWithMacrosApplied(makeData);
+    makeData.makefile.bufferChar := getc(makeData.makefile);
+    while includeFiles <> "" do
+      fileName := getWord(includeFiles);
+      makefile := open(fileName, "r");
+      if makefile = STD_NULL then
+        if not ignoreError then
+          writeln(" *** include file " <& fileName <& " not found.");
+        end if;
+      else
+        # writeln("begin include " <& fileName);
+        surroundingFile := makeData.makefile;
+        makeData.makefile := makefile;
+        readMakefile(makeData);
+        # writeln("end include " <& fileName);
+        close(makefile);
+        makeData.makefile := surroundingFile;
+      end if;
+      skipWhiteSpace(includeFiles);
+    end while;
+  end func;
+
+
+const proc: readMakefile (inout makeDataType: makeData, in string: fileName) is func
+  local
+    var file: makefile is STD_NULL;
+    var file: surroundingFile is STD_NULL;
+  begin
+    makefile := open(fileName, "r");
+    if makefile = STD_NULL then
+      writeln(" *** Makefile " <& fileName <& " not found.");
+    else
+      # writeln("begin " <& fileName);
+      surroundingFile := makeData.makefile;
+      makeData.makefile := makefile;
+      readMakefile(makeData);
+      # writeln("end " <& fileName);
+      close(makefile);
+      makeData.makefile := surroundingFile;
+    end if;
+  end func;

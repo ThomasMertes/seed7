@@ -1,6 +1,43 @@
+20121021:
+- The library vecfont10.s7i, which defines the standard vector font
+  with capital height 10, was added. Now mahjong.sd7 and shisen.sd7
+  use vecfont10.s7i.
+- The programs mahjong.sd7, pairs.sd7, shisen.sd7 and sokoban.sd7
+  were improved to fit into a screen with a resolution of 1024 x 768.
+- The library make.s7i was improved: The parsing of command
+  parameters (used by the Unix version of the echo command), was
+  improved. The processing of pattern rules was improved (The rule
+  with the shortest stem value is used, when several rules match).
+- Functions to read a makefile were moved from make.s7i to the new
+  library makedata.s7i.
+- The reading of makefiles was improved: The processing of the gmake
+  directives 'ifeq' and 'ifneq' was improved to allow else clauses.
+  The processing of the nmake directive 'if' was added. Merging of
+  dependencies for rules with the same target was improved.
+- The parse function for time values (library time.s7i) was improved
+  to allow fractions of a second.
+- The functions getSubNodes and getContent and a for-loop for xmlNode
+  values were defined in the library xmldom.s7i.
+- The compiler was improved to initialize bstring literals correctly,
+  when pointers are 64-bit and integers are 32-bit.
+- The font libraries cronos16.s7i, cronos27.s7i, modern27.s7i and
+  vecfont18.s7i were improved to include vectorfont.s7i.
+- The font libraries stdfont10.s7i, stdfont12.s7i, stdfont14.s7i,
+  stdfont16.s7i, stdfont18.s7i, stdfont20.s7i and stdfont24.s7i were
+  improved to include bitmapfont.s7i.
+- The program dnafight.sd7 was improved to limit the speed of the
+  animation.
+- The program make7.sd7 was improved to recognize the options
+  correctly. Additionally make7 inherits also all improvements of
+  makedata.s7i and make.s7i.
+- The program ftp7.sd7 was improved to accept the option -?.
+- The graphic libraries drw_x11.c and drw_win.c were improved to draw
+  the background of maximized windows with the color of the last
+  clear command.
+
 20121007:
 - An error message, that could occur when the Seed7 interpreter is
-  compiled, is explained in the FAQ and to 'src/read_me.txt'.
+  compiled, is now explained in the FAQ and in 'src/read_me.txt'.
 - A description of the for-step-statement was added to the manual.
 - The library make.s7i was improved. Now makefile dependencies can
   contain colons (:) and equal signs (=). The parameters of the echo
@@ -342,7 +379,7 @@
   added.
 - The libraries "cronos16.s7i", "cronos27.s7i" and
   "vecfont18.s7i", which define the vector fonts cronos16,
-  cronos27 and vecFont18 respectively, were added
+  cronos27 and vecFont18 respectively, were added.
 - A standard bitmap font with size 20 was defined in the new
   library "stdfont20.s7i".
 - The pilcrow character was added to the standard bitmap fonts.

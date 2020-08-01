@@ -33,6 +33,8 @@ $ include "seed7_05.s7i";
   include "graph_file.s7i";
   include "field.s7i";
   include "dna_base.s7i";
+  include "time.s7i";
+  include "duration.s7i";
 
   include "white.dna";
   include "violet.dna";
@@ -1181,6 +1183,7 @@ const proc: initStatistics is func
 
 
 const proc: execute (ref microbe: individuum) is func
+
   local
     var bactColor: species is CLEAR;
 
@@ -1229,13 +1232,16 @@ const proc: generation is func
         execute(animates[index]);
         incr(index);
       end if;
-      DRAW_FLUSH;
     end while;
     animates := children & animates;
   end func; (* generation *)
 
 
 const proc: main is func
+
+  local
+    var time: turnTime is time.value;
+
   begin (* main *)
 (*
     scr := open(SCREEN);
@@ -1305,8 +1311,12 @@ const proc: main is func
         initStatistics;
         genNr := 0;
 
+        turnTime := time(NOW);
         while length(animates) <> 0 and busy_getc(KEYBOARD) = KEY_NONE do
           generation;
+          turnTime +:= 50000 . MICRO_SECONDS;
+          DRAW_FLUSH;
+          await(turnTime);
           incr(genNr);
           if genNr mod STATTIME = 0 then
             statistics(genNr);

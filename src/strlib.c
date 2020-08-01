@@ -995,9 +995,21 @@ objecttype str_lng (arguments)
 listtype arguments;
 #endif
 
-  { /* str_lng */
+  {
+    stritype stri;
+
+  /* str_lng */
     isit_stri(arg_1(arguments));
-    return bld_int_temp((inttype) take_stri(arg_1(arguments))->size);
+    stri = take_stri(arg_1(arguments));
+#if POINTER_SIZE > INTTYPE_SIZE
+    if (stri->size > MAX_MEM_INDEX) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      return bld_int_temp((inttype) stri->size);
+    } /* if */
+#else
+    return bld_int_temp((inttype) stri->size);
+#endif
   } /* str_lng */
 
 

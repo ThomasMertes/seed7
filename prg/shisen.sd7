@@ -26,19 +26,22 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "text.s7i";
   include "draw.s7i";
-  include "graph_file.s7i";
   include "keybd.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "pic32.s7i";
+  include "vecfont10.s7i";
+  include "pixmap_file.s7i";
 
 
 var text: screen is STD_NULL;
 
-const integer: UPPER_BORDER is 12 + 64 + 12;
+const integer: UPPER_BORDER is 64;
 const integer: LEFT_BORDER is 64;
 const integer: CARD_SIZE is 64;
 const integer: CARD_BORDER is 4;
+const integer: WINDOW_WIDTH is (CARD_SIZE + 2 * CARD_BORDER) * 12 + 2 * LEFT_BORDER;
+const integer: WINDOW_HEIGHT is (CARD_SIZE + 2 * CARD_BORDER) * 8 + 2 * UPPER_BORDER;
 const integer: FIELD_STEP is CARD_SIZE + 2 * CARD_BORDER;
 const integer: HALF_FIELD is FIELD_STEP div 2;
 const integer: FRAME_THICKNESS is 3;
@@ -1474,27 +1477,28 @@ const proc: dealCards is func
   end func;
 
 
+const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri) is func
+  begin
+    setPosXY(screen, (WINDOW_WIDTH - width(vecFont10, stri)) div 2, yPos);
+    writeln(screen, stri);
+  end func;
+
+
 const proc: main is func
   local
     var char: command is ' ';
   begin
-    screen(1024, 768);
+    screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(curr_win, white);
-    screen := open(curr_win, 16);
     KEYBOARD := GRAPH_KEYBOARD;
+    screen := openPixmapFontFile(curr_win);
+    setFont(screen, vecFont10);
     color(screen, black, white);
-    setPos(screen, 2, 49);
-    writeln(screen, "S H I S E N");
-    setPos(screen, 3, 37);
-    writeln(screen, "Copyright (C) 2005  Thomas Mertes");
-    setPos(screen, 4, 34);
-    writeln(screen, "This program is free software under the");
-    setPos(screen, 5, 34);
-    writeln(screen, "terms of the GNU General Public License");
-    setPos(screen, 3, 85);
-    writeln(screen, "Shisen is written in the Seed7 programming language");
-    setPos(screen, 4, 90);
-    writeln(screen, "Homepage:    http://seed7.sourceforge.net");
+    writeCentered(screen, 22, "S H I S E N");
+    writeCentered(screen, 38, "Copyright (C) 2005  Thomas Mertes");
+    writeCentered(screen, 54, "This program is free software under the terms of the GNU General Public License");
+    writeCentered(screen, 652, "Shisen is written in the Seed7 programming language");
+    writeCentered(screen, 668, "Homepage:    http://seed7.sourceforge.net");
     DRAW_FLUSH;
     digit_pixmap := [0](
       create_pixmap(zero,  2),
@@ -1509,11 +1513,10 @@ const proc: main is func
       create_pixmap(nine,  2));
 
     dealCards;
-    setPos(screen, 45, 70);
-    writeln(screen, "Press any key to start game");
+    writeCentered(screen, 696, "Press any key to start game");
     command := upper(getc(KEYBOARD));
-    rect(0, 0, width(curr_win), 80, white);
-    rect(0, height(curr_win) - 80, width(curr_win), 80, white);
+    rect(0, 0, WINDOW_WIDTH, UPPER_BORDER, white);
+    rect(0, WINDOW_HEIGHT - UPPER_BORDER, WINDOW_WIDTH, UPPER_BORDER, white);
     while command <> 'Q' do
       repeat
         playerTurn(command);

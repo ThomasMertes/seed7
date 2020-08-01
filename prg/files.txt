@@ -147,6 +147,7 @@ listener.s7i Support for inet listener
 lower.s7i    Filter file which turns characters to lower case
 mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 make.s7i     Make library to manage the compilation process
+makedata.s7i Function and data structure to read makefiles
 math.s7i     Mathematical functions and constants
 modern27.s7i Modern vector font with capHeight 27.
 more.s7i     Filter file which shows another file screenwise
@@ -193,6 +194,7 @@ time.s7i     Time and date library
 upper.s7i    Filter file which turns characters to upper case
 utf16.s7i    File implementation type for UTF-16 files
 utf8.s7i     File implementation type for UTF-8 files
+vecfont10.s7i Standard vector font with capHeight 10.
 vecfont18.s7i Standard vector font with capHeight 18.
 vectorfont.s7i Defines the vector font type.
 window.s7i   Filter file for text windows with random access

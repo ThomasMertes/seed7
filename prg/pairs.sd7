@@ -36,15 +36,18 @@ $ include "seed7_05.s7i";
 
 var text: screen is STD_NULL;
 
-const integer: UPPER_BORDER is 12 + 128 + 12;
-const integer: LEFT_BORDER is 8;
+const integer: WINDOW_WIDTH is 992;
+const integer: WINDOW_HEIGHT is 704;
 const integer: CARD_SIZE is 64;
-const integer: CARD_BORDER is 4;
-const integer: FIELD_STEP is CARD_SIZE + 2 * CARD_BORDER;
+const integer: CARD_BORDER is 3;
+const integer: FIELD_SIZE is CARD_SIZE + 2 * CARD_BORDER;
 const integer: FIELD_LINES is 6;
-const integer: FIELD_COLUMNS is 8;
-const integer: OPPONENT_XPOS is 99;
-const integer: COMPUTER_HIT_YPOS is 8;
+const integer: FIELD_COLUMNS is 14;
+const integer: UPPER_BORDER is (WINDOW_HEIGHT - FIELD_LINES * FIELD_SIZE) div 2;
+const integer: LEFT_BORDER is (WINDOW_WIDTH - FIELD_COLUMNS * FIELD_SIZE) div 2;
+const integer: COMPUTER_HIT_YPOS is (UPPER_BORDER + CARD_BORDER - 2 * FIELD_SIZE) div 2;
+const integer: OPPONENT_XPOS is 76;
+const integer: OPPONENT_YPOS is (UPPER_BORDER + CARD_BORDER - 128) div 2;
 
 var PRIMITIVE_WINDOW: opponent is PRIMITIVE_WINDOW.value;
 var array PRIMITIVE_WINDOW: digit_pixmap is 0 times PRIMITIVE_WINDOW.value;
@@ -1361,8 +1364,8 @@ const proc: draw (in integer: xPos, in integer: yPos,
 
 const proc: put (inout cardType: aCard, in integer: line, in integer: column) is func
   begin
-    draw(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(column),
-        UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(line), aCard);
+    draw(LEFT_BORDER + CARD_BORDER + FIELD_SIZE * pred(column),
+        UPPER_BORDER + CARD_BORDER + FIELD_SIZE * pred(line), aCard);
   end func;
 
 
@@ -1414,8 +1417,8 @@ const proc: hide (in integer: line, in integer: column) is func
       field[line][column].visible := backSide;
 (*
       put(cards[field[line][column].cardNumber], line, column);
-      rect(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(line), 16, 16, light_cyan);
+      rect(LEFT_BORDER + CARD_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + CARD_BORDER + FIELD_SIZE * pred(line), 16, 16, light_cyan);
 *)
     end if;
   end func;
@@ -1424,8 +1427,8 @@ const proc: hide (in integer: line, in integer: column) is func
 const proc: remove (in integer: line, in integer: column) is func
   begin
     if field[line][column].visible <> removed then
-      rect(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(line), CARD_SIZE, CARD_SIZE, white);
+      rect(LEFT_BORDER + CARD_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + CARD_BORDER + FIELD_SIZE * pred(line), CARD_SIZE, CARD_SIZE, white);
       field[line][column].visible := removed;
     end if;
   end func;
@@ -1468,17 +1471,18 @@ const proc: draw_number (in integer: xPos, in integer: yPos, in string: num_stri
 
 const proc: showHit (in integer: cardNumber, in var integer: yPos, in var integer: hits) is func
   local
-    var integer: xPos is OPPONENT_XPOS + 128 + 8 + 64 + 7;
+    const integer: xPos is OPPONENT_XPOS + 128 + 4 * CARD_BORDER + 64;
   begin
-    draw_number(OPPONENT_XPOS + 128 + 8, yPos + 16, succ(hits) lpad 2);
+    yPos +:= CARD_BORDER;
+    draw_number(OPPONENT_XPOS + 128 + 2 * CARD_BORDER, yPos + 16, succ(hits) lpad 2);
     if hits >= 21 then
       hits -:= 21;
-      yPos +:= 64 + 8;
+      yPos +:= FIELD_SIZE;
     end if;
-    line(xPos + 32 * hits,     yPos, 0, 64, white);
-    draw(xPos + 32 * hits + 1, yPos, cards[cardNumber]);
-    line(xPos + 32 * hits + 5, yPos, 0, 64, white);
-    draw(xPos + 32 * hits + 6, yPos, cards[cardNumber]);
+    line(xPos + 32 * hits - 1, yPos, 0, 64, white);
+    draw(xPos + 32 * hits,     yPos, cards[cardNumber]);
+    line(xPos + 32 * hits + 4, yPos, 0, 64, white);
+    draw(xPos + 32 * hits + 5, yPos, cards[cardNumber]);
   end func;
 
 
@@ -1897,8 +1901,8 @@ const proc: mouseCommand (inout integer: line, inout integer: column,
     line := getypos(KEYBOARD);
     column := getxpos(KEYBOARD);
     if line >= UPPER_BORDER and column >= LEFT_BORDER then
-      line := (line - UPPER_BORDER) div FIELD_STEP + 1;
-      column := (column - LEFT_BORDER) div FIELD_STEP + 1;
+      line := (line - UPPER_BORDER) div FIELD_SIZE + 1;
+      column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
       if line >= 1 and line <= length(field) and
           column >= 1 and column <= length(field[line]) then
         if field[line][column].visible = backSide then
@@ -1928,16 +1932,16 @@ const proc: playerMove (inout boolean: hit) is func
         game.quit := TRUE;
       elsif command in digit_char then
         game.currLevel := ord(command) - ord('0');
-        put(59, 12, digit_pixmap[game.currLevel], PSET);
+        put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
       elsif command in {KEY_RIGHT, KEY_UP} then
         if game.currLevel < 9 then
           incr(game.currLevel);
-          put(59, 12, digit_pixmap[game.currLevel], PSET);
+          put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
         end if;
       elsif command in {KEY_LEFT, KEY_DOWN} then
         if game.currLevel > 0 then
           decr(game.currLevel);
-          put(59, 12, digit_pixmap[game.currLevel], PSET);
+          put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
         end if;
       elsif openCards = 2 then
         checkHit(line1, column1, line2, column2, hit);
@@ -1986,7 +1990,7 @@ const proc: dealCards (in integer: field_lines, in integer: field_columns) is fu
         incr(cards[cardNumber].number);
       end for;
     end for;
-    game.player_hit_ypos := UPPER_BORDER + field_lines * FIELD_STEP + 8;
+    game.player_hit_ypos := UPPER_BORDER + field_lines * FIELD_SIZE - CARD_BORDER + COMPUTER_HIT_YPOS;
   end func;
 
 
@@ -2010,11 +2014,11 @@ const proc: selectSize is func
         line := getypos(KEYBOARD);
         column := getxpos(KEYBOARD);
         if line >= UPPER_BORDER and column >= LEFT_BORDER then
-          line := (line - UPPER_BORDER) div FIELD_STEP + 1;
-          column := (column - LEFT_BORDER) div FIELD_STEP + 1;
+          line := (line - UPPER_BORDER) div FIELD_SIZE + 1;
+          column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
           if line = 1 and column >= 1 and column <= length(size_descr) then
             clear(curr_win, white);
-            put(OPPONENT_XPOS, 12, opponent, PSET);
+            put(OPPONENT_XPOS, OPPONENT_YPOS, opponent, PSET);
             dealCards(size_list[column][1], size_list[column][2]);
             selected := TRUE;
           end if;
@@ -2033,7 +2037,7 @@ const proc: main is func
     var integer: column is 0;
     var integer: index is 0;
   begin
-    screen(1024, 768);
+    screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(curr_win, white);
     screen := open(curr_win, 16);
     scr := open(curr_win);
@@ -2062,11 +2066,11 @@ const proc: main is func
       create_pixmap(nine,  2));
 
     opponent := create_pixmap(woman_pic, 2);
-    put(OPPONENT_XPOS, 12, opponent, PSET);
+    put(OPPONENT_XPOS, OPPONENT_YPOS, opponent, PSET);
 
     selectSize;
 
-    put(59, 12, digit_pixmap[game.currLevel], PSET);
+    put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
 
     index := 1;
     while countCardBacks > 0 and not game.quit do
