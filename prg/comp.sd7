@@ -3243,6 +3243,12 @@ const proc: process_prc_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= " = o_";
       create_name(params[3], c_expr.expr);
       c_expr.expr &:= ";\n";
+    elsif is_func(getType(params[3])) and getType(params[1]) = result_type(getType(params[3])) then
+      c_expr.expr &:= "/* call func */ ";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= " = ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ";\n";
     else
       paramCategory := category(params[3]);
       if paramCategory = MATCHOBJECT or paramCategory = CALLOBJECT or
@@ -3258,8 +3264,7 @@ const proc: process_prc_cpy (in ref_list: params, inout expr_type: c_expr) is fu
         # c_expr.expr &:= "o_";
         # create_name(params[1], c_expr.expr);
         process_expr(params[1], c_expr);
-        c_expr.expr &:= " = ";
-        c_expr.expr &:= " = &o_";
+        c_expr.expr &:= " = o_";
         create_name(params[3], c_expr.expr);
         c_expr.expr &:= ";\n";
       end if;
@@ -15496,6 +15501,16 @@ const proc: process_str_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_str_ltrim (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "strLtrim(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_str_mult (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -15957,6 +15972,16 @@ const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is f
       getAnyParamToExpr(params[2], c_expr);
       c_expr.expr &:= ")";
     end if;
+  end func;
+
+
+const proc: process_str_rtrim (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "strRtrim(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -17799,6 +17824,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_str_lpad0(params, c_expr);
       elsif action_name = "STR_LT" then
         process_str_lt(params, c_expr);
+      elsif action_name = "STR_LTRIM" then
+        process_str_ltrim(params, c_expr);
       elsif action_name = "STR_MULT" then
         process_str_mult(params, c_expr);
       elsif action_name = "STR_NE" then
@@ -17823,6 +17850,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_str_rpad(params, c_expr);
       elsif action_name = "STR_RPOS" then
         process_str_rpos(params, c_expr);
+      elsif action_name = "STR_RTRIM" then
+        process_str_rtrim(params, c_expr);
       elsif action_name = "STR_SPLIT" then
         process_str_split(params, c_expr);
       elsif action_name = "STR_STR" then
@@ -19190,6 +19219,10 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
       else
         process_inline(function, formal_params, params, c_expr);
       end if;
+    elsif functionCategory = LOCALVOBJECT then
+      result_type := result_type(getType(function));
+      formal_params := params(function);
+      process_func_call(function, formal_params, params, c_expr);
     elsif functionCategory = VALUEPARAMOBJECT then
       process_expr(function, c_expr);
     elsif functionCategory = REFPARAMOBJECT then
@@ -22899,6 +22932,7 @@ const proc: write_prototypes is func
     declareExtern("stritype    strLpad0 (const const_stritype, const inttype);");
     declareExtern("stritype    strLpad0Temp (const stritype, const inttype);");
     declareExtern("booltype    strLt (const const_stritype, const const_stritype);");
+    declareExtern("stritype    strLtrim (const const_stritype);");
     declareExtern("stritype    strMult (const const_stritype, const inttype);");
     declareExtern("inttype     strPos (const const_stritype, const const_stritype);");
     declareExtern("void        strPush (stritype *const, const chartype);");
@@ -22910,6 +22944,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     strRIPos (const const_stritype, const const_stritype, const inttype);");
     declareExtern("stritype    strRpad (const const_stritype, const inttype);");
     declareExtern("inttype     strRPos (const const_stritype, const const_stritype);");
+    declareExtern("stritype    strRtrim (const const_stritype);");
     declareExtern("arraytype   strSplit (const const_stritype, const const_stritype);");
     declareExtern("stritype    strSubstr (const_stritype, inttype, inttype);");
     declareExtern("stritype    strSubstrSlice (const const_stritype, inttype, inttype, stritype);");

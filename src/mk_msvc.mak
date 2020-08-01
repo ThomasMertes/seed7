@@ -174,7 +174,7 @@ version.h:
 	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
 	$(CC) setpaths.c
-	.\setpaths.exe >> version.h
+	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe
 
 .c.obj:

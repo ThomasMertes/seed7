@@ -159,12 +159,25 @@ const func type: array (in type: baseType) is func
 
       const func tupleType: (attr tupleType) conv (in arrayType: arr)         is action "ARR_CONV";
 
+      (**
+       *  Generate an array of ''elements'' with indices in a specified range.
+       *  The range is specified with a bracketed range expression like [A .. B].
+       *  An array with 5 char elements indexed from 0 to 4 is created with:
+       *   [0 .. 4] times 'x'
+       *  This is equivalent to
+       *   [0] ('x', 'x', 'x', 'x', 'x')
+       *  An empty array can be generated with
+       *   [0 .. -1] times "asdf"
+       *  @return an array with B - A + 1 ''elements''.
+       *  @exception RANGE_ERROR When B - A is less than -1.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
       const func arrayType: (in ARRAY_IDX_RANGE: arrayIdxRange) times
-          (in baseType: base_value) is func
+          (in baseType: element) is func
         result
           var arrayType: result is arrayType.value;
         begin
-          result := succ(arrayIdxRange.maxIdx - arrayIdxRange.minIdx) times base_value;
+          result := succ(arrayIdxRange.maxIdx - arrayIdxRange.minIdx) times element;
           result := [arrayIdxRange.minIdx] (tupleType conv result);
         end func;
 
@@ -215,7 +228,7 @@ const func type: array (in type: baseType) is func
        *  @exception RANGE_ERROR When ''arr'' is empty.
        *)
       const func baseType: rand (in arrayType: arr) is
-        baseType return arr[rand(minIdx(arr), maxIdx(arr))];
+        return arr[rand(minIdx(arr), maxIdx(arr))];
 
       const proc: insert (inout arrayType: arr, in integer: index, in baseType: element) is func
         begin

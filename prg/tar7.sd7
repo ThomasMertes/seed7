@@ -58,7 +58,7 @@ const proc: main is func
         end while;
         if file_arg then
           if length(argv(PROGRAM)) >= 2 then
-            file_name := argv(PROGRAM)[2];
+            file_name := convDosPath(argv(PROGRAM)[2]);
             arg_list := argv(PROGRAM)[3 .. ];
           else
             writeln("tar7: The option 'f' needs a file name.");

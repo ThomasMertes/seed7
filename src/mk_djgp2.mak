@@ -133,6 +133,7 @@ version.h:
 	echo #include "unistd.h" >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp.exe
+	echo The following C compiler errors can be safely ignored
 	.\chkccomp.exe >> version.h
 	del chkccomp.h
 	del chkccomp.exe
@@ -147,7 +148,7 @@ version.h:
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
 	echo #define STACK_SIZE_DEFINITION unsigned _stklen = 4194304 >> version.h
 	$(CC) setpaths.c -o setpaths.exe
-	.\setpaths.exe >> version.h
+	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe
 
 depend: version.h

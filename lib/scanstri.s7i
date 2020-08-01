@@ -990,7 +990,7 @@ const func string: getSymbol (inout string: stri) is func
  *  The XML comment starts with <!-- and ends with --> . When the
  *  function is called it is assumed that stri[1] contains the
  *  last '-' of the introducing <!-- . When the function is left
- *  ''stri'' is empty or stri[1] contains the character after '>'.
+ *  ''stri'' is empty or stri[1] contains the character after --> .
  *)
 const proc: skipXmlComment (inout string: stri) is func
   local

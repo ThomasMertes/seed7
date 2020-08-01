@@ -851,7 +851,7 @@ const proc: processPatternRule (inout makeDataType: makeData, in string: targetN
         found := TRUE;
       end if;
     end for;
-    if found then 
+    if found then
       patternRule := makeData.patternRules[ruleNameFound];
       actualRule.name := targetName;
       for dependency range patternRule.dependencies do

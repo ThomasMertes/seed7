@@ -404,6 +404,7 @@ objecttype expr_object;
       case ENUMLITERALOBJECT:
       case VARENUMOBJECT:
       case REFPARAMOBJECT:
+      case LOCALVOBJECT:
       case DECLAREDOBJECT:
       case FORWARDOBJECT:
         if (ALLOC_OBJECT(result)) {

@@ -1,3 +1,35 @@
+20121125:
+- The makefiles and the file setpaths.c were improved to accept the
+  macros S7_LIB_DIR (Directory with static Seed7 object libraries)
+  and SEED7_LIBRARY (Directory with the Seed7 include libraries).
+  Now the build process of a package can call make e.g. with:
+  make S7_LIB_DIR=/abc/seed7/bin SEED7_LIBRARY=/abc/seed7/lib depend
+  This way the two paths are defined in version.h. This defines them
+  as default paths in the interpreter executable and in the compiler.
+- An explanation, what a binary Seed7 package should install, was
+  added to the FAQ. This can be used as guideline for Seed7 packages.
+- The description of the times-operator in the manual and in
+  array.s7i was improved.
+- A description of the function name(PROGRAM), file(PROGRAM) and
+  'environment' was added to the manual.
+- The new library environment.s7i was added. Most of the contents of
+  this library was extracted from "seed7_05.sd7". The new library is
+  included from "seed7_05.s7i", so no change in existing programs is
+  necessary.
+- A documentation comment for getSearchPath was added to shell.s7i.
+- The functions ltrim and rtrim were added to the library string.s7i.
+- Testcases for ltrim and rtrim were added to chkstr.sd7.
+- The function getProgramName in arr_rtl.c was improved to do the
+  comparison with EXECUTABLE_FILE_EXTENSION correctly.
+- The program tar7.sd7 was improved to accept also DOS paths for the
+  file specified with -f.
+- The function homeDir was improved to work with DJGPP (either $HOME
+  or C:\ is used).
+- The function prc_cpy in prclib.c was improved.
+- The files executl.c, hshlib.c, ref_data.c, reflib.c and sctlib.c
+  were improved to copy the descriptor union with memcpy and to copy
+  the posinfo flag with SET_ANY_FLAG, when necessary.
+
 20121104:
 - The new function homeDir was added to the library osfiles.s7i.
   Interpreter and compiler were improved to support homeDir.

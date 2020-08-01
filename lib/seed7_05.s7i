@@ -167,9 +167,16 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_VARFUNC2";
     const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_VARFUNC2";
 
-    const func f_param: in (attr func aType) : (ref expr param)       is action "DCL_REF2";
+    const func f_param: in (attr func aType) : (ref expr param)                 is action "DCL_REF2";
 
-    const func func func aType: return (ref func func aType param)    is action "PRC_RETURN";
+    const func func func aType: return (ref func func aType param)              is action "PRC_RETURN";
+    const func func func aType: (attr aType) return (ref func func aType param) is action "PRC_RETURN2";
+    const func func func aType: func
+                                result
+                                  var (attr func aType) : (ref expr param) is (ref func aType param)
+                                begin
+                                  (ref expr param)
+                                end func                              is action "PRC_RES_BEGIN";
     const func func func aType: func
                                 result
                                   var (attr func aType) : (ref expr param) is (ref func func aType param)
@@ -956,40 +963,7 @@ BLOCK_DECLS(void);
 
 (* ARGS + ENV *)
 
-const func array string: argv (PROGRAM)               is action "PRC_ARGS";
-const func string: name (PROGRAM)                     is action "PRG_NAME";
-const func string: path (PROGRAM)                     is action "PRG_PATH";
-const func string: interpreterPath                    is action "PRG_INTERPRETER";
-const func string: getenv (in string param)           is action "CMD_GETENV";
-const proc: setenv (in string param, in string param) is action "CMD_SETENV";
-
-const func string: dir (PROGRAM) is func
-  result
-    var string: result is "";
-  local
-    var integer: slashPos is 0;
-  begin
-    result := path(PROGRAM);
-    slashPos := rpos(result, '/');
-    if slashPos = 1 then
-      result := "/";
-    elsif slashPos > 1 then
-      result := result[.. pred(slashPos)];
-    end if;
-  end func;
-
-const func string: file (PROGRAM) is func
-  result
-    var string: result is "";
-  local
-    var integer: slashPos is 0;
-  begin
-    result := path(PROGRAM);
-    slashPos := rpos(result, '/');
-    if slashPos <> 0 then
-      result := result[succ(slashPos) ..];
-    end if;
-  end func;
+$ include "environment.s7i";
 
 const proc: heapstat (PROGRAM)              is action "PRC_HEAPSTAT";
 const func integer: heapsize (PROGRAM)      is action "PRC_HSIZE";
@@ -1035,6 +1009,7 @@ incl(INCLUDED_LIBRARY_LIST, "bitset.s7i");
 incl(INCLUDED_LIBRARY_LIST, "bitsetof.s7i");
 incl(INCLUDED_LIBRARY_LIST, "hashsetof.s7i");
 incl(INCLUDED_LIBRARY_LIST, "set.s7i");
+incl(INCLUDED_LIBRARY_LIST, "environment.s7i");
 
 (*
 const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";

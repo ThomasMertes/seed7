@@ -447,14 +447,35 @@ listtype arguments;
 
   {
     objecttype proc_variable;
+    objecttype source_value;
+    objecttype block_value;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* prc_cpy */
     proc_variable = arg_1(arguments);
     isit_proc(proc_variable);
     is_variable(proc_variable);
     isit_proc(arg_3(arguments));
-    SET_CATEGORY_OF_OBJ(proc_variable, CATEGORY_OF_OBJ(arg_3(arguments)));
-    proc_variable->value = arg_3(arguments)->value;
+    source_value = arg_3(arguments);
+    /* printf("\nsrc: ");
+    trace1(source_value);
+    printf("\n"); */
+    if (CATEGORY_OF_OBJ(source_value) == BLOCKOBJECT) {
+      if (ALLOC_OBJECT(block_value)) {
+        memcpy(block_value, source_value, sizeof(struct objectstruct));
+        SET_CATEGORY_OF_OBJ(proc_variable, MATCHOBJECT);
+        proc_variable->value.listvalue = NULL;
+        incl_list(&proc_variable->value.listvalue, block_value, &err_info);
+      } else {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+    } else {
+      SET_CATEGORY_OF_OBJ(proc_variable, CATEGORY_OF_OBJ(source_value));
+      proc_variable->value = source_value->value;
+    } /* if */
+    /* printf("dst: ");
+    trace1(proc_variable);
+    printf("\n"); */
     return SYS_EMPTY_OBJECT;
   } /* prc_cpy */
 

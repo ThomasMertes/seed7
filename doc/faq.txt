@@ -1588,6 +1588,42 @@ They do not depend on the C compiler and its runtime library,
 but they may change between releases of Seed7.
 
 
+What should a binary Seed7 package install?
+===========================================
+
+A binary Seed7 package needs to install four groups of files:
+
+ - The executables of the interpreter (hi from "seed7/bin") and the
+   compiler (comp from "seed7/prg").
+ - The Seed7 include libraries (files from "seed7/lib" with the
+   extension .s7i).
+ - The static Seed7 object libraries (the files seed7_05.a, s7_con.a,
+   s7_draw.a, s7_data.a and s7_comp.a from "seed7/bin").
+ - Documentation files (the files COPYING and LGPL and all files from
+   "seed7/doc").
+
+The table below shows the suggested directories for Linux/Unix/BSD:
+
+  +---------------------+---------------+-------------------------+
+  | Directory           | Macro         | Group of files          |
+  +---------------------+---------------+-------------------------+
+  | /usr/bin            | -             | Executables (hi + comp) |
+  | /usr/lib/seed7/lib  | SEED7_LIBRARY | Seed7 include libraries |
+  | /usr/lib/seed7/bin  | S7_LIB_DIR    | Static libraries        |
+  +---------------------+---------------+-------------------------+
+
+The macros must be defined, when the interpreter is compiled.
+This can be done by calling 'make depend' with:
+
+  make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend
+
+Afterwards the interpreter can be compiled with 'make'. The Seed7
+compiler can be compiled in the directory "seed7/prg" with:
+
+  ./hi comp -O2 comp
+
+
+
 Does the interpreter use bytecode?
 ==================================
 

@@ -903,6 +903,7 @@ objecttype object;
         break;
       case VALUEPARAMOBJECT:
       case REFPARAMOBJECT:
+      case LOCALVOBJECT:
 /*        printf("refparamobject ");
         trace1(subroutine_object);
         printf(" value ");
@@ -913,6 +914,15 @@ objecttype object;
         printf("\n"); */
         result = evaluate(subroutine_object->value.objvalue);
         /* result = exec_object(subroutine_object->value.objvalue); */
+        break;
+      case MATCHOBJECT:
+/*        printf("\nsubroutine_object: ");
+        trace1(subroutine_object);
+        printf(" params ");
+        prot_list(actual_parameters);
+        printf("\n");
+        printf("\n"); */
+        result = evaluate(subroutine_object);
         break;
       default:
         printf("category_of_obj: ");

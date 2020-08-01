@@ -148,7 +148,7 @@ stritype exePath;
     exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
     if (name_len > exeExtension->size &&
         memcmp(&exePath->mem[exePath->size - exeExtension->size],
-               exeExtension->mem, exeExtension->size) == 0) {
+               exeExtension->mem, exeExtension->size * sizeof(strelemtype)) == 0) {
       name_len -= exeExtension->size;
     } /* if */
     FREE_STRI(exeExtension, exeExtension->size);

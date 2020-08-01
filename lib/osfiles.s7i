@@ -178,6 +178,10 @@ const proc: mkdir (in string: name)                          is action "CMD_MKDI
 
 (**
  *  Determine the home directory of the user.
+ *  This function should be preferred over the use of an environment
+ *  variable such as $HOME. $HOME is not supported under all operating
+ *  systems and it is not guaranteed, that it uses the standard path
+ *  representation.
  *  @return The absolute path of the home directory.
  *  @exception MEMORY_ERROR Not enough memory to represent the
  *             result [[string]].
@@ -382,7 +386,7 @@ const proc: setMTime (in string: filePath, in time: aTime) is func
  *  @return The destination refered by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
  *             to the system path type or not enough memory to
- *             represent the result string.
+ *             represent the result [[string]].
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.

@@ -74,7 +74,9 @@ objecttype obj_arg;
   /* refAlloc */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = obj_arg->type_of;
-      created_object->descriptor.property = obj_arg->descriptor.property;
+      memcpy(&created_object->descriptor, &obj_arg->descriptor,
+          sizeof(descriptorunion));
+      /* Copies the POSINFO flag (and all other flags): */
       INIT_CATEGORY_OF_OBJ(created_object, obj_arg->objcategory);
       created_object->value.objvalue = NULL;
     } else {

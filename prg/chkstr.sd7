@@ -4043,6 +4043,232 @@ const proc: check_string_funcs is func
       writeln(" ***** trim(STRING) does not work correct");
       okay := FALSE;
     end if;
+    if  ltrim(""          ) <> "" then
+      writeln(" ***** ltrim(\"\") does not work correct");
+      okay := FALSE;
+    end if;
+    if
+        ltrim(" "         ) <> "" then
+      writeln(" ***** ltrim(\" \") does not work correct");
+      okay := FALSE;
+    end if;
+    if  ltrim("  "        ) <> "" or
+        ltrim("   "       ) <> "" or
+        ltrim("      "    ) <> "" or
+        ltrim("\t"        ) <> "" or
+        ltrim("\t "       ) <> "" or
+        ltrim(" \t"       ) <> "" or
+        ltrim(" \t "      ) <> "" or
+        ltrim("  \t  "    ) <> "" or
+        ltrim("\t\t"      ) <> "" or
+        ltrim("\t\t "     ) <> "" or
+        ltrim(" \t\t"     ) <> "" or
+        ltrim(" \t\t "    ) <> "" or
+        ltrim("  \t\t  "  ) <> "" or
+        ltrim("\t \t"     ) <> "" or
+        ltrim("\t \t "    ) <> "" or
+        ltrim(" \t \t"    ) <> "" or
+        ltrim(" \t \t "   ) <> "" or
+        ltrim("  \t \t  " ) <> "" or
+        ltrim("\n"        ) <> "" or
+        ltrim("\n "       ) <> "" or
+        ltrim(" \n"       ) <> "" or
+        ltrim(" \n "      ) <> "" or
+        ltrim("  \n  "    ) <> "" or
+        ltrim("\n\n"      ) <> "" or
+        ltrim("\n\n "     ) <> "" or
+        ltrim(" \n\n"     ) <> "" or
+        ltrim(" \n\n "    ) <> "" or
+        ltrim("  \n\n  "  ) <> "" or
+        ltrim("\n \n"     ) <> "" or
+        ltrim("\n \n "    ) <> "" or
+        ltrim(" \n \n"    ) <> "" or
+        ltrim(" \n \n "   ) <> "" or
+        ltrim("  \n \n  " ) <> "" then
+      writeln(" ***** ltrim(STRING) does not work correct");
+      okay := FALSE;
+    end if;
+    if  ltrim("A"         ) <> "A" or
+        ltrim("A "        ) <> "A " or
+        ltrim(" A"        ) <> "A" or
+        ltrim(" A "       ) <> "A " or
+        ltrim(" A  "      ) <> "A  " or
+        ltrim("  A "      ) <> "A " or
+        ltrim("  A  "     ) <> "A  " or
+        ltrim("  A   "    ) <> "A   " or
+        ltrim("   A  "    ) <> "A  " or
+        ltrim("   A   "   ) <> "A   " or
+        ltrim("AB"        ) <> "AB" or
+        ltrim("AB "       ) <> "AB " or
+        ltrim(" AB"       ) <> "AB" or
+        ltrim(" AB "      ) <> "AB " or
+        ltrim(" AB  "     ) <> "AB  " or
+        ltrim("  AB "     ) <> "AB " or
+        ltrim("  AB  "    ) <> "AB  " or
+        ltrim("  AB   "   ) <> "AB   " or
+        ltrim("   AB  "   ) <> "AB  " or
+        ltrim("   AB   "  ) <> "AB   " or
+        ltrim("A B"       ) <> "A B" or
+        ltrim("A B "      ) <> "A B " or
+        ltrim(" A B"      ) <> "A B" or
+        ltrim(" A B "     ) <> "A B " or
+        ltrim(" A B  "    ) <> "A B  " or
+        ltrim("  A B "    ) <> "A B " or
+        ltrim("  A B  "   ) <> "A B  " or
+        ltrim("  A B   "  ) <> "A B   " or
+        ltrim("   A B  "  ) <> "A B  " or
+        ltrim("   A B   " ) <> "A B   " or
+        ltrim("A9 B"      ) <> "A9 B" or
+        ltrim("A9 B "     ) <> "A9 B " or
+        ltrim(" A9 B"     ) <> "A9 B" or
+        ltrim(" A9 B "    ) <> "A9 B " or
+        ltrim(" A9 B  "   ) <> "A9 B  " or
+        ltrim("  A9 B "   ) <> "A9 B " or
+        ltrim("  A9 B  "  ) <> "A9 B  " or
+        ltrim("  A9 B   " ) <> "A9 B   " or
+        ltrim("   A9 B  " ) <> "A9 B  " or
+        ltrim("   A9 B   ") <> "A9 B   " or
+        ltrim("A B9"      ) <> "A B9" or
+        ltrim("A B9 "     ) <> "A B9 " or
+        ltrim(" A B9"     ) <> "A B9" or
+        ltrim(" A B9 "    ) <> "A B9 " or
+        ltrim(" A B9  "   ) <> "A B9  " or
+        ltrim("  A B9 "   ) <> "A B9 " or
+        ltrim("  A B9  "  ) <> "A B9  " or
+        ltrim("  A B9   " ) <> "A B9   " or
+        ltrim("   A B9  " ) <> "A B9  " or
+        ltrim("   A B9   ") <> "A B9   " or
+        ltrim("! !"       ) <> "! !" or
+        ltrim("! ! "      ) <> "! ! " or
+        ltrim(" ! !"      ) <> "! !" or
+        ltrim(" ! ! "     ) <> "! ! " or
+        ltrim(" ! !  "    ) <> "! !  " or
+        ltrim("  ! ! "    ) <> "! ! " or
+        ltrim("  ! !  "   ) <> "! !  " or
+        ltrim("  ! !   "  ) <> "! !   " or
+        ltrim("   ! !  "  ) <> "! !  " or
+        ltrim("   ! !   " ) <> "! !   " or
+        ltrim("\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\\16\x\
+              \\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\32\") <>
+              "x\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\32\" or
+        ltrim("\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\\16\\
+              \\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\32\") <> "" then
+      writeln(" ***** ltrim(STRING) does not work correct");
+      okay := FALSE;
+    end if;
+    if  rtrim(""          ) <> "" then
+      writeln(" ***** rtrim(\"\") does not work correct");
+      okay := FALSE;
+    end if;
+    if
+        rtrim(" "         ) <> "" then
+      writeln(" ***** rtrim(\" \") does not work correct");
+      okay := FALSE;
+    end if;
+    if  rtrim("  "        ) <> "" or
+        rtrim("   "       ) <> "" or
+        rtrim("      "    ) <> "" or
+        rtrim("\t"        ) <> "" or
+        rtrim("\t "       ) <> "" or
+        rtrim(" \t"       ) <> "" or
+        rtrim(" \t "      ) <> "" or
+        rtrim("  \t  "    ) <> "" or
+        rtrim("\t\t"      ) <> "" or
+        rtrim("\t\t "     ) <> "" or
+        rtrim(" \t\t"     ) <> "" or
+        rtrim(" \t\t "    ) <> "" or
+        rtrim("  \t\t  "  ) <> "" or
+        rtrim("\t \t"     ) <> "" or
+        rtrim("\t \t "    ) <> "" or
+        rtrim(" \t \t"    ) <> "" or
+        rtrim(" \t \t "   ) <> "" or
+        rtrim("  \t \t  " ) <> "" or
+        rtrim("\n"        ) <> "" or
+        rtrim("\n "       ) <> "" or
+        rtrim(" \n"       ) <> "" or
+        rtrim(" \n "      ) <> "" or
+        rtrim("  \n  "    ) <> "" or
+        rtrim("\n\n"      ) <> "" or
+        rtrim("\n\n "     ) <> "" or
+        rtrim(" \n\n"     ) <> "" or
+        rtrim(" \n\n "    ) <> "" or
+        rtrim("  \n\n  "  ) <> "" or
+        rtrim("\n \n"     ) <> "" or
+        rtrim("\n \n "    ) <> "" or
+        rtrim(" \n \n"    ) <> "" or
+        rtrim(" \n \n "   ) <> "" or
+        rtrim("  \n \n  " ) <> "" then
+      writeln(" ***** rtrim(STRING) does not work correct");
+      okay := FALSE;
+    end if;
+    if  rtrim("A"         ) <> "A" or
+        rtrim("A "        ) <> "A" or
+        rtrim(" A"        ) <> " A" or
+        rtrim(" A "       ) <> " A" or
+        rtrim(" A  "      ) <> " A" or
+        rtrim("  A "      ) <> "  A" or
+        rtrim("  A  "     ) <> "  A" or
+        rtrim("  A   "    ) <> "  A" or
+        rtrim("   A  "    ) <> "   A" or
+        rtrim("   A   "   ) <> "   A" or
+        rtrim("AB"        ) <> "AB" or
+        rtrim("AB "       ) <> "AB" or
+        rtrim(" AB"       ) <> " AB" or
+        rtrim(" AB "      ) <> " AB" or
+        rtrim(" AB  "     ) <> " AB" or
+        rtrim("  AB "     ) <> "  AB" or
+        rtrim("  AB  "    ) <> "  AB" or
+        rtrim("  AB   "   ) <> "  AB" or
+        rtrim("   AB  "   ) <> "   AB" or
+        rtrim("   AB   "  ) <> "   AB" or
+        rtrim("A B"       ) <> "A B" or
+        rtrim("A B "      ) <> "A B" or
+        rtrim(" A B"      ) <> " A B" or
+        rtrim(" A B "     ) <> " A B" or
+        rtrim(" A B  "    ) <> " A B" or
+        rtrim("  A B "    ) <> "  A B" or
+        rtrim("  A B  "   ) <> "  A B" or
+        rtrim("  A B   "  ) <> "  A B" or
+        rtrim("   A B  "  ) <> "   A B" or
+        rtrim("   A B   " ) <> "   A B" or
+        rtrim("A9 B"      ) <> "A9 B" or
+        rtrim("A9 B "     ) <> "A9 B" or
+        rtrim(" A9 B"     ) <> " A9 B" or
+        rtrim(" A9 B "    ) <> " A9 B" or
+        rtrim(" A9 B  "   ) <> " A9 B" or
+        rtrim("  A9 B "   ) <> "  A9 B" or
+        rtrim("  A9 B  "  ) <> "  A9 B" or
+        rtrim("  A9 B   " ) <> "  A9 B" or
+        rtrim("   A9 B  " ) <> "   A9 B" or
+        rtrim("   A9 B   ") <> "   A9 B" or
+        rtrim("A B9"      ) <> "A B9" or
+        rtrim("A B9 "     ) <> "A B9" or
+        rtrim(" A B9"     ) <> " A B9" or
+        rtrim(" A B9 "    ) <> " A B9" or
+        rtrim(" A B9  "   ) <> " A B9" or
+        rtrim("  A B9 "   ) <> "  A B9" or
+        rtrim("  A B9  "  ) <> "  A B9" or
+        rtrim("  A B9   " ) <> "  A B9" or
+        rtrim("   A B9  " ) <> "   A B9" or
+        rtrim("   A B9   ") <> "   A B9" or
+        rtrim("! !"       ) <> "! !" or
+        rtrim("! ! "      ) <> "! !" or
+        rtrim(" ! !"      ) <> " ! !" or
+        rtrim(" ! ! "     ) <> " ! !" or
+        rtrim(" ! !  "    ) <> " ! !" or
+        rtrim("  ! ! "    ) <> "  ! !" or
+        rtrim("  ! !  "   ) <> "  ! !" or
+        rtrim("  ! !   "  ) <> "  ! !" or
+        rtrim("   ! !  "  ) <> "   ! !" or
+        rtrim("   ! !   " ) <> "   ! !" or
+        rtrim("\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\\16\x\
+              \\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\32\") <>
+              "\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\\16\x" or
+        rtrim("\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\\16\\
+              \\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\32\") <> "" then
+      writeln(" ***** rtrim(STRING) does not work correct");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("String functions work correct");
     end if;

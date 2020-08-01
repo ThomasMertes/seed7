@@ -185,7 +185,9 @@ listtype arguments;
     obj1 = take_reference(arg_1(arguments));
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = obj1->type_of;
-      created_object->descriptor.property = obj1->descriptor.property;
+      memcpy(&created_object->descriptor, &obj1->descriptor,
+          sizeof(descriptorunion));
+      /* Copies the POSINFO flag (and all other flags): */
       INIT_CATEGORY_OF_OBJ(created_object, obj1->objcategory);
       created_object->value.objvalue = NULL;
       return bld_reference_temp(created_object);

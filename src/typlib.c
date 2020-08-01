@@ -677,6 +677,8 @@ listtype arguments;
     isit_type(arg_1(arguments));
     any_type = take_type(arg_1(arguments));
     if (any_type->result_type == NULL) {
+      /* trace1(arg_1(arguments));
+      printf("\n"); */
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     result = any_type->result_type;

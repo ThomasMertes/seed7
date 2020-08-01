@@ -292,6 +292,9 @@ How is the directory of the predefined include libraries determined?
 <li><a class="link" href="#cmd_config_value"><b>
 How does the Seed7 compiler get information about C compiler and runtime?
 </b></a></li>
+<li><a class="link" href="#seed7_package"><b>
+What should a binary Seed7 package install?
+</b></a></li>
 <li><a class="link" href="#bytecode"><b>
 Does the interpreter use bytecode?
 </b></a></li>
@@ -1899,6 +1902,42 @@ This configuration values describe data structures and
 implementation strategies used by the Seed7 runtime library.
 They do not depend on the C compiler and its runtime library,
 but they may change between releases of Seed7.
+</p></div>
+
+<div><br /><a name="seed7_package"><h3>What should a binary Seed7 package install?
+</h3></a><hr />
+<p>
+A binary Seed7 package needs to install four groups of files:
+</p><ul>
+<li>The executables of the interpreter (hi from <tt><span class="stri">"seed7/bin"</span></tt>) and the
+   compiler (comp from <tt><span class="stri">"seed7/prg"</span></tt>).</li>
+<li>The Seed7 include libraries (files from <tt><span class="stri">"seed7/lib"</span></tt> with the
+   extension <tt><span class="lib">.s7i</span></tt>).</li>
+<li>The static Seed7 object libraries (the files <tt><span class="lib">seed7_05.a</span></tt>, <tt><span class="lib">s7_con.a</span></tt>,
+   <tt><span class="lib">s7_draw.a</span></tt>, <tt><span class="lib">s7_data.a</span></tt> and <tt><span class="lib">s7_comp.a</span></tt> from <tt><span class="stri">"seed7/bin"</span></tt>).</li>
+<li>Documentation files (the files <tt>COPYING</tt> and <tt>LGPL</tt> and all files from
+   <tt><span class="stri">"seed7/doc"</span></tt>).</li>
+</ul><p>
+The table below shows the suggested directories for Linux/Unix/BSD:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Directory           </th><th> Macro         </th><th> Group of files          </th></tr>
+  
+  <tr><td> /usr/bin            </td><td> -             </td><td> Executables (hi + comp) </td></tr>
+  <tr><td> /usr/lib/seed7/lib  </td><td> SEED7_LIBRARY </td><td> Seed7 include libraries </td></tr>
+  <tr><td> /usr/lib/seed7/bin  </td><td> S7_LIB_DIR    </td><td> Static libraries        </td></tr>
+  
+</table></dd></dl><p>
+The macros must be defined, when the interpreter is compiled.
+This can be done by calling <tt>'make depend'</tt> with:
+</p><pre class="indent">
+make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend
+</pre><p>
+Afterwards the interpreter can be compiled with <tt>'make'</tt>. The Seed7
+compiler can be compiled in the directory <tt><span class="stri">"seed7/prg"</span></tt> with:
+</p><pre class="indent">
+./hi comp -O2 comp
+</pre><p>
 </p></div>
 
 <div><br /><a name="bytecode"><h3>Does the interpreter use bytecode?

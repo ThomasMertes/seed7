@@ -275,10 +275,13 @@ pre.indent {
 <li><a class="link" href="#os_cloneFile"><b>cloneFile</b></a></li>
 <li><a class="link" href="#os_moveFile"><b>moveFile</b></a></li>
 <li><a class="link" href="#os_argv_PROGRAM"><b>argv(PROGRAM)</b></a></li>
+<li><a class="link" href="#os_name_PROGRAM"><b>name(PROGRAM)</b></a></li>
 <li><a class="link" href="#os_path_PROGRAM"><b>path(PROGRAM)</b></a></li>
 <li><a class="link" href="#os_dir_PROGRAM"><b>dir(PROGRAM)</b></a></li>
+<li><a class="link" href="#os_file_PROGRAM"><b>file(PROGRAM)</b></a></li>
 <li><a class="link" href="#os_getenv"><b>getenv</b></a></li>
-<li><a class="link" href="#os_setenv"><b>setenv</b></a></li></ol></li>
+<li><a class="link" href="#os_setenv"><b>setenv</b></a></li>
+<li><a class="link" href="#os_environment"><b>environment</b></a></li></ol></li>
 <li><a class="link" href="#actions_file_start"><big><b>PRIMITIVE ACTIONS</b></big></a><ol>
 <li><a class="link" href="#actions_ACTION"><b>Actions for the type ACTION</b></a></li>
 <li><a class="link" href="#actions_array"><b>Actions for array types</b></a></li>
@@ -3032,13 +3035,13 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     with A elements of B,
                     (1 <span class="op">times</span> B)[1] => B
                     -1 <span class="op">times</span> B => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      [ A .. B ] <font color=blue>times</font> C    Array generation
+      [ A .. B ] <span class="op">times</span> C    Array generation
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
                     Type of argument C: <span class="type">baseType</span>,
-                    [ A .. B ] <font color=blue>times</font> C Generates an '<a class="type" href="#types_array">array</a> <span class="type">baseType</span>'
+                    [ A .. B ] <span class="op">times</span> C Generates an '<a class="type" href="#types_array">array</a> <span class="type">baseType</span>'
                     with pred(B - A) elements of C,
-                    [ -1 .. -2 ] <font color=blue>times</font> B => empty array,
-                    [ -1 .. -3 ] <font color=blue>times</font> B => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    [ -1 .. -2 ] <span class="op">times</span> B => empty array,
+                    [ -1 .. -3 ] <span class="op">times</span> B => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Indices:
       [ A ]     Access one array element
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
@@ -3064,7 +3067,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <span class="func">minIdx</span>(A) Minimal index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     minIdx(3 <span class="op">times</span> TRUE) => 1,
-                    minIdx([-1 .. 4] <font color=blue>times</font> TRUE) => -1 )
+                    minIdx([-1 .. 4] <span class="op">times</span> TRUE) => -1 )
       <span class="func">maxIdx</span>(A) Maximal index of array
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     maxIdx(3 <span class="op">times</span> TRUE) => 3 )
@@ -7981,7 +7984,7 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
     Seed7 provides a portable access to the services provided
   by an operating system. This interface is oriented towards
   Posix and Unix. The functions in this chapter are defined
-  in the libraries <span class="stri">"<span class="lib">osfiles.s7i</span>"</span> and <span class="stri">"<span class="lib">dir.s7i</span>"</span>.
+  in the libraries <span class="stri">"<span class="lib">osfiles.s7i</span>"</span>, <span class="stri">"<span class="lib">dir.s7i</span>"</span> and <span class="stri">"<span class="lib">environment.s7i</span>"</span>.
 </p>
 
 <a name="os_Standard_path_representation"><h3>12.1 Standard path representation</h3></a>
@@ -8060,12 +8063,11 @@ dir_array := readDir(<span class="stri">"."</span>);
 
 <a name="os_openDir"><h3>12.3 openDir</h3></a>
 <p>
-    The function <tt><span class="func">openDir</span></tt> opens the specified
-  directory as file. Each line in this directory file
-  contains the filename of a file present in the the
-  directory. The files <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt> are left out from the
-  directory file. Note that only filenames can be read
-  from the directory file. Additional information must be
+    The function <tt><span class="func">openDir</span></tt> opens the specified directory as file.
+  Each line in this directory file contains the filename of a
+  file present in the the directory. The files <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt> are
+  left out from the directory file. Note that only filenames can
+  be read from the directory file. Additional information must be
   obtained with other calls.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_file">file</a>: openDir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dirPath) <span class="keywd">is</span> ...
@@ -8104,8 +8106,8 @@ file_name := getln(dir_file);
 
 <a name="os_getcwd"><h3>12.4 getcwd</h3></a>
 <p>
-    The function <tt><span class="func">getcwd</span></tt> returns the current working
-  directory of the calling process as absolute path.
+    The function <tt><span class="func">getcwd</span></tt> returns the current working directory
+  of the calling process as absolute path.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getcwd <span class="keywd">is</span> ...
 </pre>
@@ -8129,8 +8131,8 @@ my_dir := getcwd;
 
 <a name="os_chdir"><h3>12.5 chdir</h3></a>
 <p>
-    The function <tt><span class="func">chdir</span></tt> changes the current working
-  directory of the calling process to the specified directory.
+    The function <tt><span class="func">chdir</span></tt> changes the current working directory
+  of the calling process to the specified directory.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: chdir (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
 </pre>
@@ -8176,11 +8178,16 @@ mkdir(<span class="stri">"my_dir"</span>);
 
 <a name="os_homeDir"><h3>12.7 homeDir</h3></a>
 <p>
-    The function <tt><span class="func">homeDir</span></tt> returns the home directory current
-  of the user as absolute path.
+    The function <tt><span class="func">homeDir</span></tt> returns the home directory of the user
+  as absolute path.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: homeDir <span class="keywd">is</span> ...
-</pre>
+</pre><p>
+  This function should be preferred over the use of an environment
+  variable such as <tt>$HOME</tt>. <tt>$HOME</tt> is not supported under all operating
+  systems and it is not guaranteed, that it uses the <a class="link" href="#os_Standard_path_representation">standard path
+  representation</a>.
+</p>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The absolute path of the home directory.
 </p></dd></dl></div>
@@ -8201,8 +8208,7 @@ my_dir := homeDir;
 
 <a name="os_fileType"><h3>12.8 fileType</h3></a>
 <p>
-    The type of a file can determined with <tt><span class="func">fileType</span></tt> or
-  <tt><span class="func">fileTypeSL</span></tt>:
+    The type of a file can determined with <tt><span class="func">fileType</span></tt> or <tt><span class="func">fileTypeSL</span></tt>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileType (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileTypeSL (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
@@ -8454,8 +8460,8 @@ my_dir := homeDir;
 
 <a name="os_symlink"><h3>12.18 symlink</h3></a>
 <p>
-    The function <tt><span class="func">symlink</span></tt> creates a symbolic link called
-  <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
+    The function <tt><span class="func">symlink</span></tt> creates a symbolic link called <tt>'dest'</tt>
+  that contains the string referred by <tt>'source'</tt>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: symlink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dest) <span class="keywd">is</span> ...
 </pre>
@@ -8479,8 +8485,7 @@ my_dir := homeDir;
 
 <a name="os_removeFile"><h3>12.19 removeFile</h3></a>
 <p>
-    The function <tt><span class="func">removeFile</span></tt> removes a file or
-  empty directory:
+    The function <tt><span class="func">removeFile</span></tt> removes a file or empty directory:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: removeFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
@@ -8496,8 +8501,8 @@ my_dir := homeDir;
 
 <a name="os_removeAnyFile"><h3>12.20 removeAnyFile</h3></a>
 <p>
-    The function <tt><span class="func">removeAnyFile</span></tt> removes a file independent
-  of its file type:
+    The function <tt><span class="func">removeAnyFile</span></tt> removes a file independent of its
+  file type:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: removeAnyFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
@@ -8513,8 +8518,7 @@ my_dir := homeDir;
 
 <a name="os_copyFile"><h3>12.21 copyFile</h3></a>
 <p>
-    The function <tt><span class="func">copyFile</span></tt> copies a file or directory
-  tree:
+    The function <tt><span class="func">copyFile</span></tt> copies a file or directory tree:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: copyFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sourcePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: destPath) <span class="keywd">is</span> ...
 </pre><p>
@@ -8523,10 +8527,9 @@ my_dir := homeDir;
   The destination file gets the permissions/mode defined by umask.
   The user executing the program is the owner of the destination file.
   The timestamps of the destination file are set to the current time.
-  Symbolic links in sourcePath are always followed.
-  Therefore <tt>'copyFile'</tt> will never create a symbolic link.
-  Note that <tt>'copyFile'</tt> does not preserve hard
-  links (they are resolved to distinct files).
+  Symbolic links in sourcePath are always followed. Therefore
+  <tt>'copyFile'</tt> will never create a symbolic link. Note that <tt>'copyFile'</tt>
+  does not preserve hard links (they are resolved to distinct files).
 </p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
@@ -8543,8 +8546,7 @@ my_dir := homeDir;
 
 <a name="os_cloneFile"><h3>12.22 cloneFile</h3></a>
 <p>
-    The function <tt><span class="func">cloneFile</span></tt> clones a file or directory
-  tree:
+    The function <tt><span class="func">cloneFile</span></tt> clones a file or directory tree:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: cloneFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sourcePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: destPath) <span class="keywd">is</span> ...
 </pre><p>
@@ -8568,21 +8570,19 @@ my_dir := homeDir;
 
 <a name="os_moveFile"><h3>12.23 moveFile</h3></a>
 <p>
-    The function <tt><span class="func">moveFile</span></tt> moves and/or renames a
-  file or directory tree:
+    The function <tt><span class="func">moveFile</span></tt> moves and/or renames a file or
+  directory tree:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: moveFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sourcePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: destPath) <span class="keywd">is</span> ...
 </pre><p>
-  The function uses the C <tt>'rename()'</tt> function.
-  When <tt>'rename()'</tt> fails the file (or directory tree)
-  is cloned with <tt>'cloneFile'</tt> (which preserves
-  permissions/mode, ownership and timestamps) to the new place
-  and with the new name. When <tt>'cloneFile'</tt> succeeds
-  the original file is deleted. When <tt>'cloneFile'</tt> fails (no space on
-  device or other reason) all remains of the failed clone are
-  removed. Note that <tt>'cloneFile'</tt> works for
-  symbolic links but does not preserve hard links (they are
-  resolved to distinct files).
+  The function uses the C <tt>'rename()'</tt> function. When <tt>'rename()'</tt> fails
+  the file (or directory tree) is cloned with <tt>'cloneFile'</tt> (which
+  preserves permissions/mode, ownership and timestamps) to the new
+  place and with the new name. When <tt>'cloneFile'</tt> succeeds the original
+  file is deleted. When <tt>'cloneFile'</tt> fails (no space on device or
+  other reason) all remains of the failed clone are removed. Note
+  that <tt>'cloneFile'</tt> works for symbolic links but does not preserve
+  hard links (they are resolved to distinct files).
 </p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
@@ -8599,8 +8599,9 @@ my_dir := homeDir;
 
 <a name="os_argv_PROGRAM"><h3>12.24 argv(PROGRAM)</h3></a>
 <p>
-    The function <tt>'argv(PROGRAM)'</tt> returns the argument
-  vector of the program as array of strings.
+    The function <tt><span class="func">argv(PROGRAM)</span></tt> returns the argument vector of
+  the program as array of strings. The name of the program is
+  not part of the argument vector.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: argv (PROGRAM) <span class="keywd">is</span> ...
 </pre>
@@ -8608,10 +8609,29 @@ my_dir := homeDir;
     An array of strings containing the argument vector.
 </p></dd></dl></div><p></p>
 
-<a name="os_path_PROGRAM"><h3>12.25 path(PROGRAM)</h3></a>
+<a name="os_name_PROGRAM"><h3>12.25 name(PROGRAM)</h3></a>
 <p>
-    The function <tt>'path(PROGRAM)'</tt> returns the absolute
-  path of the program.
+    The function <tt><span class="func">name(PROGRAM)</span></tt> returns the name of the program
+  without path and extension. The name returned by <tt><span class="func">name(PROGRAM)</span></tt>
+  is the same for interpreted and compiled programs. The function
+  <tt><span class="func">name(PROGRAM)</span></tt> does not follow symbolic links. It determines,
+  with which name a program was called. When several symbolic
+  links refer to one program <tt><span class="func">name(PROGRAM)</span></tt> returns the name
+  of the symbolic link.
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: name (PROGRAM) <span class="keywd">is</span> ...
+</pre>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    The name of the program.
+</p></dd></dl></div><p></p>
+
+<a name="os_path_PROGRAM"><h3>12.26 path(PROGRAM)</h3></a>
+<p>
+    The function <tt><span class="func">path(PROGRAM)</span></tt> returns the absolute path
+  of the program. For an interpreted program this is the
+  absolute path of the source file. For a compiled program
+  this is the absolute path of the executable. The function
+  <tt><span class="func">path(PROGRAM)</span></tt> does follow symbolic links.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: path (PROGRAM) <span class="keywd">is</span> ...
 </pre>
@@ -8619,12 +8639,12 @@ my_dir := homeDir;
     The absolute path of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_dir_PROGRAM"><h3>12.26 dir(PROGRAM)</h3></a>
+<a name="os_dir_PROGRAM"><h3>12.27 dir(PROGRAM)</h3></a>
 <p>
-    The function <tt>'dir(PROGRAM)'</tt> returns the absolute
-  path of the directory containing the program. The dir(PROGRAM)
-  function allows placing configuration data in the directory
-  of the program.
+    The function <tt><span class="func">dir(PROGRAM)</span></tt> returns the absolute path of the
+  directory containing the program. The function <tt><span class="func">dir(PROGRAM)</span></tt>
+  allows placing configuration data in the directory of the program.
+  <tt><span class="func">dir(PROGRAM)</span></tt> is based on <tt><span class="func">path(PROGRAM)</span></tt>.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: dir (PROGRAM) <span class="keywd">is</span> ...
 </pre>
@@ -8632,14 +8652,25 @@ my_dir := homeDir;
     The absolute path of the directory containing the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_getenv"><h3>12.27 getenv</h3></a>
+<a name="os_file_PROGRAM"><h3>12.28 file(PROGRAM)</h3></a>
 <p>
-    The function <tt>'getenv'</tt> determines the value of an
+    The function <tt><span class="func">file(PROGRAM)</span></tt> returns the filename of the
+  program without path. <tt><span class="func">file(PROGRAM)</span></tt> is based on <tt><span class="func">path(PROGRAM)</span></tt>.
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: file (PROGRAM) <span class="keywd">is</span> ...
+</pre>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    The filename of the program.
+</p></dd></dl></div><p></p>
+
+<a name="os_getenv"><h3>12.29 getenv</h3></a>
+<p>
+    The function <tt><span class="func">getenv</span></tt> determines the value of an
   environment variable.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: getenv (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
 </pre><p>
-  The <tt>'getenv'</tt> function searches the environment for an
+  The function <tt><span class="func">getenv</span></tt> searches the environment for an
   environment variable with the given <tt>'name'</tt>. When such
   an environment variable exists the corresponding <tt><a class="type" href="#types_string">string</a></tt>
   value is returned.
@@ -8654,14 +8685,14 @@ my_dir := homeDir;
         enough memory to represent the result <tt><a class="type" href="#types_string">string</a></tt>.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setenv"><h3>12.28 setenv</h3></a>
+<a name="os_setenv"><h3>12.30 setenv</h3></a>
 <p>
-    The function <tt>'setenv'</tt> adds or changes an environment
+    The function <tt><span class="func">setenv</span></tt> adds or changes an environment
   variable.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setenv (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: value) <span class="keywd">is</span> ...
 </pre><p>
-  The <tt>'setenv'</tt> function searches the environment for an
+  The function <tt><span class="func">setenv</span></tt> searches the environment for an
   environment variable with the given <tt>'name'</tt>. When such
   an environment variable exists the corresponding value is
   changed to <tt>'value'</tt>. When no environment variable with
@@ -8674,6 +8705,21 @@ my_dir := homeDir;
         the system string type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
         <dd>A system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_environment"><h3>12.31 environment</h3></a>
+<p>
+    The function <tt><span class="func">environment</span></tt> returns the list of
+  environment variable names as array of strings.
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: environment <span class="keywd">is</span> ...
+</pre>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    The list of environment variable names.
+</p></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to create the result.</dd>
 </dl></dd></dl></div><p></p>
 
 <a name="actions_file_start"></a><p></p>
@@ -9152,6 +9198,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>CMD_CLONE_FILE</td>      <td>cmd_clone_file</td>      <td>cmdCloneFile</td></tr>
     <tr><td>CMD_CONFIG_VALUE</td>    <td>cmd_config_value</td>    <td>cmdConfigValue</td></tr>
     <tr><td>CMD_COPY_FILE</td>       <td>cmd_copy_file</td>       <td>cmdCopyFile</td></tr>
+    <tr><td>CMD_ENVIRONMENT</td>     <td>cmd_environment</td>     <td>cmdEnvironment</td></tr>
     <tr><td>CMD_FILEMODE</td>        <td>cmd_filemode</td>        <td>cmdFileMode</td></tr>
     <tr><td>CMD_FILESIZE</td>        <td>cmd_filesize</td>        <td>cmdFileSize</td></tr>
     <tr><td>CMD_FILETYPE</td>        <td>cmd_filetype</td>        <td>cmdFileType</td></tr>
@@ -9161,6 +9208,8 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>CMD_GET_ATIME</td>       <td>cmd_get_atime</td>       <td>cmdGetATime</td></tr>
     <tr><td>CMD_GET_CTIME</td>       <td>cmd_get_ctime</td>       <td>cmdGetCTime</td></tr>
     <tr><td>CMD_GET_MTIME</td>       <td>cmd_get_mtime</td>       <td>cmdGetMTime</td></tr>
+    <tr><td>CMD_GET_SEARCH_PATH</td> <td>cmd_getSearchPath</td>   <td>cmdGetSearchPath</td></tr>
+    <tr><td>CMD_HOME_DIR</td>        <td>cmd_homeDir</td>         <td>cmdHomeDir</td></tr>
     <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
     <tr><td>CMD_MKDIR</td>           <td>cmd_mkdir</td>           <td>cmdMkdir</td></tr>
     <tr><td>CMD_MOVE</td>            <td>cmd_move</td>            <td>cmdMove</td></tr>
@@ -9488,6 +9537,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>ITF_CPY2</td>            <td>itf_cpy2</td>            <td>=</td></tr>
     <tr><td>ITF_CREATE</td>          <td>itf_create</td>          <td>&nbsp;</td></tr>
     <tr><td>ITF_CREATE2</td>         <td>itf_create2</td>         <td>&nbsp;</td></tr>
+    <tr><td>ITF_DESTR</td>           <td>itf_destr</td>           <td>itfDestr</td></tr>
     <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
     <tr><td>ITF_HASHCODE</td>        <td>itf_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>

@@ -1109,8 +1109,7 @@ stritype stri_from;
     } else {
       result->size = new_size;
       if (new_size != 0) {
-        memcpy(result->mem, stri_from->mem,
-            new_size * sizeof(strelemtype));
+        memcpy(result->mem, stri_from->mem, new_size * sizeof(strelemtype));
       } /* if */
     } /* if */
     return result;
@@ -1322,8 +1321,7 @@ inttype stop;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
-        memcpy(result->mem, stri->mem,
-            result_size * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, result_size * sizeof(strelemtype));
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0))) {
@@ -1637,8 +1635,7 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = length;
-        memcpy(result->mem, stri->mem,
-            length * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
       } /* if */
     } /* if */
     return result;
@@ -1733,8 +1730,7 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = length;
-        memcpy(result->mem, stri->mem,
-            length * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
       } /* if */
     } /* if */
     return result;
@@ -1846,8 +1842,7 @@ stritype stri;
       return NULL;
     } else {
       result->size = length;
-      memcpy(result->mem, &stri->mem[start],
-          length * sizeof(strelemtype));
+      memcpy(result->mem, &stri->mem[start], length * sizeof(strelemtype));
       return result;
     } /* if */
   } /* strLtrim */
@@ -1897,8 +1892,7 @@ inttype factor;
           } else if (len != 0) {
             result_pointer = result->mem;
             for (number = factor; number > 0; number--) {
-              memcpy(result_pointer, stri->mem,
-                  len * sizeof(strelemtype));
+              memcpy(result_pointer, stri->mem, len * sizeof(strelemtype));
               result_pointer += len;
             } /* for */
           } /* if */
@@ -2478,8 +2472,7 @@ stritype stri;
       return NULL;
     } else {
       result->size = length;
-      memcpy(result->mem, stri->mem,
-          length * sizeof(strelemtype));
+      memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
       return result;
     } /* if */
   } /* strRtrim */
@@ -2963,8 +2956,7 @@ stritype stri;
       return NULL;
     } else {
       result->size = length;
-      memcpy(result->mem, &stri->mem[start],
-          length * sizeof(strelemtype));
+      memcpy(result->mem, &stri->mem[start], length * sizeof(strelemtype));
       return result;
     } /* if */
   } /* strTrim */

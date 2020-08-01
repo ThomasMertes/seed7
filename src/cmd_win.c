@@ -156,7 +156,7 @@ int *w_argc;
           argumentCount = 1;
           destPos = destBuffer;
           if (*sourcePos == '"') {
-	    sourcePos++;
+            sourcePos++;
             while (*sourcePos != '"' && *sourcePos != 0) {
               *destPos = *sourcePos;
               sourcePos++;

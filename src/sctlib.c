@@ -86,7 +86,9 @@ listtype arguments;
             return raise_exception(SYS_MEM_EXCEPTION);
           } /* if */
           result->type_of = stru_from->type_of;
-          result->descriptor.property = stru_from->descriptor.property;
+          memcpy(&result->descriptor, &stru_from->descriptor,
+              sizeof(descriptorunion));
+          /* Copies the POSINFO flag (and all other flags): */
           INIT_CATEGORY_OF_OBJ(result, stru_from->objcategory);
           result->value.structvalue = new_stru;
         } else {

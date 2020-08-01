@@ -1603,23 +1603,34 @@ listtype arguments;
   {
     stritype stri;
     memsizetype length;
+    memsizetype result_size;
     stritype result;
 
   /* str_rtrim */
     isit_stri(arg_1(arguments));
     stri = take_stri(arg_1(arguments));
-    length = stri->size;
-    while (length > 0 && stri->mem[length - 1] <= ' ') {
-      length--;
+    result_size = stri->size;
+    while (result_size > 0 && stri->mem[result_size - 1] <= ' ') {
+      result_size--;
     } /* while */
-    if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return raise_exception(SYS_MEM_EXCEPTION);
+    if (TEMP_OBJECT(arg_1(arguments))) {
+      length = stri->size;
+      SHRINK_STRI(result, stri, length, result_size);
+      if (result == NULL) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+      COUNT3_STRI(length, result_size);
+      result->size = result_size;
+      arg_1(arguments)->value.strivalue = NULL;
     } else {
-      result->size = length;
+      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+      result->size = result_size;
       memcpy(result->mem, stri->mem,
-          length * sizeof(strelemtype));
-      return bld_stri_temp(result);
+          result_size * sizeof(strelemtype));
     } /* if */
+    return bld_stri_temp(result);
   } /* str_rtrim */
 
 

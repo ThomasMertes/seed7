@@ -612,6 +612,11 @@ int main (int argc, char **argv)
       puts("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', 'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}");
     } else if (getenv("HOME") != NULL) {
       puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
+#ifdef OS_PATH_HAS_DRIVE_LETTERS
+    } else {
+      puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
+      puts("#define DEFAULT_HOME_DIR {'C', ':', '\\\\', 0}");
+#endif
     } /* if */
     if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";

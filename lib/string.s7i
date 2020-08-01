@@ -405,6 +405,22 @@ const func string: lower (in string: stri)                     is action "STR_LO
 const func string: trim (in string: stri)                      is action "STR_TRIM";
 
 
+(**
+ *  Return string with leading whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with leading whitespace omitted.
+ *)
+const func string: ltrim (in string: stri)                     is action "STR_LTRIM";
+
+
+(**
+ *  Return string with trailing whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with trailing whitespace omitted.
+ *)
+const func string: rtrim (in string: stri)                     is action "STR_RTRIM";
+
+
 const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
 const func string: utf8ToStri (in string: stri8)               is action "STR_UTF8TOSTRI";
 

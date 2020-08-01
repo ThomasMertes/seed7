@@ -120,6 +120,7 @@ enable_input.s7i Templates to enable file output for a type
 enable_io.s7i Templates to enable file I/O for a given type
 enable_output.s7i Templates to enable file output for a type
 encoding.s7i Encoding and decoding functions
+environment.s7i Support for program arguments and environment.
 external_file.s7i File implementation type describing OS files
 field.s7i    Filter file which reads the input fieldwise
 file.s7i     Interface type describing sequential files

@@ -1221,8 +1221,9 @@ objecttype obj_from;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* any_var_initialisation */
-    obj_to->descriptor.property = obj_from->descriptor.property;
+    memcpy(&obj_to->descriptor, &obj_from->descriptor, sizeof(descriptorunion));
     INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
+    SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
     obj_to->type_of = obj_from->type_of;
     do_create(obj_to, obj_from, &err_info);
     return err_info == OKAY_NO_ERROR;

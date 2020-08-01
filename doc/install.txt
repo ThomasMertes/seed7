@@ -13,6 +13,9 @@
 (*                                                                  *)
 (********************************************************************)
 
+    This file describes the installation of the Seed7 source. What
+  a binary Seed7 package should install is described in the FAQ.
+
 
 INSTALLATION
 ============

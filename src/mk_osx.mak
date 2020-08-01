@@ -182,8 +182,9 @@ version.h:
 	echo "#define DRAW_LIB \"$(DRAW_LIB)\"" >> version.h
 	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> version.h
-	cd ../bin; echo "#define S7_LIB_DIR \"`pwd`\"" >> ../src/version.h; cd ../src
-	cd ../lib; echo "#define SEED7_LIBRARY \"`pwd`\"" >> ../src/version.h; cd ../src
+	$(CC) setpaths.c -o setpaths
+	./setpaths S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
+	rm setpaths
 
 depend: version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend

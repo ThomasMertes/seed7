@@ -2048,14 +2048,21 @@ stritype cmdHomeDir ()
   {
     static const os_chartype home_dir_env_var[] = HOME_DIR_ENV_VAR;
     os_stritype os_home_dir;
+#ifdef DEFAULT_HOME_DIR
+    static const os_chartype default_home_dir[] = DEFAULT_HOME_DIR;
+#endif
     errinfotype err_info = OKAY_NO_ERROR;
     stritype home_dir;
 
   /* cmdHomeDir */
     os_home_dir = os_getenv(home_dir_env_var);
     if (os_home_dir == NULL) {
+#ifdef DEFAULT_HOME_DIR
+      home_dir = cp_from_os_path(default_home_dir, &err_info);
+#else
       raise_error(FILE_ERROR);
       home_dir = NULL;
+#endif
     } else {
       home_dir = cp_from_os_path(os_home_dir, &err_info);
       os_getenv_string_free(os_home_dir);

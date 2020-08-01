@@ -30,9 +30,18 @@
 #include "stdio.h"
 #include "stddef.h"
 #include "ctype.h"
+
+#ifdef USE_DIRENT
+#include "dirent.h"
+#endif
+#if defined USE_DIRECT || defined USE_DIRDOS || defined USE_DIRWIN
 #include "direct.h"
+#endif
 #ifdef OS_STRI_USES_CODEPAGE
 #include "dos.h"
+#endif
+#ifdef UNISTD_H_PRESENT
+#include "unistd.h"
 #endif
 
 #include "os_decls.h"
@@ -268,6 +277,8 @@ int get_codepage (void)
 int main (int argc, char **argv)
 
   {
+    char **curr_arg;
+    int found;
     os_chartype buffer[BUFFER_LEN];
 
   /* main */
@@ -277,14 +288,34 @@ int main (int argc, char **argv)
 #endif
     chdir("../bin");
     printf("#define S7_LIB_DIR \"");
-    get_cwd_to_buffer(buffer);
-    write_as_utf8(buffer);
+    found = 0;
+    for (curr_arg = argv; *curr_arg != NULL; curr_arg++) {
+      if (memcmp(*curr_arg, "S7_LIB_DIR=", 11 * sizeof(char)) == 0 &&
+          (*curr_arg)[11] != '\0') {
+        found = 1;
+        printf("%s", &(*curr_arg)[11]);
+      } /* if */
+    } /* for */
+    if (!found) {
+      get_cwd_to_buffer(buffer);
+      write_as_utf8(buffer);
+    } /* if */
     printf("\"\n");
     chdir("../prg"); /* Use ../prg when ../lib does not exist */
     chdir("../lib");
     printf("#define SEED7_LIBRARY \"");
-    get_cwd_to_buffer(buffer);
-    write_as_utf8(buffer);
+    found = 0;
+    for (curr_arg = argv; *curr_arg != NULL; curr_arg++) {
+      if (memcmp(*curr_arg, "SEED7_LIBRARY=", 14 * sizeof(char)) == 0 &&
+          (*curr_arg)[14] != '\0') {
+        found = 1;
+        printf("%s", &(*curr_arg)[14]);
+      } /* if */
+    } /* for */
+    if (!found) {
+      get_cwd_to_buffer(buffer);
+      write_as_utf8(buffer);
+    } /* if */
     printf("\"\n");
     /* A DOS subprocess has not its own current working directory.  */
     /* A DOS chdir() changes also the current working directory of  */

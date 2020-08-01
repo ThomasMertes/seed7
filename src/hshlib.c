@@ -204,12 +204,14 @@ errinfotype *err_info;
     if (!ALLOC_RECORD(dest_helem, helemrecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      dest_helem->key.descriptor.property = source_helem->key.descriptor.property;
+      memcpy(&dest_helem->key.descriptor, &source_helem->key.descriptor, sizeof(descriptorunion));
       INIT_CATEGORY_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
+      SET_ANY_FLAG(&dest_helem->key, HAS_POSINFO(&source_helem->key));
       dest_helem->key.type_of = source_helem->key.type_of;
       param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
-      dest_helem->data.descriptor.property = source_helem->data.descriptor.property;
+      memcpy(&dest_helem->data.descriptor, &source_helem->data.descriptor, sizeof(descriptorunion));
       INIT_CATEGORY_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
+      SET_ANY_FLAG(&dest_helem->data, HAS_POSINFO(&source_helem->data));
       dest_helem->data.type_of = source_helem->data.type_of;
       param3_call(data_create_func, &dest_helem->data, SYS_CREA_OBJECT, &source_helem->data);
       if (source_helem->next_less != NULL) {
@@ -316,8 +318,9 @@ errinfotype *err_info;
       } /* if */
     } /* if */
     dest_obj = &(*key_array)->arr[*arr_pos];
-    dest_obj->descriptor.property = curr_helem->key.descriptor.property;
+    memcpy(&dest_obj->descriptor, &curr_helem->key.descriptor, sizeof(descriptorunion));
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
+    SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->key));
     dest_obj->type_of = curr_helem->key.type_of;
     param3_call(key_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->key);
     (*arr_pos)++;
@@ -431,8 +434,9 @@ errinfotype *err_info;
       } /* if */
     } /* if */
     dest_obj = &(*value_array)->arr[*arr_pos];
-    dest_obj->descriptor.property = curr_helem->data.descriptor.property;
+    memcpy(&dest_obj->descriptor, &curr_helem->data.descriptor, sizeof(descriptorunion));
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
+    SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->data));
     dest_obj->type_of = curr_helem->data.type_of;
     param3_call(value_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->data);
     (*arr_pos)++;

@@ -758,6 +758,7 @@ objecttype object;
       case CONSTENUMOBJECT:
       case VARENUMOBJECT:
       case ENUMLITERALOBJECT:
+      case MATCHOBJECT:
       case FWDREFOBJECT:
         FREE_OBJECT(object);
         break;

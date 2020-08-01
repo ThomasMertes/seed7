@@ -153,10 +153,13 @@ CONTENTS
   12.22   cloneFile
   12.23   moveFile
   12.24   argv(PROGRAM)
-  12.25   path(PROGRAM)
-  12.26   dir(PROGRAM)
-  12.27   getenv
-  12.28   setenv
+  12.25   name(PROGRAM)
+  12.26   path(PROGRAM)
+  12.27   dir(PROGRAM)
+  12.28   file(PROGRAM)
+  12.29   getenv
+  12.30   setenv
+  12.31   environment
   13.   PRIMITIVE ACTIONS
   13.1    Actions for the type ACTION
   13.2    Actions for array types
@@ -7859,7 +7862,7 @@ CONTENTS
     Seed7 provides a portable access to the services provided
   by an operating system. This interface is oriented towards
   Posix and Unix. The functions in this chapter are defined
-  in the libraries "osfiles.s7i" and "dir.s7i".
+  in the libraries "osfiles.s7i", "dir.s7i" and "environment.s7i".
 
 
 12.1 Standard path representation
@@ -7938,12 +7941,11 @@ CONTENTS
 
 12.3 openDir
 
-    The function 'openDir' opens the specified
-  directory as file. Each line in this directory file
-  contains the filename of a file present in the the
-  directory. The files "." and ".." are left out from the
-  directory file. Note that only filenames can be read
-  from the directory file. Additional information must be
+    The function 'openDir' opens the specified directory as file.
+  Each line in this directory file contains the filename of a
+  file present in the the directory. The files "." and ".." are
+  left out from the directory file. Note that only filenames can
+  be read from the directory file. Additional information must be
   obtained with other calls.
 
     const func file: openDir (in string: dirPath) is ...
@@ -7982,8 +7984,8 @@ CONTENTS
 
 12.4 getcwd
 
-    The function 'getcwd' returns the current working
-  directory of the calling process as absolute path.
+    The function 'getcwd' returns the current working directory
+  of the calling process as absolute path.
 
     const func string: getcwd is ...
 
@@ -8007,8 +8009,8 @@ CONTENTS
 
 12.5 chdir
 
-    The function 'chdir' changes the current working
-  directory of the calling process to the specified directory.
+    The function 'chdir' changes the current working directory
+  of the calling process to the specified directory.
 
     const proc: chdir (in string: name) is ...
 
@@ -8054,10 +8056,15 @@ CONTENTS
 
 12.7 homeDir
 
-    The function 'homeDir' returns the home directory current
-  of the user as absolute path.
+    The function 'homeDir' returns the home directory of the user
+  as absolute path.
 
     const func string: homeDir is ...
+
+  This function should be preferred over the use of an environment
+  variable such as '$HOME'. '$HOME' is not supported under all operating
+  systems and it is not guaranteed, that it uses the standard path
+  representation.
 
   Returns:
     The absolute path of the home directory.
@@ -8079,8 +8086,7 @@ CONTENTS
 
 12.8 fileType
 
-    The type of a file can determined with 'fileType' or
-  'fileTypeSL':
+    The type of a file can determined with 'fileType' or 'fileTypeSL':
 
     const func integer: fileType (in string: filePath) is ...
     const func integer: fileTypeSL (in string: filePath) is ...
@@ -8332,8 +8338,8 @@ CONTENTS
 
 12.18 symlink
 
-    The function 'symlink' creates a symbolic link called
-  'dest' that contains the string referred by 'source':
+    The function 'symlink' creates a symbolic link called 'dest'
+  that contains the string referred by 'source':
 
     const proc: symlink (in string: source, in string: dest) is ...
 
@@ -8357,8 +8363,7 @@ CONTENTS
 
 12.19 removeFile
 
-    The function 'removeFile' removes a file or
-  empty directory:
+    The function 'removeFile' removes a file or empty directory:
 
     const proc: removeFile (in string: filePath) is ...
 
@@ -8374,8 +8379,8 @@ CONTENTS
 
 12.20 removeAnyFile
 
-    The function 'removeAnyFile' removes a file independent
-  of its file type:
+    The function 'removeAnyFile' removes a file independent of its
+  file type:
 
     const proc: removeAnyFile (in string: filePath) is ...
 
@@ -8391,8 +8396,7 @@ CONTENTS
 
 12.21 copyFile
 
-    The function 'copyFile' copies a file or directory
-  tree:
+    The function 'copyFile' copies a file or directory tree:
 
     const proc: copyFile (in string: sourcePath, in string: destPath) is ...
 
@@ -8401,10 +8405,9 @@ CONTENTS
   The destination file gets the permissions/mode defined by umask.
   The user executing the program is the owner of the destination file.
   The timestamps of the destination file are set to the current time.
-  Symbolic links in sourcePath are always followed.
-  Therefore 'copyFile' will never create a symbolic link.
-  Note that 'copyFile' does not preserve hard
-  links (they are resolved to distinct files).
+  Symbolic links in sourcePath are always followed. Therefore
+  'copyFile' will never create a symbolic link. Note that 'copyFile'
+  does not preserve hard links (they are resolved to distinct files).
 
   Possible exceptions:
     MEMORY_ERROR
@@ -8421,8 +8424,7 @@ CONTENTS
 
 12.22 cloneFile
 
-    The function 'cloneFile' clones a file or directory
-  tree:
+    The function 'cloneFile' clones a file or directory tree:
 
     const proc: cloneFile (in string: sourcePath, in string: destPath) is ...
 
@@ -8446,21 +8448,19 @@ CONTENTS
 
 12.23 moveFile
 
-    The function 'moveFile' moves and/or renames a
-  file or directory tree:
+    The function 'moveFile' moves and/or renames a file or
+  directory tree:
 
     const proc: moveFile (in string: sourcePath, in string: destPath) is ...
 
-  The function uses the C 'rename()' function.
-  When 'rename()' fails the file (or directory tree)
-  is cloned with 'cloneFile' (which preserves
-  permissions/mode, ownership and timestamps) to the new place
-  and with the new name. When 'cloneFile' succeeds
-  the original file is deleted. When 'cloneFile' fails (no space on
-  device or other reason) all remains of the failed clone are
-  removed. Note that 'cloneFile' works for
-  symbolic links but does not preserve hard links (they are
-  resolved to distinct files).
+  The function uses the C 'rename()' function. When 'rename()' fails
+  the file (or directory tree) is cloned with 'cloneFile' (which
+  preserves permissions/mode, ownership and timestamps) to the new
+  place and with the new name. When 'cloneFile' succeeds the original
+  file is deleted. When 'cloneFile' fails (no space on device or
+  other reason) all remains of the failed clone are removed. Note
+  that 'cloneFile' works for symbolic links but does not preserve
+  hard links (they are resolved to distinct files).
 
   Possible exceptions:
     MEMORY_ERROR
@@ -8477,8 +8477,9 @@ CONTENTS
 
 12.24 argv(PROGRAM)
 
-    The function 'argv(PROGRAM)' returns the argument
-  vector of the program as array of strings.
+    The function 'argv(PROGRAM)' returns the argument vector of
+  the program as array of strings. The name of the program is
+  not part of the argument vector.
 
     const func array string: argv (PROGRAM) is ...
 
@@ -8486,10 +8487,29 @@ CONTENTS
     An array of strings containing the argument vector.
 
 
-12.25 path(PROGRAM)
+12.25 name(PROGRAM)
 
-    The function 'path(PROGRAM)' returns the absolute
-  path of the program.
+    The function 'name(PROGRAM)' returns the name of the program
+  without path and extension. The name returned by 'name(PROGRAM)'
+  is the same for interpreted and compiled programs. The function
+  'name(PROGRAM)' does not follow symbolic links. It determines,
+  with which name a program was called. When several symbolic
+  links refer to one program 'name(PROGRAM)' returns the name
+  of the symbolic link.
+
+    const func string: name (PROGRAM) is ...
+
+  Returns:
+    The name of the program.
+
+
+12.26 path(PROGRAM)
+
+    The function 'path(PROGRAM)' returns the absolute path
+  of the program. For an interpreted program this is the
+  absolute path of the source file. For a compiled program
+  this is the absolute path of the executable. The function
+  'path(PROGRAM)' does follow symbolic links.
 
     const func string: path (PROGRAM) is ...
 
@@ -8497,12 +8517,12 @@ CONTENTS
     The absolute path of the program.
 
 
-12.26 dir(PROGRAM)
+12.27 dir(PROGRAM)
 
-    The function 'dir(PROGRAM)' returns the absolute
-  path of the directory containing the program. The dir(PROGRAM)
-  function allows placing configuration data in the directory
-  of the program.
+    The function 'dir(PROGRAM)' returns the absolute path of the
+  directory containing the program. The function 'dir(PROGRAM)'
+  allows placing configuration data in the directory of the program.
+  'dir(PROGRAM)' is based on 'path(PROGRAM)'.
 
     const func string: dir (PROGRAM) is ...
 
@@ -8510,14 +8530,25 @@ CONTENTS
     The absolute path of the directory containing the program.
 
 
-12.27 getenv
+12.28 file(PROGRAM)
+
+    The function 'file(PROGRAM)' returns the filename of the
+  program without path. 'file(PROGRAM)' is based on 'path(PROGRAM)'.
+
+    const func string: file (PROGRAM) is ...
+
+  Returns:
+    The filename of the program.
+
+
+12.29 getenv
 
     The function 'getenv' determines the value of an
   environment variable.
 
     const func string: getenv (in string: name) is ...
 
-  The 'getenv' function searches the environment for an
+  The function 'getenv' searches the environment for an
   environment variable with the given 'name'. When such
   an environment variable exists the corresponding 'string'
   value is returned.
@@ -8532,14 +8563,14 @@ CONTENTS
         enough memory to represent the result 'string'.
 
 
-12.28 setenv
+12.30 setenv
 
     The function 'setenv' adds or changes an environment
   variable.
 
     const proc: setenv (in string: name, in string: value) is ...
 
-  The 'setenv' function searches the environment for an
+  The function 'setenv' searches the environment for an
   environment variable with the given 'name'. When such
   an environment variable exists the corresponding value is
   changed to 'value'. When no environment variable with
@@ -8552,6 +8583,21 @@ CONTENTS
         the system string type.
     RANGE_ERROR
         A system function returns an error.
+
+
+12.31 environment
+
+    The function 'environment' returns the list of
+  environment variable names as array of strings.
+
+    const func array string: environment is ...
+
+  Returns:
+    The list of environment variable names.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to create the result.
 
 
 
@@ -9030,6 +9076,7 @@ CONTENTS
     CMD_CLONE_FILE      cmd_clone_file      cmdCloneFile
     CMD_CONFIG_VALUE    cmd_config_value    cmdConfigValue
     CMD_COPY_FILE       cmd_copy_file       cmdCopyFile
+    CMD_ENVIRONMENT     cmd_environment     cmdEnvironment
     CMD_FILEMODE        cmd_filemode        cmdFileMode
     CMD_FILESIZE        cmd_filesize        cmdFileSize
     CMD_FILETYPE        cmd_filetype        cmdFileType
@@ -9039,6 +9086,8 @@ CONTENTS
     CMD_GET_ATIME       cmd_get_atime       cmdGetATime
     CMD_GET_CTIME       cmd_get_ctime       cmdGetCTime
     CMD_GET_MTIME       cmd_get_mtime       cmdGetMTime
+    CMD_GET_SEARCH_PATH cmd_getSearchPath   cmdGetSearchPath
+    CMD_HOME_DIR        cmd_homeDir         cmdHomeDir
     CMD_LS              cmd_ls              cmdLs
     CMD_MKDIR           cmd_mkdir           cmdMkdir
     CMD_MOVE            cmd_move            cmdMove
@@ -9366,6 +9415,7 @@ CONTENTS
     ITF_CPY2            itf_cpy2            =
     ITF_CREATE          itf_create
     ITF_CREATE2         itf_create2
+    ITF_DESTR           itf_destr           itfDestr
     ITF_EQ              itf_eq              ==
     ITF_HASHCODE        itf_hashcode        (inttype)(((memsizetype)a)>>6)
     ITF_NE              itf_ne              !=
