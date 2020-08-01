@@ -48,6 +48,7 @@ void prot_cstri (const_cstritype stri);
 void prot_writeln (const_cstritype stri);
 void prot_int (inttype ivalue);
 void prot_bigint (const const_biginttype bintvalue);
+/* void prot_os_stri (const const_os_stritype os_stri); */
 void prot_stri_unquoted (const const_stritype stri);
 void prot_stri (const const_stritype stri);
 void prot_set (const_settype setValue);

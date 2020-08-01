@@ -119,8 +119,6 @@ test:
 
 dep: depend
 
-hi: s7
-
 strip:
 	strip ..\bin\s7.exe
 

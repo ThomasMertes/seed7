@@ -144,9 +144,15 @@ distclean: clean
 test:
 	../bin/s7 -l ../lib ../prg/chk_all build
 
-dep: depend
+install:
+	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
 
-hi: s7
+uninstall:
+	rm /usr/local/bin/s7
+	rm /usr/local/bin/s7c
+
+dep: depend
 
 strip:
 	strip ../bin/s7

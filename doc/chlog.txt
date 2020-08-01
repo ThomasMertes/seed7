@@ -1,3 +1,31 @@
+20140316:
+- The documentation file doc/install.txt has been improved to
+  describe the command 'make install'.
+- The chapter about the foreign function interface in the manual has
+  been improved.
+- In striutl.h the macros os_stri_alloc and os_stri_free have been
+  improved to use a stack like allocation. Allocations done with
+  os_stri_alloc must be freed with os_stri_free in the reverse
+  order of their creation. The new macros reduce the runtime of
+  stri_to_os_stri and cp_to_os_path to 66% of the old time. This
+  reduces the time used by operating system calls. E.g.: The CPU time
+  used by the program sydir7 is reduced to 83% of the old time.
+- The targets 'install' and 'uninstall' have been added to makefile,
+  mk_linux.mak, mk_osx.mak, mk_clang.mak, mk_cygw.mak, mk_mingw.mak,
+  mk_msys.mak, mk_nmake.mak, mk_msvc.mak, mk_bcc32.mak and
+  mk_bccv5.mak.
+- The program setwpath.c has been added. This program sets the search
+  path (PATH variable) under Windows.
+- The obsolete target 'hi' has been removed from the makefiles.
+- The functions initEmulatedCwd, cmdSetenv (both in cmd_rtl.c),
+  setEmulatedCwd (in striutl.c) and freeArgVector (in cmd_unx.c) have
+  been adjusted to work with the stack like allocation of
+  os_stri_alloc and os_stri_free.
+- The functions heapAllocOsStri and heapFreeOsStri have been added to
+  striutl.c.
+- Usages of MAX_SYMLINK_PATH_LENGTH in cmd_rtl.c have been replaced
+  with MAX_OS_STRI_LEN.
+
 20140302:
 - The function setSockOpt and the constant SO_REUSEADDR have been
   added to sockbase.s7i. Many thanks go to Domingo Alvarez Duarte

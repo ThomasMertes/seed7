@@ -102,9 +102,11 @@ typedef const_wstritype  const_os_stritype;
 #define os_stri_strcpy   wcscpy
 #define os_stri_strcat   wcscat
 #define os_stri_strchr   wcschr
-#define os_stri_alloc    ALLOC_WSTRI
-#define os_stri_realloc  REALLOC_WSTRI
-#define os_stri_free     free
+#define ALLOC_OS_STRI    ALLOC_WSTRI
+#define REALLOC_OS_STRI  REALLOC_WSTRI
+#define FREE_OS_STRI     free
+#define SIZ_OS_STRI      SIZ_WSTRI
+#define MAX_OS_STRI_LEN  MAX_WSTRI_LEN
 #else
 typedef char             os_chartype;
 typedef unsigned char    os_uchartype;
@@ -114,10 +116,47 @@ typedef const_cstritype  const_os_stritype;
 #define os_stri_strcpy   strcpy
 #define os_stri_strcat   strcat
 #define os_stri_strchr   strchr
-#define os_stri_alloc    ALLOC_CSTRI
-#define os_stri_realloc  REALLOC_CSTRI
-#define os_stri_free     free
+#define ALLOC_OS_STRI    ALLOC_CSTRI
+#define REALLOC_OS_STRI  REALLOC_CSTRI
+#define FREE_OS_STRI     free
+#define SIZ_OS_STRI      SIZ_CSTRI
+#define MAX_OS_STRI_LEN  MAX_CSTRI_LEN
 #endif
+
+
+#ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
+typedef struct stackAllocStruct {
+    struct stackAllocStruct *previous;
+    cstritype beyond;
+    cstritype curr_free;
+    char start[1];
+  } stackAllocRecord, *stackAllocType;
+
+#ifdef DO_INIT
+stackAllocRecord stack_alloc_base = {NULL, NULL, NULL, {' '}};
+stackAllocType   stack_alloc = &stack_alloc_base;
+#else
+EXTERN stackAllocRecord stack_alloc_base;
+EXTERN stackAllocType   stack_alloc;
+#endif
+
+#define SIZ_STACK_ALLOC(len)   ((sizeof(stackAllocRecord) - sizeof(char)) + (len) * sizeof(os_chartype))
+/* One is subtracted in the macro MAX_STACK_ALLOC to make */
+/* sure that stack_alloc->beyond does not wrap around.    */
+#define MAX_STACK_ALLOC        (MAX_MEMSIZETYPE - (sizeof(stackAllocRecord) - sizeof(char)) / sizeof(os_chartype) - 1)
+#define POP_OS_STRI_OK(len)    (memsizetype) stack_alloc->beyond >= (len) && \
+                               (memsizetype) (stack_alloc->beyond - (len)) >= (memsizetype) stack_alloc->curr_free
+#define PUSH_OS_STRI_OK(var)   (memsizetype) (var) >= (memsizetype) stack_alloc->start && \
+                               (memsizetype) (var) < (memsizetype) stack_alloc->curr_free
+#define POP_OS_STRI(var,len)   (var = (os_stritype) stack_alloc->curr_free, stack_alloc->curr_free += (len), TRUE)
+#define PUSH_OS_STRI(var)      { stack_alloc->curr_free = (cstritype) (var); }
+#define os_stri_alloc(var,len) (POP_OS_STRI_OK(SIZ_OS_STRI(len)) ? POP_OS_STRI(var, SIZ_OS_STRI(len)) : heapAllocOsStri(&(var), len))
+#define os_stri_free(var)      if (PUSH_OS_STRI_OK(var)) PUSH_OS_STRI(var) else heapFreeOsStri(var);
+#else
+#define os_stri_alloc ALLOC_OS_STRI
+#define os_stri_free  FREE_OS_STRI
+#endif
+
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef EMULATE_ROOT_CWD
@@ -133,6 +172,10 @@ extern os_chartype emulated_root[];
 #define PATH_NOT_MAPPED       2
 
 
+#ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
+booltype heapAllocOsStri (os_stritype *var, memsizetype len);
+void heapFreeOsStri (os_stritype var);
+#endif
 memsizetype utf8_to_stri (strelemtype *const dest_stri, memsizetype *const dest_len,
                           const_ustritype ustri, size_t len);
 memsizetype utf8_bytes_missing (const const_ustritype ustri, const size_t len);
@@ -165,7 +208,7 @@ stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info);
 stritype stri_to_standard_path (const stritype stri);
 stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info);
 #ifdef EMULATE_ROOT_CWD
-void setEmulatedCwd (const os_stritype os_path);
+void setEmulatedCwd (const os_stritype os_path, errinfotype *err_info);
 #endif
 os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
     errinfotype *err_info);

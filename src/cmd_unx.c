@@ -142,6 +142,12 @@ volumeListType *openVolumeList (void)
 
 
 
+/**
+ *  Free an argument vector that was created by genArgVector().
+ *  The individual arguments are freed in the reverse order
+ *  of their creation. This allows that os_stri_free() works
+ *  in a stack like manner.
+ */
 static void freeArgVector (os_stritype *argv)
 
   {
@@ -149,9 +155,11 @@ static void freeArgVector (os_stritype *argv)
 
   /* freeArgVector */
     while (argv[pos] != NULL) {
-      os_stri_free(argv[pos]);
       pos++;
     } /* while */
+    for (; pos > 0; pos--) {
+      os_stri_free(argv[pos - 1]);
+    } /* for */
     free(argv);
   } /* freeArgVector */
 
@@ -187,6 +195,9 @@ static os_stritype *genArgVector (const const_stritype command,
           /* fprintf(stderr, "argv[%d]=%s\n", pos + 1, argv[pos + 1]); */
         } /* for */
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
+          /* Free the individual arguments in the reverse order */
+          /* of their creation. This allows that os_stri_free() */
+          /* works in a stack like manner.                      */
           while (pos >= 1) {
             pos--;
             os_stri_free(argv[pos]);

@@ -137,8 +137,6 @@
 #define PRESERVE_SYMLINKS   0x08
 #define PRESERVE_ALL        0xFF
 
-#define MAX_SYMLINK_PATH_LENGTH 0x1FFFFFFF
-
 #define USR_BITS_NORMAL (S_IRUSR == 0400 && S_IWUSR == 0200 && S_IXUSR == 0100)
 #define GRP_BITS_NORMAL (S_IRGRP == 0040 && S_IWGRP == 0020 && S_IXGRP == 0010)
 #define OTH_BITS_NORMAL (S_IROTH == 0004 && S_IWOTH == 0002 && S_IXOTH == 0001)
@@ -222,12 +220,12 @@ static void remove_dir (os_stritype dir_name, errinfotype *err_info)
         fflush(stdout); */
         new_size = dir_name_size + 1 + os_stri_strlen(current_entry->d_name);
         if (new_size > dir_path_capacity) {
-          resized_path = os_stri_realloc(dir_path, new_size);
+          resized_path = REALLOC_OS_STRI(dir_path, new_size);
           if (resized_path != NULL) {
             dir_path = resized_path;
             dir_path_capacity = new_size;
           } else if (dir_path != NULL) {
-            os_stri_free(dir_path);
+            FREE_OS_STRI(dir_path);
             dir_path = NULL;
           } /* if */
         } /* if */
@@ -251,7 +249,7 @@ static void remove_dir (os_stritype dir_name, errinfotype *err_info)
              memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
       } /* while */
       if (dir_path != NULL) {
-        os_stri_free(dir_path);
+        FREE_OS_STRI(dir_path);
       } /* if */
       os_closedir(directory);
       if (*err_info == OKAY_NO_ERROR) {
@@ -443,23 +441,23 @@ static void copy_dir (os_stritype from_name, os_stritype to_name,
           d_name_size = os_stri_strlen(current_entry->d_name);
           new_size = from_name_size + 1 + d_name_size;
           if (new_size > from_path_capacity) {
-            resized_path = os_stri_realloc(from_path, new_size);
+            resized_path = REALLOC_OS_STRI(from_path, new_size);
             if (resized_path != NULL) {
               from_path = resized_path;
               from_path_capacity = new_size;
             } else if (from_path != NULL) {
-              os_stri_free(from_path);
+              FREE_OS_STRI(from_path);
               from_path = NULL;
             } /* if */
           } /* if */
           new_size = to_name_size + 1 + d_name_size;
           if (new_size > to_path_capacity) {
-            resized_path = os_stri_realloc(to_path, new_size);
+            resized_path = REALLOC_OS_STRI(to_path, new_size);
             if (resized_path != NULL) {
               to_path = resized_path;
               to_path_capacity = new_size;
             } else if (to_path != NULL) {
-              os_stri_free(to_path);
+              FREE_OS_STRI(to_path);
               to_path = NULL;
             } /* if */
           } /* if */
@@ -489,10 +487,10 @@ static void copy_dir (os_stritype from_name, os_stritype to_name,
           remove_dir(to_name, err_info);
         } /* if */
         if (from_path != NULL) {
-          os_stri_free(from_path);
+          FREE_OS_STRI(from_path);
         } /* if */
         if (to_path != NULL) {
-          os_stri_free(to_path);
+          FREE_OS_STRI(to_path);
         } /* if */
       } /* if */
       os_closedir(directory);
@@ -533,10 +531,11 @@ static void copy_any_file (os_stritype from_name, os_stritype to_name,
       if (S_ISLNK(from_stat.st_mode)) {
 #ifdef HAS_SYMLINKS
         /* printf("link size=%lu\n", from_stat.st_size); */
-        if (from_stat.st_size > MAX_SYMLINK_PATH_LENGTH || from_stat.st_size < 0) {
+        if (from_stat.st_size < 0 ||
+            (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN) {
           *err_info = RANGE_ERROR;
         } else {
-          if (!os_stri_alloc(link_destination, from_stat.st_size)) {
+          if (!os_stri_alloc(link_destination, (memsizetype) from_stat.st_size)) {
             *err_info = MEMORY_ERROR;
           } else {
             readlink_result = readlink(from_name, link_destination,
@@ -869,20 +868,12 @@ void initEmulatedCwd (errinfotype *err_info)
   {
     os_chartype buffer[PATH_MAX + 1];
     os_stritype cwd;
-    memsizetype cwd_len;
-    os_stritype new_cwd;
 
   /* initEmulatedCwd */
     if ((cwd = os_getcwd(buffer, PATH_MAX)) == NULL) {
       *err_info = FILE_ERROR;
     } else {
-      cwd_len = os_stri_strlen(cwd);
-      if (likely(!os_stri_alloc(new_cwd, cwd_len))) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        memcpy(new_cwd, cwd, (cwd_len + 1) * sizeof(os_chartype));
-        setEmulatedCwd(new_cwd);
-      } /* if */
+      setEmulatedCwd(cwd, err_info);
     } /* if */
   } /* initEmulatedCwd */
 #endif
@@ -985,20 +976,20 @@ void cmdChdir (const const_stritype dirPath)
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
-        setEmulatedCwd(emulated_root);
+        setEmulatedCwd(emulated_root, &err_info);
       } else {
         raise_error(err_info);
       } /* if */
     } else {
       chdir_result = os_chdir(os_path);
       if (unlikely(chdir_result != 0)) {
-        os_stri_free(os_path);
         err_info = FILE_ERROR;
       } else {
         if (dirPath->size >= 1 && dirPath->mem[0] == '/') {
-          setEmulatedCwd(os_path);
+          /* Absolute path */
+          setEmulatedCwd(os_path, &err_info);
         } else {
-          os_stri_free(os_path);
+          /* Relative path */
           initEmulatedCwd(&err_info);
         } /* if */
       } /* if */
@@ -1009,8 +1000,8 @@ void cmdChdir (const const_stritype dirPath)
       if (unlikely(chdir_result != 0)) {
         err_info = FILE_ERROR;
       } /* if */
-      os_stri_free(os_path);
 #endif
+      os_stri_free(os_path);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } /* if */
@@ -2223,10 +2214,11 @@ stritype cmdReadlink (const const_stritype filePath)
         err_info = FILE_ERROR;
       } else {
         /* printf("link size=%lu\n", link_stat.st_size); */
-        if (link_stat.st_size > MAX_SYMLINK_PATH_LENGTH || link_stat.st_size < 0) {
+        if (link_stat.st_size < 0 ||
+            (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN) {
           err_info = RANGE_ERROR;
         } else {
-          if (!os_stri_alloc(link_destination, link_stat.st_size)) {
+          if (!os_stri_alloc(link_destination, (memsizetype) link_stat.st_size)) {
             err_info = MEMORY_ERROR;
           } else {
             readlink_result = readlink(os_filePath, link_destination,
@@ -2402,7 +2394,7 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
         memcpy(&stri->mem[name->size + 1], value->mem,
             value->size * sizeof(strelemtype));
         env_stri = stri_to_os_stri(stri, &err_info);
-        FREE_STRI(stri, stri->size);;
+        FREE_STRI(stri, stri->size);
         if (unlikely(env_stri == NULL)) {
           raise_error(err_info);
         } else {
@@ -2444,27 +2436,25 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
 
   /* cmdSetenv */
     env_name = stri_to_os_stri(name, &err_info);
-    if (unlikely(env_name == NULL)) {
-      raise_error(err_info);
-    } else {
+    if (likely(err_info == OKAY_NO_ERROR)) {
       env_value = stri_to_os_stri(value, &err_info);
-      if (unlikely(env_value == NULL)) {
-        os_stri_free(env_name);
-        raise_error(err_info);
-      } else {
+      if (likely(err_info == OKAY_NO_ERROR)) {
         setenv_result = os_setenv(env_name, env_value, 1);
         saved_errno = errno;
-        os_stri_free(env_name);
         os_stri_free(env_value);
         if (unlikely(setenv_result != 0)) {
           /* printf("errno=%d\n", saved_errno); */
           if (saved_errno == ENOMEM) {
-            raise_error(MEMORY_ERROR);
+            err_info = MEMORY_ERROR;
           } else {
-            raise_error(RANGE_ERROR);
+            err_info = RANGE_ERROR;
           } /* if */
         } /* if */
       } /* if */
+      os_stri_free(env_name);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
   } /* cmdSetenv */
 
@@ -2670,7 +2660,7 @@ inttype cmdShell (const const_stritype command, const const_stritype parameters)
             E2BIG, ENOENT, ENOEXEC, ENOMEM);
         printf("result=%d\n", result);
       } */
-      os_stri_free(os_command);
+      FREE_OS_STRI(os_command);
     } /* if */
     return result;
   } /* cmdShell */

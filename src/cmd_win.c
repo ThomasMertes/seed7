@@ -334,7 +334,7 @@ os_stritype wgetenv (const const_os_stritype name)
     } else {
       if (ALLOC_WSTRI(result, result_size - 1)) {
         if (GetEnvironmentVariableW(name, result, result_size) != result_size - 1) {
-          os_stri_free(result);
+          FREE_OS_STRI(result);
           result = NULL;
         } /* if */
       } /* if */

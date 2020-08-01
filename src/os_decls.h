@@ -131,7 +131,7 @@
 #endif
 
 #ifdef DEFINE_WGETENV
-#define os_getenv_string_free(env_var) os_stri_free(env_var)
+#define os_getenv_string_free(env_var) FREE_OS_STRI(env_var)
 #else
 #define os_getenv_string_free(env_var)
 #endif

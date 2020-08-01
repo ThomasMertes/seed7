@@ -52,24 +52,51 @@
 
     s7 myprog
 
-  To allow this, the path of 'seed7/bin' must be added to
-  the PATH variable. E.g.: When your Seed7 directory is at
-  /home/tm/seed7 you need to add /home/tm/seed7/bin to your
-  PATH variable. Adding something to the PATH variable is
-  highly system dependent. Please refer to descriptions of
-  your operating system, to do it.
+  Depending on the operating system different stategies can
+  be used to reach this goal.
 
-    Under operating systems, which support symbolic links,
-  another strategy is possible. You can add symbolic links
-  to the interpreter and compiler executable to a directory,
-  which is in the PATH variable. E.g.: When /usr/local/bin
-  is in the PATH variable you could do:
+
+2.1 Unix-like operating systems
+
+  The makefiles for unix-like operating systems support the
+  target install. Just go to the directory 'seed7/src' and
+  type:
+
+    sudo make install
+
+  This command will ask you for your password. When your
+  permissions are sufficient the command creates symbolic
+  links in the directory /usr/local/bin. This is equivalent
+  to:
 
     cd /usr/local/bin
     su ...
     ln -s /home/myuser/seed7/bin/s7 .
     ln -s /home/myuser/seed7/bin/s7c .
     exit
+
+
+2.2 Windows
+
+  The makefiles for Windows support the target install.
+  You need to open a console as administrator. Then you can
+  go to the directory 'seed7/src' and type:
+
+    make install
+
+  This adds the directory 'seed7/bin' to the search path (PATH
+  variable). You need to start a new console to see the effect
+  of this change.
+
+
+2.3 Other operating systems
+
+  On operating systems without symbolic links the path of
+  'seed7/bin' must be added to the PATH variable. E.g.: When
+  your Seed7 directory is at /home/tm/seed7 you need to add
+  /home/tm/seed7/bin to your PATH variable. Adding something
+  to the PATH variable is highly system dependent. Please
+  refer to descriptions of your operating system, to do it.
 
 
 3. INSTALLATION IN A SYSTEM DIRECTORY

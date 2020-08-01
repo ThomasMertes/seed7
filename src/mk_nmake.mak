@@ -109,6 +109,7 @@ clean:
 	del depend
 	del chkccomp.h
 	del version.h
+	del setwpath.exe
 
 distclean: clean
 	copy level_bk.h level.h /Y
@@ -116,9 +117,13 @@ distclean: clean
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 
-dep: depend
+install: setwpath.exe
+	.\setwpath.exe add ..\bin
 
-hi: s7
+uninstall: setwpath.exe
+	.\setwpath.exe remove ..\bin
+
+dep: depend
 
 strip:
 	strip ..\bin\s7.exe
@@ -198,6 +203,7 @@ version.h: chkccomp.h
 	$(CC) -o setpaths setpaths.c
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.exe
+	$(CC) setwpath.c -o setwpath
 
 .c.o:
 	$(CC) $(CFLAGS) -c $<

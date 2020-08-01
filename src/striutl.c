@@ -44,6 +44,7 @@
 
 #undef EXTERN
 #define EXTERN
+#define DO_INIT
 #include "striutl.h"
 
 
@@ -72,6 +73,7 @@ os_stritype current_emulated_cwd = NULL;
 os_chartype emulated_root[] = {'/', '\0'};
 #endif
 
+#define STACK_ALLOC_SIZE 1000
 
 
 #ifdef OS_STRI_WCHAR
@@ -103,6 +105,63 @@ int code_page = DEFAULT_CODE_PAGE;
 #define OS_STRI_SIZE(size)  (size)
 #define OS_BSTRI_SIZE(size) (((size) + 1) * sizeof(os_chartype))
 
+#endif
+
+
+
+#ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
+booltype heapAllocOsStri (os_stritype *var, memsizetype len)
+
+  {
+    memsizetype size;
+    stackAllocType new_stack_alloc;
+    booltype success;
+
+  /* heapAllocOsStri */
+    /* printf("heapAllocOsStri(%lx, %lu)\n", (long unsigned) var, len); */
+    if (len < STACK_ALLOC_SIZE) {
+      size = STACK_ALLOC_SIZE;
+    } else {
+      size = len;
+    } /* if */
+    if (unlikely(size > MAX_STACK_ALLOC ||
+        !ALLOC_HEAP(new_stack_alloc, stackAllocType, SIZ_STACK_ALLOC(size)))) {
+      *var = NULL;
+      success = FALSE;
+    } else {
+      /* printf("new_stack_alloc=%08lx\n", new_stack_alloc); */
+      if (stack_alloc->curr_free == stack_alloc->start) {
+        new_stack_alloc->previous = stack_alloc->previous;
+        free(stack_alloc);
+      } else {
+        new_stack_alloc->previous = stack_alloc;
+      } /* if */
+      /* printf("previous=%08lx\n", new_stack_alloc->previous); */
+      new_stack_alloc->beyond = &new_stack_alloc->start[SIZ_OS_STRI(size)];
+      /* printf("beyond=%08lx\n", new_stack_alloc->beyond); */
+      new_stack_alloc->curr_free = new_stack_alloc->start;
+      stack_alloc = new_stack_alloc;
+      POP_OS_STRI(*var, SIZ_OS_STRI(len));
+      success = TRUE;
+    } /* if */
+    /* printf("heapAllocOsStri(%lx, %lu) --> %s\n",
+        (long unsigned) *var, len, success ? "TRUE" : "FALSE"); */
+    return success;
+  } /* heapAllocOsStri */
+
+
+
+void heapFreeOsStri (os_stritype var)
+
+  {
+    stackAllocType old_stack_alloc;
+
+  /* heapFreeOsStri */
+    /* printf("heapFreeOsStri(%lx)\n", (long unsigned) var); */
+    old_stack_alloc = stack_alloc;
+    stack_alloc = old_stack_alloc->previous;
+    free(old_stack_alloc);
+  } /* heapFreeOsStri */
 #endif
 
 
@@ -1319,7 +1378,10 @@ stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
 /**
  *  Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
  *  The memory for the null terminated os_stritype string is allocated.
- *  The os_stritype result must be freed with the macro os_stri_free().
+ *  The os_stritype result is allocated with the macro os_stri_alloc()
+ *  and it must be freed with the macro os_stri_free(). Strings allocated
+ *  with os_stri_alloc() must be freed in the reverse order of their
+ *  creation. This allows that allocations work in a stack like manner.
  *  Many system calls have parameters with null terminated os_stritype
  *  strings. System calls are defined in "version.h" and "os_decls.h".
  *  They are prefixed with os_ and use strings of the type os_stritype.
@@ -1377,6 +1439,7 @@ stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
     stritype stri;
 
   /* os_stri_to_stri */
+    /* printf("os_stri_to_stri(%s, *)\n", os_stri); */
     stri = conv_from_os_stri(os_stri, os_stri_strlen(os_stri));
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
@@ -1462,34 +1525,46 @@ stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info)
 
 
 #ifdef EMULATE_ROOT_CWD
-void setEmulatedCwd (const os_stritype os_path)
+void setEmulatedCwd (const os_stritype os_path, errinfotype *err_info)
 
   {
+    memsizetype cwd_len;
+    os_stritype new_cwd;
     memsizetype position;
 
   /* setEmulatedCwd */
     /* printf("setEmulatedCwd(\"%ls\")\n", os_path); */
-    if (!IS_EMULATED_ROOT(os_path)) {
-      for (position = 0; os_path[position] != '\0'; position++) {
-        if (os_path[position] == '\\') {
-          os_path[position] = '/';
+    if (IS_EMULATED_ROOT(os_path)) {
+      new_cwd = emulated_root;
+    } else {
+      cwd_len = os_stri_strlen(os_path);
+      if (likely(!ALLOC_OS_STRI(new_cwd, cwd_len))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        memcpy(new_cwd, os_path, (cwd_len + 1) * sizeof(os_chartype));
+        for (position = 0; new_cwd[position] != '\0'; position++) {
+          if (new_cwd[position] == '\\') {
+            new_cwd[position] = '/';
+          } /* if */
+        } /* for */
+        if (position >= 2 && new_cwd[position - 1] == '/') {
+          new_cwd[position - 1] = '\0';
         } /* if */
-      } /* for */
-      if (position >= 2 && os_path[position - 1] == '/') {
-        os_path[position - 1] = '\0';
-      } /* if */
-      if (((os_path[0] >= 'a' && os_path[0] <= 'z') ||
-           (os_path[0] >= 'A' && os_path[0] <= 'Z')) &&
-          os_path[1] == ':') {
-        os_path[1] = (os_chartype) tolower(os_path[0]);
-        os_path[0] = '/';
+        if (((new_cwd[0] >= 'a' && new_cwd[0] <= 'z') ||
+             (new_cwd[0] >= 'A' && new_cwd[0] <= 'Z')) &&
+            new_cwd[1] == ':') {
+          new_cwd[1] = (os_chartype) tolower(new_cwd[0]);
+          new_cwd[0] = '/';
+        } /* if */
       } /* if */
     } /* if */
-    if (current_emulated_cwd != NULL &&
-        current_emulated_cwd != emulated_root) {
-      os_stri_free(current_emulated_cwd);
+    if (new_cwd != NULL) {
+      if (current_emulated_cwd != NULL &&
+          current_emulated_cwd != emulated_root) {
+        FREE_OS_STRI(current_emulated_cwd);
+      } /* if */
+      current_emulated_cwd = new_cwd;
     } /* if */
-    current_emulated_cwd = os_path;
     /* printf("current_emulated_cwd=\"%ls\"\n", current_emulated_cwd); */
   } /* setEmulatedCwd */
 
@@ -1656,7 +1731,10 @@ static os_stritype map_to_drive_letter (const strelemtype *const pathChars,
 /**
  *  Convert a Seed7 standard path to a path used by system calls.
  *  The memory for the null terminated os_stritype path is allocated.
- *  The os_stritype result must be freed with the macro os_stri_free().
+ *  The os_stritype result is allocated with the macro os_stri_alloc()
+ *  and it must be freed with the macro os_stri_free(). Strings allocated
+ *  with os_stri_alloc() must be freed in the reverse order of their
+ *  creation. This allows that allocations work in a stack like manner.
  *  System calls are defined in "version.h" and "os_decls.h". They are
  *  prefixed with os_ and use system paths of the type os_stritype.
  *  Depending on the operating system os_stritype can describe byte or
@@ -1760,7 +1838,10 @@ os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
 /**
  *  Convert a Seed7 standard path to a path used by system calls.
  *  The memory for the null terminated os_stritype path is allocated.
- *  The os_stritype result must be freed with the macro os_stri_free().
+ *  The os_stritype result is allocated with the macro os_stri_alloc()
+ *  and it must be freed with the macro os_stri_free(). Strings allocated
+ *  with os_stri_alloc() must be freed in the reverse order of their
+ *  creation. This allows that allocations work in a stack like manner.
  *  System calls are defined in "version.h" and "os_decls.h". They are
  *  prefixed with os_ and use system paths of the type os_stritype.
  *  Depending on the operating system os_stritype can describe byte or
@@ -1918,12 +1999,12 @@ os_stritype cp_to_command (const const_stritype commandPath,
         } else {
           result_len = 3 * os_stri_strlen(os_commandPath) +
                        os_stri_strlen(os_parameters) + 4;
-          if (unlikely(!os_stri_alloc(result, result_len))) {
+          if (unlikely(!ALLOC_OS_STRI(result, result_len))) {
             *err_info = MEMORY_ERROR;
           } else {
             escape_command(os_commandPath, result, err_info);
             if (*err_info != OKAY_NO_ERROR) {
-              os_stri_free(result);
+              FREE_OS_STRI(result);
               result = NULL;
             } else {
               result_len = os_stri_strlen(result);

@@ -1234,7 +1234,7 @@ filetype filPopen (const const_stritype command,
         result = os_popen(os_command, os_mode);
 #endif
       } /* if */
-      os_stri_free(os_command);
+      FREE_OS_STRI(os_command);
     } /* if */
     return result;
   } /* filPopen */

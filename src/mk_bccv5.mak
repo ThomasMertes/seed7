@@ -111,6 +111,7 @@ clean:
 	del chkccomp.h
 	del version.h
 	del calltlib.exe
+	del setwpath.exe
 	del *.tds
 
 distclean: clean
@@ -119,9 +120,13 @@ distclean: clean
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 
-dep: depend
+install: setwpath.exe
+	.\setwpath.exe add ..\bin
 
-hi: s7
+uninstall: setwpath.exe
+	.\setwpath.exe remove ..\bin
+
+dep: depend
 
 chkccomp.h:
 	echo ^#include "dir.h" > chkccomp.h
@@ -234,6 +239,7 @@ version.h: chkccomp.h
 	del calltlib.c
 	del calltlib.obj
 	del calltlib.tds
+	$(CC) setwpath.c
 
 .c.obj:
 	$(CC) $(CFLAGS) -c $<

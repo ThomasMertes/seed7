@@ -10427,6 +10427,12 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cp_from_os_path">cp_from_os_path</a></b> (<a class="type" href="#ffi_os_stritype">const_os_stritype</a> os_path, <span class="type">errinfotype</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Convert a path returned by a system call to a Seed7 standard path.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_booltype">booltype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_alloc">os_stri_alloc</a></b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> &amp;var, <a class="type" href="#ffi_memsizetype">memsizetype</a> len)</td></tr>
+      <tr><td width="30"></td><td>Macro to allocate memory for an <a class="type" href="#ffi_os_stritype">os_stritype</a> string.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_free">os_stri_free</a></b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> var)</td></tr>
+      <tr><td width="30"></td><td>Macro to free memory that has been allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
   Function Detail</td></tr></table></p>
@@ -10591,7 +10597,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <p>
       Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
       The memory for the null terminated os_stritype string is allocated.
-      The os_stritype result must be freed with the macro os_stri_free().
+      The os_stritype result is allocated with the macro <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>()
+      and it must be freed with the macro <a class="func" href="#ffi_os_stri_free">os_stri_free</a>(). Strings allocated
+      with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed in the reverse order of their
+      creation. This allows that allocations work in a stack like manner.
       Many system calls have parameters with null terminated os_stritype
       strings. System calls are defined in "version.h" and "os_decls.h".
       They are prefixed with os_ and use strings of the type os_stritype.
@@ -10637,7 +10646,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <p>
       Convert a Seed7 standard path to a path used by system calls.
       The memory for the null terminated os_stritype path is allocated.
-      The os_stritype result must be freed with the macro os_stri_free().
+      The os_stritype result is allocated with the macro <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>()
+      and it must be freed with the macro <a class="func" href="#ffi_os_stri_free">os_stri_free</a>(). Strings allocated
+      with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed in the reverse order of their
+      creation. This allows that allocations work in a stack like manner.
       System calls are defined in "version.h" and "os_decls.h". They are
       prefixed with os_ and use system paths of the type os_stritype.
       Depending on the operating system os_stritype can describe byte or
@@ -10680,6 +10692,41 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 standard path or
         NULL, when the memory allocation failed.</dd></dl></dd>
+</dl></div>
+<hr />
+  <div><a name="ffi_os_stri_alloc"><h3>os_stri_alloc</h3></a>
+<p>
+    <a class="type" href="#ffi_booltype">booltype</a> <b>os_stri_alloc</b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> &amp;var, <a class="type" href="#ffi_memsizetype">memsizetype</a> len)</p><dl><dd>
+<p>
+      Macro to allocate memory for an <a class="type" href="#ffi_os_stritype">os_stritype</a> string.
+      Strings allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed with
+      <a class="func" href="#ffi_os_stri_free">os_stri_free</a>() in the reverse order of their creation. This allows
+      that allocations work in a stack like manner.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>var</tt> - Reference to a variable to which the
+                   allocated memory is assigned.</dd>
+        <dd><tt>len</tt> - Size of the allocated memory in characters.</dd>
+</dl></dd>
+      <dd><dl><dt><b>Returns:</b></dt>
+        <dd>TRUE, when the allocation succeeds or
+        FALSE, when the memory allocation failed.</dd></dl></dd>
+</dl></div>
+<hr />
+  <div><a name="ffi_os_stri_free"><h3>os_stri_free</h3></a>
+<p>
+    void <b>os_stri_free</b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> var)</p><dl><dd>
+<p>
+      Macro to free memory that has been allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>.
+      Strings allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed with
+      <a class="func" href="#ffi_os_stri_free">os_stri_free</a>() in the reverse order of their creation. This allows
+      that allocations work in a stack like manner. The strings returned
+      by <a class="func" href="#ffi_stri_to_os_stri">stri_to_os_stri</a> and <a class="func" href="#ffi_cp_to_os_path">cp_to_os_path</a> are also allocated with
+      <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>. Therefore they must also be freed with
+      <a class="func" href="#ffi_os_stri_free">os_stri_free</a>() in the reverse order of their creation.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>var</tt> - The string to be freed.</dd>
 </dl></div>
 </div>
 

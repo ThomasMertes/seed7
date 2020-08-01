@@ -10290,6 +10290,12 @@ CONTENTS
     stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info)
       Convert a path returned by a system call to a Seed7 standard path.
 
+    booltype os_stri_alloc (os_stritype &var, memsizetype len)
+      Macro to allocate memory for an os_stritype string.
+
+    void os_stri_free (os_stritype var)
+      Macro to free memory that has been allocated with os_stri_alloc.
+
 
   Function Detail
 
@@ -10453,7 +10459,10 @@ CONTENTS
 
       Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
       The memory for the null terminated os_stritype string is allocated.
-      The os_stritype result must be freed with the macro os_stri_free().
+      The os_stritype result is allocated with the macro os_stri_alloc()
+      and it must be freed with the macro os_stri_free(). Strings allocated
+      with os_stri_alloc() must be freed in the reverse order of their
+      creation. This allows that allocations work in a stack like manner.
       Many system calls have parameters with null terminated os_stritype
       strings. System calls are defined in "version.h" and "os_decls.h".
       They are prefixed with os_ and use strings of the type os_stritype.
@@ -10499,7 +10508,10 @@ CONTENTS
 
       Convert a Seed7 standard path to a path used by system calls.
       The memory for the null terminated os_stritype path is allocated.
-      The os_stritype result must be freed with the macro os_stri_free().
+      The os_stritype result is allocated with the macro os_stri_alloc()
+      and it must be freed with the macro os_stri_free(). Strings allocated
+      with os_stri_alloc() must be freed in the reverse order of their
+      creation. This allows that allocations work in a stack like manner.
       System calls are defined in "version.h" and "os_decls.h". They are
       prefixed with os_ and use system paths of the type os_stritype.
       Depending on the operating system os_stritype can describe byte or
@@ -10542,6 +10554,41 @@ CONTENTS
       Returns:
         an UTF-32 encoded Seed7 standard path or
         NULL, when the memory allocation failed.
+
+
+  os_stri_alloc
+
+    booltype os_stri_alloc (os_stritype &var, memsizetype len)
+
+      Macro to allocate memory for an os_stritype string.
+      Strings allocated with os_stri_alloc() must be freed with
+      os_stri_free() in the reverse order of their creation. This allows
+      that allocations work in a stack like manner.
+
+      Parameters:
+        var - Reference to a variable to which the
+                   allocated memory is assigned.
+        len - Size of the allocated memory in characters.
+
+      Returns:
+        TRUE, when the allocation succeeds or
+        FALSE, when the memory allocation failed.
+
+
+  os_stri_free
+
+    void os_stri_free (os_stritype var)
+
+      Macro to free memory that has been allocated with os_stri_alloc.
+      Strings allocated with os_stri_alloc() must be freed with
+      os_stri_free() in the reverse order of their creation. This allows
+      that allocations work in a stack like manner. The strings returned
+      by stri_to_os_stri and cp_to_os_path are also allocated with
+      os_stri_alloc. Therefore they must also be freed with
+      os_stri_free() in the reverse order of their creation.
+
+      Parameters:
+        var - The string to be freed.
 
 
 
