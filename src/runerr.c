@@ -114,7 +114,7 @@ listtype stack_elem;
             printf("%s ",
                 id_string(GET_ENTITY(func_object)->ident));
           } else if (GET_ENTITY(func_object)->name_list != NULL) {
-            prot_list(GET_ENTITY(func_object)->name_list);
+            prot_name(GET_ENTITY(func_object)->name_list);
             printf(" ");
           } /* if */
         } /* if */

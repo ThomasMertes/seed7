@@ -1,3 +1,30 @@
+20100704:
+- The Seed7 interpreter (hi) was improved to support stack traces with
+  function call notation.
+- The "progs.s7i" library was improved to support indexing and 'for' loops
+  for 'bstring' values.
+- Indexing tests for constant arrays were added to the "chkexc.sd7" program.
+- The compiler was improved to generate code for array and string indexing with
+  temporary values of type 'uinttype' instead of 'memsizetype'.
+- The compiler was improved to generate code with the type 'rtlValueunion'
+  instead of 'valueunion' (this is the same type as in the file "data_rtl.h").
+- The compiler was improved to create dynamic dispatcher functions which copy
+  a struct value when necessary (in function 'process_dynamic_action_call').
+- The compiler ("comp.sd7") was improved to initialize constant 'bstring'
+  values correctly.
+- The compiler option -e was improved to create an executable which sends a
+  signal when an uncaught exception occurs (A caught exception does not send
+  a signal).
+- The files "bstlib.c", "primitiv.c" and the compiler ("comp.sd7") were
+  improved to support the primitive action BST_IDX (which allows indexing of
+  'bstring' values).
+- A definition of the type 'rtlStructtype' was added to "data_rtl.h".
+- The files "traceutl.c" and "runerr.c" were improved to define and use the
+  functions 'printformparam' and 'prot_name'.
+- Variables were renamed in the files "strlib.c", "bstlib.c" and "ref_data.c".
+- Checks for negative line and column values and casts to 'size_t' were
+  added to the files "scr_inf.c", "scr_cap.c" and "scr_tcp.c".
+
 20100620:
 - Documentation comments were added to the libraries "graph.s7i", "keybd.s7i"
   and "time.s7i".

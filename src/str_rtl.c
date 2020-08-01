@@ -945,7 +945,7 @@ rtlGenerictype from_value;
 #endif
 
   { /* strCreateGeneric */
-    return (rtlGenerictype) strCreate((const_stritype) from_value);
+    return (rtlGenerictype) (memsizetype) strCreate((const_stritype) from_value);
   } /* strCreateGeneric */
 
 

@@ -113,32 +113,32 @@ listtype arguments;
 #endif
 
   {
-    bstritype bstr1;
-    bstritype bstr2;
-    memsizetype bstr1_size;
+    bstritype bstri1;
+    bstritype bstri2;
+    memsizetype bstri1_size;
     memsizetype result_size;
     bstritype result;
 
   /* bst_cat */
     isit_bstri(arg_1(arguments));
     isit_bstri(arg_3(arguments));
-    bstr1 = take_bstri(arg_1(arguments));
-    bstr2 = take_bstri(arg_3(arguments));
-    bstr1_size = bstr1->size;
-    if (bstr1_size > MAX_BSTRI_LEN - bstr2->size) {
+    bstri1 = take_bstri(arg_1(arguments));
+    bstri2 = take_bstri(arg_3(arguments));
+    bstri1_size = bstri1->size;
+    if (bstri1_size > MAX_BSTRI_LEN - bstri2->size) {
       /* number of bytes does not fit into memsizetype */
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      result_size = bstr1_size + bstr2->size;
+      result_size = bstri1_size + bstri2->size;
       if (TEMP_OBJECT(arg_1(arguments))) {
-        REALLOC_BSTRI_SIZE_OK(result, bstr1, bstr1_size, result_size);
+        REALLOC_BSTRI_SIZE_OK(result, bstri1, bstri1_size, result_size);
         if (result == NULL) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
-          COUNT3_STRI(bstr1_size, result_size);
+          COUNT3_STRI(bstri1_size, result_size);
           result->size = result_size;
-          memcpy(&result->mem[bstr1_size], bstr2->mem,
-              bstr2->size * sizeof(uchartype));
+          memcpy(&result->mem[bstri1_size], bstri2->mem,
+              bstri2->size * sizeof(uchartype));
           arg_1(arguments)->value.bstrivalue = NULL;
           return(bld_bstri_temp(result));
         } /* if */
@@ -147,10 +147,10 @@ listtype arguments;
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
           result->size = result_size;
-          memcpy(result->mem, bstr1->mem,
-              bstr1_size * sizeof(uchartype));
-          memcpy(&result->mem[bstr1_size], bstr2->mem,
-              bstr2->size * sizeof(uchartype));
+          memcpy(result->mem, bstri1->mem,
+              bstri1_size * sizeof(uchartype));
+          memcpy(&result->mem[bstri1_size], bstri2->mem,
+              bstri2->size * sizeof(uchartype));
           return(bld_bstri_temp(result));
         } /* if */
       } /* if */
@@ -169,29 +169,29 @@ listtype arguments;
 #endif
 
   {
-    bstritype bstr1;
-    bstritype bstr2;
+    bstritype bstri1;
+    bstritype bstri2;
     inttype result;
 
   /* bst_cmp */
     isit_bstri(arg_1(arguments));
     isit_bstri(arg_2(arguments));
-    bstr1 = take_bstri(arg_1(arguments));
-    bstr2 = take_bstri(arg_2(arguments));
-    if (bstr1->size < bstr2->size) {
-      if (memcmp(bstr1->mem, bstr2->mem, bstr1->size * sizeof(uchartype)) <= 0) {
+    bstri1 = take_bstri(arg_1(arguments));
+    bstri2 = take_bstri(arg_2(arguments));
+    if (bstri1->size < bstri2->size) {
+      if (memcmp(bstri1->mem, bstri2->mem, bstri1->size * sizeof(uchartype)) <= 0) {
         result = -1;
       } else {
         result = 1;
       } /* if */
-    } else if (bstr1->size > bstr2->size) {
-      if (memcmp(bstr1->mem, bstr2->mem, bstr2->size * sizeof(uchartype)) >= 0) {
+    } else if (bstri1->size > bstri2->size) {
+      if (memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(uchartype)) >= 0) {
         result = 1;
       } else {
         result = -1;
       } /* if */
     } else {
-      result = memcmp(bstr1->mem, bstr2->mem, bstr1->size * sizeof(uchartype));
+      result = memcmp(bstri1->mem, bstri2->mem, bstri1->size * sizeof(uchartype));
       if (result > 0) {
         result = 1;
       } else if (result < 0) {
@@ -354,16 +354,16 @@ listtype arguments;
 #endif
 
   {
-    bstritype bstr1;
-    bstritype bstr2;
+    bstritype bstri1;
+    bstritype bstri2;
 
   /* bst_eq */
     isit_bstri(arg_1(arguments));
     isit_bstri(arg_3(arguments));
-    bstr1 = take_bstri(arg_1(arguments));
-    bstr2 = take_bstri(arg_3(arguments));
-    if (bstr1->size == bstr2->size && memcmp(bstr1->mem, bstr2->mem,
-        bstr1->size * sizeof(uchartype)) == 0) {
+    bstri1 = take_bstri(arg_1(arguments));
+    bstri2 = take_bstri(arg_3(arguments));
+    if (bstri1->size == bstri2->size && memcmp(bstri1->mem, bstri2->mem,
+        bstri1->size * sizeof(uchartype)) == 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -382,20 +382,47 @@ listtype arguments;
 #endif
 
   {
-    bstritype bstr1;
+    bstritype bstri1;
     inttype result;
 
   /* bst_hashcode */
     isit_bstri(arg_1(arguments));
-    bstr1 = take_bstri(arg_1(arguments));
-    if (bstr1->size == 0) {
+    bstri1 = take_bstri(arg_1(arguments));
+    if (bstri1->size == 0) {
       result = 0;
     } else {
-      result = (inttype) ((memsizetype) bstr1->mem[0] << 5 ^
-          bstr1->size << 3 ^ bstr1->mem[bstr1->size - 1]);
+      result = (inttype) ((memsizetype) bstri1->mem[0] << 5 ^
+          bstri1->size << 3 ^ bstri1->mem[bstri1->size - 1]);
     } /* if */
     return(bld_int_temp(result));
   } /* bst_hashcode */
+
+
+
+#ifdef ANSI_C
+
+objecttype bst_idx (listtype arguments)
+#else
+
+objecttype bst_idx (arguments)
+listtype arguments;
+#endif
+
+  {
+    bstritype bstri;
+    inttype position;
+
+  /* bst_idx */
+    isit_bstri(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    bstri = take_bstri(arg_1(arguments));
+    position = take_int(arg_3(arguments));
+    if (position >= 1 && (uinttype) position <= bstri->size) {
+      return(bld_char_temp((chartype) bstri->mem[position - 1]));
+    } else {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } /* if */
+  } /* bst_idx */
 
 
 
@@ -425,16 +452,16 @@ listtype arguments;
 #endif
 
   {
-    bstritype bstr1;
-    bstritype bstr2;
+    bstritype bstri1;
+    bstritype bstri2;
 
   /* bst_ne */
     isit_bstri(arg_1(arguments));
     isit_bstri(arg_3(arguments));
-    bstr1 = take_bstri(arg_1(arguments));
-    bstr2 = take_bstri(arg_3(arguments));
-    if (bstr1->size != bstr2->size || memcmp(bstr1->mem, bstr2->mem,
-        bstr1->size * sizeof(uchartype)) != 0) {
+    bstri1 = take_bstri(arg_1(arguments));
+    bstri2 = take_bstri(arg_3(arguments));
+    if (bstri1->size != bstri2->size || memcmp(bstri1->mem, bstri2->mem,
+        bstri1->size * sizeof(uchartype)) != 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -471,7 +498,7 @@ listtype arguments;
 
   {
     objecttype obj_arg;
-    bstritype str1;
+    bstritype bstri;
     bstritype result;
 
   /* bst_value */
@@ -481,12 +508,12 @@ listtype arguments;
         take_bstri(obj_arg) == NULL) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
-      str1 = take_bstri(obj_arg);
-      if (!ALLOC_BSTRI_SIZE_OK(result, str1->size)) {
+      bstri = take_bstri(obj_arg);
+      if (!ALLOC_BSTRI_SIZE_OK(result, bstri->size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        result->size = str1->size;
-        memcpy(result->mem, str1->mem,
+        result->size = bstri->size;
+        memcpy(result->mem, bstri->mem,
             result->size * sizeof(uchartype));
         return(bld_bstri_temp(result));
       } /* if */

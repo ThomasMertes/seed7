@@ -581,7 +581,7 @@ objecttype obj_arg;
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (inttype) hshIdxWithDefault(obj_table, (rtlGenerictype) obj_arg,
+        result = (inttype) hshIdxWithDefault(obj_table, (rtlGenerictype) (memsizetype) obj_arg,
             (rtlGenerictype) next_free_number,
             (inttype) (((memsizetype) obj_arg) >> 6), (comparetype) &refCmpGeneric,
             (createfunctype) &genericCreate, (createfunctype) &genericCreate);
@@ -945,7 +945,7 @@ objecttype obj_arg;
 #endif
 
   {
-    bstritype str1;
+    bstritype bstri;
     bstritype result;
 
   /* bstValue */
@@ -954,12 +954,12 @@ objecttype obj_arg;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      str1 = take_bstri(obj_arg);
-      if (!ALLOC_BSTRI_SIZE_OK(result, str1->size)) {
+      bstri = take_bstri(obj_arg);
+      if (!ALLOC_BSTRI_SIZE_OK(result, bstri->size)) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = str1->size;
-        memcpy(result->mem, str1->mem,
+        result->size = bstri->size;
+        memcpy(result->mem, bstri->mem,
             (size_t) (result->size * sizeof(uchartype)));
       } /* if */
     } /* if */
@@ -1205,7 +1205,7 @@ objecttype obj_arg;
 #endif
 
   {
-    stritype str1;
+    stritype stri;
     stritype result;
 
   /* strValue */
@@ -1214,12 +1214,12 @@ objecttype obj_arg;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      str1 = take_stri(obj_arg);
-      if (!ALLOC_STRI_SIZE_OK(result, str1->size)) {
+      stri = take_stri(obj_arg);
+      if (!ALLOC_STRI_SIZE_OK(result, stri->size)) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = str1->size;
-        memcpy(result->mem, str1->mem,
+        result->size = stri->size;
+        memcpy(result->mem, stri->mem,
             (size_t) (result->size * sizeof(strelemtype)));
       } /* if */
     } /* if */

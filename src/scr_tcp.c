@@ -1214,21 +1214,21 @@ int scrOpen ()
 
   /* scrOpen */
     getcaps();
-    if (LI == -1) {
+    if (LI < 0) {
       LI = 24;
     } /* if */
-    if (CO == -1) {
+    if (CO < 0) {
       CO = 80;
     } /* if */
-    SCRN = (unsigned char *) malloc(LI * CO * sizeof(unsigned char));
-    SCREEN = (unsigned char **) malloc (LI * sizeof(unsigned char *));
-    SPACE = (unsigned char *) malloc(CO * sizeof(unsigned char));
+    SCRN = (unsigned char *) malloc((size_t) (LI * CO) * sizeof(unsigned char));
+    SCREEN = (unsigned char **) malloc ((size_t) LI * sizeof(unsigned char *));
+    SPACE = (unsigned char *) malloc((size_t) CO * sizeof(unsigned char));
     if (SCRN != NULL && SCREEN != NULL && SPACE != NULL) {
-      memset(SCRN, ' ', LI * CO);
+      memset(SCRN, ' ', (size_t) (LI * CO));
       for (line = 0; line < LI; line++) {
         SCREEN[line] = &SCRN[line * CO];
       } /* for */
-      memset(SPACE, ' ', CO);
+      memset(SPACE, ' ', (size_t) CO);
       putctl(TI); /* enter cursor addressing mode */
       putctl(VS); /* enter visual mode */
       putctl(ZC); /* zap cursor (hide cursor) */

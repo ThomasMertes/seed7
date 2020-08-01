@@ -224,7 +224,7 @@ rtlGenerictype from_value;
 #endif
 
   { /* rflCreateGeneric */
-    return (rtlGenerictype) rflCreate((const_listtype) from_value);
+    return (rtlGenerictype) (memsizetype) rflCreate((const_listtype) from_value);
   } /* rflCreateGeneric */
 
 

@@ -2940,7 +2940,7 @@ rtlGenerictype from_value;
 #endif
 
   { /* bigCreateGeneric */
-    return (rtlGenerictype) bigCreate((const_biginttype) from_value);
+    return (rtlGenerictype) (memsizetype) bigCreate((const_biginttype) from_value);
   } /* bigCreateGeneric */
 
 

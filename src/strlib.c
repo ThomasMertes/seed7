@@ -401,32 +401,32 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
-    memsizetype str1_size;
+    stritype stri1;
+    stritype stri2;
+    memsizetype stri1_size;
     memsizetype result_size;
     stritype result;
 
   /* str_cat */
     isit_stri(arg_1(arguments));
     isit_stri(arg_3(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_3(arguments));
-    str1_size = str1->size;
-    if (str1_size > MAX_STRI_LEN - str2->size) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_3(arguments));
+    stri1_size = stri1->size;
+    if (stri1_size > MAX_STRI_LEN - stri2->size) {
       /* number of bytes does not fit into memsizetype */
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      result_size = str1_size + str2->size;
+      result_size = stri1_size + stri2->size;
       if (TEMP_OBJECT(arg_1(arguments))) {
-        GROW_STRI(result, str1, str1_size, result_size);
+        GROW_STRI(result, stri1, stri1_size, result_size);
         if (result == NULL) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
-          COUNT3_STRI(str1_size, result_size);
+          COUNT3_STRI(stri1_size, result_size);
           result->size = result_size;
-          memcpy(&result->mem[str1_size], str2->mem,
-              str2->size * sizeof(strelemtype));
+          memcpy(&result->mem[stri1_size], stri2->mem,
+              stri2->size * sizeof(strelemtype));
           arg_1(arguments)->value.strivalue = NULL;
           return(bld_stri_temp(result));
         } /* if */
@@ -435,10 +435,10 @@ listtype arguments;
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
           result->size = result_size;
-          memcpy(result->mem, str1->mem,
-              str1_size * sizeof(strelemtype));
-          memcpy(&result->mem[str1_size], str2->mem,
-              str2->size * sizeof(strelemtype));
+          memcpy(result->mem, stri1->mem,
+              stri1_size * sizeof(strelemtype));
+          memcpy(&result->mem[stri1_size], stri2->mem,
+              stri2->size * sizeof(strelemtype));
           return(bld_stri_temp(result));
         } /* if */
       } /* if */
@@ -530,29 +530,29 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
+    stritype stri1;
+    stritype stri2;
     inttype result;
 
   /* str_cmp */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_2(arguments));
-    if (str1->size < str2->size) {
-      if (strelem_memcmp(str1->mem, str2->mem, str1->size) <= 0) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_2(arguments));
+    if (stri1->size < stri2->size) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
         result = -1;
       } else {
         result = 1;
       } /* if */
-    } else if (str1->size > str2->size) {
-      if (strelem_memcmp(str1->mem, str2->mem, str2->size) >= 0) {
+    } else if (stri1->size > stri2->size) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
         result = 1;
       } else {
         result = -1;
       } /* if */
     } else {
-      result = strelem_memcmp(str1->mem, str2->mem, str1->size);
+      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
       if (result > 0) {
         result = 1;
       } else if (result < 0) {
@@ -692,7 +692,7 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
+    stritype stri;
     inttype position;
 
   /* str_elemcpy */
@@ -700,10 +700,10 @@ listtype arguments;
     isit_int(arg_4(arguments));
     isit_char(arg_6(arguments));
     is_variable(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
+    stri = take_stri(arg_1(arguments));
     position = take_int(arg_4(arguments));
-    if (position >= 1 && (uinttype) position <= str1->size) {
-      str1->mem[position - 1] = (strelemtype) take_char(arg_6(arguments));
+    if (position >= 1 && (uinttype) position <= stri->size) {
+      stri->mem[position - 1] = (strelemtype) take_char(arg_6(arguments));
     } else {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } /* if */
@@ -722,16 +722,16 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
+    stritype stri1;
+    stritype stri2;
 
   /* str_eq */
     isit_stri(arg_1(arguments));
     isit_stri(arg_3(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_3(arguments));
-    if (str1->size == str2->size && memcmp(str1->mem, str2->mem,
-        str1->size * sizeof(strelemtype)) == 0) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_3(arguments));
+    if (stri1->size == stri2->size && memcmp(stri1->mem, stri2->mem,
+        stri1->size * sizeof(strelemtype)) == 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -750,23 +750,23 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
+    stritype stri1;
+    stritype stri2;
     objecttype result;
 
   /* str_ge */
     isit_stri(arg_1(arguments));
     isit_stri(arg_3(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_3(arguments));
-    if (str1->size >= str2->size) {
-      if (strelem_memcmp(str1->mem, str2->mem, str2->size) >= 0) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_3(arguments));
+    if (stri1->size >= stri2->size) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(str1->mem, str2->mem, str1->size) > 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
@@ -804,23 +804,23 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
+    stritype stri1;
+    stritype stri2;
     objecttype result;
 
   /* str_gt */
     isit_stri(arg_1(arguments));
     isit_stri(arg_3(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_3(arguments));
-    if (str1->size > str2->size) {
-      if (strelem_memcmp(str1->mem, str2->mem, str2->size) >= 0) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_3(arguments));
+    if (stri1->size > stri2->size) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(str1->mem, str2->mem, str1->size) > 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
@@ -841,16 +841,16 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
+    stritype stri;
     inttype result;
 
   /* str_hashcode */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    if (str1->size == 0) {
+    stri = take_stri(arg_1(arguments));
+    if (stri->size == 0) {
       result = 0;
     } else {
-      result = (inttype) (str1->mem[0] << 5 ^ str1->size << 3 ^ str1->mem[str1->size - 1]);
+      result = (inttype) (stri->mem[0] << 5 ^ stri->size << 3 ^ stri->mem[stri->size - 1]);
     } /* if */
     return(bld_int_temp(result));
   } /* str_hashcode */
@@ -968,23 +968,23 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
+    stritype stri1;
+    stritype stri2;
     objecttype result;
 
   /* str_le */
     isit_stri(arg_1(arguments));
     isit_stri(arg_3(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_3(arguments));
-    if (str1->size <= str2->size) {
-      if (strelem_memcmp(str1->mem, str2->mem, str1->size) <= 0) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_3(arguments));
+    if (stri1->size <= stri2->size) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(str1->mem, str2->mem, str2->size) < 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
@@ -1198,23 +1198,23 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
+    stritype stri1;
+    stritype stri2;
     objecttype result;
 
   /* str_lt */
     isit_stri(arg_1(arguments));
     isit_stri(arg_3(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_3(arguments));
-    if (str1->size < str2->size) {
-      if (strelem_memcmp(str1->mem, str2->mem, str1->size) <= 0) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_3(arguments));
+    if (stri1->size < stri2->size) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(str1->mem, str2->mem, str2->size) < 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
@@ -1291,16 +1291,16 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    stritype str2;
+    stritype stri1;
+    stritype stri2;
 
   /* str_ne */
     isit_stri(arg_1(arguments));
     isit_stri(arg_3(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_3(arguments));
-    if (str1->size != str2->size || memcmp(str1->mem, str2->mem,
-        str1->size * sizeof(strelemtype)) != 0) {
+    stri1 = take_stri(arg_1(arguments));
+    stri2 = take_stri(arg_3(arguments));
+    if (stri1->size != stri2->size || memcmp(stri1->mem, stri2->mem,
+        stri1->size * sizeof(strelemtype)) != 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -1861,7 +1861,7 @@ listtype arguments;
 
   {
     objecttype obj_arg;
-    stritype str1;
+    stritype stri;
     stritype result;
 
   /* str_value */
@@ -1871,12 +1871,12 @@ listtype arguments;
         take_stri(obj_arg) == NULL) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
-      str1 = take_stri(obj_arg);
-      if (!ALLOC_STRI_SIZE_OK(result, str1->size)) {
+      stri = take_stri(obj_arg);
+      if (!ALLOC_STRI_SIZE_OK(result, stri->size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        result->size = str1->size;
-        memcpy(result->mem, str1->mem,
+        result->size = stri->size;
+        memcpy(result->mem, stri->mem,
             result->size * sizeof(strelemtype));
         return(bld_stri_temp(result));
       } /* if */

@@ -38,6 +38,7 @@
 #include "striutl.h"
 #include "runerr.h"
 #include "memory.h"
+#include "scr_rtl.h"
 #include "scr_drv.h"
 
 #undef EXTERN

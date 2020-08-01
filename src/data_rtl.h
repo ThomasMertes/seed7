@@ -55,11 +55,13 @@ typedef uint32type rtlGenerictype;
 
 typedef struct rtlListstruct   *rtlListtype;
 typedef struct rtlArraystruct  *rtlArraytype;
+typedef struct rtlStructstruct *rtlStructtype;
 typedef struct rtlHelemstruct  *rtlHelemtype;
 typedef struct rtlHashstruct   *rtlHashtype;
 
 typedef const struct rtlListstruct   *const_rtlListtype;
 typedef const struct rtlArraystruct  *const_rtlArraytype;
+typedef const struct rtlStructstruct *const_rtlStructtype;
 typedef const struct rtlHelemstruct  *const_rtlHelemtype;
 typedef const struct rtlHashstruct   *const_rtlHashtype;
 
@@ -75,7 +77,7 @@ typedef union {
     rtlArraytype  arrayvalue;   /* ARRAYOBJECT */
     rtlHashtype   hashvalue;    /* HASHOBJECT */
     settype       setvalue;     /* SETOBJECT */
-/*    structtype structvalue;  ** STRUCTOBJECT */
+    rtlStructtype structvalue;  /* STRUCTOBJECT */
     filetype      filevalue;    /* FILEOBJECT */
     rtlListtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
     wintype       winvalue;     /* WINOBJECT */
@@ -108,6 +110,11 @@ typedef struct rtlArraystruct {
     inttype max_position;
     rtlObjecttype arr[1];
   } rtlArrayrecord;
+
+struct rtlStructstruct {
+    uint32type type_num;
+    rtlObjecttype stru[1];
+  };
 
 typedef struct rtlHelemstruct {
     rtlHelemtype next_less;

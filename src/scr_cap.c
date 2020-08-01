@@ -1234,21 +1234,21 @@ int scrOpen ()
 
   /* scrOpen */
     getcaps();
-    if (lines == -1) {
+    if (lines < 0) {
       lines = 24;
     } /* if */
-    if (columns == -1) {
+    if (columns < 0) {
       columns = 80;
     } /* if */
-    scrn = (unsigned char *) malloc(lines * columns * sizeof(unsigned char));
-    whole_screen = (unsigned char **) malloc (lines * sizeof(unsigned char *));
-    space = (unsigned char *) malloc(columns * sizeof(unsigned char));
+    scrn = (unsigned char *) malloc((size_t) (lines * columns) * sizeof(unsigned char));
+    whole_screen = (unsigned char **) malloc ((size_t) lines * sizeof(unsigned char *));
+    space = (unsigned char *) malloc((size_t) columns * sizeof(unsigned char));
     if (scrn != NULL && whole_screen != NULL && space != NULL) {
-      memset(scrn, ' ', lines * columns);
+      memset(scrn, ' ', (size_t) (lines * columns));
       for (line = 0; line < lines; line++) {
         whole_screen[line] = &scrn[line * columns];
       } /* for */
-      memset(space, ' ', columns);
+      memset(space, ' ', (size_t) columns);
       putctl(enter_ca_mode); /* enter cursor addressing mode */
       putctl(cursor_invisible); /* makes cursor invisible */
       putctl(clear_screen); /* clear screen */

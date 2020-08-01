@@ -474,7 +474,7 @@ listtype arguments;
     isit_prog(arg_1(arguments));
     isit_stri(arg_2(arguments));
     return(bld_reference_temp(prgSysvar(
-	take_prog(arg_1(arguments)), take_stri(arg_2(arguments)))));
+        take_prog(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* prg_sysvar */
 
 

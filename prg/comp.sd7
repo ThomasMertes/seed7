@@ -1653,7 +1653,7 @@ const proc: process_cast_from_float_expr (in reference: current_expression,
     if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "valueunion tmp_";
+      c_expr.temp_decls &:= "rtlValueunion tmp_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(tmp_";
@@ -2739,7 +2739,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         incr(c_expr.temp_num);
         index_temp_num := c_expr.temp_num;
         if TWOS_COMPLEMENT_INTTYPE then
-          c_expr.temp_decls &:= "memsizetype tmp_";
+          c_expr.temp_decls &:= "uinttype tmp_";
         else
           c_expr.temp_decls &:= "inttype tmp_";
         end if;
@@ -3093,7 +3093,7 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
     if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "valueunion tmp_";
+      c_expr.temp_decls &:= "rtlValueunion tmp_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.result_expr := "(tmp_";
@@ -4802,6 +4802,172 @@ const proc: process_bst_hashcode (in ref_list: params, inout expr_type: c_expr) 
     c_expr.expr &:= "bstHashCode(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
+    in reference: param3, inout expr_type: c_expr) is func
+
+  local
+    var integer: index is 0;
+    var integer: index_temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if category(param3) = INTOBJECT and not isVar(param3) then
+      index := getValue(param3, integer);
+      if index < 1 or index > length(bstri) then
+        process_raise_error("RANGE_ERROR", function, c_expr);
+      else
+        c_expr.expr &:= c_literal(bstri[index]);
+      end if;
+    else
+      c_expr.expr &:= bstriLiteral(bstri);
+      c_expr.expr &:= "->mem[";
+      if array_range_check then
+        incr(c_expr.temp_num);
+        index_temp_num := c_expr.temp_num;
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.temp_decls &:= "uinttype tmp_";
+        else
+          c_expr.temp_decls &:= "inttype tmp_";
+        end if;
+        c_expr.temp_decls &:= str(index_temp_num);
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= "(tmp_";
+        c_expr.expr &:= str(index_temp_num);
+        c_expr.expr &:= "=";
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "(uinttype)((";
+          process_expr(param3, c_expr);
+          c_expr.expr &:= ")-1), tmp_";
+        else
+          c_expr.expr &:= "(";
+          process_expr(param3, c_expr);
+          c_expr.expr &:= ")-1, tmp_";
+          c_expr.expr &:= str(index_temp_num);
+          c_expr.expr &:= "<0 || tmp_";
+        end if;
+        c_expr.expr &:= str(index_temp_num);
+        c_expr.expr &:= ">=";
+        c_expr.expr &:= str(length(bstri));
+        c_expr.expr &:= " ? ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= " : 0, tmp_";
+        c_expr.expr &:= str(index_temp_num);
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "(";
+        process_expr(param3, c_expr);
+        c_expr.expr &:= ")-1";
+      end if;
+      c_expr.expr &:= "]";
+    end if;
+  end func;
+
+
+const proc: process_const_bst_idx (in reference: function, in reference: param1,
+    in integer: index, inout expr_type: c_expr) is func
+
+  local
+    var integer: string_temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if index < 1 then
+      process_raise_error("RANGE_ERROR", function, c_expr);
+    elsif array_range_check then
+      incr(c_expr.temp_num);
+      string_temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "stritype tmp_";
+      c_expr.temp_decls &:= str(string_temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(*(tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "=";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ", &tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "->mem[(tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "->size<";
+      c_expr.expr &:= str(index);
+      c_expr.expr &:= " ? ";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= " : 0, ";
+      c_expr.expr &:= str(pred(index));
+      c_expr.expr &:= ")";
+      c_expr.expr &:= "]))";
+    else
+      c_expr.expr &:= "(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ")->mem[";
+      c_expr.expr &:= str(pred(index));
+      c_expr.expr &:= "]";
+    end if;
+  end func;
+
+
+const proc: process_bst_idx (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: string_temp_num is 0;
+    var integer: index_temp_num is 0;
+  begin
+    if category(params[1]) = BSTRIOBJECT and not isVar(params[1]) then
+      process_const_bst_idx(function, getValue(params[1], bstring), params[3], c_expr);
+    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
+      process_const_bst_idx(function, params[1], getValue(params[3], integer), c_expr);
+    elsif array_range_check then
+      incr(c_expr.temp_num);
+      string_temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "stritype tmp_";
+      c_expr.temp_decls &:= str(string_temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(*(tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "=";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", &tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "->mem[";
+      incr(c_expr.temp_num);
+      index_temp_num := c_expr.temp_num;
+      if TWOS_COMPLEMENT_INTTYPE then
+        c_expr.temp_decls &:= "uinttype tmp_";
+      else
+        c_expr.temp_decls &:= "inttype tmp_";
+      end if;
+      c_expr.temp_decls &:= str(index_temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_";
+      c_expr.expr &:= str(index_temp_num);
+      c_expr.expr &:= "=";
+      if TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= "(uinttype)((";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")-1), tmp_";
+      else
+        c_expr.expr &:= "(";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")-1, tmp_";
+        c_expr.expr &:= str(index_temp_num);
+        c_expr.expr &:= "<0 || tmp_";
+      end if;
+      c_expr.expr &:= str(index_temp_num);
+      c_expr.expr &:= ">=tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "->size ? ";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= " : 0, tmp_";
+      c_expr.expr &:= str(index_temp_num);
+      c_expr.expr &:= ")";
+      c_expr.expr &:= "]))";
+    else
+      c_expr.expr &:= "(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ")->mem[(";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")-1]";
+    end if;
   end func;
 
 
@@ -6765,7 +6931,7 @@ const proc: process_flt_cast (in ref_list: params, inout expr_type: c_expr) is f
   begin
     incr(c_expr.temp_num);
     temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "valueunion tmp_";
+    c_expr.temp_decls &:= "rtlValueunion tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
     c_expr.expr &:= "(tmp_";
@@ -7036,7 +7202,7 @@ const proc: process_flt_hashcode (in ref_list: params, inout expr_type: c_expr) 
   begin
     incr(c_expr.temp_num);
     temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "valueunion tmp_";
+    c_expr.temp_decls &:= "rtlValueunion tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
     c_expr.expr &:= "(tmp_";
@@ -7056,7 +7222,7 @@ const proc: process_flt_icast (in ref_list: params, inout expr_type: c_expr) is 
   begin
     incr(c_expr.temp_num);
     temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "valueunion tmp_";
+    c_expr.temp_decls &:= "rtlValueunion tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
     c_expr.expr &:= "(tmp_";
@@ -11837,7 +12003,7 @@ const proc: process_str_elemcpy (in reference: function, in ref_list: params, in
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ";\n";
         if TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "memsizetype pos=(";
+          c_expr.expr &:= "uinttype pos=(";
         else
           c_expr.expr &:= "inttype pos=(";
         end if;
@@ -12074,7 +12240,7 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
         incr(c_expr.temp_num);
         index_temp_num := c_expr.temp_num;
         if TWOS_COMPLEMENT_INTTYPE then
-          c_expr.temp_decls &:= "memsizetype tmp_";
+          c_expr.temp_decls &:= "uinttype tmp_";
         else
           c_expr.temp_decls &:= "inttype tmp_";
         end if;
@@ -12084,10 +12250,11 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= "=";
         if TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "(memsizetype)((";
+          c_expr.expr &:= "(uinttype)((";
           process_expr(param3, c_expr);
           c_expr.expr &:= ")-1), tmp_";
         else
+          c_expr.expr &:= "(";
           process_expr(param3, c_expr);
           c_expr.expr &:= ")-1, tmp_";
           c_expr.expr &:= str(index_temp_num);
@@ -12178,7 +12345,7 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
       incr(c_expr.temp_num);
       index_temp_num := c_expr.temp_num;
       if TWOS_COMPLEMENT_INTTYPE then
-        c_expr.temp_decls &:= "memsizetype tmp_";
+        c_expr.temp_decls &:= "uinttype tmp_";
       else
         c_expr.temp_decls &:= "inttype tmp_";
       end if;
@@ -12188,10 +12355,11 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
       c_expr.expr &:= str(index_temp_num);
       c_expr.expr &:= "=";
       if TWOS_COMPLEMENT_INTTYPE then
-        c_expr.expr &:= "(memsizetype)((";
+        c_expr.expr &:= "(uinttype)((";
         process_expr(params[3], c_expr);
         c_expr.expr &:= ")-1), tmp_";
       else
+        c_expr.expr &:= "(";
         process_expr(params[3], c_expr);
         c_expr.expr &:= ")-1, tmp_";
         c_expr.expr &:= str(index_temp_num);
@@ -13274,6 +13442,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_bst_eq(params, c_expr);
       elsif action_name = "BST_HASHCODE" then
         process_bst_hashcode(params, c_expr);
+      elsif action_name = "BST_IDX" then
+        process_bst_idx(function, params, c_expr);
       elsif action_name = "BST_LNG" then
         process_bst_lng(params, c_expr);
       elsif action_name = "BST_NE" then
@@ -15122,11 +15292,7 @@ const proc: process_function (in reference: function,
         not is_varfunc(function_type) and
         function not in return_ref_to_value then
       prepare_typed_result(result_type, c_expr);
-      if is_varfunc(function_type) then
-        c_expr.result_expr := "*o_";
-      else
-        c_expr.result_expr := "o_";
-      end if;
+      c_expr.result_expr := "o_";
       create_name(function, c_expr.result_expr);
       c_expr.result_expr &:= "(";
       c_params.temp_num := c_expr.temp_num;
@@ -15713,7 +15879,7 @@ const proc: process_func_declaration (in reference: function,
       result_object := func_result(function);
       if function_type <> proctype and result_object = NIL then
         process_expr(body(function), c_proc_body);
-        if c_proc_body.temp_num <> 0 or c_param_list.temp_decls <> "" then
+        if c_param_list.temp_decls <> "" or c_proc_body.temp_decls <> "" then
           c_expr.expr &:= type_name(result_type);
           if is_varfunc(getType(function)) then
             c_expr.expr &:= " *result;\n";
@@ -16586,7 +16752,7 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
 
 
 const proc: process_dynamic_action_call (in ref_list: actual_params,
-    in reference: matched_object, inout expr_type: c_expr) is func
+    in reference: current_object, in reference: matched_object, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_action_expr is expr_type.value;
@@ -16604,7 +16770,14 @@ const proc: process_dynamic_action_call (in ref_list: actual_params,
     if c_action_expr.result_expr <> "" then
       c_expr.expr &:= c_action_expr.result_expr;
     else
-      c_expr.expr &:= c_action_expr.expr;
+      if is_varfunc(getType(current_object)) then
+        c_expr.expr &:= c_action_expr.expr;
+      else
+        c_expr.expr &:= "/* copy ref_to_value */ ";
+        process_create_declaration(result_type(getType(current_object)), global_c_expr);
+        process_create_call(result_type(getType(current_object)),
+            c_action_expr.expr, c_expr.expr);
+      end if;
     end if;
   end func;
 
@@ -16649,7 +16822,7 @@ const proc: process_dynamic_call (in reference: current_object,
             c_expr.expr &:= "&(";
           end if;
         end if;
-        process_dynamic_action_call(actual_params, matched_object, c_expr);
+        process_dynamic_action_call(actual_params, current_object, matched_object, c_expr);
         if result_type(getType(current_object)) <> voidtype then
           if is_varfunc(getType(current_object)) then
             c_expr.expr &:= ")";
@@ -17772,7 +17945,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef struct rtlArraystruct *arraytype;");
     writeln(c_prog, "typedef struct rtlHashstruct *hashtype;");
     writeln(c_prog, "typedef struct rtlStructstruct *structtype;");
-    writeln(c_prog, "typedef structtype interfacetype;");
+    writeln(c_prog, "typedef struct rtlStructstruct *interfacetype;");
     writeln(c_prog, "typedef struct objectstruct *objreftype;");
     writeln(c_prog, "typedef struct liststruct *listtype;");
     writeln(c_prog, "typedef FILE *filetype;");
@@ -17800,16 +17973,16 @@ const proc: write_file_head is func
     writeln(c_prog, "  interfacetype interfacevalue;");
     writeln(c_prog, "  objreftype    objrefvalue;");
     writeln(c_prog, "  listtype      listvalue;");
-    writeln(c_prog, "} valueunion;");
+    writeln(c_prog, "} rtlValueunion;");
     writeln(c_prog, "typedef struct rtlObjectstruct {");
-    writeln(c_prog, "  valueunion value;");
+    writeln(c_prog, "  rtlValueunion value;");
     writeln(c_prog, "} rtlObjecttype;");
     writeln(c_prog, "typedef inttype (*intfunctype)();");
     writeln(c_prog, "typedef unsigned int categorytype;");
     writeln(c_prog, "struct objectstruct {");
     writeln(c_prog, "  typetype type_of;");
     writeln(c_prog, "  uint" <& POINTER_SIZE <& "type descriptor;");
-    writeln(c_prog, "  valueunion value;");
+    writeln(c_prog, "  rtlValueunion value;");
     writeln(c_prog, "  categorytype objcategory;");
     writeln(c_prog, "};");
     writeln(c_prog, "struct typestruct {");
@@ -17861,14 +18034,14 @@ const proc: write_file_head is func
     writeln(c_prog, "structtype    *sct;");
     writeln(c_prog, "hashtype      *hsh;");
     writeln(c_prog, "interfacetype *itf;");
-    writeln(c_prog, "valueunion      flt2int;");
+    writeln(c_prog, "rtlValueunion  flt2int;");
     writeln(c_prog, "memsizetype hs;");
     writeln(c_prog);
     writeln(c_prog, "static inttype fact[] = {");
     writeln(c_prog, "    1, 1, 2, 6, 24, 120, 720, 5040, 40320,");
     writeln(c_prog, "    362880, 3628800, 39916800, 479001600");
     writeln(c_prog, "  };");
-    writeln(c_prog, "extern valueunion f_const[];");
+    writeln(c_prog, "extern rtlValueunion f_const[];");
     writeln(c_prog, "#define OKAY_NO_ERROR 0");
     writeln(c_prog, "#define MEMORY_ERROR  1");
     writeln(c_prog, "#define NUMERIC_ERROR 2");
@@ -18745,7 +18918,6 @@ const func string: int32AsFourInt8 (in bigInteger: number) is func
       result &:= str((number >> 16) mod 256_);
       result &:= ",";
       result &:= str((number >> 24) mod 256_);
-      result &:= ",";
     else
       result &:= str((number >> 24) mod 256_);
       result &:= ",";
@@ -18754,7 +18926,6 @@ const func string: int32AsFourInt8 (in bigInteger: number) is func
       result &:= str((number >>  8) mod 256_);
       result &:= ",";
       result  := str( number        mod 256_);
-      result &:= ",";
     end if;
   end func;
 
@@ -18779,7 +18950,6 @@ const func string: int64AsEightInt8 (in bigInteger: number) is func
       result &:= str((number >> 48) mod 256_);
       result &:= ",";
       result &:= str((number >> 56) mod 256_);
-      result &:= ",";
     else
       result &:= str((number >> 56) mod 256_);
       result &:= ",";
@@ -18796,7 +18966,6 @@ const func string: int64AsEightInt8 (in bigInteger: number) is func
       result &:= str((number >>  8) mod 256_);
       result &:= ",";
       result  := str( number        mod 256_);
-      result &:= ",";
     end if;
   end func;
 
@@ -18821,10 +18990,10 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
       elsif POINTER_SIZE = 64 then
         c_expr.expr &:= int64AsEightInt8(bigInteger conv length(bstri));
       end if;
-      #% for ch range bstri do
-      #%   c_expr.expr &:= c_literal(ch);
-      #%   c_expr.expr &:= ",";
-      #% end for;
+      for ch range bstri do
+        c_expr.expr &:= ",";
+        c_expr.expr &:= c_literal(ch);
+      end for;
       c_expr.expr &:= "};\n";
     end for;
     c_expr.expr &:= "bstritype bst[]={\n";
@@ -19139,16 +19308,25 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "  error_file = file_name;\n";
     c_expr.expr &:= "  error_line = line_number;\n";
     if signal_exception then
-      c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
-      c_expr.expr &:= "  signal(SIGFPE, SIG_DFL);\n";
-#     c_expr.expr &:= "  signal(SIGINT, SIG_DFL);\n";
-#     c_expr.expr &:= "  signal(SIGSEGV, SIG_DFL);\n";
-      c_expr.expr &:= "  flt2int.intvalue = fail_value / (error_line - line_number);\n";
-#     c_expr.expr &:= "  raise(SIGTRAP);\n";
-#     c_expr.expr &:= "  raise(SIGFPE);\n";
-#     c_expr.expr &:= "  raise(SIGINT);\n";
-#     c_expr.expr &:= "  raise(SIGSEGV);\n";
-      c_expr.expr &:= "  activate_signal_handlers();\n";
+      c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
+      c_expr.expr &:= "    if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
+      c_expr.expr &:= "      printf(\"\\n*** Uncaught EXCEPTION %s raised\",\n";
+      c_expr.expr &:= "          exception_name[fail_value]);\n";
+      c_expr.expr &:= "    } else {\n";
+      c_expr.expr &:= "      printf(\"\\n*** Uncaught EXCEPTION %d raised\",\n";
+      c_expr.expr &:= "          fail_value);\n";
+      c_expr.expr &:= "    }\n";
+      c_expr.expr &:= "    printf(\" at %s(%d)\\n\", file_name, line_number);\n";
+      c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
+#     c_expr.expr &:= "    signal(SIGINT, SIG_DFL);\n";
+#     c_expr.expr &:= "    signal(SIGSEGV, SIG_DFL);\n";
+      c_expr.expr &:= "    flt2int.intvalue = fail_value / (error_line - line_number);\n";
+#     c_expr.expr &:= "    raise(SIGTRAP);\n";
+#     c_expr.expr &:= "    raise(SIGFPE);\n";
+#     c_expr.expr &:= "    raise(SIGINT);\n";
+#     c_expr.expr &:= "    raise(SIGSEGV);\n";
+      c_expr.expr &:= "    activate_signal_handlers();\n";
+      c_expr.expr &:= "  }\n";
     end if;
     if USE_SIGSETJMP then
       c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], fail_value);\n";

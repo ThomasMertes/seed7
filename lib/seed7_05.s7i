@@ -2735,10 +2735,10 @@ const proc: literal (ref LIST: aList) is func
 
 (* INDEXABLE *)
 
+(*
 const func integer: length (ref INDEXABLE param) is DYNAMIC;
 const func object: (ref INDEXABLE param) [ (ref integer param) ] is DYNAMIC;
 
-(*
 const func boolean: (ref object: obj) in (ref INDEXABLE: AREA1) is func
   result
     var boolean: result is FALSE;

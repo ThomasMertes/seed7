@@ -266,7 +266,7 @@ rtlGenerictype from_value;
 #endif
 
   { /* bstCreateGeneric */
-    return (rtlGenerictype) bstCreate((const_bstritype) from_value);
+    return (rtlGenerictype) (memsizetype) bstCreate((const_bstritype) from_value);
   } /* bstCreateGeneric */
 
 

@@ -28,30 +28,30 @@
 
 const type: program is subtype object;
 
-const proc: (ref program param) ::= (ref program param) is                 action "PRG_CREATE";
-const proc: destroy (ref program param) is                                 action "PRG_DESTR";
-const proc: (inout program param) := (ref program param) is                action "PRG_CPY";
+const proc: (ref program param) ::= (ref program param)                 is action "PRG_CREATE";
+const proc: destroy (ref program param)                                 is action "PRG_DESTR";
+const proc: (inout program param) := (ref program param)                is action "PRG_CPY";
 
-const func program: _GENERATE_EMPTY_PROG is                                action "PRG_EMPTY";
-const program: (attr program) . EMPTY is                                   _GENERATE_EMPTY_PROG;
-const program: (attr program) . value is                                   program.EMPTY;
+const func program: _GENERATE_EMPTY_PROG                                is action "PRG_EMPTY";
+const program: (attr program) . EMPTY                                   is _GENERATE_EMPTY_PROG;
+const program: (attr program) . value                                   is program.EMPTY;
 
-const func boolean: (ref program param) = (ref program param) is           action "PRG_EQ";
-const func boolean: (ref program param) <> (ref program param) is          action "PRG_NE";
+const func boolean: (ref program param) = (ref program param)           is action "PRG_EQ";
+const func boolean: (ref program param) <> (ref program param)          is action "PRG_NE";
 
-const func program: parseFile (in string param) is                         action "PRG_FIL_PARSE";
-const func program: parseStri (in string param) is                         action "PRG_STR_PARSE";
+const func program: parseFile (in string param)                         is action "PRG_FIL_PARSE";
+const func program: parseStri (in string param)                         is action "PRG_STR_PARSE";
 const func reference: evaluate (ref program param, ref reference param) is action "PRG_EVAL";
-const proc: execute (ref program param) is                                 action "PRG_EXEC";
+const proc: execute (ref program param)                                 is action "PRG_EXEC";
 
-const func reference: sys_var (ref program param, in string param) is      action "PRG_SYSVAR";
-const func integer: error_count (ref program param) is                     action "PRG_ERROR_COUNT";
-const func ref_list: declared_objects (ref program param) is               action "PRG_DECL_OBJECTS";
-const func reference: syobject (ref program param, ref string param) is    action "PRG_SYOBJECT";
+const func reference: sys_var (ref program param, in string param)      is action "PRG_SYSVAR";
+const func integer: error_count (ref program param)                     is action "PRG_ERROR_COUNT";
+const func ref_list: declared_objects (ref program param)               is action "PRG_DECL_OBJECTS";
+const func reference: syobject (ref program param, ref string param)    is action "PRG_SYOBJECT";
 
-const func reference: match (ref program param, ref ref_list param) is     action "PRG_MATCH";
+const func reference: match (ref program param, ref ref_list param)     is action "PRG_MATCH";
 const func reference: matchExpr (ref program param, ref ref_list param) is action "PRG_MATCH_EXPR";
-# const func program: get (PROGRAM) is                                       action "PRG_PROG";
+# const func program: get (PROGRAM)                                       is action "PRG_PROG";
 
 
 const type: category is newtype;
@@ -112,10 +112,10 @@ const category: PROGOBJECT        is category parse "PROGOBJECT";
 
 const proc: for (inout category param) range (in category param) to (in category param) do
               (in proc param)
-            end for is                                                     action "PRC_FOR_TO";
+            end for                                                     is action "PRC_FOR_TO";
 const proc: for (inout category param) range (in category param) downto (in category param) do
               (in proc param)
-            end for is                                                     action "PRC_FOR_DOWNTO";
+            end for                                                     is action "PRC_FOR_DOWNTO";
 
 CASE_DECLS(category);
 
@@ -123,71 +123,84 @@ CASE_DECLS(category);
 const type: bstring is newtype;
 IN_PARAM_IS_REFERENCE(bstring);
 
-const proc: destroy (ref bstring param) is                                 action "BST_DESTR";
-const proc: (ref bstring param) ::= (ref bstring param) is                 action "BST_CREATE";
-const proc: (inout bstring param) := (ref bstring param) is                action "BST_CPY";
+const proc: destroy (ref bstring param)                                 is action "BST_DESTR";
+const proc: (ref bstring param) ::= (ref bstring param)                 is action "BST_CREATE";
+const proc: (inout bstring param) := (ref bstring param)                is action "BST_CPY";
 
-const func bstring: _GENERATE_EMPTY_BSTRING is                             action "BST_EMPTY";
-const bstring: (attr bstring) . value is                                   _GENERATE_EMPTY_BSTRING;
+const func bstring: _GENERATE_EMPTY_BSTRING                             is action "BST_EMPTY";
+const bstring: (attr bstring) . value                                   is _GENERATE_EMPTY_BSTRING;
 
-const func integer: length (ref bstring param) is                          action "BST_LNG";
-const func integer: hashCode (ref bstring param) is                        action "BST_HASHCODE";
-const func integer: compare (ref bstring param, ref bstring param) is      action "BST_CMP";
+const func char: (in bstring param) [ (in integer param) ]              is action "BST_IDX";
+const func integer: length (ref bstring param)                          is action "BST_LNG";
+const func integer: hashCode (ref bstring param)                        is action "BST_HASHCODE";
+const func integer: compare (ref bstring param, ref bstring param)      is action "BST_CMP";
+
+const proc: for (inout char: variable) range (in bstring: bstri) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(bstri) do
+      variable := bstri[number];
+      statements;
+    end for;
+  end func;
 
 
-const func boolean: isVar (ref reference param) is                         action "REF_ISVAR";
-const proc: setVar (ref reference param, ref boolean param) is             action "REF_SETVAR";
-const func category: category (ref reference param) is                     action "REF_CATEGORY";
-const proc: setCategory (ref reference param, ref category param) is       action "REF_SETCATEGORY";
-(* const func reference: meta (ref reference param) is                     action "REF_META"; *)
-const func ref_list: params (ref reference param) is                       action "REF_PARAMS";
-const proc: setParams (ref reference param, ref ref_list param) is         action "REF_SETPARAMS";
-const func reference: func_result (ref reference param) is                 action "REF_RESULT";
-const func reference: func_res_init (ref reference param) is               action "REF_RESINI";
-const func ref_list: local_consts (ref reference param) is                 action "REF_LOCAL_CONSTS";
-const func ref_list: local_vars (ref reference param) is                   action "REF_LOCAL_VARS";
-const func reference: body (ref reference param) is                        action "REF_BODY";
-const func ref_list: array_to_list (ref reference param) is                action "REF_ARRTOLIST";
-const func integer: array_min_index (ref reference param) is               action "REF_ARRMINIDX";
-const func integer: array_max_index (ref reference param) is               action "REF_ARRMAXIDX";
-const func ref_list: struct_to_list (ref reference param) is               action "REF_SCTTOLIST";
-const func ref_list: hash_data_to_list (ref reference param) is            action "REF_HSHDATATOLIST";
-const func ref_list: hash_key_to_list (ref reference param) is             action "REF_HSHKEYTOLIST";
-const func reference: interface_to_struct (ref reference param) is         action "REF_ITFTOSCT";
-const func string: file (ref reference param) is                           action "REF_FILE";
-const func integer: line (ref reference param) is                          action "REF_LINE";
-const func reference: alloc (in reference param) is                        action "REF_ALLOC";
-const func integer: obj_number (ref reference param) is                    action "REF_NUM";
+const func boolean: isVar (ref reference param)                         is action "REF_ISVAR";
+const proc: setVar (ref reference param, ref boolean param)             is action "REF_SETVAR";
+const func category: category (ref reference param)                     is action "REF_CATEGORY";
+const proc: setCategory (ref reference param, ref category param)       is action "REF_SETCATEGORY";
+(* const func reference: meta (ref reference param)                     is action "REF_META"; *)
+const func ref_list: params (ref reference param)                       is action "REF_PARAMS";
+const proc: setParams (ref reference param, ref ref_list param)         is action "REF_SETPARAMS";
+const func reference: func_result (ref reference param)                 is action "REF_RESULT";
+const func reference: func_res_init (ref reference param)               is action "REF_RESINI";
+const func ref_list: local_consts (ref reference param)                 is action "REF_LOCAL_CONSTS";
+const func ref_list: local_vars (ref reference param)                   is action "REF_LOCAL_VARS";
+const func reference: body (ref reference param)                        is action "REF_BODY";
+const func ref_list: array_to_list (ref reference param)                is action "REF_ARRTOLIST";
+const func integer: array_min_index (ref reference param)               is action "REF_ARRMINIDX";
+const func integer: array_max_index (ref reference param)               is action "REF_ARRMAXIDX";
+const func ref_list: struct_to_list (ref reference param)               is action "REF_SCTTOLIST";
+const func ref_list: hash_data_to_list (ref reference param)            is action "REF_HSHDATATOLIST";
+const func ref_list: hash_key_to_list (ref reference param)             is action "REF_HSHKEYTOLIST";
+const func reference: interface_to_struct (ref reference param)         is action "REF_ITFTOSCT";
+const func string: file (ref reference param)                           is action "REF_FILE";
+const func integer: line (ref reference param)                          is action "REF_LINE";
+const func reference: alloc (in reference param)                        is action "REF_ALLOC";
+const func integer: obj_number (ref reference param)                    is action "REF_NUM";
 
-const func integer: getValue (ref reference param, attr integer) is        action "INT_VALUE";
-const func char: getValue (ref reference param, attr char) is              action "CHR_VALUE";
-const func string: getValue (ref reference param, attr string) is          action "STR_VALUE";
-const func bstring: getValue (ref reference param, attr bstring) is        action "BST_VALUE";
-const func bitset: getValue (ref reference param, attr bitset) is          action "SET_VALUE";
-const func program: getValue (ref reference param, attr program) is        action "PRG_VALUE";
-const func ACTION: getValue (ref reference param, attr ACTION) is          action "ACT_VALUE";
+const func integer: getValue (ref reference param, attr integer)        is action "INT_VALUE";
+const func char: getValue (ref reference param, attr char)              is action "CHR_VALUE";
+const func string: getValue (ref reference param, attr string)          is action "STR_VALUE";
+const func bstring: getValue (ref reference param, attr bstring)        is action "BST_VALUE";
+const func bitset: getValue (ref reference param, attr bitset)          is action "SET_VALUE";
+const func program: getValue (ref reference param, attr program)        is action "PRG_VALUE";
+const func ACTION: getValue (ref reference param, attr ACTION)          is action "ACT_VALUE";
 const func PRIMITIVE_FILE: getValue (ref reference param, attr PRIMITIVE_FILE) is action "FIL_VALUE";
-const func ref_list: getValue (ref reference param, attr ref_list) is      action "RFL_VALUE";
-const func bigInteger: getValue (ref reference param, attr bigInteger) is  action "BIG_VALUE";
-const func float: getValue (ref reference param, attr float) is            action "FLT_VALUE";
-const func reference: getValue (ref reference param, attr reference) is    action "REF_VALUE";
-# const func type: getValue (in reference param, attr type) is               action "TYP_VALUE";
+const func ref_list: getValue (ref reference param, attr ref_list)      is action "RFL_VALUE";
+const func bigInteger: getValue (ref reference param, attr bigInteger)  is action "BIG_VALUE";
+const func float: getValue (ref reference param, attr float)            is action "FLT_VALUE";
+const func reference: getValue (ref reference param, attr reference)    is action "REF_VALUE";
+# const func type: getValue (in reference param, attr type)               is action "TYP_VALUE";
 (*
-const func integer: integer (ref reference param) is                       action "INT_VALUE";
-const func char: char (ref reference param) is                             action "CHR_VALUE";
-const func string: string (ref reference param) is                         action "STR_VALUE";
-const func bitset: bitset (ref reference param) is                         action "SET_VALUE";
-const func program: program (ref reference param) is                       action "PRG_VALUE";
-const func ACTION: ACTION (ref reference param) is                         action "ACT_VALUE";
-const func PRIMITIVE_FILE: PRIMITIVE_FILE (ref reference param) is         action "FIL_VALUE";
-const func ref_list: ref_list (ref reference param) is                     action "RFL_VALUE";
-const func bigInteger: bigInteger (ref reference param) is                 action "BIG_VALUE";
-const func float: float (ref reference param) is                           action "FLT_VALUE";
-const func reference: reference (ref reference param) is                   action "REF_VALUE";
-const func type: type (ref reference: aRef) is
+const func integer: integer (ref reference param)                       is action "INT_VALUE";
+const func char: char (ref reference param)                             is action "CHR_VALUE";
+const func string: string (ref reference param)                         is action "STR_VALUE";
+const func bitset: bitset (ref reference param)                         is action "SET_VALUE";
+const func program: program (ref reference param)                       is action "PRG_VALUE";
+const func ACTION: ACTION (ref reference param)                         is action "ACT_VALUE";
+const func PRIMITIVE_FILE: PRIMITIVE_FILE (ref reference param)         is action "FIL_VALUE";
+const func ref_list: ref_list (ref reference param)                     is action "RFL_VALUE";
+const func bigInteger: bigInteger (ref reference param)                 is action "BIG_VALUE";
+const func float: float (ref reference param)                           is action "FLT_VALUE";
+const func reference: reference (ref reference param)                   is action "REF_VALUE";
+const func type: type (ref reference: aRef)   
   return getValue(aRef, type);
 *)
-const proc: setValue(inout reference param, in ref_list param) is          action "RFL_SETVALUE";
+const proc: setValue(inout reference param, in ref_list param)          is action "RFL_SETVALUE";
 
-const func integer: type_number (ref type param) is                        action "TYP_NUM";
-const func reference: match_obj (ref type param) is                        action "TYP_MATCHOBJ";
+const func integer: type_number (ref type param)                        is action "TYP_NUM";
+const func reference: match_obj (ref type param)                        is action "TYP_MATCHOBJ";

@@ -752,22 +752,25 @@ objecttype anyobject;
 
 #ifdef ANSI_C
 
-static void printparam (const_objecttype aParam)
+static void printformparam (const_objecttype aParam)
 #else
 
-static void printparam (aParam)
+static void printformparam (aParam)
 objecttype aParam;
 #endif
 
-  { /* printparam */
+  { /* printformparam */
 #ifdef TRACE_TRACE
-    printf("BEGIN printparam\n");
+    printf("BEGIN printformparam\n");
 #endif
     if (aParam != NULL) {
-      prot_cstri("(");
       switch (CATEGORY_OF_OBJ(aParam)) {
         case VALUEPARAMOBJECT:
-          prot_cstri("in ");
+          if (VAR_OBJECT(aParam)) {
+            prot_cstri("in var");
+          } else {
+            prot_cstri("val ");
+          } /* if */
           printtype(aParam->type_of);
           if (HAS_ENTITY(aParam)) {
             prot_cstri(": ");
@@ -777,7 +780,11 @@ objecttype aParam;
           } /* if */
           break;
         case REFPARAMOBJECT:
-          prot_cstri("ref ");
+          if (VAR_OBJECT(aParam)) {
+            prot_cstri("inout ");
+          } else {
+            prot_cstri("ref ");
+          } /* if */
           printtype(aParam->type_of);
           if (HAS_ENTITY(aParam)) {
             prot_cstri(": ");
@@ -795,10 +802,32 @@ objecttype aParam;
           printobject(aParam);
           break;
       } /* switch */
-      prot_cstri(")");
     } else {
       prot_cstri(" *NULL_PARAMETER* ");
     } /* if */
+#ifdef TRACE_TRACE
+    printf("END printformparam\n");
+#endif
+  } /* printformparam */
+
+
+
+#ifdef ANSI_C
+
+static void printparam (const_objecttype aParam)
+#else
+
+static void printparam (aParam)
+objecttype aParam;
+#endif
+
+  { /* printparam */
+#ifdef TRACE_TRACE
+    printf("BEGIN printparam\n");
+#endif
+    prot_cstri("(");
+    printformparam(aParam->value.objvalue);
+    prot_cstri(")");
 #ifdef TRACE_TRACE
     printf("END printparam\n");
 #endif
@@ -860,7 +889,7 @@ listtype list;
             break;
 #endif
           case FORMPARAMOBJECT:
-            printparam(list->obj->value.objvalue);
+            printparam(list->obj);
             break;
           case INTOBJECT:
           case BIGINTOBJECT:
@@ -985,6 +1014,58 @@ listtype list;
 #endif
   } /* prot_list */
 #endif
+
+
+
+#ifdef ANSI_C
+
+void prot_name (const_listtype list)
+#else
+
+void prot_name (list)
+listtype list;
+#endif
+
+  {
+    const_listtype list_end;
+
+  /* prot_name */
+    if (list != NULL) {
+      list_end = list;
+      while (list_end->next != NULL) {
+        list_end = list_end->next;
+      } /* while */
+      if (CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
+          HAS_ENTITY(list_end->obj) &&
+          GET_ENTITY(list_end->obj)->ident != NULL) {
+        prot_cstri(id_string(GET_ENTITY(list_end->obj)->ident));
+        prot_cstri(" (");
+        while (list->next != NULL) {
+          if (list->obj == NULL) {
+            prot_cstri("*NULL_OBJECT*");
+          } else {
+            switch (CATEGORY_OF_OBJ(list->obj)) {
+              case FORMPARAMOBJECT:
+                printformparam(list->obj->value.objvalue);
+                break;
+              default:
+                printobject(list->obj);
+                break;
+            } /* switch */
+          } /* if */
+          list = list->next;
+          if (list->next != NULL) {
+            prot_cstri(", ");
+          } /* if */
+        } /* while */
+        prot_cstri(")");
+      } else {
+        prot_list(list);
+      } /* if */
+    } else {
+      prot_cstri("{}");
+    } /* if */
+  } /* prot_name */
 
 
 
@@ -1381,7 +1462,7 @@ objecttype traceobject;
           trace1(traceobject->value.objvalue);
           break;
         case FORMPARAMOBJECT:
-          printparam(traceobject->value.objvalue);
+          printparam(traceobject);
           break;
 #ifdef OUT_OF_ORDER
         case MODULEOBJECT:

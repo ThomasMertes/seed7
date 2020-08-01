@@ -410,7 +410,7 @@ rtlGenerictype from_value;
 #endif
 
   { /* setCreateGeneric */
-    return (rtlGenerictype) setCreate((const_settype) from_value);
+    return (rtlGenerictype) (memsizetype) setCreate((const_settype) from_value);
   } /* setCreateGeneric */
 
 

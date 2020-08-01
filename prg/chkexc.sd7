@@ -1145,9 +1145,125 @@ const proc: check_array is func
   local
     var boolean: okay is TRUE;
     var integer: number is 0;
+    var integer: index is 0;
     var integer: i_num is 0;
     var array integer: arr is 0 times 1;
+    const array integer: constantArray is 4 times 1;
   begin
+    block
+      i_num := constantArray[-1];
+      writeln(" ***** constantArray[-1] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := constantArray[0];
+      writeln(" ***** constantArray[0] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := constantArray[1];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** constantArray[1] did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := constantArray[4];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** constantArray[4] did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := constantArray[5];
+      writeln(" ***** constantArray[5] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := constantArray[6];
+      writeln(" ***** constantArray[6] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      index := -1;
+      i_num := constantArray[index];
+      writeln(" ***** constantArray[index] for -1 did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      index := 0;
+      i_num := constantArray[index];
+      writeln(" ***** constantArray[index] for 0 did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      index := 1;
+      i_num := constantArray[index];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** constantArray[index] for 1 did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      index := 4;
+      i_num := constantArray[index];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** constantArray[index] for 4 did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      index := 5;
+      i_num := constantArray[index];
+      writeln(" ***** constantArray[index] for 5 did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      index := 6;
+      i_num := constantArray[index];
+      writeln(" ***** constantArray[index] for 6 did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
     block
       i_num := (4 times 1)[-1];
       writeln(" ***** (4 times 1)[-1] did not raise RANGE_ERROR");
@@ -1331,7 +1447,7 @@ const proc: check_array is func
         incr(number);
     end block;
 
-    if okay and number = 19 then
+    if okay and number = 31 then
       writeln("Array exceptions work correct.");
     else
       writeln(" ***** Array exceptions do not work correct");
