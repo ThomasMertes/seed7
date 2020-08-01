@@ -294,7 +294,7 @@ objecttype object;
           result->type_of = object->type_of;
           result->descriptor.entity = entity.literal;
           result->value.listvalue = NULL;
-          SET_CLASS_OF_OBJ(result, CALLOBJECT);
+          INIT_CLASS_OF_OBJ(result, CALLOBJECT);
           incl_list(&result->value.listvalue, object, &err_info);
         } /* if */
         break;
@@ -323,6 +323,93 @@ objecttype object;
 #endif
     return(result);
   } /* match_object */
+
+
+
+#ifdef ANSI_C
+
+static objecttype match_object2 (objecttype object, objecttype expr_object)
+#else
+
+objecttype match_object2 (object, expr_object)
+objecttype object;
+objecttype expr_object;
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+    objecttype result;
+
+  /* match_object2 */
+#ifdef TRACE_MATCH
+    printf("BEGIN match_object\n");
+#endif
+    if (trace.match) {
+      printf("\nbegin match_object ");
+      trace1(object);
+      printf("\n");
+    } /* if */
+    switch (CLASS_OF_OBJ(object)) {
+      case BLOCKOBJECT:
+      case TYPEOBJECT:
+      case INTOBJECT:
+      case CHAROBJECT:
+      case STRIOBJECT:
+      case ARRAYOBJECT:
+      case STRUCTOBJECT:
+      case FILEOBJECT:
+      case LISTOBJECT:
+#ifdef WITH_FLOAT
+      case FLOATOBJECT:
+#endif
+      case WINOBJECT:
+      case REFOBJECT:
+      case REFLISTOBJECT:
+      case EXPROBJECT:
+      case ACTOBJECT:
+      case ENUMLITERALOBJECT:
+      case VARENUMOBJECT:
+      case REFPARAMOBJECT:
+      case DECLAREDOBJECT:
+      case FORWARDOBJECT:
+        if (ALLOC_OBJECT(result)) {
+          result->type_of = object->type_of;
+          if (HAS_POSINFO(expr_object)) {
+            result->descriptor.posinfo = expr_object->descriptor.posinfo;
+            INIT_CLASS_OF_POSINFO(result, CALLOBJECT);
+          } else {
+            result->descriptor.entity = entity.literal;
+            INIT_CLASS_OF_OBJ(result, CALLOBJECT);
+          } /* if */
+          result->value.listvalue = NULL;
+          incl_list(&result->value.listvalue, object, &err_info);
+        } /* if */
+        break;
+      case MATCHOBJECT:
+        SET_CLASS_OF_OBJ(object, CALLOBJECT);
+        result = object;
+        break;
+      case CALLOBJECT:
+        result = object;
+        break;
+      default:
+        printf("### match_object of ");
+        trace1(object);
+        result = NULL;
+        break;
+    } /* switch */
+    if (trace.match) {
+      printf("end match_object ");
+      trace1(object);
+      printf(" ==> ");
+      trace1(result);
+      printf("\n");
+    } /* if */
+#ifdef TRACE_MATCH
+    printf("END match_object\n");
+#endif
+    return(result);
+  } /* match_object2 */
 
 
 
@@ -642,7 +729,7 @@ listtype match_expr;
                 object_type = object_type->meta;
               } while (object_type != NULL && matched_object == NULL);
               if (matched_object != NULL) {
-                if ((current_element = match_object(current_element)) != NULL) {
+                if ((current_element = match_object2(current_element, expr_object)) != NULL) {
                   match_expr->obj = current_element;
                 } else {
                   matched_object = NULL;

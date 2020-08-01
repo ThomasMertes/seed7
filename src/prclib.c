@@ -231,6 +231,8 @@ listtype arguments;
           catch_statement = arg_5(current_catch->value.listvalue);
           fail_flag = FALSE;
           fail_value = NULL;
+          emptylist(fail_stack);
+          fail_stack = NULL;
           evaluate(catch_statement);
           searching = FALSE;
         } else {

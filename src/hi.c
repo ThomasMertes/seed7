@@ -106,7 +106,8 @@ char **argv;
       printobject(fail_value);
       printf(" raised with\n");
       prot_list(fail_expression);
-      printf("\n");
+      printf("\n\n");
+      write_call_stack(fail_stack);
     } /* if */
     /* getchar(); */
 #ifdef TRACE_HI

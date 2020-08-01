@@ -93,9 +93,12 @@ objecttype argument;
 #endif
 
   { /* run_error */
+    if (curr_exec_object != NULL) {
+      curr_action_object = curr_exec_object->value.listvalue->obj;
+    } /* if */
     printf("\n*** ACTION $");
-    if (curr_exec_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_exec_object->value.actvalue)->name);
+    if (curr_action_object->value.actvalue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
     } else {
       printf("NULL");
     } /* if */
@@ -122,9 +125,12 @@ objecttype argument;
 #endif
 
   { /* empty_value */
+    if (curr_exec_object != NULL) {
+      curr_action_object = curr_exec_object->value.listvalue->obj;
+    } /* if */
     printf("\n*** ACTION $");
-    if (curr_exec_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_exec_object->value.actvalue)->name);
+    if (curr_action_object->value.actvalue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
     } else {
       printf("NULL");
     } /* if */
@@ -147,9 +153,12 @@ objecttype argument;
 #endif
 
   { /* var_required */
+    if (curr_exec_object != NULL) {
+      curr_action_object = curr_exec_object->value.listvalue->obj;
+    } /* if */
     printf("\n*** ACTION $");
-    if (curr_exec_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_exec_object->value.actvalue)->name);
+    if (curr_action_object->value.actvalue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
     } else {
       printf("NULL");
     } /* if */
@@ -161,6 +170,61 @@ objecttype argument;
     prot_list(curr_agument_list);
     continue_question();
   } /* var_required */
+
+
+
+#ifdef ANSI_C
+
+void write_call_stack (listtype stack_elem)
+#else
+
+void write_call_stack (stack_elem)
+listtype stack_elem;
+#endif
+
+  {
+    objecttype func_object;
+
+  /* write_call_stack */
+    if (stack_elem != NULL) {
+      write_call_stack(stack_elem->next);
+      if (stack_elem->obj != NULL) {
+        if (CLASS_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
+            CLASS_OF_OBJ(stack_elem->obj) == MATCHOBJECT) {
+          func_object = stack_elem->obj->value.listvalue->obj;
+        } else {
+          func_object = stack_elem->obj;
+        } /* if */
+        if (HAS_DESCRIPTOR_ENTITY(func_object)) {
+          if (func_object->descriptor.entity->ident != NULL) {
+            printf("%s ",
+                id_string(func_object->descriptor.entity->ident));
+          } else if (func_object->descriptor.entity->name_list != NULL); {
+            prot_list(func_object->descriptor.entity->name_list);
+            printf(" ");
+          } /* if */
+        } /* if */
+        if (HAS_POSINFO(stack_elem->obj)) {
+          /*
+          printf("\n");
+          trace1(stack_elem->obj);
+          printf("\n");
+          trace1(func_object);
+          printf("\n");
+          */
+          printf("at %s(%ld)\n",
+              file_name(GET_FILE_NUM(stack_elem->obj)),
+              GET_LINE_NUM(stack_elem->obj));
+        } else {
+          printf("no POSINFO ");
+          /* trace1(stack_elem->obj); */
+          printf("\n");
+        } /* if */
+      } else {
+        printf("NULL\n");
+      } /* if */
+    } /* if */
+  } /* write_call_stack */
 
 
 
@@ -183,8 +247,21 @@ listtype list;
       prot_nl();
       prot_cstri("*** EXCEPTION ");
       printobject(exception);
-      printf(" raised with\n");
+      printf(" raised");
+      if (curr_exec_object != NULL && HAS_POSINFO(curr_exec_object)) {
+        printf(" at %s(%ld)",
+            file_name(GET_FILE_NUM(curr_exec_object)),
+            GET_LINE_NUM(curr_exec_object));
+      } /* if */
+      printf(" with\n");
       prot_list(list);
+      if (curr_exec_object != NULL) {
+        curr_action_object = curr_exec_object->value.listvalue->obj;
+      } /* if */
+      if (curr_action_object->value.actvalue != NULL) {
+        printf("\n*** ACTION \"%s\"\n",
+            get_primact(curr_action_object->value.actvalue)->name);
+      } /* if */
       continue_question();
     } /* if */
 #endif
@@ -201,6 +278,7 @@ listtype list;
       exception->value.intvalue = 0;
     } /* if */
     fail_flag = TRUE;
+    incl_list(&fail_stack, curr_exec_object, &err_info);
     if (fail_value == NULL) {
       fail_value = exception;
       copy_list(list, &fail_expression, &err_info);

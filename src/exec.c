@@ -521,12 +521,13 @@ listtype act_param_list;
 #ifdef ANSI_C
 
 static objecttype exec_lambda (blocktype block,
-    listtype actual_parameters)
+    listtype actual_parameters, objecttype object)
 #else
 
-static objecttype exec_lambda (block, actual_parameters)
+static objecttype exec_lambda (block, actual_parameters, object)
 blocktype block;
 listtype actual_parameters;
+objecttype object;
 #endif
 
   {
@@ -554,6 +555,12 @@ listtype actual_parameters;
       } else {
         if (res_init(&block->result, &backup_block_result)) {
           result = exec_call(block->body);
+          if (fail_flag) {
+            errinfotype err_info;
+
+            /* err_info is not checked since an exception was already raised */
+            incl_list(&fail_stack, object, &err_info);
+          } /* if */
           res_restore(&block->result, backup_block_result, &result);
         } else {
           result = raise_with_arguments(SYS_MEM_EXCEPTION, actual_parameters);
@@ -633,13 +640,14 @@ listtype evaluated_act_params;
 
 #ifdef ANSI_C
 
-static objecttype exec_action (objecttype object,
-    listtype act_param_list)
+static objecttype exec_action (objecttype act_object,
+    listtype act_param_list, objecttype object)
 #else
 
-static objecttype exec_action (object, act_param_list)
-objecttype object;
+static objecttype exec_action (act_object, act_param_list, object)
+objecttype act_object;
 listtype act_param_list;
+objecttype object;
 #endif
 
   {
@@ -649,7 +657,7 @@ listtype act_param_list;
   /* exec_action */
 #ifdef TRACE_EXEC
     printf("BEGIN exec_action(%s)\n",
-        get_primact(object->value.actvalue)->name);
+        get_primact(act_object->value.actvalue)->name);
 #endif
     evaluated_act_params = eval_arg_list(act_param_list);
     if (fail_flag) {
@@ -658,7 +666,7 @@ listtype act_param_list;
     } else {
 #ifdef WITH_ACTION_CHECK
       if (trace.check_actions) {
-        if (!act_okay(object->value.actvalue)) {
+        if (!act_okay(act_object->value.actvalue)) {
           result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
               evaluated_act_params);
         } /* if */
@@ -669,18 +677,19 @@ listtype act_param_list;
         /* heap_statistic(); */
         prot_heapsize();
         prot_cstri(" ");
-        prot_cstri(get_primact(object->value.actvalue)->name);
+        prot_cstri(get_primact(act_object->value.actvalue)->name);
         prot_cstri("(");
         prot_list(evaluated_act_params);
         prot_cstri(") ");
         prot_flush();
+        /* curr_action_object = act_object; */
         curr_exec_object = object;
         curr_agument_list = evaluated_act_params;
-        result = (*(object->value.actvalue))(evaluated_act_params);
-        if (object->type_of != NULL) {
-          if (object->type_of->result_type != NULL) {
+        result = (*(act_object->value.actvalue))(evaluated_act_params);
+        if (act_object->type_of != NULL) {
+          if (act_object->type_of->result_type != NULL) {
             if (result != NULL) {
-              if (result->type_of != object->type_of->result_type) {
+              if (result->type_of != act_object->type_of->result_type) {
                 prot_cstri("** correct action result type from \'");
                 if (result->type_of == NULL) {
                   prot_cstri("*NULL_TYPE*");
@@ -688,22 +697,22 @@ listtype act_param_list;
                   printobject(result->type_of->match_obj);
                 } /* if */
                 prot_cstri("\' to \'");
-                printobject(object->type_of->result_type->match_obj);
-                prot_cstri("\' object type is ");
-                printobject(object->type_of->match_obj);
+                printobject(act_object->type_of->result_type->match_obj);
+                prot_cstri("\' act_object type is ");
+                printobject(act_object->type_of->match_obj);
               } /* if */
               if (result->type_of == NULL) {
-                result->type_of = object->type_of->result_type;
+                result->type_of = act_object->type_of->result_type;
               } /* if */
             } else {
               prot_cstri("** result == NULL for action ");
-              prot_cstri(get_primact(object->value.actvalue)->name);
+              prot_cstri(get_primact(act_object->value.actvalue)->name);
             } /* if */
           } else {
-            prot_cstri("** object->type_of->result_type == NULL ");
+            prot_cstri("** act_object->type_of->result_type == NULL ");
           } /* if */
         } else {
-          prot_cstri("** object->type_of == NULL ");
+          prot_cstri("** act_object->type_of == NULL ");
         } /* if */
         prot_cstri(" ==> ");
         printobject(result);
@@ -713,11 +722,12 @@ listtype act_param_list;
         prot_flush();
       } else {
 #endif
+        /* curr_action_object = act_object; */
         curr_exec_object = object;
         curr_agument_list = evaluated_act_params;
-        result = (*(object->value.actvalue))(evaluated_act_params);
+        result = (*(act_object->value.actvalue))(evaluated_act_params);
         if (result != NULL && result->type_of == NULL) {
-          result->type_of = object->type_of->result_type;
+          result->type_of = act_object->type_of->result_type;
         } /* if */
 #ifdef WITH_PROTOCOL
       } /* if */
@@ -797,7 +807,7 @@ objecttype object;
     switch (CLASS_OF_OBJ(subroutine_object)) {
       case ACTOBJECT:
         result = exec_action(subroutine_object,
-            actual_parameters);
+            actual_parameters, object);
         break;
       case BLOCKOBJECT:
 /*        printf("blockobject ");
@@ -806,7 +816,7 @@ objecttype object;
         prot_list(actual_parameters);
         printf("\n"); */
         result = exec_lambda(subroutine_object->value.blockvalue,
-            actual_parameters);
+            actual_parameters, object);
         break;
       case CONSTENUMOBJECT:
 /*        printf("constenumobject ");
@@ -916,10 +926,10 @@ objecttype object;
         result = object;
         break;
       case BLOCKOBJECT:
-        result = exec_lambda(object->value.blockvalue, NULL);
+        result = exec_lambda(object->value.blockvalue, NULL, object);
         break;
       case ACTOBJECT:
-        result = exec_action(object, NULL);
+        result = exec_action(object, NULL, NULL);
         break;
       default:
         printf("evaluate unknown ");
@@ -1164,6 +1174,7 @@ progtype currentProg;
       fail_flag = FALSE;
       fail_value = (objecttype) NULL;
       fail_expression = (listtype) NULL;
+      fail_stack = NULL;
       set_trace(option.exec_trace_level, -1, option.prot_file_name);
       if (currentProg->main_object != NULL) {
         memcpy(&prog_backup, &prog, sizeof(progrecord));
@@ -1194,6 +1205,7 @@ progtype currentProg;
           printf(" raised with\n");
           prot_list(fail_expression);
           printf("\n");
+          write_call_stack(fail_stack);
         } /* if */
 #endif
         memcpy(&prog, &prog_backup, sizeof(progrecord));

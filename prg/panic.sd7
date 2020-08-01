@@ -2023,7 +2023,6 @@ const proc: init_round (in integer: num_round) is func
          41  * FIELD_ELEM_STEP,
          3   * FIELD_ELEM_STEP,
          orange);
-    game.num_players +:= round_description[num_round][5];
     draw_reserve(game.num_players);
     put(succ(6 * 7) * FIELD_ELEM_STEP,
         succ(186    * FIELD_ELEM_STEP),
@@ -2662,7 +2661,7 @@ const proc: play_game is func
         decr(game.num_players);
       elsif game.num_monsters = 0 then
         incr(game.round_number);
-        (* incr(game.num_players); *)
+        game.num_players +:= round_description[game.round_number][5];
       end if;
     end while;
   end func;

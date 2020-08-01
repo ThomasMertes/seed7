@@ -26,6 +26,30 @@ $ include "seed7_05.s7i";
   include "float.s7i";
 
 
+const proc: f1 (in integer: number) is func
+  begin
+    ignore(1 div 0);
+  end func;
+
+
+const proc: f2 (in integer: number) is func
+  begin
+    f1(number);
+  end func;
+
+
+const proc: f3 is func
+  begin
+    f2(5);
+  end func;
+
+
+const proc: f4 (in integer: number) is func
+  begin
+    f3;
+  end func;
+
+
 const func integer: test_func (in integer: number) is func
   result
     var integer: result is 0;
@@ -43,6 +67,7 @@ const proc: main is func
     var reference: obj is NIL;
     var float: f_num is 0.0;
   begin
+    # f4(6);
     block
       stri := "asdf" mult -1;
       writeln(" ***** \"asdf\" mult -1 did not raise RANGE_ERROR");

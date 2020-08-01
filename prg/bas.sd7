@@ -24,15 +24,16 @@
 (*                                                                  *)
 (*  ABS, ASC, ATN, **BEEP, CDBL, CHR$, CINT, **CLEAR, CLOSE, CLS,   *)
 (*  **COLOR, COS, CSNG, CSRLIN, DATA, DATE$, DEF FN, **DEF SEG,     *)
-(*  **DEFINT, DEFSTR, DIM, DO, DO UNTIL, DO WHILE, END, EOF, EXP,   *)
-(*  FIX, FOR, GOSUB, GOSUB OF, GOTO, GOTO OF, HEX$, IF, INKEY$,     *)
-(*  INPUT, INPUT#, INPUT$, INSTR, INT, LCASE$, LEFT$, LEN, LET,     *)
-(*  LINE INPUT, LINE INPUT#, LOCATE, LOG, LOOP, LOOP UNTIL,         *)
-(*  LOOP WHILE, MID$, NEXT, OCT$, **ON ERROR, ON GOSUB, ON GOTO,    *)
-(*  **ON KEY, OPEN, OPTION BASE, POS, PRINT, RANDOMIZE, READ, REM,  *)
-(*  RESET, RESTORE, RETURN, RIGHT$, RND, SCREEN, SGN, SIN, **SOUND, *)
-(*  SPACE$, SPC, SQR, STOP, STR$, STRING$, SWAP, SYSTEM, TAB, TAN,  *)
-(*  TIME$, TIMER, UCASE$, VAL, WEND, WHILE, **WIDTH                 *)
+(*  **DEFINT, DEFSTR, DIM, DO, DO UNTIL, DO WHILE, END, EOF,        *)
+(*  EXIT DO, EXIT FOR, EXP, FIX, FOR, GOSUB, GOSUB OF, GOTO,        *)
+(*  GOTO OF, HEX$, IF, INKEY$, INPUT, INPUT#, INPUT$, INSTR, INT,   *)
+(*  LCASE$, LEFT$, LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOG,  *)
+(*  LOOP, LOOP UNTIL, LOOP WHILE, MID$, NEXT, OCT$, **ON ERROR,     *)
+(*  ON GOSUB, ON GOTO, **ON KEY, OPEN, OPTION BASE, POS, PRINT,     *)
+(*  RANDOMIZE, READ, REM, RESET, RESTORE, RETURN, RIGHT$, RND,      *)
+(*  SCREEN, SGN, SIN, **SOUND, SPACE$, SPC, SQR, STOP, STR$,        *)
+(*  STRING$, SWAP, SYSTEM, TAB, TAN, TIME$, TIMER, UCASE$, VAL,     *)
+(*  WEND, WHILE, **WIDTH                                            *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -1827,6 +1828,8 @@ const func string: find_next (inout string: line) is func
     while symbol <> "NEXT" and symbol <> "" do
       if symbol = "FOR" then
         symbol := find_next(line);
+      elsif symbol = "EXIT" then
+        symbol := next_symbol(line);
       end if;
       symbol := next_symbol(line);
     end while;
@@ -1855,6 +1858,8 @@ const func string: find_loop (inout string: line) is func
     while symbol <> "LOOP" and symbol <> "" do
       if symbol = "DO" then
         symbol := find_loop(line);
+      elsif symbol = "EXIT" then
+        symbol := next_symbol(line);
       end if;
       symbol := next_symbol(line);
     end while;
@@ -2677,8 +2682,9 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           else
             err << " ***** (";
             err << param1;
-            err << ") NO CORRESPONDING NEXT FOUND FOR FOR ";
+            err << ") NO CORRESPONDING \"NEXT\" FOUND FOR \"FOR ";
             err << variable_name;
+            err << "\"";
             err << NL;
           end if;
         end if;
@@ -2901,7 +2907,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           else
             err << " ***** (";
             err << param1;
-            err << ") NO CORRESPONDING WEND FOUND FOR WHILE";
+            err << ") NO CORRESPONDING \"WEND\" FOUND FOR \"WHILE\"";
             err << NL;
           end if;
         end if;
@@ -2980,7 +2986,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             else
               err << " ***** (";
               err << param1;
-              err << ") NO CORRESPONDING LOOP FOUND FOR DO WHILE";
+              err << ") NO CORRESPONDING \"LOOP\" FOUND FOR \"DO WHILE\"";
               err << NL;
             end if;
           end if;
@@ -3016,7 +3022,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             else
               err << " ***** (";
               err << param1;
-              err << ") NO CORRESPONDING LOOP FOUND FOR DO UNTIL";
+              err << ") NO CORRESPONDING \"LOOP\" FOUND FOR \"DO UNTIL\"";
               err << NL;
             end if;
           end if;
@@ -3529,6 +3535,61 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         log << "RESET";
         log << NL;
         flush(log);
+      elsif symbol = "EXIT" then
+        symbol := get_symbol(line);
+        if symbol = "FOR" then
+          symbol := get_symbol(line);
+          if symbol <> "NEXT" then
+            param1 := statement_label;
+            symbol := find_next(line);
+          end if;
+          if symbol = "NEXT" then
+            repeat
+              symbol := get_symbol(line);
+            until symbol = ":" or symbol = "";
+            log << "EXIT FOR";
+            log << NL;
+            log << statement_label;
+            log << " ";
+            log << line;
+            log << NL;
+            flush(log);
+          else
+            err << " ***** (";
+            err << param1;
+            err << ") NO CORRESPONDING \"NEXT\" FOUND FOR \"EXIT FOR\"";
+            err << NL;
+          end if;
+        elsif symbol = "DO" then
+          symbol := get_symbol(line);
+          if symbol <> "LOOP" then
+            param1 := statement_label;
+            symbol := find_loop(line);
+          end if;
+          if symbol = "LOOP" then
+            repeat
+              symbol := get_symbol(line);
+            until symbol = ":" or symbol = "";
+            log << "EXIT DO";
+            log << NL;
+            log << statement_label;
+            log << " ";
+            log << line;
+            log << NL;
+            flush(log);
+          else
+            err << " ***** (";
+            err << param1;
+            err << ") NO CORRESPONDING \"LOOP\" FOUND FOR \"EXIT DO\"";
+            err << NL;
+          end if;
+        else
+          error_marker;
+          err << "ILLEGAL STATEMENT \"EXIT ";
+          err << symbol;
+          err << "\"";
+          err << NL;
+        end if;
       elsif symbol = "END" then
         symbol := get_symbol(line);
         if symbol = "IF" then

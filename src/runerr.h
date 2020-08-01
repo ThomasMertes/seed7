@@ -25,11 +25,13 @@
 /*                                                                  */
 /********************************************************************/
 
+EXTERN objecttype curr_action_object;
 EXTERN objecttype curr_exec_object;
 EXTERN listtype curr_agument_list;
 EXTERN booltype fail_flag;
 EXTERN objecttype fail_value;
 EXTERN listtype fail_expression;
+EXTERN listtype fail_stack;
 
 
 #ifdef ANSI_C
@@ -39,6 +41,7 @@ void run_error (objectclass, objecttype);
 void empty_value (objecttype);
 void var_required (objecttype);
 objecttype undef_objectclass (objecttype, listtype);
+void write_call_stack (listtype);
 objecttype raise_with_arguments (objecttype, listtype);
 objecttype raise_exception (objecttype);
 void raise_error (int);
@@ -50,6 +53,7 @@ void run_error ();
 void empty_value ();
 void var_required ();
 objecttype undef_objectclass ();
+void write_call_stack ();
 objecttype raise_with_arguments ();
 objecttype raise_exception ();
 void raise_error ();
