@@ -65,27 +65,22 @@ typedef int booltype;
 #undef  INTTYPE_64BIT
 
 
-#ifdef HAS_INT64TYPE
-#ifdef INT64TYPE_IS_INT64
-typedef __int64            int64type;
-typedef unsigned __int64   uint64type;
-#else
-typedef long long int      int64type;
-typedef unsigned long long uint64type;
-#endif
-#endif
-
-typedef long int           int32type;
-typedef unsigned long int  uint32type;
+typedef signed char        int8type;
+typedef unsigned char      uint8type;
 
 typedef short int          int16type;
 typedef unsigned short int uint16type;
 
-typedef signed char        int8type;
-typedef unsigned char      uint8type;
+typedef long int           int32type;
+typedef unsigned long int  uint32type;
+
+#ifdef INT64TYPE
+typedef INT64TYPE          int64type;
+typedef UINT64TYPE         uint64type;
+#endif
 
 #ifdef INTTYPE_64BIT
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
 typedef int64type          inttype;
 typedef uint64type         uinttype;
 #define INTTYPE_LITERAL_SUFFIX "LL"

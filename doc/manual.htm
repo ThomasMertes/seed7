@@ -99,7 +99,7 @@
 <li><!--   9.     --><a href="#STRUCTURED_SYNTAX_DEFINITION"><big><b>STRUCTURED SYNTAX DEFINITION</b></big></a><ol>
 <li><!--   9.1      --><a href="#The_Extended_Backus-Naur_Form"><b>The Extended Backus-Naur Form</b></a></li>
 <li><!--   9.2      --><a href="#The_syntax_of_a_statement"><b>The syntax of a statement</b></a></li>
-<li><!--   9.3      --><a href="#Priority_and_assoziativity"><b>Priority and assoziativity</b></a></li>
+<li><!--   9.3      --><a href="#Priority_and_associativity"><b>Priority and associativity</b></a></li>
 <li><!--   9.4      --><a href="#The_syntax_of_operators"><b>The syntax of operators</b></a></li>
 <li><!--   9.5      --><a href="#Syntax_of_predefined_statements"><b>Syntax of predefined statements</b></a></li>
 <li><!--   9.6      --><a href="#Advanced_syntax_definitions"><b>Advanced syntax definitions</b></a></li>
@@ -301,9 +301,9 @@
     <li><!-- -  -->The procedure calling mechanism is not based on a concept
       with an object-message pair (An object receives a message).
       Instead a match is done over a list of objects. This more
-      general (and powerful) mechanism is called multimatch and
-      it includes the simple object-message mechanism as special
-      case.</li>
+      general (and powerful) mechanism is called multiple dispatch
+      and it includes the simple object-message mechanism as
+      special case.</li>
 </ul><p>
   There are several concepts which are also used by other languages:
 </p><ul>
@@ -325,7 +325,7 @@
     <li><!-- -  -->With a syntax declaration new operators and statements
       can be defined.</li>
 
-    <li><!-- -  -->Not only the predefined operator symbols can be
+    <li><!-- -  -->Not only predefined operator symbols can be
       overloaded. Additionally it is possible to invent
       completely new operator symbols.</li>
 </ul><p>
@@ -382,7 +382,7 @@
   and an associativity to operators and other things like these.
   An overview about syntax declarations can be found in
   <a href="decls.htm#Syntax_declarations">Chapter 3.2 (Syntax declarations)</a>. A detailed description
-  of the Seed7 syntax definitons can be found in <a href="syntax.htm">chapter 9
+  of the Seed7 syntax definitions can be found in <a href="syntax.htm">chapter 9
   (Structured syntax definition)</a>. <a href="stats.htm">Chapter 4 (Predefined
   statements)</a> contains various examples of syntax and semantic
   declarations. The basic parts of the syntax are described in
@@ -688,7 +688,7 @@
 </p><p>
   In rare cases a <tt>'<font color=blue>ref</font>'</tt> parameter would have undesired side
   effects with global variables or other <tt>'<font color=blue>ref</font>'</tt> parameters.
-  In this cases an explicit <tt>'<font color=blue>val</font>'</tt> parameter instead of an
+  In these cases an explicit <tt>'<font color=blue>val</font>'</tt> parameter instead of an
   <tt>'<font color=blue>in</font>'</tt> parameter makes sense.
 </p><p>
   In all normal cases an <tt>'<font color=blue>in</font>'</tt> parameter should be preferred
@@ -697,7 +697,7 @@
 
 <a name="Declare_a_statement"><b>2.5 Declare a statement</b></a>
 <p>
-    This example program writes it's arguments
+    This example program writes its arguments
 </p><pre>
     $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;       <font color=green># Standard Seed7 library</font>
 
@@ -735,7 +735,7 @@
     $ <font color=blue>syntax</font> <font color=red>expr</font>: .for.().range.().to.().do.().end.for <font color=blue>is</font>              -> 25;
 </pre><p>
   Additionally everybody can overload the <tt>'<font color=blue>for</font>'</tt> statement also.
-  Because of this powerful features Seed7 does not need Iterators.
+  Because of these powerful features Seed7 does not need Iterators.
 </p>
 
 <a name="Template_declaring_a_statement"><b>2.6 Template declaring a statement</b></a>
@@ -910,9 +910,9 @@
 
 <a name="Syntax_declarations"><b>3.2 Syntax declarations</b></a>
 <p>
-    Syntax declaratins are used to specify the syntax, priority
+    Syntax declarations are used to specify the syntax, priority
   and associativity of operators, statements, declarations and
-  other constructs. A syntax declarations which defines the
+  other constructs. A syntax declaration which defines the
   <tt>'+'</tt> operator is:
 </p><pre>
     $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). + .()   <font color=blue>is</font> ->  7;
@@ -920,9 +920,9 @@
   Most syntax definitions can be found in the file <font color=maroon>"syntax.s7i"</font>.
   A detailed description of the syntax declarations can be
   found in <a href="syntax.htm">chapter 9 (Structured syntax definition)</a>
-  There is also a hadcoded syntax for function calls with
+  There is also a hard coded syntax for function calls with
   a parenthesis enclosed parameter list where the parameters
-  are separated by commas. The hardcoded syntax is described
+  are separated by commas. The hard coded syntax is described
   in <a href="expr.htm">chapter 11 (Expressions)</a>.
   Here we use a more complex syntax description:
 </p>
@@ -3158,7 +3158,7 @@
   For a enumeration type only few operations are predefined.
   Additional operations must be defined separately. So it is
   necessary to define the <tt>'str'</tt> and <tt>'<font color=blue>parse</font>'</tt> functions in order to
-  do i/o for a new enumeration type.
+  do I/O for a new enumeration type.
 </p><pre>
     Infix operators:
       <font color=red>enumType</font> <font color=blue>conv</font> A  Conversion from <font color=red>integer</font> A to <font color=red>enumType</font>
@@ -3707,7 +3707,7 @@
 <a name="object"><b>5.30 object</b></a>
 <p>
     The type <tt>'<font color=red>object</font>'</tt> is used as meta type for various types.
-  This allows to define common operations for all this types.
+  This allows defining common operations for all this types.
   The type <tt>'<font color=red>object</font>'</tt> is not used as element type for container
   classes since this can be done much better and type save
   with abstract data types like <tt>'<font color=red>array</font>'</tt>, <tt>'<font color=red>set</font>'</tt>, <tt>'<font color=red>hash</font>'</tt> and
@@ -3720,7 +3720,7 @@
 <a name="expr"><b>5.31 expr</b></a>
 <p>
     The type <tt>'<font color=red>expr</font>'</tt> is used to describe unmatched expressions.
-  This are expressions where the recognizing of the functions
+  These are expressions where the recognizing of the functions
   and the type check is not done yet. This is used for example
   in the definition of function bodies.
 </p><pre>
@@ -4111,10 +4111,10 @@
 </p><p>
   This view isn't new. C provides a primitive form of
   interfacing. When you write to a <tt>'file'</tt> in C you use the same
-  interface (<tt>'fprintf'</tt>) for harddisk files, console output and
+  interface (<tt>'fprintf'</tt>) for hard disk files, console output and
   printer output. The implementation does totally different
-  things for this files. UNIX has used the "everything is a
-  file" philosopy for ages (even network communication uses
+  things for these files. UNIX has used the "everything is a
+  file" philosophy for ages (even network communication uses
   the <tt>file'</tt> interface (see sockets)).
 </p><p>
   For short: An interface defines which methods are supported
@@ -4127,7 +4127,7 @@
 <p>
   Seed7 uses interface types and implementation types.
   Objects declared with an interface type refer to a value
-  which has an implementation type. This siuation is
+  which has an implementation type. This situation is
   described with the following picture:
 </p><pre>
               +----------------+
@@ -4183,7 +4183,7 @@
             aCircle.radius, aWindow.foreground);
       <font color=blue>end func</font>;
 </pre><p>
-  In the classic OOP philosopy a message is sent to an object.
+  In the classic OOP philosophy a message is sent to an object.
   To express this situation classic OO languages use the
   following method call syntax:
 </p><pre>
@@ -4230,11 +4230,11 @@
 <p>
     When the implementation types have different implementations
   of the same function (method) a dynamic dispatch is necessary.
-  The type of the value, refered by an interface object, is not
+  The type of the value, referred by an interface object, is not
   known at compile-time. In this case the program must decide at
   runtime which implementation of the function should be invoked.
   This decision is based on the implementation type of the value
-  (refered by the interface object). A dynamic dispatch only
+  (referred by the interface object). A dynamic dispatch only
   takes place when a DYNAMIC (or interface) function is called.
   When the program is analyzed (in the interpreter or compiler)
   the interface functions take precedence over normal functions
@@ -4340,7 +4340,7 @@
       <font color=blue>end func</font>;
 </pre><p>
   All inherited types of <tt>'<font color=red>null_file</font>'</tt> inherit the function
-  <tt>'getln'</tt>, but they are also free to redeclare it. In the
+  <tt>'getln'</tt>, but they are also free to redefine it. In the
   <tt>'getln'</tt> function above the function call <tt>'gets(aFile, 1)'</tt>
   uses the (DYNAMIC) interface function:
 </p><pre>
@@ -4399,7 +4399,7 @@
   In the following example the type <tt>'<font color=red>Number</font>'</tt> is introduced
   which is capable to unify numerical types. The type
   <tt>'<font color=red>Number</font>'</tt> is an interface type which defines
-  the inferface function for the <tt>'+'</tt> operation:
+  the interface function for the <tt>'+'</tt> operation:
 </p><pre>
     <font color=blue>const</font> <font color=red>type</font>: Number <font color=blue>is sub</font> <font color=red>object</font> <font color=blue>interface</font>;
 
@@ -4458,7 +4458,7 @@
   calculation. Further extending can lead to an universal
   type. Such an universal type is loved by proponents of
   dynamic typed languages, but there are also good reasons
-  to have destinct types for different purposes.
+  to have distinct types for different purposes.
 </p>
 
 <a name="replacing_pointers"><b>7.5 Replacing pointers with interface types</b></a>
@@ -4578,7 +4578,7 @@
     writeln(<font color=blue>not</font> error);
 </pre><p>
   The <tt>'writeln'</tt> above writes data and then terminates the line.
-  This is equal to a <tt>'write'</tt> followed by a writeln. Instead of
+  This is equal to a <tt>'write'</tt> followed by a <tt>'writeln'</tt>. Instead of
   multiple write statements the <tt>'<&'</tt> operator can be used to
   concatenate the elements to be written:
 </p><pre>
@@ -4640,7 +4640,7 @@
 </p><pre>
     readln(info_file, number);
 </pre><p>
-  For doing i/o to a window on the screen we write:
+  For doing I/O to a window on the screen we write:
 </p><pre>
     window1 := open_window(SCREEN, 10, 10, 5, 60);
     box(window1);
@@ -4672,23 +4672,23 @@
       input and output for arbitrary types.</li>
 
     <li><!-- -  -->Standard input and output files and the possibility
-      to route the standard i/o to any file.</li>
+      to route the standard I/O to any file.</li>
 
     <li><!-- -  -->Access to operating system files and devices.</li>
 
     <li><!-- -  -->An interface which allows the user to define
       his own file types.</li>
 </ul><p>
-  In the following subchapters we discuss each of this goals.
+  In the following subchapters we discuss each of these goals.
 </p>
 
 <a name="Conversion_to_strings_and_back"><b>8.1 Conversion to strings and back</b></a>
 <p>
-    We archive the goal of doing i/o for arbitrary types with
-  two conversion functions. In order to do i/o with a type
+    We archive the goal of doing I/O for arbitrary types with
+  two conversion functions. In order to do I/O with a type
   the <tt>'str'</tt> and <tt>'<font color=blue>parse</font>'</tt> functions must be defined for that
   type. As an example we show the conversion functions for the
-  type boolean:
+  type <tt>'<font color=red>boolean</font>'</tt>:
 </p><pre>
     <font color=blue>const</font> <font color=red>func string</font>: str (<font color=blue>in</font> <font color=red>boolean</font>: aBool) <font color=blue>is func</font>
       <font color=blue>result</font>
@@ -4722,11 +4722,11 @@
   different types.
 </p><p>
   After defining the <tt>'str'</tt> and <tt>'<font color=blue>parse</font>'</tt> functions for a type the
-  enable_io function can be called for this type as in:
+  <tt>'enable_io'</tt> function can be called for this type as in:
 </p><pre>
     enable_io(<font color=red>boolean</font>);
 </pre><p>
-  The enable_io package declares various io functions like
+  The <tt>'enable_io'</tt> template declares various io functions like
   <tt>'read'</tt>, <tt>'write'</tt> and others for the provided type (in this
   example <tt>'<font color=blue>boolean</font>'</tt>). If only output (or only input) is needed
   for a type it is possible to define just <tt>'str'</tt> (or <tt>'<font color=blue>parse</font>'</tt>)
@@ -4774,7 +4774,7 @@
         <font color=blue>end if</font>;
       <font color=blue>end func</font>;
 </pre><p>
-  The enable_io package contains definitions of <tt>'<font color=blue>lpad</font>'</tt> and <tt>'<font color=blue>rpad</font>'</tt>
+  The <tt>'enable_io'</tt> template contains definitions of <tt>'<font color=blue>lpad</font>'</tt> and <tt>'<font color=blue>rpad</font>'</tt>
   to work on the type specified with enable_io:
 </p><pre>
     <font color=blue>const</font> <font color=red>func string</font>: (<font color=blue>in</font> <font color=red>aType</font>: aValue) lpad (<font color=blue>in</font> <font color=red>integer</font>: leng) <font color=blue>is func</font>
@@ -4818,19 +4818,19 @@
 <p>
     To allow arbitrary user defined file-types beside the
   operating system files we chose a model in which the
-  i/o methods are assigned to the type of the file-value and
+  I/O methods are assigned to the type of the file-value and
   not to the type of the file-variable. This allows a file
   variable to point to any file-value. The file-variables
   have the type <tt>'<font color=red>file</font>'</tt> which has only the assignment method
   defined. For the operating system files and for each user
   defined file a file-type must be declared which has the
-  i/o methods defined. These file-types are derived (direct
-  or indirect) from the type <tt>'<font color=red>null_file</font>'</tt> for which all i/o
-  methods are defined upon a base of basic string i/o
+  I/O methods defined. These file-types are derived (direct
+  or indirect) from the type <tt>'<font color=red>null_file</font>'</tt> for which all I/O
+  methods are defined upon a base of basic string I/O
   methods. So for a new user defined file-type only the
-  basic string i/o methods must be defined.
+  basic string I/O methods must be defined.
 </p><p>
-  The two basic i/o methods defined for the <tt>'<font color=red>null_file</font>'</tt> are
+  The two basic I/O methods defined for the <tt>'<font color=red>null_file</font>'</tt> are
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>ref</font> <font color=red>null_file</font> <font color=blue>param</font>, <font color=blue>in</font> <font color=red>string</font> <font color=blue>param</font>) <font color=blue>is</font> noop;
     <font color=blue>const</font> <font color=red>string</font>: gets (<font color=blue>ref</font> <font color=red>null_file</font> <font color=blue>param</font>, <font color=blue>ref</font> <font color=red>integer</font> <font color=blue>param</font>) <font color=blue>is</font> <font color=maroon>""</font>;
@@ -4842,10 +4842,10 @@
   be redefined for the new file-type. Based upon these
   two methods three more methods are defined for the
   <tt>'<font color=red>null_file</font>'</tt> named 'getc', 'getwd' and 'getln'.
-  This methods get a character, a word and a line
+  These methods get a character, a word and a line
   respectively. A word is terminated by a space, a tab
   or a linefeed. A line is terminated by a linefeed.
-  This methods need not to be redefined for an user defined
+  This methods need not to be redefined for a user defined
   file type but for performance reasons they can also be
   redefined. The definitions for 'getc', 'getwd' and 'getln' for
   the <tt>'<font color=red>null_file</font>'</tt> are
@@ -4900,14 +4900,14 @@
   <tt>'getln'</tt> do not.
   When <tt>'getc'</tt>, <tt>'getwd'</tt> or <tt>'getln'</tt> is not defined for a new user defined
   file type the declarations from the <tt>'<font color=red>null_file</font>'</tt> are used instead.
-  This declarations are based on the method <tt>'gets'</tt> which must be
+  These declarations are based on the method <tt>'gets'</tt> which must be
   defined for every new user defined file-type.
 </p><p>
   Note that there is an assignment to the variable <tt>'bufferChar'</tt>.
   This variable is a component of <tt>'<font color=red>null_file</font>'</tt> and therefore also
   a component of all derived file types. This allows an
-  eoln-function to test if the last <tt>'getwd'</tt> or <tt>'getln'</tt> reach the end
-  of a line. Here is a definition of the eoln-function:
+  <tt>'eoln'</tt> function to test if the last <tt>'getwd'</tt> or <tt>'getln'</tt> reach the end
+  of a line. Here is a definition of the <tt>'eoln'</tt> function:
 </p><pre>
     <font color=blue>const</font> <font color=red>func boolean</font>: eoln (<font color=blue>ref</font> <font color=red>null_file</font>: aFile) <font color=blue>is func</font>
       <font color=blue>result</font>
@@ -4926,7 +4926,7 @@
   this behaviour, care has to be taken when mixing scanner and
   file functions.
 </p><p>
-  The next declarations allows various i/o operations for strings:
+  The next declarations allows various I/O operations for strings:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: writeln (<font color=blue>in</font> <font color=red>file</font>: aFile, <font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
       <font color=blue>begin</font>
@@ -4951,10 +4951,10 @@
 
 <a name="Input_and_output_with_conversion"><b>8.3 Input and output with conversion</b></a>
 <p>
-    Normally we need a combination of an i/o operation with
+    Normally we need a combination of an I/O operation with
   a conversion operation. There are several functions which are
   based on the <tt>'str'</tt> and <tt>'<font color=blue>parse</font>'</tt> conversions and on the basic
-  i/o-functions. The following declarations allow the <tt>'write'</tt> function
+  I/O-functions. The following declarations allow the <tt>'write'</tt> function
   to be used for all types which define <tt>'enable_io'</tt>:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>in</font> <font color=red>file</font>: aFile, <font color=blue>in</font> <font color=red>aType</font>: aValue) <font color=blue>is func</font>
@@ -5010,9 +5010,9 @@
 
 <a name="Simple_read_and_write_statements"><b>8.4 Simple read and write statements</b></a>
 <p>
-    The simple input/output for the standard i/o-files are
+    The simple input/output for the standard I/O-files are
   <tt>'read'</tt> and <tt>'write'</tt> which are defined with <tt>'enable_io'</tt>. Simple
-  i/o may look like:
+  I/O may look like:
 </p><pre>
     write(<font color=maroon>"Amount? "</font>);
     read(amount);
@@ -5042,7 +5042,7 @@
         writeln(OUT);
       <font color=blue>end func</font>;
 </pre><p>
-  Additional procedures defined outside of 'enable_io' are:
+  Additional procedures defined outside of <tt>'enable_io'</tt> are:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: readln <font color=blue>is func</font>
       <font color=blue>local</font>
@@ -5076,21 +5076,21 @@
 </p><pre>
     readln(IN, number);
 </pre><p>
-  if the file IN has not redeclared readln(IN, integer) this
+  if the file IN has not redefined readln(IN, integer) this
   procedure calls
 </p><pre>
     stri := getln(IN);
 </pre><p>
   and <tt>'getln'</tt> may call gets(IN, 1) in a loop or may be defined
   for the file IN. Finally the <tt>'<font color=blue>parse</font>'</tt> function converts the
-  string read into an <tt>'<font color=red>integer</font>'</tt> and assigns it to 'number'
+  string read into an <tt>'<font color=red>integer</font>'</tt> and assigns it to <tt>'number'</tt>
 </p><pre>
     number := <font color=red>integer</font> <font color=blue>parse</font> stri;
 </pre><p></p>
 
 <a name="Standard_input_and_output_files"><b>8.5 Standard input and output files</b></a>
 <p>
-    The standard i/o files are OUT for output and IN for input.
+    The standard I/O files are OUT for output and IN for input.
   This TWO are file-variables which are declared as follows:
 </p><pre>
     <font color=blue>var</font> <font color=red>file</font>: IN <font color=blue>is</font> STD_IN;
@@ -5139,9 +5139,9 @@
 </pre><p>
   This means that every data item of the type <tt>'external_file'</tt>
   has the components from <tt>'<font color=red>null_file</font>'</tt> and additionally the
-  components ext_file and name. Note the type PRIMITIVE_FILE
+  components ext_file and name. Note the type <tt>'<font color=red>PRIMITIVE_FILE</font>'</tt>
   which points directly to an operating system file. Objects
-  of type PRIMITIVE_FILE can only have operating system
+  of type <tt>'<font color=red>PRIMITIVE_FILE</font>'</tt> can only have operating system
   files as values while objects of type <tt>'<font color=red>file</font>'</tt> can also have
   other files as values. To allow the implementation of the
   type <tt>'<font color=red>external_file</font>'</tt> several operations for the type
@@ -5164,7 +5164,7 @@
     <font color=blue>var</font> <font color=red>external_file</font>: STD_OUT <font color=blue>is</font> INIT_STD_FILE(PRIMITIVE_OUTPUT, <font color=maroon>"STD_OUT"</font>);
     <font color=blue>var</font> <font color=red>external_file</font>: STD_ERR <font color=blue>is</font> INIT_STD_FILE(PRIMITIVE_ERROR,  <font color=maroon>"STD_ERR"</font>);
 </pre><p>
-  It is possible to do i/o directly with them, but it is more wisely
+  It is possible to do I/O directly with them, but it is more wisely
   to use them only to initialize user defined file variables as in:
 </p><pre>
     <font color=blue>var</font> <font color=red>file</font>: ERR <font color=blue>is</font> STD_ERR;
@@ -5175,7 +5175,7 @@
     writeln(ERR, <font color=maroon>"Some error occurred"</font>);
 </pre><p>
   In this case redirection of the ERR file can be done very easy.
-  The second way to access external_files is to use the <tt>'open'</tt>
+  The second way to access external files is to use the <tt>'open'</tt>
   function. Usually a file variable is declared
 </p><pre>
     <font color=blue>var</font> <font color=red>file</font>: MY_OUT <font color=blue>is</font> STD_NULL;
@@ -5206,8 +5206,8 @@
 
     <font color=blue>var</font> <font color=red>KEYBOARD_FILE</font>: KEYBOARD <font color=blue>is</font> SCREEN_KEYBOARD;
 </pre><p>
-  Reading from KEYBOARD may deliver simple ascii characters or
-  special codes for function keys. This special codes can also
+  Reading from KEYBOARD may deliver simple ASCII characters or
+  special codes for function keys. These special codes can also
   be copied to a character variables because the type <tt>'<font color=red>char</font>'</tt> is
   not limited to 8 bits. For each function key exists a
   predefined constant that can be used to test which key is
@@ -5239,15 +5239,15 @@
     <li><!-- -  -->It could store its contents in a string (not only to be
       faster but also to provide additional file operations)</li>
 
-    <li><!-- -  -->The information can be processed (e.g To upper case)
+    <li><!-- -  -->The information can be processed (e.g. to upper case)
       and sent to another file.</li>
 
-    <li><!-- -  -->It could work just like an unix utility (Think of
+    <li><!-- -  -->It could work just like an UNIX utility (Think of
       more, sort, tee, uniq ...)</li>
 
     <li><!-- -  -->It could provide a file-like interface for something
       with an other interface. (e.g. The contents of a
-      directory, or random access i/o to the screen)</li>
+      directory, or random access I/O to the screen)</li>
 </ul><p>
   With the following declaration we define a new file type:
 </p><pre>
@@ -5264,13 +5264,13 @@
 </p><pre>
     type_implements_interface(<font color=red>NEW_FILE</font>, <font color=red>file</font>);
 </pre><p>
-  The type <font color=red>file</font> is not the only interface
-  type which can be used. There is also the type <font color=red>text</font> which
-  is derived from <font color=red>file</font>. The type <font color=red>text</font>
+  The type <tt>'<font color=red>file</font>'</tt> is not the only interface
+  type which can be used. There is also the type <tt>'<font color=red>text</font>'</tt> which
+  is derived from <tt>'<font color=red>file</font>'</tt>. The type <tt>'<font color=red>text</font>'</tt>
   describes a line oriented file which allows <tt>'setPos'</tt> (which moves the
   current position to the line and column specified) and other functions.
   It is also possible to define new interface types which derive
-  from <font color=red>file</font> or <font color=red>text</font>.
+  from <tt>'<font color=red>file</font>'</tt> or <tt>'<font color=red>text</font>'</tt>.
 </p><p>
   As next an open function is needed to generate a new NEW_FILE:
 </p><pre>
@@ -5284,10 +5284,10 @@
         ...
       <font color=blue>end func</font>;
 </pre><p>
-  Note the usage of the ALLOC function to generate a new data
+  Note the usage of the <tt>'malloc'</tt> function to generate a new data
   item. This data item is not freed automatically but if you
   do not open files to often this does not hurt. Now only the
-  two basic i/o operations must be defined:
+  two basic I/O operations must be defined:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>inout</font> <font color=red>NEW_FILE</font>: new_fil, <font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
       <font color=blue>begin</font>
@@ -5309,7 +5309,7 @@
 <a name="Scanning_a_file"><b>8.8 Scanning a file</b></a>
 <p>
     The I/O concept introduced in the previous chapters separates
-  the input of data from it's conversion. The <tt>'read'</tt>, <tt>'readln'</tt>,
+  the input of data from its conversion. The <tt>'read'</tt>, <tt>'readln'</tt>,
   <tt>'getwd'</tt> and <tt>'getln'</tt> functions are designed to read whitespace
   separated data elements. When the data elements are not separated
   by whitespace characters this I/O concept is not possible.
@@ -5325,7 +5325,7 @@
   symbol. After a scanner has read a symbol the current character
   contains the character just after the symbol. This character
   could be the first character of the next symbol or some
-  whitespace character. If the set of symbols is choosen wisely all
+  whitespace character. If the set of symbols is chosen wisely all
   decisions about the type of the symbol and when to stop reading
   characters for a symbol can be done based on the current
   character.
@@ -5429,7 +5429,7 @@
     <font color=blue>end if</font>;
 </pre><p>
   The function <tt>'getSymbol'</tt> is designed to read Seed7 symbols. When
-  it returns <tt><font color=maroon>""</font></tt> the end of the file is reached.
+  the end of the file is reached it returns <tt><font color=maroon>""</font></tt>.
   With <tt>'getSymbol'</tt> name-value pairs can be read:
 </p><pre>
     name := getSymbol(inFile);
@@ -5639,10 +5639,10 @@
     <li><!-- -  -->Expressions of the extended Backus-Naur form can be put within
       parentheses ( ... ) .</li>
 
-    <li><!-- -  -->When a subexpression is optional it is enclosed in square
+    <li><!-- -  -->When an expression is optional it is enclosed in square
       brackets [ ... ] .</li>
 
-    <li><!-- -  -->When a subexpression may be omitted or repeated it is
+    <li><!-- -  -->When an expression may be omitted or repeated it is
       enclosed in curly braces { ... } .</li>
 </ul></p>
   The syntax of the extended Backus-Naur form can be described in
@@ -5673,7 +5673,7 @@
   the conditional exit at the beginning or at the end, it should
   have a conditional exit in the middle of the loop. This middle
   conditional exit should be part of the <tt>'<font color=blue>loop</font>'</tt> statement. Note that
-  the <tt>'<font color=blue>break</font>'</tt> statement, that exists in some programming languages,
+  the <tt>'<font color=blue>break</font>'</tt> statement, which exists in some programming languages,
   is a statement on its own and is not part of the loop which it
   leaves. Therefore the middle conditional exit should not be
   confused with a <tt>'<font color=blue>break</font>'</tt> statement. An example of the new <tt>'<font color=blue>loop</font>'</tt>
@@ -5807,7 +5807,7 @@
     *** chkloop.sd7(35):51: Match for {loop "X" until {1 + 2 } do integer end loop } failed
 </pre><p></p>
 
-<a name="Priority_and_assoziativity"><b>9.3 Priority and assoziativity</b></a>
+<a name="Priority_and_associativity"><b>9.3 Priority and associativity</b></a>
 <p>
     When a syntax construct has parameters before the first symbol
   or after the last symbol the priority and the associativity of the
@@ -5853,7 +5853,7 @@
     is a binding from right to left                 ->&lt;-
 </pre><p>
   The last two possibilities give no legal interpretation in the
-  subtraction example. The third kind of assiciativity ( &lt;-> ) is
+  subtraction example. The third kind of associativity ( &lt;-> ) is
   used by the equal operator ( = ) of Pascal because there a
   expression like
 </p><pre>
@@ -5995,9 +5995,9 @@
   makes no sense when the <tt>'<font color=blue>and</font>'</tt> operator has priority 12 instead of 14.
 </p><p>
   S7SSD treats everything as operator description. Operators
-  have priority and assoziativity. The priority and associativity
+  have priority and associativity. The priority and associativity
   determine in which succession S7SSD syntax rules get applied.
-  To explain priority and assoziativity we use the basic arithmetic
+  To explain priority and associativity we use the basic arithmetic
   operations (+,-,*,/). To describe them with EBNF we can write:
 </p><pre>
     factor :=
@@ -6025,7 +6025,7 @@
       <li><!-- -  -->Multiplication and division are executed second.</li>
       <li><!-- -  -->Addition and subtraction are executed last.</li></ul></li>
 
-    <li><!-- -  -->This priorities are exactly what we expect from an
+    <li><!-- -  -->These priorities are exactly what we expect from an
       arithmetic expression.</li>
 
     <li><!-- -  -->Additionally we see that ++2 is allowed and interpreted as
@@ -6046,9 +6046,9 @@
     $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). - .()   is  -> 7;
 </pre><p>
   As we can see S7SSD is shorter as the description with EBNF.
-  A syntax statement is expained as follows:
+  A syntax statement is explained as follows:
 </p><ul>
-    <li><!-- -  -->The $ is used to introduce all hardcoded statements.</li>
+    <li><!-- -  -->The $ is used to introduce all hard coded statements.</li>
 
     <li><!-- -  -->The keyword <tt>'<font color=blue>syntax</font>'</tt> introduces a structured syntax
       description.</li>
@@ -6101,8 +6101,8 @@
   associativity of the <tt>'<font color=blue>while</font>'</tt> statement is specified as left
   associative. The associativity has no meaning for the
   <tt>'<font color=blue>while</font>'</tt> statement since there is no parameter before the first
-  symbol or after the last symbol. With 25 the priority of the
-  whole <tt>'<font color=blue>while</font>'</tt> statement is determined.
+  symbol or after the last symbol. The priority of the whole
+  <tt>'<font color=blue>while</font>'</tt> statement is 25.
 </p><p>
   The semantic definition of the <tt>'<font color=blue>while</font>'</tt> statement is as follows:
 </p><pre>
@@ -6235,7 +6235,7 @@
   to implement. On the other hand, the BNF like rules of S7SSD
   lead to semantic constructs which are easy to parse and easy to
   compile. The broken down S7SSD rules of the <tt>'<font color=blue>if</font>'</tt> statement
-  correspond to the following EBNF description:
+  corresponds to the following EBNF description:
 </p><pre>
     if_statement ::=
       'if' expression 'then'
@@ -6267,7 +6267,7 @@
   <tt>'<font color=red>ELSIF_PROC</font>'</tt> (which corresponds to the nonterminal symbol
   <tt>'elseif_or_else_part'</tt> of the EBNF) and the type
   <tt>'<font color=red>ELSIF_RESULT</font>'</tt> (which is the result
-  of the a <tt>'<font color=red>ELSIF_PROC</font>'</tt>).
+  of the <tt>'<font color=red>ELSIF_PROC</font>'</tt>).
 </p><p>
   Normally a syntax declaration can be used in many semantic
   declarations. E.g.: The syntax of the <tt>'+'</tt> operator is defined
@@ -6334,10 +6334,10 @@
     $ <font color=blue>syntax</font> <font color=red>expr</font>: .loop.().until.().do.().end.loop <font color=blue>is</font> -> 25;
 </pre><p>
   are no nonterminal expressions <tt>'()'</tt> before the first keyword or
-  after the last keyword. Therefore the assoziativity does not play
+  after the last keyword. Therefore the associativity does not play
   any role. The nonterminal expressions <tt>'()'</tt> of the <tt>'<font color=blue>loop</font>'</tt> statement
   are all surrounded by keywords and therefore they can have any
-  priority. As priority of the <tt>'<font color=blue>loop</font>'</tt> 25 is choosen just because
+  priority. As priority of the <tt>'<font color=blue>loop</font>'</tt> 25 is chosen just because
   most other statements have also priority 25. The assignments
   (:= +:= *:= ...) have priority 20 and all operators used in
   arithmetic, boolean and string expressions have priorities less
@@ -6382,7 +6382,7 @@
   There are some things which are out of the scope of S7SSD.
   The syntax of tokens (whitespace, comments, identifiers and
   literals) and expressions (parentheses, function calls and dot
-  expressions) is hardcoded. The hardcoded constructs are described
+  expressions) is hard coded. The hard coded constructs are described
   in <a href="tokens.htm">chapter 10 (Tokens)</a> and <a href="expr.htm">chapter 11 (Expressions)</a>.
 </p><p>
   For the reasons mentioned above it is not possible to transform
@@ -6391,7 +6391,7 @@
 </p><p>
   The advantage of S7SSD lies in its simplicity and that a fast
   automated syntax recognition algorithm can be easily implemented.
-  It is exactly the combination of hardcoded syntax recognition and
+  It is exactly the combination of hard coded syntax recognition and
   flexible syntax rules that make it successful.
 </p>
 
@@ -6907,8 +6907,8 @@
   the parameters of a <tt>'<font color=blue>while</font>'</tt> statement. Such an action
   declaration contains enough information to use the defined
   construct. The semantic of all primitive actions is
-  hardcoded in the interpreter and in the compiler. The
-  parameters of the hardcoded actions and the corresponding
+  hard coded in the interpreter and in the compiler. The
+  parameters of the hard coded actions and the corresponding
   definitions in Seed7 must match. If you are interested in
   the Seed7 definitions of primitive actions just look into
   the file <tt>'seed7_05.s7i'</tt>.
@@ -6956,7 +6956,7 @@
     _NE       Not equal
     _ODD      Odd number
     _ORD      Ordinal number
-    _PARSE    Conversion of  <font color=red>string</font> to another type
+    _PARSE    Conversion of <font color=red>string</font> to another type
     _PLUS     Positive sign (noop)
     _POW      Power
     _PRED     Predecessor
@@ -7015,7 +7015,7 @@
   lowercase names. E.g.: The action <tt>'PRC_WHILE'</tt> is implemented
   with the C function <tt>'prc_while()'</tt> in the file <tt>'prclib.c'</tt>.
   The parameter list for all C action functions is identical.
-  Every *lib.c file has a corresonding *lib.h file which
+  Every *lib.c file has a corresponding *lib.h file which
   contains the prototypes for the action functions.
 </p><p>
   The primitive action which describes the addition of two
@@ -7050,7 +7050,7 @@
   The function <tt>'int_add()'</tt> adds the first and the third argument (the
   second argument contains the + symbol. The file <tt>'memory.h'</tt>
   contains several macros and functions which help to handle the
-  arguments (parameter list) of a C primitiv action function.
+  arguments (parameter list) of a C primitive action function.
 <ul>
     <li><!-- -  -->The macros <tt>'arg_1'</tt>, <tt>'arg_2'</tt>,
       <tt>'arg_3'</tt>, etc. can be used to get an individual argument
@@ -7067,7 +7067,7 @@
 
     <li><!-- -  -->The functions <tt>'bld_int_temp'</tt>, <tt>'bld_array_temp'</tt>,
       <tt>'bld_win_temp'</tt>, etc. can be used to create the (objecttype)
-      result of a primitiv action (E.g.: <tt>'return(bld_int_temp(0))'</tt> ).</li>
+      result of a primitive action (E.g.: <tt>'return(bld_int_temp(0))'</tt> ).</li>
 </ul><p>
   The file <tt>'intlib.h'</tt> contains the prototype for the <tt>'int_add()'</tt>
   function:
@@ -7079,7 +7079,7 @@
     objecttype int_add ();
 </pre><p>
   Additionally every primitive action is registered in the file
-  <tt>'primitive.c'</tt>, The line which registrates <tt>'INT_ADD'</tt> is:
+  <tt>'primitive.c'</tt>. The line which incorporates <tt>'INT_ADD'</tt> is:
 </p><pre>
     { "INT_ADD",             int_add,             },
 </pre><p>
@@ -7196,7 +7196,7 @@
   All the *lib.c files containing primitive actions and various
   other files with their functions are grouped together in the
   <tt>'s7_comp.a'</tt> library (Licensed under GPL). Furthermore the C
-  primitiv action functions (E.g.: int_parse) of the *lib.c
+  primitive action functions (E.g.: int_parse) of the *lib.c
   files may use corresponding functions (E.g.: intParse) which
   can be found in *_rtl.c files (E.g.: <tt>'int_rtl.c'</tt>). The *_rtl.c
   files are grouped together in the <tt>'seed7_05.a'</tt> library

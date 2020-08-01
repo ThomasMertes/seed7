@@ -110,7 +110,7 @@ I got errors when compiling Seed7. What should I do?
 ====================================================
 
 In most cases errors indicate that some development package of your
-distribution is missing. If your operating system is linux, bsd or unix
+distribution is missing. If your operating system is Linux, BSD or UNIX
 not all development packages with header files might be installed. In
 this case you get some errors after typing 'make depend'. Errors such as
 
@@ -151,8 +151,8 @@ Errors such as
 
 indicate that your makefile contains commands for the cmd.exe
 (or command.com) windows console, but your 'make' program uses
-a unix shell (/usr/bin/sh) to execute them. Either use a
-makefile which uses unix shell commands (e.g. mk_msys.mak or
+a UNIX shell (/usr/bin/sh) to execute them. Either use a
+makefile which uses UNIX shell commands (e.g. mk_msys.mak or
 mk_cygw.mak) or take care that the 'make' program uses cmd.exe
 (or command.com) to execute the commands.
 
@@ -205,7 +205,7 @@ operator symbols.
 
 Seed7 uses syntax declarations to specify the syntax of statements. A keyword
 is a name which is used somewhere in a syntax declaration. Syntax declarations
-reduce the possibilitys to use a keyword out of context. E.g: After the keyword
+reduce the possibilities to use a keyword out of context. E.g.: After the keyword
 'if' the parser expects always an expression. This makes 'if' unusable as
 variable name. This way you get error messages when you try to use 'if' or
 other keywords as variable name. That behaviour is just the same as in other
@@ -217,7 +217,7 @@ In a classic compiler (e.g. a Pascal compiler) there is a distinction between
 reserved words and identifiers. Pascal compilers and probably also Ada, C/C++,
 Java and C# compilers use an enumeration type to represent the reserved words.
 Since Seed7 allows user defined statements (which may introduce new keywords)
-it is not possible to hardcode reserved words in the compiler as it is done in
+it is not possible to hard code reserved words in the compiler as it is done in
 Pascal, Ada, C/C++, Java and many other compilers.
 
 
@@ -298,7 +298,7 @@ be used in the definition of text adventure games.
 
 The possibility to define statements allows also a more precise language
 definition. The C++ for/while/if statements are described in the C++
-manuals using BNF and an english description. Seed7 statements can be
+manuals using BNF and an English description. Seed7 statements can be
 defined in Seed7. For example:
 
   $ syntax expr: while.().do.().end.while is -> 25;
@@ -357,7 +357,7 @@ type errors can be hidden in rarely executed code paths. Static type checking
 can find such errors easily. With dynamic type checking extensive tests are
 necessary to find all type errors. Even tests with 100% code coverage are not
 enough since the combination of all places where values are created and all
-places where this values are used must be taken into account. Additionally it
+places where these values are used must be taken into account. Additionally it
 would be necessary to repeat all this tests every time the program is changed.
 Naturally there are doubts that enough tests are done and that the tests are
 adjusted and repeated for every change in the program. Therefore it can be
@@ -405,7 +405,7 @@ the programmer. That way the ideas of the programmer are also documented.
 
 When comparing compile-time and runtime type checking it can be concluded that
 dynamic typed languages save some programming time by omitting type
-declarations, but this time must be payed back with massive interest rates to do
+declarations, but this time must be paid back with massive interest rates to do
 the debugging.
 
 
@@ -475,7 +475,7 @@ where the expression is used.
 Can functions have variable parameter lists?
 ============================================
 
-No, because functions with variable parameter lists as the C printf function have
+No, because functions with variable parameter list as the C printf function have
 some problems:
 
  - Normally type checking is only possible at run time.
@@ -519,7 +519,7 @@ a function.
 Although functions can return arbitrary complex values (e.g. arrays of structures
 with string elements) the memory allocated for all intermediate results is freed
 automatically without the help of a garbage collector. This is done in a stack
-like manner. The same way as aritmetic expressions like (1+2)*3+4 can be evaluated
+like manner. The same way as arithmetic expressions like (1+2)*3+4 can be evaluated
 with the help of a stack (which stores the intermediate results 3 and 9), it is
 possible to maintain a stack of pointers to arbitrary complex values. Note that
 the point where such intermediate results should be freed can be determined at
@@ -701,7 +701,7 @@ field 'property' you can do the following:
   a := b;
   b.property := 2;
 
-Everything boils down to the question: What value does a.property have now.
+Everything boils down to the question: What value does 'a.property' have now.
 
  - When 'aType' is an object type a.property has the value 2 because 'a' and 'b'
    both refer to the same object.
@@ -761,7 +761,7 @@ What types of parameters does Seed7 have?
 =========================================
 
 There are value and reference parameters. The formal parameter can be constant or
-variable. The combination of this features allows four types of parameters:
+variable. The combination of these features allows four types of parameters:
 
     +-----------+-----------+--------------+
     | parameter |  call by  | access right |
@@ -816,8 +816,8 @@ The first three steps are usually hidden in the declaration statement.
 Are there static methods / class methods?
 =========================================
 
-Seed7 allows to define functions (procedures and statements) without corresponding
-class. When this is not desired Seed7 uses a special parameter, the attr (attribute)
+Seed7 allows defining functions (procedures and statements) without corresponding
+class. When this is not desired Seed7 uses a special parameter, the 'attr' (attribute)
 parameter, to archive the functionality of static methods (elsewhere named class
 methods) in a more general way. How a static method is declared is shown in the
 following example:
@@ -829,7 +829,7 @@ following example:
       result := ord(ch);
     end func;
 
-The function convert_to can be called as
+The function 'convert_to' can be called as
 
   number := convert_to(integer, 'a');
 
@@ -843,7 +843,7 @@ is sometimes the only way to use the same function name for different purposes a
 
 Attribute parameters allow a function to be attached to a certain type. But this concept
 is much more flexible than static methods (or class methods). A function can also
-have several attr parameters and attr parameters can be at any parameter position (not
+have several 'attr' parameters and 'attr' parameters can be at any parameter position (not
 just the first parameter). Furthermore the type can be the result of a function as for
 example typeof(num).
 
@@ -866,13 +866,13 @@ level.
 Seed7 uses the word template to describe a function which is
 executed at compile time and declares some things while
 executing (at compile time). Naturally a template function can
-have parameters. Specially types as parameters are useful with
+have parameters. Especially types as parameters are useful with
 template functions. That way a template function can declare
 objects with the type value of a parameter.
 
 It is necessary to call template functions explicit.
 They are not invoked implicit as the C++ template functions.
-This explicit calls of template functions make it obvious
+The explicit calls of template functions make it obvious
 what it is going on. This way the program is easier to read.
 
 
@@ -903,11 +903,11 @@ The $ is used to force the analyzer to use a hard coded expression recognition
 instead of the configurable one. This mechanism is used to boot the Seed7 language:
 
 At the beginning of the seed7_05.s7i file nothing is declared. This means that
-no statements, no functions, no operators, no types and no variables are predeclared.
+no statements, no functions, no operators, no types and no variables are predefined.
 To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
 contains only $ commands. First the type 'type' is declared. Declarations of other
 types, system variables and syntax descriptions of operators and statements follow.
-After finishing the include of syntax.s7i the file seed7_05.s7i contains some $
+After finishing the inclusion of syntax.s7i the file seed7_05.s7i contains some $
 declarations until the 'const' declaration statement is established. From that point
 onward almost no $ statements are needed.
 
@@ -942,7 +942,7 @@ Can I use an "abc.s7i" include file to boot to the abc language?
 Theoretically yes. In practice there would be several problems. For example:
 
  - All primitive actions are defined such that they fit to Seed7.
- - Some concepts like goto's, return's, brake's are not supported.
+ - Some concepts like goto's, return's and break's are not supported.
  - Some things like comments and $ pragmas are hard coded.
 
 But basically booting various languages was one of the goals of the extensible

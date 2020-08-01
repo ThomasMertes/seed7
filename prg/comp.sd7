@@ -5116,6 +5116,19 @@ const proc: process_fil_seek (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_fil_setbuf (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filSetbuf((filetype)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "), ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_fil_tell (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -11483,6 +11496,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_fil_print(params, c_expr);
       elsif action_name = "FIL_SEEK" then
         process_fil_seek(params, c_expr);
+      elsif action_name = "FIL_SETBUF" then
+        process_fil_setbuf(params, c_expr);
       elsif action_name = "FIL_TELL" then
         process_fil_tell(params, c_expr);
       elsif action_name = "FIL_VALUE" then
@@ -13798,6 +13813,7 @@ const proc: object_address (in reference: current_object, inout expr_type: c_exp
     else
       exprCategory := category(curr_expr);
       if exprCategory = ACTOBJECT then
+        # c_expr.expr &:= "(objreftype) ";
         action_address(curr_expr, c_expr);
       elsif exprCategory = BLOCKOBJECT then
         block_address(curr_expr, c_expr);
@@ -15881,6 +15897,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "filetype    filOpen (stritype, stritype);");
     writeln(c_prog, "void        filPrint (stritype);");
     writeln(c_prog, "void        filSeek (filetype, inttype);");
+    writeln(c_prog, "void        filSetbuf (filetype, inttype, inttype);");
     writeln(c_prog, "inttype     filTell (filetype);");
     writeln(c_prog, "stritype    filWordRead (filetype, chartype *);");
     writeln(c_prog, "void        filWrite (filetype, stritype);");

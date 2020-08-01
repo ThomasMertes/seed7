@@ -42,7 +42,7 @@
 #include "rtl_err.h"
 
 
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
 #define BIGDIGIT_SIZE 32
 #else
 #define BIGDIGIT_SIZE 16
@@ -2848,7 +2848,7 @@ rtlBiginttype big2;
 
 
 
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
 #ifdef ANSI_C
 
 rtlBiginttype bigFromInt64 (int64type number)
@@ -2914,7 +2914,7 @@ uint32type number;
 
 
 
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
 #ifdef ANSI_C
 
 rtlBiginttype bigFromUInt64 (uint64type number)
@@ -5154,7 +5154,7 @@ rtlBiginttype big1;
       while (pos > 0) {
         pos--;
         result <<= 8 * sizeof(bigdigittype);
-        result |= (inttype) big1->bigdigits[pos];
+        result |= (int32type) big1->bigdigits[pos];
       } /* while */
       return(result);
     } /* if */
@@ -5162,7 +5162,7 @@ rtlBiginttype big1;
 
 
 
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
 #ifdef ANSI_C
 
 int64type bigToInt64 (const const_rtlBiginttype big1)
@@ -5186,7 +5186,7 @@ rtlBiginttype big1;
       while (pos > 0) {
         pos--;
         result <<= 8 * sizeof(bigdigittype);
-        result |= (inttype) big1->bigdigits[pos];
+        result |= (int64type) big1->bigdigits[pos];
       } /* while */
       return(result);
     } /* if */

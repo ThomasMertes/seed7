@@ -768,6 +768,26 @@ inttype file_position;
 
 #ifdef ANSI_C
 
+void filSetbuf (filetype aFile, inttype mode, inttype size)
+#else
+
+void filSetbuf (aFile, file_position)
+filetype aFile;
+inttype file_position;
+#endif
+
+  { /* filSetbuf */
+    if (mode < 0 || mode > 2 || size < 0) {
+      raise_error(RANGE_ERROR);
+    } else if (setvbuf(aFile, NULL, mode, size) != 0) {
+      raise_error(FILE_ERROR);
+    } /* if */
+  } /* filSetbuf */
+
+
+
+#ifdef ANSI_C
+
 inttype filTell (filetype aFile)
 #else
 

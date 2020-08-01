@@ -349,13 +349,13 @@ settype setValue;
       for (position = setValue->min_position; position <= setValue->max_position; position++) {
         bitset_elem = setValue->bitset[position - setValue->min_position];
         for (bit_index = 0; bit_index < 8 * sizeof(bitsettype); bit_index++) {
-          if (bitset_elem & ((bitsettype)(1 << bit_index))) {
+          if (bitset_elem & ((bitsettype) 1) << bit_index) {
             if (first_elem) {
               first_elem = FALSE;
             } else {
               prot_cstri(", ");
             } /* if */
-            prot_int((position << 5) | bit_index);
+            prot_int(position << 5 | bit_index);
           } /* if */
         } /* for */
       } /* for */

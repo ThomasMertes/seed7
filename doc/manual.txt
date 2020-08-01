@@ -99,7 +99,7 @@ CONTENTS
   9.    STRUCTURED SYNTAX DEFINITION
   9.1     The Extended Backus-Naur Form
   9.2     The syntax of a statement
-  9.3     Priority and assoziativity
+  9.3     Priority and associativity
   9.4     The syntax of operators
   9.5     Syntax of predefined statements
   9.6     Advanced syntax definitions
@@ -301,9 +301,9 @@ CONTENTS
     - The procedure calling mechanism is not based on a concept
       with an object-message pair (An object receives a message).
       Instead a match is done over a list of objects. This more
-      general (and powerful) mechanism is called multimatch and
-      it includes the simple object-message mechanism as special
-      case.
+      general (and powerful) mechanism is called multiple dispatch
+      and it includes the simple object-message mechanism as
+      special case.
 
   There are several concepts which are also used by other languages:
 
@@ -325,7 +325,7 @@ CONTENTS
     - With a syntax declaration new operators and statements
       can be defined.
 
-    - Not only the predefined operator symbols can be
+    - Not only predefined operator symbols can be
       overloaded. Additionally it is possible to invent
       completely new operator symbols.
 
@@ -382,7 +382,7 @@ CONTENTS
   and an associativity to operators and other things like these.
   An overview about syntax declarations can be found in
   Chapter 3.2 (Syntax declarations). A detailed description
-  of the Seed7 syntax definitons can be found in chapter 9
+  of the Seed7 syntax definitions can be found in chapter 9
   (Structured syntax definition). Chapter 4 (Predefined
   statements) contains various examples of syntax and semantic
   declarations. The basic parts of the syntax are described in
@@ -688,7 +688,7 @@ CONTENTS
 
   In rare cases a 'ref' parameter would have undesired side
   effects with global variables or other 'ref' parameters.
-  In this cases an explicit 'val' parameter instead of an
+  In these cases an explicit 'val' parameter instead of an
   'in' parameter makes sense.
 
   In all normal cases an 'in' parameter should be preferred
@@ -697,7 +697,7 @@ CONTENTS
 
 2.5 Declare a statement
 
-    This example program writes it's arguments
+    This example program writes its arguments
 
     $ include "seed7_05.s7i";       # Standard Seed7 library
 
@@ -735,7 +735,7 @@ CONTENTS
     $ syntax expr: .for.().range.().to.().do.().end.for is              -> 25;
 
   Additionally everybody can overload the 'for' statement also.
-  Because of this powerful features Seed7 does not need Iterators.
+  Because of these powerful features Seed7 does not need Iterators.
 
 
 2.6 Template declaring a statement
@@ -910,9 +910,9 @@ CONTENTS
 
 3.2 Syntax declarations
 
-    Syntax declaratins are used to specify the syntax, priority
+    Syntax declarations are used to specify the syntax, priority
   and associativity of operators, statements, declarations and
-  other constructs. A syntax declarations which defines the
+  other constructs. A syntax declaration which defines the
   '+' operator is:
 
     $ syntax expr: .(). + .()   is ->  7;
@@ -920,9 +920,9 @@ CONTENTS
   Most syntax definitions can be found in the file "syntax.s7i".
   A detailed description of the syntax declarations can be
   found in chapter 9 (Structured syntax definition)
-  There is also a hadcoded syntax for function calls with
+  There is also a hard coded syntax for function calls with
   a parenthesis enclosed parameter list where the parameters
-  are separated by commas. The hardcoded syntax is described
+  are separated by commas. The hard coded syntax is described
   in chapter 11 (Expressions).
   Here we use a more complex syntax description:
 
@@ -3158,7 +3158,7 @@ CONTENTS
   For a enumeration type only few operations are predefined.
   Additional operations must be defined separately. So it is
   necessary to define the 'str' and 'parse' functions in order to
-  do i/o for a new enumeration type.
+  do I/O for a new enumeration type.
 
     Infix operators:
       enumType conv A  Conversion from integer A to enumType
@@ -3707,7 +3707,7 @@ CONTENTS
 5.30 object
 
     The type 'object' is used as meta type for various types.
-  This allows to define common operations for all this types.
+  This allows defining common operations for all this types.
   The type 'object' is not used as element type for container
   classes since this can be done much better and type save
   with abstract data types like 'array', 'set', 'hash' and
@@ -3720,7 +3720,7 @@ CONTENTS
 5.31 expr
 
     The type 'expr' is used to describe unmatched expressions.
-  This are expressions where the recognizing of the functions
+  These are expressions where the recognizing of the functions
   and the type check is not done yet. This is used for example
   in the definition of function bodies.
 
@@ -4111,10 +4111,10 @@ CONTENTS
 
   This view isn't new. C provides a primitive form of
   interfacing. When you write to a 'file' in C you use the same
-  interface ('fprintf') for harddisk files, console output and
+  interface ('fprintf') for hard disk files, console output and
   printer output. The implementation does totally different
-  things for this files. UNIX has used the "everything is a
-  file" philosopy for ages (even network communication uses
+  things for these files. UNIX has used the "everything is a
+  file" philosophy for ages (even network communication uses
   the file' interface (see sockets)).
 
   For short: An interface defines which methods are supported
@@ -4127,7 +4127,7 @@ CONTENTS
 
   Seed7 uses interface types and implementation types.
   Objects declared with an interface type refer to a value
-  which has an implementation type. This siuation is
+  which has an implementation type. This situation is
   described with the following picture:
 
               +----------------+
@@ -4183,7 +4183,7 @@ CONTENTS
             aCircle.radius, aWindow.foreground);
       end func;
 
-  In the classic OOP philosopy a message is sent to an object.
+  In the classic OOP philosophy a message is sent to an object.
   To express this situation classic OO languages use the
   following method call syntax:
 
@@ -4230,11 +4230,11 @@ CONTENTS
 
     When the implementation types have different implementations
   of the same function (method) a dynamic dispatch is necessary.
-  The type of the value, refered by an interface object, is not
+  The type of the value, referred by an interface object, is not
   known at compile-time. In this case the program must decide at
   runtime which implementation of the function should be invoked.
   This decision is based on the implementation type of the value
-  (refered by the interface object). A dynamic dispatch only
+  (referred by the interface object). A dynamic dispatch only
   takes place when a DYNAMIC (or interface) function is called.
   When the program is analyzed (in the interpreter or compiler)
   the interface functions take precedence over normal functions
@@ -4340,7 +4340,7 @@ CONTENTS
       end func;
 
   All inherited types of 'null_file' inherit the function
-  'getln', but they are also free to redeclare it. In the
+  'getln', but they are also free to redefine it. In the
   'getln' function above the function call 'gets(aFile, 1)'
   uses the (DYNAMIC) interface function:
 
@@ -4399,7 +4399,7 @@ CONTENTS
   In the following example the type 'Number' is introduced
   which is capable to unify numerical types. The type
   'Number' is an interface type which defines
-  the inferface function for the '+' operation:
+  the interface function for the '+' operation:
 
     const type: Number is sub object interface;
 
@@ -4458,7 +4458,7 @@ CONTENTS
   calculation. Further extending can lead to an universal
   type. Such an universal type is loved by proponents of
   dynamic typed languages, but there are also good reasons
-  to have destinct types for different purposes.
+  to have distinct types for different purposes.
 
 
 7.5 Replacing pointers with interface types
@@ -4578,7 +4578,7 @@ CONTENTS
     writeln(not error);
 
   The 'writeln' above writes data and then terminates the line.
-  This is equal to a 'write' followed by a writeln. Instead of
+  This is equal to a 'write' followed by a 'writeln'. Instead of
   multiple write statements the '<&' operator can be used to
   concatenate the elements to be written:
 
@@ -4640,7 +4640,7 @@ CONTENTS
 
     readln(info_file, number);
 
-  For doing i/o to a window on the screen we write:
+  For doing I/O to a window on the screen we write:
 
     window1 := open_window(SCREEN, 10, 10, 5, 60);
     box(window1);
@@ -4672,23 +4672,23 @@ CONTENTS
       input and output for arbitrary types.
 
     - Standard input and output files and the possibility
-      to route the standard i/o to any file.
+      to route the standard I/O to any file.
 
     - Access to operating system files and devices.
 
     - An interface which allows the user to define
       his own file types.
 
-  In the following subchapters we discuss each of this goals.
+  In the following subchapters we discuss each of these goals.
 
 
 8.1 Conversion to strings and back
 
-    We archive the goal of doing i/o for arbitrary types with
-  two conversion functions. In order to do i/o with a type
+    We archive the goal of doing I/O for arbitrary types with
+  two conversion functions. In order to do I/O with a type
   the 'str' and 'parse' functions must be defined for that
   type. As an example we show the conversion functions for the
-  type boolean:
+  type 'boolean':
 
     const func string: str (in boolean: aBool) is func
       result
@@ -4722,11 +4722,11 @@ CONTENTS
   different types.
 
   After defining the 'str' and 'parse' functions for a type the
-  enable_io function can be called for this type as in:
+  'enable_io' function can be called for this type as in:
 
     enable_io(boolean);
 
-  The enable_io package declares various io functions like
+  The 'enable_io' template declares various io functions like
   'read', 'write' and others for the provided type (in this
   example 'boolean'). If only output (or only input) is needed
   for a type it is possible to define just 'str' (or 'parse')
@@ -4774,7 +4774,7 @@ CONTENTS
         end if;
       end func;
 
-  The enable_io package contains definitions of 'lpad' and 'rpad'
+  The 'enable_io' template contains definitions of 'lpad' and 'rpad'
   to work on the type specified with enable_io:
 
     const func string: (in aType: aValue) lpad (in integer: leng) is func
@@ -4818,19 +4818,19 @@ CONTENTS
 
     To allow arbitrary user defined file-types beside the
   operating system files we chose a model in which the
-  i/o methods are assigned to the type of the file-value and
+  I/O methods are assigned to the type of the file-value and
   not to the type of the file-variable. This allows a file
   variable to point to any file-value. The file-variables
   have the type 'file' which has only the assignment method
   defined. For the operating system files and for each user
   defined file a file-type must be declared which has the
-  i/o methods defined. These file-types are derived (direct
-  or indirect) from the type 'null_file' for which all i/o
-  methods are defined upon a base of basic string i/o
+  I/O methods defined. These file-types are derived (direct
+  or indirect) from the type 'null_file' for which all I/O
+  methods are defined upon a base of basic string I/O
   methods. So for a new user defined file-type only the
-  basic string i/o methods must be defined.
+  basic string I/O methods must be defined.
 
-  The two basic i/o methods defined for the 'null_file' are
+  The two basic I/O methods defined for the 'null_file' are
 
     const proc: write (ref null_file param, in string param) is noop;
     const string: gets (ref null_file param, ref integer param) is "";
@@ -4842,10 +4842,10 @@ CONTENTS
   be redefined for the new file-type. Based upon these
   two methods three more methods are defined for the
   'null_file' named 'getc', 'getwd' and 'getln'.
-  This methods get a character, a word and a line
+  These methods get a character, a word and a line
   respectively. A word is terminated by a space, a tab
   or a linefeed. A line is terminated by a linefeed.
-  This methods need not to be redefined for an user defined
+  This methods need not to be redefined for a user defined
   file type but for performance reasons they can also be
   redefined. The definitions for 'getc', 'getwd' and 'getln' for
   the 'null_file' are
@@ -4900,14 +4900,14 @@ CONTENTS
   'getln' do not.
   When 'getc', 'getwd' or 'getln' is not defined for a new user defined
   file type the declarations from the 'null_file' are used instead.
-  This declarations are based on the method 'gets' which must be
+  These declarations are based on the method 'gets' which must be
   defined for every new user defined file-type.
 
   Note that there is an assignment to the variable 'bufferChar'.
   This variable is a component of 'null_file' and therefore also
   a component of all derived file types. This allows an
-  eoln-function to test if the last 'getwd' or 'getln' reach the end
-  of a line. Here is a definition of the eoln-function:
+  'eoln' function to test if the last 'getwd' or 'getln' reach the end
+  of a line. Here is a definition of the 'eoln' function:
 
     const func boolean: eoln (ref null_file: aFile) is func
       result
@@ -4926,7 +4926,7 @@ CONTENTS
   this behaviour, care has to be taken when mixing scanner and
   file functions.
 
-  The next declarations allows various i/o operations for strings:
+  The next declarations allows various I/O operations for strings:
 
     const proc: writeln (in file: aFile, in string: stri) is func
       begin
@@ -4951,10 +4951,10 @@ CONTENTS
 
 8.3 Input and output with conversion
 
-    Normally we need a combination of an i/o operation with
+    Normally we need a combination of an I/O operation with
   a conversion operation. There are several functions which are
   based on the 'str' and 'parse' conversions and on the basic
-  i/o-functions. The following declarations allow the 'write' function
+  I/O-functions. The following declarations allow the 'write' function
   to be used for all types which define 'enable_io':
 
     const proc: write (in file: aFile, in aType: aValue) is func
@@ -5010,9 +5010,9 @@ CONTENTS
 
 8.4 Simple read and write statements
 
-    The simple input/output for the standard i/o-files are
+    The simple input/output for the standard I/O-files are
   'read' and 'write' which are defined with 'enable_io'. Simple
-  i/o may look like:
+  I/O may look like:
 
     write("Amount? ");
     read(amount);
@@ -5076,7 +5076,7 @@ CONTENTS
 
     readln(IN, number);
 
-  if the file IN has not redeclared readln(IN, integer) this
+  if the file IN has not redefined readln(IN, integer) this
   procedure calls
 
     stri := getln(IN);
@@ -5090,7 +5090,7 @@ CONTENTS
 
 8.5 Standard input and output files
 
-    The standard i/o files are OUT for output and IN for input.
+    The standard I/O files are OUT for output and IN for input.
   This TWO are file-variables which are declared as follows:
 
     var file: IN is STD_IN;
@@ -5139,9 +5139,9 @@ CONTENTS
 
   This means that every data item of the type 'external_file'
   has the components from 'null_file' and additionally the
-  components ext_file and name. Note the type PRIMITIVE_FILE
+  components ext_file and name. Note the type 'PRIMITIVE_FILE'
   which points directly to an operating system file. Objects
-  of type PRIMITIVE_FILE can only have operating system
+  of type 'PRIMITIVE_FILE' can only have operating system
   files as values while objects of type 'file' can also have
   other files as values. To allow the implementation of the
   type 'external_file' several operations for the type
@@ -5164,7 +5164,7 @@ CONTENTS
     var external_file: STD_OUT is INIT_STD_FILE(PRIMITIVE_OUTPUT, "STD_OUT");
     var external_file: STD_ERR is INIT_STD_FILE(PRIMITIVE_ERROR,  "STD_ERR");
 
-  It is possible to do i/o directly with them, but it is more wisely
+  It is possible to do I/O directly with them, but it is more wisely
   to use them only to initialize user defined file variables as in:
 
     var file: ERR is STD_ERR;
@@ -5175,7 +5175,7 @@ CONTENTS
     writeln(ERR, "Some error occurred");
 
   In this case redirection of the ERR file can be done very easy.
-  The second way to access external_files is to use the 'open'
+  The second way to access external files is to use the 'open'
   function. Usually a file variable is declared
 
     var file: MY_OUT is STD_NULL;
@@ -5206,8 +5206,8 @@ CONTENTS
 
     var KEYBOARD_FILE: KEYBOARD is SCREEN_KEYBOARD;
 
-  Reading from KEYBOARD may deliver simple ascii characters or
-  special codes for function keys. This special codes can also
+  Reading from KEYBOARD may deliver simple ASCII characters or
+  special codes for function keys. These special codes can also
   be copied to a character variables because the type 'char' is
   not limited to 8 bits. For each function key exists a
   predefined constant that can be used to test which key is
@@ -5239,15 +5239,15 @@ CONTENTS
     - It could store its contents in a string (not only to be
       faster but also to provide additional file operations)
 
-    - The information can be processed (e.g To upper case)
+    - The information can be processed (e.g. to upper case)
       and sent to another file.
 
-    - It could work just like an unix utility (Think of
+    - It could work just like an UNIX utility (Think of
       more, sort, tee, uniq ...)
 
     - It could provide a file-like interface for something
       with an other interface. (e.g. The contents of a
-      directory, or random access i/o to the screen)
+      directory, or random access I/O to the screen)
 
   With the following declaration we define a new file type:
 
@@ -5264,13 +5264,13 @@ CONTENTS
 
     type_implements_interface(NEW_FILE, file);
 
-  The type file is not the only interface
-  type which can be used. There is also the type text which
-  is derived from file. The type text
+  The type 'file' is not the only interface
+  type which can be used. There is also the type 'text' which
+  is derived from 'file'. The type 'text'
   describes a line oriented file which allows 'setPos' (which moves the
   current position to the line and column specified) and other functions.
   It is also possible to define new interface types which derive
-  from file or text.
+  from 'file' or 'text'.
 
   As next an open function is needed to generate a new NEW_FILE:
 
@@ -5284,10 +5284,10 @@ CONTENTS
         ...
       end func;
 
-  Note the usage of the ALLOC function to generate a new data
+  Note the usage of the 'malloc' function to generate a new data
   item. This data item is not freed automatically but if you
   do not open files to often this does not hurt. Now only the
-  two basic i/o operations must be defined:
+  two basic I/O operations must be defined:
 
     const proc: write (inout NEW_FILE: new_fil, in string: stri) is func
       begin
@@ -5309,7 +5309,7 @@ CONTENTS
 8.8 Scanning a file
 
     The I/O concept introduced in the previous chapters separates
-  the input of data from it's conversion. The 'read', 'readln',
+  the input of data from its conversion. The 'read', 'readln',
   'getwd' and 'getln' functions are designed to read whitespace
   separated data elements. When the data elements are not separated
   by whitespace characters this I/O concept is not possible.
@@ -5325,7 +5325,7 @@ CONTENTS
   symbol. After a scanner has read a symbol the current character
   contains the character just after the symbol. This character
   could be the first character of the next symbol or some
-  whitespace character. If the set of symbols is choosen wisely all
+  whitespace character. If the set of symbols is chosen wisely all
   decisions about the type of the symbol and when to stop reading
   characters for a symbol can be done based on the current
   character.
@@ -5429,7 +5429,7 @@ CONTENTS
     end if;
 
   The function 'getSymbol' is designed to read Seed7 symbols. When
-  it returns "" the end of the file is reached.
+  the end of the file is reached it returns "".
   With 'getSymbol' name-value pairs can be read:
 
     name := getSymbol(inFile);
@@ -5639,10 +5639,10 @@ CONTENTS
     - Expressions of the extended Backus-Naur form can be put within
       parentheses ( ... ) .
 
-    - When a subexpression is optional it is enclosed in square
+    - When an expression is optional it is enclosed in square
       brackets [ ... ] .
 
-    - When a subexpression may be omitted or repeated it is
+    - When an expression may be omitted or repeated it is
       enclosed in curly braces { ... } .
 
   The syntax of the extended Backus-Naur form can be described in
@@ -5673,7 +5673,7 @@ CONTENTS
   the conditional exit at the beginning or at the end, it should
   have a conditional exit in the middle of the loop. This middle
   conditional exit should be part of the 'loop' statement. Note that
-  the 'break' statement, that exists in some programming languages,
+  the 'break' statement, which exists in some programming languages,
   is a statement on its own and is not part of the loop which it
   leaves. Therefore the middle conditional exit should not be
   confused with a 'break' statement. An example of the new 'loop'
@@ -5807,7 +5807,7 @@ CONTENTS
     *** chkloop.sd7(35):51: Match for {loop "X" until {1 + 2 } do integer end loop } failed
 
 
-9.3 Priority and assoziativity
+9.3 Priority and associativity
 
     When a syntax construct has parameters before the first symbol
   or after the last symbol the priority and the associativity of the
@@ -5853,7 +5853,7 @@ CONTENTS
     is a binding from right to left                 -><-
 
   The last two possibilities give no legal interpretation in the
-  subtraction example. The third kind of assiciativity ( <-> ) is
+  subtraction example. The third kind of associativity ( <-> ) is
   used by the equal operator ( = ) of Pascal because there a
   expression like
 
@@ -5995,9 +5995,9 @@ CONTENTS
   makes no sense when the 'and' operator has priority 12 instead of 14.
 
   S7SSD treats everything as operator description. Operators
-  have priority and assoziativity. The priority and associativity
+  have priority and associativity. The priority and associativity
   determine in which succession S7SSD syntax rules get applied.
-  To explain priority and assoziativity we use the basic arithmetic
+  To explain priority and associativity we use the basic arithmetic
   operations (+,-,*,/). To describe them with EBNF we can write:
 
     factor :=
@@ -6025,7 +6025,7 @@ CONTENTS
       - Multiplication and division are executed second.
       - Addition and subtraction are executed last.
 
-    - This priorities are exactly what we expect from an
+    - These priorities are exactly what we expect from an
       arithmetic expression.
 
     - Additionally we see that ++2 is allowed and interpreted as
@@ -6046,9 +6046,9 @@ CONTENTS
     $ syntax expr: .(). - .()   is  -> 7;
 
   As we can see S7SSD is shorter as the description with EBNF.
-  A syntax statement is expained as follows:
+  A syntax statement is explained as follows:
 
-    - The $ is used to introduce all hardcoded statements.
+    - The $ is used to introduce all hard coded statements.
 
     - The keyword 'syntax' introduces a structured syntax
       description.
@@ -6101,8 +6101,8 @@ CONTENTS
   associativity of the 'while' statement is specified as left
   associative. The associativity has no meaning for the
   'while' statement since there is no parameter before the first
-  symbol or after the last symbol. With 25 the priority of the
-  whole 'while' statement is determined.
+  symbol or after the last symbol. The priority of the whole
+  'while' statement is 25.
 
   The semantic definition of the 'while' statement is as follows:
 
@@ -6235,7 +6235,7 @@ CONTENTS
   to implement. On the other hand, the BNF like rules of S7SSD
   lead to semantic constructs which are easy to parse and easy to
   compile. The broken down S7SSD rules of the 'if' statement
-  correspond to the following EBNF description:
+  corresponds to the following EBNF description:
 
     if_statement ::=
       'if' expression 'then'
@@ -6267,7 +6267,7 @@ CONTENTS
   'ELSIF_PROC' (which corresponds to the nonterminal symbol
   'elseif_or_else_part' of the EBNF) and the type
   'ELSIF_RESULT' (which is the result
-  of the a 'ELSIF_PROC').
+  of the 'ELSIF_PROC').
 
   Normally a syntax declaration can be used in many semantic
   declarations. E.g.: The syntax of the '+' operator is defined
@@ -6334,10 +6334,10 @@ CONTENTS
     $ syntax expr: .loop.().until.().do.().end.loop is -> 25;
 
   are no nonterminal expressions '()' before the first keyword or
-  after the last keyword. Therefore the assoziativity does not play
+  after the last keyword. Therefore the associativity does not play
   any role. The nonterminal expressions '()' of the 'loop' statement
   are all surrounded by keywords and therefore they can have any
-  priority. As priority of the 'loop' 25 is choosen just because
+  priority. As priority of the 'loop' 25 is chosen just because
   most other statements have also priority 25. The assignments
   (:= +:= *:= ...) have priority 20 and all operators used in
   arithmetic, boolean and string expressions have priorities less
@@ -6382,7 +6382,7 @@ CONTENTS
   There are some things which are out of the scope of S7SSD.
   The syntax of tokens (whitespace, comments, identifiers and
   literals) and expressions (parentheses, function calls and dot
-  expressions) is hardcoded. The hardcoded constructs are described
+  expressions) is hard coded. The hard coded constructs are described
   in chapter 10 (Tokens) and chapter 11 (Expressions).
 
   For the reasons mentioned above it is not possible to transform
@@ -6391,7 +6391,7 @@ CONTENTS
 
   The advantage of S7SSD lies in its simplicity and that a fast
   automated syntax recognition algorithm can be easily implemented.
-  It is exactly the combination of hardcoded syntax recognition and
+  It is exactly the combination of hard coded syntax recognition and
   flexible syntax rules that make it successful.
 
 
@@ -6907,8 +6907,8 @@ CONTENTS
   the parameters of a 'while' statement. Such an action
   declaration contains enough information to use the defined
   construct. The semantic of all primitive actions is
-  hardcoded in the interpreter and in the compiler. The
-  parameters of the hardcoded actions and the corresponding
+  hard coded in the interpreter and in the compiler. The
+  parameters of the hard coded actions and the corresponding
   definitions in Seed7 must match. If you are interested in
   the Seed7 definitions of primitive actions just look into
   the file 'seed7_05.s7i'.
@@ -6956,7 +6956,7 @@ CONTENTS
     _NE       Not equal
     _ODD      Odd number
     _ORD      Ordinal number
-    _PARSE    Conversion of  string to another type
+    _PARSE    Conversion of string to another type
     _PLUS     Positive sign (noop)
     _POW      Power
     _PRED     Predecessor
@@ -7015,7 +7015,7 @@ CONTENTS
   lowercase names. E.g.: The action 'PRC_WHILE' is implemented
   with the C function 'prc_while()' in the file 'prclib.c'.
   The parameter list for all C action functions is identical.
-  Every *lib.c file has a corresonding *lib.h file which
+  Every *lib.c file has a corresponding *lib.h file which
   contains the prototypes for the action functions.
 
   The primitive action which describes the addition of two
@@ -7050,7 +7050,7 @@ CONTENTS
   The function 'int_add()' adds the first and the third argument (the
   second argument contains the + symbol. The file 'memory.h'
   contains several macros and functions which help to handle the
-  arguments (parameter list) of a C primitiv action function.
+  arguments (parameter list) of a C primitive action function.
 
     - The macros 'arg_1', 'arg_2',
       'arg_3', etc. can be used to get an individual argument
@@ -7067,7 +7067,7 @@ CONTENTS
 
     - The functions 'bld_int_temp', 'bld_array_temp',
       'bld_win_temp', etc. can be used to create the (objecttype)
-      result of a primitiv action (E.g.: 'return(bld_int_temp(0))' ).
+      result of a primitive action (E.g.: 'return(bld_int_temp(0))' ).
 
   The file 'intlib.h' contains the prototype for the 'int_add()'
   function:
@@ -7079,7 +7079,7 @@ CONTENTS
     objecttype int_add ();
 
   Additionally every primitive action is registered in the file
-  'primitive.c', The line which registrates 'INT_ADD' is:
+  'primitive.c'. The line which incorporates 'INT_ADD' is:
 
     { "INT_ADD",             int_add,             },
 
@@ -7196,7 +7196,7 @@ CONTENTS
   All the *lib.c files containing primitive actions and various
   other files with their functions are grouped together in the
   's7_comp.a' library (Licensed under GPL). Furthermore the C
-  primitiv action functions (E.g.: int_parse) of the *lib.c
+  primitive action functions (E.g.: int_parse) of the *lib.c
   files may use corresponding functions (E.g.: intParse) which
   can be found in *_rtl.c files (E.g.: 'int_rtl.c'). The *_rtl.c
   files are grouped together in the 'seed7_05.a' library

@@ -24,6 +24,7 @@ THE MAKEFILES
   mk_nmake.mak | windows (MinGW) | nmake   | gcc    | cmd.exe
   mk_msvc.mak  | windows (MSVC)  | nmake   | cl     | cmd.exe
   mk_bcc32.mak | windows (bcc32) | make    | bcc32  | cmd.exe
+  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc    | sh
 
   In the optimal case you just copy one of this files to
   'makefile' and do:

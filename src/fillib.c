@@ -508,6 +508,26 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype fil_setbuf (listtype arguments)
+#else
+
+objecttype fil_setbuf (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_setbuf */
+    isit_file(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    filSetbuf(take_file(arg_1(arguments)),
+        take_int(arg_2(arguments)), take_int(arg_3(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* fil_setbuf */
+
+
+
+#ifdef ANSI_C
+
 objecttype fil_tell (listtype arguments)
 #else
 

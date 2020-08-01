@@ -56,6 +56,7 @@ printpi3.sd7 Print 1000 digits of PI with Newtons formula
 rand.sd7     Floating point random numbers test                
 rever.sd7    Reversi game                                      
 roman.sd7    Write roman numbers                               
+savehd7.sd7  Save a harddisk which has hardware errors.        
 self.sd7     A program that writes itself (except this header) 
 shisen.sd7   Shisen game                                       
 sl.sd7       Game of Life                                      

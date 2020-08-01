@@ -492,7 +492,7 @@ uint32type number;
 
 
 
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
 #ifdef ANSI_C
 
 gmpBiginttype bigFromUInt64 (uint64type number)
@@ -1364,7 +1364,7 @@ gmpBiginttype big1;
 
 
 
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
 #ifdef ANSI_C
 
 int64type bigToInt64 (const const_gmpBiginttype big1)

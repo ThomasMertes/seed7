@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifndef HAS_INT64TYPE
+#ifndef INT64TYPE
 #define bigFromUInt64(x) 0
 #define bigToInt64(x) 0
 #endif
@@ -51,11 +51,11 @@ void bigDecr (biginttype *const);
 void bigDestr (const biginttype);
 biginttype bigDiv (const const_biginttype, const const_biginttype);
 booltype bigEq (const const_biginttype, const const_biginttype);
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
   biginttype bigFromInt64 (int64type);
 #endif
 biginttype bigFromUInt32 (uinttype);
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
   biginttype bigFromUInt64 (uint64type);
 #endif
 biginttype bigGcd (const const_biginttype, const const_biginttype);
@@ -88,7 +88,7 @@ void bigShrink (biginttype *const, const const_biginttype);
 stritype bigStr (const const_biginttype);
 biginttype bigSucc (const const_biginttype);
 int32type bigToInt32 (const const_biginttype big1);
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
   int64type bigToInt64 (const const_biginttype big1);
 #endif
 
@@ -108,11 +108,11 @@ void bigDecr ();
 void bigDestr ();
 biginttype bigDiv ();
 booltype bigEq ();
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
   biginttype bigFromInt64 ();
 #endif
 biginttype bigFromUInt32 ();
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
   biginttype bigFromUInt64 ();
 #endif
 biginttype bigGcd ();
@@ -145,7 +145,7 @@ void bigShrink ();
 stritype bigStr ();
 biginttype bigSucc ();
 int32type bigToInt32 ();
-#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE
   int64type bigToInt64 ();
 #endif
 

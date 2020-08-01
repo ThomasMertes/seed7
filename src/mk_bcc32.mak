@@ -159,8 +159,8 @@ version.h:
 	cmd /S /C "echo #define ISNAN_WITH_UNDERLINE" >> version.h
 	cmd /S /C "echo #define CHECK_INT_DIV_BY_ZERO" >> version.h
 	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
-	cmd /S /C "echo #define HAS_INT64TYPE" >> version.h
-	cmd /S /C "echo #define INT64TYPE_IS_INT64" >> version.h
+	cmd /S /C "echo #define INT64TYPE __int64" >> version.h
+	cmd /S /C "echo #define UINT64TYPE unsigned __int64" >> version.h
 	cmd /S /C "echo #define USE_WFOPEN" >> version.h
 	cmd /S /C "echo #define USE_WOPENDIR" >> version.h
 	cmd /S /C "echo #define WDIR wDIR" >> version.h

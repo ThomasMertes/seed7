@@ -302,6 +302,7 @@ static primactrecord prim_act_table[] = {
     { "FIL_POPEN",           fil_popen,           },
     { "FIL_PRINT",           fil_print,           },
     { "FIL_SEEK",            fil_seek,            },
+    { "FIL_SETBUF",          fil_setbuf,          },
     { "FIL_TELL",            fil_tell,            },
     { "FIL_VALUE",           fil_value,           },
     { "FIL_WORD_READ",       fil_word_read,       },

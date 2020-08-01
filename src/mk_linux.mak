@@ -150,7 +150,8 @@ version.h:
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define READDIR_UTF8" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
-	echo "#define HAS_INT64TYPE" >> version.h
+	echo "#define INT64TYPE long long int" >> version.h
+	echo "#define UINT64TYPE unsigned long long" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#define USE_LSEEK" >> version.h
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h

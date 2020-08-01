@@ -151,8 +151,8 @@ version.h:
 	echo #define CHECK_INT_DIV_BY_ZERO >> version.h
 	echo #define FLOAT_ZERO_DIV_ERROR >> version.h
 	echo #define USE_MYUNISTD_H >> version.h
-	echo #define HAS_INT64TYPE >> version.h
-	echo #define INT64TYPE_IS_INT64 >> version.h
+	echo #define INT64TYPE __int64 >> version.h
+	echo #define UINT64TYPE unsigned __int64 >> version.h
 	echo #define USE_WFOPEN >> version.h
 	echo #define USE_WOPENDIR >> version.h
 	echo #define USE_FSEEKI64 >> version.h

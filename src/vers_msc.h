@@ -13,8 +13,8 @@
 #define CHECK_INT_DIV_BY_ZERO
 #define FLOAT_ZERO_DIV_ERROR
 #define USE_MYUNISTD_H
-#define HAS_INT64TYPE
-#define INT64TYPE_IS_INT64
+#define INT64TYPE __int64
+#define UINT64TYPE unsigned __int64
 #define USE_WFOPEN
 #define USE_WOPENDIR
 #define USE_FSEEKI64

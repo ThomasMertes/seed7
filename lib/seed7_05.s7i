@@ -2686,20 +2686,20 @@ const proc: CASE_DECLS (in type: aType) is func
     WHEN_RESULT := newtype;
     WHEN_PROC := (func WHEN_RESULT);
     SELECTOR_TYPE := set of aType;
-    const proc: case (ref aType param) of end case                       is noop;
+    const proc: case (ref aType param) of end case                      is noop;
     const proc: case (ref aType param) of
                   (ref WHEN_PROC param)
-                end case                                                 is action "PRC_CASE";
+                end case                                                is action "PRC_CASE";
     const proc: case (ref aType param) of
                   (ref WHEN_PROC param)
                   otherwise : (ref proc param)
-                end case                                                 is action "PRC_CASE_DEF";
-    const proc: (ref WHEN_RESULT param) ::= enumlit                      is action "ENU_GENLIT";
+                end case                                                is action "PRC_CASE_DEF";
+    const proc: (ref WHEN_RESULT param) ::= enumlit                     is action "ENU_GENLIT";
     const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
-    const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)        is action "ENU_CREATE";
-    const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)   is WHEN_EMPTY(aType);
+    const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)       is action "ENU_CREATE";
+    const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)  is WHEN_EMPTY(aType);
     const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)
-                       (ref WHEN_PROC param)                             is WHEN_EMPTY(aType);
+                       (ref WHEN_PROC param)                            is WHEN_EMPTY(aType);
   end func;
 
 CASE_DECLS(integer);
@@ -2708,7 +2708,7 @@ CASE_DECLS(boolean);
 (* CASE_DECLS(string); *)
 
 const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";
-const proc: TRACE (ref expr param) is                      action "REF_TRACE";
+const proc: TRACE (ref expr param)                      is action "REF_TRACE";
 
 const func type: new enum (ref expr: elem_expr) end enum is func
   result
@@ -2723,16 +2723,16 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     enumType := subtype ENUMERATION;
     IN_PARAM_IS_REFERENCE(enumType);
     elem_list := expr_to_list(elem_expr);
-    const proc: (ref enumType param) ::= (in enumType param) is         action "ENU_CREATE";
-    const proc: (ref enumType param) ::= enumlit is                     action "ENU_GENLIT";
-    const proc: destroy (ref enumType param) is                         noop;
-    const proc: (inout enumType param) := (in enumType param) is        action "ENU_CPY";
-    const func boolean: (in enumType param) = (in enumType param) is    action "ENU_EQ";
-    const func boolean: (in enumType param) <> (in enumType param) is   action "ENU_NE";
+    const proc: (ref enumType param) ::= (in enumType param)         is action "ENU_CREATE";
+    const proc: (ref enumType param) ::= enumlit                     is action "ENU_GENLIT";
+    const proc: destroy (ref enumType param)                         is noop;
+    const proc: (inout enumType param) := (in enumType param)        is action "ENU_CPY";
+    const func boolean: (in enumType param) = (in enumType param)    is action "ENU_EQ";
+    const func boolean: (in enumType param) <> (in enumType param)   is action "ENU_NE";
     const func enumType: getValue(in reference param, attr enumType) is action "ENU_VALUE";
     const func enumType: ICONV2(in integer param, in ref_list param,
-                                attr enumType) is                       action "ENU_ICONV2";
-    const func integer: ORD2(in enumType param, in ref_list param) is   action "ENU_ORD2";
+                                attr enumType)                       is action "ENU_ICONV2";
+    const func integer: ORD2(in enumType param, in ref_list param)   is action "ENU_ORD2";
     literal_list := ref_list.EMPTY;
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];
@@ -2743,7 +2743,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
         literal_list := literal_list & make_list(elem_obj);
       end if;
     end for;
-    const ref_list: (attr enumType) . literal_list is                   literal_list;
+    const ref_list: (attr enumType) . literal_list                   is literal_list;
     if length(literal_list) >= 1 then
       const enumType: (attr enumType) . value is  getValue(literal_list[1], enumType);
       const enumType: (attr enumType) . first is  getValue(literal_list[1], enumType);
@@ -2879,18 +2879,18 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
 (*    PRINT("in BLOCK_DECLS\n"); *)
     CATCH_RESULT := new enum CATCH_EMPTY end enum;
     CATCH_PROC := (func CATCH_RESULT);
-    const proc: block (ref proc param) exception end block               is noop;
+    const proc: block (ref proc param) exception end block            is noop;
     const proc: block (ref proc param) exception
                   (ref CATCH_PROC param)
-                end block                                                is action "PRC_BLOCK";
+                end block                                             is action "PRC_BLOCK";
     (*const proc: block (ref proc param) exception
                   (ref CATCH_PROC param)
                   otherwise : (ref proc param)
-                end block                                                is action "PRC_BLOCK_DEF"; *)
-    const proc: (ref CATCH_PROC param) ::= (ref CATCH_RESULT param)      is action "ENU_CREATE";
-    const CATCH_PROC: catch (ref EXCEPTION param) : (ref proc param)     is CATCH_RESULT.value;
+                end block                                             is action "PRC_BLOCK_DEF"; *)
+    const proc: (ref CATCH_PROC param) ::= (ref CATCH_RESULT param)   is action "ENU_CREATE";
+    const CATCH_PROC: catch (ref EXCEPTION param) : (ref proc param)  is CATCH_RESULT.value;
     const CATCH_PROC: catch (ref EXCEPTION param) : (ref proc param)
-                       (ref CATCH_PROC param)                            is CATCH_RESULT.value;
+                       (ref CATCH_PROC param)                         is CATCH_RESULT.value;
   end func;
 
 BLOCK_DECLS(void);
@@ -2901,36 +2901,41 @@ BLOCK_DECLS(void);
 const type: PRIMITIVE_FILE is newtype;
 IN_PARAM_IS_VALUE(PRIMITIVE_FILE);
 
-const proc: (ref PRIMITIVE_FILE param) ::= (ref PRIMITIVE_FILE param) is        action "FIL_CREATE";
-const proc: destroy (ref PRIMITIVE_FILE param) is                               noop;
-const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param) is       action "FIL_CPY";
+const proc: (ref PRIMITIVE_FILE param) ::= (ref PRIMITIVE_FILE param)        is action "FIL_CREATE";
+const proc: destroy (ref PRIMITIVE_FILE param)                               is noop;
+const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param)       is action "FIL_CPY";
 
-const func boolean: (ref PRIMITIVE_FILE param) = (ref PRIMITIVE_FILE param) is  action "FIL_EQ";
+const func boolean: (ref PRIMITIVE_FILE param) = (ref PRIMITIVE_FILE param)  is action "FIL_EQ";
 const func boolean: (ref PRIMITIVE_FILE param) <> (ref PRIMITIVE_FILE param) is action "FIL_NE";
 
-const func PRIMITIVE_FILE: _GENERATE_EMPTY_PRIMITIVE_FILE is                    action "FIL_EMPTY";
-const PRIMITIVE_FILE: (attr PRIMITIVE_FILE) . value is                          _GENERATE_EMPTY_PRIMITIVE_FILE;
-const PRIMITIVE_FILE: PRIMITIVE_NULL_FILE is                                    PRIMITIVE_FILE.value;
+const func PRIMITIVE_FILE: _GENERATE_EMPTY_PRIMITIVE_FILE                    is action "FIL_EMPTY";
+const PRIMITIVE_FILE: (attr PRIMITIVE_FILE) . value                          is _GENERATE_EMPTY_PRIMITIVE_FILE;
+const PRIMITIVE_FILE: PRIMITIVE_NULL_FILE                                    is PRIMITIVE_FILE.value;
 
-const func PRIMITIVE_FILE: PRIMITIVE_INPUT is         action "FIL_IN";
-const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is        action "FIL_OUT";
-const func PRIMITIVE_FILE: PRIMITIVE_ERROR is         action "FIL_ERR";
+const func PRIMITIVE_FILE: PRIMITIVE_INPUT  is action "FIL_IN";
+const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is action "FIL_OUT";
+const func PRIMITIVE_FILE: PRIMITIVE_ERROR  is action "FIL_ERR";
 
-const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param) is  action "FIL_OPEN";
-const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN (in string param, in string param) is action "FIL_POPEN";
-const proc: close (ref PRIMITIVE_FILE param) is                              action "FIL_CLOSE";
-const func boolean: eof (ref PRIMITIVE_FILE param) is                        action "FIL_EOF";
-const func boolean: hasNext (ref PRIMITIVE_FILE param) is                    action "FIL_HAS_NEXT";
-const proc: flush (ref PRIMITIVE_FILE param) is                              action "FIL_FLUSH";
-const func char: getc (ref PRIMITIVE_FILE param) is                          action "FIL_GETC";
-const func string: gets (ref PRIMITIVE_FILE param, ref integer param) is     action "FIL_GETS";
+const integer: IO_FULL_BUFFERING is 0;
+const integer: IO_LINE_BUFFERING is 1;
+const integer: IO_NO_BUFFERING   is 2;
+
+const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param)   is action "FIL_OPEN";
+const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN (in string param, in string param)  is action "FIL_POPEN";
+const proc: setbuf (ref PRIMITIVE_FILE param, ref integer param, ref integer param) is action "FIL_SETBUF";
+const proc: close (ref PRIMITIVE_FILE param)                              is action "FIL_CLOSE";
+const func boolean: eof (ref PRIMITIVE_FILE param)                        is action "FIL_EOF";
+const func boolean: hasNext (ref PRIMITIVE_FILE param)                    is action "FIL_HAS_NEXT";
+const proc: flush (ref PRIMITIVE_FILE param)                              is action "FIL_FLUSH";
+const func char: getc (ref PRIMITIVE_FILE param)                          is action "FIL_GETC";
+const func string: gets (ref PRIMITIVE_FILE param, ref integer param)     is action "FIL_GETS";
 const func string: word_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_WORD_READ";
 const func string: line_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_LINE_READ";
-const proc: write (ref PRIMITIVE_FILE param, in string param) is             action "FIL_WRITE";
-const func integer: length (ref PRIMITIVE_FILE param) is                     action "FIL_LNG";
-const proc: seek (ref PRIMITIVE_FILE param, ref integer param) is            action "FIL_SEEK";
-const func integer: tell (ref PRIMITIVE_FILE param) is                       action "FIL_TELL";
-const func string: literal (ref PRIMITIVE_FILE param) is                     action "FIL_LIT";
+const proc: write (ref PRIMITIVE_FILE param, in string param)             is action "FIL_WRITE";
+const func integer: length (ref PRIMITIVE_FILE param)                     is action "FIL_LNG";
+const proc: seek (ref PRIMITIVE_FILE param, ref integer param)            is action "FIL_SEEK";
+const func integer: tell (ref PRIMITIVE_FILE param)                       is action "FIL_TELL";
+const func string: literal (ref PRIMITIVE_FILE param)                     is action "FIL_LIT";
 
 const char: EOF is chr(-1);
 
@@ -2938,17 +2943,17 @@ const char: EOF is chr(-1);
 
 const type: file is sub object interface;
 
-const proc: write (inout file param, in string param) is DYNAMIC;
-const proc: writeln (inout file param) is DYNAMIC;
-const proc: backSpace (inout file param) is DYNAMIC;
-const proc: close (inout file param) is DYNAMIC;
-const proc: flush (ref file param) is DYNAMIC;
-const func char: getc (inout file param) is DYNAMIC;
+const proc: write (inout file param, in string param)        is DYNAMIC;
+const proc: writeln (inout file param)                       is DYNAMIC;
+const proc: backSpace (inout file param)                     is DYNAMIC;
+const proc: close (inout file param)                         is DYNAMIC;
+const proc: flush (ref file param)                           is DYNAMIC;
+const func char: getc (inout file param)                     is DYNAMIC;
 const func string: gets (inout file param, in integer param) is DYNAMIC;
-const func string: getln (inout file param) is DYNAMIC;
-const func string: getwd (inout file param) is DYNAMIC;
-const func string: getk (ref file param) is DYNAMIC;
-const func boolean: eoln (ref file param) is DYNAMIC;
+const func string: getln (inout file param)                  is DYNAMIC;
+const func string: getwd (inout file param)                  is DYNAMIC;
+const func string: getk (ref file param)                     is DYNAMIC;
+const func boolean: eoln (ref file param)                    is DYNAMIC;
 
 (**
  *  Return TRUE if the end-of-file indicator is set, FALSE otherwise.
@@ -2971,13 +2976,13 @@ const func boolean: hasNext (ref file param) is DYNAMIC;
 const func integer: length (ref file param) is DYNAMIC;
 
 const proc: seek (inout file param, in integer param) is DYNAMIC;
-const func integer: tell (ref file param) is DYNAMIC;
-const func char: (ref file param).bufferChar is DYNAMIC;
-const varfunc char: (inout file param).bufferChar is DYNAMIC;
-const func boolean: (ref file param).io_empty is DYNAMIC;
-const varfunc boolean: (inout file param).io_empty is DYNAMIC;
-const func boolean: (ref file param).io_ok is DYNAMIC;
-const varfunc boolean: (inout file param).io_ok is DYNAMIC;
+const func integer: tell (ref file param)             is DYNAMIC;
+const func char: (ref file param).bufferChar          is DYNAMIC;
+const varfunc char: (inout file param).bufferChar     is DYNAMIC;
+const func boolean: (ref file param).io_empty         is DYNAMIC;
+const varfunc boolean: (inout file param).io_empty    is DYNAMIC;
+const func boolean: (ref file param).io_ok            is DYNAMIC;
+const varfunc boolean: (inout file param).io_ok       is DYNAMIC;
 
 const func boolean: io_ok (in file: aFile) is
   return aFile.io_ok;
@@ -3011,8 +3016,8 @@ const type: null_file is new struct
 
 type_implements_interface(null_file, file);
 
-const func boolean: (ref null_file param) = (ref null_file param) is   action "ENU_EQ";
-const func boolean: (ref null_file param) <> (ref null_file param) is  action "ENU_NE";
+const func boolean: (ref null_file param) = (ref null_file param)   is action "ENU_EQ";
+const func boolean: (ref null_file param) <> (ref null_file param)  is action "ENU_NE";
 
 var null_file: STD_NULL is null_file.value;
 const file: (attr file) . value is STD_NULL;

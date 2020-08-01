@@ -150,7 +150,8 @@ version.h:
 	echo #define MKDIR_WITH_ONE_PARAMETER >> version.h
 	echo #define CHOWN_MISSING >> version.h
 	echo #undef  CHMOD_MISSING >> version.h
-	echo #define HAS_INT64TYPE >> version.h
+	echo #define INT64TYPE long long int >> version.h
+	echo #define UINT64TYPE unsigned long long >> version.h
 	echo #define USE_WFOPEN >> version.h
 	echo #define USE_WOPENDIR >> version.h
 	echo #define WDIR _WDIR >> version.h

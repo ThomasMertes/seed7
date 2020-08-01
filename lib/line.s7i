@@ -27,16 +27,38 @@
 
 
 const type: line_file is sub null_file struct
-    var file: in_file is STD_NULL;
+    var file: baseFile is STD_NULL;
     var string: line is "";
   end struct;
 
 
-const func line_file: open_line (ref file: in_fil) is func
+const func line_file: open_line (ref file: aFile) is func
   result
     var line_file: line_fil is line_file.value;
   begin
-    line_fil.in_file := in_fil;
+    line_fil.baseFile := aFile;
+  end func;
+
+
+const proc: write (inout line_file: line_fil, in string: stri) is func
+  begin
+    line_fil.line &:= stri;
+  end func;
+
+
+const proc: writeln (inout line_file: line_fil) is func
+  begin
+    writeln(line_fil.baseFile, line_fil.line);
+    flush(line_fil.baseFile);
+    line_fil.line := "";
+  end func;
+
+
+const proc: flush (inout line_file: line_fil) is func
+  begin
+    write(line_fil.baseFile, line_fil.line);
+    flush(line_fil.baseFile);
+    line_fil.line := "";
   end func;
 
 
@@ -47,7 +69,7 @@ const func string: getln (inout line_file: line_fil) is func
     var char: ch is ' ';
   begin
     if line_fil.line = "" then
-      ch := gets(line_fil.in_file, 1)[1];
+      ch := gets(line_fil.baseFile, 1)[1];
       while ch <> '\n' do
         if ch = '\b' then
           if stri <> "" then
@@ -56,7 +78,7 @@ const func string: getln (inout line_file: line_fil) is func
         else
           stri &:= str(ch);
         end if;
-        ch := gets(line_fil.in_file, 1)[1];
+        ch := gets(line_fil.baseFile, 1)[1];
       end while;
     else
       if line_fil.line[length(line_fil.line)] = '\n' then

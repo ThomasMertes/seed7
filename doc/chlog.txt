@@ -1,3 +1,17 @@
+20090104:
+- A new example program (savehd7.sd7), which can be used to save a partially damaged
+  harddisk partition to an image file, was added.
+- Several spelling errors in the FAQ and in the manual were fixed.
+- The library line.s7i was improved to be useable as file which flushes every line.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The preprocessor macros HAS_INT64TYPE and INT64TYPE_IS_INT64 were replaced
+  by INT64TYPE in various files.
+- The makefiles were improved to create defines for INT64TYPE and UINT64TYPE in the
+  file version.h .
+- A makefile mk_osx.mak was added to support compilation under Mac OS X with Xcode.
+- The type PRIMITIVE_FILE was improved to support the 'setbuf' function.
+- Errors in the functions setIConv, prot_set and bigToInt64 were fixed.
+
 20081221:
 - The chapter about the Seed7 structured syntax definition in the manual was improved
   (thanks to James Harris for the suggestions and the proofreading).

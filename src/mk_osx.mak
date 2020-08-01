@@ -1,22 +1,23 @@
-# Makefile for gmake and gcc from MinGW. Commands executed by: bash
-# To compile use a MSYS console and call:
-#   gmake -f mk_msys.mak depend
-#   gmake -f mk_msys.mak
-# It might also be possible to use this makefile from a windows console instead of the MSYS console.
-# If you do not have a MSYS console you could use a windows console together with mk_mingw.mak or mk_nmake.mak.
+# Makefile for Mac OS X with Xcode. Commands executed by: bash
+# To compile use a command shell and call:
+#   make -f mk_osx.mak depend
+#   make -f mk_osx.mak
+# If you are not using Mac OS X with Xcode look into the file read_me.txt for the makefile to use.
 
-# CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
-CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS =
+# CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS =
+LFLAGS = -L/usr/X11R6/lib 
 # LFLAGS = -pg
 # LFLAGS = -pg -lc_p
-LIBS = -lm -lgdi32 -lws2_32
-# LIBS = -lm -lgdi32 -lws2_32 -lgmp
+# LIBS = /usr/Xlib/libX11.so -lncurses -lm
+LIBS = -lX11 -lncurses -lm
+# LIBS = -lX11 -lncurses -lm_p -lc_p
+# LIBS = -lX11 -lncurses -lm -lgmp
 SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
@@ -29,8 +30,8 @@ BIGINT_LIB = big_rtl
 
 # SCREEN_OBJ = scr_x11.o
 # SCREEN_SRC = scr_x11.c
-# SCREEN_OBJ = scr_infi.o kbd_infi.o trm_inf.o
-# SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
+SCREEN_OBJ = scr_infi.o kbd_infi.o trm_inf.o
+SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
 # SCREEN_OBJ = scr_infp.o kbd_infp.o trm_cap.o
 # SCREEN_SRC = scr_inf.c kbd_inf.c trm_cap.c
 # SCREEN_OBJ = scr_cur.o
@@ -39,8 +40,6 @@ BIGINT_LIB = big_rtl
 # SCREEN_SRC = scr_cap.c
 # SCREEN_OBJ = scr_tcp.o
 # SCREEN_SRC = scr_tcp.c
-SCREEN_OBJ = scr_win.o
-SCREEN_SRC = scr_win.c
 
 MOBJ1 = hi.o
 POBJ1 = runerr.o option.o primitiv.o
@@ -56,7 +55,7 @@ GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
 ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o ut8_rtl.o heaputl.o
 ROBJ3 = striutl.o
-DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_win.o drw_win.o
+DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_unx.o drw_x11.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
@@ -76,7 +75,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
 RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
 RSRC3 = striutl.c
-DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_unx.c drw_x11.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
@@ -84,13 +83,16 @@ COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2
 
 hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
-	cp hi.exe ../prg
-	./hi.exe level
+	$(MAKE) ../prg/hi
+	./hi level
 #	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
+
+../prg/hi:
+	ln -s ../src/hi ../prg
 
 scr_x11.o: scr_x11.c version.h scr_drv.h trm_drv.h
 	$(CC) $(CFLAGS) -c scr_x11.c
@@ -138,68 +140,51 @@ strip:
 version.h:
 	echo "#define ANSI_C" > version.h
 	echo "#define USE_DIRENT" >> version.h
-	echo "#define PATH_DELIMITER '\\\\'" >> version.h
+	echo "#define PATH_DELIMITER '/'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
-	echo "#undef  USE_MMAP" >> version.h
+	echo "#define USE_MMAP" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
-	echo "#define MKDIR_WITH_ONE_PARAMETER" >> version.h
-	echo "#define CHOWN_MISSING" >> version.h
+	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
+	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
+	echo "#define READDIR_UTF8" >> version.h
+	echo "#define SCREEN_UTF8" >> version.h
 	echo "#define INT64TYPE long long int" >> version.h
 	echo "#define UINT64TYPE unsigned long long" >> version.h
-	echo "#define USE_WFOPEN" >> version.h
-	echo "#define USE_WOPENDIR" >> version.h
-	echo "#define WDIR _WDIR" >> version.h
-	echo "#define wdirent _wdirent" >> version.h
-	echo "#define wopendir _wopendir" >> version.h
-	echo "#define wreaddir _wreaddir" >> version.h
-	echo "#define wclosedir _wclosedir" >> version.h
-	echo "#define USE_FSEEKO64" >> version.h
-	echo "#define USE_WINSOCK" >> version.h
+	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define USE_LSEEK" >> version.h
+	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
+	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
-	echo "#include \"stdio.h\"" > chkftell.c
-	echo "int main (int argc, char **argv)" >> chkftell.c
-	echo "{" >> chkftell.c
-	echo "FILE *aFile;" >> chkftell.c
-	echo "aFile = popen(\"dir\",\"r\");" >> chkftell.c
-	echo "if (ftell(aFile) != -1) {" >> chkftell.c
-	echo "puts(\"\043define FTELL_WRONG_FOR_PIPE\");" >> chkftell.c
-	echo "}" >> chkftell.c
-	echo "return 0;" >> chkftell.c
-	echo "}" >> chkftell.c
-	$(CC) chkftell.c -o chkftell
-	./chkftell >> version.h
-	rm chkftell.c
-	rm chkftell.exe
 	echo "#include \"stdio.h\"" > chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
 	echo "number = -1;" >> chkccomp.c
 	echo "if (number >> 1 == (long) -1) {" >> chkccomp.c
-	echo "puts(\"\043define RSHIFT_DOES_SIGN_EXTEND\");" >> chkccomp.c
+	echo "puts(\"#define RSHIFT_DOES_SIGN_EXTEND\");" >> chkccomp.c
 	echo "}" >> chkccomp.c
 	echo "if (~number == (long) 0) {" >> chkccomp.c
-	echo "puts(\"\043define TWOS_COMPLEMENT_INTTYPE\");" >> chkccomp.c
+	echo "puts(\"#define TWOS_COMPLEMENT_INTTYPE\");" >> chkccomp.c
 	echo "}" >> chkccomp.c
 	echo "return 0;" >> chkccomp.c
 	echo "}" >> chkccomp.c
 	$(CC) chkccomp.c -o chkccomp
 	./chkccomp >> version.h
 	rm chkccomp.c
-	rm chkccomp.exe
+	rm chkccomp
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
-	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
+	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
 	echo "#define INHIBIT_C_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
-	echo "#define SEED7_LIB \"`pwd -W`/$(SEED7_LIB)\"" >> version.h
-	echo "#define COMP_DATA_LIB \"`pwd -W`/$(COMP_DATA_LIB)\"" >> version.h
-	echo "#define COMPILER_LIB \"`pwd -W`/$(COMPILER_LIB)\"" >> version.h
-	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd -W`\" >> ../src/version.h; cd ../src
+	echo "#define SEED7_LIB \"`pwd`/$(SEED7_LIB)\"" >> version.h
+	echo "#define COMP_DATA_LIB \"`pwd`/$(COMP_DATA_LIB)\"" >> version.h
+	echo "#define COMPILER_LIB \"`pwd`/$(COMPILER_LIB)\"" >> version.h
+	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd`\" >> ../src/version.h; cd ../src
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c
@@ -229,14 +214,14 @@ $(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	ar r $(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
-	wc $(GSRC1) $(GSRC2)
-	wc $(ASRC1) $(ASRC2) $(ASRC3)
-	wc $(RSRC1) $(RSRC2) $(RSRC3)
-	wc $(ESRC1)
-	wc $(LSRC1) $(LSRC2) $(LSRC3)
-	wc $(DSRC1)
-	wc $(MSRC1)
+	echo SRC:
 	wc $(SRC)
+	echo SEED7_LIB_SRC:
+	wc $(SEED7_LIB_SRC)
+	echo COMP_DATA_LIB_SRC:
+	wc $(COMP_DATA_LIB_SRC)
+	echo COMPILER_LIB_SRC:
+	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
 	lint -p $(SRC) $(LIBS)

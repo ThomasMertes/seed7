@@ -147,7 +147,8 @@ version.h:
 	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
 	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
-	echo "#define HAS_INT64TYPE" >> version.h
+	echo "#define INT64TYPE long long int" >> version.h
+	echo "#define UINT64TYPE unsigned long long" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
 	echo "#include \"stdio.h\"" > chkftell.c
