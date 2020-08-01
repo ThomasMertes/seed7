@@ -427,7 +427,7 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
       if (err_info != OKAY_NO_ERROR) {
         raise_error(RANGE_ERROR);
       } else {
-        WriteConsoleW(hConsole, wstri_buffer, wstri_size, &numchars, NULL);
+        WriteConsoleW(hConsole, wstri_buffer, (DWORD) wstri_size, &numchars, NULL);
       } /* if */
     } else {
       if (stri->size > (MAX_WSTRI_LEN + 1) / 2) {
@@ -444,7 +444,7 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
             wstri_part = &wstri_part[25000];
             wstri_size -= 25000;
           } /* while */
-          WriteConsoleW(hConsole, wstri_part, wstri_size, &numchars, NULL);
+          WriteConsoleW(hConsole, wstri_part, (DWORD) wstri_size, &numchars, NULL);
         } /* if */
         UNALLOC_WSTRI(wstri, stri->size * 2 - 1);
       } /* if */

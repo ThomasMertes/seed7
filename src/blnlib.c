@@ -110,6 +110,25 @@ objectType bln_create (listType arguments)
 
 
 /**
+ *  Check if two boolean values are equal.
+ *  @return TRUE if the two boolean values are equal,
+ *          FALSE otherwise.
+ */
+objectType bln_eq (listType arguments)
+
+  { /* bln_eq */
+    isit_bool(arg_1(arguments));
+    isit_bool(arg_3(arguments));
+    if (take_bool(arg_1(arguments)) == take_bool(arg_3(arguments))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* bln_eq */
+
+
+
+/**
  *  Check if boolValue1 is greater than or equal to boolValue2.
  *  @return TRUE if boolValue1 is TRUE or boolValue2 is FALSE,
  *          FALSE otherwise.
@@ -208,6 +227,25 @@ objectType bln_lt (listType arguments)
       return take_bool(arg_3(arguments));
     } /* if */
   } /* bln_lt */
+
+
+
+/**
+ *  Check if two boolean values are not equal.
+ *  @return FALSE if the two boolean values are equal,
+ *          TRUE otherwise.
+ */
+objectType bln_ne (listType arguments)
+
+  { /* bln_ne */
+    isit_bool(arg_1(arguments));
+    isit_bool(arg_3(arguments));
+    if (take_bool(arg_1(arguments)) != take_bool(arg_3(arguments))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* bln_ne */
 
 
 

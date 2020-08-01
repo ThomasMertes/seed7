@@ -53,6 +53,7 @@ typedef const_wstriType  const_os_striType;
 #define FREE_OS_STRI     free
 #define SIZ_OS_STRI      SIZ_WSTRI
 #define MAX_OS_STRI_LEN  MAX_WSTRI_LEN
+#define FMT_S_OS "%ls"
 #else
 typedef char             os_charType;
 typedef unsigned char    os_ucharType;
@@ -67,6 +68,7 @@ typedef const_cstriType  const_os_striType;
 #define FREE_OS_STRI     free
 #define SIZ_OS_STRI      SIZ_CSTRI
 #define MAX_OS_STRI_LEN  MAX_CSTRI_LEN
+#define FMT_S_OS "%s"
 #endif
 
 
@@ -137,11 +139,9 @@ void conv_to_cstri (cstriType cstri, const const_striType stri,
                     errInfoType *err_info);
 void conv_to_cstri8 (cstriType cstri, const const_striType stri,
                      errInfoType *err_info);
-#ifdef OS_STRI_WCHAR
 memSizeType stri_to_utf16 (const wstriType out_wstri,
                            register const strElemType *strelem, memSizeType len,
                            errInfoType *const err_info);
-#endif
 cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length,
@@ -154,6 +154,7 @@ bstriType stri_to_bstriw (const_striType stri);
 wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
                              errInfoType *err_info);
 striType cstri_to_stri (const_cstriType cstri);
+striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length);
 striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info);
 striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
                              errInfoType *err_info);

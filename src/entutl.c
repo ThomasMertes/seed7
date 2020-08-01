@@ -61,9 +61,9 @@
   /* the comparison has a "random" effect for the binary tree.      */
   /* This speeds the tree up a measurable amount of time.           */
 
-#define PTR_LESS(P1,P2) (((long) (P1) & 0377L) < ((long) (P2) & 0377L))
+#define PTR_LESS(P1,P2) (((memSizeType) (P1) & 0377L) < ((memSizeType) (P2) & 0377L))
 
-/* #define PTR_LESS(P1,P2) (((long) (P1) & 0177400L) < ((long) (P2) & 0177400L)) */
+/* #define PTR_LESS(P1,P2) (((memSizeType) (P1) & 0177400L) < ((memSizeType) (P2) & 0177400L)) */
 /* #define PTR_LESS(P1,P2) ((P1) < (P2)) */
 
 

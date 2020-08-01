@@ -327,11 +327,23 @@ typedef uint32Type         memSizeType;
 #define MAX_MEMSIZETYPE    0xFFFFFFFF
 #define MIN_MEM_INDEX      INT32TYPE_MIN
 #define MAX_MEM_INDEX      INT32TYPE_MAX
+#define F_D_MEM(width)     F_D32(width)
+#define F_U_MEM(width)     F_U32(width)
+#define F_X_MEM(width)     F_X32(width)
+#define FMT_D_MEM          FMT_D32
+#define FMT_U_MEM          FMT_U32
+#define FMT_X_MEM          FMT_X32
 #elif POINTER_SIZE == 64
 typedef uint64Type         memSizeType;
 #define MAX_MEMSIZETYPE    0xFFFFFFFFFFFFFFFF
 #define MIN_MEM_INDEX      INTTYPE_MIN
 #define MAX_MEM_INDEX      INTTYPE_MAX
+#define F_D_MEM(width)     F_D64(width)
+#define F_U_MEM(width)     F_U64(width)
+#define F_X_MEM(width)     F_X64(width)
+#define FMT_D_MEM          FMT_D64
+#define FMT_U_MEM          FMT_U64
+#define FMT_X_MEM          FMT_X64
 #endif
 
 typedef int                priorityType;

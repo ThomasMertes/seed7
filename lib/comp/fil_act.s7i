@@ -1,0 +1,392 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  fil_act.s7i   Generate code for actions of primitive files.     *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: FIL_BIG_LNG      is action "FIL_BIG_LNG";
+const ACTION: FIL_BIG_SEEK     is action "FIL_BIG_SEEK";
+const ACTION: FIL_BIG_TELL     is action "FIL_BIG_TELL";
+const ACTION: FIL_CLOSE        is action "FIL_CLOSE";
+const ACTION: FIL_CPY          is action "FIL_CPY";
+const ACTION: FIL_EMPTY        is action "FIL_EMPTY";
+const ACTION: FIL_EOF          is action "FIL_EOF";
+const ACTION: FIL_EQ           is action "FIL_EQ";
+const ACTION: FIL_ERR          is action "FIL_ERR";
+const ACTION: FIL_FLUSH        is action "FIL_FLUSH";
+const ACTION: FIL_GETC         is action "FIL_GETC";
+const ACTION: FIL_GETS         is action "FIL_GETS";
+const ACTION: FIL_HAS_NEXT     is action "FIL_HAS_NEXT";
+const ACTION: FIL_IN           is action "FIL_IN";
+const ACTION: FIL_INPUT_READY  is action "FIL_INPUT_READY";
+const ACTION: FIL_LINE_READ    is action "FIL_LINE_READ";
+const ACTION: FIL_LIT          is action "FIL_LIT";
+const ACTION: FIL_LNG          is action "FIL_LNG";
+const ACTION: FIL_NE           is action "FIL_NE";
+const ACTION: FIL_OPEN         is action "FIL_OPEN";
+const ACTION: FIL_OUT          is action "FIL_OUT";
+const ACTION: FIL_PCLOSE       is action "FIL_PCLOSE";
+const ACTION: FIL_POPEN        is action "FIL_POPEN";
+const ACTION: FIL_PRINT        is action "FIL_PRINT";
+const ACTION: FIL_SEEK         is action "FIL_SEEK";
+const ACTION: FIL_SETBUF       is action "FIL_SETBUF";
+const ACTION: FIL_TELL         is action "FIL_TELL";
+const ACTION: FIL_VALUE        is action "FIL_VALUE";
+const ACTION: FIL_WRITE        is action "FIL_WRITE";
+const ACTION: FIL_WORD_READ    is action "FIL_WORD_READ";
+
+
+const proc: process (FIL_BIG_LNG, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "filBigLng(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_BIG_SEEK, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filBigSeek(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_BIG_TELL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "filBigTell(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_CLOSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filClose(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (FIL_EMPTY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "NULL";
+  end func;
+
+
+const proc: process (FIL_EOF, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "feof(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_ERR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "stderr";
+  end func;
+
+
+const proc: process (FIL_FLUSH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "fflush(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_GETC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "fgetc(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_GETS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "filGets(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_HAS_NEXT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filHasNext(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_IN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "stdin";
+  end func;
+
+
+const proc: process (FIL_INPUT_READY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filInputReady(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_LINE_READ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "filLineRead(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (FIL_LIT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "filLit(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_LNG, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filLng(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_OPEN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filOpen(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_OUT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "stdout";
+  end func;
+
+
+const proc: process (FIL_PCLOSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filPclose(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_POPEN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filPopen(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_PRINT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filPrint(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_SEEK, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filSeek(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_SETBUF, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filSetbuf(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_TELL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filTell(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_WRITE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filWrite(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_WORD_READ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "filWordRead(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;

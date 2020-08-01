@@ -362,10 +362,10 @@ objectType rfl_expr (listType arguments)
           } /* if */
         } else {
           printf("not ok\n");
-          printf("list1: %lX\n",                   (long unsigned) list1);
-          printf("list1->next: %lX\n",             (long unsigned) list1->next);
-          printf("list1->next->next: %lX\n",       (long unsigned) list1->next->next);
-          printf("list1->next->next->next: %lX\n", (long unsigned) list1->next->next->next);
+          printf("list1: " FMT_X_MEM "\n",                   (memSizeType) list1);
+          printf("list1->next: " FMT_X_MEM "\n",             (memSizeType) list1->next);
+          printf("list1->next->next: " FMT_X_MEM "\n",       (memSizeType) list1->next->next);
+          printf("list1->next->next->next: " FMT_X_MEM "\n", (memSizeType) list1->next->next->next);
           okay = FALSE;
         } /* if */
       } while (okay);

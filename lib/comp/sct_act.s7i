@@ -1,0 +1,139 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sct_act.s7i   Generate code for actions of structure types.     *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: SCT_ALLOC   is action "SCT_ALLOC";
+const ACTION: SCT_CPY     is action "SCT_CPY";
+const ACTION: SCT_SELECT  is action "SCT_SELECT";
+
+
+const proc: process (SCT_ALLOC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    param_type := getExprResultType(params[1]);
+    # prepare_typed_result(param_type, c_expr);
+    prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+    c_expr.expr &:= "/* SCT_ALLOC */ (objRefType)(";
+    if c_param1.result_expr <> "" then
+      c_expr.expr &:= c_param1.result_expr;
+    else
+      typeCategory @:= [param_type] STRUCTOBJECT;
+      process_create_declaration(param_type, global_c_expr);
+      process_create_call(param_type,
+          c_param1.expr, c_expr.expr);
+    end if;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SCT_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
+      if isNormalVariable(params[1]) then
+        c_expr.expr &:= "structType old_struct=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "=";
+        c_expr.expr &:= c_param3.result_expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->type_num = old_struct->type_num;\n";
+      else
+        c_expr.expr &:= "structType *struct_ptr=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "structType old_struct=*struct_ptr;\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "*struct_ptr=";
+        c_expr.expr &:= c_param3.result_expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "(*struct_ptr)->type_num = old_struct->type_num;\n";
+      end if;
+      process_destr_declaration(getExprResultType(params[1]), global_c_expr);
+      setDiagnosticLine(c_expr);
+      process_destr_call(getExprResultType(params[1]),
+          "old_struct", c_expr.expr);
+      c_expr.expr &:= "}\n";
+    else
+      process_cpy_declaration(getExprResultType(params[1]), global_c_expr);
+      setDiagnosticLine(c_expr);
+      process_cpy_call(getExprResultType(params[1]),
+          c_param1.expr, c_param3.expr, c_expr.expr);
+      c_expr.expr &:= ";\n";
+    end if;
+    if has_temp_values(c_param3) then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (SCT_SELECT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: object_type is void;
+  begin
+    object_type := getExprResultType(params[1]);
+    if object_type in struct_elements and params[3] in struct_elements[object_type] then
+      c_expr.expr &:= "((structType)(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= "))->stru[";
+      c_expr.expr &:= str(struct_elements[object_type][params[3]]);
+      c_expr.expr &:= "]";
+      c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
+      c_expr.expr &:= "/*->o_";
+      create_name2(params[3], c_expr.expr);
+      c_expr.expr &:= "*/";
+    end if;
+  end func;

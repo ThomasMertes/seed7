@@ -21,7 +21,7 @@
 /*  Module: Library                                                 */
 /*  File: seed7/src/cmdlib.c                                        */
 /*  Changes: 1994  Thomas Mertes                                    */
-/*  Content: Primitive actions for various commands.                */
+/*  Content: Primitive actions for various system commands.         */
 /*                                                                  */
 /********************************************************************/
 

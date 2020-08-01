@@ -305,7 +305,7 @@ void empty_value (objectType argument)
     } /* if */
     printf(" WITH EMPTY VALUE\n");
     trace1(argument);
-    printf("\nobject_ptr=%ld\n", (unsigned long) argument);
+    printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
     prot_list(curr_argument_list);
     continue_question();
     raise_error(RANGE_ERROR);
@@ -329,7 +329,7 @@ void var_required (objectType argument)
     printcategory(CATEGORY_OF_OBJ(argument));
     printf(" NOT CONSTANT\n");
     trace1(argument);
-    printf("\nobject_ptr=%ld\n", (unsigned long) argument);
+    printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
     prot_list(curr_argument_list);
     continue_question();
     raise_error(RANGE_ERROR);

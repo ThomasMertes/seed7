@@ -1,0 +1,741 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ref_act.s7i   Generate code for actions of the type reference.  *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: REF_ADDR           is action "REF_ADDR";
+const ACTION: REF_ALLOC          is action "REF_ALLOC";
+const ACTION: REF_ARRMAXIDX      is action "REF_ARRMAXIDX";
+const ACTION: REF_ARRMINIDX      is action "REF_ARRMINIDX";
+const ACTION: REF_ARRTOLIST      is action "REF_ARRTOLIST";
+const ACTION: REF_BODY           is action "REF_BODY";
+const ACTION: REF_CATEGORY       is action "REF_CATEGORY";
+const ACTION: REF_CAT_PARSE      is action "REF_CAT_PARSE";
+const ACTION: REF_CAT_STR        is action "REF_CAT_STR";
+const ACTION: REF_CMP            is action "REF_CMP";
+const ACTION: REF_CONV           is action "REF_CONV";
+const ACTION: REF_CPY            is action "REF_CPY";
+const ACTION: REF_DEREF          is action "REF_DEREF";
+const ACTION: REF_EQ             is action "REF_EQ";
+const ACTION: REF_FILE           is action "REF_FILE";
+const ACTION: REF_GETREF         is action "REF_GETREF";
+const ACTION: REF_HASHCODE       is action "REF_HASHCODE";
+const ACTION: REF_HSHDATATOLIST  is action "REF_HSHDATATOLIST";
+const ACTION: REF_HSHKEYSTOLIST  is action "REF_HSHKEYSTOLIST";
+const ACTION: REF_ISVAR          is action "REF_ISVAR";
+const ACTION: REF_ITFTOSCT       is action "REF_ITFTOSCT";
+const ACTION: REF_LINE           is action "REF_LINE";
+const ACTION: REF_LOCAL_CONSTS   is action "REF_LOCAL_CONSTS";
+const ACTION: REF_LOCAL_VARS     is action "REF_LOCAL_VARS";
+const ACTION: REF_NE             is action "REF_NE";
+const ACTION: REF_NUM            is action "REF_NUM";
+const ACTION: REF_PARAMS         is action "REF_PARAMS";
+const ACTION: REF_RESINI         is action "REF_RESINI";
+const ACTION: REF_RESULT         is action "REF_RESULT";
+const ACTION: REF_SCTTOLIST      is action "REF_SCTTOLIST";
+const ACTION: REF_SELECT         is action "REF_SELECT";
+const ACTION: REF_SETCATEGORY    is action "REF_SETCATEGORY";
+const ACTION: REF_SETPARAMS      is action "REF_SETPARAMS";
+const ACTION: REF_SETTYPE        is action "REF_SETTYPE";
+const ACTION: REF_SETVAR         is action "REF_SETVAR";
+const ACTION: REF_STR            is action "REF_STR";
+const ACTION: REF_TRACE          is action "REF_TRACE";
+const ACTION: REF_TYPE           is action "REF_TYPE";
+const ACTION: REF_VALUE          is action "REF_VALUE";
+
+
+const proc: process (REF_ADDR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "&(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ALLOC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refAlloc(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ARRMAXIDX, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refArrMaxIdx(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ARRMINIDX, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refArrMinIdx(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ARRTOLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "refArrToList(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_BODY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refBody(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_CATEGORY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refCategory(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_CAT_PARSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refCatParse(";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_CAT_STR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "refCatStr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_CMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ptrCmp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_CONV, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (REF_DEREF, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "/*ref_deref*/ *((";
+    c_expr.expr &:= type_name(resultType(getType(function)));
+    c_expr.expr &:= " *)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process (REF_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_FILE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refFile(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_GETREF, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "refGetRef(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_HASHCODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)(((memSizeType)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")) >> 6)";
+  end func;
+
+
+const proc: process (REF_HSHDATATOLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "refHshDataToList(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_HSHKEYSTOLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "refHshKeysToList(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ISVAR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refIsVar(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ITFTOSCT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refItfToSct(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_LINE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refLine(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_LOCAL_CONSTS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "refLocalConsts(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_LOCAL_VARS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "refLocalVars(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_NUM, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refNum(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_PARAMS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refParams(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_RESINI, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refResini(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_RESULT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refResult(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_SCTTOLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "refSctToList(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_SELECT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: object_type is void;
+  begin
+    object_type := getExprResultType(params[1]);
+    if object_type in struct_elements and params[3] in struct_elements[object_type] then
+
+      c_expr.expr &:= "((structType)(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= "))->stru[";
+(*
+      c_expr.expr &:= "(*((structType *)(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ")))->stru[";
+*)
+      c_expr.expr &:= str(struct_elements[object_type][params[3]]);
+      c_expr.expr &:= "]";
+      c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
+      c_expr.expr &:= "/*->o_";
+      create_name2(params[3], c_expr.expr);
+      c_expr.expr &:= "*/";
+    end if;
+  end func;
+
+
+const proc: process (REF_SETCATEGORY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "refSetCategory(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (REF_SETPARAMS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "refSetParams(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (REF_SETTYPE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "refSetType(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (REF_SETVAR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "refSetVar(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (REF_STR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "refStr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (REF_TRACE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: traceParam is NIL;
+    var type: object_type is void;
+    var expr_type: param1 is expr_type.value;
+  begin
+    traceParam := params[1];
+    object_type := getExprResultType(traceParam);
+    c_expr.expr &:= "printf(\"";
+    if isVar(traceParam) or isVarfunc(getType(traceParam)) then
+      c_expr.expr &:= "var ";
+    else
+      c_expr.expr &:= "const ";
+    end if;
+    process_expr(traceParam, param1);
+    if param1.result_expr <> "" or param1.temp_decls <> "" then
+      c_expr.expr &:= "[TEMP] \");\n";
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= param1.temp_decls;
+      c_expr.expr &:= param1.result_decl;
+      c_expr.expr &:= param1.temp_assigns;
+      c_expr.expr &:= "printf(\"";
+      param1.expr &:= param1.result_intro;
+      param1.expr &:= param1.result_expr;
+      param1.expr &:= param1.result_finish;
+    end if;
+    c_expr.expr &:= "%s: %s is \", ";
+    c_expr.expr &:= c_literal(str(object_type));
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= c_literal(str(traceParam));
+    c_expr.expr &:= ");\n";
+    if object_type in typeCategory then
+      case typeCategory[object_type] of
+        when {VOIDOBJECT}:
+          c_expr.expr &:= "printf(\"<VOIDOBJECT>\")";
+        when {BOOLOBJECT}:
+          c_expr.expr &:= "printf(\"<BOOLOBJECT> %d\", ";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ")";
+        when {ENUMOBJECT}:
+          c_expr.expr &:= "printf(\"<ENUMOBJECT> %d\", ";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ")";
+        when {INTOBJECT}:
+          c_expr.expr &:= "printf(\"<INTOBJECT> %ld\", ";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ")";
+        when {BIGINTOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "char *cstri=bigHexCStri(";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ");\n";
+          c_expr.expr &:= "printf(\"<BIGINTOBJECT> %s\", cstri);\n";
+          c_expr.expr &:= "free((void *) cstri);\n";
+          c_expr.expr &:= "}\n";
+        when {FLOATOBJECT}:
+          c_expr.expr &:= "printf(\"<FLOATOBJECT> %f\", ";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ")";
+        when {CHAROBJECT}:
+          c_expr.expr &:= "printf(\"<CHAROBJECT> %c\", ";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ")";
+        when {STRIOBJECT}:
+          c_expr.expr &:= "printf(\"<STRIOBJECT>\"); ";
+          c_expr.expr &:= "filPrint(";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ")";
+        when {BSTRIOBJECT}:
+          c_expr.expr &:= "printf(\"<BSTRIOBJECT>\")";
+        when {FILEOBJECT}:
+          c_expr.expr &:= "printf(\"<FILEOBJECT>\")";
+        when {SOCKETOBJECT}:
+          c_expr.expr &:= "printf(\"<SOCKETOBJECT>\")";
+        when {POLLOBJECT}:
+          c_expr.expr &:= "printf(\"<POLLOBJECT>\")";
+        when {TYPEOBJECT}:
+          c_expr.expr &:= "printf(\"<TYPEOBJECT> %X\", ";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ")";
+        when {WINOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "winType win=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<WINOBJECT>\");\n";
+          c_expr.expr &:= "if (win == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_WINDOW* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" window [%lu] %lu\", win->usage_count, win);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+        when {PROGOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "progType prg=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<PROGOBJECT>\");\n";
+          c_expr.expr &:= "if (prg == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_PROG* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" program [%lu] %lu\", prg->usage_count, prg);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+        when {REFOBJECT}:
+          compDataLibraryUsed := TRUE;
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "objRefType ref=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "striType typeStri=typStr(refType(ref));\n";
+          c_expr.expr &:= "striType nameStri=refStr(ref);\n";
+          c_expr.expr &:= "striType categoryStri=refCatStr(refCategory(ref));\n";
+          c_expr.expr &:= "printf(\"<REFOBJECT>\\n\");\n";
+          c_expr.expr &:= "if (refIsVar(ref)) {\n";
+          c_expr.expr &:= "printf(\"  var \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\"  const \");\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "filWrite(stdout, typeStri);\n";
+          c_expr.expr &:= "printf(\": \");\n";
+          c_expr.expr &:= "filWrite(stdout, nameStri);\n";
+          c_expr.expr &:= "printf(\" is <\");\n";
+          c_expr.expr &:= "filWrite(stdout, categoryStri);\n";
+          c_expr.expr &:= "printf(\">\");\n";
+          c_expr.expr &:= "strDestr(typeStri);\n";
+          c_expr.expr &:= "strDestr(nameStri);\n";
+          c_expr.expr &:= "strDestr(categoryStri);\n";
+          c_expr.expr &:= "}\n";
+        when {REFLISTOBJECT}:
+          c_expr.expr &:= "printf(\"<REFLISTOBJECT>\")";
+        when {SETOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "setType aSet=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<SETOBJECT>\");\n";
+          c_expr.expr &:= "if (aSet == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_SET* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" set[%ld/%ld]\", aSet->min_position, aSet->max_position);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+        when {ARRAYOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "arrayType arr=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<ARRAYOBJECT>\");\n";
+          c_expr.expr &:= "if (arr == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_ARRAY* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" array[%ld .. %ld]\", arr->min_position, arr->max_position);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+        when {HASHOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "hashType hsh=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<HASHOBJECT>\");\n";
+          c_expr.expr &:= "if (hsh == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_HASH* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" hash[%ld]\", hsh->size);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+        when {STRUCTOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "structType sct=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<STRUCTOBJECT>\");\n";
+          c_expr.expr &:= "if (sct == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_STRUCT* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" struct[";
+          c_expr.expr &:= str(length(struct_elements[object_type]));
+          c_expr.expr &:= "]\");\n";
+          c_expr.expr &:= "if (sct->usage_count != 0) {\n";
+          c_expr.expr &:= "printf(\"<%lu>\", sct->usage_count);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "printf(\" type_num=%lu %lx\", sct->type_num, sct);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+        when {INTERFACEOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "interfaceType itf=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<INTERFACEOBJECT>\");\n";
+          c_expr.expr &:= "if (itf == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_INTERFACE* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" usage_count=%lu %lx\", itf->usage_count, itf);\n";
+          c_expr.expr &:= "printf(\" type_num=%lu %lx\", itf->type_num, itf);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+        otherwise:
+          c_expr.expr &:= "printf(\"< ?? >\")";
+      end case;
+    elsif object_type = proctype then
+      c_expr.expr &:= "printf(\"<CALLOBJECT> %X\", ";
+      c_expr.expr &:= param1.expr;
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "printf(\"< ?? >\")";
+    end if;
+    c_expr.expr &:= ";\n";
+    if param1.result_expr <> "" or param1.temp_decls <> "" then
+      c_expr.expr &:= param1.temp_frees;
+      c_expr.expr &:= param1.result_free;
+      c_expr.expr &:= "}";
+    end if;
+  end func;
+
+
+const proc: process (REF_TYPE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refType(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;

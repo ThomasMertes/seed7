@@ -35,9 +35,9 @@
 
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
 #define next_character()  (in_file.nextch >= in_file.beyond ? fill_buf() : (int) *in_file.nextch++)
-#define FILE_TELL()       (ftell(in_file.fil) + (in_file.nextch - in_file.beyond))
+#define FILE_TELL()       (ftell(in_file.fil) + (long) (in_file.nextch - in_file.beyond))
 #define FILE_SEEK(POS)    (fseek(in_file.fil, (POS), SEEK_SET), in_file.nextch = in_file.beyond)
-#define MEM_TELL()        (in_file.nextch - in_file.start)
+#define MEM_TELL()        ((long) (in_file.nextch - in_file.start))
 #define MEM_SEEK(POS)     (in_file.nextch = in_file.start + (POS))
 #ifdef USE_MMAP
 #define IN_FILE_TELL()    MEM_TELL()

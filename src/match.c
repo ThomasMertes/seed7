@@ -792,9 +792,9 @@ static objectType match_subexpr (objectType expr_object,
           printf("//SY0//");
           trace1(current_element);
           printf("=");
-          printf("%ld", (long) current_element);
+          printf(FMT_X_MEM, (memSizeType) current_element);
           printf("/");
-          printf("%ld", (long) GET_ENTITY(current_element)->syobject);
+          printf(FMT_X_MEM, (memSizeType) GET_ENTITY(current_element)->syobject);
           fflush(stdout);
         } /* if */
         node_found = find_node(start_node->symbol, GET_ENTITY(current_element)->syobject);
@@ -834,7 +834,7 @@ static objectType match_subexpr (objectType expr_object,
           printf("//OT1//");
           trace1(current_element);
           printf("=");
-          printf("%ld", (long) current_element);
+          printf(FMT_X_MEM, (memSizeType) current_element);
           fflush(stdout);
         } /* if */
         object_type = current_element->type_of;
@@ -843,7 +843,7 @@ static objectType match_subexpr (objectType expr_object,
             printf("//T1//");
             trace1(object_type->match_obj);
             printf("=");
-            printf("%ld", (long) object_type);
+            printf(FMT_X_MEM, (memSizeType) object_type);
             fflush(stdout);
           } /* if */
           matched_object = match_subexpr_type(expr_object, start_node,

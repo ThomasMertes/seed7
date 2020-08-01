@@ -816,18 +816,18 @@ objectType ref_symb (listType arguments)
   /* ref_symb */
     isit_reference(arg_2(arguments));
     symb_object = take_reference(arg_2(arguments));
-    /* printf("ref symb %lu ", (long unsigned) GET_ENTITY(symb_object));
+    /* printf("ref symb " FMT_U_MEM " ", (memSizeType) GET_ENTITY(symb_object));
     trace1(symb_object);
     printf(":\n"); */
     if (HAS_ENTITY(symb_object) &&
         GET_ENTITY(symb_object)->syobject != NULL) {
       symb_object = GET_ENTITY(symb_object)->syobject;
     } else {
-      printf("ref symb %lu ", (long unsigned) GET_ENTITY(symb_object));
+      printf("ref symb " FMT_U_MEM " ", (memSizeType) GET_ENTITY(symb_object));
       trace1(symb_object);
       printf(":\n");
     } /* if */
-    /* printf("ref symb %lu ", (long unsigned) GET_ENTITY(symb_object));
+    /* printf("ref symb " FMT_U_MEM " ", (memSizeType) GET_ENTITY(symb_object));
     trace1(symb_object);
     printf(":\n"); */
     return bld_param_temp(symb_object);

@@ -1,0 +1,539 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cmd_act.s7i   Generate code for actions of system commands.     *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: CMD_BIG_FILESIZE     is action "CMD_BIG_FILESIZE";
+const ACTION: CMD_CHDIR            is action "CMD_CHDIR";
+const ACTION: CMD_CLONE_FILE       is action "CMD_CLONE_FILE";
+const ACTION: CMD_CONFIG_VALUE     is action "CMD_CONFIG_VALUE";
+const ACTION: CMD_COPY_FILE        is action "CMD_COPY_FILE";
+const ACTION: CMD_ENVIRONMENT      is action "CMD_ENVIRONMENT";
+const ACTION: CMD_FILEMODE         is action "CMD_FILEMODE";
+const ACTION: CMD_FILESIZE         is action "CMD_FILESIZE";
+const ACTION: CMD_FILETYPE         is action "CMD_FILETYPE";
+const ACTION: CMD_FILETYPE_SL      is action "CMD_FILETYPE_SL";
+const ACTION: CMD_GETCWD           is action "CMD_GETCWD";
+const ACTION: CMD_GETENV           is action "CMD_GETENV";
+const ACTION: CMD_GET_ATIME        is action "CMD_GET_ATIME";
+const ACTION: CMD_GET_CTIME        is action "CMD_GET_CTIME";
+const ACTION: CMD_GET_MTIME        is action "CMD_GET_MTIME";
+const ACTION: CMD_GET_SEARCH_PATH  is action "CMD_GET_SEARCH_PATH";
+const ACTION: CMD_HOME_DIR         is action "CMD_HOME_DIR";
+const ACTION: CMD_LS               is action "CMD_LS";
+const ACTION: CMD_MKDIR            is action "CMD_MKDIR";
+const ACTION: CMD_MOVE             is action "CMD_MOVE";
+const ACTION: CMD_READLINK         is action "CMD_READLINK";
+const ACTION: CMD_REMOVE           is action "CMD_REMOVE";
+const ACTION: CMD_REMOVE_ANY_FILE  is action "CMD_REMOVE_ANY_FILE";
+const ACTION: CMD_SETENV           is action "CMD_SETENV";
+const ACTION: CMD_SET_ATIME        is action "CMD_SET_ATIME";
+const ACTION: CMD_SET_FILEMODE     is action "CMD_SET_FILEMODE";
+const ACTION: CMD_SET_MTIME        is action "CMD_SET_MTIME";
+const ACTION: CMD_SHELL            is action "CMD_SHELL";
+const ACTION: CMD_SHELL_ESCAPE     is action "CMD_SHELL_ESCAPE";
+const ACTION: CMD_PIPE2            is action "CMD_PIPE2";
+const ACTION: CMD_PTY              is action "CMD_PTY";
+const ACTION: CMD_START_PROCESS    is action "CMD_START_PROCESS";
+const ACTION: CMD_SYMLINK          is action "CMD_SYMLINK";
+const ACTION: CMD_TO_OS_PATH       is action "CMD_TO_OS_PATH";
+
+
+const proc: process (CMD_BIG_FILESIZE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "cmdBigFileSize(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_CHDIR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdChdir(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_CLONE_FILE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdCloneFile(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_CONFIG_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdConfigValue(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_COPY_FILE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdCopyFile(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_ENVIRONMENT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+  begin
+    result_type := resultType(getType(function));
+    prepare_typed_result(result_type, c_expr);
+    c_expr.result_expr := "cmdEnvironment()";
+  end func;
+
+
+const proc: process (CMD_FILEMODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_set_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "cmdFileMode(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_FILESIZE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdFileSize(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_FILETYPE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdFileType(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_FILETYPE_SL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdFileTypeSL(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_GETCWD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdGetcwd()";
+  end func;
+
+
+const proc: process (CMD_GETENV, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdGetenv(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_GET_ATIME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdGetATime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (CMD_GET_CTIME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdGetCTime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (CMD_GET_MTIME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdGetMTime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (CMD_GET_SEARCH_PATH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+  begin
+    result_type := resultType(getType(function));
+    prepare_typed_result(result_type, c_expr);
+    c_expr.result_expr := "cmdGetSearchPath()";
+  end func;
+
+
+const proc: process (CMD_HOME_DIR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdHomeDir()";
+  end func;
+
+
+const proc: process (CMD_LS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(array_type[getExprResultType(params[1])], c_expr);
+    c_expr.result_expr := "cmdLs(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_MKDIR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdMkdir(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_MOVE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdMove(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_READLINK, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdReadlink(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_REMOVE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdRemove(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_REMOVE_ANY_FILE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdRemoveAnyFile(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SETENV, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSetenv(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SET_ATIME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSetATime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SET_FILEMODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSetFileMode(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SET_MTIME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSetMTime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SHELL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdShell(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_SHELL_ESCAPE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdShellEscape(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (CMD_PIPE2, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdPipe2(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (CMD_PTY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdPty(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (CMD_START_PROCESS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdStartProcess(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SYMLINK, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSymlink(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_TO_OS_PATH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdToOsPath(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;

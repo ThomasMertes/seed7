@@ -1,0 +1,220 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  type.s7i      Type functions, variables and constants for s7c.  *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+# Category values only used in the Compiler:
+const category: BOOLOBJECT        is category conv 256;
+const category: ENUMOBJECT        is category conv 257;
+const category: VOIDOBJECT        is category conv 258;
+
+const type: typeReferenceHash is hash [type] reference;
+const type: typeCategoryHash is hash [type] category;
+const type: type_hash is hash [type] type;
+const type: boolean_type_hash is hash [type] boolean;
+const type: element_type_hash is hash [reference] type;
+const type: struct_element_type_hash is hash [type] element_type_hash;
+const type: string_type_hash is hash [type] string;
+const type: implements_hash is hash [type] array type;
+
+var typeCategoryHash: typeCategory is typeCategoryHash.EMPTY_HASH;
+var type_hash: array_element is type_hash.EMPTY_HASH;
+var type_hash: array_type is type_hash.EMPTY_HASH;
+var struct_element_type_hash: struct_element_type is struct_element_type_hash.EMPTY_HASH;
+
+const type: number_element_hash is hash [integer] array reference;
+const type: element_number_hash is hash [reference] integer;
+const type: struct_elements_hash is hash [type] element_number_hash;
+const type: boolean_obj_hash is hash [reference] boolean;
+
+var implements_hash: implements is implements_hash.EMPTY_HASH;
+var struct_elements_hash: struct_elements is struct_elements_hash.EMPTY_HASH;
+
+# Type variables which hold types from the program being compiled
+var type: proctype is void;
+var type: voidtype is void;
+var type: fileInterfaceType is void;
+
+var program: prog is program.EMPTY;
+
+
+const func string: raw_type_name (in type: object_type) is func
+
+  result
+    var string: typeName is "";
+  begin
+    if object_type in typeCategory then
+      case typeCategory[object_type] of
+        when {VOIDOBJECT}:      typeName := "void";
+        when {BOOLOBJECT}:      typeName := "boolType";
+        when {ENUMOBJECT}:      typeName := "enumType";
+        when {INTOBJECT}:       typeName := "intType";
+        when {BIGINTOBJECT}:    typeName := "bigIntType";
+        when {FLOATOBJECT}:     typeName := "floatType";
+        when {CHAROBJECT}:      typeName := "charType";
+        when {STRIOBJECT}:      typeName := "striType";
+        when {BSTRIOBJECT}:     typeName := "bstriType";
+        when {FILEOBJECT}:      typeName := "fileType";
+        when {SOCKETOBJECT}:    typeName := "socketType";
+        when {POLLOBJECT}:      typeName := "pollType";
+        when {SETOBJECT}:       typeName := "setType";
+        when {WINOBJECT}:       typeName := "winType";
+        when {PROGOBJECT}:      typeName := "progType";
+        when {ARRAYOBJECT}:     typeName := "arrayType";
+        when {HASHOBJECT}:      typeName := "hashType";
+        when {STRUCTOBJECT}:    typeName := "structType";
+        when {INTERFACEOBJECT}: typeName := "interfaceType";
+        when {REFOBJECT}:       typeName := "objRefType";
+        when {REFLISTOBJECT}:   typeName := "listType";
+        when {TYPEOBJECT}:      typeName := "typeType";
+        when {ACTOBJECT}:       typeName := "actType";
+        otherwise:
+          typeName := "t_";
+          typeName &:= str(typeNumber(object_type));
+      end case;
+    else
+      typeName := "t_";
+      typeName &:= str(typeNumber(object_type));
+    end if;
+  end func;
+
+
+const func string: type_name (in type: object_type) is func
+
+  result
+    var string: typeName is "";
+  begin
+    typeName := raw_type_name(object_type);
+    typeName &:= "/*t_";
+    typeName &:= str(typeNumber(object_type));
+    typeName &:= "_";
+    typeName &:= str(object_type);
+    typeName &:= "*/";
+  end func;
+
+
+const func string: type_name2 (in type: object_type) is func
+
+  result
+    var string: typeName is "";
+  begin
+    typeName := raw_type_name(object_type);
+    typeName &:= "/t_";
+    typeName &:= str(typeNumber(object_type));
+    typeName &:= "_";
+    typeName &:= str(object_type);
+  end func;
+
+
+const func type: base_type (in type: array_type) is func
+
+  result
+    var type: baseType is void;
+  local
+    var ref_list: param_list is ref_list.EMPTY;
+    var reference: matched_object is NIL;
+  begin
+    param_list := make_list(typeObject(array_type));
+    param_list &:= make_list(syobject(prog, "base_type"));
+    matched_object := match(prog, param_list);
+    if matched_object <> NIL and category(matched_object) = TYPEOBJECT then
+      baseType := getValue(matched_object, type);
+    end if;
+  end func;
+
+
+const func type: getExprResultType (in reference: aReference) is func
+
+  result
+    var type: resultType is void;
+  begin
+    resultType := getType(aReference);
+    while isFunc(resultType) or isVarfunc(resultType) do
+      resultType := resultType(resultType);
+    end while;
+  end func;
+
+
+const func string: raw_type_value (in type: object_type) is func
+
+  result
+    var string: valueName is "";
+  begin
+    if object_type in typeCategory then
+      case typeCategory[object_type] of
+        when {BOOLOBJECT}:      valueName := "boolValue";
+        when {ENUMOBJECT}:      valueName := "enumValue";
+        when {INTOBJECT}:       valueName := "intValue";
+        when {BIGINTOBJECT}:    valueName := "bigIntValue";
+        when {FLOATOBJECT}:     valueName := "floatValue";
+        when {CHAROBJECT}:      valueName := "charValue";
+        when {STRIOBJECT}:      valueName := "striValue";
+        when {BSTRIOBJECT}:     valueName := "bstriValue";
+        when {FILEOBJECT}:      valueName := "fileValue";
+        when {SOCKETOBJECT}:    valueName := "socketValue";
+        when {POLLOBJECT}:      valueName := "pollValue";
+        when {SETOBJECT}:       valueName := "setValue";
+        when {WINOBJECT}:       valueName := "winValue";
+        when {PROGOBJECT}:      valueName := "progValue";
+        when {ARRAYOBJECT}:     valueName := "arrayValue";
+        when {HASHOBJECT}:      valueName := "hashValue";
+        when {STRUCTOBJECT}:    valueName := "structValue";
+        when {INTERFACEOBJECT}: valueName := "interfaceValue";
+        when {REFOBJECT}:       valueName := "objRefValue";
+        when {REFLISTOBJECT}:   valueName := "listValue";
+        when {TYPEOBJECT}:      valueName := "typeValue";
+        when {ACTOBJECT}:       valueName := "actValue";
+        otherwise:              valueName := "genericValue";
+       end case;
+    else
+      valueName := "genericValue";
+    end if;
+  end func;
+
+
+const func string: select_value_from_rtlObjectStruct (in type: typeWanted) is
+  return ".value." & raw_type_value(typeWanted);
+
+
+const func string: select_value_from_rtlObjectptr (in type: typeWanted) is
+  return "->value." & raw_type_value(typeWanted);
+
+
+const func boolean: valueIsAtHeap (in type: aType) is func
+
+  result
+    var boolean: isAtHeap is FALSE;
+  local
+    const set of category: heapCategories is {
+        BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, WINOBJECT, PROGOBJECT,
+        ARRAYOBJECT, STRUCTOBJECT, SETOBJECT, HASHOBJECT, INTERFACEOBJECT};
+  begin
+    if aType in typeCategory and typeCategory[aType] in heapCategories then
+      isAtHeap := TRUE;
+    end if;
+  end func;
+
+
+const func boolean: valueIsAtHeap (in reference: a_param) is
+  return valueIsAtHeap(getType(a_param));

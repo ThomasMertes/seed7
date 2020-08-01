@@ -1,0 +1,578 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  hsh_act.s7i   Generate code for actions of the type hash.       *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: HSH_CONTAINS      is action "HSH_CONTAINS";
+const ACTION: HSH_CPY           is action "HSH_CPY";
+const ACTION: HSH_CREATE        is action "HSH_CREATE";
+const ACTION: HSH_DESTR         is action "HSH_DESTR";
+const ACTION: HSH_EXCL          is action "HSH_EXCL";
+const ACTION: HSH_FOR           is action "HSH_FOR";
+const ACTION: HSH_FOR_DATA_KEY  is action "HSH_FOR_DATA_KEY";
+const ACTION: HSH_FOR_KEY       is action "HSH_FOR_KEY";
+const ACTION: HSH_IDX           is action "HSH_IDX";
+const ACTION: HSH_IDX2          is action "HSH_IDX2";
+const ACTION: HSH_INCL          is action "HSH_INCL";
+const ACTION: HSH_KEYS          is action "HSH_KEYS";
+const ACTION: HSH_LNG           is action "HSH_LNG";
+const ACTION: HSH_UPDATE        is action "HSH_UPDATE";
+const ACTION: HSH_VALUES        is action "HSH_VALUES";
+
+
+const proc: process (HSH_CONTAINS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "hshContains(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", (compareType)(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process (HSH_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param2 is expr_type.value;
+    var expr_type: c_param3_6 is expr_type.value;
+  begin
+    declare_func_pointer_if_necessary(params[3], global_c_expr);
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    param_type := getExprResultType(params[2]);
+    process_expr(params[1], c_param1);
+    c_param2.temp_num := c_param1.temp_num;
+    process_expr(params[2], c_param2);
+    if has_temp_values(c_param2) then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param2.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param2.temp_assigns, c_expr);
+    end if;
+    if c_param2.result_expr <> "" then
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "=";
+      c_expr.expr &:= c_param2.result_expr;
+      c_expr.expr &:= ";\n";
+    else
+      c_param3_6.expr &:= ", (createFuncType)(";
+      process_expr(params[3], c_param3_6);
+      c_param3_6.expr &:= "), (destrFuncType)(";
+      process_expr(params[4], c_param3_6);
+      c_param3_6.expr &:= "), (createFuncType)(";
+      process_expr(params[5], c_param3_6);
+      c_param3_6.expr &:= "), (destrFuncType)(";
+      process_expr(params[6], c_param3_6);
+      c_param3_6.expr &:= ")";
+      if param_type not in parametersOfHshCpy then
+        parametersOfHshCpy @:= [param_type] c_param3_6.expr;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "hshCpy(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= c_param2.expr;
+      c_expr.expr &:= c_param3_6.expr;
+      c_expr.expr &:= ");\n";
+    end if;
+    if has_temp_values(c_param2) then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param2.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (HSH_CREATE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param2 is expr_type.value;
+    var expr_type: c_param3_6 is expr_type.value;
+  begin
+    param_type := getExprResultType(params[2]);
+(*
+    process_expr(params[1], c_param1);
+    c_param2.temp_num := c_param1.temp_num;
+    process_expr(params[2], c_param2);
+    if c_param2.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param2.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param2.temp_assigns, c_expr);
+    end if;
+*)
+    c_param3_6.expr &:= ", (createFuncType)(";
+    process_expr(params[3], c_param3_6);
+    c_param3_6.expr &:= "), (destrFuncType)(";
+    process_expr(params[4], c_param3_6);
+    c_param3_6.expr &:= "), (createFuncType)(";
+    process_expr(params[5], c_param3_6);
+    c_param3_6.expr &:= "), (destrFuncType)(";
+    process_expr(params[6], c_param3_6);
+    c_param3_6.expr &:= ")";
+    if param_type not in parametersOfHshCreate then
+      parametersOfHshCreate @:= [param_type] c_param3_6.expr;
+    end if;
+(*
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "=hshCreate(";
+    c_expr.expr &:= c_param2.expr;
+    c_expr.expr &:= c_param3_6.expr;
+    c_expr.expr &:= ");\n";
+    if c_param2.temp_num <> 0 then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param2.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+*)
+    c_expr.expr &:= "/* hshCreate implemented with create_";
+    c_expr.expr &:= str(typeNumber(param_type));
+    c_expr.expr &:= " */\n";
+  end func;
+
+
+const proc: process (HSH_DESTR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var expr_type: c_param2_3 is expr_type.value;
+  begin
+    param_type := getExprResultType(params[1]);
+    c_param2_3.expr &:= ", (destrFuncType)(";
+    process_expr(params[2], c_param2_3);
+    c_param2_3.expr &:= "), (destrFuncType)(";
+    process_expr(params[3], c_param2_3);
+    c_param2_3.expr &:= ")";
+    if param_type not in parametersOfHshDestr then
+      parametersOfHshDestr @:= [param_type] c_param2_3.expr;
+    end if;
+(*
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "hshDestr(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= c_param2_3.expr;
+    c_expr.expr &:= ");\n";
+*)
+    c_expr.expr &:= "/* hshDestr implemented with destr_";
+    c_expr.expr &:= str(typeNumber(param_type));
+    c_expr.expr &:= " */\n";
+  end func;
+
+
+const proc: process (HSH_EXCL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "hshExcl(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", (compareType)(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), (destrFuncType)(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), (destrFuncType)(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process_hsh_for_generic (in reference: forDataVariable,
+    in reference: forKeyVariable, in reference: hashTable,
+    in reference: statement, in reference: dataCopyFunc,
+    in reference: keyCopyFunc, inout expr_type: c_expr) is func
+
+  local
+    var string: hash_temp_name is "";
+    var string: counter_temp_name is "";
+    var string: table_elem_temp_name is "";
+    var string: helem_temp_name is "";
+    var string: stack_temp_name is "";
+  begin
+    incr(c_expr.temp_num);
+    hash_temp_name := "hash_" & str(c_expr.temp_num);
+    incr(c_expr.temp_num);
+    counter_temp_name := "counter_" & str(c_expr.temp_num);
+    incr(c_expr.temp_num);
+    table_elem_temp_name := "table_elem_" & str(c_expr.temp_num);
+    incr(c_expr.temp_num);
+    helem_temp_name := "helem_" & str(c_expr.temp_num);
+    incr(c_expr.temp_num);
+    stack_temp_name := "stack_" & str(c_expr.temp_num);
+    c_expr.expr &:= "/* hsh_for */ {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "const_hashType ";
+    c_expr.expr &:= hash_temp_name;
+    c_expr.expr &:= "=";
+    process_expr(hashTable, c_expr);
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "memSizeType ";
+    c_expr.expr &:= counter_temp_name;
+    c_expr.expr &:= "=";
+    c_expr.expr &:= hash_temp_name;
+    c_expr.expr &:= "->table_size;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "hashElemType_const *";
+    c_expr.expr &:= table_elem_temp_name;
+    c_expr.expr &:= "=&";
+    c_expr.expr &:= hash_temp_name;
+    c_expr.expr &:= "->table[0];\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "const_hashElemType ";
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "hashElemListType ";
+    c_expr.expr &:= stack_temp_name;
+    c_expr.expr &:= "=NULL;\n";
+
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "while (";
+    c_expr.expr &:= counter_temp_name;
+    c_expr.expr &:= " > 0) {\n";
+
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "=*";
+    c_expr.expr &:= table_elem_temp_name;
+    c_expr.expr &:= ";\n";
+
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "while (";
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= " != NULL) {\n";
+
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if (";
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "->next_greater != NULL) {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "push_stack(";
+    c_expr.expr &:= stack_temp_name;
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "->next_greater);\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "} /* if */\n";
+
+    if forDataVariable <> NIL then
+      process_cpy_declaration(getType(forDataVariable), global_c_expr);
+      setDiagnosticLine(c_expr);
+      process_cpy_call(getType(forDataVariable),
+          normalVariable(forDataVariable, c_expr),
+          helem_temp_name & "->data.value." & raw_type_value(getType(forDataVariable)),
+          c_expr.expr);
+      c_expr.expr &:= ";\n";
+    end if;
+
+    if forKeyVariable <> NIL then
+      process_cpy_declaration(getType(forKeyVariable), global_c_expr);
+      setDiagnosticLine(c_expr);
+      process_cpy_call(getType(forKeyVariable),
+          normalVariable(forKeyVariable, c_expr),
+          helem_temp_name & "->key.value." & raw_type_value(getType(forKeyVariable)),
+          c_expr.expr);
+      c_expr.expr &:= ";\n";
+    end if;
+
+    process_expr(statement, c_expr);
+
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if (";
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "->next_less != NULL) {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "=";
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "->next_less;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "} else {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "pop_stack(";
+    c_expr.expr &:= stack_temp_name;
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= ");\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "} /* if */\n";
+
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "} /* while */\n";
+
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= counter_temp_name;
+    c_expr.expr &:= "--;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= table_elem_temp_name;
+    c_expr.expr &:= "++;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "} /* while */\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "} /* hsh_for */\n";
+  end func;
+
+
+const proc: process (HSH_FOR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
+    process_hsh_for_generic(params[1], NIL, params[2], params[3], params[4], NIL, c_expr);
+  end func;
+
+
+const proc: process (HSH_FOR_DATA_KEY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    process_hsh_for_generic(params[1], params[2], params[3], params[4], params[5], params[6], c_expr);
+  end func;
+
+
+const proc: process (HSH_FOR_KEY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
+    process_hsh_for_generic(NIL, params[1], params[2], params[3], NIL, params[4], c_expr);
+  end func;
+
+
+const proc: process (HSH_IDX, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: proc_type is void;
+    var type: result_type is void;
+    var string: temp_name is "";
+  begin
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
+    proc_type := getType(function);
+    result_type := resultType(proc_type);
+    if isVarfunc(proc_type) then
+      c_expr.expr &:= "hshIdxAddr(";
+    else
+      temp_name := beginCastGeneric(result_type, c_expr);
+      c_expr.expr &:= "hshIdx(";
+    end if;
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", (compareType)(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "))";
+    if isVarfunc(proc_type) then
+      c_expr.expr &:= select_value_from_rtlObjectptr(result_type);
+    else
+      endCastGeneric(result_type, temp_name, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (HSH_IDX2, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: proc_type is void;
+    var type: result_type is void;
+    var string: addr_temp_name is "";
+  begin
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    proc_type := getType(function);
+    result_type := resultType(proc_type);
+    incr(c_expr.temp_num);
+    addr_temp_name := "addr_" & str(c_expr.temp_num);
+    c_expr.temp_decls &:= "rtlObjectType *";
+    c_expr.temp_decls &:= addr_temp_name;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "(";
+    c_expr.expr &:= addr_temp_name;
+    c_expr.expr &:= "=hshIdxAddr2(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", (compareType)(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ")),";
+    c_expr.expr &:= addr_temp_name;
+    c_expr.expr &:= "!=NULL?";
+    c_expr.expr &:= addr_temp_name;
+    c_expr.expr &:= select_value_from_rtlObjectptr(result_type);
+    c_expr.expr &:= ":(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process (HSH_INCL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    declare_func_pointer_if_necessary(params[7], global_c_expr);
+    declare_func_pointer_if_necessary(params[8], global_c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "hshIncl(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", (compareType)(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), (createFuncType)(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), (createFuncType)(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), (copyFuncType)(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (HSH_KEYS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "hshKeys(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", (createFuncType)(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "), (destrFuncType)(";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (HSH_LNG, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)((";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")->size)";
+  end func;
+
+
+const proc: process (HSH_UPDATE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+    var string: temp_name is "";
+  begin
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    declare_func_pointer_if_necessary(params[7], global_c_expr);
+    result_type := resultType(getType(function));
+    if valueIsAtHeap(result_type) then
+      prepare_typed_result(result_type, c_expr);
+      temp_name := beginCastGenericToResultExpr(result_type, c_expr);
+      c_expr.result_expr &:= "hshUpdate(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getGenericValueToResultExpr(params[2], c_expr);
+      c_expr.result_expr &:= ", (genericType)(";
+      getGenericTemporaryToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= "), ";
+      getAnyParamToResultExpr(params[4], c_expr);
+      c_expr.result_expr &:= ", (compareType)(";
+      getAnyParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= "), (createFuncType)(";
+      getAnyParamToResultExpr(params[6], c_expr);
+      c_expr.result_expr &:= "), (createFuncType)(";
+      getAnyParamToResultExpr(params[7], c_expr);
+      c_expr.result_expr &:= "))";
+      endCastGenericToResultExpr(result_type, temp_name, c_expr);
+    else
+      temp_name := beginCastGeneric(result_type, c_expr);
+      c_expr.expr &:= "hshUpdate(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getGenericValue(params[2], c_expr);
+      c_expr.expr &:= ", ";
+      getGenericValue(params[3], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[4], c_expr);
+      c_expr.expr &:= ", (compareType)(";
+      process_expr(params[5], c_expr);
+      c_expr.expr &:= "), (createFuncType)(";
+      process_expr(params[6], c_expr);
+      c_expr.expr &:= "), (createFuncType)(";
+      process_expr(params[7], c_expr);
+      c_expr.expr &:= "))";
+      endCastGeneric(result_type, temp_name, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (HSH_VALUES, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "hshValues(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", (createFuncType)(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), (destrFuncType)(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "))";
+  end func;

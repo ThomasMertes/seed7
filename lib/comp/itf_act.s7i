@@ -1,0 +1,187 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  itf_act.s7i   Generate code for actions of interface types.     *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: ITF_CMP           is action "ITF_CMP";
+const ACTION: ITF_CONV2         is action "ITF_CONV2";
+const ACTION: ITF_CPY           is action "ITF_CPY";
+const ACTION: ITF_CPY2          is action "ITF_CPY2";
+const ACTION: ITF_EQ            is action "ITF_EQ";
+const ACTION: ITF_HASHCODE      is action "ITF_HASHCODE";
+const ACTION: ITF_NE            is action "ITF_NE";
+const ACTION: ITF_TO_INTERFACE  is action "ITF_TO_INTERFACE";
+
+
+const proc: process (ITF_CMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ptrCmp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (ITF_CONV2, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (ITF_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    c_expr.expr &:= "{\n";
+    if has_temp_values(c_param3) then
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    if isNormalVariable(params[1]) then
+      c_expr.expr &:= "structType old_struct=";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "=";
+    else
+      c_expr.expr &:= "interfaceType *interface_ptr=&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "structType old_struct=*interface_ptr;\n";
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "*interface_ptr=";
+    end if;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
+    else
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
+      if isNormalVariable(params[1]) then
+        c_expr.expr &:= "if ((";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->usage_count != 0) {(";
+        c_expr.expr &:= c_param1.expr;
+      else
+        c_expr.expr &:= "if ((*interface_ptr)->usage_count != 0) {(*interface_ptr";
+      end if;
+      c_expr.expr &:= ")->usage_count++; }\n";
+    end if;
+    process_destr_declaration(getExprResultType(params[1]), global_c_expr);
+    setDiagnosticLine(c_expr);
+    process_destr_call(getExprResultType(params[1]),
+        "old_struct", c_expr.expr);
+    if has_temp_values(c_param3) then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+    end if;
+    c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process (ITF_CPY2, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process(ITF_CPY, function, params, c_expr);
+  end func;
+
+
+const proc: process (ITF_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (ITF_HASHCODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)(((memSizeType)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")) >> 6)";
+  end func;
+
+
+const proc: process (ITF_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (ITF_TO_INTERFACE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: result_name is "";
+  begin
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    incr(c_expr.temp_num);
+    result_name := "result_" & str(c_expr.temp_num);
+    c_expr.temp_decls &:= "interfaceType ";
+    c_expr.temp_decls &:= result_name;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.result_expr &:= "/* ITF_TO_INTERFACE */(";
+    c_expr.result_expr &:= result_name;
+    c_expr.result_expr &:= "=";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ",";
+    c_expr.result_expr &:= result_name;
+    c_expr.result_expr &:= "->usage_count!=0 ? ";
+    c_expr.result_expr &:= result_name;
+    c_expr.result_expr &:= "->usage_count++ : 0,";
+    c_expr.result_expr &:= result_name;
+    c_expr.result_expr &:= ")";
+  end func;

@@ -1,0 +1,316 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  prg_act.s7i   Generate code for actions of the type program.    *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: PRG_CPY             is action "PRG_CPY";
+const ACTION: PRG_EQ              is action "PRG_EQ";
+const ACTION: PRG_ERROR_COUNT     is action "PRG_ERROR_COUNT";
+const ACTION: PRG_EVAL            is action "PRG_EVAL";
+const ACTION: PRG_EXEC            is action "PRG_EXEC";
+const ACTION: PRG_FIL_PARSE       is action "PRG_FIL_PARSE";
+const ACTION: PRG_GLOBAL_OBJECTS  is action "PRG_GLOBAL_OBJECTS";
+const ACTION: PRG_MATCH           is action "PRG_MATCH";
+const ACTION: PRG_MATCH_EXPR      is action "PRG_MATCH_EXPR";
+const ACTION: PRG_NAME            is action "PRG_NAME";
+const ACTION: PRG_NE              is action "PRG_NE";
+const ACTION: PRG_OWN_NAME        is action "PRG_OWN_NAME";
+const ACTION: PRG_OWN_PATH        is action "PRG_OWN_PATH";
+const ACTION: PRG_PATH            is action "PRG_PATH";
+const ACTION: PRG_STR_PARSE       is action "PRG_STR_PARSE";
+const ACTION: PRG_SYOBJECT        is action "PRG_SYOBJECT";
+const ACTION: PRG_SYSVAR          is action "PRG_SYSVAR";
+const ACTION: PRG_VALUE           is action "PRG_VALUE";
+
+
+const proc: process (PRG_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    compilerLibraryUsed := TRUE;
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
+      if isNormalVariable(params[1]) then
+        c_expr.expr &:= "progType old_prog=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "=";
+      else
+        c_expr.expr &:= "progType *prg_ptr=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "progType old_prog=*prg_ptr;\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "*prg_ptr=";
+      end if;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "prgDestr(old_prog);\n";
+      c_expr.expr &:= "}\n";
+    else
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "prgCpy(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ");\n";
+    end if;
+    if has_temp_values(c_param3) then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (PRG_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_ERROR_COUNT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgErrorCount(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_EVAL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgEval(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_EXEC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgExec(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (PRG_FIL_PARSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    prepare_prog_result(c_expr);
+    c_expr.result_expr := "prgFilParse(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_GLOBAL_OBJECTS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "prgGlobalObjects(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_MATCH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgMatch(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_MATCH_EXPR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgMatchExpr(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_NAME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgName(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_OWN_NAME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "programName";
+  end func;
+
+
+const proc: process (PRG_OWN_PATH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "programPath";
+  end func;
+
+
+const proc: process (PRG_PATH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgPath(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_STR_PARSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    prepare_prog_result(c_expr);
+    c_expr.result_expr := "prgStrParse(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_SYOBJECT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgSyobject(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_SYSVAR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgSysvar(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;

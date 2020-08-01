@@ -1,0 +1,388 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  soc_act.s7i   Generate code for actions of primitive sockets.   *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: SOC_ACCEPT           is action "SOC_ACCEPT";
+const ACTION: SOC_ADDR_FAMILY      is action "SOC_ADDR_FAMILY";
+const ACTION: SOC_ADDR_NUMERIC     is action "SOC_ADDR_NUMERIC";
+const ACTION: SOC_ADDR_SERVICE     is action "SOC_ADDR_SERVICE";
+const ACTION: SOC_BIND             is action "SOC_BIND";
+const ACTION: SOC_CLOSE            is action "SOC_CLOSE";
+const ACTION: SOC_CONNECT          is action "SOC_CONNECT";
+const ACTION: SOC_CPY              is action "SOC_CPY";
+const ACTION: SOC_EQ               is action "SOC_EQ";
+const ACTION: SOC_GETC             is action "SOC_GETC";
+const ACTION: SOC_GETS             is action "SOC_GETS";
+const ACTION: SOC_GET_ADDR         is action "SOC_GET_ADDR";
+const ACTION: SOC_GET_HOSTNAME     is action "SOC_GET_HOSTNAME";
+const ACTION: SOC_HAS_NEXT         is action "SOC_HAS_NEXT";
+const ACTION: SOC_INET_ADDR        is action "SOC_INET_ADDR";
+const ACTION: SOC_INET_LOCAL_ADDR  is action "SOC_INET_LOCAL_ADDR";
+const ACTION: SOC_INET_SERV_ADDR   is action "SOC_INET_SERV_ADDR";
+const ACTION: SOC_INPUT_READY      is action "SOC_INPUT_READY";
+const ACTION: SOC_LINE_READ        is action "SOC_LINE_READ";
+const ACTION: SOC_LISTEN           is action "SOC_LISTEN";
+const ACTION: SOC_NE               is action "SOC_NE";
+const ACTION: SOC_RECV             is action "SOC_RECV";
+const ACTION: SOC_SEND             is action "SOC_SEND";
+const ACTION: SOC_SET_OPT_BOOL     is action "SOC_SET_OPT_BOOL";
+const ACTION: SOC_SOCKET           is action "SOC_SOCKET";
+const ACTION: SOC_WORD_READ        is action "SOC_WORD_READ";
+const ACTION: SOC_WRITE            is action "SOC_WRITE";
+
+
+const proc: process (SOC_ACCEPT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socAccept(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process (SOC_ADDR_FAMILY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socAddrFamily(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_ADDR_NUMERIC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socAddrNumeric(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_ADDR_SERVICE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socAddrService(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_BIND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "socBind(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (SOC_CLOSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "socClose(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (SOC_CONNECT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "socConnect(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (SOC_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (SOC_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_GETC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socGetc(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process (SOC_GETS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socGets(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (SOC_GET_ADDR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "socGetAddr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_GET_HOSTNAME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socGetHostname()";
+  end func;
+
+
+const proc: process (SOC_HAS_NEXT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socHasNext(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_INET_ADDR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "socInetAddr(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_INET_LOCAL_ADDR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "socInetLocalAddr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_INET_SERV_ADDR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "socInetServAddr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_INPUT_READY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socInputReady(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_LINE_READ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socLineRead(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (SOC_LISTEN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "socListen(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (SOC_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_RECV, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socRecv(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= "), ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_SEND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socSend(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_SET_OPT_BOOL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socSetOptBool(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (SOC_SOCKET, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socSocket(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_WORD_READ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socWordRead(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (SOC_WRITE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "socWrite(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;

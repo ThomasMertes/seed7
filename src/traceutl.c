@@ -447,7 +447,7 @@ static char *obj_ptr (objectType anyobject)
 #ifdef TRACE_TRACE
     printf("BEGIN obj_ptr\n");
 #endif
-    sprintf(out_buf, "%lx", (unsigned long) anyobject);
+    sprintf(out_buf, FMT_X_MEM, (memSizeType) anyobject);
 #ifdef TRACE_TRACE
     printf("END obj_ptr\n");
 #endif

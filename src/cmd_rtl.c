@@ -87,6 +87,7 @@
 #include "cmd_rtl.h"
 
 #undef TRACE_CMD_RTL
+#undef VERBOSE_EXCEPTIONS
 
 
 #define MAX_CSTRI_BUFFER_LEN 40
@@ -165,6 +166,12 @@ extern striType programPath; /* defined in s7.c or in the executable of a progra
 #define FILE_SYMLINK  7
 #define FILE_SOCKET   8
 
+#ifdef VERBOSE_EXCEPTIONS
+#define logError(logStatements) logStatements
+#else
+#define logError(logStatements)
+#endif
+
 
 
 #ifdef USE_CDECL
@@ -200,9 +207,9 @@ static void remove_dir (os_striType dir_name, errInfoType *err_info)
 
   /* remove_dir */
 #ifdef TRACE_CMD_RTL
-    printf("BEGIN remove_dir(\"%s\")\n", dir_name);
+    printf("BEGIN remove_dir(\"" FMT_S_OS "\")\n", dir_name);
 #endif
-/*  printf("opendir(%s);\n", dir_name);
+/*  printf("opendir(" FMT_S_OS ");\n", dir_name);
     fflush(stdout); */
     if ((directory = os_opendir(dir_name)) == NULL) {
       *err_info = FILE_ERROR;
@@ -216,7 +223,7 @@ static void remove_dir (os_striType dir_name, errInfoType *err_info)
            memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
       dir_name_size = os_stri_strlen(dir_name);
       while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
-/*      printf("!%s!\n", current_entry->d_name);
+/*      printf("!" FMT_S_OS "!\n", current_entry->d_name);
         fflush(stdout); */
         new_size = dir_name_size + 1 + os_stri_strlen(current_entry->d_name);
         if (new_size > dir_path_capacity) {
@@ -253,20 +260,21 @@ static void remove_dir (os_striType dir_name, errInfoType *err_info)
       } /* if */
       os_closedir(directory);
       if (*err_info == OKAY_NO_ERROR) {
-        /* printf("before remove directory <%s>\n", dir_name); */
+        /* printf("before remove directory <" FMT_S_OS ">\n", dir_name); */
         if (os_rmdir(dir_name) != 0) {
-          *err_info = FILE_ERROR;
-          /* printf("errno=%d\n", errno);
-          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+          logError(printf(" *** remove_dir: os_rmdir(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          dir_name, errno, strerror(errno)););
+          /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
           printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
               EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-          /* printf("dir_name=\"%s\"\n", dir_name); */
+          *err_info = FILE_ERROR;
         } /* if */
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
-    printf("END remove_dir(\"%s\", %d)\n", dir_name, *err_info);
+    printf("END remove_dir(\"" FMT_S_OS "\", %d)\n", dir_name, *err_info);
 #endif
   } /* remove_dir */
 
@@ -279,7 +287,7 @@ static void remove_any_file (os_striType file_name, errInfoType *err_info)
 
   /* remove_any_file */
 #ifdef TRACE_CMD_RTL
-    printf("BEGIN remove_any_file(\"%s\")\n", file_name);
+    printf("BEGIN remove_any_file(\"" FMT_S_OS "\")\n", file_name);
 #endif
     if (os_lstat(file_name, &file_stat) != 0) {
       /* File does not exist */
@@ -294,7 +302,7 @@ static void remove_any_file (os_striType file_name, errInfoType *err_info)
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
-    printf("END remove_any_file(\"%s\", %d)\n", file_name, *err_info);
+    printf("END remove_any_file(\"" FMT_S_OS "\", %d)\n", file_name, *err_info);
 #endif
   } /* remove_any_file */
 
@@ -320,7 +328,7 @@ static void copy_file (os_striType from_name, os_striType to_name, errInfoType *
 
   /* copy_file */
 #ifdef TRACE_CMD_RTL
-    printf("BEGIN copy_file(\"%s\", \"%s\")\n", from_name, to_name);
+    printf("BEGIN copy_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n", from_name, to_name);
 #endif
     if ((from_file = os_fopen(from_name, os_mode_rb)) != NULL) {
       if ((to_file = os_fopen(to_name, os_mode_wb)) != NULL) {
@@ -371,26 +379,28 @@ static void copy_file (os_striType from_name, os_striType to_name, errInfoType *
           os_remove(to_name);
         } /* if */
       } else {
-        /* printf("errno=%d\n", errno);
-        printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+        logError(printf(" *** copy_file: os_fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        to_name, os_mode_wb, errno, strerror(errno)););
+        /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
             EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
         printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
             EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-        /* printf("cannot open destination file: %s\n", to_name); */
         fclose(from_file);
         *err_info = FILE_ERROR;
       } /* if */
     } else {
-      /* printf("errno=%d\n", errno);
-      printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+      logError(printf(" *** copy_file: os_fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      from_name, os_mode_rb, errno, strerror(errno)););
+      /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
           EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
       printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
           EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-      /* printf("cannot open source file: %s\n", from_name); */
       *err_info = FILE_ERROR;
     } /* if */
 #ifdef TRACE_CMD_RTL
-    printf("END copy_file(\"%s\", \"%s\", %d)\n",
+    printf("END copy_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\", %d)\n",
         from_name, to_name, *err_info);
 #endif
   } /* copy_file */
@@ -416,9 +426,9 @@ static void copy_dir (os_striType from_name, os_striType to_name,
 
   /* copy_dir */
 #ifdef TRACE_CMD_RTL
-    printf("BEGIN copy_dir(\"%s\", \"%s\")\n", from_name, to_name);
+    printf("BEGIN copy_dir(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n", from_name, to_name);
 #endif
-    /* printf("opendir(%s);\n", from_name);
+    /* printf("opendir(" FMT_S_OS ");\n", from_name);
        fflush(stdout); */
     if ((directory = os_opendir(from_name)) == NULL) {
       *err_info = FILE_ERROR;
@@ -436,7 +446,7 @@ static void copy_dir (os_striType from_name, os_striType to_name,
         from_name_size = os_stri_strlen(from_name);
         to_name_size = os_stri_strlen(to_name);
         while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
-          /* printf("!%s!\n", current_entry->d_name);
+          /* printf("!" FMT_S_OS "!\n", current_entry->d_name);
              fflush(stdout); */
           d_name_size = os_stri_strlen(current_entry->d_name);
           new_size = from_name_size + 1 + d_name_size;
@@ -496,7 +506,7 @@ static void copy_dir (os_striType from_name, os_striType to_name,
       os_closedir(directory);
     } /* if */
 #ifdef TRACE_CMD_RTL
-    printf("END copy_dir(\"%s\", \"%s\", %d)\n",
+    printf("END copy_dir(\"" FMT_S_OS "\", \"" FMT_S_OS "\", %d)\n",
         from_name, to_name, *err_info);
 #endif
   } /* copy_dir */
@@ -517,7 +527,7 @@ static void copy_any_file (os_striType from_name, os_striType to_name,
 
   /* copy_any_file */
 #ifdef TRACE_CMD_RTL
-    printf("BEGIN copy_any_file(\"%s\", \"%s\")\n", from_name, to_name);
+    printf("BEGIN copy_any_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n", from_name, to_name);
 #endif
     if (flags & PRESERVE_SYMLINKS) {
       from_stat_result = os_lstat(from_name, &from_stat);
@@ -543,7 +553,7 @@ static void copy_any_file (os_striType from_name, os_striType to_name,
             if (readlink_result != -1) {
               link_destination[readlink_result] = '\0';
               /* printf("readlink_result=%lu\n", readlink_result);
-                 printf("link=%s\n", link_destination); */
+                 printf("link=" FMT_S_OS "\n", link_destination); */
               if (symlink(link_destination, to_name) != 0) {
                 *err_info = FILE_ERROR;
               } /* if */
@@ -588,7 +598,7 @@ static void copy_any_file (os_striType from_name, os_striType to_name,
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
-    printf("END copy_any_file(\"%s\", \"%s\", %d)\n",
+    printf("END copy_any_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\", %d)\n",
         from_name, to_name, *err_info);
 #endif
   } /* copy_any_file */
@@ -602,7 +612,7 @@ static void move_any_file (os_striType from_name, os_striType to_name, errInfoTy
 
   /* move_any_file */
 #ifdef TRACE_CMD_RTL
-    printf("BEGIN move_any_file(\"%s\", \"%s\")\n", from_name, to_name);
+    printf("BEGIN move_any_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n", from_name, to_name);
 #endif
     if (os_stat(to_name, &to_stat) == 0) {
       /* Destination file exists already */
@@ -617,8 +627,10 @@ static void move_any_file (os_striType from_name, os_striType to_name, errInfoTy
             } /* if */
             break;
           default:
-            /* printf("errno=%d\n", errno);
-            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+            logError(printf(" *** move_any_file: os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            from_name, to_name, errno, strerror(errno)););
+            /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
                 EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
             *err_info = FILE_ERROR;
             break;
@@ -626,7 +638,7 @@ static void move_any_file (os_striType from_name, os_striType to_name, errInfoTy
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
-    printf("END move_any_file(\"%s\", \"%s\", %d)\n",
+    printf("END move_any_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\", %d)\n",
         from_name, to_name, *err_info);
 #endif
   } /* move_any_file */
@@ -1459,8 +1471,10 @@ setType cmdFileMode (const const_striType filePath)
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
-        /* printf("errno=%d\n", errno);
-        printf("EACCES=%d  EBADF=%d  EFAULT=%d  ELOOP=%d  ENAMETOOLONG=%d  ENOENT=%d\n",
+        logError(printf(" *** cmdFileMode: os_stat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+        /* printf("EACCES=%d  EBADF=%d  EFAULT=%d  ELOOP=%d  ENAMETOOLONG=%d  ENOENT=%d\n",
             EACCES, EBADF, EFAULT, ELOOP, ENAMETOOLONG, ENOENT);
         printf("ENOMEM=%d  EOVERFLOW=%d\n",
             ENOMEM, EOVERFLOW); */
@@ -1629,8 +1643,10 @@ intType cmdFileType (const const_striType filePath)
         result = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
             saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
-          /* printf("errno=%d\n", saved_errno);
-          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
+          logError(printf(" *** cmdFileType: os_stat(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, saved_errno, strerror(saved_errno)););
+          /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT);
           printf("ENOTDIR=%d  EROFS=%d  EIO=%d  ELOOP=%d  ENAMETOOLONG=%d\n",
               ENOTDIR, EROFS, EIO, ELOOP, ENAMETOOLONG);
@@ -1714,8 +1730,10 @@ intType cmdFileTypeSL (const const_striType filePath)
         result = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
             saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
-          /* printf("errno=%d\n", saved_errno);
-          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
+          logError(printf(" *** cmdFileTypeSL: os_stat(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, saved_errno, strerror(saved_errno)););
+          /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT);
           printf("ENOTDIR=%d  EROFS=%d  EIO=%d  ELOOP=%d  ENAMETOOLONG=%d\n",
               ENOTDIR, EROFS, EIO, ELOOP, ENAMETOOLONG);
@@ -1863,7 +1881,9 @@ void cmdGetATime (const const_striType filePath,
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
-        /* printf("errno=%d\n", errno); */
+        logError(printf(" *** cmdGetATime: os_stat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
         raise_error(FILE_ERROR);
       } else {
         /* printf("cmdGetATime: st_atime=%ld\n", stat_buf.st_atime); */
@@ -1926,7 +1946,9 @@ void cmdGetCTime (const const_striType filePath,
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
-        /* printf("errno=%d\n", errno); */
+        logError(printf(" *** cmdGetCTime: os_stat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
         raise_error(FILE_ERROR);
       } else {
         /* printf("cmdGetCTime: st_ctime=%ld\n", stat_buf.st_ctime); */
@@ -1989,7 +2011,9 @@ void cmdGetMTime (const const_striType filePath,
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
-        /* printf("errno=%d\n", errno); */
+        logError(printf(" *** cmdGetMTime: os_stat(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
         raise_error(FILE_ERROR);
       } else {
         /* printf("cmdGetMTime: st_mtime=%ld\n", stat_buf.st_mtime); */
@@ -2287,12 +2311,13 @@ void cmdRemove (const const_striType filePath)
           } /* if */
         } else {
           if (os_remove(os_filePath) != 0) {
-            /* printf("errno=%d\n", errno);
-            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+            logError(printf(" *** cmdRemove: os_remove(\"" FMT_S_OS "\") failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            os_filePath, errno, strerror(errno)););
+            /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
                 EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
             printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
                 EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-            /* printf("filePath=%s\n", os_filePath); */
             err_info = FILE_ERROR;
           } /* if */
         } /* if */
@@ -2403,7 +2428,9 @@ void cmdSetenv (const const_striType name, const const_striType value)
           putenv_result = os_putenv(env_stri);
           os_stri_free(env_stri);
           if (unlikely(putenv_result != 0)) {
-            /* printf("errno=%d\n", errno); */
+            logError(printf(" *** cmdSetenv: os_putenv(\"" FMT_S_OS "\") failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            env_stri, errno, strerror(errno)););
             raise_error(RANGE_ERROR);
           } /* if */
         } /* if */
@@ -2445,7 +2472,9 @@ void cmdSetenv (const const_striType name, const const_striType value)
         saved_errno = errno;
         os_stri_free(env_value);
         if (unlikely(setenv_result != 0)) {
-          /* printf("errno=%d\n", saved_errno); */
+          logError(printf(" *** cmdSetenv: os_setenv(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          env_name, env_value, saved_errno, strerror(saved_errno)););
           if (saved_errno == ENOMEM) {
             err_info = MEMORY_ERROR;
           } else {
@@ -2497,8 +2526,10 @@ void cmdSetATime (const const_striType filePath,
         if (utime_buf.actime == (time_t) -1) {
           err_info = RANGE_ERROR;
         } else if (os_utime(os_path, &utime_buf) != 0) {
-          /* printf("errno=%d\n", errno);
-          printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+          logError(printf(" *** cmdSetATime: os_utime(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, errno, strerror(errno)););
+          /* printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
               EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           err_info = FILE_ERROR;
         } /* if */
@@ -2562,7 +2593,9 @@ void cmdSetFileMode (const const_striType filePath, const const_setType mode)
             (int_mode & 0001 ? S_IXOTH : 0));
 #endif
         if (chmod_result != 0) {
-          /* printf("\nerrno=%d %s\n", errno, strerror(errno)); */
+          logError(printf(" *** cmdSetFileMode: os_chmod(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, errno, strerror(errno)););
           err_info = FILE_ERROR;
         } /* if */
       } else {
@@ -2610,8 +2643,10 @@ void cmdSetMTime (const const_striType filePath,
         if (utime_buf.actime == (time_t) -1) {
           err_info = RANGE_ERROR;
         } else if (os_utime(os_path, &utime_buf) != 0) {
-          /* printf("errno=%d\n", errno);
-          printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+          logError(printf(" *** cmdSetMTime: os_utime(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, errno, strerror(errno)););
+          /* printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
               EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           err_info = FILE_ERROR;
         } /* if */
@@ -2654,7 +2689,7 @@ intType cmdShell (const const_striType command, const const_striType parameters)
       raise_error(err_info);
       result = 0;
     } else {
-      /* printf("os_command: \"%s\"\n", os_command); */
+      /* printf("os_command: \"" FMT_S_OS "\"\n", os_command); */
       result = (intType) os_system(os_command);
       /* if (result != 0) {
         printf("errno=%d\n", errno);

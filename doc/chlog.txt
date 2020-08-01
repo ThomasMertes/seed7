@@ -1,3 +1,24 @@
+20140601:
+- The compiler has been refactored. Code has been moved from s7c.sd7
+  to several compiler libraries. The compiler libraries are licensed
+  with the GPL and can be found in seed7/lib/comp. The refactored
+  compiler is the first compiler of the 3.0 series.
+- The chapter in the manual about the foreign function interface has
+  been improved.
+- Checks for parse and str have been added to chkflt.sd7 and
+  chkint.sd7.
+- In chkccomp.c code has been moved from main() to the new functions
+  numericSizes and numericProperties.
+- Usages of the macro logError have been added to cmd_rtl.c and
+  cmd_unx.c.
+- The stack size defined in mk_mingc.mak, mk_mingw.mak, mk_msys.mak
+  and mk_nmake.mak has been changed from 4194304 to 8388608.
+- The function cstri_buf_to_stri has been added to striutl.c.
+- The generation of float literals in the compiler has been improved
+  to avoid that precision is lost.
+- Interpreter and compiler have been improved to support the actions
+  BLN_EQ and BLN_NE.
+
 20140518:
 - Errors in con_wat.c and drw-dos.c have been fixed (thanks to
   "Rugxulo" for the help to fix them). 

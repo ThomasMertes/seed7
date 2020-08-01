@@ -1,0 +1,834 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  prc_act.s7i   Generate code for statements actions.             *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: PRC_ARGS        is action "PRC_ARGS";
+const ACTION: PRC_BLOCK       is action "PRC_BLOCK";
+const ACTION: PRC_CASE        is action "PRC_CASE";
+const ACTION: PRC_CASE_DEF    is action "PRC_CASE_DEF";
+const ACTION: PRC_CPY         is action "PRC_CPY";
+const ACTION: PRC_DYNAMIC     is action "PRC_DYNAMIC";
+const ACTION: PRC_EXIT        is action "PRC_EXIT";
+const ACTION: PRC_FOR_DOWNTO  is action "PRC_FOR_DOWNTO";
+const ACTION: PRC_FOR_TO      is action "PRC_FOR_TO";
+const ACTION: PRC_HSIZE       is action "PRC_HSIZE";
+const ACTION: PRC_IF          is action "PRC_IF";
+const ACTION: PRC_IF_ELSIF    is action "PRC_IF_ELSIF";
+const ACTION: PRC_NOOP        is action "PRC_NOOP";
+const ACTION: PRC_RAISE       is action "PRC_RAISE";
+const ACTION: PRC_REPEAT      is action "PRC_REPEAT";
+const ACTION: PRC_WHILE       is action "PRC_WHILE";
+
+
+const proc: process_statements (in expr_type: statements, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.currentFile := statements.currentFile;
+    c_expr.currentLine := statements.currentLine;
+    if statements.temp_num <> 0 then
+      AppendWithDiagnostic(statements.temp_decls, c_expr);
+      AppendWithDiagnostic(statements.temp_assigns, c_expr);
+      c_expr.expr &:= statements.expr;
+      AppendWithDiagnostic(statements.temp_frees, c_expr);
+    else
+      c_expr.expr &:= statements.expr;
+    end if;
+  end func;
+
+
+const proc: process_statements (in expr_type: condition, in expr_type: statements, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.currentFile := statements.currentFile;
+    c_expr.currentLine := statements.currentLine;
+    if statements.temp_num <> 0 then
+      AppendWithDiagnostic(statements.temp_decls, c_expr);
+      if condition.temp_num <> 0 then
+        AppendWithDiagnostic(condition.temp_frees, c_expr);
+        AppendWithDiagnostic(condition.temp_to_null, c_expr);
+      end if;
+      AppendWithDiagnostic(statements.temp_assigns, c_expr);
+      c_expr.expr &:= statements.expr;
+      AppendWithDiagnostic(statements.temp_frees, c_expr);
+    else
+      c_expr.expr &:= statements.expr;
+    end if;
+  end func;
+
+
+const proc: process_else (in reference: else_part, in boolean: insertKeyword,
+    inout expr_type: c_expr) is func
+
+  local
+    var category: functionCategory is category.value;
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var expr_type: c_param2 is expr_type.value;
+    var string: action_name is "";
+  begin
+    if category(else_part) = MATCHOBJECT then
+      params := getValue(else_part, ref_list);
+      function := params[1];
+      params := params[2 ..];
+      functionCategory := category(function);
+      if functionCategory = CONSTENUMOBJECT then
+        process_expr(params[2], c_param2);
+        if insertKeyword then
+          c_expr.expr &:= "else {\n";
+        end if;
+        process_statements(c_param2, c_expr);
+        if insertKeyword then
+          c_expr.expr &:= "}\n";
+        end if;
+      elsif functionCategory = ACTOBJECT then
+        if insertKeyword then
+          c_expr.expr &:= "else\n";
+        end if;
+        c_expr.currentFile := file(else_part);
+        c_expr.currentLine := line(else_part);
+        process_action(function, params, c_expr);
+      else
+        c_expr.expr &:= "/*!!! ";
+        c_expr.expr &:= str(functionCategory);
+        c_expr.expr &:= " ";
+        c_expr.expr &:= str(function);
+        c_expr.expr &:= " !!!*/";
+      end if;
+    else
+      c_expr.expr &:= "/*!! ";
+      c_expr.expr &:= str(category(else_part));
+      c_expr.expr &:= " ";
+      c_expr.expr &:= str(else_part);
+      c_expr.expr &:= " !!*/";
+    end if
+  end func;
+
+
+const proc: process_const_prc_if (in boolean: condition, in reference: statement,
+    inout expr_type: c_expr) is func
+  local
+    var expr_type: c_statement is expr_type.value;
+  begin
+    incr(countOptimizations);
+    if condition then
+      c_expr.expr &:= "/* Optimized: if TRUE */ {\n";
+      process_expr(statement, c_statement);
+      process_statements(c_statement, c_expr);
+      c_expr.expr &:= "}\n";
+    else
+      c_expr.expr &:= "/* Optimized: if FALSE */\n";
+    end if;
+  end func;
+
+
+const proc: process (PRC_IF, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_condition is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+    var string: statementFile is "";
+    var integer: statementLine is 0;
+  begin
+    if getConstant(params[2], ENUMLITERALOBJECT, evaluatedParam) then
+      process_const_prc_if(getValue(evaluatedParam, boolean), params[4], c_expr);
+    else
+      process_expr(params[2], c_condition);
+      process_expr(params[4], c_statement);
+      if c_condition.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        AppendWithDiagnostic(c_condition.temp_decls, c_expr);
+        AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+      end if;
+      statementFile := c_expr.currentFile;
+      statementLine := c_expr.currentLine;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (";
+      c_expr.expr &:= c_condition.expr;
+      c_expr.expr &:= ") {\n";
+      process_statements(c_statement, c_expr);
+      c_expr.expr &:= "}\n";
+      if c_condition.temp_num <> 0 then
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
+const proc: process_const_prc_if_elsif (in boolean: condition, in reference: thenPart,
+    in reference: elsePart, inout expr_type: c_expr) is func
+  local
+    var expr_type: c_then_part is expr_type.value;
+    var expr_type: c_else_part is expr_type.value;
+  begin
+    incr(countOptimizations);
+    c_expr.expr &:= "/* Optimized: if ";
+    c_expr.expr &:= str(condition);
+    c_expr.expr &:= " */ {\n";
+    if condition then
+      process_expr(thenPart, c_then_part);
+      process_statements(c_then_part, c_expr);
+    else
+      process_else(elsePart, FALSE, c_else_part);
+      process_statements(c_else_part, c_expr);
+    end if;
+    c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process (PRC_IF_ELSIF, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_condition is expr_type.value;
+    var expr_type: c_then_part is expr_type.value;
+    var expr_type: c_else_part is expr_type.value;
+    var string: statementFile is "";
+    var integer: statementLine is 0;
+  begin
+    if getConstant(params[2], ENUMLITERALOBJECT, evaluatedParam) then
+      process_const_prc_if_elsif(getValue(evaluatedParam, boolean),
+          params[4], params[5], c_expr);
+    else
+      process_expr(params[2], c_condition);
+      process_expr(params[4], c_then_part);
+      c_else_part.temp_num := c_condition.temp_num;
+      process_else(params[5], TRUE, c_else_part);
+      if c_else_part.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        AppendWithDiagnostic(c_condition.temp_decls, c_expr);
+        AppendWithDiagnostic(c_else_part.temp_decls, c_expr);
+        AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+        AppendWithDiagnostic(c_else_part.temp_assigns, c_expr);
+      end if;
+      statementFile := c_expr.currentFile;
+      statementLine := c_expr.currentLine;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (";
+      c_expr.expr &:= c_condition.expr;
+      c_expr.expr &:= ") {\n";
+      process_statements(c_then_part, c_expr);
+      c_expr.expr &:= "} ";
+      c_expr.expr &:= c_else_part.expr;
+      if c_else_part.temp_num <> 0 then
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+        AppendWithDiagnostic(c_else_part.temp_frees, c_expr);
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
+const proc: process (PRC_WHILE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_condition is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+    var string: statementFile is "";
+    var integer: statementLine is 0;
+  begin
+    process_expr(params[2], c_condition);
+    c_statement.temp_num := c_condition.temp_num;
+    process_expr(params[4], c_statement);
+    if c_condition.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_condition.temp_decls, c_expr);
+      AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+    end if;
+    statementFile := c_expr.currentFile;
+    statementLine := c_expr.currentLine;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "while (";
+    c_expr.expr &:= c_condition.expr;
+    c_expr.expr &:= ") {\n";
+    process_statements(c_condition, c_statement, c_expr);
+    c_expr.expr &:= "}\n";
+    if c_condition.temp_num <> 0 then
+      c_expr.currentFile := statementFile;
+      c_expr.currentLine := statementLine;
+      AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (PRC_REPEAT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_condition is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+  begin
+    process_expr(params[4], c_condition);
+    c_statement.temp_num := c_condition.temp_num;
+    process_expr(params[2], c_statement);
+    if c_condition.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_condition.temp_decls, c_expr);
+      AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "do {\n";
+    process_statements(c_condition, c_statement, c_expr);
+    c_expr.expr &:= diagnosticLine(params[4]);
+    c_expr.expr &:= "} while (!(";
+    c_expr.expr &:= c_condition.expr;
+    c_expr.expr &:= "));\n";
+    if c_condition.temp_num <> 0 then
+      c_expr.currentFile := file(params[4]);
+      c_expr.currentLine := line(params[4]);
+      AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_const_prc_for (in reference: variable, in reference: startExpr,
+    in integer: endValue, in reference: statement, in boolean: for_to,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_start_expr is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+    var string: start_name is "";
+    var integer: temp_num is 0;
+  begin
+    incr(countOptimizations);
+    process_expr(startExpr, c_start_expr);
+    c_statement.temp_num := c_start_expr.temp_num;
+    process_expr(statement, c_statement);
+    temp_num := c_statement.temp_num;
+    incr(temp_num);
+    if c_start_expr.temp_decls <> "" then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_start_expr.temp_decls, c_expr);
+    end if;
+    if c_start_expr.temp_frees <> "" then
+      start_name := "tmp_s_" & str(temp_num);
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "intType ";
+      c_expr.expr &:= start_name;
+      if c_start_expr.temp_assigns <> "" then
+        c_expr.expr &:= ";\n";
+        AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= start_name;
+      end if;
+      c_expr.expr &:= "=";
+      c_expr.expr &:= c_start_expr.expr;
+      c_expr.expr &:= ";\n";
+      AppendWithDiagnostic(c_start_expr.temp_frees, c_expr);
+    else
+      start_name := c_start_expr.expr;
+      AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "for (";
+    process_expr(variable, c_expr);
+    c_expr.expr &:= "=";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= "; ";
+    process_expr(variable, c_expr);
+    if for_to then
+      c_expr.expr &:= "<=";
+    else
+      c_expr.expr &:= ">=";
+    end if;
+    c_expr.expr &:= integerLiteral(endValue);
+    c_expr.expr &:= "; (";
+    process_expr(variable, c_expr);
+    if for_to then
+      c_expr.expr &:= ")++) {\n";
+    else
+      c_expr.expr &:= ")--) {\n";
+    end if;
+    process_statements(c_statement, c_expr);
+    c_expr.expr &:= "}\n";
+    if c_start_expr.temp_decls <> "" then
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_prc_for (in reference: variable, in reference: startExpr,
+    in reference: endExpr, in reference: statement, in boolean: for_to,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_start_expr is expr_type.value;
+    var expr_type: c_end_expr is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+    var string: start_name is "";
+    var string: end_name is "";
+    var integer: temp_num is 0;
+  begin
+    process_expr(startExpr, c_start_expr);
+    c_end_expr.temp_num := c_start_expr.temp_num;
+    process_expr(endExpr, c_end_expr);
+    c_statement.temp_num := c_end_expr.temp_num;
+    process_expr(statement, c_statement);
+    temp_num := c_statement.temp_num;
+    incr(temp_num);
+    c_expr.expr &:= "{\n";
+    AppendWithDiagnostic(c_start_expr.temp_decls, c_expr);
+    AppendWithDiagnostic(c_end_expr.temp_decls, c_expr);
+    if c_start_expr.temp_frees <> "" then
+      start_name := "tmp_s_" & str(temp_num);
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "intType ";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= ";\n";
+    else
+      start_name := c_start_expr.expr;
+    end if;
+    end_name := "tmp_e_" & str(temp_num);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "intType ";
+    c_expr.expr &:= end_name;
+    if  c_start_expr.temp_assigns <> "" or
+        c_start_expr.temp_frees <> "" or
+        c_end_expr.temp_assigns <> "" then
+      c_expr.expr &:= ";\n";
+      AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_end_expr.temp_assigns, c_expr);
+      if c_start_expr.temp_frees <> "" then
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "=";
+        c_expr.expr &:= c_start_expr.expr;
+        c_expr.expr &:= ";\n";
+        AppendWithDiagnostic(c_start_expr.temp_frees, c_expr);
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= end_name;
+    end if;
+    c_expr.expr &:= "=";
+    c_expr.expr &:= c_end_expr.expr;
+    c_expr.expr &:= ";\n";
+    AppendWithDiagnostic(c_end_expr.temp_frees, c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "for (";
+    process_expr(variable, c_expr);
+    c_expr.expr &:= "=";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= "; ";
+    process_expr(variable, c_expr);
+    if for_to then
+      c_expr.expr &:= "<=";
+    else
+      c_expr.expr &:= ">=";
+    end if;
+    c_expr.expr &:= end_name;
+    c_expr.expr &:= "; (";
+    process_expr(variable, c_expr);
+    if for_to then
+      c_expr.expr &:= ")++) {\n";
+    else
+      c_expr.expr &:= ")--) {\n";
+    end if;
+    process_statements(c_statement, c_expr);
+    c_expr.expr &:= "}\n}\n";
+  end func;
+
+
+const proc: process_prc_for (in ref_list: params, in boolean: for_to,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(params[6], INTOBJECT, evaluatedParam) then
+      process_const_prc_for(params[2], params[4], getValue(evaluatedParam, integer),
+          params[8], for_to, c_expr);
+    else
+      process_prc_for(params[2], params[4], params[6], params[8], for_to, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (PRC_FOR_DOWNTO, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_prc_for(params, FALSE, c_expr);
+  end func;
+
+
+const proc: process (PRC_FOR_TO, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_prc_for(params, TRUE, c_expr);
+  end func;
+
+
+const proc: process_bitset (in bitset: currentSet, in string: diagnosticLine,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: number is 0;
+  begin
+    for number range min(currentSet) to max(currentSet) do
+      if number in currentSet then
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "case ";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= ":\n";
+      end if;
+    end for;
+  end func;
+
+
+const proc: process_case_labels (in reference: current_expression, inout expr_type: c_expr) is func
+
+  local
+    var reference: case_labels is NIL;
+    var category: labelCategory is category.value;
+  begin
+    case_labels := evaluate(prog, current_expression);
+    labelCategory := category(case_labels);
+    if labelCategory = SETOBJECT then
+      process_bitset(getValue(case_labels, bitset),
+          diagnosticLine(current_expression), c_expr);
+    else
+      c_expr.expr &:= "/* case ";
+      c_expr.expr &:= str(labelCategory);
+      c_expr.expr &:= " */";
+    end if;
+  end func;
+
+
+const proc: process_when (in reference: when_expr, inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+  begin
+    params := getValue(when_expr, ref_list);
+    function := params[1];
+    params := params[2 ..];
+    process_case_labels(params[2], c_expr);
+    process_expr(params[4], c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "break;\n";
+    if length(params) >= 5 then
+      process_when(params[5], c_expr);
+    end if;
+  end func;
+
+
+const proc: process (PRC_CASE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "switch (";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ") {\n";
+    process_when(params[4], c_expr);
+    c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process (PRC_CASE_DEF, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "switch (";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ") {\n";
+    process_when(params[4], c_expr);
+    c_expr.expr &:= "default:\n";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "break;\n";
+    c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process (PRC_BLOCK, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: current_catch is NIL;
+    var ref_list: catch_expr is ref_list.EMPTY;
+    var reference: catch_value is NIL;
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "int fail_value;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos++;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if (catch_stack_pos >= max_catch_stack) {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "  resize_catch_stack();\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
+    process_expr(params[2], c_expr);
+    current_catch := params[4];
+    catch_expr := getValue(current_catch, ref_list);
+    c_expr.expr &:= diagnosticLine(current_catch);
+    c_expr.expr &:= "} else {\n";
+    # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
+    while current_catch <> NIL and
+        category(current_catch) = MATCHOBJECT and
+        length(catch_expr) >= 5 do
+      catch_value := catch_expr[3];
+      c_expr.expr &:= diagnosticLine(current_catch);
+      c_expr.expr &:= "if (";
+      process_expr(catch_value, c_expr);
+      c_expr.expr &:= " == fail_value - 1) {\n";
+      process_expr(catch_expr[5], c_expr);
+      if length(catch_expr) >= 6 then
+        c_expr.expr &:= diagnosticLine(current_catch);
+        c_expr.expr &:= "} else\n";
+        current_catch := catch_expr[6];
+        catch_expr := getValue(current_catch, ref_list);
+      else
+        incr(c_expr.currentLine);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "  catch_stack_pos--;\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "  raise_error(fail_value);\n";
+        current_catch := NIL;
+      end if;
+    end while;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos--;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process_func_call (in reference: function,
+    in ref_list: actual_params, inout expr_type: c_expr) is forward;
+
+
+const proc: process (PRC_DYNAMIC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_func_call(function, params, c_expr);
+  end func;
+
+
+const proc: process (PRC_EXIT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "exit(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (PRC_HSIZE,in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "heapsize()";
+  end func;
+
+
+const proc: process_prc_semicol (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_expr(params[1], c_expr);
+    process_expr(params[3], c_expr);
+  end func;
+
+
+const proc: do_noop_param(in reference: formal_param, in reference: actual_param,
+    inout expr_type: c_expr) is func
+
+  local
+    var category: paramCategory is category.value;
+    var type: object_type is void;
+  begin
+    paramCategory := category(actual_param);
+    if paramCategory <> SYMBOLOBJECT and
+        category(formal_param) <> SYMBOLOBJECT then
+      object_type := getType(formal_param);
+      if isFunc(object_type) or isVarfunc(object_type) then
+        c_expr.expr &:= "/*expression*/";
+(*
+        if getType(formal_param) <> getType(actual_param) then
+          PRINT("***###***\n");
+        end if;
+        object_type := resultType(object_type);
+        TRACE(object_type); PRINT("\n");
+        TRACE_OBJ(actual_param); PRINT("\n\n");
+*)
+      else
+        c_expr.expr &:= "/* ";
+        c_expr.expr &:= str(paramCategory);
+        if paramCategory = CALLOBJECT then
+          paramCategory := category(getValue(actual_param, ref_list)[1]);
+          c_expr.expr &:= " ";
+          c_expr.expr &:= str(paramCategory);
+          if paramCategory = ACTOBJECT then
+            c_expr.expr &:= " ";
+            c_expr.expr &:= str(getValue(getValue(actual_param, ref_list)[1], ACTION));
+          end if
+        end if;
+        c_expr.expr &:= " */";
+        getAnyParamToExpr(actual_param, c_expr);
+        c_expr.expr &:= ";";
+      end if;
+    else
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(actual_param);
+      c_expr.expr &:= "*/";
+    end if;
+  end func;
+
+
+const proc: noop_params (in ref_list: formal_params,
+    in ref_list: actual_params, inout expr_type: c_expr) is func
+
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(formal_params) do
+      if number <= length(actual_params) then
+        do_noop_param(formal_params[number], actual_params[number], c_expr);
+      end if;
+    end for;
+  end func;
+
+
+const proc: process_prc_other_noop (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "/*noop*/";
+    noop_params(formalParams(function), params, c_expr);
+    c_expr.expr &:= "\n";
+  end func;
+
+
+const proc: process (PRC_NOOP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    if length(params) = 3 and str(params[2]) = ";" then
+      process_prc_semicol(params, c_expr);
+    else
+      process_prc_other_noop(function, params, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (PRC_ARGS, in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    c_expr.expr &:= type_name(resultType(getType(function)));
+    c_expr.expr &:= ")(arg_v)";
+  end func;
+
+
+const proc: processFuncValue (in string: valueName, in type: genericFuncType,
+    in reference: closure, inout expr_type: c_expr) is forward;
+
+
+const proc: process (PRC_CPY, in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  local
+    var category: paramCategory is category.value;
+    var string: valueName is "";
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "/* prc_cpy */ ";
+    if isVar(params[3]) then
+      # c_expr.expr &:= "o_";
+      # create_name(params[1], c_expr.expr);
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= " = o_";
+      create_name(params[3], c_expr.expr);
+      c_expr.expr &:= ";\n";
+    elsif isFunc(getType(params[3])) and getType(params[1]) = resultType(getType(params[3])) then
+      c_expr.expr &:= "/* call func */ ";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= " = ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ";\n";
+    else
+      paramCategory := category(params[3]);
+      if paramCategory = MATCHOBJECT or paramCategory = CALLOBJECT or
+          paramCategory = BLOCKOBJECT then
+        # c_expr.expr &:= "o_";
+        # create_name(params[1], c_expr.expr);
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= " = ";
+        create_name(params[3], objNumber(params[3]), valueName);
+        processFuncValue(valueName, getType(params[3]), params[3], c_expr);
+        c_expr.expr &:= ";\n";
+      else
+        # c_expr.expr &:= "o_";
+        # create_name(params[1], c_expr.expr);
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= " = o_";
+        create_name(params[3], c_expr.expr);
+        c_expr.expr &:= ";\n";
+      end if;
+    end if;
+  end func;
+
+
+const proc: process (PRC_RAISE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "raise_error2(";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= "+1, ";
+    c_expr.expr &:= sourceNameString(c_expr.currentFile);
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= str(c_expr.currentLine);
+    c_expr.expr &:= ");\n";
+  end func;

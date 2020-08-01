@@ -1,0 +1,292 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  create.s7i    Generate code for the create functions.           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+var typeReferenceHash: createFunction is typeReferenceHash.EMPTY_HASH;
+var boolean_type_hash: create_declared is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH;
+var string_type_hash: parametersOfHshCreate is string_type_hash.EMPTY_HASH;
+
+
+const proc: process_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is forward;
+
+
+const proc: process_create_call (in type: object_type,
+    in string: param_b, inout string: expr) is forward;
+
+
+const proc: process_arr_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: diagnosticLine is "";
+    var string: select_value is "";
+  begin
+    if object_type in createFunction then
+      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    end if;
+    select_value := select_value_from_rtlObjectStruct(array_element[object_type]);
+    process_create_declaration(array_element[object_type], c_expr);
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "static ";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " create_";
+    c_expr.expr &:= str(typeNumber(object_type));
+    c_expr.expr &:= " (const_";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " a;\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "memSizeType i;\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "memSizeType size = (uintType)(b->max_position - b->min_position + 1);\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "a=(";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= ")(arrMalloc(b->min_position, b->max_position));\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "a->arr[i]";
+    c_expr.expr &:= select_value;
+    c_expr.expr &:= "=";
+    process_create_call(array_element[object_type],
+        "b->arr[i]" & select_value, c_expr.expr);
+    c_expr.expr &:= ";\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "return a;\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
+    create_declared @:= [object_type] TRUE;
+  end func;
+
+
+const proc: process_sct_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: diagnosticLine is "";
+    var number_element_hash: elements is number_element_hash.EMPTY_HASH;
+    var integer: number is 0;
+    var reference: struct_elem is NIL;
+    var string: select_value is "";
+  begin
+    if object_type in createFunction then
+      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    end if;
+    if object_type in struct_elements then
+      elements := flip(struct_elements[object_type]);
+    end if;
+    for number range 0 to pred(length(elements)) do
+      struct_elem := elements[number][1];
+      process_create_declaration(struct_element_type[object_type][struct_elem], c_expr);
+    end for;
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "static ";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " create_";
+    c_expr.expr &:= str(typeNumber(object_type));
+    c_expr.expr &:= " (const_";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " a;\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "a=(";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= ")(malloc(sizeof(struct rtlStructStruct) - sizeof(rtlObjectType) + \n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "  ";
+    c_expr.expr &:= str(length(elements));
+    c_expr.expr &:= " * sizeof(rtlObjectType)));\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "if (a == NULL) {\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "a->usage_count = 1;\n";
+    c_expr.expr &:= "a->type_num = b->type_num;\n";
+    for number range 0 to pred(length(elements)) do
+      c_expr.expr &:= diagnosticLine;
+      struct_elem := elements[number][1];
+      select_value := select_value_from_rtlObjectStruct(struct_element_type[object_type][struct_elem]);
+      c_expr.expr &:= "a->stru[" & str(number) & "]" & select_value & "=";
+      process_create_call(struct_element_type[object_type][struct_elem],
+          "b->stru[" & str(number) & "]" & select_value, c_expr.expr);
+      c_expr.expr &:= ";\n";
+    end for;
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "return a;\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
+    create_declared @:= [object_type] TRUE;
+  end func;
+
+
+const proc: process_hsh_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: diagnosticLine is "";
+  begin
+    if object_type in createFunction then
+      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    end if;
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "static ";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " create_";
+    c_expr.expr &:= str(typeNumber(object_type));
+    c_expr.expr &:= " (const_";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "return hshCreate(b";
+    c_expr.expr &:= parametersOfHshCreate[object_type];
+    c_expr.expr &:= ");\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
+    create_declared @:= [object_type] TRUE;
+  end func;
+
+
+const proc: declare_create_prototype (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    if object_type not in create_prototype_declared then
+      declare_type_if_necessary(object_type, c_expr);
+      c_expr.expr &:= "static ";
+      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= " create_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= " (const_";
+      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= ");\n\n";
+      create_prototype_declared @:= [object_type] TRUE;
+    end if;
+  end func;
+
+
+const proc: process_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    if object_type not in create_declared then
+      if object_type in typeCategory then
+        case typeCategory[object_type] of
+          when {ARRAYOBJECT}:
+            if object_type in array_element then
+              process_arr_create_declaration(object_type, c_expr);
+            else
+              declare_create_prototype(object_type, c_expr);
+            end if;
+          when {STRUCTOBJECT}:
+            process_sct_create_declaration(object_type, c_expr);
+          when {HASHOBJECT}:
+            if object_type in parametersOfHshCreate then
+              process_hsh_create_declaration(object_type, c_expr);
+            else
+              declare_create_prototype(object_type, c_expr);
+            end if;
+          otherwise:
+            create_declared @:= [object_type] TRUE;
+        end case;
+      else
+        declare_create_prototype(object_type, c_expr);
+      end if;
+    end if;
+  end func;
+
+
+const proc: declare_missing_create_declarations (inout expr_type: c_expr) is func
+
+  local
+    var type: object_type is void;
+  begin
+    for key object_type range create_prototype_declared do
+      process_create_declaration(object_type, c_expr);
+    end for;
+  end func;
+
+
+const proc: process_create_call (in type: object_type,
+    in string: param_b, inout string: expr) is func
+
+  begin
+    if object_type in typeCategory then
+      case typeCategory[object_type] of
+        when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
+              FILEOBJECT, SOCKETOBJECT, REFOBJECT, TYPEOBJECT,
+              ACTOBJECT, BLOCKOBJECT}:
+                                expr &:= param_b;
+        when {BIGINTOBJECT}:    expr &:= "bigCreate(" & param_b & ")";
+        when {STRIOBJECT}:      expr &:= "strCreate(" & param_b & ")";
+        when {BSTRIOBJECT}:     expr &:= "bstCreate(" & param_b & ")";
+        when {SETOBJECT}:       expr &:= "setCreate(" & param_b & ")";
+        when {POLLOBJECT}:      expr &:= "polCreate(" & param_b & ")";
+        when {REFLISTOBJECT}:   expr &:= "rflCreate(" & param_b & ")";
+        when {WINOBJECT}:       expr &:= "drwCreate(" & param_b & ")";
+        when {PROGOBJECT}:      expr &:= "prgCreate(" & param_b & ")";
+        when {INTERFACEOBJECT}: expr &:= "itfCreate(" & param_b & ")";
+        when {ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT}:
+          expr &:= "create_";
+          expr &:= str(typeNumber(object_type));
+          expr &:= "(";
+          expr &:= param_b;
+          expr &:= ")";
+      end case;
+    else
+      expr &:= "create_";
+      expr &:= str(typeNumber(object_type));
+      expr &:= "((";
+      expr &:= type_name(object_type);
+      expr &:= ")(";
+      expr &:= param_b;
+      expr &:= "))";
+    end if;
+  end func;

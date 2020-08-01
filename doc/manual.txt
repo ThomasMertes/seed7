@@ -10322,12 +10322,12 @@ CONTENTS
   byte sequences. To convert between the different representations,
   "striutl.h" defines conversion functions like stri_to_cstri,
   stri_to_cstri8, stri_to_bstri, stri_to_bstri8, cstri_to_stri,
-  cstri8_to_stri and cstri8_or_cstri_to_stri. Operating systems
-  disagree in their Unicode encoding (UTF-8 or UTF-16). To cope with
-  this, "striutl.h" defines the type 'os_striType' and the functions
-  conv_from_os_stri, stri_to_os_stri and os_stri_to_stri. The different
-  concepts to represent a file path (path delimiter and drive letter)
-  are handled with cp_to_os_path and cp_from_os_path.
+  cstri_buf_to_stri, cstri8_to_stri and cstri8_or_cstri_to_stri.
+  Operating systems disagree in their Unicode encoding (UTF-8 or UTF-16).
+  To cope with this, "striutl.h" defines the type 'os_striType' and the
+  functions conv_from_os_stri, stri_to_os_stri and os_stri_to_stri.
+  The different concepts to represent a file path (path delimiter and
+  drive letter) are handled with cp_to_os_path and cp_from_os_path.
 
 
   Function Summary
@@ -10349,6 +10349,9 @@ CONTENTS
 
     striType cstri_to_stri (const_cstriType cstri)
       Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
+
+    striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length)
+      Copy an ISO-8859-1 (Latin-1) encoded C string buffer to a Seed7 string.
 
     striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
       Copy an UTF-8 encoded C string to a Seed7 string.
@@ -10468,8 +10471,8 @@ CONTENTS
         err_info - Unchanged when the function succeeds or
                    MEMORY_ERROR when the memory allocation failed or
                    RANGE_ERROR when stri contains a character
- *                        that is higher than the highest
- *                        allowed ISO-8859-1 character (255).
+                          that is higher than the highest
+                          allowed ISO-8859-1 character (255).
 
       Returns:
         an ISO-8859-1 encoded bstring or
@@ -10509,6 +10512,22 @@ CONTENTS
         NULL, when the memory allocation failed.
 
 
+  cstri_buf_to_stri
+
+    striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length)
+
+      Copy an ISO-8859-1 (Latin-1) encoded C string buffer to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Parameters:
+        cstri - ISO-8859-1 encoded C string buffer (not null terminated).
+        length - Byte length of the ISO-8859-1 encoded C string buffer.
+
+      Returns:
+        an UTF-32 encoded Seed7 string or
+        NULL, when the memory allocation failed.
+
+
   cstri8_to_stri
 
     striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
@@ -10538,7 +10557,7 @@ CONTENTS
 
       Parameters:
         cstri - UTF-8 encoded C string buffer (not null terminated).
-        length - Length of the UTF-8 encoded C string buffer.
+        length - Byte length of the UTF-8 encoded C string buffer.
         err_info - Unchanged when the function succeeds or
                    MEMORY_ERROR when the memory allocation failed or
                    RANGE_ERROR when the conversion failed.
@@ -10578,7 +10597,7 @@ CONTENTS
 
       Parameters:
         os_stri - Possibly binary string (may contain null characters).
-        length - Length of os_stri.
+        length - Length of os_stri in characters.
 
       Returns:
         a Seed7 UTF-32 string or

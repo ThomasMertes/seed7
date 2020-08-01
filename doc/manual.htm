@@ -10460,12 +10460,12 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   byte sequences. To convert between the different representations,
   <tt><span class="lib">"striutl.h"</span></tt> defines conversion functions like <tt><a class="func" href="#ffi_stri_to_cstri">stri_to_cstri</a></tt>,
   <tt><a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></tt>, <tt><a class="func" href="#ffi_stri_to_bstri">stri_to_bstri</a></tt>, <tt><a class="func" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></tt>, <tt><a class="func" href="#ffi_cstri_to_stri">cstri_to_stri</a></tt>,
-  <tt><a class="func" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></tt> and <tt><a class="func" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></tt>. Operating systems
-  disagree in their Unicode encoding (UTF-8 or UTF-16). To cope with
-  this, <tt><span class="lib">"striutl.h"</span></tt> defines the type <tt><a class="type" href="#ffi_os_striType">os_striType</a></tt> and the functions
-  <tt><a class="func" href="#ffi_conv_from_os_stri">conv_from_os_stri</a></tt>, <tt><a class="func" href="#ffi_stri_to_os_stri">stri_to_os_stri</a></tt> and <tt><a class="func" href="#ffi_os_stri_to_stri">os_stri_to_stri</a></tt>. The different
-  concepts to represent a file path (path delimiter and drive letter)
-  are handled with <tt><a class="func" href="#ffi_cp_to_os_path">cp_to_os_path</a></tt> and <tt><a class="func" href="#ffi_cp_from_os_path">cp_from_os_path</a></tt>.
+  <tt><a class="func" href="#ffi_cstri_buf_to_stri">cstri_buf_to_stri</a></tt>, <tt><a class="func" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></tt> and <tt><a class="func" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></tt>.
+  Operating systems disagree in their Unicode encoding (UTF-8 or UTF-16).
+  To cope with this, <tt><span class="lib">"striutl.h"</span></tt> defines the type <tt><a class="type" href="#ffi_os_striType">os_striType</a></tt> and the
+  functions <tt><a class="func" href="#ffi_conv_from_os_stri">conv_from_os_stri</a></tt>, <tt><a class="func" href="#ffi_stri_to_os_stri">stri_to_os_stri</a></tt> and <tt><a class="func" href="#ffi_os_stri_to_stri">os_stri_to_stri</a></tt>.
+  The different concepts to represent a file path (path delimiter and
+  drive letter) are handled with <tt><a class="func" href="#ffi_cp_to_os_path">cp_to_os_path</a></tt> and <tt><a class="func" href="#ffi_cp_from_os_path">cp_from_os_path</a></tt>.
 </p><div><table width="100%" border="1" cellspacing="0" cellpadding="3">
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Function Summary</td></tr>
@@ -10487,6 +10487,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri_to_stri">cstri_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri_buf_to_stri">cstri_buf_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length)</td></tr>
+      <tr><td width="30"></td><td>Copy an ISO-8859-1 (Latin-1) encoded C string buffer to a Seed7 string.</td></tr></table></td></tr>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Copy an UTF-8 encoded C string to a Seed7 string.</td></tr></table></td></tr>
@@ -10606,8 +10609,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when stri contains a character
- *                        that is higher than the highest
- *                        allowed ISO-8859-1 character (255).</dd>
+                          that is higher than the highest
+                          allowed ISO-8859-1 character (255).</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an ISO-8859-1 encoded bstring or
@@ -10647,6 +10650,22 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         NULL, when the memory allocation failed.</dd></dl></dd>
 </dl></div>
 <hr />
+  <div><a name="ffi_cstri_buf_to_stri"><h3>cstri_buf_to_stri</h3></a>
+<p>
+    <a class="type" href="#ffi_striType">striType</a> <b>cstri_buf_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length)</p><dl><dd>
+<p>
+      Copy an ISO-8859-1 (Latin-1) encoded C string buffer to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>cstri</tt> - ISO-8859-1 encoded C string buffer (not null terminated).</dd>
+        <dd><tt>length</tt> - Byte length of the ISO-8859-1 encoded C string buffer.</dd>
+</dl></dd>
+      <dd><dl><dt><b>Returns:</b></dt>
+        <dd>an UTF-32 encoded Seed7 string or
+        NULL, when the memory allocation failed.</dd></dl></dd>
+</dl></div>
+<hr />
   <div><a name="ffi_cstri8_to_stri"><h3>cstri8_to_stri</h3></a>
 <p>
     <a class="type" href="#ffi_striType">striType</a> <b>cstri8_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
@@ -10676,7 +10695,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>cstri</tt> - UTF-8 encoded C string buffer (not null terminated).</dd>
-        <dd><tt>length</tt> - Length of the UTF-8 encoded C string buffer.</dd>
+        <dd><tt>length</tt> - Byte length of the UTF-8 encoded C string buffer.</dd>
         <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the conversion failed.</dd>
@@ -10716,7 +10735,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>os_stri</tt> - Possibly binary string (may contain null characters).</dd>
-        <dd><tt>length</tt> - Length of os_stri.</dd>
+        <dd><tt>length</tt> - Length of os_stri in characters.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>a Seed7 UTF-32 string or

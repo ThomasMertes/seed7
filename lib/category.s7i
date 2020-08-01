@@ -123,6 +123,8 @@ const category: VALUEPARAMOBJECT  is category parse "VALUEPARAMOBJECT";
 const category: REFPARAMOBJECT    is category parse "REFPARAMOBJECT";
 const category: RESULTOBJECT      is category parse "RESULTOBJECT";
 const category: LOCALVOBJECT      is category parse "LOCALVOBJECT";
+const category: DATABASEOBJECT    is category parse "DATABASEOBJECT";
+const category: SQLSTMTOBJECT     is category parse "SQLSTMTOBJECT";
 const category: PROGOBJECT        is category parse "PROGOBJECT";
 
 const proc: for (inout category: variable) range (in category: startValue) to (in category: endValue) do

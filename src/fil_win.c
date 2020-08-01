@@ -53,7 +53,7 @@ boolType filInputReady (fileType aFile)
 
   {
     int file_no;
-    long fileHandle;
+    HANDLE fileHandle;
     os_fstat_struct stat_buf;
     DWORD totalBytesAvail;
     boolType result;
@@ -71,9 +71,9 @@ boolType filInputReady (fileType aFile)
           /* printf("kbhit()=%d\n", kbhit()); */
           result = kbhit() != 0;
         } else {
-          fileHandle = _get_osfhandle(file_no);
-          if (fileHandle != -1) {
-            result = WaitForSingleObject((HANDLE) fileHandle, 0) == WAIT_OBJECT_0;
+          fileHandle = (HANDLE) _get_osfhandle(file_no);
+          if (fileHandle != (HANDLE) -1) {
+            result = WaitForSingleObject(fileHandle, 0) == WAIT_OBJECT_0;
           } else {
             raise_error(FILE_ERROR);
             result = FALSE;
@@ -84,9 +84,9 @@ boolType filInputReady (fileType aFile)
         if (!read_buffer_empty(aFile)) {
           result = TRUE;
         } else {
-          fileHandle = _get_osfhandle(file_no);
-          if (fileHandle != -1) {
-            if (PeekNamedPipe((HANDLE) fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
+          fileHandle = (HANDLE) _get_osfhandle(file_no);
+          if (fileHandle != (HANDLE) -1) {
+            if (PeekNamedPipe(fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
               result = totalBytesAvail >= 1;
             } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(aFile)) {
               result = TRUE;

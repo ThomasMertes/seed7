@@ -1,0 +1,303 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  const.s7i     Recognize if an expression is constant.           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const set of category: constantExpressionCategories is {
+    TYPEOBJECT, INTOBJECT, BIGINTOBJECT, CHAROBJECT,
+    STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
+    SETOBJECT, FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT,
+    WINOBJECT, ENUMLITERALOBJECT, REFLISTOBJECT, SYMBOLOBJECT};
+
+
+const func boolean: isPureFunction (in reference: function) is forward;
+
+
+const func boolean: isConstant (in reference: current_expression,
+    in boolean_obj_hash: local_objects) is forward;
+
+
+const func boolean: isConstantCall (in reference: current_expression,
+    in boolean_obj_hash: local_objects) is func
+
+  result
+    var boolean: isConstantCall is FALSE;
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var reference: obj is NIL;
+  begin
+    params := getValue(current_expression, ref_list);
+    function := params[1];
+    params := params[2 ..];
+    if category(function) in constantExpressionCategories then
+      isConstantCall := TRUE;
+    elsif isPureFunction(function) then
+      # write(" {isPureFunction(" <& str(function) <& ")}");
+      isConstantCall := TRUE;
+      for obj range params until not isConstantCall do
+        if not isConstant(obj, local_objects) then
+          # write(" [not isConstant(" <& str(obj) <& ") " <& str(category(obj)) <& "]");
+          isConstantCall := FALSE;
+        end if;
+      end for;
+(*
+    else
+      # write(" [not isPureFunction(" <& str(function) <& ") " <& str(category(function)) <& "]");
+      if category(function) = ACTOBJECT then
+        # write(" [" <& str(getValue(function, ACTION)) <& "]");
+      end if;
+*)
+    end if;
+  end func;
+
+
+const func boolean: isConstant (in reference: current_expression,
+    in boolean_obj_hash: local_objects) is func
+
+  result
+    var boolean: isConstant is FALSE;
+  local
+    var category: exprCategory is category.value;
+  begin
+    if current_expression in local_objects then
+      # write(" [local " <& str(current_expression) <& "]");
+      isConstant := TRUE;
+    elsif not isVar(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+        isConstant := isConstantCall(current_expression, local_objects);
+      elsif exprCategory in constantExpressionCategories then
+        isConstant := TRUE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: isPureBlockFunction (in reference: function) is func
+
+  result
+    var boolean: isPureBlockFunction is FALSE;
+  local
+    var type: function_type is void;
+    var reference: result_object is NIL;
+    var ref_list: local_object_list is ref_list.EMPTY;
+    var reference: obj is NIL;
+    var boolean_obj_hash: local_objects is boolean_obj_hash.value;
+  begin
+    # write(str(function));
+    function_type := getType(function);
+    result_object := resultVar(function);
+    if not isVarfunc(function_type) then
+      if result_object <> NIL then
+        local_object_list := make_list(result_object);
+      end if;
+      local_object_list &:= formalParams(function) & localVars(function);
+      for obj range local_object_list do
+        # write(" " <& str(obj));
+        local_objects @:= [obj] TRUE;
+      end for;
+      isPureBlockFunction := isConstant(body(function), local_objects);
+    end if;
+    # writeln(" " <& isPureBlockFunction);
+  end func;
+
+
+const func boolean: isPureFunction (in reference: function) is func
+
+  result
+    var boolean: isPureFunction is FALSE;
+  local
+    const set of string: pureFunctionActions is
+        {"ARR_ARRLIT", "ARR_ARRLIT2", "ARR_BASELIT", "ARR_BASELIT2", "ARR_CAT",
+         "ARR_CONV", "ARR_EMPTY", "ARR_EXTEND", "ARR_GEN", "ARR_HEAD", "ARR_IDX",
+         "ARR_LNG", "ARR_MAXIDX", "ARR_MINIDX", "ARR_RANGE", "ARR_SORT",
+         "ARR_SUBARR", "ARR_TAIL", "ARR_TIMES",
+         "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CMP", "BIG_CONV", "BIG_DIV",
+         "BIG_EQ", "BIG_FROM_BSTRI_BE", "BIG_FROM_BSTRI_LE", "BIG_GCD", "BIG_GE",
+         "BIG_GT", "BIG_HASHCODE", "BIG_ICONV", "BIG_IPOW", "BIG_LE", "BIG_LOG10",
+         "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT", "BIG_LT", "BIG_MDIV",
+         "BIG_MOD", "BIG_MULT", "BIG_NE", "BIG_NEGATE", "BIG_ODD", "BIG_ORD",
+         "BIG_PARSE", "BIG_PARSE_BASED", "BIG_PLUS", "BIG_PRED", "BIG_radix",
+         "BIG_RADIX", "BIG_REM", "BIG_RSHIFT", "BIG_SBTR", "BIG_STR", "BIG_SUCC",
+         "BIG_TO_BSTRI_BE", "BIG_TO_BSTRI_LE", "BIG_VALUE",
+         "BLN_AND", "BLN_EQ", "BLN_GE", "BLN_GT", "BLN_ICONV", "BLN_LE", "BLN_LT",
+         "BLN_NE", "BLN_NOT", "BLN_OR", "BLN_ORD", "BLN_VALUE",
+         "BST_CAT", "BST_CMP", "BST_EMPTY", "BST_EQ", "BST_HASHCODE", "BST_IDX",
+         "BST_LNG", "BST_NE", "BST_PARSE", "BST_STR", "BST_VALUE",
+         "CHR_CHR", "CHR_CLIT", "CHR_CMP", "CHR_CONV", "CHR_EQ", "CHR_GE",
+         "CHR_GT", "CHR_HASHCODE", "CHR_ICONV", "CHR_LE", "CHR_LOW", "CHR_LT",
+         "CHR_NE", "CHR_ORD", "CHR_PRED", "CHR_STR", "CHR_SUCC", "CHR_UP",
+         "CHR_VALUE", "CMD_CONFIG_VALUE", "DRW_VALUE",
+         "ENU_CONV", "ENU_EQ", "ENU_ICONV2", "ENU_NE", "ENU_ORD2", "ENU_VALUE",
+         "FIL_EQ", "FIL_NE", "FIL_VALUE",
+         "FLT_A2TAN", "FLT_ABS", "FLT_ACOS", "FLT_ADD", "FLT_ASIN", "FLT_ATAN",
+         "FLT_CEIL", "FLT_CMP", "FLT_COS", "FLT_COSH", "FLT_DGTS", "FLT_DIV",
+         "FLT_EQ", "FLT_EXP", "FLT_FLOOR", "FLT_GE", "FLT_GT", "FLT_HASHCODE",
+         "FLT_ICONV", "FLT_IFLT", "FLT_IPOW", "FLT_ISNAN", "FLT_ISNEGATIVEZERO",
+         "FLT_LE", "FLT_LOG", "FLT_LOG10", "FLT_LT", "FLT_MULT", "FLT_NE",
+         "FLT_NEGATE", "FLT_PARSE", "FLT_PLUS", "FLT_POW", "FLT_ROUND",
+         "FLT_SBTR", "FLT_SCI", "FLT_SIN", "FLT_SINH", "FLT_SQRT", "FLT_STR",
+         "FLT_TAN", "FLT_TANH", "FLT_TRUNC", "FLT_VALUE",
+         "HSH_CONTAINS", "HSH_EMPTY", "HSH_IDX", "HSH_KEYS", "HSH_LNG",
+         "HSH_VALUES",
+         "INT_ABS", "INT_ADD", "INT_AND", "INT_BINOM", "INT_BIT_LENGTH",
+         "INT_BYTES_BE", "INT_BYTES_BE_2_INT", "INT_BYTES_LE",
+         "INT_BYTES_LE_2_INT", "INT_CMP", "INT_CONV", "INT_DIV", "INT_EQ",
+         "INT_FACT", "INT_GE", "INT_GT", "INT_HASHCODE", "INT_LE", "INT_LOG10",
+         "INT_LOG2", "INT_LOWEST_SET_BIT", "INT_LPAD0", "INT_LSHIFT", "INT_LT",
+         "INT_MDIV", "INT_MOD", "INT_MULT", "INT_NE", "INT_NEGATE", "INT_ODD",
+         "INT_OR", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW", "INT_PRED",
+         "INT_radix", "INT_RADIX", "INT_REM", "INT_RSHIFT", "INT_SBTR",
+         "INT_SQRT", "INT_STR", "INT_SUCC", "INT_URSHIFT", "INT_VALUE", "INT_XOR",
+         "ITF_CMP", "ITF_EQ", "ITF_HASHCODE", "ITF_NE",
+         "LST_CAT", "LST_ELEM", "LST_EMPTY", "LST_HEAD", "LST_IDX", "LST_LNG",
+         "LST_RANGE", "LST_TAIL",
+         "PRG_EQ", "PRG_NE",
+         "REF_CMP", "REF_EQ", "REF_NE", "REF_NIL",
+         "RFL_CAT", "RFL_ELEM", "RFL_EMPTY", "RFL_EQ", "RFL_HEAD", "RFL_IDX",
+         "RFL_IPOS", "RFL_LNG", "RFL_NE", "RFL_NOT_ELEM", "RFL_POS", "RFL_RANGE",
+         "RFL_TAIL", "RFL_VALUE",
+         "SCT_LNG", "SCT_SELECT",
+         "SET_ARRLIT", "SET_BASELIT", "SET_CARD", "SET_CMP", "SET_CONV",
+         "SET_DIFF", "SET_ELEM", "SET_EMPTY", "SET_EQ", "SET_GE", "SET_GT",
+         "SET_HASHCODE", "SET_ICONV", "SET_INTERSECT", "SET_LE", "SET_LT",
+         "SET_MAX", "SET_MIN", "SET_NE", "SET_NEXT", "SET_NOT_ELEM",
+         "SET_SCONV", "SET_SYMDIFF", "SET_UNION", "SET_VALUE",
+         "SOC_EQ", "SOC_NE",
+         "STR_CAT", "STR_CHIPOS", "STR_CHPOS", "STR_CHSPLIT", "STR_CLIT",
+         "STR_CMP", "STR_EQ", "STR_GE", "STR_GT", "STR_HASHCODE", "STR_HEAD",
+         "STR_IDX","STR_IPOS", "STR_LE", "STR_LIT", "STR_LNG", "STR_LOW",
+         "STR_LPAD", "STR_LPAD0", "STR_LT", "STR_LTRIM", "STR_MULT", "STR_NE",
+         "STR_POS", "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS", "STR_REPL",
+         "STR_RIPOS", "STR_RPAD", "STR_RPOS", "STR_RTRIM", "STR_SPLIT", "STR_STR",
+         "STR_SUBSTR", "STR_TAIL", "STR_TOUTF8", "STR_TRIM", "STR_UP",
+         "STR_UTF8TOSTRI", "STR_VALUE",
+         "TYP_CMP", "TYP_EQ", "TYP_NE"};
+    const set of string: specialFunctionActions is
+        {"PRC_FOR_DOWNTO", "PRC_FOR_TO", "SET_INCL", "TYP_VARCONV"};
+    var category: functionCategory is category.value;
+    var string: action_name is "";
+    var reference: obj is NIL;
+  begin
+    functionCategory := category(function);
+    if functionCategory = ACTOBJECT then
+      action_name := str(getValue(function, ACTION));
+      isPureFunction := action_name in pureFunctionActions or action_name in specialFunctionActions;
+    elsif functionCategory = BLOCKOBJECT then
+      isPureFunction := isPureBlockFunction(function);
+    end if;
+  end func;
+
+
+const func boolean: isConstant (in reference: current_expression) is forward;
+
+
+const func boolean: isConstantCall (in reference: current_expression) is func
+
+  result
+    var boolean: isConstantCall is FALSE;
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var reference: obj is NIL;
+  begin
+    params := getValue(current_expression, ref_list);
+    function := params[1];
+    params := params[2 ..];
+    if isPureFunction(function) then
+      isConstantCall := TRUE;
+      for obj range params until not isConstantCall do
+        if not isConstant(obj) then
+          isConstantCall := FALSE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func boolean: isConstant (in reference: current_expression) is func
+
+  result
+    var boolean: isConstant is FALSE;
+  local
+    var category: exprCategory is category.value;
+  begin
+    if not isVar(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+        isConstant := isConstantCall(current_expression);
+      elsif exprCategory in constantExpressionCategories then
+        isConstant := TRUE;
+      elsif exprCategory = BLOCKOBJECT then
+        isConstant := TRUE;
+      elsif exprCategory = ACTOBJECT then
+        isConstant := TRUE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: isConstantExpr (in reference: current_expression) is func
+
+  result
+    var boolean: isConstantExpr is FALSE;
+  local
+    var category: exprCategory is category.value;
+  begin
+    if not isVar(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+        isConstantExpr := isConstantCall(current_expression);
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: getConstant (in reference: currExpr, in category: exprCategory,
+    inout reference: evaluatedExpr) is func
+  result
+    var boolean: okay is FALSE;
+  begin
+    if evaluate_const_expr >= 1 and category(currExpr) = exprCategory and
+        not isVar(currExpr) then
+      evaluatedExpr := currExpr;
+      incr(countEvaluations);
+      okay := TRUE;
+    elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
+      block
+        evaluatedExpr := evaluate(prog, currExpr);
+        if evaluatedExpr <> NIL then
+          if category(evaluatedExpr) = exprCategory then
+            incr(countEvaluations);
+            okay := TRUE;
+          end if;
+        end if;
+      exception
+        catch NUMERIC_ERROR: noop;
+        catch RANGE_ERROR:   noop;
+        catch FILE_ERROR:    noop;
+      end block;
+    end if;
+  end func;

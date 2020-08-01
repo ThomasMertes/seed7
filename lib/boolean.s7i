@@ -100,7 +100,7 @@ const func boolean: (in boolean: boolValue1) or (in boolean: boolValue2)        
  *  @return TRUE if the two boolean values are equal,
  *          FALSE otherwise.
  *)
-const func boolean: (in boolean: boolValue1) = (in boolean: boolValue2)  is action "ENU_EQ";
+const func boolean: (in boolean: boolValue1) = (in boolean: boolValue2)  is action "BLN_EQ";
 
 
 (**
@@ -108,7 +108,7 @@ const func boolean: (in boolean: boolValue1) = (in boolean: boolValue2)  is acti
  *  @return FALSE if the two boolean values are equal,
  *          TRUE otherwise.
  *)
-const func boolean: (in boolean: boolValue1) <> (in boolean: boolValue2) is action "ENU_NE";
+const func boolean: (in boolean: boolValue1) <> (in boolean: boolValue2) is action "BLN_NE";
 
 
 (**

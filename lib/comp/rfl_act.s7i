@@ -1,0 +1,448 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  rfl_act.s7i   Generate code for actions of the type ref_list.   *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: RFL_APPEND     is action "RFL_APPEND";
+const ACTION: RFL_CAT        is action "RFL_CAT";
+const ACTION: RFL_CPY        is action "RFL_CPY";
+const ACTION: RFL_ELEM       is action "RFL_ELEM";
+const ACTION: RFL_ELEMCPY    is action "RFL_ELEMCPY";
+const ACTION: RFL_EQ         is action "RFL_EQ";
+const ACTION: RFL_FOR        is action "RFL_FOR";
+const ACTION: RFL_FOR_UNTIL  is action "RFL_FOR_UNTIL";
+const ACTION: RFL_HEAD       is action "RFL_HEAD";
+const ACTION: RFL_IDX        is action "RFL_IDX";
+const ACTION: RFL_INCL       is action "RFL_INCL";
+const ACTION: RFL_IPOS       is action "RFL_IPOS";
+const ACTION: RFL_LNG        is action "RFL_LNG";
+const ACTION: RFL_MKLIST     is action "RFL_MKLIST";
+const ACTION: RFL_NE         is action "RFL_NE";
+const ACTION: RFL_NOT_ELEM   is action "RFL_NOT_ELEM";
+const ACTION: RFL_POS        is action "RFL_POS";
+const ACTION: RFL_SETVALUE   is action "RFL_SETVALUE";
+const ACTION: RFL_TAIL       is action "RFL_TAIL";
+const ACTION: RFL_VALUE      is action "RFL_VALUE";
+
+
+const proc: process (RFL_APPEND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    compDataLibraryUsed := TRUE;
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    getTemporaryToResultExpr(params[3], c_param3);
+    incr(c_param3.temp_num);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "rflAppend(&(";
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "), ";
+    c_expr.expr &:= c_param3.result_expr;
+    c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (RFL_CAT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(getExprResultType(params[1]), c_expr);
+    c_expr.result_expr := "rflCat(";
+    getTemporaryToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getTemporaryToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    compDataLibraryUsed := TRUE;
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
+      if isNormalVariable(params[1]) then
+        c_expr.expr &:= "listType old_rfl=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "=";
+      else
+        c_expr.expr &:= "listType *rfl_ptr=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "listType old_rfl=*rfl_ptr;\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "*rfl_ptr=";
+      end if;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "rflDestr(old_rfl);\n";
+      c_expr.expr &:= "}\n";
+    else
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "rflCpy(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ");\n";
+    end if;
+    if has_temp_values(c_param3) then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (RFL_ELEM, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "rflElem(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_ELEMCPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param4 is expr_type.value;
+    var expr_type: c_param6 is expr_type.value;
+  begin
+    compDataLibraryUsed := TRUE;
+    process_expr(params[1], c_param1);
+    c_param4.temp_num := c_param1.temp_num;
+    process_expr(params[4], c_param4);
+    c_param6.temp_num := c_param4.temp_num;
+    process_expr(params[6], c_param6);
+    if c_param6.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param4.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param6.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param4.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param6.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "rflElemcpy(";
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= c_param4.expr;
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= c_param6.expr;
+    c_expr.expr &:= ");\n";
+    if c_param6.temp_num <> 0 then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param4.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param6.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (RFL_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "rflEq(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_FOR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: elem_name is "";
+  begin
+    incr(c_expr.temp_num);
+    elem_name := "tmp_elem_" & str(c_expr.temp_num);
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "listType ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "for (";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " = ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= "; ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " != NULL; ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " = ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= "->next) {\n";
+    setDiagnosticLine(c_expr);
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= " = ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= "->obj;\n";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "}\n}\n";
+  end func;
+
+
+const proc: process (RFL_FOR_UNTIL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: elem_name is "";
+  begin
+    incr(c_expr.temp_num);
+    elem_name := "tmp_elem_" & str(c_expr.temp_num);
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "listType ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "for (";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " = ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= "; ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " != NULL && (";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= " = ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= "->obj, !(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ")); ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " = ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= "->next) {\n";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "}\n}\n";
+  end func;
+
+
+const proc: process (RFL_HEAD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(getExprResultType(params[1]), c_expr);
+    c_expr.result_expr := "rflHead(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_IDX, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "rflIdx(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_INCL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    compDataLibraryUsed := TRUE;
+    statement.expr := "rflIncl(&(";
+    process_expr(params[1], statement);
+    statement.expr &:= "), ";
+    process_expr(params[2], statement);
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (RFL_IPOS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "rflIpos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_LNG, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "rflLng(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_MKLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "rflMklist(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "!rflEq(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_NOT_ELEM, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "!rflElem(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_POS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "rflPos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_SETVALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "rflSetValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (RFL_TAIL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(getExprResultType(params[1]), c_expr);
+    c_expr.result_expr := "rflTail(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (RFL_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "rflValue(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;

@@ -1,0 +1,37 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  config.s7i    Configuration values for s7c.                     *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+var boolean: array_range_check      is TRUE;
+var boolean: conversion_range_check is TRUE;
+var boolean: integer_shift_check    is FALSE;
+var boolean: source_debug_info      is TRUE;
+var boolean: trace_exception        is FALSE;
+var boolean: trace_signal           is TRUE;
+var boolean: signal_exception       is FALSE;
+var integer: evaluate_const_expr    is 1;
+var boolean: inlineFunctions        is TRUE;
+var boolean: declare_with_extern_c  is FALSE;
+var boolean: generate_c_plus_plus   is FALSE;

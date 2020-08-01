@@ -1,0 +1,159 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  con_act.s7i   Generate code for actions of text console output. *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: CON_CLEAR   is action "CON_CLEAR";
+const ACTION: CON_CURSOR  is action "CON_CURSOR";
+const ACTION: CON_FLUSH   is action "CON_FLUSH";
+const ACTION: CON_HEIGHT  is action "CON_HEIGHT";
+const ACTION: CON_H_SCL   is action "CON_H_SCL";
+const ACTION: CON_OPEN    is action "CON_OPEN";
+const ACTION: CON_SETPOS  is action "CON_SETPOS";
+const ACTION: CON_V_SCL   is action "CON_V_SCL";
+const ACTION: CON_WIDTH   is action "CON_WIDTH";
+const ACTION: CON_WRITE   is action "CON_WRITE";
+
+
+const proc: process (CON_CLEAR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conClear(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CON_CURSOR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conCursor(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CON_FLUSH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conFlush();\n";
+  end func;
+
+
+const proc: process (CON_HEIGHT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conHeight()";
+  end func;
+
+
+const proc: process (CON_H_SCL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conHScroll(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CON_OPEN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conOpen();\n";
+  end func;
+
+
+const proc: process (CON_SETPOS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conSetpos(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CON_V_SCL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conVScroll(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CON_WIDTH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conWidth()";
+  end func;
+
+
+const proc: process (CON_WRITE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conWrite(";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;

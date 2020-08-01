@@ -34,6 +34,7 @@
 #define _XOPEN_SOURCE
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 #include "sys/types.h"
 #include "fcntl.h"
 #include "errno.h"
@@ -57,6 +58,14 @@
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
+#endif
+
+#undef VERBOSE_EXCEPTIONS
+
+#ifdef VERBOSE_EXCEPTIONS
+#define logError(logStatements) logStatements
+#else
+#define logError(logStatements)
 #endif
 
 
@@ -87,6 +96,7 @@ striType getExecutablePath (const const_striType arg_0)
       buffer[readlink_result] = '\0';
       result = cp_from_os_path(buffer, &err_info);
       if (err_info != OKAY_NO_ERROR) {
+        logError(printf(" *** getExecutablePath: cp_from_os_path failed.\n"););
         raise_error(err_info);
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
       } else {
@@ -189,10 +199,10 @@ static os_striType *genArgVector (const const_striType command,
         free(argv);
         argv = NULL;
       } else {
-        /* fprintf(stderr, "argv[0]=%s\n", argv[0]); */
+        /* fprintf(stderr, "argv[0]=" FMT_S_OS "\n", argv[0]); */
         for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
           argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
-          /* fprintf(stderr, "argv[%d]=%s\n", pos + 1, argv[pos + 1]); */
+          /* fprintf(stderr, "argv[%d]=" FMT_S_OS "\n", pos + 1, argv[pos + 1]); */
         } /* for */
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
           /* Free the individual arguments in the reverse order */
@@ -231,8 +241,11 @@ void cmdPipe2 (const const_striType command, const const_rtlArrayType parameters
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
-    } else if (unlikely(access(argv[0], X_OK) != 0 ||
-                        pipe(childStdinPipes) != 0)) {
+    } else if (unlikely(access(argv[0], X_OK) != 0)) {
+      logError(printf(" *** cmdPipe2: No execute permission for " FMT_S_OS "\n", argv[0]););
+      freeArgVector(argv);
+      raise_error(FILE_ERROR);
+    } else if (unlikely(pipe(childStdinPipes) != 0)) {
       freeArgVector(argv);
       raise_error(FILE_ERROR);
     } else if (unlikely(pipe(childStdoutPipes) != 0)) {
@@ -254,12 +267,25 @@ void cmdPipe2 (const const_striType command, const const_rtlArrayType parameters
         close(childStdoutPipes[0]);
         close(childStdoutPipes[1]);
         execv(argv[0], argv);
-        /* printf("errno=%d\n", errno);
-        printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+        logError(printf(" *** cmdPipe2: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
+                        argv[0], errno, strerror(errno)););
+        /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
             EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
         printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
             EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-        /* printf("cannot exec: %s\n", argv[0]); */
+      } else if (pid == (pid_t) -1) {
+        logError(printf(" *** cmdPipe2: fork failed:\nerrno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+        close(0); /* Restore the original std fds of parent */
+        close(1);
+        dup2(savedStdin, 0);
+        dup2(savedStdout, 1);
+        close(childStdinPipes[0]); /* The pipes are unused */
+        close(childStdoutPipes[1]);
+        close(childStdinPipes[1]);
+        close(childStdoutPipes[0]);
+        freeArgVector(argv);
+        raise_error(FILE_ERROR);
       } else {
         close(0); /* Restore the original std fds of parent */
         close(1);
@@ -306,7 +332,7 @@ void cmdPty (const const_striType command, const const_rtlArrayType parameters,
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else if (access(argv[0], X_OK) != 0) {
-      /* printf("No execute permission for %s\n", argv[0]); */
+      logError(printf(" *** cmdPty: No execute permission for " FMT_S_OS "\n", argv[0]););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
     } else {
@@ -336,12 +362,22 @@ void cmdPty (const const_striType command, const const_rtlArrayType parameters,
             close(masterfd); /* Not required for the child */
             close(slavefd);
             execv(argv[0], argv);
-            /* printf("errno=%d\n", errno);
-            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+            logError(printf(" *** cmdPty: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
+                            argv[0], errno, strerror(errno)););
+            /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
                 EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
             printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
                 EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-            /* printf("cannot exec: %s\n", argv[0]); */
+          } else if (pid == (pid_t) -1) {
+            logError(printf(" *** cmdPty: fork failed:\nerrno=%d\nerror: %s\n",
+                            errno, strerror(errno)););
+            close(0); /* Restore the original std fds of parent */
+            close(1);
+            dup2(savedStdin, 0);
+            dup2(savedStdout, 1);
+            close(slavefd); /* This is unused */
+            freeArgVector(argv);
+            raise_error(FILE_ERROR);
           } else {
             close(0); /* Restore the original std fds of parent */
             close(1);
@@ -378,12 +414,17 @@ void cmdStartProcess (const const_striType command, const const_rtlArrayType par
       pid = fork();
       if (pid == 0) {
         execv(argv[0], argv);
-        /* printf("errno=%d\n", errno);
-        printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+        logError(printf(" *** cmdStartProcess: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
+                        argv[0], errno, strerror(errno)););
+        /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
             EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
         printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
             EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-        /* printf("cannot exec: %s\n", argv[0]); */
+      } else if (pid == (pid_t) -1) {
+        logError(printf(" *** cmdStartProcess: fork failed:\nerrno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+        freeArgVector(argv);
+        raise_error(FILE_ERROR);
       } else {
         freeArgVector(argv);
       } /* if */
