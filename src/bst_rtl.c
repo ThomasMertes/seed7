@@ -230,6 +230,7 @@ genericType bstCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* bstCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.bstriValue =
         bstCreate(((const_rtlObjectType *) &from_value)->value.bstriValue);
     return result.value.genericValue;

@@ -183,6 +183,7 @@ const func file: openUtf16le (in string: path, in string: mode) is func
   end func;
 
 
+# The function open_utf16le is deprecated. Use openUtf16le instead.
 const func file: open_utf16le (in string: path, in string: mode) is
   return openUtf16le(path, mode);
 
@@ -335,6 +336,7 @@ const func file: openUtf16be (in string: path, in string: mode) is func
   end func;
 
 
+# The function open_utf16be is deprecated. Use openUtf16be instead.
 const func file: open_utf16be (in string: path, in string: mode) is
   return openUtf16be(path, mode);
 
@@ -489,5 +491,6 @@ const func file: openUtf16 (in string: path, in string: mode) is func
   end func;
 
 
+# The function open_utf16 is deprecated. Use openUtf16 instead.
 const func file: open_utf16 (in string: path, in string: mode) is
   return openUtf16(path, mode);

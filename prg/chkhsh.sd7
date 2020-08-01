@@ -74,6 +74,17 @@ const type: complexTypeHash       is hash [complex] type;
 const type: complexReferenceHash  is hash [complex] reference;
 const type: complexHashHash       is hash [complex] complexBooleanHash;
 
+const type: charBooleanHash       is hash [char] boolean;
+const type: charIntegerHash       is hash [char] integer;
+const type: charBigIntegerHash    is hash [char] bigInteger;
+const type: charFloatHash         is hash [char] float;
+const type: charComplexHash       is hash [char] complex;
+const type: charCharHash          is hash [char] char;
+const type: charStringHash        is hash [char] string;
+const type: charTypeHash          is hash [char] type;
+const type: charReferenceHash     is hash [char] reference;
+const type: charHashHash          is hash [char] charBooleanHash;
+
 const type: stringBooleanHash     is hash [string] boolean;
 const type: stringIntegerHash     is hash [string] integer;
 const type: stringBigIntegerHash  is hash [string] bigInteger;
@@ -573,6 +584,128 @@ const proc: chkComplexHash is func
   end func;
 
 
+const proc: chkCharHash is func
+  local
+    var boolean: okay is TRUE;
+    var charBooleanHash:    charBooleanHashVar    is charBooleanHash   .EMPTY_HASH;
+    var charIntegerHash:    charIntegerHashVar    is charIntegerHash   .EMPTY_HASH;
+    var charBigIntegerHash: charBigIntegerHashVar is charBigIntegerHash.EMPTY_HASH;
+    var charFloatHash:      charFloatHashVar      is charFloatHash     .EMPTY_HASH;
+    var charComplexHash:    charComplexHashVar    is charComplexHash   .EMPTY_HASH;
+    var charCharHash:       charCharHashVar       is charCharHash      .EMPTY_HASH;
+    var charStringHash:     charStringHashVar     is charStringHash    .EMPTY_HASH;
+    var charTypeHash:       charTypeHashVar       is charTypeHash      .EMPTY_HASH;
+    var charReferenceHash:  charReferenceHashVar  is charReferenceHash .EMPTY_HASH;
+    var charHashHash:       charHashHashVar       is charHashHash      .EMPTY_HASH;
+  begin
+    if  length(charBooleanHashVar)    <> 0 or
+        length(charIntegerHashVar)    <> 0 or
+        length(charBigIntegerHashVar) <> 0 or
+        length(charFloatHashVar)      <> 0 or
+        length(charComplexHashVar)    <> 0 or
+        length(charCharHashVar)       <> 0 or
+        length(charStringHashVar)     <> 0 or
+        length(charTypeHashVar)       <> 0 or
+        length(charReferenceHashVar)  <> 0 or
+        length(charHashHashVar)       <> 0 then
+      writeln(" ***** Number of elements in empty hash[char] table not 0");
+      okay := FALSE;
+    end if;
+    if  'k' in charBooleanHashVar    or
+        'k' in charIntegerHashVar    or
+        'k' in charBigIntegerHashVar or
+        'k' in charFloatHashVar      or
+        'k' in charComplexHashVar    or
+        'k' in charCharHashVar       or
+        'k' in charStringHashVar     or
+        'k' in charTypeHashVar       or
+        'k' in charReferenceHashVar  or
+        'k' in charHashHashVar       then
+      writeln(" ***** Elements found in empty hash table");
+      okay := FALSE;
+    end if;
+    charBooleanHashVar    @:= ['k'] TRUE;
+    charIntegerHashVar    @:= ['k'] 1234;
+    charBigIntegerHashVar @:= ['k'] 9999999999_;
+    charFloatHashVar      @:= ['k'] 3.1415926535;
+    charComplexHashVar    @:= ['k'] complex(1.2, 3.4);
+    charCharHashVar       @:= ['k'] 'Q';
+    charStringHashVar     @:= ['k'] "success";
+    charTypeHashVar       @:= ['k'] char;
+    charReferenceHashVar  @:= ['k'] NIL;
+    charHashHashVar       @:= ['k'] charBooleanHashVar;
+    if  length(charBooleanHashVar)    <> 1 or
+        length(charIntegerHashVar)    <> 1 or
+        length(charBigIntegerHashVar) <> 1 or
+        length(charFloatHashVar)      <> 1 or
+        length(charComplexHashVar)    <> 1 or
+        length(charCharHashVar)       <> 1 or
+        length(charStringHashVar)     <> 1 or
+        length(charTypeHashVar)       <> 1 or
+        length(charReferenceHashVar)  <> 1 or
+        length(charHashHashVar)       <> 1 then
+      writeln(" ***** Number of elements in hash[char] table not 1");
+      okay := FALSE;
+    end if;
+    if  'k' in charBooleanHashVar    and
+        'k' in charIntegerHashVar    and
+        'k' in charBigIntegerHashVar and
+        'k' in charFloatHashVar      and
+        'k' in charComplexHashVar    and
+        'k' in charCharHashVar       and
+        'k' in charStringHashVar     and
+        'k' in charTypeHashVar       and
+        'k' in charReferenceHashVar  and
+        'k' in charHashHashVar       then
+      noop;
+    else
+      writeln(" ***** Elements missing in hash[char] table");
+      okay := FALSE;
+    end if;
+    charBooleanHashVar    @:= ['k'] TRUE;
+    charIntegerHashVar    @:= ['k'] 1234;
+    charBigIntegerHashVar @:= ['k'] 9999999999_;
+    charFloatHashVar      @:= ['k'] 3.1415926535;
+    charComplexHashVar    @:= ['k'] complex(1.2, 3.4);
+    charCharHashVar       @:= ['k'] 'Q';
+    charStringHashVar     @:= ['k'] "success";
+    charTypeHashVar       @:= ['k'] char;
+    charReferenceHashVar  @:= ['k'] NIL;
+    charHashHashVar       @:= ['k'] charBooleanHashVar;
+    if  'k' not in charBooleanHashVar    or
+        'k' not in charIntegerHashVar    or
+        'k' not in charBigIntegerHashVar or
+        'k' not in charFloatHashVar      or
+        'k' not in charComplexHashVar    or
+        'k' not in charCharHashVar       or
+        'k' not in charStringHashVar     or
+        'k' not in charTypeHashVar       or
+        'k' not in charReferenceHashVar  or
+        'k' not in charHashHashVar       then
+      writeln(" ***** Elements missing in hash[char] table");
+      okay := FALSE;
+    end if;
+    if  charBooleanHashVar    ['k'] <> TRUE              or
+        charIntegerHashVar    ['k'] <> 1234              or
+        charBigIntegerHashVar ['k'] <> 9999999999_       or
+        charFloatHashVar      ['k'] <> 3.1415926535      or
+        charComplexHashVar    ['k'] <> complex(1.2, 3.4) or
+        charCharHashVar       ['k'] <> 'Q'               or
+        charStringHashVar     ['k'] <> "success"         or
+        charTypeHashVar       ['k'] <> char              or
+        charReferenceHashVar  ['k'] <> NIL               then
+      writeln(" ***** Elements with wrong value in hash[char] table");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Hash tables with char keys work correct.");
+    else
+      writeln(" ***** Hash tables with char keys do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkStringHash is func
   local
     var boolean: okay is TRUE;
@@ -732,6 +865,7 @@ const proc: main is func
     chkIntegerHash;
     chkFloatHash;
     chkComplexHash;
+    chkCharHash;
     chkStringHash;
     chkKeysFunction;
   end func;

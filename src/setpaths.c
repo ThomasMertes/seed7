@@ -32,6 +32,9 @@
 #include "stddef.h"
 #include "ctype.h"
 
+#ifdef OS_STRI_WCHAR
+#include "wchar.h"
+#endif
 #ifdef USE_DIRENT
 #include "dirent.h"
 #endif

@@ -684,6 +684,7 @@ genericType ptrCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* ptrCreateGeneric */
+    INIT_GENERIC_INT(result.value.genericValue);
     result.value.ptrValue =
         ((const_rtlObjectType *) &from_value)->value.ptrValue;
     return result.value.genericValue;

@@ -2985,7 +2985,7 @@ const proc: process_socket_declaration (in reference: current_object,
   begin
     c_expr.expr &:= "socketType o_";
     create_name(current_object, c_expr.expr);
-    c_expr.expr &:= "=-1;\n\n";
+    c_expr.expr &:= " = (socketType) -1;\n\n";
     count_declarations(c_expr);
   end func;
 
@@ -5258,8 +5258,8 @@ const proc: write_prototypes is func
     declareExtern("void        cmdMkdir (const const_striType);");
     declareExtern("void        cmdMove (const const_striType, const const_striType);");
     declareExtern("striType    cmdReadlink (const const_striType);");
-    declareExtern("void        cmdRemove (const const_striType);");
-    declareExtern("void        cmdRemoveAnyFile (const const_striType);");
+    declareExtern("void        cmdRemoveFile (const const_striType);");
+    declareExtern("void        cmdRemoveTree (const const_striType);");
     declareExtern("void        cmdSetenv (const const_striType, const const_striType);");
     declareExtern("void        cmdSetATime (const const_striType, intType, intType, intType, intType, intType, intType, intType, intType);");
     declareExtern("void        cmdSetFileMode (const const_striType, const const_setType);");
@@ -5291,11 +5291,11 @@ const proc: write_prototypes is func
     declareExtern("void        drwClear (winType, intType);");
     declareExtern("void        drwColor (intType);");
     declareExtern("void        drwCopyArea (const_winType, const_winType, intType, intType, intType, intType, intType, intType);");
-    declareExtern("void        drwCpy (winType *, winType);");
+    declareExtern("void        drwCpy (winType *const, const winType);");
     declareExtern("void        drwCpyGeneric (genericType *const, const genericType);");
-    declareExtern("winType     drwCreate (winType);");
+    declareExtern("winType     drwCreate (const winType);");
     declareExtern("genericType drwCreateGeneric (const genericType);");
-    declareExtern("void        drwDestr (winType);");
+    declareExtern("void        drwDestr (const winType);");
     declareExtern("void        drwDestrGeneric (const genericType);");
     declareExtern("void        drwFArcChord (const_winType, intType, intType, intType, floatType, floatType);");
     declareExtern("void        drwFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType);");

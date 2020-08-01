@@ -45,8 +45,8 @@ const ACTION: CMD_LS               is action "CMD_LS";
 const ACTION: CMD_MKDIR            is action "CMD_MKDIR";
 const ACTION: CMD_MOVE             is action "CMD_MOVE";
 const ACTION: CMD_READLINK         is action "CMD_READLINK";
-const ACTION: CMD_REMOVE           is action "CMD_REMOVE";
-const ACTION: CMD_REMOVE_ANY_FILE  is action "CMD_REMOVE_ANY_FILE";
+const ACTION: CMD_REMOVE_FILE      is action "CMD_REMOVE_FILE";
+const ACTION: CMD_REMOVE_TREE      is action "CMD_REMOVE_TREE";
 const ACTION: CMD_SETENV           is action "CMD_SETENV";
 const ACTION: CMD_SET_ATIME        is action "CMD_SET_ATIME";
 const ACTION: CMD_SET_FILEMODE     is action "CMD_SET_FILEMODE";
@@ -346,23 +346,23 @@ const proc: process (CMD_READLINK, in reference: function,
   end func;
 
 
-const proc: process (CMD_REMOVE, in reference: function,
+const proc: process (CMD_REMOVE_FILE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "cmdRemove(";
+    c_expr.expr &:= "cmdRemoveFile(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
 
-const proc: process (CMD_REMOVE_ANY_FILE, in reference: function,
+const proc: process (CMD_REMOVE_TREE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "cmdRemoveAnyFile(";
+    c_expr.expr &:= "cmdRemoveTree(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;

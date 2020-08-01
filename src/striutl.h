@@ -42,14 +42,14 @@ extern const_cstriType cstri_escape_sequence[];
 #ifdef OS_STRI_WCHAR
 typedef wchar_t          os_charType;
 typedef uint16Type       os_ucharType;
-typedef wstriType        os_striType;
-typedef const_wstriType  const_os_striType;
+typedef wchar_t         *os_striType;
+typedef const wchar_t   *const_os_striType;
 #define os_stri_strlen   wcslen
 #define os_stri_strcpy   wcscpy
 #define os_stri_strcat   wcscat
 #define os_stri_strchr   wcschr
-#define ALLOC_OS_STRI    ALLOC_WSTRI
-#define REALLOC_OS_STRI  REALLOC_WSTRI
+#define ALLOC_OS_STRI(var,len)    ALLOC_HEAP(var, os_striType, SIZ_WSTRI(len))
+#define REALLOC_OS_STRI(var,len)  ((os_striType) REALLOC_HEAP(var, ustriType, SIZ_WSTRI(len)))
 #define FREE_OS_STRI     free
 #define SIZ_OS_STRI      SIZ_WSTRI
 #define MAX_OS_STRI_LEN  MAX_WSTRI_LEN
@@ -128,7 +128,7 @@ void memset_to_strelem (register strElemType *const dest,
                         register const strElemType ch, memSizeType len);
 #ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
 boolType heapAllocOsStri (os_striType *var, memSizeType len);
-void heapFreeOsStri (os_striType var);
+void heapFreeOsStri (const_os_striType var);
 #endif
 memSizeType utf8_to_stri (strElemType *const dest_stri, memSizeType *const dest_len,
                           const_ustriType ustri, size_t len);
@@ -171,6 +171,7 @@ void setEmulatedCwd (const os_striType os_path, errInfoType *err_info);
 #endif
 os_striType cp_to_os_path (const_striType std_path, int *path_info,
     errInfoType *err_info);
+os_striType temp_name_in_dir (const const_os_striType path);
 os_striType cp_to_command (const const_striType commandPath,
     const const_striType parameters, errInfoType *err_info);
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE

@@ -41,6 +41,7 @@
 
 #include "common.h"
 #include "heaputl.h"
+#include "int_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -277,7 +278,7 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
 
 
 
-void heapFreeOsStri (os_striType var)
+void heapFreeOsStri (const_os_striType var)
 
   {
     stackAllocType old_stack_alloc;
@@ -952,7 +953,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
 
   /* conv_from_os_stri */
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
-      stri_size = wstri_expand(stri->mem, os_stri, length);
+      stri_size = wstri_expand(stri->mem, (const_wstriType) os_stri, length);
       stri->size = stri_size;
       if (stri_size != length) {
         REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
@@ -1806,7 +1807,7 @@ void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
       new_cwd = emulated_root;
     } else {
       cwd_len = os_stri_strlen(os_path);
-      if (likely(!ALLOC_OS_STRI(new_cwd, cwd_len))) {
+      if (unlikely(!ALLOC_OS_STRI(new_cwd, cwd_len))) {
         *err_info = MEMORY_ERROR;
       } else {
         memcpy(new_cwd, os_path, (cwd_len + 1) * sizeof(os_charType));
@@ -2157,6 +2158,41 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
   } /* cp_to_os_path */
 
 #endif
+
+
+
+os_striType temp_name_in_dir (const const_os_striType path)
+
+  {
+    memSizeType path_length;
+    memSizeType pos;
+    uintType random_value;
+    unsigned int digit;
+    memSizeType temp_length;
+    os_striType temp_name;
+
+  /* temp_name_in_dir */
+    /* printf("temp_name_in_dir(\"" FMT_S_OS "\")\n", path); */
+    path_length = os_stri_strlen(path);
+    pos = path_length;
+    while (pos > 0 && path[pos - 1] != '/' && path[pos - 1] != '\\') {
+      pos--;
+    } /* while */
+    temp_length = pos + 10;
+    /* printf("temp_length: %lu\n", temp_length); */
+    if (likely(os_stri_alloc(temp_name, temp_length))) {
+      memcpy(temp_name, path, pos * sizeof(os_charType));
+      random_value = uint_rand();
+      for (; pos < temp_length; pos++) {
+        digit = (unsigned int) (random_value % 36);
+        random_value /= 36;
+        temp_name[pos] = (os_charType) "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[digit];
+      } /* for */
+      temp_name[pos] = '\0';
+      /* printf("temp_name_in_dir ==> \"" FMT_S_OS "\"\n", temp_name); */
+    } /* if */
+    return temp_name;
+  } /* temp_name_in_dir */
 
 
 

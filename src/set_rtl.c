@@ -424,6 +424,7 @@ genericType setCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* setCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.setValue =
         setCreate(((const_rtlObjectType *) &from_value)->value.setValue);
     return result.value.genericValue;

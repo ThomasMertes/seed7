@@ -115,9 +115,7 @@ static rtlHashElemType new_helem (genericType key, genericType data,
     rtlHashElemType helem;
 
   /* new_helem */
-    /* printf("new_helem(%llX, %llX)\n",
-        (unsigned long long) key,
-        (unsigned long long) data); */
+    /* printf("new_helem(" FMT_U_GEN ", " FMT_U_GEN ")\n", key, data); */
     if (!ALLOC_RECORD(helem, rtlHashElemRecord, count.rtl_helem)) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -125,9 +123,9 @@ static rtlHashElemType new_helem (genericType key, genericType data,
       helem->data.value.genericValue = data_create_func(data);
       helem->next_less = NULL;
       helem->next_greater = NULL;
-      /* printf("new_helem(%llX, %llX)\n",
-          (unsigned long long) helem->key.value.genericValue,
-          (unsigned long long) helem->data.value.genericValue); */
+      /* printf("new_helem(" FMT_U_GEN ", " FMT_U_GEN ")\n",
+          helem->key.value.genericValue,
+          helem->data.value.genericValue); */
     } /* if */
     return helem;
   } /* new_helem */
@@ -502,8 +500,8 @@ boolType hshContains (const const_rtlHashType aHashMap, const genericType aKey,
 
   /* hshContains */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshContains(%lX, %lu, %lu)\n",
-        (long unsigned) aHashMap, (long unsigned) aKey, (long unsigned) hashcode);
+    printf("BEGIN hshContains(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
+           (memSizeType) aHashMap, aKey, hashcode);
 #endif
     result = FALSE;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
@@ -527,9 +525,8 @@ printf("%lX\n", (long unsigned) aKey);
       } /* if */
     } /* while */
 #ifdef TRACE_HSH_RTL
-    printf("END hshContains(%lX, %lu, %lu) ==> %d\n",
-        (long unsigned) aHashMap, (long unsigned) aKey, (long unsigned) hashcode,
-        result);
+    printf("END hshContains(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") ==> %d\n",
+           (memSizeType) aHashMap, aKey, hashcode, result);
 #endif
     return result;
   } /* hshContains */
@@ -588,7 +585,7 @@ void hshDestr (const const_rtlHashType old_hash, const destrFuncType key_destr_f
 
 { /* hshDestr */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshDestr(%lX)\n", (unsigned long) old_hash);
+    printf("BEGIN hshDestr(" FMT_X_MEM ")\n", (memSizeType) old_hash);
 #endif
     free_hash(old_hash, key_destr_func, data_destr_func);
 #ifdef TRACE_HSH_RTL
@@ -629,9 +626,8 @@ void hshExcl (const rtlHashType aHashMap, const genericType aKey,
 
   /* hshExcl */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshExcl(%lX, %lu, %lu) size=%lu\n",
-        (unsigned long) aHashMap, (unsigned long) aKey,
-        (unsigned long) hashcode, aHashMap->size);
+    printf("BEGIN hshExcl(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
+           (memSizeType) aHashMap, aKey, hashcode, aHashMap->size);
 #endif
     delete_pos = &aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
@@ -666,9 +662,8 @@ void hshExcl (const rtlHashType aHashMap, const genericType aKey,
       } /* if */
     } /* while */
 #ifdef TRACE_HSH_RTL
-    printf("END hshExcl(%lX, %lu, %lu) size=%lu\n",
-        (unsigned long) aHashMap, (unsigned long) aKey,
-        (unsigned long) hashcode, aHashMap->size);
+    printf("END hshExcl(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
+           (memSizeType) aHashMap, aKey, hashcode, aHashMap->size);
 #endif
   } /* hshExcl */
 
@@ -691,8 +686,8 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
 
   /* hshIdx */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshIdx(%lX, %lu, %lu)\n",
-        (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode);
+    printf("BEGIN hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
+           (memSizeType) aHashMap, aKey, hashcode);
 #endif
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
@@ -714,10 +709,9 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
       result = 0;
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshIdx(%lX, %lu, %lu) ==> %lX (%lX)\n",
-        (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
-        (unsigned long) result,
-        (unsigned long) (result != NULL ? *((genericType *)result) : 0));
+    printf("END hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") ==> " FMT_X_GEN " (" FMT_X_GEN ")\n",
+           (memSizeType) aHashMap, aKey, hashcode, result,
+           (result != 0 ? ((const_rtlObjectType *) &result)->value.genericValue : (genericType) 0));
 #endif
     return result;
   } /* hshIdx */
@@ -741,8 +735,8 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
 
   /* hshIdxAddr */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshIdxAddr(%lX, %lu, %lu)\n",
-        (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode);
+    printf("BEGIN hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
+           (memSizeType) aHashMap, aKey, hashcode);
 #endif
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
@@ -767,11 +761,10 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
       result = NULL;
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX, %f)\n",
-        (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
-        (unsigned long) result,
-        (unsigned long) (result != NULL ? *((genericType *)result) : 0),
-        result != NULL ? result->value.floatValue : 0.0);
+    printf("END hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") ==> " FMT_U_GEN " (" FMT_X_GEN ", %f)\n",
+           (memSizeType) aHashMap, aKey, hashcode, (memSizeType) result,
+           result != NULL ? result->value.genericValue : (genericType) 0,
+           result != NULL ? result->value.floatValue : 0.0);
 #endif
     return result;
   } /* hshIdxAddr */
@@ -794,8 +787,8 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
 
   /* hshIdxAddr2 */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshIdxAddr(%lX, %lu, %lu)\n",
-        (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode);
+    printf("BEGIN hshIdxAddr2(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
+           (memSizeType) aHashMap, aKey, hashcode);
 #endif
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
@@ -819,10 +812,9 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
       result = NULL;
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX)\n",
-        (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
-        (unsigned long) result,
-        (unsigned long) (result != NULL ? *((genericType *)result) : 0));
+    printf("END hshIdxAddr2(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") ==> " FMT_U_GEN " (" FMT_X_GEN ")\n",
+           (memSizeType) aHashMap, aKey, hashcode, (memSizeType) result,
+           result != NULL ? result->value.genericValue : (genericType) 0);
 #endif
     return result;
   } /* hshIdxAddr2 */
@@ -942,9 +934,8 @@ void hshIncl (const rtlHashType aHashMap, const genericType aKey,
 
   /* hshIncl */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshIncl(%lX, %llu, %lu, %lu) size=%lu\n",
-        (unsigned long) aHashMap, (unsigned long long) aKey,
-        (unsigned long) data, (unsigned long) hashcode, aHashMap->size);
+    printf("BEGIN hshIncl(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
+           (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size);
 #endif
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
@@ -990,9 +981,8 @@ void hshIncl (const rtlHashType aHashMap, const genericType aKey,
       raise_error(MEMORY_ERROR);
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshIncl(%lX, %lu, %lu, %lu) size=%lu\n",
-        (unsigned long) aHashMap, (unsigned long) aKey,
-        (unsigned long) data, (unsigned long) hashcode, aHashMap->size);
+    printf("END hshIncl(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
+           (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size);
 #endif
   } /* hshIncl */
 
@@ -1038,9 +1028,8 @@ genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
 
   /* hshUpdate */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshUpdate(%lX, %llu, %lu, %lu) size=%lu\n",
-        (unsigned long) aHashMap, (unsigned long long) aKey,
-        (unsigned long) data, (unsigned long) hashcode, aHashMap->size);
+    printf("BEGIN hshUpdate(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
+           (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size);
 #endif
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
@@ -1083,9 +1072,8 @@ genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
       raise_error(MEMORY_ERROR);
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshUpdate(%lX, %lu, %lu, %lu) size=%lu\n",
-        (unsigned long) aHashMap, (unsigned long) aKey,
-        (unsigned long) data, (unsigned long) hashcode, aHashMap->size);
+    printf("END hshUpdate(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
+           (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size);
 #endif
     return result;
   } /* hshUpdate */

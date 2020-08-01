@@ -116,8 +116,10 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ../bin/s7 ../prg/s7
 	../bin/s7 -l ../lib level
+	echo "  Use 'make s7c' (with your make command) to create the compiler."
 
 s7c: ../bin/s7c ../prg/s7c
+	echo "  Use 'make test' (with your make command) to check Seed7."
 
 ../bin/s7: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/s7
@@ -135,6 +137,7 @@ clear: clean
 
 clean:
 	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend chkccomp.h version.h
+	echo "  Use 'make depend' (with your make command) to create the dependencies."
 
 distclean: clean
 	cp level_bk.h level.h
@@ -214,6 +217,7 @@ depend: version.h
 	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) >> depend
 	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) >> depend
 	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
+	echo "  Use 'make' (with your make command) to create the interpreter."
 
 level.h:
 	../bin/s7 -l ../lib level
@@ -232,6 +236,12 @@ level.h:
 
 ../bin/$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	ar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+
+make7: ../bin/make7
+
+../bin/make7: ../prg/make7.sd7 ../bin/s7c
+	../bin/s7c -l ../lib -b ../bin -O2 ../prg/make7
+	mv ../prg/make7 ../bin
 
 wc: $(SRC)
 	echo SRC:

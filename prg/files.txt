@@ -11,6 +11,7 @@ celsius.sd7  Print a Fahrenheit-Celsius table
 chk_all.sd7  Runs interpreted and compiled checks.
 chkbig.sd7   Checks bigInteger literals and operations
 chkbool.sd7  Checks boolean operations
+chkcmd.sd7   Check functions that manipulate files.
 chkexc.sd7   Checks exceptions
 chkflt.sd7   Checks float literals and operations
 chkhent.sd7  Checks the HTML entity handling functions

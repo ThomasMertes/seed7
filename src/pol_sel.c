@@ -77,7 +77,7 @@ typedef enum {
   } iteratorType;
 
 typedef struct {
-    socketType fd;
+    os_socketType fd;
     genericType file;
   } fdAndFileType;
 
@@ -377,8 +377,8 @@ static void addCheck (testType *test, const socketType aSocket,
     } /* if */
 #endif
     pos = (memSizeType) hshIdxEnterDefault(test->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) test->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+        (genericType) (usocketType) aSocket, (genericType) test->size,
+        (intType) aSocket, (compareType) &genericCmp,
         (createFuncType) &genericCreate, (createFuncType) &genericCreate);
     if (pos == test->size) {
       if (test->size >= test->capacity) {
@@ -397,10 +397,10 @@ static void addCheck (testType *test, const socketType aSocket,
         } /* if */
       } /* if */
       test->size++;
-      test->files[pos].fd = aSocket;
+      test->files[pos].fd = (os_socketType) aSocket;
       test->files[pos].file = fileObjectOps.incrUsageCount(fileObj);
 #ifdef USE_PREPARED_FD_SET
-      FD_SET(aSocket, to_inFdset(test));
+      FD_SET((os_socketType) aSocket, to_inFdset(test));
 #ifdef SELECT_WITH_NFDS
       if (aSocket >= test->preparedNfds) {
         test->preparedNfds = (int) aSocket + 1;
@@ -420,8 +420,8 @@ static void removeCheck (testType *test, const socketType aSocket)
   /* removeCheck */
     /* printf("removeCheck(..., %u)\n", aSocket); */
     pos = (memSizeType) hshIdxWithDefault(test->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) test->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
+        (genericType) (usocketType) aSocket, (genericType) test->size,
+        (intType) aSocket, (compareType) &genericCmp);
     if (pos != test->size) {
       fileObjectOps.decrUsageCount(test->files[pos].file);
       if (pos + 1 <= test->iterPos) {
@@ -430,8 +430,8 @@ static void removeCheck (testType *test, const socketType aSocket)
           memcpy(&test->files[pos],
                  &test->files[test->iterPos], sizeof(fdAndFileType));
           hshIdxAddr(test->indexHash,
-                     (genericType) (memSizeType) test->files[pos].fd,
-                     (intType) (memSizeType) test->files[pos].fd,
+                     (genericType) (usocketType) test->files[pos].fd,
+                     (intType) (socketType) test->files[pos].fd,
                      (compareType) &genericCmp)->value.genericValue = (genericType) pos;
           pos = test->iterPos;
         } /* if */
@@ -441,15 +441,15 @@ static void removeCheck (testType *test, const socketType aSocket)
         memcpy(&test->files[pos],
                &test->files[test->size], sizeof(fdAndFileType));
         hshIdxAddr(test->indexHash,
-                   (genericType) (memSizeType) test->files[pos].fd,
-                   (intType) (memSizeType) test->files[pos].fd,
+                   (genericType) (usocketType) test->files[pos].fd,
+                   (intType) (socketType) test->files[pos].fd,
                    (compareType) &genericCmp)->value.genericValue = (genericType) pos;
       } /* if */
-      hshExcl(test->indexHash, (genericType) (memSizeType) aSocket,
-              (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+      hshExcl(test->indexHash, (genericType) (usocketType) aSocket,
+              (intType) aSocket, (compareType) &genericCmp,
               (destrFuncType) &genericDestr, (destrFuncType) &genericDestr);
 #ifdef USE_PREPARED_FD_SET
-      FD_CLR(aSocket, to_inFdset(test));
+      FD_CLR((os_socketType) aSocket, to_inFdset(test));
 #endif
     } /* if */
   } /* removeCheck */
@@ -464,7 +464,7 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     fd_set *writeFds;
 #ifndef USE_PREPARED_FD_SET
     memSizeType pos;
-    socketType sock;
+    os_socketType sock;
 #endif
     int select_result;
 
@@ -545,8 +545,8 @@ static boolType isChecked (const testType *test, const socketType aSocket)
 
   /* isChecked */
     pos = (memSizeType) hshIdxWithDefault(test->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) test->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
+        (genericType) (usocketType) aSocket, (genericType) test->size,
+        (intType) aSocket, (compareType) &genericCmp);
     result = pos != test->size;
     /* printf("isChecked: sock=%d, pos=%d, fd=%d\n",
         aSocket, pos, test->files[pos].fd); */
@@ -563,8 +563,8 @@ static boolType isReady (const testType *test, const socketType aSocket)
 
   /* isReady */
     pos = (memSizeType) hshIdxWithDefault(test->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) test->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
+        (genericType) (usocketType) aSocket, (genericType) test->size,
+        (intType) aSocket, (compareType) &genericCmp);
     if (pos == test->size) {
       result = FALSE;
     } else {

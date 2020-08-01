@@ -1407,6 +1407,14 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
     striType result;
 
   /* strConcat */
+#ifdef TRACE_STR_RTL
+    printf("strConcat(");
+    prot_stri(stri1);
+    printf(", ");
+    prot_stri(stri2);
+    printf(")");
+    prot_flush();
+#endif
     if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
       /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
@@ -1423,6 +1431,11 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
             stri2->size * sizeof(strElemType));
       } /* if */
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf("strConcat -> (%08lx) ", result);
+    prot_stri(result);
+    printf("\n");
+#endif
     return result;
   } /* strConcat */
 
@@ -1732,6 +1745,7 @@ genericType strCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* strCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.striValue =
         strCreate(((const_rtlObjectType *) &from_value)->value.striValue);
     return result.value.genericValue;

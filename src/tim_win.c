@@ -280,7 +280,7 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
  *  EACCES when it is called for a directory. In this case
  *  alternate_utime uses win32 functions to work for directories.
  */
-int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf)
+int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
 
   {
     os_stat_struct stat_buf;

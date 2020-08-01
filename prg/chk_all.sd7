@@ -185,6 +185,7 @@ const string: chkhsh_output is "\n\
   \Hash tables with integer keys work correct.\n\
   \Hash tables with float keys work correct.\n\
   \Hash tables with complex keys work correct.\n\
+  \Hash tables with char keys work correct.\n\
   \Hash tables with string keys work correct.\n\
   \The keys function for hash tables works correct.\n";
 

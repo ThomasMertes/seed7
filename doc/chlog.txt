@@ -1,3 +1,40 @@
+20140615:
+- The makefile mk_freebsd.mk has been changed to work with the new
+  version of chkccomp.c. Thanks go to Pietro Cerutti for pointing out
+  the problem.
+- The self extracting Seed7 package for windows has been improved to
+  use gcc version 4.8.1 instead of 4.5.0.
+- The new function removeTree, which removes a directory tree, has
+  been introduced in osfiles.s7i. The function removeAnyFile, which
+  has been used for the same purpose, is deprecated. Deprecated
+  functions will be removed in a future version.
+- Checks for hash tables with character keys have been added to
+  chkhsh.sd7.
+- The test program "chkcmd.sd7" has been added. This program checks
+  functions that copy, move and remove files. Note that windows has
+  race conditions when files are copied, moved and removed quickly in
+  succession. This bug of windows cannot be fixed in a runtime
+  library.
+- The function temp_name_in_dir has been added to striutl.c.
+- The typedef of socketType in common.h has been changed such that
+  socketType is always int.
+- Functions in soc_rtl.c, pol_sel.c and pol_unx.c have been changed
+  to use the type os_socketType.
+- Tracing statements in hsh_rtl.c, cmd_rtl.c, drw_win.c and drw_x11.c
+  have been changed to use the FMT_ strings from common.h. This way
+  the tracing is more portable.
+- Under Windows the functions cmdRemoveFile and cmdRemoveTree now
+  rename a file before it is removed. When the renaming fails the
+  directory is left intact. This avoids half removed directory trees
+  under Windows, when a process has the current working directory
+  somewhere in the directory that is to be removed. The renaming also
+  lowers the probability of race conditions under Windows, but they
+  still can happen.
+- The function checkMoveDirectory has been added to chkccomp.c.
+- The target make7 has been added to the makefiles. With 'make make7'
+  an executable of the make7 program is generated and placed in
+  seed7/bin.
+
 20140601:
 - The compiler has been refactored. Code has been moved from s7c.sd7
   to several compiler libraries. The compiler libraries are licensed

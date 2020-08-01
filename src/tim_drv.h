@@ -51,5 +51,5 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
 struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result);
 #endif
 #ifdef USE_ALTERNATE_UTIME
-int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf);
+int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf);
 #endif

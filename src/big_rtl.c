@@ -3321,6 +3321,7 @@ genericType bigCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* bigCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.bigIntValue =
         bigCreate(((const_rtlObjectType *) &from_value)->value.bigIntValue);
     return result.value.genericValue;

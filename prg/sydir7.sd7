@@ -127,7 +127,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath) is func
         # writeln("leave file " <& literal(destPath));
         noop;
         # writeln("delete file " <& literal(destPath));
-        # removeAnyFile(destPath);
+        # removeTree(destPath);
       end if;
     elsif fileTypeSL(sourcePath) = FILE_SYMLINK then
       if fileTypeSL(destPath) = FILE_ABSENT then

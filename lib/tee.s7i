@@ -44,6 +44,7 @@ const func file: openTee (in file: out_fil1, in file: out_fil2) is func
   end func;
 
 
+# The function open_tee is deprecated. Use openTee instead.
 const func file: open_tee (in file: out_fil1, in file: out_fil2) is
   return openTee(out_fil1, out_fil2);
 

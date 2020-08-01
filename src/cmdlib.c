@@ -760,27 +760,28 @@ objectType cmd_readlink (listType arguments)
 
 
 /**
- *  Remove a file or empty directory.
+ *  Remove a file of any type unless it is a directory that is not empty.
+ *  An attempt to remove a directory that is not empty triggers FILE_ERROR.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
  *             the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file does not exist or a system function
- *             returns an error.
+ *  @exception FILE_ERROR The file does not exist or it is a directory
+ *             that is not empty or a system function returns an error.
  */
-objectType cmd_remove (listType arguments)
+objectType cmd_remove_file (listType arguments)
 
-  { /* cmd_remove */
+  { /* cmd_remove_file */
     isit_stri(arg_1(arguments));
-    cmdRemove(take_stri(arg_1(arguments)));
+    cmdRemoveFile(take_stri(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* cmd_remove */
+  } /* cmd_remove_file */
 
 
 
 /**
- *  Removes a file independent of its file type.
+ *  Remove a file of any type inclusive a directory tree.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
  *             the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
@@ -789,13 +790,13 @@ objectType cmd_remove (listType arguments)
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  */
-objectType cmd_remove_any_file (listType arguments)
+objectType cmd_remove_tree (listType arguments)
 
-  { /* cmd_remove_any_file */
+  { /* cmd_remove_tree */
     isit_stri(arg_1(arguments));
-    cmdRemoveAnyFile(take_stri(arg_1(arguments)));
+    cmdRemoveTree(take_stri(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* cmd_remove_any_file */
+  } /* cmd_remove_tree */
 
 
 

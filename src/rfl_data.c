@@ -183,6 +183,7 @@ genericType rflCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* rflCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.listValue =
         (rtlListType) rflCreate((const_listType) ((const_rtlObjectType *) &from_value)->value.listValue);
     return result.value.genericValue;

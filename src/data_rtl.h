@@ -49,8 +49,30 @@
 
 #if   GENERIC_SIZE == 64
 typedef uint64Type genericType;
+#define GENERIC_SUFFIX(num) UINT64_SUFFIX(num)
+#define FMT_D_GEN  FMT_D64
+#define FMT_U_GEN  FMT_U64
+#define FMT_X_GEN  FMT_X64
 #elif GENERIC_SIZE == 32
 typedef uint32Type genericType;
+#define GENERIC_SUFFIX(num) UINT32_SUFFIX(num)
+#define FMT_D_GEN  FMT_D32
+#define FMT_U_GEN  FMT_U32
+#define FMT_X_GEN  FMT_X32
+#endif
+
+#if GENERIC_SIZE != POINTER_SIZE
+#define INIT_GENERIC_PTR(gen) (gen) = GENERIC_SUFFIX(0)
+#else
+/* Initialization is not necessary because it will be overwritten. */
+#define INIT_GENERIC_PTR(gen)
+#endif
+
+#if GENERIC_SIZE != INTTYPE_SIZE
+#define INIT_GENERIC_INT(gen) (gen) = GENERIC_SUFFIX(0)
+#else
+/* Initialization is not necessary because it will be overwritten. */
+#define INIT_GENERIC_INT(gen)
 #endif
 
 typedef struct rtlTypeStruct     *rtlTypeType;

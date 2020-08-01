@@ -65,8 +65,8 @@ striType cmdHomeDir (void);
 void cmdMkdir (const const_striType dir_name);
 void cmdMove (const const_striType source_name, const const_striType dest_name);
 striType cmdReadlink (const const_striType link_name);
-void cmdRemove (const const_striType file_name);
-void cmdRemoveAnyFile (const const_striType file_name);
+void cmdRemoveFile (const const_striType file_name);
+void cmdRemoveTree (const const_striType file_name);
 void cmdSetenv (const const_striType name, const const_striType value);
 void cmdSetATime (const const_striType file_name,
     intType year, intType month, intType day, intType hour,

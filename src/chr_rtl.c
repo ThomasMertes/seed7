@@ -146,7 +146,7 @@ striType chrCLitToBuffer (charType character, striType buffer)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-inline intType chrCmp (charType char1, charType char2)
+intType chrCmp (charType char1, charType char2)
 
   { /* chrCmp */
     if (char1 < char2) {

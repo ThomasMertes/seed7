@@ -142,8 +142,8 @@ static void addCheck (const poll_based_pollType pollData, short eventsToCheck,
 
   /* addCheck */
     pos = (memSizeType) hshIdxEnterDefault(pollData->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) pollData->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+        (genericType) (usocketType) aSocket, (genericType) pollData->size,
+        (intType) aSocket, (compareType) &genericCmp,
         (createFuncType) &genericCreate, (createFuncType) &genericCreate);
     if (pos == pollData->size) {
       if (pollData->size + NUM_OF_EXTRA_ELEMS >= pollData->capacity) {
@@ -186,8 +186,8 @@ static void removeCheck (const poll_based_pollType pollData, short eventsToCheck
 
   /* removeCheck */
     pos = (memSizeType) hshIdxWithDefault(pollData->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) pollData->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
+        (genericType) (usocketType) aSocket, (genericType) pollData->size,
+        (intType) aSocket, (compareType) &genericCmp);
     if (pos != pollData->size) {
       aPollFd = &pollData->pollFds[pos];
       aPollFd->events &= (short) ~eventsToCheck;
@@ -200,8 +200,8 @@ static void removeCheck (const poll_based_pollType pollData, short eventsToCheck
                    &pollData->pollFds[pollData->iterPos], sizeof(struct pollfd));
             pollData->pollFiles[pos] = pollData->pollFiles[pollData->iterPos];
             hshIdxAddr(pollData->indexHash,
-                       (genericType) (memSizeType) pollData->pollFds[pos].fd,
-                       (intType) (memSizeType) pollData->pollFds[pos].fd,
+                       (genericType) (usocketType) pollData->pollFds[pos].fd,
+                       (intType) (socketType) pollData->pollFds[pos].fd,
                        (compareType) &genericCmp)->value.genericValue = (genericType) pos;
             pos = pollData->iterPos;
           } /* if */
@@ -212,12 +212,12 @@ static void removeCheck (const poll_based_pollType pollData, short eventsToCheck
                  &pollData->pollFds[pollData->size], sizeof(struct pollfd));
           pollData->pollFiles[pos] = pollData->pollFiles[pollData->size];
           hshIdxAddr(pollData->indexHash,
-                     (genericType) (memSizeType) pollData->pollFds[pos].fd,
-                     (intType) (memSizeType) pollData->pollFds[pos].fd,
+                     (genericType) (usocketType) pollData->pollFds[pos].fd,
+                     (intType) (socketType) pollData->pollFds[pos].fd,
                      (compareType) &genericCmp)->value.genericValue = (genericType) pos;
         } /* if */
-        hshExcl(pollData->indexHash, (genericType) (memSizeType) aSocket,
-                (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+        hshExcl(pollData->indexHash, (genericType) (usocketType) aSocket,
+                (intType) aSocket, (compareType) &genericCmp,
                 (destrFuncType) &genericDestr, (destrFuncType) &genericDestr);
       } /* if */
     } /* if */
@@ -567,8 +567,8 @@ intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
   /* polGetCheck */
     pos = (memSizeType) hshIdxWithDefault(conv(pollData)->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) conv(pollData)->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
+        (genericType) (usocketType) aSocket, (genericType) conv(pollData)->size,
+        (intType) aSocket, (compareType) &genericCmp);
     if (pos == conv(pollData)->size) {
       result = POLL_NOTHING;
     } else {
@@ -599,8 +599,8 @@ intType polGetFinding (const const_pollType pollData, const socketType aSocket)
 
   /* polGetFinding */
     pos = (memSizeType) hshIdxWithDefault(conv(pollData)->indexHash,
-        (genericType) (memSizeType) aSocket, (genericType) conv(pollData)->size,
-        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
+        (genericType) (usocketType) aSocket, (genericType) conv(pollData)->size,
+        (intType) aSocket, (compareType) &genericCmp);
     if (pos == conv(pollData)->size) {
       result = POLL_NOTHING;
     } else {

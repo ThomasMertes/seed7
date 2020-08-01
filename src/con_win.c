@@ -35,6 +35,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "windows.h"
+#include "wchar.h"
 #include "conio.h"
 
 #include "common.h"
@@ -46,7 +47,16 @@
 #include "kbd_drv.h"
 
 
-/* #define atexit(x) */
+#ifdef C_PLUS_PLUS
+
+extern "C" wint_t _getwch (void);
+
+#else
+
+extern wint_t _getwch (void);
+
+#endif
+
 
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
@@ -413,7 +423,7 @@ void conSetCursor (intType line, intType column)
 static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 
   {
-    wchar_t wstri_buffer[2 * 256];
+    wcharType wstri_buffer[2 * 256];
     wstriType wstri;
     wstriType wstri_part;
     memSizeType wstri_size;

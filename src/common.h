@@ -312,9 +312,11 @@ typedef uint64Type         bitSetType;
 #ifdef FLOATTYPE_DOUBLE
 typedef double             floatType;
 #define FLOATTYPE_SIZE DOUBLE_SIZE
+#define FMT_E DOUBLE_STR_FORMAT
 #else
 typedef float              floatType;
 #define FLOATTYPE_SIZE FLOAT_SIZE
+#define FMT_E FLOAT_STR_FORMAT
 #endif
 
 
@@ -359,10 +361,13 @@ typedef uint16Type         wcharType;
 typedef wcharType         *wstriType;
 typedef const wcharType   *const_wstriType;
 
-#ifdef USE_WINSOCK
-typedef unsigned int       socketType;
-#else
 typedef int                socketType;
+typedef unsigned int       usocketType;
+
+#ifdef USE_WINSOCK
+typedef unsigned int       os_socketType;
+#else
+typedef int                os_socketType;
 #endif
 
 typedef const char *           const_cstriType;

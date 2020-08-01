@@ -790,6 +790,62 @@ void checkForLimitedStringLiteralLength (FILE *versionFile)
 
 
 
+void checkMoveDirectory (FILE *versionFile)
+
+  {
+    int pos;
+    FILE *aFile;
+    char *buffer[1024];
+    int okay = 1;
+
+  /* checkMoveDirectory */
+    mkdir("test_dir1", 0755);
+    mkdir("test_dir1/subdir1", 0755);
+    aFile = fopen("test_dir1/subdir1/subfile", "w");
+    if (aFile != NULL) {
+      fprintf(aFile, "File content\n");
+      fclose(aFile);
+    } /* if */
+    mkdir("test_dir2", 0755);
+    if (rename("test_dir1/subdir1", "test_dir2/subdir2") != 0) {
+      okay = 0;
+    } /* if */
+    if (fileIsDir("test_dir1/subdir1")) {
+      okay = 0;
+      if (fileIsRegular("test_dir1/subdir1/subfile")) {
+        remove("test_dir1/subdir1/subfile");
+      } /* if */
+      rmdir("test_dir1/subdir1");
+    } /* if */
+    if (fileIsDir("test_dir2/subdir2")) {
+      if (fileIsRegular("test_dir2/subdir2/subfile")) {
+        aFile = fopen("test_dir2/subdir2/subfile", "r");
+        if (aFile == NULL) {
+          okay = 0;
+        } else {
+          if (fread(buffer, 1, 13, aFile) != 13 ||
+              memcmp(buffer, "File content\n", 13) != 0) {
+            okay = 0;
+          } /* if */
+          fclose(aFile);
+        } /* if */
+        remove("test_dir2/subdir2/subfile");
+      } else {
+        okay = 0;
+      } /* if */
+      rmdir("test_dir2/subdir2");
+    } else {
+      okay = 0;
+    } /* if */
+    rmdir("test_dir1");
+    rmdir("test_dir2");
+    if (!okay) {
+      fputs("#define MOVE_DIR_WITH_RENAME_FAILS\n", versionFile);
+    } /* if */
+  } /* checkMoveDirectory */
+
+
+
 void detemineStackDirection (FILE *versionFile)
 
   {
@@ -1261,7 +1317,7 @@ int main (int argc, char **argv)
       } /* if */
       remove("tmp_test_file");
     } /* if */
-    mkdir("tmp_empty_dir",0x755);
+    mkdir("tmp_empty_dir", 0755);
     if (compileAndLinkOk(
         "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
         "{struct utimbuf utime_buf;\n"
@@ -1296,6 +1352,22 @@ int main (int argc, char **argv)
       fputs("#define REMOVE_FAILS_FOR_EMPTY_DIRS\n", versionFile);
       rmdir("tmp_empty_dir");
     } /* if */
+    checkMoveDirectory(versionFile);
+    if (compileAndLinkOk("#include <stdio.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
+                         "{int saved_errno=EXDEV; printf(\"%d\\n\",saved_errno); return 0;}\n")) {
+      fputs("#define EXDEV_IS_DEFINED\n", versionFile);
+    } /* if */
+#if defined OS_STRI_WCHAR && defined USE_WINSOCK
+    /* Under Windows a rename between different    */
+    /* devices fails with EACCES instead of EXDEV. */
+    fputs("#define USE_EACCES_INSTEAD_OF_EXDEV\n", versionFile);
+    /* Windows uses pending deletes which cause    */
+    /* problems when a file with the same name is  */
+    /* created shortly after the delete. To avoid  */
+    /* problems files are renamed before they are  */
+    /* removed.                                    */
+    fputs("#define RENAME_BEFORE_REMOVE\n", versionFile);
+#endif
     aFile = fopen(".","r");
     if (aFile != NULL) {
       fputs("#define FOPEN_OPENS_DIRECTORIES\n", versionFile);

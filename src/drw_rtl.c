@@ -44,13 +44,19 @@
 #define EXTERN
 #include "drw_rtl.h"
 
+#undef TRACE_DRW
+
 
 
 void drwCpy (winType *const win_to, const winType win_from)
 
   { /* drwCpy */
 #ifdef TRACE_DRW
-    printf("drwCpy(%lu, %ld)\n", win_to, win_from);
+    printf("BEGIN drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
+           (memSizeType) *win_to,
+           *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
+           (memSizeType) win_from,
+           win_from != NULL ? win_from->usage_count : (uintType) 0);
 #endif
     if (win_from != NULL) {
       win_from->usage_count++;
@@ -62,6 +68,13 @@ void drwCpy (winType *const win_to, const winType win_from)
       } /* if */
     } /* if */
     *win_to = win_from;
+#ifdef TRACE_DRW
+    printf("END drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
+           (memSizeType) *win_to,
+           *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
+           (memSizeType) win_from,
+           win_from != NULL ? win_from->usage_count : (uintType) 0);
+#endif
   } /* drwCpy */
 
 
@@ -78,9 +91,19 @@ void drwCpyGeneric (genericType *const dest, const genericType source)
 winType drwCreate (const winType win_from)
 
   { /* drwCreate */
+#ifdef TRACE_DRW
+    printf("BEGIN drwCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+           (memSizeType) win_from,
+           win_from != NULL ? win_from->usage_count : (uintType) 0);
+#endif
     if (win_from != NULL) {
       win_from->usage_count++;
     } /* if */
+#ifdef TRACE_DRW
+    printf("END drwCreate ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
+           (memSizeType) win_from,
+           win_from != NULL ? win_from->usage_count : (uintType) 0);
+#endif
     return win_from;
   } /* drwCreate */
 
@@ -98,6 +121,7 @@ genericType drwCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* drwCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.winValue =
         drwCreate(((const_rtlObjectType *) &from_value)->value.winValue);
     return result.value.genericValue;
@@ -108,6 +132,11 @@ genericType drwCreateGeneric (const genericType from_value)
 void drwDestr (const winType old_win)
 
   { /* drwDestr */
+#ifdef TRACE_DRW
+    printf("BEGIN drwDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+           (memSizeType) old_win,
+           old_win != NULL ? old_win->usage_count : (uintType) 0);
+#endif
     if (old_win != NULL) {
       old_win->usage_count--;
       if (old_win->usage_count == 0) {
@@ -142,8 +171,8 @@ intType drwGetImagePixel (const_bstriType image, intType width,
 
   /* drwGetImagePixel */
 #ifdef TRACE_DRW
-    printf("drwGetImagePixel(%lu, %ld, %ld, %ld, %ld)\n",
-        image, width, height, x, y);
+    printf("drwGetImagePixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+        (memSizeType) image, width, height, x, y);
 #endif
     if (unlikely(width  < 0 || x < 0 || x >= width ||
                  height < 0 || y < 0 || y >= height ||
@@ -182,7 +211,7 @@ winType drwRtlImage (const const_rtlArrayType image)
 
   /* drwRtlImage */
     height = arraySize(image);
-    /* printf("drwRtlImage: height=%d\n", height); */
+    /* printf("drwRtlImage: height=" FMT_U_MEM "\n", height); */
     if (height == 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -190,7 +219,7 @@ winType drwRtlImage (const const_rtlArrayType image)
       curr_line = &image->arr[0];
       arr_line = curr_line->value.arrayValue;
       width = arraySize(arr_line);
-      /* printf("drwRtlImage: width=%d\n", width); */
+      /* printf("drwRtlImage: width=" FMT_U_MEM "\n", width); */
       if (width == 0) {
         raise_error(RANGE_ERROR);
         result = NULL;

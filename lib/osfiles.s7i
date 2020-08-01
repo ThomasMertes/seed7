@@ -409,20 +409,21 @@ const proc: symlink (in string: sourcePath, in string: destPath)   is action "CM
 
 
 (**
- *  Remove a file or empty directory.
+ *  Remove a file of any type unless it is a directory that is not empty.
+ *  An attempt to remove a directory that is not empty triggers FILE_ERROR.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath'' to
  *             the system path type.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
- *  @exception FILE_ERROR The file does not exist or a system function
- *             returns an error.
+ *  @exception FILE_ERROR The file does not exist or it is a directory
+ *             that is not empty or a system function returns an error.
  *)
-const proc: removeFile (in string: filePath)                 is action "CMD_REMOVE";
+const proc: removeFile (in string: filePath)                 is action "CMD_REMOVE_FILE";
 
 
 (**
- *  Removes a file independent of its file type.
+ *  Remove a file of any type inclusive a directory tree.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath'' to
  *             the system path type.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -431,7 +432,11 @@ const proc: removeFile (in string: filePath)                 is action "CMD_REMO
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  *)
-const proc: removeAnyFile (in string: filePath)              is action "CMD_REMOVE_ANY_FILE";
+const proc: removeTree (in string: filePath)                 is action "CMD_REMOVE_TREE";
+
+
+# The function removeAnyFile is deprecated. Use removeTree instead.
+const proc: removeAnyFile (in string: filePath)              is action "CMD_REMOVE_TREE";
 
 
 (**

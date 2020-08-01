@@ -141,8 +141,6 @@ test:
 
 dep: depend
 
-hi: s7
-
 strip:
 	strip ../bin/s7
 
@@ -186,7 +184,7 @@ version.h: chkccomp.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) -ftrapv chkccomp.c -lm -o chkccomp
-	./chkccomp >> version.h
+	./chkccomp version.h
 	rm chkccomp
 	rm cc_vers.txt
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
@@ -226,6 +224,12 @@ level.h:
 
 ../bin/$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	ar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+
+make7: ../bin/make7
+
+../bin/make7: ../prg/make7.sd7 ../bin/s7c
+	../bin/s7c -l ../lib -b ../bin -O2 ../prg/make7
+	mv ../prg/make7 ../bin
 
 wc: $(SRC)
 	echo SRC:

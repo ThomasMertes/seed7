@@ -60,6 +60,7 @@ const func file: openField (in file: in_fil, inout text: out_fil,
   end func;
 
 
+# The function open_field is deprecated. Use openField instead.
 const func file: open_field (in file: in_fil, inout text: out_fil,
     in integer: line, in integer: column, in integer: width, in string: defaultValue) is
   return openField(in_fil, out_fil, line, column, width, defaultValue);

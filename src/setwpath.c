@@ -85,7 +85,7 @@ static void set_win_path (int add_to_path)
         printf(" *** Unable to get the size of the registry value.\n");
       } else {
         /* printf("size_of_value: %lu\n", size_of_value); */
-        if ((value_data = malloc(size_of_value + (1 + cwd_len) * sizeof(wchar_t))) == NULL) {
+        if ((value_data = (wchar_t *) malloc(size_of_value + (1 + cwd_len) * sizeof(wchar_t))) == NULL) {
           printf(" *** Unable to request memory for the regestry value.\n");
         } else {
           if (RegQueryValueExW(key, L"Path", NULL, &value_type, (LPBYTE) value_data, &size_of_value) != ERROR_SUCCESS) {

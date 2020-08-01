@@ -68,6 +68,7 @@ genericType itfCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* itfCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.interfaceValue =
         itfCreate(((const_rtlObjectType *) &from_value)->value.interfaceValue);
     return result.value.genericValue;

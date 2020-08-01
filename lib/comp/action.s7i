@@ -414,10 +414,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_MOVE, function, params, c_expr);
       elsif action_name = "CMD_READLINK" then
         process(CMD_READLINK, function, params, c_expr);
-      elsif action_name = "CMD_REMOVE" then
-        process(CMD_REMOVE, function, params, c_expr);
-      elsif action_name = "CMD_REMOVE_ANY_FILE" then
-        process(CMD_REMOVE_ANY_FILE, function, params, c_expr);
+      elsif action_name = "CMD_REMOVE_FILE" then
+        process(CMD_REMOVE_FILE, function, params, c_expr);
+      elsif action_name = "CMD_REMOVE_TREE" then
+        process(CMD_REMOVE_TREE, function, params, c_expr);
       elsif action_name = "CMD_SETENV" then
         process(CMD_SETENV, function, params, c_expr);
       elsif action_name = "CMD_SET_ATIME" then

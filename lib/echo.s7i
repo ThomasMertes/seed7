@@ -53,6 +53,7 @@ const func file: openEcho (in file: in_fil, in file: out_fil) is func
   end func;
 
 
+# The function open_echo is deprecated. Use openEcho instead.
 const func file: open_echo (in file: in_fil, in file: out_fil) is
   return openEcho(in_fil, out_fil);
 

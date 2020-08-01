@@ -81,8 +81,10 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ..\bin\s7.exe ..\prg\s7.exe
 	..\bin\s7 -l ..\lib level
+	echo Use 'make s7c' (with your make command) to create the compiler.
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
+	echo Use 'make test' (with your make command) to check Seed7.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
@@ -109,6 +111,7 @@ clean:
 	del chkccomp.h
 	del version.h
 	del setwpath.exe
+	echo Use 'make depend' (with your make command) to create the dependencies.
 
 distclean: clean
 	copy level_bk.h level.h /Y
@@ -210,6 +213,7 @@ version.h: chkccomp.h
 
 depend: version.h
 	echo Working without C header dependency checks.
+	echo Use 'make' (with your make command) to create the interpreter.
 
 level.h:
 	..\bin\s7 -l ..\lib level
@@ -228,6 +232,13 @@ level.h:
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	lib /out:..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+
+make7: ..\bin\make7.exe
+
+..\bin\make7.exe: ..\prg\make7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
+	copy ..\prg\make7.exe ..\bin /Y
+	del ..\prg\make7.exe
 
 wc: $(SRC)
 	echo SRC:

@@ -50,6 +50,7 @@ const func file: openLine (in file: aFile) is func
   end func;
 
 
+# The function open_line is deprecated. Use openLine instead.
 const func file: open_line (in file: aFile) is
   return openLine(aFile);
 
