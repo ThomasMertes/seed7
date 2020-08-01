@@ -34,6 +34,7 @@ include "cipher.s7i";
 include "arc4.s7i";
 include "des.s7i";
 include "tdes.s7i";
+include "aes.s7i";
 
 
 const type: cipherSuite is new enum
@@ -91,7 +92,8 @@ const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_RC4_128_SHA,
     TLS_RSA_WITH_RC4_128_MD5,
     TLS_RSA_WITH_3DES_EDE_CBC_SHA,
-    TLS_RSA_WITH_DES_CBC_SHA
+    TLS_RSA_WITH_DES_CBC_SHA,
+    TLS_RSA_WITH_AES_128_CBC_SHA
   );
 
 const string: SSL_3_0 is "\3;\0;";
@@ -539,6 +541,10 @@ const proc: storeCipherSuite (inout securityParameters: parameters) is func
     elsif parameters.cipher_suite = TLS_RSA_WITH_DES_CBC_SHA then
       parameters.bulk_cipher_algorithm := DES;
       parameters.key_material_length := 8;
+      parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_RSA_WITH_AES_128_CBC_SHA then
+      parameters.bulk_cipher_algorithm := AES;
+      parameters.key_material_length := 16;
       parameters.mac_algorithm := SHA1;
     else
       writeln("Unsupported cipher_suite: " <& ord(parameters.cipher_suite) radix 16 lpad0 4);

@@ -461,8 +461,15 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= index_name;
         c_expr.expr &:= "=(";
         process_expr(param3, c_expr);
-        c_expr.expr &:= ")- ";
-        c_expr.expr &:= str(arrayMinIdx(anArray));
+        c_expr.expr &:= ")";
+        if arrayMinIdx(anArray) <> 0 then
+          if ccConf.TWOS_COMPLEMENT_INTTYPE then
+            c_expr.expr &:= "- (uintType) ";
+          else
+            c_expr.expr &:= "- ";
+          end if;
+          c_expr.expr &:= integerLiteral(arrayMinIdx(anArray));
+        end if;
         c_expr.expr &:= ", idxChk(";
         if not ccConf.TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= index_name;
@@ -480,8 +487,11 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         incr(countNoRangeChecks);
         c_expr.expr &:= "(";
         process_expr(param3, c_expr);
-        c_expr.expr &:= ")- ";
-        c_expr.expr &:= str(arrayMinIdx(anArray));
+        c_expr.expr &:= ")";
+        if arrayMinIdx(anArray) <> 0 then
+          c_expr.expr &:= "- ";
+          c_expr.expr &:= integerLiteral(arrayMinIdx(anArray));
+        end if;
       end if;
       c_expr.expr &:= "]";
       c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));

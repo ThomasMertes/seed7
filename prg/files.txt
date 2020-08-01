@@ -93,6 +93,7 @@ wrinum.sd7   Write numbers as english text
 wumpus.sd7   Hunt the Wumpus game
 
   Seed7 include files:
+aes.s7i      AES (Advanced Encryption Standard) cipher support.
 arc4.s7i     Support for ARC4 (Alleged RC4) stream cipher.
 array.s7i    Support for arrays with integer index
 asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).

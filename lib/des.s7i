@@ -27,6 +27,7 @@
 
 
 include "bin32.s7i";
+include "bytedata.s7i";
 include "cipher.s7i";
 
 
@@ -36,8 +37,8 @@ include "cipher.s7i";
  *  Standard) block cipher.
  *)
 const type: desState is new struct
-    var array bin32: encryptionSubkey is 0 times bin32.value;
-    var array bin32: decryptionSubkey is 0 times bin32.value;
+    var array bin32: encryptionSubKey is 0 times bin32.value;
+    var array bin32: decryptionSubKey is 0 times bin32.value;
     var string: cipherBlock is "";
   end struct;
 
@@ -57,7 +58,7 @@ const integer: DES_KS_SIZE is 32;
 
 const func array bin32: setDesKey (in string: desKey) is func
   result
-    var array bin32: subkey is DES_KS_SIZE times bin32.value;
+    var array bin32: subKey is DES_KS_SIZE times bin32.value;
   local
     const array integer: pc1 is [] (                       # Permuted choice table (key)
         57, 49, 41, 33, 25, 17,  9,  1, 58, 50, 42, 34, 26, 18,
@@ -109,11 +110,11 @@ const func array bin32: setDesKey (in string: desKey) is func
         end if;
       end for;
       # Now convert to odd/even interleaved form for use in F
-      subkey[2*i + 1] := ks[0] << 24 |
+      subKey[2*i + 1] := ks[0] << 24 |
                          ks[2] << 16 |
                          ks[4] <<  8 |
                          ks[6];
-      subkey[2*i + 2] := ks[1] << 24 |
+      subKey[2*i + 2] := ks[1] << 24 |
                          ks[3] << 16 |
                          ks[5] <<  8 |
                          ks[7];
@@ -121,15 +122,15 @@ const func array bin32: setDesKey (in string: desKey) is func
   end func;
 
 
-const func array bin32: reverseKeyScheduleOrder (in array bin32: subkey) is func
+const func array bin32: reverseKeyScheduleOrder (in array bin32: subKey) is func
   result
     var array bin32: reversedKey is DES_KS_SIZE times bin32.value;
   local
     var integer: i is 0;
   begin
     for i range 1 to 32 step 2 do
-      reversedKey[i]     := subkey[DES_KS_SIZE - i];
-      reversedKey[i + 1] := subkey[DES_KS_SIZE - i + 1];
+      reversedKey[i]     := subKey[DES_KS_SIZE - i];
+      reversedKey[i + 1] := subKey[DES_KS_SIZE - i + 1];
     end for;
   end func;
 
@@ -142,8 +143,8 @@ const func desState: setDesKey (in string: desKey, in string: initializationVect
   result
     var desState: state is desState.value;
   begin
-    state.encryptionSubkey := setDesKey(desKey);
-    state.decryptionSubkey := reverseKeyScheduleOrder(state.encryptionSubkey);
+    state.encryptionSubKey := setDesKey(desKey);
+    state.decryptionSubKey := reverseKeyScheduleOrder(state.encryptionSubKey);
     state.cipherBlock := initializationVector;
   end func;
 
@@ -340,7 +341,7 @@ const proc: finalPermutation (inout bin32: left, inout bin32: right) is func
   end func;
 
 
-const func string: processDesBlock (in array bin32: subkey, in string: inData) is func
+const func string: processDesBlock (in array bin32: subKey, in string: inData) is func
   result
     var string: outData is "";
   local
@@ -354,22 +355,22 @@ const func string: processDesBlock (in array bin32: subkey, in string: inData) i
     initialPermutation(left, right);
 
     for idx range 1 to 8 do
-      work := ord(rotRight(right, 4) >< subkey[4 * idx - 3]);
+      work := ord(rotRight(right, 4) >< subKey[4 * idx - 3]);
       left ><:=  spBox[7][ work        mod 64] ><
                  spBox[5][(work >>  8) mod 64] ><
                  spBox[3][(work >> 16) mod 64] ><
                  spBox[1][(work >> 24) mod 64];
-      work := ord(right >< subkey[4 * idx - 2]);
+      work := ord(right >< subKey[4 * idx - 2]);
       left ><:=  spBox[8][ work        mod 64] ><
                  spBox[6][(work >>  8) mod 64] ><
                  spBox[4][(work >> 16) mod 64] ><
                  spBox[2][(work >> 24) mod 64];
-      work := ord(rotRight(left, 4) >< subkey[4 * idx - 1]);
+      work := ord(rotRight(left, 4) >< subKey[4 * idx - 1]);
       right ><:= spBox[7][ work        mod 64] ><
                  spBox[5][(work >>  8) mod 64] ><
                  spBox[3][(work >> 16) mod 64] ><
                  spBox[1][(work >> 24) mod 64];
-      work := ord(left >< subkey[4 * idx]);
+      work := ord(left >< subKey[4 * idx]);
       right ><:= spBox[8][ work        mod 64] ><
                  spBox[6][(work >>  8) mod 64] ><
                  spBox[4][(work >> 16) mod 64] ><
@@ -395,13 +396,13 @@ const func string: encode (inout desState: state, in string: plaintext) is func
     var string: dataBlock is "";
     var string: cipherBlock is "";
   begin
-    for index range 1 to length(plaintext) step 8 do
+    for index range 1 to length(plaintext) step blockSize(DES) do
       dataBlock := "";
-      for subIndex range 1 to 8 do
+      for subIndex range 1 to blockSize(DES) do
         dataBlock &:= chr(ord(bin32(plaintext[pred(index + subIndex)]) ><
                               bin32(state.cipherBlock[subIndex])));
       end for;
-      cipherBlock := processDesBlock(state.encryptionSubkey, dataBlock);
+      cipherBlock := processDesBlock(state.encryptionSubKey, dataBlock);
       state.cipherBlock := cipherBlock;
       encoded &:= cipherBlock;
     end for;
@@ -422,10 +423,10 @@ const func string: decode (inout desState: state, in string: encoded) is func
     var string: dataBlock is "";
     var string: plainBlock is "";
   begin
-    for index range 1 to length(encoded) step 8 do
-      cipherBlock := encoded[index len 8];
-      dataBlock := processDesBlock(state.decryptionSubkey, cipherBlock);
-      for subIndex range 1 to 8 do
+    for index range 1 to length(encoded) step blockSize(DES) do
+      cipherBlock := encoded[index len blockSize(DES)];
+      dataBlock := processDesBlock(state.decryptionSubKey, cipherBlock);
+      for subIndex range 1 to blockSize(DES) do
         plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><
                               bin32(state.cipherBlock[subIndex])));
       end for;

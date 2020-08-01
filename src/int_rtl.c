@@ -920,7 +920,7 @@ intType intBinom (intType n_number, intType k_number)
       } /* if */
     } else {
       if (n_number < 0) {
-        negative = k_number & 1;
+        negative = (boolType) (k_number & 1);
         numerator = -(uintType) n_number + (uintType) k_number - 1;
         if ((uintType) k_number > numerator >> 1) {
           k_number = (intType) (numerator - (uintType) k_number);

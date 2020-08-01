@@ -68,7 +68,9 @@ typedef struct {
     unsigned long prog;
     unsigned long polldata;
     unsigned long prepared_stmt;
+    unsigned long sql_func;
     unsigned long win;
+    unsigned long database;
     unsigned long process;
     unsigned long fnam;
     memSizeType fnam_bytes;
@@ -82,7 +84,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0};
+                   0, 0, 0, 0, 0};
 #else
 EXTERN countType count;
 #endif
@@ -93,6 +95,7 @@ extern size_t sizeof_bigIntRecord;
 #endif
 extern size_t sizeof_pollRecord;
 extern size_t sizeof_winRecord;
+extern size_t sizeof_processRecord;
 
 #endif
 

@@ -832,7 +832,7 @@ striType fltSci (floatType number, intType precision)
 #endif
 #ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
         if (precision > PRINTF_MAXIMUM_FLOAT_PRECISION) {
-          pos = strchr(buffer, 'e') - buffer;
+          pos = (memSizeType) (strchr(buffer, 'e') - buffer);
           memmove(&buffer[pos + (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION)],
                   &buffer[pos], strlen(&buffer[pos]) + 1);
           memset(&buffer[pos], '0',

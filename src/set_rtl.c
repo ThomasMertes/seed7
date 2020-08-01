@@ -1239,6 +1239,7 @@ setType setRangelit (const intType lowerValue, const intType upperValue)
     setType result;
 
   /* setRangelit */
+    /* printf("setRangelit(" FMT_D ", " FMT_D ")\n", lowerValue, upperValue); */
     min_position = bitset_pos(lowerValue);
     max_position = bitset_pos(upperValue);
     if (min_position > max_position) {

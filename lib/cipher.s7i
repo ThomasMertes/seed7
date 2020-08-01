@@ -28,10 +28,10 @@
 
 (**
  *  Enumeration of cipher algorithms.
- *  Currently the ciphers NO_CIPHER, RC4, DES and TDES are supported.
+ *  Currently the ciphers NO_CIPHER, RC4, DES, TDES and AES are supported.
  *)
 const type: cipherAlgorithm is new enum
-    NO_CIPHER, RC4, RC2, DES, TDES, DES40
+    NO_CIPHER, RC4, RC2, DES, TDES, AES, DES40
   end enum;
 
 

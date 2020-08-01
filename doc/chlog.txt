@@ -1,3 +1,21 @@
+20150104:
+- In sql_post.c the function swap64 has been renamed to swapUInt64.
+  Thanks go to Brian Callahan for reporting that OpenBSD already has
+  a function called swap64().
+- The library aes.s7i with AES (Advanced Encryption Standard) cipher
+  support has been added.
+- The library tls.s7i has been improved to allow encoding with AES.
+- The functions fileType and fileTypeSL have been added to ftp.s7i.
+- The handling of the command ls -l in the program ftp7.sd7 has been
+  improved to write the file type.
+- The compilation of the action ARR_IDX in the compiler (file
+  arr_act.s7i) has been improved.
+- In des.s7i and tdes.s7i all occurances of subkey have been renamed
+  to subKey.
+- In sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c and sql_post.c the
+  function setupFuncTable has been changed to use count.sql_func
+  (defined in heaputl.h).
+
 20141223:
 - The chapter about primitive actions in the manual has been
   improved.

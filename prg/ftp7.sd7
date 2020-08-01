@@ -66,7 +66,11 @@ const proc: longFileListing (inout ftpConnection: ftp, in var string: directory)
       end if;
       if continue then
         filePath := directory & fileName;
-        line := "-rwxrwxrwx 1 user users ";
+        if fileType(ftp, filePath) = FILE_DIR then
+          line := "drwxrwxrwx 1 user users ";
+        else
+          line := "-rwxrwxrwx 1 user users ";
+        end if;
         line &:= bigFileSize(ftp, filePath) lpad 10 <& " ";
         modificationTime := getMTime(ftp, filePath);
         line &:= monthName[modificationTime.month];

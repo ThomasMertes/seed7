@@ -309,14 +309,14 @@ static boolType findDll (void)
 
 #else
 
-#define htonll(n) swap64(n)
-#define ntohll(n) swap64(n)
+#define htonll(n) swapUInt64(n)
+#define ntohll(n) swapUInt64(n)
 #define htonf(n) swap32float(n)
 #define ntohf(n) swap32float(n)
 #define htond(n) swap64double(n)
 #define ntohd(n) swap64double(n)
 
-static inline uint64Type swap64 (uint64Type n)
+static inline uint64Type swapUInt64 (uint64Type n)
   {
     return ((n & 0xFF) << 56) | ((n & 0xFF00) << 40) |
            ((n & 0xFF0000) << 24) | ((n & 0xFF000000) << 8) |
@@ -2542,7 +2542,7 @@ static boolType setupFuncTable (void)
 
   { /* setupFuncTable */
     if (sqlFunc == NULL) {
-      if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, cnt)) {
+      if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;

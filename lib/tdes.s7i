@@ -37,12 +37,12 @@ include "des.s7i";
  *  block cipher.
  *)
 const type: tdesState is new struct
-    var array bin32: encryptionSubkey1 is 0 times bin32.value;
-    var array bin32: encryptionSubkey2 is 0 times bin32.value;
-    var array bin32: encryptionSubkey3 is 0 times bin32.value;
-    var array bin32: decryptionSubkey1 is 0 times bin32.value;
-    var array bin32: decryptionSubkey2 is 0 times bin32.value;
-    var array bin32: decryptionSubkey3 is 0 times bin32.value;
+    var array bin32: encryptionSubKey1 is 0 times bin32.value;
+    var array bin32: encryptionSubKey2 is 0 times bin32.value;
+    var array bin32: encryptionSubKey3 is 0 times bin32.value;
+    var array bin32: decryptionSubKey1 is 0 times bin32.value;
+    var array bin32: decryptionSubKey2 is 0 times bin32.value;
+    var array bin32: decryptionSubKey3 is 0 times bin32.value;
     var string: cipherBlock is "";
   end struct;
 
@@ -65,12 +65,12 @@ const func tdesState: setTdesKey (in string: desKey, in string: initializationVe
   result
     var tdesState: state is tdesState.value;
   begin
-    state.encryptionSubkey1 := setDesKey(desKey[1 len 8]);
-    state.decryptionSubkey1 := reverseKeyScheduleOrder(state.encryptionSubkey1);
-    state.encryptionSubkey2 := setDesKey(desKey[9 len 8]);
-    state.decryptionSubkey2 := reverseKeyScheduleOrder(state.encryptionSubkey2);
-    state.encryptionSubkey3 := setDesKey(desKey[17 len 8]);
-    state.decryptionSubkey3 := reverseKeyScheduleOrder(state.encryptionSubkey3);
+    state.encryptionSubKey1 := setDesKey(desKey[1 len 8]);
+    state.decryptionSubKey1 := reverseKeyScheduleOrder(state.encryptionSubKey1);
+    state.encryptionSubKey2 := setDesKey(desKey[9 len 8]);
+    state.decryptionSubKey2 := reverseKeyScheduleOrder(state.encryptionSubKey2);
+    state.encryptionSubKey3 := setDesKey(desKey[17 len 8]);
+    state.decryptionSubKey3 := reverseKeyScheduleOrder(state.encryptionSubKey3);
     state.cipherBlock := initializationVector;
   end func;
 
@@ -93,15 +93,15 @@ const func string: encode (inout tdesState: state, in string: plaintext) is func
     var string: dataBlock is "";
     var string: cipherBlock is "";
   begin
-    for index range 1 to length(plaintext) step 8 do
+    for index range 1 to length(plaintext) step blockSize(TDES) do
       dataBlock := "";
-      for subIndex range 1 to 8 do
+      for subIndex range 1 to blockSize(TDES) do
         dataBlock &:= chr(ord(bin32(plaintext[pred(index + subIndex)]) ><
                               bin32(state.cipherBlock[subIndex])));
       end for;
-      cipherBlock := processDesBlock(state.encryptionSubkey3,
-                     processDesBlock(state.decryptionSubkey2,
-                     processDesBlock(state.encryptionSubkey1, dataBlock)));
+      cipherBlock := processDesBlock(state.encryptionSubKey3,
+                     processDesBlock(state.decryptionSubKey2,
+                     processDesBlock(state.encryptionSubKey1, dataBlock)));
       state.cipherBlock := cipherBlock;
       encoded &:= cipherBlock;
     end for;
@@ -122,12 +122,12 @@ const func string: decode (inout tdesState: state, in string: encoded) is func
     var string: dataBlock is "";
     var string: plainBlock is "";
   begin
-    for index range 1 to length(encoded) step 8 do
-      cipherBlock := encoded[index len 8];
-      dataBlock := processDesBlock(state.decryptionSubkey1,
-                   processDesBlock(state.encryptionSubkey2,
-                   processDesBlock(state.decryptionSubkey3, cipherBlock)));
-      for subIndex range 1 to 8 do
+    for index range 1 to length(encoded) step blockSize(TDES) do
+      cipherBlock := encoded[index len blockSize(TDES)];
+      dataBlock := processDesBlock(state.decryptionSubKey1,
+                   processDesBlock(state.encryptionSubKey2,
+                   processDesBlock(state.decryptionSubKey3, cipherBlock)));
+      for subIndex range 1 to blockSize(TDES) do
         plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><
                               bin32(state.cipherBlock[subIndex])));
       end for;

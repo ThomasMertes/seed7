@@ -31,6 +31,7 @@ include "listener.s7i";
 include "unicode.s7i";
 include "bigint.s7i";
 include "time.s7i";
+include "osfiles.s7i";
 
 
 const integer: defaultFtpControlPort is 21;
@@ -43,6 +44,8 @@ const type: ftpConnection is new struct
     var file: control is STD_NULL;
     var file: data is STD_NULL;
     var string: response is "";
+    var string: responseContent is "";
+    var boolean: mlstCommandAvailable is TRUE;
     var string: ownIpAddress is "";
     var boolean: active is FALSE;
     var boolean: openDataSucceeded is FALSE;
@@ -64,10 +67,15 @@ const proc: ftpResponse (inout ftpConnection: ftp) is func
     ftp.response := getln(ftp.control);
     if ftp.response[4 len 1] = "-" then
       responseCode := ftp.response[.. 3] & " ";
-      repeat
+      # writeln("<- " <& ftp.response);
+      ftp.responseContent := "";
+      ftp.response := getln(ftp.control);
+      while not startsWith(ftp.response, responseCode) do
         # writeln("<- " <& ftp.response);
+        ftp.responseContent &:= ftp.response;
+        ftp.responseContent &:= '\n';
         ftp.response := getln(ftp.control);
-      until startsWith(ftp.response, responseCode);
+      end while;
     end if;
     # writeln("<- " <& ftp.response);
   end func;
@@ -559,10 +567,10 @@ const proc: removeFile (inout ftpConnection: ftp, in string: fileName) is func
 
 
 (**
- *  Rename a file.
+ *  Rename a file using a FTP connection.
  *  @exception FILE_ERROR The remote host returns an error.
  *)
-const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string: destPath)  is func
+const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string: destPath) is func
   begin
     ftpCommand(ftp, "RNFR " <& striToUtf8(sourcePath));
     ftpResponse(ftp);
@@ -649,6 +657,67 @@ const func string: getcwd (inout ftpConnection: ftp) is func
       raise FILE_ERROR;
     end if;
   end func;
+
+
+(**
+ *  Determine the type of a file.
+ *  The function does follow symbolic links. Therefore it never
+ *  returns ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *)
+const func fileType: fileType (inout ftpConnection: ftp, in string: fileName) is func
+  result
+    var fileType: aFileType is FILE_UNKNOWN;
+  local
+    var string: lowerCaseReponseContent is "";
+    var string: workingDir is "";
+    var integer: pos is 0;
+  begin
+    if ftp.mlstCommandAvailable then
+      ftpCommand(ftp, "MLST " <& striToUtf8(fileName));
+      ftpResponse(ftp);
+      if startsWith(ftp.response, "250") then
+        lowerCaseReponseContent := lower(ftp.responseContent);
+        if pos(lowerCaseReponseContent, "type=dir") <> 0 then
+          aFileType := FILE_DIR;
+        elsif pos(lowerCaseReponseContent, "type=file") <> 0 then
+          aFileType := FILE_REGULAR;
+        end if;
+      elsif startsWith(ftp.response, "500") then
+        ftp.mlstCommandAvailable := FALSE;
+      end if;
+    end if;
+    if not ftp.mlstCommandAvailable then
+      ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
+      ftpResponse(ftp);
+      if startsWith(ftp.response, "213") then
+        aFileType := FILE_REGULAR;
+      else
+        workingDir := getcwd(ftp);
+        ftpCommand(ftp, "CWD " <& striToUtf8(fileName));
+        ftpResponse(ftp);
+        if startsWith(ftp.response, "250") then
+          aFileType := FILE_DIR;
+          ftpCommand(ftp, "CWD " <& striToUtf8(workingDir));
+          ftpResponse(ftp);
+        end if;
+      end if;
+    else
+      aFileType := FILE_ABSENT;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the type of a file.
+ *  Since in FTP symbolic links are not defined this function is
+ *  identical to fileType.
+ *  @return the type of the file.
+ *)
+const func fileType: fileTypeSL (inout ftpConnection: ftp, in string: fileName) is
+  return fileType(ftp, fileName);
 
 
 (**

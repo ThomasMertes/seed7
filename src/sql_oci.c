@@ -2228,7 +2228,7 @@ static boolType setBlob (preparedStmtType preparedStmt,
 
 
 #ifndef SQLT_BFLOAT
-static int setFloat (const void *buffer, const float floatValue,
+static int setFloat (const void *buffer, const floatType floatValue,
     errInfoType *err_info)
 
   {
@@ -4115,7 +4115,7 @@ static boolType setupFuncTable (void)
 
   { /* setupFuncTable */
     if (sqlFunc == NULL) {
-      if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, cnt)) {
+      if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
