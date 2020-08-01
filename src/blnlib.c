@@ -72,38 +72,48 @@ objectType bln_and (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType bln_cpy (listType arguments)
 
   {
-    objectType bool_variable;
+    objectType dest;
 
   /* bln_cpy */
-    bool_variable = arg_1(arguments);
-    isit_bool(bool_variable);
-    is_variable(bool_variable);
+    dest = arg_1(arguments);
+    isit_bool(dest);
+    is_variable(dest);
     isit_bool(arg_3(arguments));
-    bool_variable->value.objValue = take_bool(arg_3(arguments));
+    dest->value.objValue = take_bool(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* bln_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType bln_create (listType arguments)
 
   {
-    objectType bool_to;
-    objectType bool_from;
+    objectType dest;
+    objectType source;
 
   /* bln_create */
-    bool_to = arg_1(arguments);
+    dest = arg_1(arguments);
     isit_bool(arg_3(arguments));
-    bool_from = take_bool(arg_3(arguments));
-    if (VAR_OBJECT(bool_to)) {
-      SET_CATEGORY_OF_OBJ(bool_to, VARENUMOBJECT);
+    source = take_bool(arg_3(arguments));
+    if (VAR_OBJECT(dest)) {
+      SET_CATEGORY_OF_OBJ(dest, VARENUMOBJECT);
     } else {
-      SET_CATEGORY_OF_OBJ(bool_to, CONSTENUMOBJECT);
+      SET_CATEGORY_OF_OBJ(dest, CONSTENUMOBJECT);
     } /* if */
-    bool_to->value.objValue = bool_from;
+    dest->value.objValue = source;
     return SYS_EMPTY_OBJECT;
   } /* bln_create */
 

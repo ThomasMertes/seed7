@@ -175,30 +175,35 @@ intType bstCmpGeneric (const genericType value1, const genericType value2)
 
 
 
-void bstCpy (bstriType *const bstri_to, const const_bstriType bstri_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void bstCpy (bstriType *const dest, const const_bstriType source)
 
   {
     memSizeType new_size;
     bstriType bstri_dest;
 
   /* bstCpy */
-    bstri_dest = *bstri_to;
-    new_size = bstri_from->size;
+    bstri_dest = *dest;
+    new_size = source->size;
     if (bstri_dest->size != new_size) {
       if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size))) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
-        FREE_BSTRI(*bstri_to, (*bstri_to)->size);
+        FREE_BSTRI(*dest, (*dest)->size);
         bstri_dest->size = new_size;
-        *bstri_to = bstri_dest;
+        *dest = bstri_dest;
       } /* if */
     } /* if */
-    /* It is possible that *bstri_to == bstri_from holds. The */
-    /* behavior of memcpy() is undefined when source and      */
-    /* destination areas overlap (or are identical).          */
-    /* Therefore memmove() is used instead of memcpy().       */
-    memmove(bstri_dest->mem, bstri_from->mem,
+    /* It is possible that *dest == source holds. The    */
+    /* behavior of memcpy() is undefined when source and */
+    /* destination areas overlap (or are identical).     */
+    /* Therefore memmove() is used instead of memcpy().  */
+    memmove(bstri_dest->mem, source->mem,
         new_size * sizeof(ucharType));
   } /* bstCpy */
 
@@ -219,19 +224,26 @@ void bstCpyGeneric (genericType *const dest, const genericType source)
 
 
 
-bstriType bstCreate (const const_bstriType bstri_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+bstriType bstCreate (const const_bstriType source)
 
   {
     memSizeType new_size;
     bstriType result;
 
   /* bstCreate */
-    new_size = bstri_from->size;
+    new_size = source->size;
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, new_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
-      memcpy(result->mem, bstri_from->mem,
+      memcpy(result->mem, source->mem,
           (size_t) new_size * sizeof(ucharType));
     } /* if */
     return result;

@@ -100,32 +100,36 @@ objectType lst_cat (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType lst_cpy (listType arguments)
 
   {
-    objectType list_to;
-    objectType list_from;
+    objectType dest;
+    objectType source;
     listType help_list;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* lst_cpy */
-    list_to = arg_1(arguments);
-    list_from = arg_3(arguments);
-    isit_list(list_to);
-    isit_list(list_from);
-    is_variable(list_to);
-    if (list_from != list_to) {
-      if (TEMP_OBJECT(list_from)) {
-        free_list(take_list(list_to));
-        list_to->value.listValue = take_list(list_from);
-        list_from->value.listValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_list(dest);
+    isit_list(source);
+    is_variable(dest);
+    if (source != dest) {
+      if (TEMP_OBJECT(source)) {
+        free_list(take_list(dest));
+        dest->value.listValue = take_list(source);
+        source->value.listValue = NULL;
       } else {
-        help_list = copy_list(take_list(list_from), &err_info);
+        help_list = copy_list(take_list(source), &err_info);
         if (err_info != OKAY_NO_ERROR) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          free_list(take_list(list_to));
-          list_to->value.listValue = help_list;
+          free_list(take_list(dest));
+          dest->value.listValue = help_list;
         } /* if */
       } /* if */
     } /* if */
@@ -134,25 +138,31 @@ objectType lst_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType lst_create (listType arguments)
 
   {
-    objectType list_to;
-    objectType list_from;
+    objectType dest;
+    objectType source;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* lst_create */
-    list_to = arg_1(arguments);
-    list_from = arg_3(arguments);
-    SET_CATEGORY_OF_OBJ(list_to, LISTOBJECT);
-    isit_list(list_from);
-    if (TEMP_OBJECT(list_from)) {
-      list_to->value.listValue = take_list(list_from);
-      list_from->value.listValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    SET_CATEGORY_OF_OBJ(dest, LISTOBJECT);
+    isit_list(source);
+    if (TEMP_OBJECT(source)) {
+      dest->value.listValue = take_list(source);
+      source->value.listValue = NULL;
     } else {
-      list_to->value.listValue = copy_list(take_list(list_from), &err_info);
+      dest->value.listValue = copy_list(take_list(source), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        list_to->value.listValue = NULL;
+        dest->value.listValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */

@@ -45,12 +45,12 @@ void toLower (const strElemType *const stri, memSizeType length,
     strElemType *const dest);
 void toUpper (const strElemType *const stri, memSizeType length,
     strElemType *const dest);
-striType concat_path (const const_striType absolutePath,
+striType concatPath (const const_striType absolutePath,
     const const_striType relativePath);
-void strAppend (striType *const destination, const_striType stri_from);
+void strAppend (striType *const destination, const_striType extension);
 void strAppendN (striType *const destination,
     const const_striType extensionArray[], memSizeType arraySize);
-void strAppendTemp (striType *const destination, const striType stri_from);
+void strAppendTemp (striType *const destination, const striType extension);
 intType strChIPos (const const_striType main_stri, const charType searched,
     const intType from_index);
 striType strChMult (const charType ch, const intType factor);
@@ -62,8 +62,8 @@ intType strCompare (const const_striType stri1, const const_striType stri2);
 striType strConcat (const const_striType stri1, const const_striType stri2);
 striType strConcatN (const const_striType striArray[], memSizeType arraySize);
 striType strConcatTemp (striType stri1, const const_striType stri2);
-void strCopy (striType *const stri_to, const const_striType stri_from);
-striType strCreate (const const_striType stri_from);
+void strCopy (striType *const dest, const const_striType source);
+striType strCreate (const const_striType source);
 void strDestr (const const_striType old_string);
 striType strEmpty (void);
 boolType strGe (const const_striType stri1, const const_striType stri2);

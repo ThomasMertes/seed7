@@ -114,7 +114,7 @@ static inline void systemVar (void)
     logFunction(printf("systemVar\n"););
     scan_symbol();
     if (symbol.sycategory == STRILITERAL) {
-      indexFound = find_sysvar(symbol.striValue);
+      indexFound = findSysvar(symbol.striValue);
       if (indexFound == -1) {
         err_warning(WRONGSYSTEM);
       } /* if */
@@ -409,7 +409,7 @@ static striType getProgramPath (const const_striType sourceFilePath)
       program_path = strCreate(sourceFilePath);
     } else {
       cwd = cmdGetcwd();
-      program_path = concat_path(cwd, sourceFilePath);
+      program_path = concatPath(cwd, sourceFilePath);
       FREE_STRI(cwd, cwd->size);
     } /* if */
     logFunction(printf("getProgramPath --> \"%s\"\n",
@@ -451,33 +451,33 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       resultProg->types = NULL;
-      progBackup = prog;
-      prog = resultProg;
       in_file.owningProg = resultProg;
       init_lib_path(sourceFileArgument, libraryDirs, err_info);
-      init_idents(prog, err_info);
-      init_findid(err_info);
-      init_entity(err_info);
-      init_sysvar();
-      init_declaration_root(prog, err_info);
-      init_stack(prog, err_info);
+      init_idents(resultProg, err_info);
+      init_findid(resultProg, err_info);
+      init_entity(resultProg, err_info);
+      init_sysvar(resultProg);
+      init_declaration_root(resultProg, err_info);
+      init_stack(resultProg, err_info);
       init_symbol(err_info);
       reset_statistic();
-      prog->error_count = 0;
-      prog->types = NULL;
-      prog->literals = NULL;
+      resultProg->error_count = 0;
+      resultProg->types = NULL;
+      resultProg->literals = NULL;
       if (*err_info == OKAY_NO_ERROR) {
         resultProg->arg0         = sourceFileArgumentCopy;
         resultProg->program_name = getProgramName(sourceFileArgument);
         resultProg->program_path = getProgramPath(sourceFilePath);
         resultProg->arg_v        = NULL;
         memcpy(&traceBackup, &trace, sizeof(traceRecord));
-        prog->option_flags = options;
-        set_trace(prog->option_flags);
+        resultProg->option_flags = options;
+        set_trace(resultProg->option_flags);
         set_protfile_name(protFileName);
-        declAny(prog->declaration_root);
+        progBackup = prog;
+        prog = resultProg;
+        declAny(resultProg->declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
-          prog->error_count++;
+          resultProg->error_count++;
           printf("*** System declaration for main missing\n");
         } else if (CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) != FORWARDOBJECT) {
 /*          printf("main defined as: ");
@@ -527,7 +527,6 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         /* trace_list(resultProg->stack_current->local_object_list); */
         memcpy(&trace, &traceBackup, sizeof(traceRecord));
       } else {
-        prog = progBackup;
         FREE_RECORD(resultProg, progRecord, count.prog);
         FREE_STRI(sourceFileArgumentCopy, sourceFileArgumentCopy->size);
         resultProg = NULL;

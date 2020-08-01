@@ -28,6 +28,7 @@
 
 include "osfiles.s7i";
 include "cc_conf.s7i";
+include "stdio.s7i";
 
 
 (**
@@ -100,6 +101,36 @@ const func string: str (in process: aProcess) is action "PCS_STR";
 const func boolean: isAlive (in process: process1) is action "PCS_IS_ALIVE";
 
 
+const func process: startProcess (in string: command, in array string: parameters,
+    inout clib_file: stdin, inout clib_file: stdout, inout clib_file: stderr) is action "PCS_START";
+
+
+const func process: startProcess (in string: command, in array string: parameters,
+    inout file: stdin, inout file: stdout, inout file: stderr) is func
+  result
+    var process: aProcess is process.value;
+  local
+    var clib_file: stdinFile is CLIB_NULL_FILE;
+    var clib_file: stdoutFile is CLIB_NULL_FILE;
+    var clib_file: stderrFile is CLIB_NULL_FILE;
+    var external_file: aFile is external_file.value;
+  begin
+    if stdin <> STD_NULL then
+      aFile := external_file conv stdin;
+      stdinFile := aFile.ext_file;
+    end if;
+    if stdout <> STD_NULL then
+      aFile := external_file conv stdout;
+      stdoutFile := aFile.ext_file;
+    end if;
+    if stderr <> STD_NULL then
+      aFile := external_file conv stderr;
+      stderrFile := aFile.ext_file;
+    end if;
+    aProcess := startProcess(command, parameters, stdinFile, stdoutFile, stderrFile);
+  end func;
+
+
 (**
  *  Start a new process.
  *  The command path must lead to an executable file. The environment
@@ -116,7 +147,9 @@ const func boolean: isAlive (in process: process1) is action "PCS_IS_ALIVE";
  *  @exception FILE_ERROR The file does not exist or does not
  *             have execute permission.
  *)
-const func process: startProcess (in string: command, in array string: parameters) is action "PCS_START";
+const func process: startProcess (in string: command, in array string: parameters) is
+  return startProcess(command, parameters, STD_IN.ext_file, STD_OUT.ext_file,
+                      STD_ERR.ext_file);
 
 
 (**
@@ -149,6 +182,77 @@ const func process: startProcess (in var string: cmdAndParams) is func
       parameter := getCommandLineWord(cmdAndParams);
     end while;
     childProcess := startProcess(command, parameters);
+  end func;
+
+
+const func clib_file: childStdInClibFile (in process: aProcess) is action "PCS_CHILD_STDIN";
+const func clib_file: childStdOutClibFile (in process: aProcess) is action "PCS_CHILD_STDOUT";
+const func clib_file: childStdErrClibFile (in process: aProcess) is action "PCS_CHILD_STDERR";
+
+
+(**
+ *  Returns the standard input file (stdin) of the given child process.
+ *  If the standard input file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the standard input file of 'aProcess' or
+ *          NULL, if stdin has been redirected.
+ *)
+const func file: childStdIn (in process: aProcess) is func
+  result
+    var file: stdIn is STD_NULL;
+  local
+    var clib_file: stdinClibFile is CLIB_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    stdinClibFile := childStdInClibFile(aProcess);
+    if stdinClibFile <> CLIB_NULL_FILE then
+      new_file.ext_file := stdinClibFile;
+      stdIn:= toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Returns the standard output file (stdout) of the given child process.
+ *  If the standard output file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the standard output file of 'aProcess' or
+ *          NULL, if stdout has been redirected.
+ *)
+const func file: childStdOut (in process: aProcess) is func
+  result
+    var file: stdOut is STD_NULL;
+  local
+    var clib_file: stdoutClibFile is CLIB_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    stdoutClibFile := childStdOutClibFile(aProcess);
+    if stdoutClibFile <> CLIB_NULL_FILE then
+      new_file.ext_file := stdoutClibFile;
+      stdOut:= toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Returns the error output file (stderr) of the given child process.
+ *  If the standard error file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the error output file of 'aProcess' or
+ *          NULL, if stderr has been redirected.
+ *)
+const func file: childStdErr (in process: aProcess) is func
+  result
+    var file: stdErr is STD_NULL;
+  local
+    var clib_file: stderrClibFile is CLIB_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    stderrClibFile := childStdErrClibFile(aProcess);
+    if stderrClibFile <> CLIB_NULL_FILE then
+      new_file.ext_file := stderrClibFile;
+      stdErr:= toInterface(new_file);
+    end if;
   end func;
 
 

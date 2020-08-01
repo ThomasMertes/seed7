@@ -49,8 +49,8 @@
  *      Contains the command to call the stand-alone C compiler and linker.
  *  CC_NO_OPT_OUTPUT_FILE:
  *      Defined, when compiling and linking with one command cannot use -o.
- *  REDIRECT_C_ERRORS:
- *      The redirect command to redirect the errors of the C compiler to a file.
+ *  CC_ERROR_FILDES:
+ *      File descriptor to which the C compiler writes errors.
  *  LINKER_OPT_OUTPUT_FILE:
  *      Contains the linker option to provide the output filename (e.g.: "-o ").
  *  SYSTEM_LIBS:
@@ -114,29 +114,37 @@
 #define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
+#ifndef REDIRECT_FILDES_1
+#define REDIRECT_FILDES_1 ">"
+#endif
+
+#ifndef REDIRECT_FILDES_2
+#define REDIRECT_FILDES_2 "2>"
+#endif
+
 #define xstr(s) str(s)
 #define str(s) #s
 
 #define BUFFER_SIZE 4096
 
-char c_compiler[1024];
+static int testNumber = 0;
+static char c_compiler[1024];
+static FILE *logFile;
 
-FILE *logFile;
+static const char *int16TypeStri = NULL;
+static const char *uint16TypeStri = NULL;
+static const char *int32TypeStri = NULL;
+static const char *uint32TypeStri = NULL;
+static const char *int32TypeSuffix = "";
+static const char *int32TypeFormat = NULL;
+static const char *int64TypeStri = NULL;
+static const char *uint64TypeStri = NULL;
+static const char *int64TypeSuffix = "";
+static const char *int64TypeFormat = NULL;
+static const char *int128TypeStri = NULL;
+static const char *uint128TypeStri = NULL;
 
-const char *int16TypeStri = NULL;
-const char *uint16TypeStri = NULL;
-const char *int32TypeStri = NULL;
-const char *uint32TypeStri = NULL;
-const char *int32TypeSuffix = "";
-const char *int32TypeFormat = NULL;
-const char *int64TypeStri = NULL;
-const char *uint64TypeStri = NULL;
-const char *int64TypeSuffix = "";
-const char *int64TypeFormat = NULL;
-const char *int128TypeStri = NULL;
-const char *uint128TypeStri = NULL;
-
-const char *makeDirDefinition = NULL;
+static const char *makeDirDefinition = NULL;
 
 
 
@@ -151,7 +159,7 @@ int _matherr (struct _exception *a)
 
 
 
-void prepareCompileCommand (void)
+static void prepareCompileCommand (void)
 
   {
     int mapAbsolutePathToDriveLetters = 0;
@@ -201,7 +209,7 @@ void prepareCompileCommand (void)
 
 
 
-int fileIsRegular (const char *fileName)
+static int fileIsRegular (const char *fileName)
 
   {
     struct stat stat_buf;
@@ -212,7 +220,7 @@ int fileIsRegular (const char *fileName)
 
 
 
-int fileIsDir (const char *fileName)
+static int fileIsDir (const char *fileName)
 
   {
     struct stat stat_buf;
@@ -223,11 +231,13 @@ int fileIsDir (const char *fileName)
 
 
 
-void doRemove (const char *fileName)
+static void doRemove (const char *fileName)
 
   {
 
   /* doRemove */
+    fprintf(logFile, "#");
+    fflush(logFile);
     if (fileIsRegular(fileName)) {
       if (remove(fileName) != 0) {
 #if defined OS_STRI_WCHAR && defined USE_WINSOCK
@@ -244,31 +254,42 @@ void doRemove (const char *fileName)
           } /* if */
         } /* while */
         if (fileIsRegular(fileName)) {
-          fprintf(logFile, " *** Cannot remove %s\n", fileName);
+          fprintf(logFile, "\n *** Cannot remove %s\n", fileName);
         } /* if */
 #else
-        fprintf(logFile, " *** Cannot remove %s\n", fileName);
+        fprintf(logFile, "\n *** Cannot remove %s\n", fileName);
 #endif
       } /* if */
     } /* if */
+    fprintf(logFile, "\b");
+    fflush(logFile);
   } /* doRemove */
 
 
 
-void cleanUpCompilation (void)
+static void cleanUpCompilation (int testNumber)
 
-  { /* cleanUpCompilation */
-    doRemove("ctest.c");
-    doRemove("ctest.cerrs");
-    doRemove("ctest.lerrs");
-    doRemove("ctest" OBJECT_FILE_EXTENSION);
-    doRemove("ctest" EXECUTABLE_FILE_EXTENSION);
-    doRemove("ctest.out");
+  {
+    char fileName[1024];
+
+  /* cleanUpCompilation */
+    sprintf(fileName, "ctest%d.c", testNumber);
+    doRemove(fileName);
+    sprintf(fileName, "ctest%d.cerrs", testNumber);
+    doRemove(fileName);
+    sprintf(fileName, "ctest%d.lerrs", testNumber);
+    doRemove(fileName);
+    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    doRemove(fileName);
+    sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
+    doRemove(fileName);
+    sprintf(fileName, "ctest%d.out", testNumber);
+    doRemove(fileName);
   } /* cleanUpCompilation */
 
 
 
-int doCompileAndLink (const char *options, const char *linkerOptions)
+static int doCompileAndLink (const char *options, const char *linkerOptions, int testNumber)
 
   {
     char command[1024];
@@ -278,20 +299,27 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
     int okay = 0;
 
   /* doCompileAndLink */
+    fprintf(logFile, "*");
+    fflush(logFile);
 #ifdef CC_FLAGS
-    sprintf(command, "%s %s %s ctest.c %s",
-            c_compiler, options, CC_FLAGS, linkerOptions);
+    sprintf(command, "%s %s %s ctest%d.c %s",
+            c_compiler, options, CC_FLAGS, testNumber, linkerOptions);
 #else
-    sprintf(command, "%s %s ctest.c %s",
-            c_compiler, options, linkerOptions);
+    sprintf(command, "%s %s ctest%d.c %s",
+            c_compiler, options, testNumber, linkerOptions);
 #endif
 #if !defined LINKER && defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
-    sprintf(&command[strlen(command)], " %sctest%s",
-            LINKER_OPT_OUTPUT_FILE, EXECUTABLE_FILE_EXTENSION);
+    sprintf(&command[strlen(command)], " %sctest%d%s",
+            LINKER_OPT_OUTPUT_FILE, testNumber, EXECUTABLE_FILE_EXTENSION);
 #endif
-#ifdef REDIRECT_C_ERRORS
-    sprintf(&command[strlen(command)], " %sctest.cerrs",
-            REDIRECT_C_ERRORS);
+#ifdef CC_ERROR_FILDES
+    if (CC_ERROR_FILDES == 1) {
+      sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
+              REDIRECT_FILDES_1, testNumber, REDIRECT_FILDES_2, NULL_DEVICE);
+    } else if (CC_ERROR_FILDES == 2) {
+      sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
+              REDIRECT_FILDES_2, testNumber, REDIRECT_FILDES_1, NULL_DEVICE);
+    } /* if */
 #endif
 #ifdef QUOTE_WHOLE_SHELL_COMMAND
     if (command[0] == '\"') {
@@ -307,21 +335,21 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
 #ifdef LINKER
     if (returncode == 0) {
       /* fprintf(logFile, "returncode: %d\n", returncode); */
-      sprintf(command, "%s ctest%s %s %sctest%s",
-              LINKER, OBJECT_FILE_EXTENSION, linkerOptions,
-              LINKER_OPT_OUTPUT_FILE, EXECUTABLE_FILE_EXTENSION);
+      sprintf(command, "%s ctest%d%s %s %sctest%d%s",
+              LINKER, testNumber, OBJECT_FILE_EXTENSION, linkerOptions,
+              LINKER_OPT_OUTPUT_FILE, testNumber, EXECUTABLE_FILE_EXTENSION);
       returncode = system(command);
     } /* if */
 #endif
-    sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
     if (fileIsRegular(fileName)) {
       if (returncode == 0) {
         okay = 1;
       } else {
-        /* fprintf(logFile, " *** The compiler %s fails, but creates an executable.\n", c_compiler); */
+        /* fprintf(logFile, "\n *** The compiler %s fails, but creates an executable.\n", c_compiler); */
       } /* if */
     } else {
-      /* fprintf(logFile, " *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
+      /* fprintf(logFile, "\n *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
     } /* if */
 #ifdef DEBUG_CHKCCOMP
     fprintf(logFile, "command: %s\n", command);
@@ -331,26 +359,32 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
     } /* if */
     fprintf(logFile, "okay: %d\n", okay);
 #endif
+    fprintf(logFile, "\b.");
+    fflush(logFile);
     return okay;
   } /* doCompileAndLink */
 
 
 
-int compileAndLinkWithOptionsOk (const char *content, const char *options,
+static int compileAndLinkWithOptionsOk (const char *content, const char *options,
     const char *linkerOptions)
 
   {
+    char fileName[1024];
     FILE *testFile;
     int okay = 0;
 
   /* compileAndLinkWithOptionsOk */
     /* fprintf(logFile, "compileAndLinkWithOptionsOk(%s)\n", content); */
-    cleanUpCompilation();
-    testFile = fopen("ctest.c", "w");
+    cleanUpCompilation(testNumber);
+    testNumber++;
+    cleanUpCompilation(testNumber);
+    sprintf(fileName, "ctest%d.c", testNumber);
+    testFile = fopen(fileName, "w");
     if (testFile != NULL) {
       fprintf(testFile, "%s", content);
       fclose(testFile);
-      okay = doCompileAndLink(options, linkerOptions);
+      okay = doCompileAndLink(options, linkerOptions, testNumber);
     } /* if */
 #ifdef DEBUG_CHKCCOMP
     fprintf(logFile, "content: %s\n", content);
@@ -361,14 +395,16 @@ int compileAndLinkWithOptionsOk (const char *content, const char *options,
 
 
 
-void showErrors (void)
+static void showErrors (void)
 
   {
+    char fileName[1024];
     FILE *errorFile;
     int ch;
 
   /* showErrors */
-    errorFile = fopen("ctest.cerrs", "r");
+    sprintf(fileName, "ctest%d.cerrs", testNumber);
+    errorFile = fopen(fileName, "r");
     if (errorFile != NULL) {
       fprintf(logFile, "\nCompiler errors:\n");
       while ((ch = getc(errorFile)) != EOF) {
@@ -377,7 +413,8 @@ void showErrors (void)
       fclose(errorFile);
       fprintf(logFile, "\n");
     } /* if */
-    errorFile = fopen("ctest.lerrs", "r");
+    sprintf(fileName, "ctest%d.lerrs", testNumber);
+    errorFile = fopen(fileName, "r");
     if (errorFile != NULL) {
       fprintf(logFile, "\nLinker errors:\n");
       while ((ch = getc(errorFile)) != EOF) {
@@ -390,7 +427,7 @@ void showErrors (void)
 
 
 
-int assertCompAndLnkWithOptions (const char *content, const char *options,
+static int assertCompAndLnkWithOptions (const char *content, const char *options,
     const char *linkerOptions)
 
   {
@@ -399,7 +436,7 @@ int assertCompAndLnkWithOptions (const char *content, const char *options,
   /* assertCompAndLnkWithOptions */
     okay = compileAndLinkWithOptionsOk(content, options, linkerOptions);
     if (!okay) {
-      fprintf(logFile, " **** Compile and link failed for:\n%s\n", content);
+      fprintf(logFile, "\n **** Compile and link failed for:\n%s\n", content);
       showErrors();
     } /* if */
     return okay;
@@ -407,7 +444,7 @@ int assertCompAndLnkWithOptions (const char *content, const char *options,
 
 
 
-int compileAndLinkOk (const char *content)
+static int compileAndLinkOk (const char *content)
 
   { /* compileAndLinkOk */
     return compileAndLinkWithOptionsOk(content, "", "");
@@ -415,7 +452,7 @@ int compileAndLinkOk (const char *content)
 
 
 
-int assertCompAndLnk (const char *content)
+static int assertCompAndLnk (const char *content)
 
   {
     int okay;
@@ -423,7 +460,7 @@ int assertCompAndLnk (const char *content)
   /* assertCompAndLnk */
     okay = compileAndLinkOk(content);
     if (!okay) {
-      fprintf(logFile, " **** Compile and link failed for:\n%s\n", content);
+      fprintf(logFile, "\n **** Compile and link failed for:\n%s\n", content);
       showErrors();
     } /* if */
     return okay;
@@ -431,35 +468,43 @@ int assertCompAndLnk (const char *content)
 
 
 
-int doTest (void)
+static int doTest (void)
 
   {
     char command[1024];
+    char fileName[1024];
     int returncode;
     FILE *outFile;
     int result = -1;
 
   /* doTest */
+    fprintf(logFile, "+");
+    fflush(logFile);
 #ifdef INTERPRETER_FOR_EXECUTABLE
-    sprintf(command, "%s .%cctest%s>ctest.out",
-            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+    sprintf(command, "%s .%cctest%d%s>ctest%d.out",
+            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, testNumber,
+            EXECUTABLE_FILE_EXTENSION, testNumber);
 #else
-    sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+    sprintf(command, ".%cctest%d%s>ctest%d.out", PATH_DELIMITER,
+            testNumber, EXECUTABLE_FILE_EXTENSION, testNumber);
 #endif
     returncode = system(command);
     if (returncode != -1) {
-      outFile = fopen("ctest.out", "r");
+      sprintf(fileName, "ctest%d.out", testNumber);
+      outFile = fopen(fileName, "r");
       if (outFile != NULL) {
         fscanf(outFile, "%d", &result);
         fclose(outFile);
       } /* if */
     } /* if */
+    fprintf(logFile, "\b");
+    fflush(logFile);
     return result;
   } /* doTest */
 
 
 
-int expectTestResult (const char *content, int expected)
+static int expectTestResult (const char *content, int expected)
 
   {
     int testResult = -1;
@@ -470,31 +515,37 @@ int expectTestResult (const char *content, int expected)
       testResult = doTest();
       okay = testResult == expected;
     } else {
-      fprintf(logFile, " *** Unable to compile test program:\n%s\n", content);
+      fprintf(logFile, "\n *** Unable to compile test program:\n%s\n", content);
     } /* if */
     return okay;
   } /* expectTestResult */
 
 
 
-void testOutputToVersionFile (FILE *versionFile)
+static void testOutputToVersionFile (FILE *versionFile)
 
   {
     char command[1024];
+    char fileName[1024];
     int returncode;
     FILE *outFile;
     int ch;
 
   /* testOutputToVersionFile */
+    fprintf(logFile, ">");
+    fflush(logFile);
 #ifdef INTERPRETER_FOR_EXECUTABLE
-    sprintf(command, "%s .%cctest%s>ctest.out",
-            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+    sprintf(command, "%s .%cctest%d%s>ctest%d.out",
+            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, testNumber,
+            EXECUTABLE_FILE_EXTENSION, testNumber);
 #else
-    sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+    sprintf(command, ".%cctest%d%s>ctest%d.out", PATH_DELIMITER,
+            testNumber, EXECUTABLE_FILE_EXTENSION, testNumber);
 #endif
     returncode = system(command);
     if (returncode != -1) {
-      outFile = fopen("ctest.out", "r");
+      sprintf(fileName, "ctest%d.out", testNumber);
+      outFile = fopen(fileName, "r");
       if (outFile != NULL) {
         while ((ch = getc(outFile)) != EOF) {
           putc(ch, versionFile);
@@ -502,11 +553,13 @@ void testOutputToVersionFile (FILE *versionFile)
         fclose(outFile);
       } /* if */
     } /* if */
+    fprintf(logFile, "\b");
+    fflush(logFile);
   } /* testOutputToVersionFile */
 
 
 
-void checkSignal (FILE *versionFile)
+static void checkSignal (FILE *versionFile)
 
   {
     int has_signal = 0;
@@ -547,7 +600,7 @@ void checkSignal (FILE *versionFile)
 
 
 
-void writeMacroDefs (FILE *versionFile)
+static void writeMacroDefs (FILE *versionFile)
 
   {
     char macroDefs[BUFFER_SIZE];
@@ -598,13 +651,14 @@ void writeMacroDefs (FILE *versionFile)
 
 
 
-void checkPopen (FILE *versionFile)
+static void checkPopen (FILE *versionFile)
 
   {
     char *popen = NULL;
     int binary_mode_supported;
     char *binary_mode = "";
     char buffer[BUFFER_SIZE];
+    char fileName[1024];
 
   /* checkPopen */
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
@@ -622,7 +676,7 @@ void checkPopen (FILE *versionFile)
     } /* if */
     fprintf(versionFile, "#define HAS_POPEN %d\n", popen != NULL);
     if (popen != NULL) {
-      sprintf(buffer, "#include <stdio.h>\n#include <errno.h>\n"
+      sprintf(buffer, "#include <stdio.h>\n"
                       "int main(int argc, char *argv[])\n"
                       "{FILE *aFile; aFile=%s(\""
                       LIST_DIRECTORY_CONTENTS
@@ -635,7 +689,7 @@ void checkPopen (FILE *versionFile)
           binary_mode = "b";
         } /* if */
       } /* if */
-      sprintf(buffer, "#include <stdio.h>\n#include <errno.h>\n"
+      sprintf(buffer, "#include <stdio.h>\n"
                       "int main(int argc, char *argv[])\n"
                       "{FILE *aFile; aFile=%s(\""
                       LIST_DIRECTORY_CONTENTS
@@ -643,6 +697,27 @@ void checkPopen (FILE *versionFile)
                       "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
       if (assertCompAndLnk(buffer)) {
         fprintf(versionFile, "#define POPEN_SUPPORTS_TEXT_MODE %d\n", doTest() == 1);
+      } /* if */
+      sprintf(buffer, "#include <stdio.h>\n#include <windows.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile;\n"
+                      "SetErrorMode(SEM_NOGPFAULTERRORBOX);\n"
+                      "aFile=%s(\""
+                      LIST_DIRECTORY_CONTENTS
+                      "\", \"re\");\n"
+                      "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
+      if (compileAndLinkOk(buffer)) {
+        fprintf(versionFile, "#define POPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
+      } else {
+        sprintf(buffer, "#include <stdio.h>\n"
+                        "int main(int argc, char *argv[])\n"
+                        "{FILE *aFile; aFile=%s(\""
+                        LIST_DIRECTORY_CONTENTS
+                        "\", \"re\");\n"
+                        "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
+        if (assertCompAndLnk(buffer)) {
+          fprintf(versionFile, "#define POPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
+        } /* if */
       } /* if */
       sprintf(buffer, "#include <stdio.h>\nint main(int argc, char *argv[])\n"
                       "{FILE *aFile; aFile=%s(\""
@@ -655,11 +730,12 @@ void checkPopen (FILE *versionFile)
       if (compileAndLinkOk("#include <stdio.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{printf(\"x\\n\"); return 0;}\n")) {
-        if (rename("ctest" EXECUTABLE_FILE_EXTENSION, "ctest2" EXECUTABLE_FILE_EXTENSION) == 0) {
+        sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
+        if (rename(fileName, "ctest_a" EXECUTABLE_FILE_EXTENSION) == 0) {
           sprintf(buffer, "#include <stdio.h>\n#include <string.h>\n"
                           "int main(int argc, char *argv[])\n"
                           "{char buffer[5]; FILE *aFile; aFile=%s(\""
-                          ".%s%cctest2%s"
+                          ".%s%cctest_a%s"
                           "\", \"r%s\");\n"
                           "if (aFile != NULL && fgets(buffer, 4, aFile) != NULL)\n"
                           "printf(\"%%d\\n\", memcmp(buffer, \"x\\r\\n\", 3) == 0);\n"
@@ -669,7 +745,7 @@ void checkPopen (FILE *versionFile)
           if (assertCompAndLnk(buffer)) {
             fprintf(versionFile, "#define STDOUT_IS_IN_TEXT_MODE %d\n", doTest() == 1);
           } /* if */
-          doRemove("ctest2" EXECUTABLE_FILE_EXTENSION);
+          doRemove("ctest_a" EXECUTABLE_FILE_EXTENSION);
         } /* if */
       } /* if */
     } /* if */
@@ -677,7 +753,7 @@ void checkPopen (FILE *versionFile)
 
 
 
-void checkMoveDirectory (const char *makeDirDefinition, FILE *versionFile)
+static void checkMoveDirectory (const char *makeDirDefinition, FILE *versionFile)
 
   {
     char buffer[BUFFER_SIZE];
@@ -740,7 +816,7 @@ void checkMoveDirectory (const char *makeDirDefinition, FILE *versionFile)
 
 
 
-int getSizeof (const char *typeName)
+static int getSizeof (const char *typeName)
 
   {
     char buffer[BUFFER_SIZE];
@@ -759,7 +835,7 @@ int getSizeof (const char *typeName)
     if (compileAndLinkOk(buffer)) {
       computedSize = doTest();
       if (computedSize == -1) {
-        fprintf(logFile, " *** Unable to determine sizeof(%s).\n", typeName);
+        fprintf(logFile, "\n *** Unable to determine sizeof(%s).\n", typeName);
       } /* if */
     } /* if */
     return computedSize;
@@ -767,7 +843,7 @@ int getSizeof (const char *typeName)
 
 
 
-int isSignedType (const char *typeName)
+static int isSignedType (const char *typeName)
 
   {
     char buffer[BUFFER_SIZE];
@@ -786,14 +862,14 @@ int isSignedType (const char *typeName)
       isSigned = doTest();
     } /* if */
     if (isSigned == -1) {
-      fprintf(logFile, " *** Unable to determine if %s is signed.\n", typeName);
+      fprintf(logFile, "\n *** Unable to determine if %s is signed.\n", typeName);
     } /* if */
     return isSigned == 1;
   } /* isSignedType */
 
 
 
-void numericSizes (FILE *versionFile)
+static void numericSizes (FILE *versionFile)
 
   {
     int char_bit;
@@ -804,7 +880,7 @@ void numericSizes (FILE *versionFile)
     int sizeof_long_long;
 
   /* numericSizes */
-    fprintf(logFile, "Numeric sizes:");
+    fprintf(logFile, "Numeric sizes: ");
     fflush(stdout);
     if (compileAndLinkOk("#include <stdio.h>\n#include <limits.h>\n"
                          "int main(int argc, char *argv[])"
@@ -1006,7 +1082,7 @@ void numericSizes (FILE *versionFile)
 
 
 
-void checkIntDivisions (FILE *versionFile)
+static void checkIntDivisions (FILE *versionFile)
 
   {
     int check_int_div_by_zero;
@@ -1110,7 +1186,8 @@ void checkIntDivisions (FILE *versionFile)
 
 
 
-const char *determine_os_isnan_definition (const char *computeValues, const char *os_isnan_definition)
+static const char *determine_os_isnan_definition (const char *computeValues,
+    const char *os_isnan_definition)
 
   {
     char buffer[BUFFER_SIZE];
@@ -1156,7 +1233,7 @@ const char *determine_os_isnan_definition (const char *computeValues, const char
 
 
 
-void numericProperties (FILE *versionFile)
+static void numericProperties (FILE *versionFile)
 
   {
     int testResult;
@@ -1165,7 +1242,7 @@ void numericProperties (FILE *versionFile)
     const char *os_isnan_definition = NULL;
 
   /* numericProperties */
-    fprintf(logFile, "Numeric properties:");
+    fprintf(logFile, "Numeric properties: ");
     fflush(stdout);
     if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[])"
                          "{long num=-1;printf(\"%d\\n\",num>>1==(long)-1);return 0;}\n")) {
@@ -1742,7 +1819,7 @@ void numericProperties (FILE *versionFile)
 
 
 
-void determineMallocAlignment (FILE *versionFile)
+static void determineMallocAlignment (FILE *versionFile)
 
   {
     int alignment = -1;
@@ -1774,7 +1851,7 @@ void determineMallocAlignment (FILE *versionFile)
       alignment = doTest();
     } /* if */
     if (alignment == -1) {
-      fprintf(logFile, " *** Unable to determine malloc alignment.\n");
+      fprintf(logFile, "\n *** Unable to determine malloc alignment.\n");
     } else {
       fprintf(versionFile, "#define MALLOC_ALIGNMENT %d\n", alignment);
     } /* if */
@@ -1782,7 +1859,7 @@ void determineMallocAlignment (FILE *versionFile)
 
 
 
-void checkForLimitedStringLiteralLength (FILE *versionFile)
+static void checkForLimitedStringLiteralLength (FILE *versionFile)
 
   {
     const char *programStart = "#include <stdio.h>\n#include <string.h>\n"
@@ -1821,7 +1898,7 @@ void checkForLimitedStringLiteralLength (FILE *versionFile)
 
 
 
-void determineStackDirection (FILE *versionFile)
+static void determineStackDirection (FILE *versionFile)
 
   {
     int stackDir;
@@ -1846,7 +1923,7 @@ void determineStackDirection (FILE *versionFile)
 
 
 
-void localtimeProperties (FILE *versionFile)
+static void localtimeProperties (FILE *versionFile)
 
   { /* localtimeProperties */
 #ifdef USE_ALTERNATE_LOCALTIME_R
@@ -1888,7 +1965,7 @@ void localtimeProperties (FILE *versionFile)
 
 
 
-const char *defineMakeDir (void)
+static const char *defineMakeDir (void)
 
   {
     const char *makeDirDefinition = NULL;
@@ -1933,7 +2010,7 @@ const char *defineMakeDir (void)
 
 
 
-void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
+static void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
 
   {
     char buffer[BUFFER_SIZE];
@@ -1966,7 +2043,7 @@ void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
  *  Determine values for DEFINE_OS_ENVIRON, DECLARE_OS_ENVIRON and
  *  INITIALIZE_OS_ENVIRON.
  */
-void determineEnvironDefines (FILE *versionFile)
+static void determineEnvironDefines (FILE *versionFile)
 
   {
     char buffer[BUFFER_SIZE];
@@ -2028,7 +2105,7 @@ void determineEnvironDefines (FILE *versionFile)
 
 
 
-void determineGetaddrlimit (FILE *versionFile)
+static void determineGetaddrlimit (FILE *versionFile)
 
   {
     int has_getrlimit;
@@ -2071,7 +2148,8 @@ void determineGetaddrlimit (FILE *versionFile)
   } /* determineGetaddrlimit */
 
 
-void determineOsDirAccess (FILE *versionFile)
+
+static void determineOsDirAccess (FILE *versionFile)
 
   {
     char *dir_include = NULL;
@@ -2093,7 +2171,7 @@ void determineOsDirAccess (FILE *versionFile)
       dir_include = "\"dir_win.h\"";
       dir_define = "USE_DIRWIN";
 #else
-      fprintf(logFile, " *** Cannot define USE_DIRENT or USE_DIRWIN.\n");
+      fprintf(logFile, "\n *** Cannot define USE_DIRENT or USE_DIRWIN.\n");
 #endif
     } /* if */
 #ifdef OS_STRI_WCHAR
@@ -2161,7 +2239,8 @@ void determineOsDirAccess (FILE *versionFile)
   } /* determineOsDirAccess */
 
 
-void determineOsUtime (FILE *versionFile)
+
+static void determineOsUtime (FILE *versionFile)
 
   {
     char *utime_include = NULL;
@@ -2198,7 +2277,7 @@ void determineOsUtime (FILE *versionFile)
       fputs("#define INCLUDE_SYS_UTIME\n", versionFile);
     } /* if */
     if (utime_include == NULL || os_utimbuf_struct_stri == NULL) {
-      fprintf(logFile, " *** Cannot find utime.h include and os_utimbuf_struct.\n");
+      fprintf(logFile, "\n *** Cannot find utime.h include and os_utimbuf_struct.\n");
     } else {
       fprintf(versionFile, "#define os_utimbuf_struct %s\n", os_utimbuf_struct_stri);
       sprintf(buffer, "#include <stdio.h>\n#include <%s>\n"
@@ -2235,24 +2314,25 @@ void determineOsUtime (FILE *versionFile)
           fprintf(versionFile, "#define os_utime %s\n", os_utime_stri);
         } /* if */
       } else {
-        fprintf(logFile, " *** Cannot define os_utime.\n");
+        fprintf(logFile, "\n *** Cannot define os_utime.\n");
       } /* if */
     } /* if */
   } /* determineOsUtime */
 
 
-void determineOsFunctions (FILE *versionFile)
 
-  { /* determineOsFunctions */
-    determineOsDirAccess(versionFile);
 #ifdef OS_STRI_WCHAR
+static void determineOsWCharFunctions (FILE *versionFile)
+
+  { /* determineOsWCharFunctions */
 #ifndef os_chdir
     if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{printf(\"%d\\n\", _wchdir(L\"..\") != -1);return 0;}\n")) {
       fputs("#define os_chdir _wchdir\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_chdir.\n");
+      fprintf(logFile, "\n *** Cannot define os_chdir.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_getcwd
@@ -2263,7 +2343,8 @@ void determineOsFunctions (FILE *versionFile)
       fputs("#define OS_GETCWD_MAX_BUFFER_SIZE INT_MAX\n", versionFile);
       fputs("#define os_getcwd(buf,size) _wgetcwd((buf),(int)(size))\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_getcwd.\n");
+      fprintf(logFile, "\n *** Cannot define os_getcwd.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_mkdir
@@ -2272,7 +2353,8 @@ void determineOsFunctions (FILE *versionFile)
                          "{printf(\"%d\\n\", _wmkdir(L\"testdir\") != -1);return 0;}\n")) {
       fputs("#define os_mkdir(path,mode) _wmkdir(path)\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_mkdir.\n");
+      fprintf(logFile, "\n *** Cannot define os_mkdir.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_rmdir
@@ -2281,7 +2363,8 @@ void determineOsFunctions (FILE *versionFile)
                          "{printf(\"%d\\n\", _wrmdir(L\"testdir\") != -1);return 0;}\n")) {
       fputs("#define os_rmdir _wrmdir\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_rmdir.\n");
+      fprintf(logFile, "\n *** Cannot define os_rmdir.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_chmod
@@ -2295,7 +2378,8 @@ void determineOsFunctions (FILE *versionFile)
       fputs("#define OS_CHMOD_INCLUDE_IO_H\n", versionFile);
       fputs("#define os_chmod _wchmod\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_chmod.\n");
+      fprintf(logFile, "\n *** Cannot define os_chmod.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_chown
@@ -2310,7 +2394,8 @@ void determineOsFunctions (FILE *versionFile)
                          "{printf(\"%d\\n\", _wremove(L\"testfile\") != -1);return 0;}\n")) {
       fputs("#define os_remove _wremove\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_remove.\n");
+      fprintf(logFile, "\n *** Cannot define os_remove.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_rename
@@ -2319,7 +2404,8 @@ void determineOsFunctions (FILE *versionFile)
                          "{printf(\"%d\\n\", _wrename(L\"testfile\", L\"newname\") == 0);return 0;}\n")) {
       fputs("#define os_rename _wrename\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_rename.\n");
+      fprintf(logFile, "\n *** Cannot define os_rename.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_system
@@ -2328,7 +2414,8 @@ void determineOsFunctions (FILE *versionFile)
                          "{printf(\"%d\\n\", _wsystem(L\"pwd\") != -1);return 0;}\n")) {
       fputs("#define os_system _wsystem\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_system.\n");
+      fprintf(logFile, "\n *** Cannot define os_system.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_fopen
@@ -2341,17 +2428,18 @@ void determineOsFunctions (FILE *versionFile)
                          "{printf(\"%d\\n\", wfopen(L\"testfile\", L\"r\") != NULL);return 0;}\n")) {
       fputs("#define os_fopen wfopen\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_fopen.\n");
+      fprintf(logFile, "\n *** Cannot define os_fopen.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_popen
     if (compileAndLinkOk("#include <stdio.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wpopen(L\"pwd\", \"r\") != NULL);return 0;}\n")) {
+                         "{printf(\"%d\\n\", _wpopen(L\"pwd\", L\"r\") != NULL);return 0;}\n")) {
       fputs("#define os_popen _wpopen\n", versionFile);
     } else if (compileAndLinkOk("#include <stdio.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", wpopen(L\"pwd\", \"r\") != NULL);return 0;}\n")) {
+                         "{printf(\"%d\\n\", wpopen(L\"pwd\", L\"r\") != NULL);return 0;}\n")) {
       fputs("#define os_popen wpopen\n", versionFile);
     } else {
       fputs("#define DEFINE_WPOPEN FILE *wpopen (const wchar_t *command, const wchar_t *mode) { return NULL; }\n", versionFile);
@@ -2364,7 +2452,8 @@ void determineOsFunctions (FILE *versionFile)
                          "{printf(\"%d\\n\", _pclose(NULL) != -1);return 0;}\n")) {
       fputs("#define os_pclose _pclose\n", versionFile);
     } else {
-      fprintf(logFile, " *** Cannot define os_pclose.\n");
+      fprintf(logFile, "\n *** Cannot define os_pclose.\n");
+      showErrors();
     } /* if */
 #endif
 #ifndef os_getenv
@@ -2381,11 +2470,55 @@ void determineOsFunctions (FILE *versionFile)
       fputs("#define os_getenv wgetenv\n", versionFile);
     } /* if */
 #endif
+  } /* determineOsWCharFunctions */
 #endif
+
+
+
+static void determineOsFunctions (FILE *versionFile)
+
+  { /* determineOsFunctions */
+    determineOsDirAccess(versionFile);
+#ifdef OS_STRI_WCHAR
+    determineOsWCharFunctions(versionFile);
+#endif
+    if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{SetErrorMode(SEM_NOGPFAULTERRORBOX);\n"
+                         "printf(\"%d\\n\", fopen(\"version.h\", \"re\") != NULL);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
+    } else if (assertCompAndLnk("#include <stdio.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\", fopen(\"version.h\", \"re\") != NULL);"
+                                "return 0;}\n")) {
+      fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
+    } /* if */
+    fprintf(versionFile,
+            "#define HAS_FCNTL_SETFD_CLOEXEC %d\n",
+            compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                             "#include <fcntl.h>\n"
+                             "int main(int argc,char *argv[])\n"
+                             "{FILE *aFile;int fd;\n"
+                             "printf(\"%d\\n\",\n"
+                             "(aFile = fopen(\"version.h\", \"r\")) != NULL &&\n"
+                             "(fd = fileno(aFile)) != -1 &&\n"
+                             "fcntl(fd,F_SETFD,FD_CLOEXEC) == 0);\n"
+                             "return 0;}\n") &&
+            doTest() == 1);
+    fprintf(versionFile,
+            "#define HAS_PIPE2 %d\n",
+            compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                             "int main(int argc,char *argv[])\n"
+                             "{int pipefd[2];\n"
+                             "printf(\"%d\\n\", pipe2(pipefd, O_CLOEXEC) == 0);\n"
+                             "return 0;}\n") &&
+	    doTest() == 1);
   } /* determineOsFunctions */
 
 
-void appendToFile (const char *fileName, const char *data)
+
+static void appendToFile (const char *fileName, const char *data)
 
   {
     FILE *outFile;
@@ -2400,26 +2533,43 @@ void appendToFile (const char *fileName, const char *data)
 
 
 
-void escapeString (FILE *versionFile, const char *text)
+static void replaceNLBySpace (char *text)
+
+  { /* replaceNLBySpace */
+    while (*text != '\0') {
+      if (*text == '\n') {
+        *text = ' ';
+      } /* if */
+      text++;
+    } /* while */
+  } /* replaceNLBySpace */
+
+
+
+static void escapeString (FILE *versionFile, const char *text)
 
   { /* escapeString */
     while (*text != '\0') {
       if (*text == '\"' || *text == '\\') {
         putc('\\', versionFile);
+        putc(*text, versionFile);
+      } else if (*text == '\n') {
+        fputs("\\n", versionFile);
+      } else {
+        putc(*text, versionFile);
       } /* if */
-      putc(*text, versionFile);
       text++;
     } /* while */
   } /* escapeString */
 
 
 
-void appendOption (char *include_options, const char *includeOption)
+static void appendOption (char *include_options, const char *includeOption)
 
   { /* appendOption */
     if (strstr(include_options, includeOption) == NULL) {
       if (include_options[0] != '\0' && includeOption != '\0') {
-        strcat(include_options, " ");
+        strcat(include_options, "\n");
       } /* if */
       strcat(include_options, includeOption);
     } /* if */
@@ -2427,7 +2577,7 @@ void appendOption (char *include_options, const char *includeOption)
 
 
 
-void determineX11Includes (FILE *versionFile, char *include_options)
+static void determineX11Includes (FILE *versionFile, char *include_options)
 
   { /* determineX11Includes */
     if (!fileIsDir("/usr/include/X11") &&
@@ -2439,7 +2589,7 @@ void determineX11Includes (FILE *versionFile, char *include_options)
 
 
 #ifdef WITH_SQL
-void determineMySqlDefines (FILE *versionFile,
+static void determineMySqlDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2495,7 +2645,7 @@ void determineMySqlDefines (FILE *versionFile,
                                       "int main(int argc,char *argv[]){return 0;}\n",
                                       includeOption, "")) {
         mySqlInclude = "mysql.h";
-        fprintf(logFile, "MySql/MariaDb: %s found in %s/include\n", mySqlInclude, dbHome);
+        fprintf(logFile, "\rMySql/MariaDb: %s found in %s/include\n", mySqlInclude, dbHome);
         appendOption(include_options, includeOption);
       } else {
         mySqlInclude = NULL;
@@ -2504,7 +2654,7 @@ void determineMySqlDefines (FILE *versionFile,
       sprintf(buffer, "#include <%s>\n"
                       "int main(int argc,char *argv[]){return 0;}\n", mySqlInclude);
       if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
-        fprintf(logFile, "MySql/MariaDb: %s found in system include directory.\n", mySqlInclude);
+        fprintf(logFile, "\rMySql/MariaDb: %s found in system include directory.\n", mySqlInclude);
         appendOption(include_options, includeOption);
       } else if (compileAndLinkWithOptionsOk("#include \"db_my.h\"\n"
                                              "int main(int argc,char *argv[]){return 0;}\n",
@@ -2514,7 +2664,7 @@ void determineMySqlDefines (FILE *versionFile,
                                              "int main(int argc,char *argv[]){return 0;}\n",
                                              includeOption, "")) {
         mySqlInclude = "db_my.h";
-        fprintf(logFile, "MySql/MariaDb: %s found in Seed7 include directory.\n", mySqlInclude);
+        fprintf(logFile, "\rMySql/MariaDb: %s found in Seed7 include directory.\n", mySqlInclude);
       } /* if */
     } /* if */
     if (mySqlInclude != NULL) {
@@ -2530,7 +2680,7 @@ void determineMySqlDefines (FILE *versionFile,
         } /* if */
       } /* for */
       if (libName != NULL) {
-        fprintf(logFile, "MySql/MariaDb: %s found at: %s\n", libName, buffer);
+        fprintf(logFile, "\rMySql/MariaDb: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
       } else {
@@ -2544,7 +2694,7 @@ void determineMySqlDefines (FILE *versionFile,
         for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
           sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
           if (fileIsRegular(buffer)) {
-            fprintf(logFile, "MySql/MariaDb: %s found at: %s\n", dllNameList[idx], buffer);
+            fprintf(logFile, "\rMySql/MariaDb: %s found at: %s\n", dllNameList[idx], buffer);
             fprintf(versionFile, " \"");
             escapeString(versionFile, buffer);
             fprintf(versionFile, "\",");
@@ -2574,7 +2724,7 @@ void determineMySqlDefines (FILE *versionFile,
 #ifdef MYSQL_LIBRARY_PATH
         appendOption(system_db_libs, MYSQL_LIBRARY_PATH);
 #endif
-        fprintf(logFile, "MySql/MariaDb: Linker option: %s\n", MYSQL_LIBS);
+        fprintf(logFile, "\rMySql/MariaDb: Linker option: %s\n", MYSQL_LIBS);
         appendOption(system_db_libs, MYSQL_LIBS);
       } else {
         writeDllList = 1;
@@ -2585,7 +2735,7 @@ void determineMySqlDefines (FILE *versionFile,
       if (writeDllList) {
         fprintf(versionFile, "#define MYSQL_DLL");
         for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-          fprintf(logFile, "MySql/MariaDb: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(logFile, "\rMySql/MariaDb: DLL / Shared library: %s\n", dllNameList[idx]);
           fprintf(versionFile, " \"%s\",", dllNameList[idx]);
         } /* for */
         fprintf(versionFile, "\n");
@@ -2595,7 +2745,7 @@ void determineMySqlDefines (FILE *versionFile,
 
 
 
-void determineSqliteDefines (FILE *versionFile,
+static void determineSqliteDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2637,20 +2787,20 @@ void determineSqliteDefines (FILE *versionFile,
                                       "int main(int argc,char *argv[]){return 0;}\n",
                                       includeOption, "")) {
         sqliteInclude = "sqlite3.h";
-        fprintf(logFile, "SQLite: %s found in %s\n", sqliteInclude, dbHome);
+        fprintf(logFile, "\rSQLite: %s found in %s\n", sqliteInclude, dbHome);
         appendOption(include_options, includeOption);
       } /* if */
     } else if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       sqliteInclude = "sqlite3.h";
-      fprintf(logFile, "SQLite: %s found in system include directory.\n", sqliteInclude);
+      fprintf(logFile, "\rSQLite: %s found in system include directory.\n", sqliteInclude);
       appendOption(include_options, includeOption);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_lite.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       sqliteInclude = "db_lite.h";
-      fprintf(logFile, "SQLite: %s found in Seed7 include directory.\n", sqliteInclude);
+      fprintf(logFile, "\rSQLite: %s found in Seed7 include directory.\n", sqliteInclude);
       appendOption(include_options, includeOption);
     } /* if */
     if (sqliteInclude != NULL) {
@@ -2666,7 +2816,7 @@ void determineSqliteDefines (FILE *versionFile,
         } /* if */
       } /* for */
       if (libName != NULL) {
-        fprintf(logFile, "SQLite: %s found at: %s\n", libName, buffer);
+        fprintf(logFile, "\rSQLite: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
       } else {
@@ -2680,7 +2830,7 @@ void determineSqliteDefines (FILE *versionFile,
         for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
           sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
           if (fileIsRegular(buffer)) {
-            fprintf(logFile, "SQLite: %s found at: %s\n", dllNameList[idx], buffer);
+            fprintf(logFile, "\rSQLite: %s found at: %s\n", dllNameList[idx], buffer);
             fprintf(versionFile, " \"");
             escapeString(versionFile, buffer);
             fprintf(versionFile, "\",");
@@ -2708,7 +2858,7 @@ void determineSqliteDefines (FILE *versionFile,
 #ifdef SQLITE_LIBRARY_PATH
         appendOption(system_db_libs, SQLITE_LIBRARY_PATH);
 #endif
-        fprintf(logFile, "SQLite: Linker option: %s\n", SQLITE_LIBS);
+        fprintf(logFile, "\rSQLite: Linker option: %s\n", SQLITE_LIBS);
         appendOption(system_db_libs, SQLITE_LIBS);
       } else {
         writeDllList = 1;
@@ -2719,7 +2869,7 @@ void determineSqliteDefines (FILE *versionFile,
       if (writeDllList) {
         fprintf(versionFile, "#define SQLITE_DLL");
         for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-          fprintf(logFile, "SQLite: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(logFile, "\rSQLite: DLL / Shared library: %s\n", dllNameList[idx]);
           fprintf(versionFile, " \"%s\",", dllNameList[idx]);
         } /* for */
         fprintf(versionFile, "\n");
@@ -2757,7 +2907,7 @@ static void extractPostgresOid (const char* pgTypeFileName)
     int spaces;
 
   /* extractPostgresOid */
-    fprintf(logFile, "Extracting OIDs from: %s\n", pgTypeFileName);
+    fprintf(logFile, "\rExtracting OIDs from: %s\n", pgTypeFileName);
     pgTypeFile = fopen(pgTypeFileName, "r");
     if (pgTypeFile != NULL) {
       oidFile = fopen("pg_type.h", "w");
@@ -2856,7 +3006,7 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
 
 
 
-void determinePostgresDefines (FILE *versionFile,
+static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2915,7 +3065,7 @@ void determinePostgresDefines (FILE *versionFile,
                                       "int main(int argc,char *argv[]){return 0;}\n",
                                       includeOption, "")) {
         postgresqlInclude = "libpq-fe.h";
-        fprintf(logFile, "PostgreSQL: %s found in %s/include\n", postgresqlInclude, dbHome);
+        fprintf(logFile, "\rPostgreSQL: %s found in %s/include\n", postgresqlInclude, dbHome);
         appendOption(include_options, includeOption);
         sprintf(buffer, "%s/include/server", dbHome);
         if (fileIsDir(buffer)) {
@@ -2925,13 +3075,13 @@ void determinePostgresDefines (FILE *versionFile,
         } /* if */
         extractPostgresOid(buffer);
         pgTypeInclude = "pg_type.h";
-        fprintf(logFile, "PostgreSQL: %s found in Seed7 directory.\n", pgTypeInclude);
+        fprintf(logFile, "\rPostgreSQL: %s found in Seed7 directory.\n", pgTypeInclude);
       } /* if */
     } else if (compileAndLinkWithOptionsOk("#include <libpq-fe.h>\n"
                                     "int main(int argc,char *argv[]){return 0;}\n",
                                     includeOption, "")) {
       postgresqlInclude = "libpq-fe.h";
-      fprintf(logFile, "PostgreSQL: %s found in system include directory.\n", postgresqlInclude);
+      fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", postgresqlInclude);
       appendOption(include_options, includeOption);
       if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
                                       "int main(int argc,char *argv[]){return 0;}\n",
@@ -2955,18 +3105,18 @@ void determinePostgresDefines (FILE *versionFile,
                       "int main(int argc,char *argv[]){return 0;}\n",
                       postgresInclude, pgTypeInclude);
       if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
-        fprintf(logFile, "PostgreSQL: %s found in system include directory.\n", pgTypeInclude);
+        fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", pgTypeInclude);
       } else if (findPgTypeInclude(includeOption, pgTypeInclude)) {
         pgTypeInclude = "pg_type.h";
-        fprintf(logFile, "PostgreSQL: %s found in Seed7 include directory.\n", pgTypeInclude);
+        fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", pgTypeInclude);
       } else {
-        fprintf(logFile, "PostgreSQL: %s not found in include directories.\n", pgTypeInclude);
+        fprintf(logFile, "\rPostgreSQL: %s not found in include directories.\n", pgTypeInclude);
       } /* if */
     } else if (compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            "", "")) {
       postgresqlInclude = "db_post.h";
-      fprintf(logFile, "PostgreSQL: %s found in Seed7 include directory.\n", postgresqlInclude);
+      fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", postgresqlInclude);
     } /* if */
     if (postgresqlInclude != NULL) {
       fprintf(versionFile, "#define POSTGRESQL_INCLUDE \"%s\"\n", postgresqlInclude);
@@ -2987,7 +3137,7 @@ void determinePostgresDefines (FILE *versionFile,
         } /* if */
       } /* for */
       if (libName != NULL) {
-        fprintf(logFile, "PostgreSQL: %s found at: %s\n", libName, buffer);
+        fprintf(logFile, "\rPostgreSQL: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
       } else {
@@ -3001,7 +3151,7 @@ void determinePostgresDefines (FILE *versionFile,
         for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
           sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
           if (fileIsRegular(buffer)) {
-            fprintf(logFile, "PostgreSQL: %s found at: %s\n", dllNameList[idx], buffer);
+            fprintf(logFile, "\rPostgreSQL: %s found at: %s\n", dllNameList[idx], buffer);
             fprintf(versionFile, " \"");
             escapeString(versionFile, buffer);
             fprintf(versionFile, "\",");
@@ -3019,7 +3169,7 @@ void determinePostgresDefines (FILE *versionFile,
           } /* if */
         } /* for */
         if (dllName != NULL) {
-          fprintf(logFile, "PostgreSQL: %s found at: %s\n", dllName, buffer);
+          fprintf(logFile, "\rPostgreSQL: %s found at: %s\n", dllName, buffer);
           fprintf(versionFile, "#define LIBINTL_DLL_PATH \"");
           escapeString(versionFile, buffer);
           fprintf(versionFile, "\"\n");
@@ -3043,7 +3193,7 @@ void determinePostgresDefines (FILE *versionFile,
 #ifdef POSTGRESQL_LIBRARY_PATH
         appendOption(system_db_libs, POSTGRESQL_LIBRARY_PATH);
 #endif
-        fprintf(logFile, "PostgreSQL: Linker option: %s\n", POSTGRESQL_LIBS);
+        fprintf(logFile, "\rPostgreSQL: Linker option: %s\n", POSTGRESQL_LIBS);
         appendOption(system_db_libs, POSTGRESQL_LIBS);
       } else {
         writeDllList = 1;
@@ -3054,7 +3204,7 @@ void determinePostgresDefines (FILE *versionFile,
       if (writeDllList) {
         fprintf(versionFile, "#define POSTGRESQL_DLL");
         for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-          fprintf(logFile, "PostgreSQL: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(logFile, "\rPostgreSQL: DLL / Shared library: %s\n", dllNameList[idx]);
           fprintf(versionFile, " \"%s\",", dllNameList[idx]);
         } /* for */
         fprintf(versionFile, "\n");
@@ -3064,7 +3214,7 @@ void determinePostgresDefines (FILE *versionFile,
 
 
 
-void determineOdbcDefines (FILE *versionFile,
+static void determineOdbcDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -3094,13 +3244,13 @@ void determineOdbcDefines (FILE *versionFile,
       fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
       windowsOdbc = 1;
       odbcInclude = "sql.h";
-      fprintf(logFile, "Odbc: %s found in system include directory.\n", odbcInclude);
+      fprintf(logFile, "\rOdbc: %s found in system include directory.\n", odbcInclude);
     } else if (compileAndLinkWithOptionsOk("#include <sql.h>\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
       odbcInclude = "sql.h";
-      fprintf(logFile, "Odbc: %s found in system include directory.\n", odbcInclude);
+      fprintf(logFile, "\rOdbc: %s found in system include directory.\n", odbcInclude);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_odbc.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "") ||
@@ -3109,7 +3259,7 @@ void determineOdbcDefines (FILE *versionFile,
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       odbcInclude = "db_odbc.h";
-      fprintf(logFile, "Odbc: %s found in Seed7 include directory.\n", odbcInclude);
+      fprintf(logFile, "\rOdbc: %s found in Seed7 include directory.\n", odbcInclude);
       includeOption[0] = '\0';
     } /* if */
     if (odbcInclude != NULL) {
@@ -3134,7 +3284,7 @@ void determineOdbcDefines (FILE *versionFile,
 #ifdef ODBC_LIBRARY_PATH
       appendOption(system_db_libs, ODBC_LIBRARY_PATH);
 #endif
-      fprintf(logFile, "Odbc: Linker option: %s\n", ODBC_LIBS);
+      fprintf(logFile, "\rOdbc: Linker option: %s\n", ODBC_LIBS);
       appendOption(system_db_libs, ODBC_LIBS);
     } else {
       writeDllList = 1;
@@ -3145,7 +3295,7 @@ void determineOdbcDefines (FILE *versionFile,
     if (writeDllList) {
       fprintf(versionFile, "#define ODBC_DLL");
       for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        fprintf(logFile, "Odbc: DLL / Shared library: %s\n", dllNameList[idx]);
+        fprintf(logFile, "\rOdbc: DLL / Shared library: %s\n", dllNameList[idx]);
         fprintf(versionFile, " \"%s\",", dllNameList[idx]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -3154,7 +3304,7 @@ void determineOdbcDefines (FILE *versionFile,
 
 
 
-void determineOciDefines (FILE *versionFile,
+static void determineOciDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -3197,7 +3347,7 @@ void determineOciDefines (FILE *versionFile,
                                           "int main(int argc,char *argv[]){return 0;}\n",
                                           includeOption, "")) {
             ociInclude = "oci.h";
-            fprintf(logFile, "Oracle: %s found in %s%s\n",
+            fprintf(logFile, "\rOracle: %s found in %s%s\n",
                     ociInclude, oracle_home, oci_incl_dir[incl_dir_idx]);
             appendOption(include_options, includeOption);
           } /* if */
@@ -3207,14 +3357,14 @@ void determineOciDefines (FILE *versionFile,
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       ociInclude = "oci.h";
-      fprintf(logFile, "Oracle: %s found in system include directory.\n", ociInclude);
+      fprintf(logFile, "\rOracle: %s found in system include directory.\n", ociInclude);
       appendOption(include_options, includeOption);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"stdlib.h\"\n"
                                            "#include \"db_oci.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       ociInclude = "db_oci.h";
-      fprintf(logFile, "Oracle: %s found in Seed7 include directory.\n", ociInclude);
+      fprintf(logFile, "\rOracle: %s found in Seed7 include directory.\n", ociInclude);
       appendOption(include_options, includeOption);
     } /* if */
     if (ociInclude != NULL) {
@@ -3264,7 +3414,7 @@ void determineOciDefines (FILE *versionFile,
 #ifdef OCI_LIBRARY_PATH
         appendOption(system_db_libs, OCI_LIBRARY_PATH);
 #endif
-        fprintf(logFile, "Oracle: Linker option: %s\n", OCI_LIBS);
+        fprintf(logFile, "\rOracle: Linker option: %s\n", OCI_LIBS);
         appendOption(system_db_libs, OCI_LIBS);
       } else {
         writeDllList = 1;
@@ -3275,7 +3425,7 @@ void determineOciDefines (FILE *versionFile,
       if (writeDllList) {
         fprintf(versionFile, "#define OCI_DLL");
         for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-          fprintf(logFile, "Oracle: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(logFile, "\rOracle: DLL / Shared library: %s\n", dllNameList[idx]);
           fprintf(versionFile, " \"%s\",", dllNameList[idx]);
         } /* for */
         fprintf(versionFile, "\n");
@@ -3286,7 +3436,7 @@ void determineOciDefines (FILE *versionFile,
 
 
 
-void determineIncludesAndLibs (FILE *versionFile)
+static void determineIncludesAndLibs (FILE *versionFile)
 
   {
     char include_options[BUFFER_SIZE];
@@ -3303,9 +3453,13 @@ void determineIncludesAndLibs (FILE *versionFile)
     determinePostgresDefines(versionFile, include_options, system_db_libs);
     determineOdbcDefines(versionFile, include_options, system_db_libs);
     determineOciDefines(versionFile, include_options, system_db_libs);
-    sprintf(buffer, "INCLUDE_OPTIONS = %s\n", include_options);
+    sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
+    replaceNLBySpace(buffer);
+    strcat(buffer, "\n");
     appendToFile("macros", buffer);
-    sprintf(buffer, "SYSTEM_DB_LIBS = %s\n", system_db_libs);
+    sprintf(buffer, "SYSTEM_DB_LIBS = %s", system_db_libs);
+    replaceNLBySpace(buffer);
+    strcat(buffer, "\n");
     appendToFile("macros", buffer);
 #endif
     fprintf(versionFile, "#define INCLUDE_OPTIONS \"");
@@ -3318,7 +3472,7 @@ void determineIncludesAndLibs (FILE *versionFile)
 
 
 
-void writeReadBufferEmptyMacro (FILE *versionFile)
+static void writeReadBufferEmptyMacro (FILE *versionFile)
 
   {
     const char *define_read_buffer_empty;
@@ -3377,6 +3531,7 @@ void writeReadBufferEmptyMacro (FILE *versionFile)
     } /* if */
     if (define_read_buffer_empty != NULL) {
       fprintf(versionFile, "%s\n", define_read_buffer_empty);
+      fprintf(logFile, "\rMacro define_read_buffer_empty defined.\n");
     } /* if */
   } /* writeReadBufferEmptyMacro */
 
@@ -3451,6 +3606,8 @@ int main (int argc, char **argv)
 
   /* main */
     logFile = stdout;
+    fprintf(logFile, "General settings: ");
+    fflush(logFile);
     if (argc >= 2) {
       versionFileName = argv[1];
     } /* if */
@@ -3584,8 +3741,11 @@ int main (int argc, char **argv)
     /* removed.                                    */
     fputs("#define RENAME_BEFORE_REMOVE\n", versionFile);
 #endif
+    fprintf(logFile, " determined\n");
     numericSizes(versionFile);
     numericProperties(versionFile);
+    fprintf(logFile, "Advanced settings: ");
+    fflush(logFile);
     determineMallocAlignment(versionFile);
     if (compileAndLinkOk("#include<signal.h>\nint main(int argc, char *argv[]){\n"
                          "signal(SIGBUS,SIG_DFL); return 0;}\n")) {
@@ -3707,9 +3867,10 @@ int main (int argc, char **argv)
     fprintf(versionFile, "#define HAS_POLL %d\n",
         compileAndLinkOk("#include<poll.h>\nint main(int argc,char *argv[])"
                          "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n"));
+    fprintf(logFile, " determined\n");
     determineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);
-    cleanUpCompilation();
+    cleanUpCompilation(testNumber);
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
       remove("tst_vers.h");

@@ -52,37 +52,47 @@ objectType enu_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType enu_cpy (listType arguments)
 
   {
-    objectType enum_variable;
+    objectType dest;
 
   /* enu_cpy */
-    enum_variable = arg_1(arguments);
-    isit_enum(enum_variable);
-    is_variable(enum_variable);
+    dest = arg_1(arguments);
+    isit_enum(dest);
+    is_variable(dest);
     isit_enum(arg_3(arguments));
-    enum_variable->value.objValue = take_enum(arg_3(arguments));
+    dest->value.objValue = take_enum(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* enu_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType enu_create (listType arguments)
 
   {
-    objectType enum_to;
-    objectType enum_from;
+    objectType dest;
+    objectType source;
 
   /* enu_create */
-    enum_to = arg_1(arguments);
-    enum_from = take_enum(arg_3(arguments));
-    if (VAR_OBJECT(enum_to)) {
-      SET_CATEGORY_OF_OBJ(enum_to, VARENUMOBJECT);
+    dest = arg_1(arguments);
+    source = take_enum(arg_3(arguments));
+    if (VAR_OBJECT(dest)) {
+      SET_CATEGORY_OF_OBJ(dest, VARENUMOBJECT);
     } else {
-      SET_CATEGORY_OF_OBJ(enum_to, CONSTENUMOBJECT);
+      SET_CATEGORY_OF_OBJ(dest, CONSTENUMOBJECT);
     } /* if */
-    enum_to->value.objValue = enum_from;
+    dest->value.objValue = source;
     return SYS_EMPTY_OBJECT;
   } /* enu_create */
 

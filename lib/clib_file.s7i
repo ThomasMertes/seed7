@@ -117,6 +117,8 @@ const integer: IO_NO_BUFFERING   is 2;
 const func clib_file: openClibFile (in string: path, in string: mode) is action "FIL_OPEN";
 
 
+const func clib_file: openNullDeviceClibFile is action "FIL_OPEN_NULL_DEVICE";
+const proc: pipe (inout clib_file: inFile, inout clib_file: outFile) is action "FIL_PIPE";
 const proc: setbuf (ref clib_file: aFile, ref integer: mode, ref integer: size) is action "FIL_SETBUF";
 
 

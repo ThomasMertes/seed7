@@ -356,10 +356,14 @@ intType bigCmpSignedDigit (const const_bigIntType big1, intType number)
 
 
 
-void bigCpy (bigIntType *const big_to, const const_bigIntType big_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ */
+void bigCpy (bigIntType *const dest, const const_bigIntType source)
 
   { /* bigCpy */
-    mpz_set(*big_to, big_from);
+    mpz_set(*dest, source);
   } /* bigCpy */
 
 
@@ -379,14 +383,20 @@ void bigCpyGeneric (genericType *const dest, const genericType source)
 
 
 
-bigIntType bigCreate (const const_bigIntType big_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ */
+bigIntType bigCreate (const const_bigIntType source)
 
   {
     bigIntType result;
 
   /* bigCreate */
     ALLOC_BIG(result);
-    mpz_init_set(result, big_from);
+    mpz_init_set(result, source);
     return result;
   } /* bigCreate */
 
@@ -398,7 +408,7 @@ bigIntType bigCreate (const const_bigIntType big_from)
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(genericType) != sizeof(bigIntType).
  */
-genericType bigCreateGeneric (const genericType from_value)
+genericType bigCreateGeneric (const genericType source)
 
   {
     rtlObjectType result;
@@ -406,7 +416,7 @@ genericType bigCreateGeneric (const genericType from_value)
   /* bigCreateGeneric */
     INIT_GENERIC_PTR(result.value.genericValue);
     result.value.bigIntValue =
-        bigCreate(((const_rtlObjectType *) &from_value)->value.bigIntValue);
+        bigCreate(((const_rtlObjectType *) &source)->value.bigIntValue);
     return result.value.genericValue;
   } /* bigCreateGeneric */
 
@@ -424,6 +434,11 @@ void bigDecr (bigIntType *const big_variable)
 
 
 
+/**
+ *  Free the memory referred by 'old_bigint'.
+ *  After bigDestr is left 'old_bigint' refers to not existing memory.
+ *  The memory where 'old_bigint' is stored can be freed afterwards.
+ */
 void bigDestr (const const_bigIntType old_bigint)
 
   { /* bigDestr */

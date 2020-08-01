@@ -35,4 +35,4 @@ entityType find_entity (nodeType declaration_base, listType name_list);
 entityType search_entity (const_nodeType start_node, const_listType name_list);
 void pop_entity (nodeType declaration_base, const_entityType entity);
 void close_entity (progType currentProg);
-void init_entity (errInfoType *err_info);
+void init_entity (progType aProg, errInfoType *err_info);

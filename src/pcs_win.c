@@ -43,6 +43,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "int_rtl.h"
@@ -53,15 +54,15 @@
 
 typedef struct {
     uintType usage_count;
+    fileType stdIn;
+    fileType stdOut;
+    fileType stdErr;
     /* Up to here the structure is identical to struct processStruct */
     HANDLE hProcess;
     HANDLE hThread;
     DWORD pid;
     boolType isTerminated;
     DWORD exitValue;
-    fileType stdIn;
-    fileType stdOut;
-    fileType stdErr;
   } win_processRecord, *win_processType;
 
 typedef const win_processRecord *const_win_processType;
@@ -401,13 +402,10 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     os_striType os_command_stri;
     os_striType command_line;
     SECURITY_ATTRIBUTES saAttr;
-    HANDLE childInputRead;
-    HANDLE childInputWrite;
-    HANDLE childInputWriteTemp;
-    HANDLE childOutputReadTemp;
-    HANDLE childOutputRead;
-    HANDLE childOutputWrite;
-    HANDLE childErrorWrite;
+    HANDLE childInputRead = INVALID_HANDLE_VALUE;
+    HANDLE childInputWrite = INVALID_HANDLE_VALUE;
+    HANDLE childOutputRead = INVALID_HANDLE_VALUE;
+    HANDLE childOutputWrite = INVALID_HANDLE_VALUE;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
@@ -425,29 +423,29 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
         saAttr.bInheritHandle = TRUE;
         saAttr.lpSecurityDescriptor = NULL;
-        if (CreatePipe(&childInputRead, &childInputWriteTemp, &saAttr, 0) &&
-            DuplicateHandle(GetCurrentProcess(), childInputWriteTemp,
-                            GetCurrentProcess(), &childInputWrite,
-                            0, FALSE, // Handle is not inherited
-                            DUPLICATE_SAME_ACCESS) &&
-            CreatePipe(&childOutputReadTemp, &childOutputWrite, &saAttr, 0) &&
-            DuplicateHandle(GetCurrentProcess(),childOutputReadTemp,
-                            GetCurrentProcess(), &childOutputRead,
-                            0, FALSE, // Handle is not inherited
-                            DUPLICATE_SAME_ACCESS) &&
-            DuplicateHandle(GetCurrentProcess(),childOutputWrite,
-                            GetCurrentProcess(),&childErrorWrite,
-                            0, TRUE, DUPLICATE_SAME_ACCESS) &&
-            CloseHandle(childInputWriteTemp) &&
-            CloseHandle(childOutputReadTemp)) {
+        if (unlikely(CreatePipe(&childInputRead,
+                                &childInputWrite, &saAttr, 0) == 0 ||
+                     CreatePipe(&childOutputRead,
+                                &childOutputWrite, &saAttr, 0) == 0)) {
+          logError(printf("pcsPipe2(\"%s\", ...): CreatePipe() failed.\n",
+                          striAsUnquotedCStri(command)););
+          err_info = FILE_ERROR;
+        } else if (unlikely(SetHandleInformation(childInputWrite,
+                                                 HANDLE_FLAG_INHERIT, 0) == 0 ||
+                            SetHandleInformation(childOutputRead,
+                                                 HANDLE_FLAG_INHERIT, 0) == 0)) {
+          logError(printf("pcsPipe2(\"%s\", ...): SetHandleInformation() failed.\n",
+                          striAsUnquotedCStri(command)););
+          err_info = FILE_ERROR;
+        } else {
           memset(&startupInfo, 0, sizeof(startupInfo));
           /* memset(&processInformation, 0, sizeof(processInformation)); */
           startupInfo.cb = sizeof(startupInfo);
           startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-          startupInfo.wShowWindow = 0;
+          startupInfo.wShowWindow = SW_HIDE;
           startupInfo.hStdInput = childInputRead;
           startupInfo.hStdOutput = childOutputWrite;
-          startupInfo.hStdError = childErrorWrite;
+          startupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);;
           /* printf("before CreateProcessW\n"); */
           if (CreateProcessW(os_command_stri,
                              command_line /* lpCommandLine */,
@@ -461,7 +459,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                              &processInformation) != 0) {
             CloseHandle(childInputRead);
             CloseHandle(childOutputWrite);
-            CloseHandle(childErrorWrite);
             *childStdin  = fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
             *childStdout = fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
             CloseHandle(processInformation.hProcess);
@@ -473,8 +470,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                      printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND););
             err_info = FILE_ERROR;
           } /* if */
-        } else {
-          err_info = FILE_ERROR;
         } /* if */
         /* printf("after CreateProcessW\n"); */
         os_stri_free(command_line);
@@ -482,6 +477,18 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       os_stri_free(os_command_stri);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (childInputRead != INVALID_HANDLE_VALUE) {
+        CloseHandle(childInputRead);
+      } /* if */
+      if (childInputWrite != INVALID_HANDLE_VALUE) {
+        CloseHandle(childInputWrite);
+      } /* if */
+      if (childOutputRead != INVALID_HANDLE_VALUE) {
+        CloseHandle(childOutputRead);
+      } /* if */
+      if (childOutputWrite != INVALID_HANDLE_VALUE) {
+        CloseHandle(childOutputWrite);
+      } /* if */
       raise_error(err_info);
     } /* if */
     logFunction(printf("pcsPipe2 ->\n"););
@@ -498,7 +505,47 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
 
 
 
-processType pcsStart (const const_striType command, const const_rtlArrayType parameters)
+static HANDLE getHandleFromFile (fileType aFile, errInfoType *err_info)
+
+  {
+    int file_no;
+    HANDLE fileHandle;
+
+  /* getHandleFromFile */
+    if (aFile == NULL) {
+      fileHandle = CreateFile(NULL_DEVICE, GENERIC_READ | GENERIC_WRITE,
+                              FILE_SHARE_READ | FILE_SHARE_WRITE,
+                              NULL, OPEN_EXISTING, 0, NULL);
+      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("CreateFile(\"nul:\", ...) failed.\n"););
+      } /* if */
+    } else {
+      file_no = fileno(aFile);
+      if (unlikely(file_no == -1)) {
+        logError(printf("getHandleFromFile(%d): fileno(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(aFile), safe_fileno(aFile),
+                        errno, strerror(errno)););
+        *err_info = FILE_ERROR;
+        fileHandle = INVALID_HANDLE_VALUE;
+      } else {
+        fileHandle = (HANDLE) _get_osfhandle(file_no);
+        if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
+          logError(printf("getHandleFromFile(%d): _get_osfhandle(%d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          safe_fileno(aFile), safe_fileno(aFile),
+                          errno, strerror(errno)););
+          *err_info = FILE_ERROR;
+        } /* if */
+      } /* if */
+    } /* if */
+    return fileHandle;
+  } /* getHandleFromFile */
+
+
+
+processType pcsStart (const const_striType command, const const_rtlArrayType parameters,
+    fileType childStdin, fileType childStdout, fileType childStderr)
 
   {
     os_striType os_command_stri;
@@ -506,59 +553,81 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
+    HANDLE stdinFileHandle;
+    HANDLE stdoutFileHandle;
+    HANDLE stderrFileHandle;
     errInfoType err_info = OKAY_NO_ERROR;
     win_processType process = NULL;
 
   /* pcsStart */
     logFunction(printf("pcsStart(\"%s\"", striAsUnquotedCStri(command));
                 printParameters(parameters);
-                printf(")\n"););
-    os_command_stri = cp_to_os_path(command, &path_info, &err_info);
-    if (likely(os_command_stri != NULL)) {
-      command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
-      if (likely(command_line != NULL)) {
-        if (!ALLOC_RECORD(process, win_processRecord, count.process)) {
-          err_info = MEMORY_ERROR;
-        } else {
-          memset(&startupInfo, 0, sizeof(startupInfo));
-          /* memset(&processInformation, 0, sizeof(processInformation)); */
-          startupInfo.cb = sizeof(startupInfo);
-          startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-          startupInfo.wShowWindow = 1;
-          /* printf("before CreateProcessW(%ls, %ls, ...)\n", os_command_stri, command_line); */
-          if (CreateProcessW(os_command_stri,
-                             command_line /* lpCommandLine */,
-                             NULL /* lpProcessAttributes */,
-                             NULL /* lpThreadAttributes */,
-                             1  /* bInheritHandles */,
-                             0 /* dwCreationFlags */,
-                             NULL /* lpEnvironment */,
-                             NULL /* lpCurrentDirectory */,
-                             &startupInfo,
-                             &processInformation) != 0) {
-            /* printf("pcsStart: pProcess=" FMT_U_MEM "\n",
-                (memSizeType) (processInformation.hProcess)); */
-            /* printf("pcsStart: PID=" FMT_U32 "\n", processInformation.dwProcessId); */
-            memset(process, 0, sizeof(win_processRecord));
-            process->usage_count = 1;
-            process->hProcess = processInformation.hProcess;
-            process->hThread  = processInformation.hThread;
-            process->pid      = processInformation.dwProcessId;
-            process->isTerminated = FALSE;
+                printf(", %d, %d, %d)\n",
+                       safe_fileno(childStdin), safe_fileno(childStdout),
+                       safe_fileno(childStderr)););
+    stdinFileHandle = getHandleFromFile(childStdin, &err_info);
+    stdoutFileHandle = getHandleFromFile(childStdout, &err_info);
+    stderrFileHandle = getHandleFromFile(childStderr, &err_info);
+    if (likely(err_info == OKAY_NO_ERROR)) {
+      os_command_stri = cp_to_os_path(command, &path_info, &err_info);
+      if (likely(os_command_stri != NULL)) {
+        command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
+        if (likely(command_line != NULL)) {
+          if (!ALLOC_RECORD(process, win_processRecord, count.process)) {
+            err_info = MEMORY_ERROR;
           } else {
-            logError(printf("pcsStart: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\n"
-                            "GetLastError=%d\n",
-                            os_command_stri, command_line, GetLastError());
-                     printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND););
-            FREE_RECORD(process, win_processRecord, count.process);
-            process = NULL;
-            err_info = FILE_ERROR;
+            memset(&startupInfo, 0, sizeof(startupInfo));
+            /* memset(&processInformation, 0, sizeof(processInformation)); */
+            startupInfo.cb = sizeof(startupInfo);
+            startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+            startupInfo.wShowWindow = SW_SHOWNORMAL;
+            startupInfo.hStdInput = stdinFileHandle;
+            startupInfo.hStdOutput = stdoutFileHandle;
+            startupInfo.hStdError = stderrFileHandle;
+            /* printf("before CreateProcessW(%ls, %ls, ...)\n", os_command_stri, command_line); */
+            if (CreateProcessW(os_command_stri,
+                               command_line /* lpCommandLine */,
+                               NULL /* lpProcessAttributes */,
+                               NULL /* lpThreadAttributes */,
+                               1  /* bInheritHandles */,
+                               0 /* dwCreationFlags */,
+                               NULL /* lpEnvironment */,
+                               NULL /* lpCurrentDirectory */,
+                               &startupInfo,
+                               &processInformation) != 0) {
+              /* printf("pcsStart: pProcess=" FMT_U_MEM "\n",
+                  (memSizeType) (processInformation.hProcess)); */
+              /* printf("pcsStart: PID=" FMT_U32 "\n", processInformation.dwProcessId); */
+              memset(process, 0, sizeof(win_processRecord));
+              process->usage_count = 1;
+              process->hProcess = processInformation.hProcess;
+              process->hThread  = processInformation.hThread;
+              process->pid      = processInformation.dwProcessId;
+              process->isTerminated = FALSE;
+            } else {
+              logError(printf("pcsStart: CreateProcessW(" FMT_S_OS ", " FMT_S_OS ") failed.\n"
+                              "GetLastError=%d\n",
+                              os_command_stri, command_line, GetLastError());
+                       printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND););
+              FREE_RECORD(process, win_processRecord, count.process);
+              process = NULL;
+              err_info = FILE_ERROR;
+            } /* if */
           } /* if */
+          /* printf("after CreateProcessW\n"); */
+          os_stri_free(command_line);
         } /* if */
-        /* printf("after CreateProcessW\n"); */
-        os_stri_free(command_line);
+        os_stri_free(os_command_stri);
       } /* if */
-      os_stri_free(os_command_stri);
+    } /* if */
+    if (childStdin == NULL && stdinFileHandle != INVALID_HANDLE_VALUE) {
+      CloseHandle(stdinFileHandle);
+    } /* if */
+    if (childStdout == NULL && stdoutFileHandle != INVALID_HANDLE_VALUE) {
+      CloseHandle(stdoutFileHandle);
+    } /* if */
+    if (childStderr == NULL && stderrFileHandle != INVALID_HANDLE_VALUE) {
+      CloseHandle(stderrFileHandle);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -576,15 +645,12 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     os_striType os_command_stri;
     os_striType command_line;
     SECURITY_ATTRIBUTES saAttr;
-    HANDLE childInputRead;
-    HANDLE childInputWrite;
-    HANDLE childInputWriteTemp;
-    HANDLE childOutputReadTemp;
-    HANDLE childOutputRead;
-    HANDLE childOutputWrite;
-    HANDLE childErrorReadTemp;
-    HANDLE childErrorRead;
-    HANDLE childErrorWrite;
+    HANDLE childInputRead = INVALID_HANDLE_VALUE;
+    HANDLE childInputWrite = INVALID_HANDLE_VALUE;
+    HANDLE childOutputRead = INVALID_HANDLE_VALUE;
+    HANDLE childOutputWrite = INVALID_HANDLE_VALUE;
+    HANDLE childErrorRead = INVALID_HANDLE_VALUE;
+    HANDLE childErrorWrite = INVALID_HANDLE_VALUE;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
@@ -606,29 +672,30 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
           saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
           saAttr.bInheritHandle = TRUE;
           saAttr.lpSecurityDescriptor = NULL;
-          if (CreatePipe(&childInputRead, &childInputWriteTemp, &saAttr, 0) &&
-              DuplicateHandle(GetCurrentProcess(), childInputWriteTemp,
-                              GetCurrentProcess(), &childInputWrite,
-                              0, FALSE, // Handle is not inherited
-                              DUPLICATE_SAME_ACCESS) &&
-              CreatePipe(&childOutputReadTemp, &childOutputWrite, &saAttr, 0) &&
-              DuplicateHandle(GetCurrentProcess(),childOutputReadTemp,
-                              GetCurrentProcess(), &childOutputRead,
-                              0, FALSE, // Handle is not inherited
-                              DUPLICATE_SAME_ACCESS) &&
-              CreatePipe(&childErrorReadTemp, &childErrorWrite, &saAttr, 0) &&
-              DuplicateHandle(GetCurrentProcess(),childErrorReadTemp,
-                              GetCurrentProcess(), &childErrorRead,
-                              0, FALSE, // Handle is not inherited
-                              DUPLICATE_SAME_ACCESS) &&
-              CloseHandle(childInputWriteTemp) &&
-              CloseHandle(childOutputReadTemp) &&
-              CloseHandle(childErrorReadTemp)) {
+          if (unlikely(CreatePipe(&childInputRead,
+                                  &childInputWrite, &saAttr, 0) == 0 ||
+                       CreatePipe(&childOutputRead,
+                                  &childOutputWrite, &saAttr, 0) == 0 ||
+                       CreatePipe(&childErrorRead,
+                                  &childErrorWrite, &saAttr, 0) == 0)) {
+            logError(printf("pcsPipe2(\"%s\", ...): CreatePipe() failed.\n",
+                            striAsUnquotedCStri(command)););
+            err_info = FILE_ERROR;
+          } else if (unlikely(SetHandleInformation(childInputWrite,
+                                                   HANDLE_FLAG_INHERIT, 0) == 0 ||
+                              SetHandleInformation(childOutputRead,
+                                                   HANDLE_FLAG_INHERIT, 0) == 0 ||
+                              SetHandleInformation(childErrorRead,
+                                                   HANDLE_FLAG_INHERIT, 0) == 0)) {
+            logError(printf("pcsPipe2(\"%s\", ...): SetHandleInformation() failed.\n",
+                            striAsUnquotedCStri(command)););
+            err_info = FILE_ERROR;
+          } else {
             memset(&startupInfo, 0, sizeof(startupInfo));
             /* memset(&processInformation, 0, sizeof(processInformation)); */
             startupInfo.cb = sizeof(startupInfo);
             startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-            startupInfo.wShowWindow = 0;
+            startupInfo.wShowWindow = SW_HIDE;
             startupInfo.hStdInput = childInputRead;
             startupInfo.hStdOutput = childOutputWrite;
             startupInfo.hStdError = childErrorWrite;
@@ -664,10 +731,6 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               process = NULL;
               err_info = FILE_ERROR;
             } /* if */
-          } else {
-            FREE_RECORD(process, win_processRecord, count.process);
-            process = NULL;
-            err_info = FILE_ERROR;
           } /* if */
         } /* if */
         /* printf("after CreateProcessW\n"); */
@@ -676,6 +739,28 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       os_stri_free(os_command_stri);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (childInputRead != INVALID_HANDLE_VALUE) {
+        CloseHandle(childInputRead);
+      } /* if */
+      if (childInputWrite != INVALID_HANDLE_VALUE) {
+        CloseHandle(childInputWrite);
+      } /* if */
+      if (childOutputRead != INVALID_HANDLE_VALUE) {
+        CloseHandle(childOutputRead);
+      } /* if */
+      if (childOutputWrite != INVALID_HANDLE_VALUE) {
+        CloseHandle(childOutputWrite);
+      } /* if */
+      if (childErrorRead != INVALID_HANDLE_VALUE) {
+        CloseHandle(childErrorRead);
+      } /* if */
+      if (childErrorWrite != INVALID_HANDLE_VALUE) {
+        CloseHandle(childErrorWrite);
+      } /* if */
+      if (process != NULL) {
+        FREE_RECORD(process, win_processRecord, count.process);
+        process = NULL;
+      } /* if */
       raise_error(err_info);
     } /* if */
     logFunction(printf("pcsStartPipe -> " FMT_U32 "\n",
@@ -730,13 +815,19 @@ void pcsWaitFor (const processType process)
           to_var_isTerminated(process) = TRUE;
           to_var_exitValue(process) = exitCode;
         } else {
-          logError(printf("pcsWaitFor: GetExitCodeProcess(" FMT_U_MEM ", 0) failed:\n"
+          logError(printf("pcsWaitFor: GetExitCodeProcess(" FMT_U_MEM ", *) failed:\n"
                           "GetLastError=%d\n",
                           (memSizeType) to_hProcess(process), GetLastError());
                    printf("PID=" FMT_U32 "\n", to_pid(process)););
+          raise_error(FILE_ERROR);
         } /* if */
       } else {
+        logError(printf("pcsWaitFor: WaitForSingleObject(" FMT_U_MEM ", INFINITE) failed:\n"
+                        "GetLastError=%d\n",
+                        (memSizeType) to_hProcess(process), GetLastError());
+                 printf("PID=" FMT_U32 "\n", to_pid(process)););
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
+    logFunction(printf("pcsWaitFor -->\n"););
   } /* pcsWaitFor */

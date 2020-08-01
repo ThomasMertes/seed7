@@ -60,27 +60,28 @@
 #include "ref_data.h"
 
 
+#define MAX_CSTRI_BUFFER_LEN 40
 #define TABLE_INCREMENT 127
 
 
 
-objectType refAlloc (const const_objectType obj_arg)
+objectType refAlloc (const const_objectType aReference)
 
   {
     objectType created_object;
 
   /* refAlloc */
     logFunction(printf("refAlloc(");
-                trace1(obj_arg);
+                trace1(aReference);
                 printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
     } else {
-      created_object->type_of = obj_arg->type_of;
-      memcpy(&created_object->descriptor, &obj_arg->descriptor,
+      created_object->type_of = aReference->type_of;
+      memcpy(&created_object->descriptor, &aReference->descriptor,
           sizeof(descriptorUnion));
       /* Copies the POSINFO flag (and all other flags): */
-      INIT_CATEGORY_OF_OBJ(created_object, obj_arg->objcategory);
+      INIT_CATEGORY_OF_OBJ(created_object, aReference->objcategory);
       created_object->value.objValue = NULL;
     } /* if */
     return created_object;
@@ -111,56 +112,56 @@ objectType refAllocStri (boolType var_flag, typeType any_type,
 
 
 
-intType refArrMaxIdx (const const_objectType obj_arg)
+intType refArrMaxIdx (const const_objectType aReference)
 
   { /* refArrMaxIdx */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != ARRAYOBJECT)) {
       logError(printf("refArrMaxIdx(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      return take_array(obj_arg)->max_position;
+      return take_array(aReference)->max_position;
     } /* if */
   } /* refArrMaxIdx */
 
 
 
-intType refArrMinIdx (const const_objectType obj_arg)
+intType refArrMinIdx (const const_objectType aReference)
 
   { /* refArrMinIdx */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != ARRAYOBJECT)) {
       logError(printf("refArrMinIdx(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      return take_array(obj_arg)->min_position;
+      return take_array(aReference)->min_position;
     } /* if */
   } /* refArrMinIdx */
 
 
 
-listType refArrToList (const const_objectType obj_arg)
+listType refArrToList (const const_objectType aReference)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* refArrToList */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != ARRAYOBJECT)) {
       logError(printf("refArrToList(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = array_to_list(take_array(obj_arg), &err_info);
+      result = array_to_list(take_array(aReference), &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -171,75 +172,96 @@ listType refArrToList (const const_objectType obj_arg)
 
 
 
-objectType refBody (const const_objectType obj_arg)
+/**
+ *  Gets the body of the function referenced by 'funcRef'.
+ *  @return the body expression of 'funcRef'.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *             category(funcRef) <> BLOCKOBJECT holds.
+ */
+objectType refBody (const const_objectType funcRef)
 
   {
     objectType result;
 
   /* refBody */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+    if (unlikely(funcRef == NULL ||
+                 CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refBody(");
-               trace1(obj_arg);
+               trace1(funcRef);
                printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = obj_arg->value.blockValue->body;
+      result = funcRef->value.blockValue->body;
     } /* if */
     return result;
   } /* refBody */
 
 
 
-intType refCategory (const const_objectType obj_arg)
+/**
+ *  Get the category of a referenced object.
+ *  @return the category of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL.
+ */
+intType refCategory (const const_objectType aReference)
 
   {
     intType result;
 
   /* refCategory */
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(aReference == NULL)) {
       logError(printf("refCategory(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = CATEGORY_OF_OBJ(obj_arg);
+      result = CATEGORY_OF_OBJ(aReference);
     } /* if */
     return result;
   } /* refCategory */
 
 
 
-intType refCatParse (striType category_name)
+/**
+ *  Convert a [[string]] to a 'category'.
+ *  @param catName Name of a category to be converted.
+ *  @return the 'category' result fo the conversion.
+ *  @exception RANGE_ERROR When there is no corresponding 'category'.
+ */
+intType refCatParse (striType catName)
 
   {
-    cstriType name;
+    char name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
     errInfoType err_info = OKAY_NO_ERROR;
-    intType result;
+    intType category;
 
   /* refCatParse */
-    name = stri_to_cstri(category_name, &err_info);
-    if (unlikely(name == NULL)) {
-      logError(printf("refCatParse: stri_to_cstri(\"%s\", *) failed:\n"
-                      "err_info=%d\n",
-                      striAsUnquotedCStri(category_name),
-                      err_info););
-      raise_error(err_info);
-      result = -1;
+    if (unlikely(catName->size > MAX_CSTRI_BUFFER_LEN)) {
+      category = -1;
     } else {
-      result = category_value(name);
-      free_cstri(name, category_name);
-      if (unlikely(result == -1)) {
-        logError(printf("refCatParse: category_value(\"%s\") failed.\n",
-                        striAsUnquotedCStri(category_name)););
-        raise_error(RANGE_ERROR);
+      conv_to_cstri(name, catName, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        category = -1;
+      } else {
+        category = category_value(name);
       } /* if */
     } /* if */
-    return result;
+    if (unlikely(category == -1)) {
+      logError(printf("refCatParse(\"%s\"): No corresponding category.\n",
+                      striAsUnquotedCStri(catName)););
+      raise_error(RANGE_ERROR);
+    } /* if */
+    return category;
   } /* refCatParse */
 
 
 
+/**
+ *  Convert a category to a string.
+ *  @param aCategory Category to be converted.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType refCatStr (intType aCategory)
 
   {
@@ -255,27 +277,33 @@ striType refCatStr (intType aCategory)
 
 
 
-striType refFile (const const_objectType obj_arg)
+/**
+ *  Determine the file name of a referenced object.
+ *  @return the file name of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType refFile (const const_objectType aReference)
 
   {
     fileNumType file_number;
     striType result;
 
   /* refFile */
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(aReference == NULL)) {
       logError(printf("refFile(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (HAS_POSINFO(obj_arg)) {
-        file_number = GET_FILE_NUM(obj_arg);
-      } else if (HAS_PROPERTY(obj_arg)) {
-        /* trace1(obj_arg);
+      if (HAS_POSINFO(aReference)) {
+        file_number = GET_FILE_NUM(aReference);
+      } else if (HAS_PROPERTY(aReference)) {
+        /* trace1(aReference);
         printf(" %u %u %u\n",
-            obj_arg->descriptor.property->file_number,
-            obj_arg->descriptor.property->line,
-            obj_arg->descriptor.property->syNumberInLine); */
-        file_number = obj_arg->descriptor.property->file_number;
+            aReference->descriptor.property->file_number,
+            aReference->descriptor.property->line,
+            aReference->descriptor.property->syNumberInLine); */
+        file_number = aReference->descriptor.property->file_number;
       } else {
         file_number = 0;
       } /* if */
@@ -289,22 +317,22 @@ striType refFile (const const_objectType obj_arg)
 
 
 
-listType refHshDataToList (const const_objectType obj_arg)
+listType refHshDataToList (const const_objectType aReference)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* refHshDataToList */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != HASHOBJECT)) {
       logError(printf("refHshDataToList(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not HASHOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = hash_data_to_list(take_hash(obj_arg), &err_info);
+      result = hash_data_to_list(take_hash(aReference), &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -315,22 +343,22 @@ listType refHshDataToList (const const_objectType obj_arg)
 
 
 
-listType refHshKeysToList (const const_objectType obj_arg)
+listType refHshKeysToList (const const_objectType aReference)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* refHshKeysToList */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != HASHOBJECT)) {
       logError(printf("refHshKeysToList(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not HASHOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = hash_keys_to_list(take_hash(obj_arg), &err_info);
+      result = hash_keys_to_list(take_hash(aReference), &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -341,64 +369,69 @@ listType refHshKeysToList (const const_objectType obj_arg)
 
 
 
-boolType refIsVar (const const_objectType obj_arg)
+boolType refIsVar (const const_objectType aReference)
 
   { /* refIsVar */
-    logFunction(printf("refIsVar(" FMT_U_MEM ")\n", (memSizeType) obj_arg););
-    if (unlikely(obj_arg == NULL)) {
+    logFunction(printf("refIsVar(" FMT_U_MEM ")\n", (memSizeType) aReference););
+    if (unlikely(aReference == NULL)) {
       logError(printf("refIsVar(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       return FALSE;
     } else {
-      return VAR_OBJECT(obj_arg) ? TRUE : FALSE;
+      return VAR_OBJECT(aReference) ? TRUE : FALSE;
     } /* if */
   } /* refIsVar */
 
 
 
-objectType refItfToSct (const const_objectType obj_arg)
+objectType refItfToSct (const const_objectType aReference)
 
   {
     objectType result;
 
   /* refItfToSct */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
-                 take_reference(obj_arg) == NULL)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != INTERFACEOBJECT ||
+                 take_reference(aReference) == NULL)) {
       logError(printf("refItfToSct(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not INTERFACEOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = take_reference(obj_arg);
+      result = take_reference(aReference);
     } /* if */
     return result;
   } /* refItfToSct */
 
 
 
-intType refLine (const const_objectType obj_arg)
+/**
+ *  Determine the line number of a referenced object.
+ *  @return the line number of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL.
+ */
+intType refLine (const const_objectType aReference)
 
   {
     intType result;
 
   /* refLine */
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(aReference == NULL)) {
       logError(printf("refLine(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = 0;
-    } else if (HAS_POSINFO(obj_arg)) {
+    } else if (HAS_POSINFO(aReference)) {
       /* GET_LINE_NUM delivers an unsigned integer in the range 0 to 1048575 */
-      result = (intType) GET_LINE_NUM(obj_arg);
-    } else if (HAS_PROPERTY(obj_arg)) {
-      /* trace1(obj_arg);
+      result = (intType) GET_LINE_NUM(aReference);
+    } else if (HAS_PROPERTY(aReference)) {
+      /* trace1(aReference);
       printf(" %s %u %u\n",
-          get_file_name_ustri(obj_arg->descriptor.property->file_number),
-          obj_arg->descriptor.property->line,
-          obj_arg->descriptor.property->syNumberInLine); */
+          get_file_name_ustri(aReference->descriptor.property->file_number),
+          aReference->descriptor.property->line,
+          aReference->descriptor.property->syNumberInLine); */
       /* Cast to intType: The line is probably in the range 0 to 2147483647 */
-      result = (intType) obj_arg->descriptor.property->line;
+      result = (intType) aReference->descriptor.property->line;
     } else {
       result = 0;
     } /* if */
@@ -407,7 +440,14 @@ intType refLine (const const_objectType obj_arg)
 
 
 
-listType refLocalConsts (const const_objectType obj_arg)
+/**
+ *  Gets the local constants of 'funcRef'.
+ *  @return the local constants as ref_list.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *             refCategory(funcRef) <> BLOCKOBJECT holds.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
+listType refLocalConsts (const const_objectType funcRef)
 
   {
     listType local_elem;
@@ -417,15 +457,15 @@ listType refLocalConsts (const const_objectType obj_arg)
 
   /* refLocalConsts */
     result = NULL;
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+    if (unlikely(funcRef == NULL ||
+                 CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refLocalConsts(");
-               trace1(obj_arg);
+               trace1(funcRef);
                printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
-      local_elem = obj_arg->value.blockValue->local_consts;
+      local_elem = funcRef->value.blockValue->local_consts;
       while (local_elem != NULL) {
         list_insert_place = append_element_to_list(list_insert_place,
             local_elem->obj, &err_info);
@@ -442,7 +482,14 @@ listType refLocalConsts (const const_objectType obj_arg)
 
 
 
-listType refLocalVars (const const_objectType obj_arg)
+/**
+ *  Gets the local variables of 'funcRef'.
+ *  @return the local variables as ref_list.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *             refCategory(funcRef) <> BLOCKOBJECT holds.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
+listType refLocalVars (const const_objectType funcRef)
 
   {
     locListType local_elem;
@@ -452,15 +499,15 @@ listType refLocalVars (const const_objectType obj_arg)
 
   /* refLocalVars */
     result = NULL;
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+    if (unlikely(funcRef == NULL ||
+                 CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refLocalVars(");
-               trace1(obj_arg);
+               trace1(funcRef);
                printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
-      local_elem = obj_arg->value.blockValue->local_vars;
+      local_elem = funcRef->value.blockValue->local_vars;
       while (local_elem != NULL) {
         list_insert_place = append_element_to_list(list_insert_place,
             local_elem->local.object, &err_info);
@@ -477,7 +524,12 @@ listType refLocalVars (const const_objectType obj_arg)
 
 
 
-intType refNum (const const_objectType obj_arg)
+/**
+ *  Delivers an unique number for each object
+ *  @return a unique object number.
+ *  @exception MEMORY_ERROR Not enough memory to maintain the object table.
+ */
+intType refNum (const const_objectType aReference)
 
   {
     static rtlHashType obj_table = NULL;
@@ -485,8 +537,8 @@ intType refNum (const const_objectType obj_arg)
     intType result;
 
   /* refNum */
-    logFunction(printf("refNum(" FMT_U_MEM ")\n", (memSizeType) obj_arg););
-    if (unlikely(obj_arg == NULL)) {
+    logFunction(printf("refNum(" FMT_U_MEM ")\n", (memSizeType) aReference););
+    if (unlikely(aReference == NULL)) {
       result = 0;
     } else {
       if (unlikely(obj_table == NULL)) {
@@ -496,9 +548,9 @@ intType refNum (const const_objectType obj_arg)
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (intType) hshIdxEnterDefault(obj_table, (genericType) (memSizeType) obj_arg,
+        result = (intType) hshIdxEnterDefault(obj_table, (genericType) (memSizeType) aReference,
             (genericType) next_free_number,
-            (intType) (((memSizeType) obj_arg) >> 6), (compareType) &genericCmp,
+            (intType) (((memSizeType) aReference) >> 6), (compareType) &genericCmp,
             (createFuncType) &genericCreate, (createFuncType) &genericCreate);
         if (result == next_free_number) {
           next_free_number++;
@@ -511,19 +563,25 @@ intType refNum (const const_objectType obj_arg)
 
 
 
-listType refParams (const const_objectType obj_arg)
+/**
+ *  Get the formal parameters of the function referenced by 'funcRef'.
+ *  For objects without parameters an empty list is returned.
+ *  @return the formal parameters as ref_list.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL.
+ */
+listType refParams (const const_objectType funcRef)
 
   {
     listType result;
 
   /* refParams */
     result = NULL;
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(funcRef == NULL)) {
       logError(printf("refParams(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      if (HAS_PROPERTY(obj_arg)) {
-        result = obj_arg->descriptor.property->params;
+      if (HAS_PROPERTY(funcRef)) {
+        result = funcRef->descriptor.property->params;
       } /* if */
     } /* if */
     return result;
@@ -531,64 +589,76 @@ listType refParams (const const_objectType obj_arg)
 
 
 
-objectType refResini (const const_objectType obj_arg)
+/**
+ *  Gets the initialization value of the result variable of 'funcRef'.
+ *  @return a reference to the initialization value.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *             refCategory(funcRef) <> BLOCKOBJECT holds.
+ */
+objectType refResini (const const_objectType funcRef)
 
   {
     objectType result;
 
   /* refResini */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+    if (unlikely(funcRef == NULL ||
+                 CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refResini(");
-               trace1(obj_arg);
+               trace1(funcRef);
                printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = obj_arg->value.blockValue->result.init_value;
+      result = funcRef->value.blockValue->result.init_value;
     } /* if */
     return result;
   } /* refResini */
 
 
 
-objectType refResult (const const_objectType obj_arg)
+/**
+ *  Gets the result variable of 'funcRef'.
+ *  @return a reference to the result variable.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *             refCategory(funcRef) <> BLOCKOBJECT holds.
+ */
+objectType refResult (const const_objectType funcRef)
 
   {
     objectType result;
 
   /* refResult */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+    if (unlikely(funcRef == NULL ||
+                 CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refResult(");
-               trace1(obj_arg);
+               trace1(funcRef);
                printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = obj_arg->value.blockValue->result.object;
+      result = funcRef->value.blockValue->result.object;
     } /* if */
     return result;
   } /* refResult */
 
 
 
-listType refSctToList (const const_objectType obj_arg)
+listType refSctToList (const const_objectType aReference)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* refSctToList */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != STRUCTOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != STRUCTOBJECT)) {
       logError(printf("refSctToList(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not STRUCTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = struct_to_list(take_struct(obj_arg), &err_info);
+      result = struct_to_list(take_struct(aReference), &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -599,45 +669,54 @@ listType refSctToList (const const_objectType obj_arg)
 
 
 
-void refSetCategory (objectType obj_arg, intType aCategory)
+/**
+ *  Set the category of 'aReference' to 'aCategory'.
+ *  @exception RANGE_ERROR When 'aReference' is NIL.
+ */
+void refSetCategory (objectType aReference, intType aCategory)
 
   { /* refSetCategory */
     logFunction(printf("refSetCategory(");
-                trace1(obj_arg);
+                trace1(aReference);
                 printf(", " FMT_D ")\n"););
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(aReference == NULL)) {
       logError(printf("refSetCategory(NULL, " FMT_D "): Object is NULL.\n",
                       aCategory););
       raise_error(RANGE_ERROR);
     } else {
-      SET_CATEGORY_OF_OBJ(obj_arg, aCategory);
+      SET_CATEGORY_OF_OBJ(aReference, aCategory);
     } /* if */
   } /* refSetCategory */
 
 
 
-void refSetParams (objectType obj_arg, const_listType params)
+/**
+ *  Set the formal parameters of 'funcRef' to 'params'.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
+void refSetParams (objectType funcRef, const_listType params)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* refSetParams */
     logFunction(printf("refSetParams(");
-                trace1(obj_arg);
+                trace1(funcRef);
                 printf(", ");
                 prot_list(params);
                 printf(")\n"););
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(funcRef == NULL)) {
       logError(printf("refSetParams(NULL, " FMT_U_MEM "): Object is NULL.\n",
                       (memSizeType) params););
       raise_error(RANGE_ERROR);
     } else {
-      if (HAS_PROPERTY(obj_arg)) {
-        free_list(obj_arg->descriptor.property->params);
-        obj_arg->descriptor.property->params = copy_list(params, &err_info);
+      if (HAS_PROPERTY(funcRef)) {
+        free_list(funcRef->descriptor.property->params);
+        funcRef->descriptor.property->params = copy_list(params, &err_info);
       } /* if */
-      if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
-        obj_arg->value.blockValue->params =
+      if (CATEGORY_OF_OBJ(funcRef) == BLOCKOBJECT) {
+        funcRef->value.blockValue->params =
             get_param_list(params, &err_info);
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -648,37 +727,45 @@ void refSetParams (objectType obj_arg, const_listType params)
 
 
 
-void refSetType (objectType obj_arg, typeType any_type)
+/**
+ *  Set the type of 'aReference' to 'aType'.
+ *  @exception RANGE_ERROR When 'aReference' is NIL.
+ */
+void refSetType (objectType aReference, typeType aType)
 
   { /* refSetType */
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(aReference == NULL)) {
       logError(printf("refSetType(NULL, " FMT_U_MEM "): Object is NULL.\n",
-                      (memSizeType) any_type););
+                      (memSizeType) aType););
       raise_error(RANGE_ERROR);
     } else {
-      obj_arg->type_of = any_type;
+      aReference->type_of = aType;
     } /* if */
   } /* refSetType */
 
 
 
-void refSetVar (objectType obj_arg, boolType var_flag)
+/**
+ *  Set var flag of a referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL.
+ */
+void refSetVar (objectType aReference, boolType var_flag)
 
   { /* refSetVar */
-    if (unlikely(obj_arg == NULL)) {
+    if (unlikely(aReference == NULL)) {
       logError(printf("refSetVar(NULL, %s): Object is NULL.\n",
                       var_flag ? "TRUE" : "FALSE"););
       raise_error(RANGE_ERROR);
     } else if (var_flag) {
-      SET_VAR_FLAG(obj_arg);
+      SET_VAR_FLAG(aReference);
     } else {
-      CLEAR_VAR_FLAG(obj_arg);
+      CLEAR_VAR_FLAG(aReference);
     } /* if */
   } /* refSetVar */
 
 
 
-striType refStr (const const_objectType obj_arg)
+striType refStr (const const_objectType aReference)
 
   {
     const_cstriType stri;
@@ -691,25 +778,25 @@ striType refStr (const const_objectType obj_arg)
 
   /* refStr */
     buffer = NULL;
-    if (obj_arg == NULL) {
+    if (aReference == NULL) {
       stri = " *NULL_OBJECT* ";
-    } else if (HAS_POSINFO(obj_arg)) {
-      stri = (const_cstriType) get_file_name_ustri(GET_FILE_NUM(obj_arg));
+    } else if (HAS_POSINFO(aReference)) {
+      stri = (const_cstriType) get_file_name_ustri(GET_FILE_NUM(aReference));
       buffer_len = (memSizeType) strlen(stri) + 32;
       if (unlikely(!ALLOC_CSTRI(buffer, buffer_len))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        sprintf(buffer, "%s(%u)", stri, GET_LINE_NUM(obj_arg));
+        sprintf(buffer, "%s(%u)", stri, GET_LINE_NUM(aReference));
         stri = buffer;
       } /* if */
-    } else if (!HAS_ENTITY(obj_arg)) {
+    } else if (!HAS_ENTITY(aReference)) {
       stri = " *NULL_ENTITY_OBJECT* ";
-    } else if (GET_ENTITY(obj_arg)->ident != NULL) {
-      stri = id_string2(GET_ENTITY(obj_arg)->ident);
+    } else if (GET_ENTITY(aReference)->ident != NULL) {
+      stri = id_string2(GET_ENTITY(aReference)->ident);
     } else {
       stri = NULL;
-      name_elem = GET_ENTITY(obj_arg)->fparam_list;
+      name_elem = GET_ENTITY(aReference)->fparam_list;
       while (name_elem != NULL && stri == NULL) {
         if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
           param_obj = name_elem->obj->value.objValue;
@@ -739,78 +826,100 @@ striType refStr (const const_objectType obj_arg)
 
 
 
-typeType refType (const const_objectType obj_arg)
+/**
+ *  Get the type of the referenced object.
+ *  @return the type of the object referenced by 'aReference'.
+ */
+typeType refType (const const_objectType aReference)
 
   {
     typeType result;
 
   /* refType */
-    if (unlikely(obj_arg == NULL ||
-                 obj_arg->type_of == NULL)) {
+    if (unlikely(aReference == NULL ||
+                 aReference->type_of == NULL)) {
       logError(printf("refType(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = obj_arg->type_of;
+      result = aReference->type_of;
     } /* if */
     return result;
   } /* refType */
 
 
 
-actType actValue (const const_objectType obj_arg)
+/**
+ *  Get 'ACTION' value of the object referenced by 'aReference'.
+ *  @return the 'ACTION' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> ACTOBJECT holds.
+ */
+actType actValue (const const_objectType aReference)
 
   { /* actValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != ACTOBJECT)) {
       logError(printf("actValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not ACTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      return take_action(obj_arg);
+      return take_action(aReference);
     } /* if */
   } /* actValue */
 
 
 
-bigIntType bigValue (const const_objectType obj_arg)
+/**
+ *  Get 'bigInteger' value of the object referenced by 'aReference'.
+ *  @return the 'bigInteger' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> BIGINTOBJECT holds.
+ */
+bigIntType bigValue (const const_objectType aReference)
 
   { /* bigValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != BIGINTOBJECT)) {
       logError(printf("bigValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not BIGINTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      return bigCreate(take_bigint(obj_arg));
+      return bigCreate(take_bigint(aReference));
     } /* if */
   } /* bigValue */
 
 
 
-boolType blnValue (const_objectType obj_arg)
+/**
+ *  Get 'boolean' value of the object referenced by 'aReference'.
+ *  @return the 'boolean' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             when it references neither TRUE nor FALSE.
+ */
+boolType blnValue (const_objectType aReference)
 
   { /* blnValue */
-    if (obj_arg != NULL) {
-      if (CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
-          CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
-        obj_arg = obj_arg->value.objValue;
+    if (aReference != NULL) {
+      if (CATEGORY_OF_OBJ(aReference) == CONSTENUMOBJECT ||
+          CATEGORY_OF_OBJ(aReference) == VARENUMOBJECT) {
+        aReference = aReference->value.objValue;
       } /* if */
-      if (obj_arg->type_of != NULL &&
-          obj_arg->type_of->owningProg != NULL) {
-        if (obj_arg == TRUE_OBJECT(obj_arg->type_of->owningProg)) {
+      if (aReference->type_of != NULL &&
+          aReference->type_of->owningProg != NULL) {
+        if (aReference == TRUE_OBJECT(aReference->type_of->owningProg)) {
           return TRUE;
-        } else if (obj_arg == FALSE_OBJECT(obj_arg->type_of->owningProg)) {
+        } else if (aReference == FALSE_OBJECT(aReference->type_of->owningProg)) {
           return FALSE;
         } /* if */
       } /* if */
     } /* if */
     logError(printf("blnValue(");
-             trace1(obj_arg);
+             trace1(aReference);
              printf("): Value neither TRUE nor FALSE.\n"););
     raise_error(RANGE_ERROR);
     return FALSE;
@@ -818,18 +927,24 @@ boolType blnValue (const_objectType obj_arg)
 
 
 
-bstriType bstValue (const const_objectType obj_arg)
+/**
+ *  Get 'bstring' value of the object referenced by 'aReference'.
+ *  @return the 'bstring' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> BSTRIOBJECT holds.
+ */
+bstriType bstValue (const const_objectType aReference)
 
   {
     bstriType bstri;
     bstriType result;
 
   /* bstValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
-                 (bstri = take_bstri(obj_arg)) == NULL)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != BSTRIOBJECT ||
+                 (bstri = take_bstri(aReference)) == NULL)) {
       logError(printf("bstValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not BSTRIOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -847,38 +962,50 @@ bstriType bstValue (const const_objectType obj_arg)
 
 
 
-charType chrValue (const const_objectType obj_arg)
+/**
+ *  Get 'char' value of the object referenced by 'aReference'.
+ *  @return the 'char' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> CHAROBJECT holds.
+ */
+charType chrValue (const const_objectType aReference)
 
   { /* chrValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != CHAROBJECT)) {
       logError(printf("chrValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not CHAROBJECT.\n"););
       raise_error(RANGE_ERROR);
       return '\0';
     } else {
-      return take_char(obj_arg);
+      return take_char(aReference);
     } /* if */
   } /* chrValue */
 
 
 
-winType drwValue (const const_objectType obj_arg)
+/**
+ *  Get 'PRIMITIVE_WINDOW' value of the object referenced by 'aReference'.
+ *  @return the 'PRIMITIVE_WINDOW' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> WINOBJECT holds.
+ */
+winType drwValue (const const_objectType aReference)
 
   {
     winType win_value;
 
   /* drwValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != WINOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != WINOBJECT)) {
       logError(printf("drwValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not WINOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      win_value = take_win(obj_arg);
+      win_value = take_win(aReference);
       if (win_value != NULL) {
         win_value->usage_count++;
       } /* if */
@@ -888,72 +1015,96 @@ winType drwValue (const const_objectType obj_arg)
 
 
 
-fileType filValue (const const_objectType obj_arg)
+/**
+ *  Get 'clib_file' value of the object referenced by 'aReference'.
+ *  @return the 'clib_file' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> FILEOBJECT holds.
+ */
+fileType filValue (const const_objectType aReference)
 
   { /* filValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != FILEOBJECT)) {
       logError(printf("filValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not FILEOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      return take_file(obj_arg);
+      return take_file(aReference);
     } /* if */
   } /* filValue */
 
 
 
-floatType fltValue (const const_objectType obj_arg)
+/**
+ *  Get 'float' value of the object referenced by 'aReference'.
+ *  @return the 'float' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> FLOATOBJECT holds.
+ */
+floatType fltValue (const const_objectType aReference)
 
   { /* fltValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != FLOATOBJECT)) {
       logError(printf("fltValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not FLOATOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0.0;
     } else {
-      return take_float(obj_arg);
+      return take_float(aReference);
     } /* if */
   } /* fltValue */
 
 
 
-intType intValue (const const_objectType obj_arg)
+/**
+ *  Get 'integer' value of the object referenced by 'aReference'.
+ *  @return the 'integer' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> INTOBJECT holds.
+ */
+intType intValue (const const_objectType aReference)
 
   { /* intValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != INTOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != INTOBJECT)) {
       logError(printf("intValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not INTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      return take_int(obj_arg);
+      return take_int(aReference);
     } /* if */
   } /* intValue */
 
 
 
-processType pcsValue (const const_objectType obj_arg)
+/**
+ *  Get 'process' value of the object referenced by 'aReference'.
+ *  @return the 'process' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> PROCESSOBJECT holds.
+ */
+processType pcsValue (const const_objectType aReference)
 
   {
     processType process_value;
 
   /* pcsValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != PROCESSOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != PROCESSOBJECT)) {
       logError(printf("pcsValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not PROCESSOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      process_value = take_process(obj_arg);
+      process_value = take_process(aReference);
       if (process_value != NULL) {
         process_value->usage_count++;
       } /* if */
@@ -963,56 +1114,68 @@ processType pcsValue (const const_objectType obj_arg)
 
 
 
-pollType polValue (const const_objectType obj_arg)
+/**
+ *  Get 'pollData' value of the object referenced by 'aReference'.
+ *  @return the 'pollData' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> POLLOBJECT holds.
+ */
+pollType polValue (const const_objectType aReference)
 
   { /* polValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != POLLOBJECT)) {
       logError(printf("polValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not POLLOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      return polCreate(take_poll(obj_arg));
+      return polCreate(take_poll(aReference));
     } /* if */
   } /* polValue */
 
 
 
-progType prgValue (const const_objectType obj_arg)
+/**
+ *  Get 'program' value of the object referenced by 'aReference'.
+ *  @return the 'program' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> PROGOBJECT holds.
+ */
+progType prgValue (const const_objectType aReference)
 
   { /* prgValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != PROGOBJECT)) {
       logError(printf("prgValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not PROGOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      return take_prog(obj_arg);
+      return take_prog(aReference);
     } /* if */
   } /* prgValue */
 
 
 
-objectType refValue (const const_objectType obj_arg)
+objectType refValue (const const_objectType aReference)
 
   { /* refValue */
-    if (likely(obj_arg != NULL &&
-               (CATEGORY_OF_OBJ(obj_arg) == FWDREFOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == REFOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == REFPARAMOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == RESULTOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == LOCALVOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == ENUMLITERALOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT))) {
-      return take_reference(obj_arg);
+    if (likely(aReference != NULL &&
+               (CATEGORY_OF_OBJ(aReference) == FWDREFOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == REFOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == REFPARAMOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == RESULTOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == LOCALVOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == ENUMLITERALOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == CONSTENUMOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == VARENUMOBJECT))) {
+      return take_reference(aReference);
     } else {
       logError(printf("refValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not a reference object.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
@@ -1021,25 +1184,25 @@ objectType refValue (const const_objectType obj_arg)
 
 
 
-listType rflValue (const const_objectType obj_arg)
+listType rflValue (const const_objectType aReference)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* rflValue */
-    if (likely(obj_arg != NULL &&
-               (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
-                CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT))) {
-      result = copy_list(take_reflist(obj_arg), &err_info);
+    if (likely(aReference != NULL &&
+               (CATEGORY_OF_OBJ(aReference) == MATCHOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == CALLOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == REFLISTOBJECT))) {
+      result = copy_list(take_reflist(aReference), &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
     } else {
       logError(printf("rflValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not a reference list object.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1049,26 +1212,26 @@ listType rflValue (const const_objectType obj_arg)
 
 
 
-void rflSetValue (objectType list_to, listType list_from)
+void rflSetValue (objectType dest, listType source)
 
   {
     listType help_list;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* rflSetValue */
-    if (likely(CATEGORY_OF_OBJ(list_to) == MATCHOBJECT ||
-               CATEGORY_OF_OBJ(list_to) == CALLOBJECT ||
-               CATEGORY_OF_OBJ(list_to) == REFLISTOBJECT)) {
-      help_list = copy_list(list_from, &err_info);
+    if (likely(CATEGORY_OF_OBJ(dest) == MATCHOBJECT ||
+               CATEGORY_OF_OBJ(dest) == CALLOBJECT ||
+               CATEGORY_OF_OBJ(dest) == REFLISTOBJECT)) {
+      help_list = copy_list(source, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
       } else {
-        free_list(take_reflist(list_to));
-        list_to->value.listValue = help_list;
+        free_list(take_reflist(dest));
+        dest->value.listValue = help_list;
       } /* if */
     } else {
       logError(printf("rflSetValue(");
-               trace1(list_to);
+               trace1(dest);
                printf(", *): Category is not a reference list object.\n"););
       raise_error(RANGE_ERROR);
     } /* if */
@@ -1076,7 +1239,13 @@ void rflSetValue (objectType list_to, listType list_from)
 
 
 
-setType setValue (const const_objectType obj_arg)
+/**
+ *  Get 'bitset' value of the object referenced by 'aReference'.
+ *  @return the 'bitset' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> SETOBJECT holds.
+ */
+setType setValue (const const_objectType aReference)
 
   {
     setType set1;
@@ -1084,11 +1253,11 @@ setType setValue (const const_objectType obj_arg)
     setType result;
 
   /* setValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
-                 (set1 = take_set(obj_arg)) == NULL)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != SETOBJECT ||
+                 (set1 = take_set(aReference)) == NULL)) {
       logError(printf("setValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not SETOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1107,18 +1276,24 @@ setType setValue (const const_objectType obj_arg)
 
 
 
-striType strValue (const const_objectType obj_arg)
+/**
+ *  Get 'string' value of the object referenced by 'aReference'.
+ *  @return the 'string' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> STRIOBJECT holds.
+ */
+striType strValue (const const_objectType aReference)
 
   {
     striType stri;
     striType result;
 
   /* strValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
-                 (stri = take_stri(obj_arg)) == NULL)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != STRIOBJECT ||
+                 (stri = take_stri(aReference)) == NULL)) {
       logError(printf("strValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not STRIOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1136,17 +1311,23 @@ striType strValue (const const_objectType obj_arg)
 
 
 
-typeType typValue (const const_objectType obj_arg)
+/**
+ *  Get 'type' value of the object referenced by 'aReference'.
+ *  @return the 'type' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *             category(aReference) <> TYPEOBJECT holds.
+ */
+typeType typValue (const const_objectType aReference)
 
   { /* typValue */
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT)) {
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != TYPEOBJECT)) {
       logError(printf("typValue(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not TYPEOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      return take_type(obj_arg);
+      return take_type(aReference);
     } /* if */
   } /* typValue */

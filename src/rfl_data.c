@@ -47,25 +47,38 @@
 
 
 
-void rflAppend (listType *const list_to, const listType list_from)
+/**
+ *  Append the ref_list 'extension' to 'dest'.
+ *  The 'extension' must be a temporary (that would be deleted
+ *  afterwards). If the actual 'extension' is not a temporary
+ *  a copy of it must be provided to rflAppend.
+ */
+void rflAppend (listType *const dest, const listType extension)
 
   {
     listType list1_end;
 
   /* rflAppend */
-    if (*list_to != NULL) {
-      list1_end = *list_to;
+    if (*dest != NULL) {
+      list1_end = *dest;
       while (list1_end->next != NULL) {
         list1_end = list1_end->next;
       } /* while */
-      list1_end->next = list_from;
+      list1_end->next = extension;
     } else {
-      *list_to = list_from;
+      *dest = extension;
     } /* if */
   } /* rflAppend */
 
 
 
+/**
+ *  Concatenate two ref_lists ('list1' and 'list2').
+ *  The parameters 'list1' and 'list2' must be a temporaries
+ *  (that would be deleted afterwards). If they are not temporaries
+ *  a copy of the parameter must be provided to rflAppend.
+ *  @return the result of the concatenation.
+ */
 listType rflCat (listType list1, const listType list2)
 
   {
@@ -109,7 +122,7 @@ inline intType rflCmp (const_listType list1, const_listType list2)
       result = -1;
     } else if (list2 == NULL) {
       result = 1;
-    } else if ((memSizeType) (list1) < (memSizeType) (list2)) {
+    } else if ((memSizeType) (list1->obj) < (memSizeType) (list2->obj)) {
       result = -1;
     } else {
       result = 1;
@@ -137,20 +150,25 @@ intType rflCmpGeneric (const genericType value1, const genericType value2)
 
 
 
-void rflCpy (listType *const list_to, const const_listType list_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void rflCpy (listType *const dest, const const_listType source)
 
   {
     listType help_list;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* rflCpy */
-    if (list_from != *list_to) {
-      help_list = copy_list(list_from, &err_info);
+    if (source != *dest) {
+      help_list = copy_list(source, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
       } else {
-        free_list(*list_to);
-        *list_to = help_list;
+        free_list(*dest);
+        *dest = help_list;
       } /* if */
     } /* if */
   } /* rflCpy */
@@ -172,14 +190,21 @@ void rflCpyGeneric (genericType *const dest, const genericType source)
 
 
 
-listType rflCreate (const const_listType list_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+listType rflCreate (const const_listType source)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* rflCreate */
-    result = copy_list(list_from, &err_info);
+    result = copy_list(source, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
@@ -209,6 +234,11 @@ genericType rflCreateGeneric (const genericType from_value)
 
 
 
+/**
+ *  Free the memory referred by 'old_list'.
+ *  After rflDestr is left 'old_list' refers to not existing memory.
+ *  The memory where 'old_list' is stored can be freed afterwards.
+ */
 void rflDestr (const listType old_list)
 
   { /* rflDestr */
@@ -249,35 +279,49 @@ boolType rflElem (const const_objectType searched_object, const_listType list_el
 
 
 
-void rflElemcpy (listType list, intType position, objectType elem)
+/**
+ *  Assign reference 'source' to the 'position' of the 'dest'.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
+ *  @exception RANGE_ERROR When 'position' is negative or zero.
+ *  @exception RANGE_ERROR An element beyond 'dest' would be
+ *             overwritten ('position' > length('dest') holds).
+ */
+void rflElemcpy (listType dest, intType position, objectType elem)
 
   { /* rflElemcpy */
     logFunction(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM")\n",
-                       (memSizeType) list, position, (memSizeType) elem););
+                       (memSizeType) dest, position, (memSizeType) elem););
     if (unlikely(position <= 0)) {
       logError(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM"): "
                       "Index <= 0.\n",
-                      (memSizeType) list, position, (memSizeType) elem););
+                      (memSizeType) dest, position, (memSizeType) elem););
       raise_error(RANGE_ERROR);
     } else {
       position--;
-      while (position != 0 && list != NULL) {
+      while (position != 0 && dest != NULL) {
         position--;
-        list = list->next;
+        dest = dest->next;
       } /* while */
-      if (unlikely(list == NULL)) {
+      if (unlikely(dest == NULL)) {
         logError(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM"): "
-                        "Index > length(destination).\n",
-                        (memSizeType) list, position, (memSizeType) elem););
+                        "Index > length(dest).\n",
+                        (memSizeType) dest, position, (memSizeType) elem););
         raise_error(RANGE_ERROR);
       } else {
-        list->obj = elem;
+        dest->obj = elem;
       } /* if */
     } /* if */
   } /* rflElemcpy */
 
 
 
+/**
+ *  Check if two ref_lists are equal.
+ *  @return TRUE if both ref_lists are equal,
+ *          FALSE otherwise.
+ */
 boolType rflEq (const_listType list1, const_listType list2)
 
   {
@@ -299,6 +343,12 @@ boolType rflEq (const_listType list1, const_listType list2)
 
 
 
+/**
+ *  Get a sublist from 'list' ending at the 'stop' position.
+ *  The first element in a 'ref_list' has the position 1.
+ *  @return the substring ending at the 'stop' position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 listType rflHead (const listType list, intType stop)
 
   {
@@ -338,6 +388,12 @@ listType rflHead (const listType list, intType stop)
 
 
 
+/**
+ *  Access one element from the 'ref_list' 'list'.
+ *  @return the element with the specified 'position' from 'list'.
+ *  @exception RANGE_ERROR When the index is less than 1 or
+ *             greater than the length of the 'ref_list'.
+ */
 objectType rflIdx (const_listType list, intType position)
 
   {
@@ -386,6 +442,10 @@ void rflIncl (listType *list, objectType elem)
 
 
 
+/**
+ *  Determine the length of a 'ref_list'.
+ *  @return the length of the 'ref_list'.
+ */
 intType rflLng (const_listType list)
 
   {
@@ -465,6 +525,12 @@ intType rflIpos (listType list_element, objectType searched_object,
 
 
 
+/**
+ *  Get a sublist from a 'start' position to a 'stop' position.
+ *  The first element in a 'ref_list' has the position 1.
+ *  @return the substring from position start to stop.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 listType rflRange (const listType list, intType start, intType stop)
 
   {
@@ -510,6 +576,12 @@ listType rflRange (const listType list, intType start, intType stop)
 
 
 
+/**
+ *  Get a sublist from 'list' beginning at a 'start' position.
+ *  The first element in a 'ref_list' has the position 1.
+ *  @return the sublist beginning at the 'start' position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 listType rflTail (const_listType list, intType start)
 
   {

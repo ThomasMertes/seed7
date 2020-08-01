@@ -27,8 +27,8 @@
 
 void interpret (const progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName);
-void prgCpy (progType *const prog_to, const progType prog_from);
-progType prgCreate (const progType prog_from);
+void prgCpy (progType *const dest, const progType source);
+progType prgCreate (const progType source);
 void prgDestr (progType old_prog);
 intType prgErrorCount (const const_progType aProg);
 objectType prgEval (progType currentProg, objectType object);

@@ -464,45 +464,49 @@ objectType str_cmp (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType str_cpy (listType arguments)
 
   {
-    objectType str_to;
-    objectType str_from;
+    objectType dest;
+    objectType source;
     memSizeType new_size;
     striType stri_dest;
 
   /* str_cpy */
-    str_to = arg_1(arguments);
-    str_from = arg_3(arguments);
-    isit_stri(str_to);
-    isit_stri(str_from);
-    is_variable(str_to);
-    stri_dest = take_stri(str_to);
-    if (TEMP_OBJECT(str_from)) {
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_stri(dest);
+    isit_stri(source);
+    is_variable(dest);
+    stri_dest = take_stri(dest);
+    if (TEMP_OBJECT(source)) {
       FREE_STRI(stri_dest, stri_dest->size);
-      str_to->value.striValue = take_stri(str_from);
-      str_from->value.striValue = NULL;
+      dest->value.striValue = take_stri(source);
+      source->value.striValue = NULL;
     } else {
-      new_size = take_stri(str_from)->size;
+      new_size = take_stri(source)->size;
       if (stri_dest->size == new_size) {
-        if (stri_dest != take_stri(str_from)) {
-          /* It is possible that str_to == str_from holds. The */
+        if (stri_dest != take_stri(source)) {
+          /* It is possible that dest == source holds. The     */
           /* behavior of memcpy() is undefined when source and */
           /* destination areas overlap (or are identical).     */
           /* Therefore a check for this case is necessary.     */
-          memcpy(stri_dest->mem, take_stri(str_from)->mem,
+          memcpy(stri_dest->mem, take_stri(source)->mem,
                  new_size * sizeof(strElemType));
         } /* if */
       } else {
         if (unlikely(!ALLOC_STRI_SIZE_OK(stri_dest, new_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          FREE_STRI(take_stri(str_to), take_stri(str_to)->size);
-          str_to->value.striValue = stri_dest;
+          FREE_STRI(take_stri(dest), take_stri(dest)->size);
+          dest->value.striValue = stri_dest;
           stri_dest->size = new_size;
         } /* if */
-        memcpy(stri_dest->mem, take_stri(str_from)->mem,
+        memcpy(stri_dest->mem, take_stri(source)->mem,
                new_size * sizeof(strElemType));
       } /* if */
     } /* if */
@@ -511,32 +515,38 @@ objectType str_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType str_create (listType arguments)
 
   {
-    objectType str_to;
-    objectType str_from;
+    objectType dest;
+    objectType source;
     memSizeType new_size;
     striType new_str;
 
   /* str_create */
-    str_to = arg_1(arguments);
-    str_from = arg_3(arguments);
-    isit_stri(str_from);
-    SET_CATEGORY_OF_OBJ(str_to, STRIOBJECT);
-    if (TEMP_OBJECT(str_from)) {
-      str_to->value.striValue = take_stri(str_from);
-      str_from->value.striValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_stri(source);
+    SET_CATEGORY_OF_OBJ(dest, STRIOBJECT);
+    if (TEMP_OBJECT(source)) {
+      dest->value.striValue = take_stri(source);
+      source->value.striValue = NULL;
     } else {
 /*    printf("str_create %d !!!\n", in_file.line); */
-      new_size = take_stri(str_from)->size;
+      new_size = take_stri(source)->size;
       if (unlikely(!ALLOC_STRI_SIZE_OK(new_str, new_size))) {
-        str_to->value.striValue = NULL;
+        dest->value.striValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      str_to->value.striValue = new_str;
+      dest->value.striValue = new_str;
       new_str->size = new_size;
-      memcpy(new_str->mem, take_stri(str_from)->mem,
+      memcpy(new_str->mem, take_stri(source)->mem,
              new_size * sizeof(strElemType));
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -544,6 +554,12 @@ objectType str_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_string/arg_1'.
+ *  After str_destr is left 'old_string/arg_1' is NULL.
+ *  The memory where 'old_string/arg_1' is stored can be
+ *  freed afterwards.
+ */
 objectType str_destr (listType arguments)
 
   {

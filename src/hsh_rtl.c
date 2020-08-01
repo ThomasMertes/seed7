@@ -467,7 +467,12 @@ printf("%lX\n", (long unsigned) aKey);
 
 
 
-void hshCpy (rtlHashType *const hash_to, const const_rtlHashType hash_from,
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void hshCpy (rtlHashType *const dest, const const_rtlHashType source,
     const createFuncType key_create_func, const destrFuncType key_destr_func,
     const createFuncType data_create_func, const destrFuncType data_destr_func)
 
@@ -475,25 +480,32 @@ void hshCpy (rtlHashType *const hash_to, const const_rtlHashType hash_from,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshCpy */
-    if ((*hash_to)->table_size == hash_from->table_size) {
-      copy_hash(*hash_to, hash_from,
+    if ((*dest)->table_size == source->table_size) {
+      copy_hash(*dest, source,
           key_create_func, data_create_func,
           key_destr_func, data_destr_func, &err_info);
     } else {
-      free_hash(*hash_to, key_destr_func, data_destr_func);
-      *hash_to = create_hash(hash_from,
+      free_hash(*dest, key_destr_func, data_destr_func);
+      *dest = create_hash(source,
           key_create_func, data_create_func, &err_info);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
-      free_hash(*hash_to, key_destr_func, data_destr_func);
-      *hash_to = NULL;
+      free_hash(*dest, key_destr_func, data_destr_func);
+      *dest = NULL;
       raise_error(MEMORY_ERROR);
     } /* if */
   } /* hshCpy */
 
 
 
-rtlHashType hshCreate (const const_rtlHashType hash_from,
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+rtlHashType hshCreate (const const_rtlHashType source,
     const createFuncType key_create_func, const destrFuncType key_destr_func,
     const createFuncType data_create_func, const destrFuncType data_destr_func)
 
@@ -502,7 +514,7 @@ rtlHashType hshCreate (const const_rtlHashType hash_from,
     rtlHashType result;
 
   /* hshCreate */
-    result = create_hash(hash_from,
+    result = create_hash(source,
         key_create_func, data_create_func, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       free_hash(result, key_destr_func, data_destr_func);
@@ -514,6 +526,11 @@ rtlHashType hshCreate (const const_rtlHashType hash_from,
 
 
 
+/**
+ *  Free the memory referred by 'old_hash'.
+ *  After hshDestr is left 'old_hash' refers to not existing memory.
+ *  The memory where 'old_hash' is stored can be freed afterwards.
+ */
 void hshDestr (const const_rtlHashType old_hash, const destrFuncType key_destr_func,
     const destrFuncType data_destr_func)
 

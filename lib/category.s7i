@@ -34,54 +34,55 @@ const type: category is newtype;
 
 IN_PARAM_IS_VALUE(category);
 
-const proc: (ref category: dest) ::= (ref category: source)    is action "INT_CREATE";
-const proc: destroy (ref category: aValue)                     is action "GEN_DESTR";
-const proc: (inout category: dest) := (in category: source)    is action "INT_CPY";
+const proc: (ref category: dest) ::= (ref category: source)     is action "INT_CREATE";
+const proc: destroy (ref category: aValue)                      is action "GEN_DESTR";
+const proc: (inout category: dest) := (in category: source)     is action "INT_CPY";
 
 
 (**
  *  Check if two ''category'' values are equal.
  *  @return TRUE if both values are equal, FALSE otherwise.
  *)
-const func boolean: (in category: cat1) = (in category: cat2)  is action "INT_EQ";
+const func boolean: (in category: cat1) = (in category: cat2)   is action "INT_EQ";
 
 
 (**
  *  Check if two ''category'' values are not equal.
  *  @return FALSE if both values are equal, TRUE otherwise.
  *)
-const func boolean: (in category: cat1) <> (in category: cat2) is action "INT_NE";
+const func boolean: (in category: cat1) <> (in category: cat2)  is action "INT_NE";
 
 
 (**
  *  Determine the ordinal number of a ''category''.
  *  @return a small [[integer]] which corresponds to ''aCategory''.
  *)
-const func integer: ord (in category: aCategory)               is action "INT_ORD";
+const func integer: ord (in category: aCategory)                is action "INT_ORD";
 
 
 (**
  *  Convert an [[integer]] number to ''category''.
  *  @return the ''category'' result of the conversion.
  *)
-const func category: (attr category) conv (in integer: number) is action "INT_CONV";
+const func category: (attr category) conv (in integer: number)  is action "INT_CONV";
 
 
 (**
  *  Convert a ''category'' to a [[string]].
+ *  @param aCategory Category to be converted.
  *  @return the [[string]] result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: str (in category: aCategory)                is action "REF_CAT_STR";
+const func string: str (in category: aCategory)                 is action "REF_CAT_STR";
 
 
 (**
  *  Convert a [[string]] to a ''category''.
+ *  @param catName Name of a category to be converted.
  *  @return the ''category'' result fo the conversion.
  *  @exception RANGE_ERROR When there is no corresponding ''category''.
- *  @exception MEMORY_ERROR Not enough memory to do the conversion.
  *)
-const func category: (attr category) parse (in string: stri)   is action "REF_CAT_PARSE";
+const func category: (attr category) parse (in string: catName) is action "REF_CAT_PARSE";
 
 
 const category: (attr category) . value is category parse "SYMBOLOBJECT";

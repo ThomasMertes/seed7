@@ -45,13 +45,19 @@
 
 
 
-rtlInterfaceType itfCreate (const rtlInterfaceType interface_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ */
+rtlInterfaceType itfCreate (const rtlInterfaceType source)
 
   { /* itfCreate */
-    if (interface_from->usage_count != 0) {
-      interface_from->usage_count++;
+    if (source->usage_count != 0) {
+      source->usage_count++;
     } /* if */
-    return interface_from;
+    return source;
   } /* itfCreate */
 
 

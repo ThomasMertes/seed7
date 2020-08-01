@@ -35,7 +35,6 @@ const ACTION: REF_CATEGORY       is action "REF_CATEGORY";
 const ACTION: REF_CAT_PARSE      is action "REF_CAT_PARSE";
 const ACTION: REF_CAT_STR        is action "REF_CAT_STR";
 const ACTION: REF_CMP            is action "REF_CMP";
-const ACTION: REF_CONV           is action "REF_CONV";
 const ACTION: REF_CPY            is action "REF_CPY";
 const ACTION: REF_DEREF          is action "REF_DEREF";
 const ACTION: REF_EQ             is action "REF_EQ";
@@ -223,16 +222,6 @@ const proc: process (REF_CMP, in reference: function,
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (REF_CONV, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(";
-    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 

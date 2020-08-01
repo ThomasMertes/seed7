@@ -63,6 +63,16 @@ typedef struct preparedStmtStruct {
 
 
 
+/**
+ *  Bind a bigInteger parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param value Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when 'value' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType value)
 
@@ -83,6 +93,17 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
 
 
 
+/**
+ *  Bind a bigRational parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param numerator Numerator of the Value for the binding.
+ *  @param denominator Denominator of the Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when the big rational cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType numerator, const const_bigIntType denominator)
 
@@ -118,6 +139,16 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 
 
 
+/**
+ *  Bind a boolean parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param value Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when 'value' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
   { /* sqlBindBool */
@@ -137,6 +168,16 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
 
 
+/**
+ *  Bind a bstring parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param bstri Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when 'bstri' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
 
   { /* sqlBindBStri */
@@ -156,6 +197,15 @@ void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
 
 
 
+/**
+ *  Bind a duration parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when the duration cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
     intType minute, intType second, intType micro_second)
@@ -186,6 +236,16 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
 
 
 
+/**
+ *  Bind a float parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param value Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when 'value' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
 
   { /* sqlBindFloat */
@@ -213,6 +273,16 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
 
 
 
+/**
+ *  Bind an integer parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param value Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when 'value' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
   { /* sqlBindInt */
@@ -232,6 +302,14 @@ void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
 
 
+/**
+ *  Bind a NULL parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
   { /* sqlBindNull */
@@ -251,6 +329,16 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
 
 
+/**
+ *  Bind a string parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param stri Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when 'stri' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
   { /* sqlBindStri */
@@ -270,6 +358,15 @@ void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
 
 
+/**
+ *  Bind a time parameter to a prepared SQL statement.
+ *  @param sqlStatement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when 'pos' is negative or too big or
+ *                         when the time cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
     intType minute, intType second, intType micro_second)
@@ -300,6 +397,11 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
 
 
 
+/**
+ *  Close the specified database 'database'.
+ *  @param database Database to be closed.
+ *  @exception RANGE_ERROR When the database was not open.
+ */
 void sqlClose (databaseType database)
 
   { /* sqlClose */
@@ -318,6 +420,17 @@ void sqlClose (databaseType database)
 
 
 
+/**
+ *  Get the specified column of fetched data as bigInteger.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a bigInteger.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 
   {
@@ -344,6 +457,18 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 
 
 
+/**
+ *  Get the specified column of fetched data as bigRational.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @param numerator Destination fo the numerator of the column value.
+ *  @param denominator Destination fo the denominator of the column value.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     bigIntType *numerator, bigIntType *denominator)
 
@@ -368,6 +493,17 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
 
 
 
+/**
+ *  Get the specified column of fetched data as boolean.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a boolean.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
 
   {
@@ -394,6 +530,17 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
 
 
 
+/**
+ *  Get the specified column of fetched data as bstring.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a bstring.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
 
   {
@@ -421,6 +568,16 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
 
 
 
+/**
+ *  Get the specified column of fetched data as duration.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     intType *year, intType *month, intType *day, intType *hour,
     intType *minute, intType *second, intType *micro_second)
@@ -450,6 +607,17 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
 
 
 
+/**
+ *  Get the specified column of fetched data as float.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a float.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
 
   {
@@ -476,6 +644,17 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
 
 
 
+/**
+ *  Get the specified column of fetched data as integer.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to an integer.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 
   {
@@ -502,6 +681,17 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 
 
 
+/**
+ *  Get the specified column of fetched data as string.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a string.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
 
   {
@@ -528,6 +718,16 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
 
 
 
+/**
+ *  Get the specified column of fetched data as time.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     intType *year, intType *month, intType *day, intType *hour,
     intType *minute, intType *second, intType *micro_second,
@@ -559,6 +759,9 @@ void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 
 
 
+/**
+ *  Execute a commit statement for the specified database 'database'.
+ */
 void sqlCommit (databaseType database)
 
   { /* sqlCommit */
@@ -577,7 +780,12 @@ void sqlCommit (databaseType database)
 
 
 
-void sqlCpyDb (databaseType *const db_to, const databaseType db_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void sqlCpyDb (databaseType *const dest, const databaseType source)
 
   {
     dbType db_dest;
@@ -585,9 +793,9 @@ void sqlCpyDb (databaseType *const db_to, const databaseType db_from)
 
   /* sqlCpyDb */
     logFunction(printf("sqlCpyDb(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) db_to, (memSizeType) db_from););
-    db_dest = (dbType) *db_to;
-    db_source = (dbType) db_from;
+                       (memSizeType) dest, (memSizeType) source););
+    db_dest = (dbType) *dest;
+    db_source = (dbType) source;
     if (db_source != NULL) {
       db_source->usage_count++;
     } /* if */
@@ -600,12 +808,17 @@ void sqlCpyDb (databaseType *const db_to, const databaseType db_from)
         db_dest->sqlFunc->freeDatabase((databaseType) db_dest);
       } /* if */
     } /* if */
-    *db_to = (databaseType) db_source;
+    *dest = (databaseType) db_source;
   } /* sqlCpyDb */
 
 
 
-void sqlCpyStmt (sqlStmtType *const stmt_to, const sqlStmtType stmt_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void sqlCpyStmt (sqlStmtType *const dest, const sqlStmtType source)
 
   {
     preparedStmtType statement_dest;
@@ -613,9 +826,9 @@ void sqlCpyStmt (sqlStmtType *const stmt_to, const sqlStmtType stmt_from)
 
   /* sqlCpyStmt */
     logFunction(printf("sqlCpyStmt(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) stmt_to, (memSizeType) stmt_from););
-    statement_dest = (preparedStmtType) *stmt_to;
-    statement_source = (preparedStmtType) stmt_from;
+                       (memSizeType) dest, (memSizeType) source););
+    statement_dest = (preparedStmtType) *dest;
+    statement_source = (preparedStmtType) source;
     if (statement_source != NULL) {
       statement_source->usage_count++;
     } /* if */
@@ -628,37 +841,54 @@ void sqlCpyStmt (sqlStmtType *const stmt_to, const sqlStmtType stmt_from)
         statement_dest->sqlFunc->freePreparedStmt((sqlStmtType) statement_dest);
       } /* if */
     } /* if */
-    *stmt_to = (sqlStmtType) statement_source;
+    *dest = (sqlStmtType) statement_source;
   } /* sqlCpyStmt */
 
 
 
-databaseType sqlCreateDb (const databaseType db_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ */
+databaseType sqlCreateDb (const databaseType source)
 
   { /* sqlCreateDb */
     logFunction(printf("sqlCreateDb(" FMT_U_MEM ")\n",
-                       (memSizeType) db_from););
-    if (db_from != NULL) {
-      ((dbType) db_from)->usage_count++;
+                       (memSizeType) source););
+    if (source != NULL) {
+      ((dbType) source)->usage_count++;
     } /* if */
-    return db_from;
+    return source;
   } /* sqlCreateDb */
 
 
 
-sqlStmtType sqlCreateStmt (const sqlStmtType stmt_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ */
+sqlStmtType sqlCreateStmt (const sqlStmtType source)
 
   { /* sqlCreateStmt */
     logFunction(printf("sqlCreateStmt(" FMT_U_MEM ")\n",
-                       (memSizeType) stmt_from););
-    if (stmt_from != NULL) {
-      ((preparedStmtType) stmt_from)->usage_count++;
+                       (memSizeType) source););
+    if (source != NULL) {
+      ((preparedStmtType) source)->usage_count++;
     } /* if */
-    return stmt_from;
+    return source;
   } /* sqlCreateStmt */
 
 
 
+/**
+ *  Free the memory referred by 'old_db'.
+ *  After sqlDestrDb is left 'old_db' refers to not existing memory.
+ *  The memory where 'old_db' is stored can be freed afterwards.
+ */
 void sqlDestrDb (const databaseType old_db)
 
   {
@@ -681,6 +911,11 @@ void sqlDestrDb (const databaseType old_db)
 
 
 
+/**
+ *  Free the memory referred by 'old_stmt'.
+ *  After sqlDestrStmt is left 'old_stmt' refers to not existing memory.
+ *  The memory where 'old_stmt' is stored can be freed afterwards.
+ */
 void sqlDestrStmt (const sqlStmtType old_stmt)
 
   {
@@ -703,6 +938,13 @@ void sqlDestrStmt (const sqlStmtType old_stmt)
 
 
 
+/**
+ *  Execute the specified prepared SQL statement.
+ *  Bind variable can be assigned with bind functions before
+ *  sqlExecute is called.
+ *  @param sqlStatement Prepared statement, which should be executed.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 void sqlExecute (sqlStmtType sqlStatement)
 
   { /* sqlExecute */
@@ -721,6 +963,17 @@ void sqlExecute (sqlStmtType sqlStatement)
 
 
 
+/**
+ *  Fetch a row from the result data of an executed 'sqlStatement'.
+ *  After the 'sqlStatement' has been executed successfully the
+ *  function sqlFetch can be used to get the first and further
+ *  rows of the statements result data. The columns of the
+ *  result data can be obtained with the column functions.
+ *  @param sqlStatement Prepared statement, which has been executed.
+ *  @return TRUE when a row of result data could be fetched successfully.
+ *          FALSE when no more result data is available.
+ *  @exception FILE_ERROR When a database function fails.
+ */
 boolType sqlFetch (sqlStmtType sqlStatement)
 
   {
@@ -744,6 +997,16 @@ boolType sqlFetch (sqlStmtType sqlStatement)
 
 
 
+/**
+ *  Determined if the specified column of fetched data is NULL.
+ *  @param sqlStatement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return TRUE when the column is NULL,
+ *          FALSE otherwise.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist.
+ */
 boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
   {
@@ -767,6 +1030,17 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
 
 
+/**
+ *  Open the database 'dbName' with the specified 'user' and 'password'.
+ *  @param driver Database driver to be used.
+ *  @param dbName Database name. The 'dbName' can be specified with host name
+ *         ("e.g.: "www.example.org/myDb"), or with IPv4 address in standard dot
+ *         notation (e.g.: "192.0.2.235/myDb"). Operating systems supporting IPv6
+ *         may also accept an IPv6 address in colon notation.
+ *  @param user Database user name.
+ *  @param password Database password.
+ *  @return the database connection.
+ */
 databaseType sqlOpen (intType driver, const const_striType dbName,
     const const_striType user, const const_striType password)
 
@@ -817,6 +1091,13 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
 
 
 
+/**
+ *  Create a prepared statement for the given 'database'.
+ *  @param database Database connection for which the prepared
+ *         statement should be created.
+ *  @param sqlStatementStri SQL statement in a string. For bind variables
+ *         use a question mark (?).
+ */
 sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 
   {

@@ -141,3 +141,11 @@
 #else
 #define safe_fileno(stream) ((stream) == NULL ? -1 : fileno(stream))
 #endif
+
+#ifndef REDIRECT_FILDES_1
+#define REDIRECT_FILDES_1 ">"
+#endif
+
+#ifndef REDIRECT_FILDES_2
+#define REDIRECT_FILDES_2 "2>"
+#endif

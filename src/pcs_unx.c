@@ -50,6 +50,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "int_rtl.h"
@@ -58,13 +59,13 @@
 
 typedef struct {
     uintType usage_count;
+    fileType stdIn;
+    fileType stdOut;
+    fileType stdErr;
     /* Up to here the structure is identical to struct processStruct */
     pid_t pid;
     boolType isTerminated;
     int exitValue;
-    fileType stdIn;
-    fileType stdOut;
-    fileType stdErr;
   } unx_processRecord, *unx_processType;
 
 typedef const unx_processRecord *const_unx_processType;
@@ -181,6 +182,16 @@ static os_striType *genArgVector (const const_striType command,
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("genArgVector --> ");
+                if (argv == NULL) {
+                  printf("NULL\n");
+                } else {
+                  printf("{");
+                  for (pos = 0; argv[pos] != NULL; pos++) {
+                    printf("\"%s\", ", argv[pos]);
+                  } /* for */
+                  printf("NULL}\n");
+                } /* if */);
     return argv;
   } /* genArgVector */
 
@@ -373,8 +384,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     os_striType *argv;
     int childStdinPipes[2];
     int childStdoutPipes[2];
-    int savedStdin;
-    int savedStdout;
     errInfoType err_info = OKAY_NO_ERROR;
     pid_t pid;
 
@@ -404,14 +413,10 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       close(childStdinPipes[1]);
       raise_error(FILE_ERROR);
     } else {
-      savedStdin  = dup(0);
-      savedStdout = dup(1);
-      close(0);
-      close(1);
-      dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
-      dup2(childStdoutPipes[1], 1);  /* Make the write end of childStdoutPipes as stdout */
       pid = fork();
       if (pid == 0) {
+        dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
+        dup2(childStdoutPipes[1], 1);  /* Make the write end of childStdoutPipes as stdout */
         close(childStdinPipes[0]); /* Not required for the child */
         close(childStdinPipes[1]);
         close(childStdoutPipes[0]);
@@ -422,10 +427,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       } else if (unlikely(pid == (pid_t) -1)) {
         logError(printf("pcsPipe2: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
-        close(0); /* Restore the original std fds of parent */
-        close(1);
-        dup2(savedStdin, 0);
-        dup2(savedStdout, 1);
         close(childStdinPipes[0]); /* The pipes are unused */
         close(childStdoutPipes[1]);
         close(childStdinPipes[1]);
@@ -433,10 +434,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         freeArgVector(argv);
         raise_error(FILE_ERROR);
       } else {
-        close(0); /* Restore the original std fds of parent */
-        close(1);
-        dup2(savedStdin, 0);
-        dup2(savedStdout, 1);
         close(childStdinPipes[0]); /* These are being used by the child */
         close(childStdoutPipes[1]);
         *childStdin  = fdopen(childStdinPipes[1], "w");
@@ -544,10 +541,14 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
 
 
 
-processType pcsStart (const const_striType command, const const_rtlArrayType parameters)
+processType pcsStart (const const_striType command, const const_rtlArrayType parameters,
+    fileType childStdin, fileType childStdout, fileType childStderr)
 
   {
     os_striType *argv;
+    int stdinFileNo;
+    int stdoutFileNo;
+    int stderrFileNo;
     errInfoType err_info = OKAY_NO_ERROR;
     pid_t pid;
     unx_processType process;
@@ -555,43 +556,83 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
   /* pcsStart */
     logFunction(printf("pcsStart(\"%s\"", striAsUnquotedCStri(command));
                 printParameters(parameters);
-                printf(")\n"););
-    argv = genArgVector(command, parameters, &err_info);
-    if (unlikely(argv == NULL)) {
-      raise_error(err_info);
-      process = NULL;
-    } else if (unlikely(access(argv[0], X_OK) != 0)) {
-      freeArgVector(argv);
-      logError(printf("pcsStart: access(" FMT_S_OS ", X_OK) not granted:\n"
-                      "errno=%d\nerror: %s\n",
-                      argv[0], errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-      process = NULL;
-    } else if (unlikely(!ALLOC_RECORD(process, unx_processRecord, count.process))) {
-      freeArgVector(argv);
-      raise_error(MEMORY_ERROR);
+                printf(", %d, %d, %d)\n",
+                       safe_fileno(childStdin), safe_fileno(childStdout),
+                       safe_fileno(childStderr)););
+    if (childStdin == NULL) {
+      stdinFileNo = open(NULL_DEVICE, O_RDONLY);
     } else {
-      pid = fork();
-      if (pid == 0) {
-        execv(argv[0], argv);
-        logError(printf("pcsStart: execv(" FMT_S_OS ") failed:\n"
+      stdinFileNo = fileno(childStdin);
+    } /* if */
+    if (childStdout == NULL) {
+      stdoutFileNo = open(NULL_DEVICE, O_WRONLY);
+    } else {
+      stdoutFileNo = fileno(childStdout);
+    } /* if */
+    if (childStderr == NULL) {
+      stderrFileNo = open(NULL_DEVICE, O_WRONLY);
+    } else {
+      stderrFileNo = fileno(childStderr);
+    } /* if */
+    if (unlikely(stdinFileNo == -1 || stdoutFileNo == -1 || stderrFileNo == -1)) {
+      logError(printf("pcsStart: fileno() or open() failed.\n"););
+      err_info = FILE_ERROR;
+      process = NULL;
+    } else {
+      argv = genArgVector(command, parameters, &err_info);
+      if (unlikely(argv == NULL)) {
+        process = NULL;
+      } else if (unlikely(access(argv[0], X_OK) != 0)) {
+        freeArgVector(argv);
+        logError(printf("pcsStart: access(" FMT_S_OS ", X_OK) not granted:\n"
                         "errno=%d\nerror: %s\n",
                         argv[0], errno, strerror(errno)););
-        exit(1);
-      } else if (unlikely(pid == (pid_t) -1)) {
-        logError(printf("pcsStart: fork failed:\nerrno=%d\nerror: %s\n",
-                        errno, strerror(errno)););
-        freeArgVector(argv);
-        FREE_RECORD(process, unx_processRecord, count.process);
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
         process = NULL;
-      } else {
+      } else if (unlikely(!ALLOC_RECORD(process, unx_processRecord, count.process))) {
         freeArgVector(argv);
-        memset(process, 0, sizeof(unx_processRecord));
-        process->usage_count = 1;
-        process->pid = pid;
-        process->isTerminated = FALSE;
+        err_info = MEMORY_ERROR;
+      } else {
+        pid = fork();
+        if (pid == 0) {
+          dup2(stdinFileNo, 0);
+          dup2(stdoutFileNo, 1);
+          dup2(stderrFileNo, 2);
+          close(stdinFileNo);
+          close(stdoutFileNo);
+          close(stderrFileNo);
+          execv(argv[0], argv);
+          logError(printf("pcsStart: execv(" FMT_S_OS ") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          argv[0], errno, strerror(errno)););
+          exit(1);
+        } else if (unlikely(pid == (pid_t) -1)) {
+          logError(printf("pcsStart: fork failed:\nerrno=%d\nerror: %s\n",
+                          errno, strerror(errno)););
+          freeArgVector(argv);
+          FREE_RECORD(process, unx_processRecord, count.process);
+          err_info = FILE_ERROR;
+          process = NULL;
+        } else {
+          freeArgVector(argv);
+          memset(process, 0, sizeof(unx_processRecord));
+          process->usage_count = 1;
+          process->pid = pid;
+          process->isTerminated = FALSE;
+        } /* if */
       } /* if */
+    } /* if */
+    if (childStdin == NULL && stdinFileNo != -1) {
+      close(stdinFileNo);
+    } /* if */
+    if (childStdout == NULL && stdoutFileNo != -1) {
+      close(stdoutFileNo);
+    } /* if */
+    if (childStderr == NULL && stderrFileNo != -1) {
+      close(stderrFileNo);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
     logFunction(printf("pcsStart -> " FMT_U_MEM "\n",
                        process != NULL ? (memSizeType) process->pid : (memSizeType) 0););
@@ -607,9 +648,6 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     int childStdinPipes[2];
     int childStdoutPipes[2];
     int childStderrPipes[2];
-    int savedStdin;
-    int savedStdout;
-    int savedStderr;
     errInfoType err_info = OKAY_NO_ERROR;
     pid_t pid;
     unx_processType process;
@@ -661,17 +699,11 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       raise_error(FILE_ERROR);
       process = NULL;
     } else {
-      savedStdin  = dup(0);
-      savedStdout = dup(1);
-      savedStderr = dup(2);
-      close(0);
-      close(1);
-      close(2);
-      dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
-      dup2(childStdoutPipes[1], 1);  /* Make the write end of childStdoutPipes as stdout */
-      dup2(childStderrPipes[1], 2);  /* Make the write end of childStderrPipes as stderr */
       pid = fork();
       if (pid == 0) {
+        dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
+        dup2(childStdoutPipes[1], 1);  /* Make the write end of childStdoutPipes as stdout */
+        dup2(childStderrPipes[1], 2);  /* Make the write end of childStderrPipes as stderr */
         close(childStdinPipes[0]); /* Not required for the child */
         close(childStdinPipes[1]);
         close(childStdoutPipes[0]);
@@ -688,12 +720,6 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       } else if (unlikely(pid == (pid_t) -1)) {
         logError(printf("pcsStartPipe: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
-        close(0); /* Restore the original std fds of parent */
-        close(1);
-        close(2);
-        dup2(savedStdin, 0);
-        dup2(savedStdout, 1);
-        dup2(savedStderr, 2);
         close(childStdinPipes[0]); /* The pipes are unused */
         close(childStdoutPipes[1]);
         close(childStderrPipes[1]);
@@ -705,12 +731,6 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         raise_error(FILE_ERROR);
         process = NULL;
       } else {
-        close(0); /* Restore the original std fds of parent */
-        close(1);
-        close(2);
-        dup2(savedStdin, 0);
-        dup2(savedStdout, 1);
-        dup2(savedStderr, 2);
         close(childStdinPipes[0]); /* These are being used by the child */
         close(childStdoutPipes[1]);
         close(childStderrPipes[1]);
@@ -781,7 +801,11 @@ void pcsWaitFor (const processType process)
           to_var_exitValue(process) = 0;
         } /* if */
       } else {
+        logError(printf("pcsWaitFor: waitpid(" FMT_U_MEM ", *, 0) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        to_pid(process), errno, strerror(errno)););
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
+    logFunction(printf("pcsWaitFor -->\n"););
   } /* pcsWaitFor */

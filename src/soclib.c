@@ -144,22 +144,32 @@ objectType soc_connect (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType soc_cpy (listType arguments)
 
   {
-    objectType socket_variable;
+    objectType dest;
 
   /* soc_cpy */
-    socket_variable = arg_1(arguments);
-    isit_socket(socket_variable);
-    is_variable(socket_variable);
+    dest = arg_1(arguments);
+    isit_socket(dest);
+    is_variable(dest);
     isit_socket(arg_3(arguments));
-    socket_variable->value.socketValue = take_socket(arg_3(arguments));
+    dest->value.socketValue = take_socket(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* soc_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType soc_create (listType arguments)
 
   { /* soc_create */

@@ -78,8 +78,9 @@ extern C __int64 __cdecl _ftelli64(FILE *);
 DEFINE_WPOPEN
 #endif
 
-long_jump_position intr_jump_pos;
+static long_jump_position intr_jump_pos;
 
+#define MAX_MODE_LEN               5
 #define BUFFER_SIZE             4096
 #define GETS_DEFAULT_SIZE    1048576
 #define READ_STRI_INIT_SIZE      256
@@ -106,11 +107,15 @@ long_jump_position intr_jump_pos;
  *  Other Seed7 modes correspond to the C mode "".
  *  The Seed7 modes with t are text modes and the modes
  *  without t are binary modes.
+ *  If there is a mode character to set the O_CLOEXEC flag (OS_FOPEN_MODE_CLOSE_ON_EXEC),
+ *  it is appended to os_mode.
  */
-static void get_mode (os_charType os_mode[4], const const_striType file_mode)
+static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType file_mode)
 
-  { /* get_mode */
-    os_mode[0] = '\0';
+  {
+    int mode_pos = 0;
+
+  /* get_mode */
     if (file_mode->size >= 1 &&
         (file_mode->mem[0] == 'r' ||
          file_mode->mem[0] == 'w' ||
@@ -121,9 +126,8 @@ static void get_mode (os_charType os_mode[4], const const_striType file_mode)
            w ... Truncate to zero length or create file for writing.
            a ... Append; open or create file for writing at end-of-file.
         */
-        os_mode[0] = (os_charType) file_mode->mem[0];
-        os_mode[1] = 'b';
-        os_mode[2] = '\0';
+        os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
+        os_mode[mode_pos++] = 'b';
       } else if (file_mode->size == 2) {
         if (file_mode->mem[1] == '+') {
           /* Binary mode
@@ -131,18 +135,16 @@ static void get_mode (os_charType os_mode[4], const const_striType file_mode)
              w+ ... Truncate to zero length or create file for update.
              a+ ... Append; open or create file for update, writing at end-of-file.
           */
-          os_mode[0] = (os_charType) file_mode->mem[0];
-          os_mode[1] = 'b';
-          os_mode[2] = '+';
-          os_mode[3] = '\0';
-        } else if (file_mode->mem[1] == 't') {
+          os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
+          os_mode[mode_pos++] = 'b';
+          os_mode[mode_pos++] = '+';
+         } else if (file_mode->mem[1] == 't') {
           /* Text mode
              rt ... Open file for reading.
              wt ... Truncate to zero length or create file for writing.
              at ... Append; open or create file for writing at end-of-file.
           */
-          os_mode[0] = (os_charType) file_mode->mem[0];
-          os_mode[1] = '\0';
+          os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
         } /* if */
       } else if (file_mode->size == 3) {
         if (file_mode->mem[1] == 't' &&
@@ -152,12 +154,15 @@ static void get_mode (os_charType os_mode[4], const const_striType file_mode)
              wt+ ... Truncate to zero length or create file for update.
              at+ ... Append; open or create file for update, writing at end-of-file.
           */
-          os_mode[0] = (os_charType) file_mode->mem[0];
-          os_mode[1] = '+';
-          os_mode[2] = '\0';
+          os_mode[mode_pos++] = (os_charType) file_mode->mem[0];
+          os_mode[mode_pos++] = '+';
         } /* if */
       } /* if */
     } /* if */
+#if FOPEN_SUPPORTS_CLOEXEC_MODE
+    os_mode[mode_pos++] = 'e';
+#endif
+    os_mode[mode_pos++] = '\0';
   } /* get_mode */
 
 
@@ -1646,7 +1651,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
 
   {
     os_striType os_path;
-    os_charType os_mode[4];
+    os_charType os_mode[MAX_MODE_LEN];
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
 #if FOPEN_OPENS_DIRECTORIES
@@ -1685,6 +1690,12 @@ fileType filOpen (const const_striType path, const const_striType mode)
                           "errno=%d\nerror: %s\n",
                           os_path, os_mode, errno, strerror(errno)););
         } else {
+#if !FOPEN_SUPPORTS_CLOEXEC_MODE && HAS_FCNTL_SETFD_CLOEXEC
+          file_no = fileno(result);
+          if (file_no != -1) {
+            fcntl(file_no, F_SETFD, fcntl(file_no, F_GETFD) | FD_CLOEXEC);
+          } /* if */
+#endif
 #if FOPEN_OPENS_DIRECTORIES
           file_no = fileno(result);
           if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
@@ -1723,14 +1734,34 @@ fileType filOpen (const const_striType path, const const_striType mode)
 
 
 
-void filPclose (fileType aFile)
+fileType filOpenNullDevice (void)
+
+  {
+    fileType fileOpened;
+
+  /* filOpenNullDevice */
+    logFunction(printf("filOpenNullDevice()\n"););
+    fileOpened = fopen(NULL_DEVICE, "r+");
+    logFunction(printf("filOpenNullDevice() --> %d\n",
+                       safe_fileno(fileOpened)););
+    return fileOpened;
+  } /* filOpenNullDevice */
+
+
+
+/**
+ *  Wait for the process associated with 'aPipe' to terminate.
+ *  @param aPipe Pipe file to be closed (created by 'filPopen').
+ *  @exception FILE_ERROR A system function returned an error.
+ */
+void filPclose (fileType aPipe)
 
   { /* filPclose */
 #if HAS_POPEN
-    if (unlikely(os_pclose(aFile) == -1)) {
+    if (unlikely(os_pclose(aPipe) == -1)) {
       logError(printf("filPclose: pclose(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), errno, strerror(errno)););
+                      safe_fileno(aPipe), errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
 #endif
@@ -1756,14 +1787,16 @@ void filPclose (fileType aFile)
  *         "r" (read) and "w" (write) or with the text modes
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or NULL if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR 'command' is not representable as
+ *             operating system path, or 'mode' is illegal.
  */
 fileType filPopen (const const_striType command,
     const const_striType parameters, const const_striType mode)
 
   {
     os_striType os_command;
-    os_charType os_mode[4];
+    os_charType os_mode[MAX_MODE_LEN];
+    int mode_pos = 0;
     errInfoType err_info = OKAY_NO_ERROR;
     fileType result;
 
@@ -1781,27 +1814,23 @@ fileType filPopen (const const_striType command,
       if (mode->size == 1 &&
           (mode->mem[0] == 'r' ||
            mode->mem[0] == 'w')) {
-        os_mode[0] = (os_charType) mode->mem[0];
+        os_mode[mode_pos++] = (os_charType) mode->mem[0];
 #if POPEN_SUPPORTS_BINARY_MODE
-        os_mode[1] = 'b';
-        os_mode[2] = '\0';
-#else
-        os_mode[1] = '\0';
+        os_mode[mode_pos++] = 'b';
 #endif
       } else if (mode->size == 2 &&
           (mode->mem[0] == 'r' ||
            mode->mem[0] == 'w') &&
            mode->mem[1] == 't') {
-        os_mode[0] = (os_charType) mode->mem[0];
+        os_mode[mode_pos++] = (os_charType) mode->mem[0];
 #ifdef POPEN_SUPPORTS_TEXT_MODE
-        os_mode[1] = 't';
-        os_mode[2] = '\0';
-#else
-        os_mode[1] = '\0';
+        os_mode[mode_pos++] = 't';
 #endif
-      } else {
-        os_mode[0] = '\0';
       } /* if */
+#ifdef POPEN_SUPPORTS_CLOEXEC_MODE
+        os_mode[mode_pos++] = 'e';
+#endif
+      os_mode[mode_pos++] = '\0';
       if (unlikely(os_mode[0] == '\0')) {
         logError(printf("filPopen: Illegal mode: \"%s\".\n",
                         striAsUnquotedCStri(mode)););

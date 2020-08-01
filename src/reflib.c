@@ -213,6 +213,12 @@ objectType ref_arrtolist (listType arguments)
 
 
 
+/**
+ *  Gets the body of the function referenced by funcRef/arg_1.
+ *  @return the body expression of funcRef/arg_1.
+ *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *                         category(funcRef) <> BLOCKOBJECT holds.
+ */
 objectType ref_body (listType arguments)
 
   { /* ref_body */
@@ -232,6 +238,11 @@ objectType ref_cast (listType arguments)
 
 
 
+/**
+ *  Get the category of a referenced object.
+ *  @return the category of the referenced object.
+ *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ */
 objectType ref_category (listType arguments)
 
   { /* ref_category */
@@ -242,6 +253,12 @@ objectType ref_category (listType arguments)
 
 
 
+/**
+ *  Convert a string to a 'category'.
+ *  @param catName/arg_3 Name of a category to be converted.
+ *  @return the 'category' result fo the conversion.
+ *  @exception RANGE_ERROR When there is no corresponding 'category'.
+ */
 objectType ref_cat_parse (listType arguments)
 
   { /* ref_cat_parse */
@@ -252,6 +269,12 @@ objectType ref_cat_parse (listType arguments)
 
 
 
+/**
+ *  Convert a category to a string.
+ *  @param aCategory/arg_1 Category to be converted.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType ref_cat_str (listType arguments)
 
   { /* ref_cat_str */
@@ -262,6 +285,12 @@ objectType ref_cat_str (listType arguments)
 
 
 
+/**
+ *  Compare two references.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objectType ref_cmp (listType arguments)
 
   {
@@ -301,43 +330,44 @@ objectType ref_content (listType arguments)
 
 
 
-objectType ref_conv (listType arguments)
-
-  { /* ref_conv */
-    isit_reference(arg_3(arguments));
-    return bld_reference_temp(take_reference(arg_3(arguments)));
-  } /* ref_conv */
-
-
-
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType ref_cpy (listType arguments)
 
   {
-    objectType ref_variable;
+    objectType dest;
 
   /* ref_cpy */
-    ref_variable = arg_1(arguments);
-    isit_reference(ref_variable);
-    is_variable(ref_variable);
+    dest = arg_1(arguments);
+    isit_reference(dest);
+    is_variable(dest);
     isit_reference(arg_3(arguments));
-    ref_variable->value.objValue = take_reference(arg_3(arguments));
+    dest->value.objValue = take_reference(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* ref_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType ref_create (listType arguments)
 
   {
-    objectType refe_to;
-    objectType refe_from;
+    objectType dest;
+    objectType source;
 
   /* ref_create */
-    refe_to = arg_1(arguments);
-    refe_from = arg_3(arguments);
-    isit_reference(refe_from);
-    SET_CATEGORY_OF_OBJ(refe_to, REFOBJECT);
-    refe_to->value.objValue = take_reference(refe_from);
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_reference(source);
+    SET_CATEGORY_OF_OBJ(dest, REFOBJECT);
+    dest->value.objValue = take_reference(source);
     return SYS_EMPTY_OBJECT;
   } /* ref_create */
 
@@ -352,6 +382,11 @@ objectType ref_deref (listType arguments)
 
 
 
+/**
+ *  Check if two references are equal.
+ *  @return TRUE if both references are equal,
+ *          FALSE otherwise.
+ */
 objectType ref_eq (listType arguments)
 
   { /* ref_eq */
@@ -367,6 +402,12 @@ objectType ref_eq (listType arguments)
 
 
 
+/**
+ *  Determine the file name of a referenced object.
+ *  @return the file name of the referenced object.
+ *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType ref_file (listType arguments)
 
   {
@@ -424,6 +465,10 @@ objectType ref_getref (listType arguments)
 
 
 
+/**
+ *  Compute the hash value of a 'reference'.
+ *  @return the hash value.
+ */
 objectType ref_hashcode (listType arguments)
 
   { /* ref_hashcode */
@@ -475,6 +520,11 @@ objectType ref_issymb (listType arguments)
 
 
 
+/**
+ *  Determine if a referenced object is variable.
+ *  @return TRUE if aReference/arg_1 is a variable, FALSE otherwise.
+ *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ */
 objectType ref_isvar (listType arguments)
 
   { /* ref_isvar */
@@ -498,6 +548,11 @@ objectType ref_itftosct (listType arguments)
 
 
 
+/**
+ *  Determine the line number of a referenced object.
+ *  @return the line number of the referenced object.
+ *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ */
 objectType ref_line (listType arguments)
 
   { /* ref_line */
@@ -508,6 +563,13 @@ objectType ref_line (listType arguments)
 
 
 
+/**
+ *  Gets the local constants of funcRef/arg_1.
+ *  @return the local constants as ref_list.
+ *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *                         refCategory(funcRef) <> BLOCKOBJECT holds.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 objectType ref_local_consts (listType arguments)
 
   { /* ref_local_consts */
@@ -518,6 +580,13 @@ objectType ref_local_consts (listType arguments)
 
 
 
+/**
+ *  Gets the local variables of funcRef/arg_1.
+ *  @return the local variables as ref_list.
+ *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *                         refCategory(funcRef) <> BLOCKOBJECT holds.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 objectType ref_local_vars (listType arguments)
 
   { /* ref_local_vars */
@@ -552,6 +621,11 @@ trace2(refe_to);
 
 
 
+/**
+ *  Check if two references are equal.
+ *  @return FALSE if both references are equal,
+ *          TRUE otherwise.
+ */
 objectType ref_ne (listType arguments)
 
   { /* ref_ne */
@@ -575,6 +649,11 @@ objectType ref_nil (listType arguments)
 
 
 
+/**
+ *  Delivers an unique number for each object
+ *  @return a unique object number.
+ *  @exception MEMORY_ERROR Not enough memory to maintain the object table.
+ */
 objectType ref_num (listType arguments)
 
   { /* ref_num */
@@ -585,6 +664,13 @@ objectType ref_num (listType arguments)
 
 
 
+/**
+ *  Get the formal parameters of the function referenced by 'funcRef'.
+ *  For objects without parameters an empty list is returned.
+ *  @return the formal parameters as ref_list.
+ *  @exception RANGE_ERROR When 'funcRef' is NIL.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 objectType ref_params (listType arguments)
 
   {
@@ -613,6 +699,12 @@ objectType ref_prog (listType arguments)
 
 
 
+/**
+ *  Gets the initialization value of the result variable of funcRef/arg_1.
+ *  @return a reference to the initialization value.
+ *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *                         refCategory(funcRef) <> BLOCKOBJECT holds.
+ */
 objectType ref_resini (listType arguments)
 
   { /* ref_resini */
@@ -623,6 +715,12 @@ objectType ref_resini (listType arguments)
 
 
 
+/**
+ *  Gets the result variable of funcRef/arg_1.
+ *  @return a reference to the result variable.
+ *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *                         refCategory(funcRef) <> BLOCKOBJECT holds.
+ */
 objectType ref_result (listType arguments)
 
   { /* ref_result */
@@ -762,6 +860,11 @@ printf("\n");
 
 
 
+/**
+ *  Set the category of aReference/arg_1 to aCategory/arg_2.
+ *  Set the category of a referenced object.
+ *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ */
 objectType ref_setcategory (listType arguments)
 
   { /* ref_setcategory */
@@ -774,6 +877,11 @@ objectType ref_setcategory (listType arguments)
 
 
 
+/**
+ *  Set the formal parameters of funcRef/arg_1 to params/arg_2.
+ *  @exception RANGE_ERROR When funcRef/arg_1 is NIL.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 objectType ref_setparams (listType arguments)
 
   { /* ref_setparams */
@@ -785,6 +893,10 @@ objectType ref_setparams (listType arguments)
 
 
 
+/**
+ *  Set the type of aReference/arg_1 to aType/arg_2.
+ *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ */
 objectType ref_settype (listType arguments)
 
   { /* ref_settype */
@@ -797,6 +909,10 @@ objectType ref_settype (listType arguments)
 
 
 
+/**
+ *  Set var flag of a referenced object.
+ *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ */
 objectType ref_setvar (listType arguments)
 
   { /* ref_setvar */
@@ -858,6 +974,10 @@ objectType ref_trace (listType arguments)
 
 
 
+/**
+ *  Get the type of the referenced object.
+ *  @return the type of the object referenced by aReference/arg_1.
+ */
 objectType ref_type (listType arguments)
 
   {

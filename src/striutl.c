@@ -83,24 +83,30 @@ const os_charType emulated_root[] = {'/', '\0'};
 #define USE_DUFFS_UNROLLING
 #define STACK_ALLOC_SIZE    1000
 
-/* Strings beyond the AND_SO_ON_LIMIT are truncated. */
+/** Strings longer than the AND_SO_ON_LIMIT are truncated. */
 #define AND_SO_ON_LIMIT     128
 #define AND_SO_ON_TEXT      "\\ *AND_SO_ON* SIZE="
 
-/* The maximum width when an UTF-32 character is displayed */
-/* in a literal is 12 characters (e.g.: \1234567890; ).    */
-#define MAXIMUM_UTF32_ESCAPE_WIDTH STRLEN("\\4294967295;")
-
-/* The maximum width when an unsigned char (byte) is      */
-/* displayed in a literal is 5 characters (e.g.: \255; ). */
-#define MAXIMUM_BYTE_ESCAPE_WIDTH STRLEN("\\255;")
-
-/* The AND_SO_ON_LENGTH includes the length of the terminating \0 byte. */
+/** The AND_SO_ON_LENGTH includes the length of the terminating \0 byte. */
 #define AND_SO_ON_LENGTH    (STRLEN(AND_SO_ON_TEXT) + MEMSIZETYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)
 
-/* UTF-16 encodes characters > 0xffff with surrogate pairs.   */
-/* When converting to UTF-16 it might be necessary to store   */
-/* every character with surrogate pairs (= two UTF-16 chars). */
+/**
+ *  The maximum width when an UTF-32 character is displayed
+ *  in a literal is 12 characters (e.g.: \1234567890; ).
+ */
+#define MAXIMUM_UTF32_ESCAPE_WIDTH STRLEN("\\4294967295;")
+
+/**
+ *  The maximum width when an unsigned char (byte) is
+ *  displayed in a literal is 5 characters (e.g.: \255; ).
+ */
+#define MAXIMUM_BYTE_ESCAPE_WIDTH STRLEN("\\255;")
+
+/**
+ *  UTF-16 encodes characters > 0xffff with surrogate pairs.
+ *  When converting to UTF-16 it might be necessary to store
+ *  every character with surrogate pairs (= two UTF-16 chars).
+ */
 #define SURROGATE_PAIR_FACTOR  2
 
 #ifdef OS_STRI_WCHAR
@@ -136,6 +142,18 @@ int code_page = DEFAULT_CODE_PAGE;
 
 
 
+/**
+ *  Write a Seed7 string to a static C string buffer.
+ *  This function is intended to do debug/log output with printf().
+ *  Control chars and chars byond ASCII are written with Seed7
+ *  escape sequences. Strings longer than the AND_SO_ON_LIMIT are
+ *  truncated and an information about the total length is added.
+ *  Since a static buffer is used every call of printf() can only
+ *  work correctly with one call of striAsUnquotedCStri(). Because
+ *  of the static buffer this function is not thread safe. 
+ *  @param stri String to be written into the static buffer.
+ *  @return a pointer to the static buffer containing the string.
+ */
 cstriType striAsUnquotedCStri (const const_striType stri)
 
   {
@@ -204,6 +222,18 @@ cstriType striAsUnquotedCStri (const const_striType stri)
 
 
 
+/**
+ *  Write a Seed7 bstring to a static C string buffer.
+ *  This function is intended to do debug/log output with printf().
+ *  Control chars and chars byond ASCII are written with Seed7
+ *  escape sequences. Strings longer than the AND_SO_ON_LIMIT are
+ *  truncated and an information about the total length is added.
+ *  Since a static buffer is used every call of printf() can only
+ *  work correctly with one call of bstriAsUnquotedCStri(). Because
+ *  of the static buffer this function is not thread safe. 
+ *  @param bstri Bstring to be written into the static buffer.
+ *  @return a pointer to the static buffer containing the string.
+ */
 cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
 
   {

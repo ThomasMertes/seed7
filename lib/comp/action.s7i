@@ -699,10 +699,14 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FIL_NE, function, params, c_expr);
       elsif action_name = "FIL_OPEN" then
         process(FIL_OPEN, function, params, c_expr);
+      elsif action_name = "FIL_OPEN_NULL_DEVICE" then
+        process(FIL_OPEN_NULL_DEVICE, function, params, c_expr);
       elsif action_name = "FIL_OUT" then
         process(FIL_OUT, function, params, c_expr);
       elsif action_name = "FIL_PCLOSE" then
         process(FIL_PCLOSE, function, params, c_expr);
+      elsif action_name = "FIL_PIPE" then
+        process(FIL_PIPE, function, params, c_expr);
       elsif action_name = "FIL_POPEN" then
         process(FIL_POPEN, function, params, c_expr);
       elsif action_name = "FIL_PRINT" then
@@ -1049,7 +1053,13 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "PCS" then
-      if action_name = "PCS_CMP" then
+      if action_name = "PCS_CHILD_STDERR" then
+        process(PCS_CHILD_STDERR, function, params, c_expr);
+      elsif action_name = "PCS_CHILD_STDIN" then
+        process(PCS_CHILD_STDIN, function, params, c_expr);
+      elsif action_name = "PCS_CHILD_STDOUT" then
+        process(PCS_CHILD_STDOUT, function, params, c_expr);
+      elsif action_name = "PCS_CMP" then
         process(PCS_CMP, function, params, c_expr);
       elsif action_name = "PCS_CPY" then
         process(PCS_CPY, function, params, c_expr);
@@ -1219,8 +1229,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_CAT_STR, function, params, c_expr);
       elsif action_name = "REF_CMP" then
         process(REF_CMP, function, params, c_expr);
-      elsif action_name = "REF_CONV" then
-        process(REF_CONV, function, params, c_expr);
       elsif action_name = "REF_CPY" then
         process(REF_CPY, function, params, c_expr);
       elsif action_name = "REF_DEREF" then

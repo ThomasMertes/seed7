@@ -59,7 +59,7 @@
 DIR *opendir (char *dirName)
 
   {
-    unsigned int nameLen;
+    memSizeType nameLen;
     char fileNamePattern[260];
     DIR *directory;
 

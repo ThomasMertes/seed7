@@ -177,6 +177,8 @@ const func database: openDatabase (in dbCategory: driver,
 
 (**
  *  Close the specified database ''db''.
+ *  @param database Database to be closed.
+ *  @exception RANGE_ERROR When the database was not open.
  *)
 const proc: close (in database: db)                                                    is action "SQL_CLOSE";
 
@@ -186,7 +188,7 @@ const proc: close (in database: db)                                             
  *  @param db Database connection for which the prepared statement should
  *         be created.
  *  @param sqlStatementStri SQL statement in a string. For bind variables
- *         a question mark (?).
+ *         use a question mark (?).
  *)
 const func sqlStatement: prepare (in database: db, in string: sqlStatementStri)        is action "SQL_PREPARE";
 
@@ -321,6 +323,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeD
  *  Bind variable can be assigned with the function ''bind'' before
  *  ''execute'' is called.
  *  @param statement Prepared statement, which should be executed.
+ *  @exception FILE_ERROR When a database function fails.
  *)
 const proc: execute (inout sqlStatement: statement)                                    is action "SQL_EXECUTE";
 
@@ -334,6 +337,7 @@ const proc: execute (inout sqlStatement: statement)                             
  *  @param statement Prepared statement, which has been executed.
  *  @return TRUE when a row of result data could be fetched successfully.
  *          FALSE when no more result data is available.
+ *  @exception FILE_ERROR When a database function fails.
  *)
 const func boolean: fetch (in sqlStatement: statement)                                 is action "SQL_FETCH";
 

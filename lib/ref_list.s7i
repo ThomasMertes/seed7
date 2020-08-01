@@ -40,23 +40,23 @@ const proc: (inout ref_list: dest) := (in ref_list: source)              is acti
 
 
 (**
- *  Append the ref_list ''extension'' to ''destination''.
+ *  Append the ref_list ''extension'' to ''dest''.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             ref_list.
  *)
-const proc: (inout ref_list: destination) &:= (in ref_list: extension)   is action "RFL_APPEND";
+const proc: (inout ref_list: dest) &:= (in ref_list: extension)          is action "RFL_APPEND";
 
 
 (**
- *  Assign reference ''source'' to the ''position'' of the ''destination''.
+ *  Assign reference ''source'' to the ''position'' of the ''dest''.
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
  *  @exception RANGE_ERROR When ''position'' is negative or zero.
- *  @exception RANGE_ERROR An element beyond ''destination'' would be
-               overwritten (''position'' > length(''destination'') holds).
+ *  @exception RANGE_ERROR An element beyond ''dest'' would be
+               overwritten (''position'' > length(''dest'') holds).
  *)
-const proc: (inout ref_list: destination) @:=
+const proc: (inout ref_list: dest) @:=
              [ (in integer: position) ] (in reference: source)           is action "RFL_ELEMCPY";
 
 
@@ -99,7 +99,7 @@ const func reference: (in ref_list: aRefList) [ (in integer: index) ]    is acti
 
 
 (**
- *  Get a sublist beginning at a ''start'' position.
+ *  Get a sublist from ''aRefList'' beginning at a ''start'' position.
  *  The first element in a ''ref_list'' has the position 1.
  *  @return the sublist beginning at the ''start'' position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -108,7 +108,7 @@ const func ref_list: (in ref_list: aRefList) [ (in integer: start) .. ]  is acti
 
 
 (**
- *  Get a sublist ending at a ''stop'' position.
+ *  Get a sublist from ''aRefList'' ending at a ''stop'' position.
  *  The first element in a ''ref_list'' has the position 1.
  *  @return the substring ending at the ''stop'' position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -129,6 +129,7 @@ const func ref_list: (in ref_list: aRefList) [ (in integer: start) ..
 (**
  *  Concatenate two ref_lists.
  *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func ref_list: (in ref_list: refList1) & (in ref_list: refList2)   is action "RFL_CAT";
 

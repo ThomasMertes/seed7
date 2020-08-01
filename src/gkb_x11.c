@@ -88,7 +88,7 @@ struct keysymCharPair {
 /* keysyms are already handled by mapKeysymToUnicode().   */
 /* The table is sorted by keysym.                         */
 
-const struct keysymCharPair keysymTable[] = {
+static const struct keysymCharPair keysymTable[] = {
     {0x01a1, 0x0104}, /* XK_Aogonek                     -> LATIN CAPITAL LETTER A WITH OGONEK */
     {0x01a2, 0x02d8}, /* XK_breve                       -> BREVE */
     {0x01a3, 0x0141}, /* XK_Lstroke                     -> LATIN CAPITAL LETTER L WITH STROKE */

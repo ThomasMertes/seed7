@@ -156,7 +156,19 @@ static inline const strElemType *rsearch_strelem2 (const strElemType *mem,
 
 
 
-void toLower (const strElemType *const stri, memSizeType length,
+/**
+ *  Copy 'source' character array to 'dest' as lower case characters.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @param source Character array to be copied and converted.
+ *  @param length Length of the source character array.
+ *  @param dest Destination character array for the lower case chars.
+ */
+void toLower (const strElemType *const source, memSizeType length,
     strElemType *const dest)
 
   {
@@ -165,7 +177,7 @@ void toLower (const strElemType *const stri, memSizeType length,
 
   /* toLower */
     for (pos = 0; pos < length; pos++) {
-      ch = stri[pos];
+      ch = source[pos];
       switch (ch >> 8) {
         case 0:
           if (ch <= '\177') {
@@ -417,7 +429,19 @@ static const strElemType toUpperTable2[] = {
   };
 
 
-void toUpper (const strElemType *const stri, memSizeType length,
+/**
+ *  Copy 'source' character array to 'dest' as upper case characters.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @param source Character array to be copied and converted.
+ *  @param length Length of the source character array.
+ *  @param dest Destination character array for the upper case chars.
+ */
+void toUpper (const strElemType *const source, memSizeType length,
     strElemType *const dest)
 
   {
@@ -426,7 +450,7 @@ void toUpper (const strElemType *const stri, memSizeType length,
 
   /* toUpper */
     for (pos = 0; pos < length; pos++) {
-      ch = stri[pos];
+      ch = source[pos];
       switch (ch >> 8) {
         case 0:
           if (ch <= '\177') {
@@ -703,7 +727,19 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
 
 
 
-striType concat_path (const const_striType absolutePath,
+/**
+ *  Concatenate a relative path to an absolute path.
+ *  In the relative path the special directories "." and ".." are 
+ *  interpreted according to their conventional meaning. A ".." which
+ *  would go above the file system root ("/") is ignored.
+ *  @param absolutePath Absolute path in the standard path
+ *         representation.
+ *  @param relativePath Relative path in the standard path
+ *         representation. 
+ *  @return the concatenated absolute path in the standard path
+ *          representation.
+ */
+striType concatPath (const const_striType absolutePath,
     const const_striType relativePath)
 
   {
@@ -716,8 +752,8 @@ striType concat_path (const const_striType absolutePath,
     striType resized_result;
     striType result;
 
-  /* concat_path */
-    logFunction(printf("concat_path(\"%s\", ", striAsUnquotedCStri(absolutePath));
+  /* concatPath */
+    logFunction(printf("concatPath(\"%s\", ", striAsUnquotedCStri(absolutePath));
                 printf("\"%s\")\n", striAsUnquotedCStri(relativePath)););
     /* absolutePath->mem[0] is always '/'. */
     if (absolutePath->size == 1) {
@@ -783,9 +819,9 @@ striType concat_path (const const_striType absolutePath,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("concat_path --> \"%s\"\n", striAsUnquotedCStri(result)););
+    logFunction(printf("concatPath --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
-  } /* concat_path */
+  } /* concatPath */
 
 
 
@@ -1836,36 +1872,41 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
 
 
 
-void strCopy (striType *const stri_to, const const_striType stri_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void strCopy (striType *const dest, const const_striType source)
 
   {
     memSizeType new_size;
     striType stri_dest;
 
   /* strCopy */
-    logFunction(printf("strCopy(\"%s\", ", striAsUnquotedCStri(*stri_to));
-                printf("\"%s\")", striAsUnquotedCStri(stri_from));
+    logFunction(printf("strCopy(\"%s\", ", striAsUnquotedCStri(*dest));
+                printf("\"%s\")", striAsUnquotedCStri(source));
                 fflush(stdout););
-    stri_dest = *stri_to;
-    new_size = stri_from->size;
+    stri_dest = *dest;
+    new_size = source->size;
     if (stri_dest->size == new_size) {
-      /* It is possible that stri_dest and stri_from overlap. */
-      memmove(stri_dest->mem, stri_from->mem,
+      /* It is possible that stri_dest and source overlap. */
+      memmove(stri_dest->mem, source->mem,
           new_size * sizeof(strElemType));
     } else {
 #ifdef WITH_STRI_CAPACITY
       if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
         COUNT3_STRI(stri_dest->size, new_size);
         stri_dest->size = new_size;
-        /* It is possible that stri_dest and stri_from overlap. */
-        memmove(stri_dest->mem, stri_from->mem,
+        /* It is possible that stri_dest and source overlap. */
+        memmove(stri_dest->mem, source->mem,
             new_size * sizeof(strElemType));
 #else
       if (stri_dest->size > new_size) {
-        /* It is possible that stri_dest and stri_from overlap. */
-        /* The move must be done before the shrink to avoid     */
-        /* accessing non-existing data.                         */
-        memmove(stri_dest->mem, stri_from->mem,
+        /* It is possible that stri_dest and source overlap. */
+        /* The move must be done before the shrink, to avoid */
+        /* accessing non-existing data.                      */
+        memmove(stri_dest->mem, source->mem,
             new_size * sizeof(strElemType));
         SHRINK_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
         if (unlikely(stri_dest == NULL)) {
@@ -1874,7 +1915,7 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
         } else {
           COUNT3_STRI(stri_dest->size, new_size);
           stri_dest->size = new_size;
-          *stri_to = stri_dest;
+          *dest = stri_dest;
         } /* if */
 #endif
       } else {
@@ -1883,14 +1924,14 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
           return;
         } else {
           stri_dest->size = new_size;
-          memcpy(stri_dest->mem, stri_from->mem,
+          memcpy(stri_dest->mem, source->mem,
                  new_size * sizeof(strElemType));
-          FREE_STRI(*stri_to, (*stri_to)->size);
-          *stri_to = stri_dest;
+          FREE_STRI(*dest, (*dest)->size);
+          *dest = stri_dest;
         } /* if */
       } /* if */
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*stri_to)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*dest)););
   } /* strCopy */
 
 
@@ -1910,22 +1951,29 @@ void strCpyGeneric (genericType *const dest, const genericType source)
 
 
 
-striType strCreate (const const_striType stri_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType strCreate (const const_striType source)
 
   {
     memSizeType new_size;
     striType result;
 
   /* strCreate */
-    logFunction(printf("strCreate(\"%s\")", striAsUnquotedCStri(stri_from));
+    logFunction(printf("strCreate(\"%s\")", striAsUnquotedCStri(source));
                 fflush(stdout););
-    new_size = stri_from->size;
+    new_size = source->size;
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, new_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
       if (new_size != 0) {
-        memcpy(result->mem, stri_from->mem, new_size * sizeof(strElemType));
+        memcpy(result->mem, source->mem, new_size * sizeof(strElemType));
       } /* if */
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
@@ -1940,7 +1988,7 @@ striType strCreate (const const_striType stri_from)
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(genericType) != sizeof(striType).
  */
-genericType strCreateGeneric (const genericType from_value)
+genericType strCreateGeneric (const genericType source)
 
   {
     rtlObjectType result;
@@ -1948,12 +1996,17 @@ genericType strCreateGeneric (const genericType from_value)
   /* strCreateGeneric */
     INIT_GENERIC_PTR(result.value.genericValue);
     result.value.striValue =
-        strCreate(((const_rtlObjectType *) &from_value)->value.striValue);
+        strCreate(((const_rtlObjectType *) &source)->value.striValue);
     return result.value.genericValue;
   } /* strCreateGeneric */
 
 
 
+/**
+ *  Free the memory referred by 'old_string'.
+ *  After strDestr is left 'old_string' refers to not existing memory.
+ *  The memory where 'old_string' is stored can be freed afterwards.
+ */
 void strDestr (const const_striType old_string)
 
   { /* strDestr */

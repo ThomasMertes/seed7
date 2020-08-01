@@ -95,6 +95,21 @@ const func file: open (in string: path, in string: mode) is func
   end func;
 
 
+const func file: openNullDevice is func
+  result
+    var file: nullDeviceFile is STD_NULL;
+  local
+    var clib_file: open_file is CLIB_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    open_file := openNullDeviceClibFile;
+    if open_file <> CLIB_NULL_FILE then
+      new_file.ext_file := open_file;
+      nullDeviceFile := toInterface(new_file);
+    end if;
+  end func;
+
+
 (**
  *  Close an external_file.
  *  @exception FILE_ERROR A system function returns an error.

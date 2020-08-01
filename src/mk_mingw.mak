@@ -167,6 +167,7 @@ chkccomp.h:
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo #define NULL_DEVICE "NUL:" >> version.h
 	echo #define CTRL_C_SENDS_EOF >> version.h
 	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
@@ -192,7 +193,7 @@ version.h: chkccomp.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_FLAGS "-ffunction-sections -fdata-sections" >> version.h
-	echo #define REDIRECT_C_ERRORS "2>" >> version.h
+	echo #define CC_ERROR_FILDES 2 >> version.h
 	echo #define LINKER_OPT_NO_DEBUG_INFO "-Wl,--strip-debug" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
@@ -258,6 +259,13 @@ calc7: ..\bin\calc7.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
 	copy ..\prg\calc7.exe ..\bin /Y
 	del ..\prg\calc7.exe
+
+find7: ..\bin\find7.exe
+
+..\bin\find7.exe: ..\prg\find7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
+	copy ..\prg\find7.exe ..\bin /Y
+	del ..\prg\find7.exe
 
 tar7: ..\bin\tar7.exe
 

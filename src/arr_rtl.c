@@ -417,6 +417,10 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
 
 
 #ifndef OS_STRI_WCHAR
+/**
+ *  Examine all directories in the search path and look for fileName.
+ *  @return the path to the executable, or NULL when it was not found.
+ */
 striType examineSearchPath (const const_striType fileName)
 
   {
@@ -438,7 +442,7 @@ striType examineSearchPath (const const_striType fileName)
           strPush(&aPath, (charType) '/');
         } /* if */
         strAppend(&aPath, fileName);
-        if (cmdFileType(aPath) == 2) {
+        if (cmdFileType(aPath) == FILE_REGULAR) {
           result = aPath;
         } else {
           FREE_STRI(aPath, aPath->size);
@@ -631,6 +635,14 @@ rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
 
 
 
+/**
+ *  Free the memory referred by 'oldArray'.
+ *  This function is used by the compiler to define array destructor
+ *  functions. It is asssumed that, before arrFree is called,
+ *  destructors have been called for all elements of 'oldArray'.
+ *  After arrFree is left 'oldArray' refers to not existing memory.
+ *  The memory where 'oldArray' is stored can be freed afterwards.
+ */
 void arrFree (rtlArrayType oldArray)
 
   {
@@ -820,30 +832,38 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
 
 
 
-rtlArrayType arrMalloc (intType min_position, intType max_position)
+/**
+ *  Allocate memory for an array with given min and max positions.
+ *  The min and max positions of the created array are set.
+ *  @return A reference to the memory suitable for the array.
+ *  @exception MEMORY_ERROR The min or max index is not in the
+ *             allowed range, or there is not enough memory to
+ *             allocate the array.
+ */
+rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
 
   {
     memSizeType size;
     rtlArrayType result;
 
   /* arrMalloc */
-    if (unlikely(min_position < MIN_MEM_INDEX ||
-                 max_position > MAX_MEM_INDEX ||
-                 (min_position == MIN_MEM_INDEX &&
-                  max_position == MAX_MEM_INDEX) ||
-                 (min_position > MIN_MEM_INDEX &&
-                  min_position - 1 > max_position))) {
+    if (unlikely(minPosition < MIN_MEM_INDEX ||
+                 maxPosition > MAX_MEM_INDEX ||
+                 (minPosition == MIN_MEM_INDEX &&
+                  maxPosition == MAX_MEM_INDEX) ||
+                 (minPosition > MIN_MEM_INDEX &&
+                  minPosition - 1 > maxPosition))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      size = arraySize2(min_position, max_position);
+      size = arraySize2(minPosition, maxPosition);
       if (unlikely(size > MAX_RTL_ARR_LEN ||
                    !ALLOC_RTL_ARRAY(result, (memSizeType) size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->min_position = min_position;
-        result->max_position = max_position;
+        result->min_position = minPosition;
+        result->max_position = maxPosition;
       } /* if */
     } /* if */
     return result;
@@ -1016,6 +1036,14 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
 
 
 
+/**
+ *  Reallocate memory for an array from 'oldSize' to 'newSize'.
+ *  This function is used by the compiler when an array is copied
+ *  and the sizes of source and destination array are different.
+ *  @return A reference to the memory of the array with 'newSize'.
+ *  @exception MEMORY_ERROR There is not enough memory to
+ *             reallocate the array.
+ */
 rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newSize)
 
   {

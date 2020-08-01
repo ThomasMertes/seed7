@@ -316,55 +316,65 @@ objectType drw_copyarea (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType drw_cpy (listType arguments)
 
   {
-    objectType win_to;
-    objectType win_from;
+    objectType dest;
+    objectType source;
     winType win_source;
     winType old_window;
 
   /* drw_cpy */
-    win_to = arg_1(arguments);
-    win_from = arg_3(arguments);
-    isit_win(win_to);
-    isit_win(win_from);
-    is_variable(win_to);
-    win_source = take_win(win_from);
-    if (TEMP_OBJECT(win_from)) {
-      win_from->value.winValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_win(dest);
+    isit_win(source);
+    is_variable(dest);
+    win_source = take_win(source);
+    if (TEMP_OBJECT(source)) {
+      source->value.winValue = NULL;
     } else {
       if (win_source != NULL) {
         win_source->usage_count++;
       } /* if */
     } /* if */
-    old_window = take_win(win_to);
+    old_window = take_win(dest);
     if (old_window != NULL) {
       old_window->usage_count--;
       if (old_window->usage_count == 0) {
         drwFree(old_window);
       } /* if */
     } /* if */
-    win_to->value.winValue = win_source;
+    dest->value.winValue = win_source;
     return SYS_EMPTY_OBJECT;
   } /* drw_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType drw_create (listType arguments)
 
   {
-    objectType win_from;
+    objectType source;
     winType win_value;
 
   /* drw_create */
-    win_from = arg_3(arguments);
-    isit_win(win_from);
+    source = arg_3(arguments);
+    isit_win(source);
     SET_CATEGORY_OF_OBJ(arg_1(arguments), WINOBJECT);
-    win_value = take_win(win_from);
+    win_value = take_win(source);
     arg_1(arguments)->value.winValue = win_value;
-    if (TEMP_OBJECT(win_from)) {
-      win_from->value.winValue = NULL;
+    if (TEMP_OBJECT(source)) {
+      source->value.winValue = NULL;
     } else {
       if (win_value != NULL) {
         win_value->usage_count++;

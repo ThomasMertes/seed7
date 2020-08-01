@@ -161,6 +161,7 @@ version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
 	echo #define USE_WMAIN >> version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo #define NULL_DEVICE "NUL:" >> version.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
 	echo #define CTRL_C_SENDS_EOF >> version.h
@@ -189,7 +190,7 @@ version.h: chkccomp.h
 	echo #define CC_OPT_DEBUG_INFO "-Z7" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_FLAGS "-Zm800" >> version.h
-	echo #define REDIRECT_C_ERRORS "2>NUL: >" >> version.h
+	echo #define CC_ERROR_FILDES 1 >> version.h
 	echo #define LINKER_OPT_DEBUG_INFO "-Z7" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h

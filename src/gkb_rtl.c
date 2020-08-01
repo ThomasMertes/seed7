@@ -51,6 +51,10 @@
 
 
 
+/**
+ *  Read a string with maximum length from the graphic keyboard file.
+ *  @return the string read.
+ */
 striType gkbGets (intType length)
 
   {
@@ -83,6 +87,14 @@ striType gkbGets (intType length)
 
 
 
+/**
+ *  Read a line from the console keyboard file.
+ *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains '\n' or EOF.
+ *  @return the line read.
+ */
 striType gkbLineRead (charType *terminationChar)
 
   {
@@ -137,6 +149,16 @@ striType gkbLineRead (charType *terminationChar)
 
 
 
+/**
+ *  Read a word from the console keyboard file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains ' ',
+ *  '\t', '\n' or EOF.
+ *  @return the word read.
+ */
 striType gkbWordRead (charType *terminationChar)
 
   {

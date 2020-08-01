@@ -130,22 +130,32 @@ objectType chr_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType chr_cpy (listType arguments)
 
   {
-    objectType ch_variable;
+    objectType dest;
 
   /* chr_cpy */
-    ch_variable = arg_1(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
+    dest = arg_1(arguments);
+    isit_char(dest);
+    is_variable(dest);
     isit_char(arg_3(arguments));
-    ch_variable->value.charValue = take_char(arg_3(arguments));
+    dest->value.charValue = take_char(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* chr_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType chr_create (listType arguments)
 
   { /* chr_create */

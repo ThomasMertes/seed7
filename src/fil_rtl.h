@@ -165,6 +165,7 @@ striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar);
 striType filLit (fileType aFile);
 intType filLng (fileType aFile);
 fileType filOpen (const const_striType path, const const_striType mode);
+fileType filOpenNullDevice (void);
 void filPclose (fileType aFile);
 fileType filPopen (const const_striType command,
     const const_striType parameters, const const_striType mode);

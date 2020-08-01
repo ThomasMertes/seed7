@@ -65,27 +65,31 @@
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType prg_cpy (listType arguments)
 
   {
-    objectType prog_to;
-    objectType prog_from;
+    objectType dest;
+    objectType source;
     progType old_prog;
     progType prog_value;
 
   /* prg_cpy */
-    prog_to = arg_1(arguments);
-    prog_from = arg_3(arguments);
-    isit_prog(prog_to);
-    isit_prog(prog_from);
-    is_variable(prog_to);
-    old_prog = take_prog(prog_to);
-    prog_value = take_prog(prog_from);
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_prog(dest);
+    isit_prog(source);
+    is_variable(dest);
+    old_prog = take_prog(dest);
+    prog_value = take_prog(source);
     if (old_prog != prog_value) {
       prgDestr(old_prog);
-      prog_to->value.progValue = prog_value;
-      if (TEMP_OBJECT(prog_from)) {
-        prog_from->value.progValue = NULL;
+      dest->value.progValue = prog_value;
+      if (TEMP_OBJECT(source)) {
+        source->value.progValue = NULL;
       } else {
         if (prog_value != NULL) {
           prog_value->usage_count++;
@@ -98,20 +102,26 @@ objectType prg_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType prg_create (listType arguments)
 
   {
-    objectType prog_from;
+    objectType source;
     progType prog_value;
 
   /* prg_create */
-    prog_from = arg_3(arguments);
-    isit_prog(prog_from);
+    source = arg_3(arguments);
+    isit_prog(source);
     SET_CATEGORY_OF_OBJ(arg_1(arguments), PROGOBJECT);
-    prog_value = take_prog(prog_from);
+    prog_value = take_prog(source);
     arg_1(arguments)->value.progValue = prog_value;
-    if (TEMP_OBJECT(prog_from)) {
-      prog_from->value.progValue = NULL;
+    if (TEMP_OBJECT(source)) {
+      source->value.progValue = NULL;
     } else {
       if (prog_value != NULL) {
         prog_value->usage_count++;

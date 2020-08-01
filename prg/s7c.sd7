@@ -3368,6 +3368,7 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
     var ref_list: formal_params is ref_list.EMPTY;
     var reference: formal_param is NIL;
     var reference: actual_param is NIL;
+    var category: formalCategory is category.value;
     var category: paramCategory is category.value;
     var boolean: first_element is TRUE;
     var integer: number is 0;
@@ -3376,27 +3377,36 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
     for number range 1 to length(formal_params) do
       formal_param := formal_params[number];
       actual_param := actual_params[number];
+      formalCategory := category(formal_param);
       paramCategory := category(actual_param);
       if paramCategory <> SYMBOLOBJECT and
-          category(formal_param) <> SYMBOLOBJECT then
-        if first_element then
-          first_element := FALSE;
+          formalCategory <> SYMBOLOBJECT then
+        if formalCategory = TYPEOBJECT then
+          c_expr.expr &:= "/* attr t_";
+          c_expr.expr &:= str(typeNumber(getValue(formal_param, type)));
+          c_expr.expr &:= " ";
+          c_expr.expr &:= str(getValue(formal_param, type));
+          c_expr.expr &:= "*/ ";
         else
-          c_expr.expr &:= ", ";
-        end if;
-        if not isVar(actual_param) and isInOutParam(formal_param) then
-          c_expr.expr &:= "/* SHOULD NOT HAPPEN &o_";
-          create_name(actual_param, c_expr.expr);
-          c_expr.expr &:= " */";
-        elsif isPointerParam(actual_param) = isPointerParam(formal_param) then
-          c_expr.expr &:= "o_";
-          create_name(actual_param, c_expr.expr);
-        elsif isPointerParam(actual_param) and not isPointerParam(formal_param) then
-          c_expr.expr &:= "*o_";
-          create_name(actual_param, c_expr.expr);
-        else # if isVar(actual_param) or not isInOutParam(formal_param) then
-          c_expr.expr &:= "&o_";
-          create_name(actual_param, c_expr.expr);
+          if first_element then
+            first_element := FALSE;
+          else
+            c_expr.expr &:= ", ";
+          end if;
+          if not isVar(actual_param) and isInOutParam(formal_param) then
+            c_expr.expr &:= "/* SHOULD NOT HAPPEN &o_";
+            create_name(actual_param, c_expr.expr);
+            c_expr.expr &:= " */";
+          elsif isPointerParam(actual_param) = isPointerParam(formal_param) then
+            c_expr.expr &:= "o_";
+            create_name(actual_param, c_expr.expr);
+          elsif isPointerParam(actual_param) and not isPointerParam(formal_param) then
+            c_expr.expr &:= "*o_";
+            create_name(actual_param, c_expr.expr);
+          else # if isVar(actual_param) or not isInOutParam(formal_param) then
+            c_expr.expr &:= "&o_";
+            create_name(actual_param, c_expr.expr);
+          end if;
         end if;
       end if;
     end for;
@@ -4855,6 +4865,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef uint32Type strElemType;");
     writeln(c_prog, "typedef uintType bitSetType;");
     writeln(c_prog, "typedef uint" <& ccConf.POINTER_SIZE <& "Type memSizeType;");
+    writeln(c_prog, "typedef FILE *fileType;");
     writeln(c_prog, "typedef unsigned char *ustriType;");
     writeln(c_prog, "typedef const unsigned char *const_ustriType;");
     writeln(c_prog, "typedef struct striStruct {");
@@ -4902,6 +4913,9 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef const struct winStruct *const_winType;");
     writeln(c_prog, "typedef struct processStruct {");
     writeln(c_prog, "  uintType usage_count;");
+    writeln(c_prog, "  fileType stdIn;");
+    writeln(c_prog, "  fileType stdOut;");
+    writeln(c_prog, "  fileType stdErr;");
     writeln(c_prog, "} *processType;");
     writeln(c_prog, "typedef const struct processStruct *const_processType;");
     writeln(c_prog, "typedef struct databaseStruct {");
@@ -4931,7 +4945,6 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef struct listStruct *listType;");
     writeln(c_prog, "typedef const struct listStruct *const_listType;");
     writeln(c_prog, "typedef objRefType (*actType) (listType);");
-    writeln(c_prog, "typedef FILE *fileType;");
     writeln(c_prog, "typedef int socketType;");
     writeln(c_prog, "typedef uint" <& ccConf.GENERIC_SIZE <& "Type genericType;");
     writeln(c_prog, "typedef union {");
@@ -7001,6 +7014,48 @@ const proc: pass_2 (in string: source, in program: prog,
   end func;
 
 
+const proc: execProgramScript (in string: command, in array string: parameters,
+    in integer: errorFileDescriptor, in string: errorFile) is func
+
+  local
+    var array string: redirection is 0 times "";
+  begin
+    if errorFileDescriptor = 1 then
+      redirection &:= ccConf.REDIRECT_FILDES_1 & toShellPath(errorFile);
+      redirection &:= ccConf.REDIRECT_FILDES_2 & ccConf.NULL_DEVICE;
+    elsif errorFileDescriptor = 2 then
+      redirection &:= ccConf.REDIRECT_FILDES_2 & toShellPath(errorFile);
+      redirection &:= ccConf.REDIRECT_FILDES_1 & ccConf.NULL_DEVICE;
+    end if;
+    cmd_sh(command, shellParameters(parameters) <& " " <& join(redirection, " "));
+  end func;
+
+
+const proc: execProgram (in string: command, in array string: parameters,
+    in integer: errorFileDescriptor, in string: errorFile) is func
+
+  local
+    var file: childStdout is STD_NULL;
+    var file: childStderr is STD_NULL;
+    var process: aProcess is process.value;
+  begin
+    if errorFileDescriptor = 1 then
+      childStdout := open(errorFile, "w");
+      childStderr := STD_NULL;
+    elsif errorFileDescriptor = 2 then
+      childStdout := STD_NULL;
+      childStderr := open(errorFile, "w");
+    end if;
+    aProcess := startProcess(commandPath(command), parameters, STD_IN, childStdout, childStderr);
+    waitFor(aProcess);
+    if errorFileDescriptor = 1 then
+      close(childStdout);
+    elsif errorFileDescriptor = 2 then
+      close(childStderr);
+    end if;
+  end func;
+
+
 const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in program: prog,
     inout boolean: okay) is func
 
@@ -7021,9 +7076,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
     var string: tempExeFile    is "";
     var string: executableFile is "";
     var string: compile_cmd    is "";
-    var string: compile_params is "";
+    var array string: compileParams is 0 times "";
     var string: link_cmd       is "";
-    var string: link_params    is "";
+    var array string: linkParams is 0 times "";
   begin
     if okay then
       writeln("Calling the C compiler ...");
@@ -7071,26 +7126,36 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       else
         compile_cmd := ccConf.C_COMPILER;
       end if;
-      compile_params := " " & ccConf.CC_OPT_NO_WARNINGS;
+      compileParams &:= ccConf.CC_OPT_NO_WARNINGS;
       if "-O" in compiler_option then
-        compile_params &:= " -O" & compiler_option["-O"];
+        compileParams &:= "-O" & compiler_option["-O"];
       end if;
       if "-g" in compiler_option then
-        compile_params &:= " " & ccConf.CC_OPT_DEBUG_INFO;
+        compileParams &:= ccConf.CC_OPT_DEBUG_INFO;
         if compiler_option["-g"] <> "" and compiler_option["-g"] <> "-debug_c" then
-          compile_params &:= " " & compiler_option["-g"];
+          compileParams &:= compiler_option["-g"];
         end if;
       end if;
-      if ccConf.CC_FLAGS <> "" then
-        compile_params &:= " " & ccConf.CC_FLAGS;
+      if length(ccConf.CC_FLAGS) <> 0 then
+        compileParams &:= ccConf.CC_FLAGS;
       end if;
-      compile_params &:= " -c " & toShellPath(cSourceFile);
-      if ccConf.REDIRECT_C_ERRORS <> "" then
-        compile_params &:= " " & ccConf.REDIRECT_C_ERRORS & toShellPath(cErrorFile);
+      compileParams &:= "-c";
+      compileParams &:= toOsPath(cSourceFile);
+      write(toShellPath(compile_cmd) <& " " <& shellParameters(compileParams));
+      if ccConf.CC_ERROR_FILDES = 1 then
+        write(" " <& ccConf.REDIRECT_FILDES_1 <& toShellPath(cErrorFile));
+        write(" " <& ccConf.REDIRECT_FILDES_2 <& ccConf.NULL_DEVICE);
+      elsif ccConf.CC_ERROR_FILDES = 2 then
+        write(" " <& ccConf.REDIRECT_FILDES_2 <& toShellPath(cErrorFile));
+        write(" " <& ccConf.REDIRECT_FILDES_1 <& ccConf.NULL_DEVICE);
       end if;
-      writeln(compile_cmd <& compile_params);
+      writeln;
       flush(OUT);
-      cmd_sh(compile_cmd, compile_params);
+      if ccConf.CALL_C_COMPILER_FROM_SHELL then
+        execProgramScript(compile_cmd, compileParams, ccConf.CC_ERROR_FILDES, cErrorFile);
+      else
+        execProgram(compile_cmd, compileParams, ccConf.CC_ERROR_FILDES, cErrorFile);
+      end if;
       if fileType(cErrorFile) = FILE_REGULAR and
           fileSize(cErrorFile) = 0 then
         removeFile(cErrorFile);
@@ -7099,7 +7164,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         if fileType(cErrorFile) = FILE_REGULAR then
           writeln("*** Errors in " <& literal(workDir & cSourceFile) <&
               " - see " <& literal(workDir & cErrorFile));
-        elsif ccConf.REDIRECT_C_ERRORS = "" then
+        elsif ccConf.CC_ERROR_FILDES not in {1, 2} then
           writeln("*** Compilation terminated");
         else
           writeln("*** Compilation terminated without error messages");
@@ -7155,50 +7220,60 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             end if;
             if "-g" in compiler_option then
               if ccConf.LINKER_OPT_DEBUG_INFO <> "" then
-                link_params &:= " " & ccConf.LINKER_OPT_DEBUG_INFO;
+                linkParams &:= ccConf.LINKER_OPT_DEBUG_INFO;
               end if;
             else
               if ccConf.LINKER_OPT_NO_DEBUG_INFO <> "" then
-                link_params &:= " " & ccConf.LINKER_OPT_NO_DEBUG_INFO;
+                linkParams &:= ccConf.LINKER_OPT_NO_DEBUG_INFO;
               end if;
             end if;
-            if ccConf.LINKER_FLAGS <> "" then
-              link_params &:= " " & ccConf.LINKER_FLAGS;
-            end if;
+            linkParams &:= ccConf.LINKER_FLAGS;
             if ccConf.LINKER_OPT_OUTPUT_FILE <> "" then
-              link_params &:= " " & ccConf.LINKER_OPT_OUTPUT_FILE &
-                  toShellPath(executableFile);
+              if endsWith(ccConf.LINKER_OPT_OUTPUT_FILE, " ") then
+                linkParams &:= rtrim(ccConf.LINKER_OPT_OUTPUT_FILE);
+                linkParams &:= toOsPath(executableFile);
+              else
+                linkParams &:= ccConf.LINKER_OPT_OUTPUT_FILE &
+                               toOsPath(executableFile);
+              end if;
             end if;
-            link_params &:= " " & toShellPath(objectFile);
+            linkParams &:= toOsPath(objectFile);
             if compilerLibraryUsed then
-              link_params &:= " " & toShellPath(compiler_lib);
+              linkParams &:= toOsPath(compiler_lib);
             end if;
             if compDataLibraryUsed then
-              link_params &:= " " & toShellPath(comp_data_lib);
+              linkParams &:= toOsPath(comp_data_lib);
             end if;
             if consoleLibraryUsed then
-              link_params &:= " " & toShellPath(console_lib);
+              linkParams &:= toOsPath(console_lib);
             end if;
             if drawLibraryUsed then
-              link_params &:= " " & toShellPath(draw_lib);
+              linkParams &:= toOsPath(draw_lib);
             end if;
-            link_params &:= " " & toShellPath(seed7_lib);
+            linkParams &:= toOsPath(seed7_lib);
             if consoleLibraryUsed then
-              link_params &:= " " & ccConf.SYSTEM_CONSOLE_LIBS;
+              linkParams &:= ccConf.SYSTEM_CONSOLE_LIBS;
             end if;
             if drawLibraryUsed then
-              link_params &:= " " & ccConf.SYSTEM_DRAW_LIBS;
+              linkParams &:= ccConf.SYSTEM_DRAW_LIBS;
             end if;
-            if ccConf.SYSTEM_DB_LIBS <> "" then
-              link_params &:= " " & ccConf.SYSTEM_DB_LIBS;
+            linkParams &:= ccConf.SYSTEM_DB_LIBS;
+            linkParams &:= ccConf.SYSTEM_LIBS;
+            write(toShellPath(link_cmd) <& " " <& shellParameters(linkParams));
+            if ccConf.CC_ERROR_FILDES = 1 then
+              write(" " <& ccConf.REDIRECT_FILDES_1 <& toShellPath(linkErrFile));
+              write(" " <& ccConf.REDIRECT_FILDES_2 <& ccConf.NULL_DEVICE);
+            elsif ccConf.CC_ERROR_FILDES = 2 then
+              write(" " <& ccConf.REDIRECT_FILDES_2 <& toShellPath(linkErrFile));
+              write(" " <& ccConf.REDIRECT_FILDES_1 <& ccConf.NULL_DEVICE);
             end if;
-            link_params &:= " " & ccConf.SYSTEM_LIBS;
-            if ccConf.REDIRECT_C_ERRORS <> "" then
-              link_params &:= " " & ccConf.REDIRECT_C_ERRORS & toShellPath(linkErrFile);
-            end if;
-            writeln(link_cmd <& link_params);
+            writeln;
             flush(OUT);
-            cmd_sh(link_cmd, link_params);
+            if ccConf.CALL_C_COMPILER_FROM_SHELL then
+              execProgramScript(link_cmd, linkParams, ccConf.CC_ERROR_FILDES, linkErrFile);
+            else
+              execProgram(link_cmd, linkParams, ccConf.CC_ERROR_FILDES, linkErrFile);
+            end if;
             if ccConf.LINKER_OPT_OUTPUT_FILE = "" and
                 fileType(tempExeFile) = FILE_REGULAR then
               moveFile(tempExeFile, executableFile);
@@ -7211,7 +7286,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
               if fileType(linkErrFile) = FILE_REGULAR then
                 writeln("*** Linker errors with " <& literal(workDir & objectFile) <&
                     " - see " <& literal(workDir & linkErrFile));
-              elsif ccConf.REDIRECT_C_ERRORS = "" then
+              elsif ccConf.CC_ERROR_FILDES not in {1, 2} then
                 writeln("*** Linking terminated");
               else
                 writeln("*** Linking terminated without error messages");

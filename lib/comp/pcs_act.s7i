@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  pcs_act.s7i   Generate code for actions of process commands.    *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2016  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -24,28 +24,34 @@
 (********************************************************************)
 
 
-const ACTION: PCS_CMP        is action "PCS_CMP";
-const ACTION: PCS_CPY        is action "PCS_CPY";
-const ACTION: PCS_CREATE     is action "PCS_CREATE";
-const ACTION: PCS_DESTR      is action "PCS_DESTR";
-const ACTION: PCS_EMPTY      is action "PCS_EMPTY";
-const ACTION: PCS_EQ         is action "PCS_EQ";
-const ACTION: PCS_EXIT_VALUE is action "PCS_EQ";
-const ACTION: PCS_HASHCODE   is action "PCS_HASHCODE";
-const ACTION: PCS_IS_ALIVE   is action "PCS_IS_ALIVE";
-const ACTION: PCS_KILL       is action "PCS_KILL";
-const ACTION: PCS_NE         is action "PCS_NE";
-const ACTION: PCS_PIPE2      is action "PCS_PIPE2";
-const ACTION: PCS_PTY        is action "PCS_PTY";
-const ACTION: PCS_START      is action "PCS_START";
-const ACTION: PCS_STR        is action "PCS_STR";
-const ACTION: PCS_VALUE      is action "PCS_VALUE";
-const ACTION: PCS_WAIT_FOR   is action "PCS_WAIT_FOR";
+const ACTION: PCS_CHILD_STDERR is action "PCS_CHILD_STDERR";
+const ACTION: PCS_CHILD_STDIN  is action "PCS_CHILD_STDIN";
+const ACTION: PCS_CHILD_STDOUT is action "PCS_CHILD_STDOUT";
+const ACTION: PCS_CMP          is action "PCS_CMP";
+const ACTION: PCS_CPY          is action "PCS_CPY";
+const ACTION: PCS_CREATE       is action "PCS_CREATE";
+const ACTION: PCS_DESTR        is action "PCS_DESTR";
+const ACTION: PCS_EMPTY        is action "PCS_EMPTY";
+const ACTION: PCS_EQ           is action "PCS_EQ";
+const ACTION: PCS_EXIT_VALUE   is action "PCS_EQ";
+const ACTION: PCS_HASHCODE     is action "PCS_HASHCODE";
+const ACTION: PCS_IS_ALIVE     is action "PCS_IS_ALIVE";
+const ACTION: PCS_KILL         is action "PCS_KILL";
+const ACTION: PCS_NE           is action "PCS_NE";
+const ACTION: PCS_PIPE2        is action "PCS_PIPE2";
+const ACTION: PCS_PTY          is action "PCS_PTY";
+const ACTION: PCS_START        is action "PCS_START";
+const ACTION: PCS_STR          is action "PCS_STR";
+const ACTION: PCS_VALUE        is action "PCS_VALUE";
+const ACTION: PCS_WAIT_FOR     is action "PCS_WAIT_FOR";
 
 
 const proc: pcs_prototypes (inout file: c_prog) is func
 
   begin
+    declareExtern(c_prog, "fileType    pcsChildStdErr (const const_processType);");
+    declareExtern(c_prog, "fileType    pcsChildStdIn (const const_processType);");
+    declareExtern(c_prog, "fileType    pcsChildStdOut (const const_processType);");
     declareExtern(c_prog, "intType     pcsCmp (const const_processType, const const_processType);");
     declareExtern(c_prog, "intType     pcsCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "void        pcsCpy (processType *const, const processType);");
@@ -61,10 +67,40 @@ const proc: pcs_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        pcsKill (const processType);");
     declareExtern(c_prog, "void        pcsPipe2 (const const_striType, const const_arrayType, fileType *, fileType *);");
     declareExtern(c_prog, "void        pcsPty (const const_striType, const const_arrayType, fileType *, fileType *);");
-    declareExtern(c_prog, "processType pcsStart (const const_striType, const const_arrayType);");
+    declareExtern(c_prog, "processType pcsStart (const const_striType, const const_arrayType, fileType, fileType, fileType);");
     declareExtern(c_prog, "striType    pcsStr (const const_processType);");
     declareExtern(c_prog, "processType pcsValue (const const_objRefType);");
     declareExtern(c_prog, "void        pcsWaitFor (const processType);");
+  end func;
+
+
+const proc: process (PCS_CHILD_STDERR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "pcsChildStdErr(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PCS_CHILD_STDIN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "pcsChildStdIn(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PCS_CHILD_STDOUT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "pcsChildStdOut(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -243,6 +279,12 @@ const proc: process (PCS_START, in reference: function,
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[5], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 

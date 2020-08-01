@@ -458,11 +458,15 @@ objectType arr_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType arr_cpy (listType arguments)
 
   {
-    objectType arr_to;
-    objectType arr_from;
+    objectType dest;
+    objectType source;
     arrayType arr_dest;
     arrayType arr_source;
     memSizeType arr_dest_size;
@@ -470,19 +474,19 @@ objectType arr_cpy (listType arguments)
     arrayType new_arr;
 
   /* arr_cpy */
-    arr_to = arg_1(arguments);
-    arr_from = arg_3(arguments);
-    isit_array(arr_to);
-    isit_array(arr_from);
-    is_variable(arr_to);
-    arr_dest = take_array(arr_to);
-    arr_source = take_array(arr_from);
-    if (TEMP_OBJECT(arr_from)) {
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_array(dest);
+    isit_array(source);
+    is_variable(dest);
+    arr_dest = take_array(dest);
+    arr_source = take_array(source);
+    if (TEMP_OBJECT(source)) {
       arr_dest_size = arraySize(arr_dest);
       destr_array(arr_dest->arr, arr_dest_size);
       FREE_ARRAY(arr_dest, arr_dest_size);
-      arr_to->value.arrayValue = arr_source;
-      arr_from->value.arrayValue = NULL;
+      dest->value.arrayValue = arr_source;
+      source->value.arrayValue = NULL;
     } else {
       arr_source_size = arraySize(arr_source);
       if (arr_dest->min_position != arr_source->min_position ||
@@ -500,7 +504,7 @@ objectType arr_cpy (listType arguments)
           arr_dest_size = arraySize(arr_dest);
           destr_array(arr_dest->arr, arr_dest_size);
           FREE_ARRAY(arr_dest, arr_dest_size);
-          arr_to->value.arrayValue = new_arr;
+          dest->value.arrayValue = new_arr;
         } /* if */
       } else {
         cpy_array(arr_dest->arr, arr_source->arr, arr_source_size);
@@ -511,28 +515,34 @@ objectType arr_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType arr_create (listType arguments)
 
   {
-    objectType arr_to;
-    objectType arr_from;
+    objectType dest;
+    objectType source;
     arrayType arr_source;
     memSizeType new_size;
     arrayType new_arr;
 
   /* arr_create */
-    arr_to = arg_1(arguments);
-    arr_from = arg_3(arguments);
-    isit_array(arr_from);
-    arr_source = take_array(arr_from);
-    SET_CATEGORY_OF_OBJ(arr_to, ARRAYOBJECT);
-    if (TEMP_OBJECT(arr_from)) {
-      arr_to->value.arrayValue = arr_source;
-      arr_from->value.arrayValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_array(source);
+    arr_source = take_array(source);
+    SET_CATEGORY_OF_OBJ(dest, ARRAYOBJECT);
+    if (TEMP_OBJECT(source)) {
+      dest->value.arrayValue = arr_source;
+      source->value.arrayValue = NULL;
     } else {
       new_size = arraySize(arr_source);
       if (unlikely(!ALLOC_ARRAY(new_arr, new_size))) {
-        arr_to->value.arrayValue = NULL;
+        dest->value.arrayValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_arr->min_position = arr_source->min_position;
@@ -540,10 +550,10 @@ objectType arr_create (listType arguments)
         if (unlikely(!crea_array(new_arr->arr,
                                  arr_source->arr, new_size))) {
           FREE_ARRAY(new_arr, new_size);
-          arr_to->value.arrayValue = NULL;
+          dest->value.arrayValue = NULL;
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
-        arr_to->value.arrayValue = new_arr;
+        dest->value.arrayValue = new_arr;
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -551,6 +561,11 @@ objectType arr_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_arr/arg_1'.
+ *  After arr_destr is left 'old_arr/arg_1' is NULL.
+ *  The memory where 'old_arr/arg_1' is stored can be freed afterwards.
+ */
 objectType arr_destr (listType arguments)
 
   {
@@ -894,31 +909,31 @@ objectType arr_push (listType arguments)
 
   {
     objectType arr_variable;
-    arrayType arr_to;
+    arrayType dest;
     objectType element;
     typeType result_element_type;
     arrayType new_arr;
     memSizeType new_size;
-    memSizeType arr_to_size;
+    memSizeType dest_size;
 
   /* arr_push */
     logFunction(printf("arr_push\n"););
     arr_variable = arg_1(arguments);
     isit_array(arr_variable);
     is_variable(arr_variable);
-    arr_to = take_array(arr_variable);
+    dest = take_array(arr_variable);
     element = arg_3(arguments);
-    arr_to_size = arraySize(arr_to);
-    if (unlikely(arr_to_size > MAX_ARR_LEN - 1 ||
-                 arr_to->max_position > (intType) (MAX_MEM_INDEX - 1))) {
+    dest_size = arraySize(dest);
+    if (unlikely(dest_size > MAX_ARR_LEN - 1 ||
+                 dest->max_position > (intType) (MAX_MEM_INDEX - 1))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      new_size = arr_to_size + 1;
-      new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
+      new_size = dest_size + 1;
+      new_arr = REALLOC_ARRAY(dest, dest_size, new_size);
       if (unlikely(new_arr == NULL)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        COUNT3_ARRAY(arr_to_size, new_size);
+        COUNT3_ARRAY(dest_size, new_size);
         arr_variable->value.arrayValue = new_arr;
         /* The element type of the result is the type of the 3rd formal parameter */
         result_element_type = curr_exec_object->value.listValue->obj->
@@ -926,19 +941,19 @@ objectType arr_push (listType arguments)
         if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
           CLEAR_TEMP_FLAG(element);
           SET_VAR_FLAG(element);
-          memcpy(&new_arr->arr[arr_to_size], element, sizeof(objectRecord));
+          memcpy(&new_arr->arr[dest_size], element, sizeof(objectRecord));
           new_arr->max_position ++;
           FREE_OBJECT(element);
           arg_3(arguments) = NULL;
         } else {
           if (unlikely(!arr_elem_initialisation(result_element_type,
-                                                &new_arr->arr[arr_to_size], element))) {
-            arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
-            if (unlikely(arr_to == NULL)) {
+                                                &new_arr->arr[dest_size], element))) {
+            dest = REALLOC_ARRAY(new_arr, new_size, dest_size);
+            if (unlikely(dest == NULL)) {
               return raise_exception(SYS_MEM_EXCEPTION);
             } /* if */
-            COUNT3_ARRAY(new_size, arr_to_size);
-            arr_variable->value.arrayValue = arr_to;
+            COUNT3_ARRAY(new_size, dest_size);
+            arr_variable->value.arrayValue = dest;
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } else {
             new_arr->max_position ++;

@@ -102,6 +102,11 @@ static const const_cstriType fmt_f[] = {
 
 
 
+/**
+ *  Setup floating point computations and initialize constants.
+ *  This function must be called before doing any floating
+ *  point computations.
+ */
 void setupFloat (void)
 
   {

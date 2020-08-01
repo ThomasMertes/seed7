@@ -47,6 +47,11 @@
 
 
 
+/**
+ *  Append the ref_list 'extension/arg_3' to 'dest/arg_1'.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             ref_list.
+ */
 objectType rfl_append (listType arguments)
 
   {
@@ -87,6 +92,11 @@ objectType rfl_append (listType arguments)
 
 
 
+/**
+ *  Concatenate two ref_lists ('list1/arg_1' and 'list2/arg_3').
+ *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType rfl_cat (listType arguments)
 
   {
@@ -140,32 +150,36 @@ objectType rfl_cat (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType rfl_cpy (listType arguments)
 
   {
-    objectType list_to;
-    objectType list_from;
+    objectType dest;
+    objectType source;
     listType help_list;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_cpy */
-    list_to = arg_1(arguments);
-    list_from = arg_3(arguments);
-    isit_reflist(list_to);
-    isit_reflist(list_from);
-    is_variable(list_to);
-    if (list_from != list_to) {
-      if (TEMP_OBJECT(list_from)) {
-        free_list(take_reflist(list_to));
-        list_to->value.listValue = take_reflist(list_from);
-        list_from->value.listValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_reflist(dest);
+    isit_reflist(source);
+    is_variable(dest);
+    if (source != dest) {
+      if (TEMP_OBJECT(source)) {
+        free_list(take_reflist(dest));
+        dest->value.listValue = take_reflist(source);
+        source->value.listValue = NULL;
       } else {
-        help_list = copy_list(take_reflist(list_from), &err_info);
+        help_list = copy_list(take_reflist(source), &err_info);
         if (err_info != OKAY_NO_ERROR) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          free_list(take_reflist(list_to));
-          list_to->value.listValue = help_list;
+          free_list(take_reflist(dest));
+          dest->value.listValue = help_list;
         } /* if */
       } /* if */
     } /* if */
@@ -174,25 +188,31 @@ objectType rfl_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType rfl_create (listType arguments)
 
   {
-    objectType list_to;
-    objectType list_from;
+    objectType dest;
+    objectType source;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_create */
-    list_to = arg_1(arguments);
-    list_from = arg_3(arguments);
-    SET_CATEGORY_OF_OBJ(list_to, REFLISTOBJECT);
-    isit_reflist(list_from);
-    if (TEMP_OBJECT(list_from)) {
-      list_to->value.listValue = take_reflist(list_from);
-      list_from->value.listValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    SET_CATEGORY_OF_OBJ(dest, REFLISTOBJECT);
+    isit_reflist(source);
+    if (TEMP_OBJECT(source)) {
+      dest->value.listValue = take_reflist(source);
+      source->value.listValue = NULL;
     } else {
-      list_to->value.listValue = copy_list(take_reflist(list_from), &err_info);
+      dest->value.listValue = copy_list(take_reflist(source), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        list_to->value.listValue = NULL;
+        dest->value.listValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
@@ -201,6 +221,11 @@ objectType rfl_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_list/arg_1'.
+ *  After rfl_destr is left 'old_list/arg_1' is NULL.
+ *  The memory where 'old_list/arg_1' is stored can be freed afterwards.
+ */
 objectType rfl_destr (listType arguments)
 
   { /* rfl_destr */
@@ -236,6 +261,15 @@ objectType rfl_elem (listType arguments)
 
 
 
+/**
+ *  Assign reference 'source/arg_6' to the 'position/arg_4' of the 'dest/arg_1'.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
+ *  @exception RANGE_ERROR When 'position/arg_4' is negative or zero.
+ *  @exception RANGE_ERROR An element beyond 'dest/arg_1' would be
+ *             overwritten ('position/arg_4' > length('dest/arg_1') holds).
+ */
 objectType rfl_elemcpy (listType arguments)
 
   {
@@ -264,7 +298,7 @@ objectType rfl_elemcpy (listType arguments)
       } /* while */
       if (unlikely(list_element == NULL)) {
         logError(printf("rfl_elemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM "): "
-                        "Index > length(destination).\n",
+                        "Index > length(dest).\n",
                         (memSizeType) take_reflist(arg_1(arguments)),
                         position,
                         (memSizeType) take_reference(arg_6(arguments))););
@@ -286,6 +320,11 @@ objectType rfl_empty (listType arguments)
 
 
 
+/**
+ *  Check if two ref_lists are equal.
+ *  @return TRUE if both ref_lists are equal,
+ *          FALSE otherwise.
+ */
 objectType rfl_eq (listType arguments)
 
   {
@@ -485,6 +524,12 @@ objectType rfl_for_until (listType arguments)
 
 
 
+/**
+ *  Get a sublist from 'list/arg_1' ending at the 'stop/arg_4' position.
+ *  The first element in a 'ref_list' has the position 1.
+ *  @return the substring ending at the 'stop/arg_4' position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType rfl_head (listType arguments)
 
   {
@@ -537,6 +582,12 @@ objectType rfl_head (listType arguments)
 
 
 
+/**
+ *  Access one element from the 'ref_list' 'list/arg_1'.
+ *  @return the element with the specified 'position/arg_3' from 'list/arg_1'.
+ *  @exception RANGE_ERROR When the index is less than 1 or
+ *             greater than the length of the 'ref_list'.
+ */
 objectType rfl_idx (listType arguments)
 
   {
@@ -626,6 +677,10 @@ objectType rfl_ipos (listType arguments)
 
 
 
+/**
+ *  Determine the length of a 'ref_list'.
+ *  @return the length of the 'ref_list'.
+ */
 objectType rfl_lng (listType arguments)
 
   {
@@ -663,6 +718,11 @@ objectType rfl_mklist (listType arguments)
 
 
 
+/**
+ *  Check if two ref_lists are not equal.
+ *  @return FALSE if both ref_lists are equal,
+ *          TRUE otherwise.
+ */
 objectType rfl_ne (listType arguments)
 
   {
@@ -738,6 +798,12 @@ objectType rfl_pos (listType arguments)
 
 
 
+/**
+ *  Get a sublist from a 'start/arg_3' position to a 'stop/arg_5' position.
+ *  The first element in a 'ref_list' has the position 1.
+ *  @return the substring from position start to stop.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType rfl_range (listType arguments)
 
   {
@@ -838,6 +904,12 @@ objectType rfl_setValue (listType arguments)
 
 
 
+/**
+ *  Get a sublist from 'list/arg_1' beginning at a 'start/arg_3' position.
+ *  The first element in a 'ref_list' has the position 1.
+ *  @return the sublist beginning at the 'start/arg_3' position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType rfl_tail (listType arguments)
 
   {

@@ -496,58 +496,68 @@ objectType prc_case_hashset_def (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType prc_cpy (listType arguments)
 
   {
-    objectType proc_variable;
-    objectType source_value;
+    objectType dest;
+    objectType source;
     objectType block_value;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* prc_cpy */
-    proc_variable = arg_1(arguments);
-    isit_proc(proc_variable);
-    is_variable(proc_variable);
+    dest = arg_1(arguments);
+    isit_proc(dest);
+    is_variable(dest);
     isit_proc(arg_3(arguments));
-    source_value = arg_3(arguments);
+    source = arg_3(arguments);
     /* printf("\nsrc: ");
-    trace1(source_value);
+    trace1(source);
     printf("\n"); */
-    if (CATEGORY_OF_OBJ(source_value) == BLOCKOBJECT) {
+    if (CATEGORY_OF_OBJ(source) == BLOCKOBJECT) {
       if (ALLOC_OBJECT(block_value)) {
-        memcpy(block_value, source_value, sizeof(objectRecord));
-        SET_CATEGORY_OF_OBJ(proc_variable, MATCHOBJECT);
-        proc_variable->value.listValue = NULL;
-        incl_list(&proc_variable->value.listValue, block_value, &err_info);
+        memcpy(block_value, source, sizeof(objectRecord));
+        SET_CATEGORY_OF_OBJ(dest, MATCHOBJECT);
+        dest->value.listValue = NULL;
+        incl_list(&dest->value.listValue, block_value, &err_info);
       } else {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } else {
-      SET_CATEGORY_OF_OBJ(proc_variable, CATEGORY_OF_OBJ(source_value));
-      proc_variable->value = source_value->value;
+      SET_CATEGORY_OF_OBJ(dest, CATEGORY_OF_OBJ(source));
+      dest->value = source->value;
     } /* if */
     /* printf("dst: ");
-    trace1(proc_variable);
+    trace1(dest);
     printf("\n"); */
     return SYS_EMPTY_OBJECT;
   } /* prc_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType prc_create (listType arguments)
 
   {
-    objectType proc_to;
-    objectType proc_from;
+    objectType dest;
+    objectType source;
 
   /* prc_create */
-    proc_to = arg_1(arguments);
-    proc_from = arg_3(arguments);
-    isit_proc(proc_from);
-    SET_CATEGORY_OF_OBJ(proc_to, CATEGORY_OF_OBJ(proc_from));
-    proc_to->value = proc_from->value;
-    if (TEMP_OBJECT(proc_from)) {
-      proc_from->value.blockValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_proc(source);
+    SET_CATEGORY_OF_OBJ(dest, CATEGORY_OF_OBJ(source));
+    dest->value = source->value;
+    if (TEMP_OBJECT(source)) {
+      source->value.blockValue = NULL;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prc_create */

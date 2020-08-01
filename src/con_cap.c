@@ -102,13 +102,13 @@ int tputs (char *, int, int (*) (char ch));
 #define white 15
 
 /* int curr_attribute = 0; */
-boolType key_buffer_filled = FALSE;
+static boolType key_buffer_filled = FALSE;
 static int last_key;
-struct termios term_descr;
-tcflag_t lflag_bak;
-cc_t min_bak;
-cc_t time_bak;
-cc_t erase_ch;
+static struct termios term_descr;
+static tcflag_t lflag_bak;
+static cc_t min_bak;
+static cc_t time_bak;
+static cc_t erase_ch;
 
 boolType changes = FALSE;
 boolType keybd_initialized = FALSE;

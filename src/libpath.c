@@ -52,6 +52,16 @@ static rtlArrayType lib_path;
 
 
 
+/**
+ *  Search for an include library and open it, when it was found.
+ *  A library with an absolute path is opened directly.
+ *  For a library with a relative path the directories of the
+ *  include library search path are checked for the library.
+ *  The directories of the search path are checked one after
+ *  another for the requested include library file. As soon as
+ *  the include library is found the search is stopped and the
+ *  include library is opened.
+ */
 void find_include_file (const_striType include_file_name, errInfoType *err_info)
 
   {
@@ -134,6 +144,11 @@ static void print_lib_path (void)
 
 
 
+/**
+ *  Add the given directory path to the include library search path.
+ *  The function makes sure that all paths in the include library
+ *  search path end with '/'.
+ */
 void append_to_lib_path (const_striType path, errInfoType *err_info)
 
   {
@@ -182,6 +197,14 @@ void append_to_lib_path (const_striType path, errInfoType *err_info)
 
 
 
+/**
+ *  Initialize the include library search path.
+ *  The initial search path consists of the following directories:
+ *  1. The directory of the program source file.
+ *  2. Directories from the commandline option -l.
+ *  3. The directory containing the predefined Seed7 include libraries.
+ *  4. The directory specified with the SEED7_LIBRARY environment variable.
+ */
 void init_lib_path (const_striType sourceFileName,
     const const_rtlArrayType seed7_libraries, errInfoType *err_info)
 

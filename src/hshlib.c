@@ -603,11 +603,15 @@ objectType hsh_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType hsh_cpy (listType arguments)
 
   {
-    objectType hsh_to;
-    objectType hsh_from;
+    objectType dest;
+    objectType source;
     hashType hsh_dest;
     hashType hsh_source;
     objectType key_create_func;
@@ -617,28 +621,28 @@ objectType hsh_cpy (listType arguments)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_cpy */
-    hsh_to   = arg_1(arguments);
-    hsh_from = arg_2(arguments);
-    isit_hash(hsh_to);
-    isit_hash(hsh_from);
-    is_variable(hsh_to);
-    hsh_dest = take_hash(hsh_to);
-    hsh_source = take_hash(hsh_from);
+    dest   = arg_1(arguments);
+    source = arg_2(arguments);
+    isit_hash(dest);
+    isit_hash(source);
+    is_variable(dest);
+    hsh_dest = take_hash(dest);
+    hsh_source = take_hash(source);
     key_create_func  = take_reference(arg_3(arguments));
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
     free_hash(hsh_dest, key_destr_func, data_destr_func);
-    if (TEMP2_OBJECT(hsh_from)) {
-      hsh_to->value.hashValue = hsh_source;
-      hsh_from->value.hashValue = NULL;
+    if (TEMP2_OBJECT(source)) {
+      dest->value.hashValue = hsh_source;
+      source->value.hashValue = NULL;
     } else {
-      hsh_to->value.hashValue = create_hash(hsh_source,
+      dest->value.hashValue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_hash(hsh_to->value.hashValue, key_destr_func,
+        free_hash(dest->value.hashValue, key_destr_func,
             data_destr_func);
-        hsh_to->value.hashValue = NULL;
+        dest->value.hashValue = NULL;
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
@@ -647,11 +651,17 @@ objectType hsh_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType hsh_create (listType arguments)
 
   {
-    objectType hsh_to;
-    objectType hsh_from;
+    objectType dest;
+    objectType source;
     hashType hsh_source;
     objectType key_create_func;
     objectType key_destr_func;
@@ -660,28 +670,28 @@ objectType hsh_create (listType arguments)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_create */
-    hsh_to   = arg_1(arguments);
-    hsh_from = arg_2(arguments);
-    isit_hash(hsh_from);
-    hsh_source = take_hash(hsh_from);
+    dest   = arg_1(arguments);
+    source = arg_2(arguments);
+    isit_hash(source);
+    hsh_source = take_hash(source);
     key_create_func  = take_reference(arg_3(arguments));
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
     /* printf("hsh_create(%lX, %lX, %lX, %lX, %lX, %lX)\n",
-        hsh_to, hsh_from, key_create_func, key_destr_func,
+        dest, source, key_create_func, key_destr_func,
         data_create_func, data_destr_func); */
-    SET_CATEGORY_OF_OBJ(hsh_to, HASHOBJECT);
-    if (TEMP2_OBJECT(hsh_from)) {
-      hsh_to->value.hashValue = hsh_source;
-      hsh_from->value.hashValue = NULL;
+    SET_CATEGORY_OF_OBJ(dest, HASHOBJECT);
+    if (TEMP2_OBJECT(source)) {
+      dest->value.hashValue = hsh_source;
+      source->value.hashValue = NULL;
     } else {
-      hsh_to->value.hashValue = create_hash(hsh_source,
+      dest->value.hashValue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_hash(hsh_to->value.hashValue, key_destr_func,
+        free_hash(dest->value.hashValue, key_destr_func,
             data_destr_func);
-        hsh_to->value.hashValue = NULL;
+        dest->value.hashValue = NULL;
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
@@ -690,6 +700,11 @@ objectType hsh_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_hash/arg_1'.
+ *  After hsh_destr is left 'old_hash/arg_1' is NULL.
+ *  The memory where 'old_hash/arg_1' is stored can be freed afterwards.
+ */
 objectType hsh_destr (listType arguments)
 
   {

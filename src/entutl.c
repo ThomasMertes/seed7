@@ -705,21 +705,21 @@ void close_entity (progType currentProg)
 
 
 
-void init_entity (errInfoType *err_info)
+void init_entity (progType aProg, errInfoType *err_info)
 
   { /* init_entity */
     logFunction(printf("init_entity\n"););
-    prog->entity.inactive_list = NULL;
-    if ((prog->entity.literal = new_entity(prog->ident.literal)) == NULL) {
+    aProg->entity.inactive_list = NULL;
+    if ((aProg->entity.literal = new_entity(aProg->ident.literal)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if (!ALLOC_RECORD(prog->property.literal, propertyRecord, count.property)) {
+    if (!ALLOC_RECORD(aProg->property.literal, propertyRecord, count.property)) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    prog->property.literal->entity = prog->entity.literal;
-    prog->property.literal->params = NULL;
-    prog->property.literal->file_number = 0;
-    prog->property.literal->line = 0;
-    prog->property.literal->syNumberInLine = 0;
+    aProg->property.literal->entity = aProg->entity.literal;
+    aProg->property.literal->params = NULL;
+    aProg->property.literal->file_number = 0;
+    aProg->property.literal->line = 0;
+    aProg->property.literal->syNumberInLine = 0;
     logFunction(printf("init_entity -->\n"););
   } /* init_entity */

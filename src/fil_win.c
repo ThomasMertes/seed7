@@ -145,6 +145,64 @@ boolType filInputReady (fileType aFile)
 
 
 
+void filPipe (fileType *inFile, fileType *outFile)
+
+  {
+    SECURITY_ATTRIBUTES saAttr;
+    HANDLE pipeReadHandle = INVALID_HANDLE_VALUE;
+    HANDLE pipeWriteHandle = INVALID_HANDLE_VALUE;
+    int pipeReadFildes;
+    int pipeWriteFildes;
+
+  /* filPipe */
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+    if (unlikely(CreatePipe(&pipeReadHandle,
+                            &pipeWriteHandle, &saAttr, 0) == 0)) {
+      logError(printf("filPipe: CreatePipe() failed.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      if (unlikely((pipeReadFildes =
+          _open_osfhandle((intptr_t) (pipeReadHandle), _O_TEXT)) == -1)) {
+        logError(printf("filPipe: _open_osfhandle() failed:\n"););
+        CloseHandle(pipeReadHandle);
+        CloseHandle(pipeWriteHandle);
+        *inFile = NULL;
+        *outFile = NULL;
+        raise_error(FILE_ERROR);
+      } else if (unlikely((pipeWriteFildes =
+          _open_osfhandle((intptr_t) (pipeWriteHandle), _O_TEXT)) == -1)) {
+        logError(printf("filPipe: _open_osfhandle() failed:\n"););
+        close(pipeReadFildes);
+        CloseHandle(pipeWriteHandle);
+        *inFile = NULL;
+        *outFile = NULL;
+        raise_error(FILE_ERROR);
+      } else if (unlikely((*inFile = fdopen(pipeReadFildes, "rb")) == NULL)) {
+        logError(printf("filPipe: fdopen(%d, \"rb\") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      pipeReadFildes, errno, strerror(errno)););
+        close(pipeReadFildes);
+        close(pipeWriteFildes);
+        *outFile = NULL;
+        raise_error(FILE_ERROR);
+      } else if (unlikely((*outFile = fdopen(pipeWriteFildes, "wb")) == NULL)) {
+        logError(printf("filPipe: fdopen(%d, \"wb\") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      pipeWriteFildes, errno, strerror(errno)););
+        fclose(*inFile);
+        *inFile = NULL;
+        close(pipeWriteFildes);
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+    logFunction(printf("filPipe --> {%d, %d}\n",
+                       safe_fileno(*inFile), safe_fileno(*outFile)));
+  } /* filPipe */
+
+
+
 void setupFiles (void)
 
   {

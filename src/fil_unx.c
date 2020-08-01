@@ -203,6 +203,44 @@ boolType filInputReady (fileType aFile)
 
 
 
+void filPipe (fileType *inFile, fileType *outFile)
+
+  {
+    int aPipe[2];
+
+  /* filPipe */
+    if (unlikely(pipe(aPipe) != 0)) {
+      logError(printf("filPipe: pipe(aPipe) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      errno, strerror(errno)););
+      *inFile = NULL;
+      *outFile = NULL;
+      raise_error(FILE_ERROR);
+    } else {
+      if (unlikely((*inFile = fdopen(aPipe[0], "rb")) == NULL)) {
+        logError(printf("filPipe: fdopen(%d, \"rb\") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      aPipe[0], errno, strerror(errno)););
+        close(aPipe[0]);
+        close(aPipe[1]);
+        *outFile = NULL;
+        raise_error(FILE_ERROR);
+      } else if (unlikely((*outFile = fdopen(aPipe[1], "wb")) == NULL)) {
+        logError(printf("filPipe: fdopen(%d, \"wb\") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      aPipe[1], errno, strerror(errno)););
+        fclose(*inFile);
+        *inFile = NULL;
+        close(aPipe[1]);
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+    logFunction(printf("filPipe --> {%d, %d}\n",
+                       safe_fileno(*inFile), safe_fileno(*outFile)));
+  } /* filPipe */
+
+
+
 void setupFiles (void)
 
   { /* setupFiles */

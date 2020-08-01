@@ -32,10 +32,10 @@
 boolType hshContains (const const_rtlHashType hash1,
                       const genericType key, intType hashcode,
                       compareType cmp_func);
-void hshCpy (rtlHashType *const hash_to, const const_rtlHashType hash_from,
+void hshCpy (rtlHashType *const dest, const const_rtlHashType source,
              const createFuncType key_create_func, const destrFuncType key_destr_func,
              const createFuncType data_create_func, const destrFuncType data_destr_func);
-rtlHashType hshCreate (const const_rtlHashType hash_from,
+rtlHashType hshCreate (const const_rtlHashType source,
                        const createFuncType key_create_func,
                        const destrFuncType key_destr_func,
                        const createFuncType data_create_func,

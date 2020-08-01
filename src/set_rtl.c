@@ -358,7 +358,12 @@ intType setCmpGeneric (const genericType value1, const genericType value2)
 
 
 
-void setCpy (setType *const set_to, const const_setType set_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void setCpy (setType *const dest, const const_setType source)
 
   {
     setType set_dest;
@@ -366,28 +371,28 @@ void setCpy (setType *const set_to, const const_setType set_from)
     memSizeType set_source_size;
 
   /* setCpy */
-    set_dest = *set_to;
-    set_source_size = bitsetSize(set_from);
-    if (set_dest->min_position != set_from->min_position ||
-        set_dest->max_position != set_from->max_position) {
+    set_dest = *dest;
+    set_source_size = bitsetSize(source);
+    if (set_dest->min_position != source->min_position ||
+        set_dest->max_position != source->max_position) {
       set_dest_size = bitsetSize(set_dest);
       if (set_dest_size != set_source_size) {
         if (unlikely(!ALLOC_SET(set_dest, set_source_size))) {
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          FREE_SET(*set_to, set_dest_size);
-          *set_to = set_dest;
+          FREE_SET(*dest, set_dest_size);
+          *dest = set_dest;
         } /* if */
       } /* if */
-      set_dest->min_position = set_from->min_position;
-      set_dest->max_position = set_from->max_position;
+      set_dest->min_position = source->min_position;
+      set_dest->max_position = source->max_position;
     } /* if */
-    /* It is possible that *set_to == set_from holds. The */
-    /* behavior of memcpy() is undefined when source and  */
-    /* destination areas overlap (or are identical).      */
-    /* Therefore memmove() is used instead of memcpy().   */
-    memmove(set_dest->bitset, set_from->bitset,
+    /* It is possible that *dest == source holds. The    */
+    /* behavior of memcpy() is undefined when source and */
+    /* destination areas overlap (or are identical).     */
+    /* Therefore memmove() is used instead of memcpy().  */
+    memmove(set_dest->bitset, source->bitset,
             (size_t) set_source_size * sizeof(bitSetType));
   } /* setCpy */
 
@@ -408,20 +413,27 @@ void setCpyGeneric (genericType *const dest, const genericType source)
 
 
 
-setType setCreate (const const_setType set_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+setType setCreate (const const_setType source)
 
   {
     memSizeType new_size;
     setType result;
 
   /* setCreate */
-    new_size = bitsetSize(set_from);
+    new_size = bitsetSize(source);
     if (unlikely(!ALLOC_SET(result, new_size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->min_position = set_from->min_position;
-      result->max_position = set_from->max_position;
-      memcpy(result->bitset, set_from->bitset,
+      result->min_position = source->min_position;
+      result->max_position = source->max_position;
+      memcpy(result->bitset, source->bitset,
              (size_t) new_size * sizeof(bitSetType));
     } /* if */
     return result;

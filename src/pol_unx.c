@@ -589,8 +589,8 @@ pollType polEmpty (void)
  *         retrieved.
  *  @param aSocket Socket for which the checkedEvents are retrived.
  *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
- *          the events added and removed for ''aSocket' with
- *          ''addCheck'' and ''removeCheck''.
+ *          the events added and removed for 'aSocket' with
+ *          'addCheck' and 'removeCheck'.
  */
 intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 

@@ -392,38 +392,52 @@ objectType sql_commit (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType sql_cpy_db (listType arguments)
 
   {
-    objectType db_variable;
+    objectType dest;
 
   /* sql_cpy_db */
-    db_variable = arg_1(arguments);
-    isit_database(db_variable);
-    is_variable(db_variable);
+    dest = arg_1(arguments);
+    isit_database(dest);
+    is_variable(dest);
     isit_database(arg_3(arguments));
-    sqlCpyDb(&db_variable->value.databaseValue, take_database(arg_3(arguments)));
+    sqlCpyDb(&dest->value.databaseValue, take_database(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* sql_cpy_db */
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType sql_cpy_stmt (listType arguments)
 
   {
-    objectType stmt_variable;
+    objectType dest;
 
   /* sql_cpy_stmt */
-    stmt_variable = arg_1(arguments);
-    isit_sqlstmt(stmt_variable);
-    is_variable(stmt_variable);
+    dest = arg_1(arguments);
+    isit_sqlstmt(dest);
+    is_variable(dest);
     isit_sqlstmt(arg_3(arguments));
-    sqlCpyStmt(&stmt_variable->value.sqlStmtValue, take_sqlstmt(arg_3(arguments)));
+    sqlCpyStmt(&dest->value.sqlStmtValue, take_sqlstmt(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* sql_cpy_stmt */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType sql_create_db (listType arguments)
 
   { /* sql_create_db */
@@ -435,6 +449,12 @@ objectType sql_create_db (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType sql_create_stmt (listType arguments)
 
   { /* sql_create_stmt */

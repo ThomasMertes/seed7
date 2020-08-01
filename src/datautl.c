@@ -97,14 +97,19 @@ static const const_cstriType category_name[] = {
 
 
 
-const_cstriType category_cstri (objectCategory category)
+/**
+ *  Get the C string representation of a 'category'.
+ *  @param aCategory Category to be converted.
+ *  @return the string result of the conversion.
+ */
+const_cstriType category_cstri (objectCategory aCategory)
 
   {
     const_cstriType result;
 
   /* category_cstri */
-    if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
-      result = category_name[(int) category];
+    if (aCategory >= SYMBOLOBJECT && aCategory <= PROGOBJECT) {
+      result = category_name[(int) aCategory];
     } else {
       result = "*UNKNOWN*";
     } /* if */
@@ -113,15 +118,21 @@ const_cstriType category_cstri (objectCategory category)
 
 
 
-intType category_value (const const_cstriType stri)
+/**
+ *  Convert a C string to a 'category'.
+ *  @param catName Name of a category to be converted.
+ *  @return the 'category' result fo the conversion,
+ *          or -1 when no 'category' was found.
+ */
+intType category_value (const const_cstriType catName)
 
   {
-    intType number;
+    intType category;
 
   /* category_value */
-    for (number = SYMBOLOBJECT; number <= PROGOBJECT; number++) {
-      if (strcmp(stri, category_name[number]) == 0) {
-        return number;
+    for (category = SYMBOLOBJECT; category <= PROGOBJECT; category++) {
+      if (strcmp(catName, category_name[category]) == 0) {
+        return category;
       } /* if */
     } /* for */
     return -1;

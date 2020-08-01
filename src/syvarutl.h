@@ -82,5 +82,5 @@
 #define SYS_MAIN_OBJECT           MAIN_OBJECT(prog)
 
 
-int find_sysvar (const_striType stri);
-void init_sysvar (void);
+int findSysvar (const_striType stri);
+void init_sysvar (progType aProgram);

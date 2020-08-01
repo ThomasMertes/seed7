@@ -177,29 +177,33 @@ objectType set_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType set_cpy (listType arguments)
 
   {
-    objectType set_to;
-    objectType set_from;
+    objectType dest;
+    objectType source;
     setType set_dest;
     setType set_source;
     memSizeType set_dest_size;
     memSizeType set_source_size;
 
   /* set_cpy */
-    set_to = arg_1(arguments);
-    set_from = arg_3(arguments);
-    isit_set(set_to);
-    isit_set(set_from);
-    is_variable(set_to);
-    set_dest = take_set(set_to);
-    set_source = take_set(set_from);
-    if (TEMP_OBJECT(set_from)) {
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_set(dest);
+    isit_set(source);
+    is_variable(dest);
+    set_dest = take_set(dest);
+    set_source = take_set(source);
+    if (TEMP_OBJECT(source)) {
       set_dest_size = bitsetSize(set_dest);
       FREE_SET(set_dest, set_dest_size);
-      set_to->value.setValue = set_source;
-      set_from->value.setValue = NULL;
+      dest->value.setValue = set_source;
+      source->value.setValue = NULL;
     } else {
       set_source_size = bitsetSize(set_source);
       if (set_dest->min_position != set_source->min_position ||
@@ -209,14 +213,14 @@ objectType set_cpy (listType arguments)
           if (!ALLOC_SET(set_dest, set_source_size)) {
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
-            FREE_SET(set_to->value.setValue, set_dest_size);
-            set_to->value.setValue = set_dest;
+            FREE_SET(dest->value.setValue, set_dest_size);
+            dest->value.setValue = set_dest;
           } /* if */
         } /* if */
         set_dest->min_position = set_source->min_position;
         set_dest->max_position = set_source->max_position;
       } /* if */
-      /* It is possible that set_to == set_from holds. The */
+      /* It is possible that dest == source holds. The     */
       /* behavior of memcpy() is undefined when source and */
       /* destination areas overlap (or are identical).     */
       /* Therefore memmove() is used instead of memcpy().  */
@@ -228,31 +232,37 @@ objectType set_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType set_create (listType arguments)
 
   {
-    objectType set_to;
-    objectType set_from;
+    objectType dest;
+    objectType source;
     setType set_source;
     memSizeType new_size;
     setType new_set;
 
   /* set_create */
-    set_to = arg_1(arguments);
-    set_from = arg_3(arguments);
-    isit_set(set_from);
-    set_source = take_set(set_from);
-    SET_CATEGORY_OF_OBJ(set_to, SETOBJECT);
-    if (TEMP_OBJECT(set_from)) {
-      set_to->value.setValue = set_source;
-      set_from->value.setValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_set(source);
+    set_source = take_set(source);
+    SET_CATEGORY_OF_OBJ(dest, SETOBJECT);
+    if (TEMP_OBJECT(source)) {
+      dest->value.setValue = set_source;
+      source->value.setValue = NULL;
     } else {
       new_size = bitsetSize(set_source);
       if (!ALLOC_SET(new_set, new_size)) {
-        set_to->value.setValue = NULL;
+        dest->value.setValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        set_to->value.setValue = new_set;
+        dest->value.setValue = new_set;
         new_set->min_position = set_source->min_position;
         new_set->max_position = set_source->max_position;
         memcpy(new_set->bitset, set_source->bitset,

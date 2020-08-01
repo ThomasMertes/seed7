@@ -152,46 +152,56 @@ objectType big_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType big_cpy (listType arguments)
 
   {
-    objectType big_to;
-    objectType big_from;
+    objectType dest;
+    objectType source;
 
   /* big_cpy */
-    big_to = arg_1(arguments);
-    big_from = arg_3(arguments);
-    isit_bigint(big_to);
-    isit_bigint(big_from);
-    is_variable(big_to);
-    if (TEMP_OBJECT(big_from)) {
-      bigDestr(take_bigint(big_to));
-      big_to->value.bigIntValue = take_bigint(big_from);
-      big_from->value.bigIntValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_bigint(dest);
+    isit_bigint(source);
+    is_variable(dest);
+    if (TEMP_OBJECT(source)) {
+      bigDestr(take_bigint(dest));
+      dest->value.bigIntValue = take_bigint(source);
+      source->value.bigIntValue = NULL;
     } else {
-      bigCpy(&big_to->value.bigIntValue, take_bigint(big_from));
+      bigCpy(&dest->value.bigIntValue, take_bigint(source));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* big_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType big_create (listType arguments)
 
   {
-    objectType big_to;
-    objectType big_from;
+    objectType dest;
+    objectType source;
 
   /* big_create */
-    big_to = arg_1(arguments);
-    big_from = arg_3(arguments);
-    isit_bigint(big_from);
-    SET_CATEGORY_OF_OBJ(big_to, BIGINTOBJECT);
-    if (TEMP_OBJECT(big_from)) {
-      big_to->value.bigIntValue = take_bigint(big_from);
-      big_from->value.bigIntValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_bigint(source);
+    SET_CATEGORY_OF_OBJ(dest, BIGINTOBJECT);
+    if (TEMP_OBJECT(source)) {
+      dest->value.bigIntValue = take_bigint(source);
+      source->value.bigIntValue = NULL;
     } else {
-      big_to->value.bigIntValue = bigCreate(take_bigint(big_from));
+      dest->value.bigIntValue = bigCreate(take_bigint(source));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* big_create */
@@ -217,6 +227,11 @@ objectType big_decr (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_bigint/arg_1'.
+ *  After big_destr is left 'old_bigint/arg_1' is NULL.
+ *  The memory where 'old_bigint/arg_1' is stored can be freed afterwards.
+ */
 objectType big_destr (listType arguments)
 
   { /* big_destr */
@@ -290,9 +305,9 @@ objectType big_fromBStriBe (listType arguments)
 
 /**
  *  Convert a bstring (interpreted as little-endian) to a bigInteger.
- *  @param bstri Bstring to be converted. The bytes are interpreted
+ *  @param bstri/arg_1 Bstring to be converted. The bytes are interpreted
  *         as binary little-endian representation with a base of 256.
- *  @param isSigned Defines if 'bstri' is interpreted as signed value.
+ *  @param isSigned/arg_2 Defines if 'bstri' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
  *         significant byte (the last byte) has an ordinal >= 128.

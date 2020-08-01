@@ -61,7 +61,7 @@
 DIR *opendir (const char *dirName)
 
   {
-    unsigned int nameLen;
+    memSizeType nameLen;
     char fileNamePattern[260];
     DIR *directory;
 
@@ -163,7 +163,7 @@ int closedir (DIR *directory)
 WDIR *wopendir (const wchar_t *dirName)
 
   {
-    unsigned int nameLen;
+    memSizeType nameLen;
     wchar_t fileNamePattern[260];
     WDIR *directory;
 

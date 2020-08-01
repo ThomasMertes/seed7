@@ -1081,6 +1081,21 @@ pollType polEmpty (void)
 
 
 
+/**
+ *  Return the checkedEvents field from 'pollData' for 'aSocket'.
+ *  The polPoll function uses the checkedEvents as input.
+ *  The following checkedEvents can be returned:
+ *  * POLLNOTHING no data can be read or written.
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  @param pollData Poll data from which the checkedEvents are
+ *         retrieved.
+ *  @param aSocket Socket for which the checkedEvents are retrived.
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the events added and removed for 'aSocket' with
+ *          'addCheck' and 'removeCheck'.
+ */
 intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
   {

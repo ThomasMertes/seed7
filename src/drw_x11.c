@@ -68,12 +68,10 @@
 
 Display *mydisplay = NULL;
 Atom wm_delete_window;
-unsigned long myforeground;
-unsigned long mybackground;
-GC mygc;
-XSizeHints myhint;
-XWMHints mywmhint;
-int myscreen;
+static unsigned long myforeground;
+static unsigned long mybackground;
+static GC mygc;
+static int myscreen;
 
 typedef struct {
     uintType usage_count;
@@ -109,14 +107,14 @@ size_t sizeof_winRecord = sizeof(x11_winRecord);
 #define to_var_height(win)    (((x11_winType) win)->height)
 #define to_var_clear_col(win) (((x11_winType) win)->clear_col)
 
-Visual *default_visual;
+static Visual *default_visual;
 
-int lshift_red;
-int rshift_red;
-int lshift_green;
-int rshift_green;
-int lshift_blue;
-int rshift_blue;
+static int lshift_red;
+static int rshift_red;
+static int lshift_green;
+static int rshift_green;
+static int lshift_blue;
+static int rshift_blue;
 
 typedef struct colorEntryStruct *colorEntryType;
 
@@ -1181,6 +1179,8 @@ winType drwOpen (intType xPos, intType yPos,
 
   {
     char *win_name;
+    XSizeHints myhint;
+    XWMHints mywmhint;
     Screen *x_screen;
     XSetWindowAttributes attributes;
     XWindowAttributes attribs;
@@ -1301,6 +1301,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     intType width, intType height)
 
   {
+    XSizeHints myhint;
+    /* XWMHints mywmhint; */
     Screen *x_screen;
     XSetWindowAttributes attributes;
     XWindowAttributes attribs;
@@ -1330,8 +1332,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           myhint.width = (int) width;
           myhint.height = (int) height;
           myhint.flags = PPosition | PSize;
-          mywmhint.flags = InputHint;
-          mywmhint.input = True;
+          /* mywmhint.flags = InputHint;
+             mywmhint.input = True; */
 
           result->window = XCreateSimpleWindow(mydisplay,
               to_window(parent_window),

@@ -3472,30 +3472,35 @@ intType bigCmpSignedDigit (const const_bigIntType big1, intType number)
 
 
 
-void bigCpy (bigIntType *const big_to, const const_bigIntType big_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void bigCpy (bigIntType *const dest, const const_bigIntType source)
 
   {
     memSizeType new_size;
     bigIntType big_dest;
 
   /* bigCpy */
-    big_dest = *big_to;
-    new_size = big_from->size;
+    big_dest = *dest;
+    new_size = source->size;
     if (big_dest->size != new_size) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(big_dest, new_size))) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
-        FREE_BIG(*big_to, (*big_to)->size);
+        FREE_BIG(*dest, (*dest)->size);
         big_dest->size = new_size;
-        *big_to = big_dest;
+        *dest = big_dest;
       } /* if */
     } /* if */
-    /* It is possible that *big_to == big_from holds. The */
-    /* behavior of memcpy() is undefined when source and  */
-    /* destination areas overlap (or are identical).      */
-    /* Therefore memmove() is used instead of memcpy().   */
-    memmove(big_dest->bigdigits, big_from->bigdigits,
+    /* It is possible that *dest == source holds. The    */
+    /* behavior of memcpy() is undefined when source and */
+    /* destination areas overlap (or are identical).     */
+    /* Therefore memmove() is used instead of memcpy().  */
+    memmove(big_dest->bigdigits, source->bigdigits,
             (size_t) new_size * sizeof(bigDigitType));
   } /* bigCpy */
 
@@ -3516,19 +3521,26 @@ void bigCpyGeneric (genericType *const dest, const genericType source)
 
 
 
-bigIntType bigCreate (const const_bigIntType big_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+bigIntType bigCreate (const const_bigIntType source)
 
   {
     memSizeType new_size;
     bigIntType result;
 
   /* bigCreate */
-    new_size = big_from->size;
+    new_size = source->size;
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, new_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
-      memcpy(result->bigdigits, big_from->bigdigits,
+      memcpy(result->bigdigits, source->bigdigits,
              (size_t) new_size * sizeof(bigDigitType));
     } /* if */
     return result;
@@ -3542,7 +3554,7 @@ bigIntType bigCreate (const const_bigIntType big_from)
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(genericType) != sizeof(bigIntType).
  */
-genericType bigCreateGeneric (const genericType from_value)
+genericType bigCreateGeneric (const genericType source)
 
   {
     rtlObjectType result;
@@ -3550,7 +3562,7 @@ genericType bigCreateGeneric (const genericType from_value)
   /* bigCreateGeneric */
     INIT_GENERIC_PTR(result.value.genericValue);
     result.value.bigIntValue =
-        bigCreate(((const_rtlObjectType *) &from_value)->value.bigIntValue);
+        bigCreate(((const_rtlObjectType *) &source)->value.bigIntValue);
     return result.value.genericValue;
   } /* bigCreateGeneric */
 
@@ -3636,6 +3648,11 @@ void bigDecr (bigIntType *const big_variable)
 
 
 
+/**
+ *  Free the memory referred by 'old_bigint'.
+ *  After bigDestr is left 'old_bigint' refers to not existing memory.
+ *  The memory where 'old_bigint' is stored can be freed afterwards.
+ */
 void bigDestr (const const_bigIntType old_bigint)
 
   { /* bigDestr */

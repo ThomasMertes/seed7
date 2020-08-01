@@ -413,22 +413,32 @@ objectType int_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType int_cpy (listType arguments)
 
   {
-    objectType int_variable;
+    objectType dest;
 
   /* int_cpy */
-    int_variable = arg_1(arguments);
-    isit_int(int_variable);
-    is_variable(int_variable);
+    dest = arg_1(arguments);
+    isit_int(dest);
+    is_variable(dest);
     isit_int(arg_3(arguments));
-    int_variable->value.intValue = take_int(arg_3(arguments));
+    dest->value.intValue = take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType int_create (listType arguments)
 
   { /* int_create */
@@ -1497,6 +1507,12 @@ objectType int_succ (listType arguments)
 
 
 
+/**
+ *  Get 'integer' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'integer' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> INTOBJECT holds.
+ */
 objectType int_value (listType arguments)
 
   {

@@ -53,6 +53,12 @@
 
 
 
+/**
+ *  Compare two interface pointers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objectType itf_cmp (listType arguments)
 
   {
@@ -92,55 +98,59 @@ objectType itf_conv2 (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType itf_cpy (listType arguments)
 
   {
-    objectType interface_to;
-    objectType interface_from;
+    objectType dest;
+    objectType source;
     objectType old_value;
     objectType new_value;
     structType old_struct;
 
   /* itf_cpy */
-    interface_to = arg_1(arguments);
-    interface_from = arg_3(arguments);
-    isit_interface(interface_to);
-    /* isit_interface(interface_from); allow FORWARDOBJECT */
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_interface(dest);
+    /* isit_interface(source); allow FORWARDOBJECT */
 #ifdef TRACE_ITFLIB
     printf("itf_cpy old value: ");
-    trace1(interface_to);
+    trace1(dest);
     printf("\n");
     printf("itf_cpy new value: ");
-    trace1(interface_from);
+    trace1(source);
     printf("\n");
 #endif
-    if (CATEGORY_OF_OBJ(interface_to) == STRUCTOBJECT) {
-      old_struct = take_struct(interface_to);
+    if (CATEGORY_OF_OBJ(dest) == STRUCTOBJECT) {
+      old_struct = take_struct(dest);
       old_value = NULL;
       /* printf("before SET_CATEGORY: ");
-      trace1(interface_to);
+      trace1(dest);
       printf("\n"); */
-      SET_CATEGORY_OF_OBJ(interface_to, INTERFACEOBJECT);
-      /* interface_to->value.objValue = NULL;
+      SET_CATEGORY_OF_OBJ(dest, INTERFACEOBJECT);
+      /* dest->value.objValue = NULL;
       printf("after SET_CATEGORY: ");
-      trace1(interface_to);
+      trace1(dest);
       printf("\n"); */
     } else {
       old_struct = NULL;
-      old_value = take_interface(interface_to);
+      old_value = take_interface(dest);
     } /* if */
-    new_value = take_interface(interface_from);
+    new_value = take_interface(source);
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
-      if ((TEMP_OBJECT(interface_from) || TEMP2_OBJECT(interface_from)) &&
-          CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
+      if ((TEMP_OBJECT(source) || TEMP2_OBJECT(source)) &&
+          CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_cpy: memcpy %lu %lu %lu ",
-              take_struct(interface_from), new_value, interface_from);
-          trace1(interface_from);
+              take_struct(source), new_value, source);
+          trace1(source);
           printf("\n"); */
-          memcpy(new_value, interface_from, sizeof(objectRecord));
+          memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
       } /* if */
       if (new_value->value.structValue->usage_count != 0) {
@@ -148,9 +158,9 @@ objectType itf_cpy (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
-      run_exception(INTERFACEOBJECT, interface_from);
+      run_exception(INTERFACEOBJECT, source);
     } /* if */
-    interface_to->value.objValue = new_value;
+    dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
     if (old_value == NULL || CATEGORY_OF_OBJ(old_value) == STRUCTOBJECT) {
@@ -176,7 +186,7 @@ objectType itf_cpy (listType arguments)
     } /* if */
 #ifdef TRACE_ITFLIB
     printf("itf_cpy afterwards: ");
-    trace1(interface_to);
+    trace1(dest);
     printf("\n");
 #endif
     return SYS_EMPTY_OBJECT;
@@ -187,53 +197,53 @@ objectType itf_cpy (listType arguments)
 objectType itf_cpy2 (listType arguments)
 
   {
-    objectType interface_to;
-    objectType interface_from;
+    objectType dest;
+    objectType source;
     objectType old_value;
     objectType new_value;
     structType old_struct;
 
   /* itf_cpy2 */
-    interface_to = arg_1(arguments);
-    interface_from = arg_3(arguments);
-    isit_interface(interface_to);
-    /* isit_struct(interface_from); allow FORWARDOBJECT */
-    if (CATEGORY_OF_OBJ(interface_to) == STRUCTOBJECT) {
-      old_struct = take_struct(interface_to);
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_interface(dest);
+    /* isit_struct(source); allow FORWARDOBJECT */
+    if (CATEGORY_OF_OBJ(dest) == STRUCTOBJECT) {
+      old_struct = take_struct(dest);
       old_value = NULL;
       /* printf("before SET_CATEGORY: ");
-      trace1(interface_to);
+      trace1(dest);
       printf("\n"); */
-      SET_CATEGORY_OF_OBJ(interface_to, INTERFACEOBJECT);
-      /* interface_to->value.objValue = NULL;
+      SET_CATEGORY_OF_OBJ(dest, INTERFACEOBJECT);
+      /* dest->value.objValue = NULL;
       printf("after SET_CATEGORY: ");
-      trace1(interface_to);
+      trace1(dest);
       printf("\n"); */
     } else {
       old_struct = NULL;
-      old_value = take_interface(interface_to);
+      old_value = take_interface(dest);
     } /* if */
-    new_value = interface_from;
-    if (CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
-      if (TEMP_OBJECT(interface_from) || TEMP2_OBJECT(interface_from)) {
+    new_value = source;
+    if (CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
+      if (TEMP_OBJECT(source) || TEMP2_OBJECT(source)) {
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_cpy2: memcpy %lu %lu %lu ",
-              take_struct(interface_from), new_value, interface_from);
-          trace1(interface_from);
+              take_struct(source), new_value, source);
+          trace1(source);
           printf("\n"); */
-          memcpy(new_value, interface_from, sizeof(objectRecord));
+          memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
       } /* if */
       if (new_value->value.structValue->usage_count != 0) {
         new_value->value.structValue->usage_count++;
       } /* if */
-    } else if (CATEGORY_OF_OBJ(interface_from) != DECLAREDOBJECT &&
-               CATEGORY_OF_OBJ(interface_from) != FORWARDOBJECT) {
-      run_exception(STRUCTOBJECT, interface_from);
+    } else if (CATEGORY_OF_OBJ(source) != DECLAREDOBJECT &&
+               CATEGORY_OF_OBJ(source) != FORWARDOBJECT) {
+      run_exception(STRUCTOBJECT, source);
     } /* if */
-    interface_to->value.objValue = new_value;
+    dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
     if (old_value == NULL || CATEGORY_OF_OBJ(old_value) == STRUCTOBJECT) {
@@ -262,35 +272,41 @@ objectType itf_cpy2 (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType itf_create (listType arguments)
 
   {
-    objectType interface_to;
-    objectType interface_from;
+    objectType dest;
+    objectType source;
     objectType new_value;
 
   /* itf_create */
-    interface_to = arg_1(arguments);
-    interface_from = arg_3(arguments);
-    /* isit_interface(interface_from); allow FORWARDOBJECT */
-    SET_CATEGORY_OF_OBJ(interface_to, INTERFACEOBJECT);
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    /* isit_interface(source); allow FORWARDOBJECT */
+    SET_CATEGORY_OF_OBJ(dest, INTERFACEOBJECT);
 #ifdef TRACE_ITFLIB
     printf("itf_create from: ");
-    trace1(interface_from);
+    trace1(source);
     printf("\n");
 #endif
-    new_value = take_interface(interface_from);
+    new_value = take_interface(source);
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
-      if ((TEMP_OBJECT(interface_from) || TEMP2_OBJECT(interface_from)) &&
-          CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
+      if ((TEMP_OBJECT(source) || TEMP2_OBJECT(source)) &&
+          CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_create: memcpy %lu %lu %lu ",
-              take_struct(interface_from), new_value, interface_from);
-          trace1(interface_from);
+              take_struct(source), new_value, source);
+          trace1(source);
           printf("\n"); */
-          memcpy(new_value, interface_from, sizeof(objectRecord));
+          memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
       } /* if */
       if (new_value->value.structValue->usage_count != 0) {
@@ -298,14 +314,14 @@ objectType itf_create (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
-      run_exception(INTERFACEOBJECT, interface_from);
+      run_exception(INTERFACEOBJECT, source);
     } /* if */
-    interface_to->value.objValue = new_value;
+    dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
 #ifdef TRACE_ITFLIB
     printf("itf_create to: ");
-    trace1(interface_to);
+    trace1(dest);
     printf("\n");
 #endif
     return SYS_EMPTY_OBJECT;
@@ -316,31 +332,31 @@ objectType itf_create (listType arguments)
 objectType itf_create2 (listType arguments)
 
   {
-    objectType interface_to;
-    objectType interface_from;
+    objectType dest;
+    objectType source;
     objectType new_value;
 
   /* itf_create2 */
-    interface_to = arg_1(arguments);
-    interface_from = arg_3(arguments);
-    /* isit_interface(interface_from); allow FORWARDOBJECT */
-    SET_CATEGORY_OF_OBJ(interface_to, INTERFACEOBJECT);
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    /* isit_interface(source); allow FORWARDOBJECT */
+    SET_CATEGORY_OF_OBJ(dest, INTERFACEOBJECT);
 #ifdef TRACE_ITFLIB
     printf("itf_create2 from: ");
-    trace1(interface_from);
+    trace1(source);
     printf("\n");
 #endif
-    new_value = interface_from;
+    new_value = source;
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
-      if (TEMP_OBJECT(interface_from) || TEMP2_OBJECT(interface_from)) {
+      if (TEMP_OBJECT(source) || TEMP2_OBJECT(source)) {
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_create2: memcpy %lu %lu %lu ",
-              take_struct(interface_from), new_value, interface_from);
-          trace1(interface_from);
+              take_struct(source), new_value, source);
+          trace1(source);
           printf("\n"); */
-          memcpy(new_value, interface_from, sizeof(objectRecord));
+          memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
       } /* if */
       if (new_value->value.structValue->usage_count != 0) {
@@ -348,14 +364,14 @@ objectType itf_create2 (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
-      run_exception(STRUCTOBJECT, interface_from);
+      run_exception(STRUCTOBJECT, source);
     } /* if */
-    interface_to->value.objValue = new_value;
+    dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
 #ifdef TRACE_ITFLIB
     printf("itf_create2 to: ");
-    trace1(interface_to);
+    trace1(dest);
     printf("\n");
 #endif
     return SYS_EMPTY_OBJECT;
@@ -363,6 +379,12 @@ objectType itf_create2 (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_value/arg_1'.
+ *  After itf_destr is left 'old_value/arg_1' is NULL.
+ *  The memory where 'old_value/arg_1' is stored can be
+ *  freed afterwards.
+ */
 objectType itf_destr (listType arguments)
 
   {
@@ -415,6 +437,11 @@ objectType itf_destr (listType arguments)
 
 
 
+/**
+ *  Check if two interfaces are equal.
+ *  @return TRUE if both interfaces are equal,
+ *          FALSE otherwise.
+ */
 objectType itf_eq (listType arguments)
 
   { /* itf_eq */
@@ -430,6 +457,10 @@ objectType itf_eq (listType arguments)
 
 
 
+/**
+ *  Compute the hash value of an interface.
+ *  @return the hash value.
+ */
 objectType itf_hashcode (listType arguments)
 
   { /* itf_hashcode */
@@ -440,6 +471,11 @@ objectType itf_hashcode (listType arguments)
 
 
 
+/**
+ *  Check if two interfaces are not equal.
+ *  @return FALSE if both interfaces are equal,
+ *          TRUE otherwise.
+ */
 objectType itf_ne (listType arguments)
 
   { /* itf_ne */

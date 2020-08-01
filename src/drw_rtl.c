@@ -49,31 +49,35 @@
 
 
 
-void drwCpy (winType *const win_to, const winType win_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ */
+void drwCpy (winType *const dest, const winType source)
 
   { /* drwCpy */
     logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), "
                        FMT_U_MEM " (usage=" FMT_U "))\n",
-                       (memSizeType) *win_to,
-                       *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
-                       (memSizeType) win_from,
-                       win_from != NULL ? win_from->usage_count : (uintType) 0););
-    if (win_from != NULL) {
-      win_from->usage_count++;
+                       (memSizeType) *dest,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL) {
+      source->usage_count++;
     } /* if */
-    if (*win_to != NULL) {
-      (*win_to)->usage_count--;
-      if ((*win_to)->usage_count == 0) {
-        drwFree(*win_to);
+    if (*dest != NULL) {
+      (*dest)->usage_count--;
+      if ((*dest)->usage_count == 0) {
+        drwFree(*dest);
       } /* if */
     } /* if */
-    *win_to = win_from;
+    *dest = source;
     logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), "
                        FMT_U_MEM " (usage=" FMT_U ")) -->\n",
-                       (memSizeType) *win_to,
-                       *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
-                       (memSizeType) win_from,
-                       win_from != NULL ? win_from->usage_count : (uintType) 0););
+                       (memSizeType) *dest,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
   } /* drwCpy */
 
 
@@ -93,19 +97,25 @@ void drwCpyGeneric (genericType *const dest, const genericType source)
 
 
 
-winType drwCreate (const winType win_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ */
+winType drwCreate (const winType source)
 
   { /* drwCreate */
     logFunction(printf("drwCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-                       (memSizeType) win_from,
-                       win_from != NULL ? win_from->usage_count : (uintType) 0););
-    if (win_from != NULL) {
-      win_from->usage_count++;
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL) {
+      source->usage_count++;
     } /* if */
     logFunction(printf("drwCreate --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) win_from,
-                       win_from != NULL ? win_from->usage_count : (uintType) 0););
-    return win_from;
+                       (memSizeType) source,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    return source;
   } /* drwCreate */
 
 

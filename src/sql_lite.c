@@ -1828,6 +1828,7 @@ databaseType sqlOpenLite (const const_striType dbName,
     const_cstriType fileName8;
     const const_cstriType fileNameMemory = ":memory:";
     const strElemType dbExtension[] = {'.', 'd', 'b'};
+    const memSizeType extensionLength = sizeof(dbExtension) / sizeof(strElemType);
     striType dbNameWithExtension = NULL;
     sqlite3 *connection;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1849,21 +1850,22 @@ databaseType sqlOpenLite (const const_striType dbName,
         fileName = NULL;
         fileName8 = fileNameMemory;
       } else {
-        if (cmdFileType(dbName) == 2) {
+        if (cmdFileType(dbName) == FILE_REGULAR) {
           fileName = cmdToOsPath(dbName);
-        } else if (dbName->size < 3 ||
-                   memcmp(&dbName->mem[dbName->size - 3],
-                          dbExtension, 3 * sizeof(strElemType)) != 0) {
-          if (unlikely(dbName->size > MAX_STRI_LEN - 3 ||
-                       !ALLOC_STRI_SIZE_OK(dbNameWithExtension, dbName->size + 3))) {
+        } else if (dbName->size < extensionLength ||
+                   memcmp(&dbName->mem[dbName->size - extensionLength],
+                          dbExtension, sizeof(dbExtension)) != 0) {
+          if (unlikely(dbName->size > MAX_STRI_LEN - extensionLength ||
+                       !ALLOC_STRI_SIZE_OK(dbNameWithExtension,
+                                           dbName->size + extensionLength))) {
             err_info = MEMORY_ERROR;
             fileName = NULL;
           } else {
-            dbNameWithExtension->size = dbName->size + 3;
+            dbNameWithExtension->size = dbName->size + extensionLength;
             memcpy(dbNameWithExtension->mem, dbName->mem,
                    dbName->size * sizeof(strElemType));
             memcpy(&dbNameWithExtension->mem[dbName->size], dbExtension,
-                   3 * sizeof(strElemType));
+                   sizeof(dbExtension));
             fileName = cmdToOsPath(dbNameWithExtension);
             FREE_STRI(dbNameWithExtension, dbNameWithExtension->size);
           } /* if */

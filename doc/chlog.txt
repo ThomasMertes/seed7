@@ -1,3 +1,58 @@
+20160531:
+- Documentation comments have been added or improved in many files.
+- The compiler (s7c) has been improved to start C compiler and linker
+  direct and not via a shell (except when the compiler must be started
+  with a script).
+- The program chkccomp.c has been improved to use consecutive numbers
+  for test program files.
+- The program chkccomp.c has been improved to show the progress of the
+  tests done.
+- The experimental function startProcess, with files to redirect, has
+  been added to process.s7i.
+- The functions childStdIn, childStdOut and childStdErr have been
+  added to process.s7i.
+- The function shellParameters has been added to shell.s7i.
+- The function noEmptyStrings has been added to seed7_05.s7i.
+- A conv operator to convert an interface object to a specific
+  implementation type has been added to seed7_05.s7i.
+- The compiler (s7c) has been improved to support the new conv
+  operator defined in seed7_05.s7i.
+- In cc_conf.s7i the configuration values CC_OPT_DEBUG_INFO,
+  CC_FLAGS, LINKER_FLAGS, SYSTEM_LIBS, SYSTEM_CONSOLE_LIBS,
+  SYSTEM_DRAW_LIBS and SYSTEM_DB_LIBS have been changed to be arrays
+  of strings instead of strings.
+- In cc_conf.s7i the configuration values CALL_C_COMPILER_FROM_SHELL,
+  CC_ERROR_FILDES, REDIRECT_FILDES_1, REDIRECT_FILDES_2 and
+  NULL_DEVICE have been added.
+- In cc_conf.s7i the configuration value REDIRECT_C_ERRORS has been
+  removed.
+- Interpreter and compiler have been improved to support the actions
+  PCS_CHILD_STDERR, PCS_CHILD_STDIN, PCS_CHILD_STDOUT, FIL_PIPE and
+  FIL_OPEN_NULL_DEVICE.
+- The function analyzeProg in analyze.c has been improved to have less
+  usages of the global variable prog.
+- The functions in chkccomp.c have been changed to static functions.
+- The program chkccomp.c has been improved to define
+  POPEN_SUPPORTS_CLOEXEC_MODE, FOPEN_SUPPORTS_CLOEXEC_MODE,
+  HAS_FCNTL_SETFD_CLOEXEC and HAS_PIPE2.
+- The function filPipe has been added to fil_unx.c and fil_win.c.
+- In fil_rtl.c the functions filOpen and filPopen have been improved
+  to open files with the CLOEXEC flag, when possible.
+- The function filOpenNullDevice has been added to fil_rtl.c.
+- The functions init_findid, init_entity and init_sysvar have been
+  changed to use a progType parameter.
+- The functions pcsStart in pcs_unx.c and pcs_win.c have been improved
+  to have parameters for stdin, stdout and stderr.
+- The functions pcsChildStdErr, pcsChildStdIn and pcsChildStdOut have
+  been added to pcs_rtl.c.
+. The functions pcs_childStdErr, pcs_childStdIn and pcs_childStdOut
+  have been added to pcslib.c.
+- In src/read_me.txt descriptions of SEARCH_PATH_DELIMITER.
+  REDIRECT_FILDES_1, REDIRECT_FILDES_2, NULL_DEVICE, REDIRECT_C_ERRORS
+  and CC_ERROR_FILDES have been improved.
+- The functions find_sysvar and concat_path have been renamed to
+  findSysvar and concatPath respectively.
+
 20160430:
 - The makefile mk_clangw.mak has been improved, such that compilation
   with newer versions of clang under windows works better.

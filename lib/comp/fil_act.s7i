@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  fil_act.s7i   Generate code for actions of primitive files.     *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2016  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -24,36 +24,38 @@
 (********************************************************************)
 
 
-const ACTION: FIL_BIG_LNG      is action "FIL_BIG_LNG";
-const ACTION: FIL_BIG_SEEK     is action "FIL_BIG_SEEK";
-const ACTION: FIL_BIG_TELL     is action "FIL_BIG_TELL";
-const ACTION: FIL_CLOSE        is action "FIL_CLOSE";
-const ACTION: FIL_CPY          is action "FIL_CPY";
-const ACTION: FIL_EMPTY        is action "FIL_EMPTY";
-const ACTION: FIL_EOF          is action "FIL_EOF";
-const ACTION: FIL_EQ           is action "FIL_EQ";
-const ACTION: FIL_ERR          is action "FIL_ERR";
-const ACTION: FIL_FLUSH        is action "FIL_FLUSH";
-const ACTION: FIL_GETC         is action "FIL_GETC";
-const ACTION: FIL_GETS         is action "FIL_GETS";
-const ACTION: FIL_HAS_NEXT     is action "FIL_HAS_NEXT";
-const ACTION: FIL_IN           is action "FIL_IN";
-const ACTION: FIL_INPUT_READY  is action "FIL_INPUT_READY";
-const ACTION: FIL_LINE_READ    is action "FIL_LINE_READ";
-const ACTION: FIL_LIT          is action "FIL_LIT";
-const ACTION: FIL_LNG          is action "FIL_LNG";
-const ACTION: FIL_NE           is action "FIL_NE";
-const ACTION: FIL_OPEN         is action "FIL_OPEN";
-const ACTION: FIL_OUT          is action "FIL_OUT";
-const ACTION: FIL_PCLOSE       is action "FIL_PCLOSE";
-const ACTION: FIL_POPEN        is action "FIL_POPEN";
-const ACTION: FIL_PRINT        is action "FIL_PRINT";
-const ACTION: FIL_SEEK         is action "FIL_SEEK";
-const ACTION: FIL_SETBUF       is action "FIL_SETBUF";
-const ACTION: FIL_TELL         is action "FIL_TELL";
-const ACTION: FIL_VALUE        is action "FIL_VALUE";
-const ACTION: FIL_WRITE        is action "FIL_WRITE";
-const ACTION: FIL_WORD_READ    is action "FIL_WORD_READ";
+const ACTION: FIL_BIG_LNG          is action "FIL_BIG_LNG";
+const ACTION: FIL_BIG_SEEK         is action "FIL_BIG_SEEK";
+const ACTION: FIL_BIG_TELL         is action "FIL_BIG_TELL";
+const ACTION: FIL_CLOSE            is action "FIL_CLOSE";
+const ACTION: FIL_CPY              is action "FIL_CPY";
+const ACTION: FIL_EMPTY            is action "FIL_EMPTY";
+const ACTION: FIL_EOF              is action "FIL_EOF";
+const ACTION: FIL_EQ               is action "FIL_EQ";
+const ACTION: FIL_ERR              is action "FIL_ERR";
+const ACTION: FIL_FLUSH            is action "FIL_FLUSH";
+const ACTION: FIL_GETC             is action "FIL_GETC";
+const ACTION: FIL_GETS             is action "FIL_GETS";
+const ACTION: FIL_HAS_NEXT         is action "FIL_HAS_NEXT";
+const ACTION: FIL_IN               is action "FIL_IN";
+const ACTION: FIL_INPUT_READY      is action "FIL_INPUT_READY";
+const ACTION: FIL_LINE_READ        is action "FIL_LINE_READ";
+const ACTION: FIL_LIT              is action "FIL_LIT";
+const ACTION: FIL_LNG              is action "FIL_LNG";
+const ACTION: FIL_NE               is action "FIL_NE";
+const ACTION: FIL_OPEN             is action "FIL_OPEN";
+const ACTION: FIL_OPEN_NULL_DEVICE is action "FIL_OPEN_NULL_DEVICE";
+const ACTION: FIL_OUT              is action "FIL_OUT";
+const ACTION: FIL_PCLOSE           is action "FIL_PCLOSE";
+const ACTION: FIL_PIPE             is action "FIL_PIPE";
+const ACTION: FIL_POPEN            is action "FIL_POPEN";
+const ACTION: FIL_PRINT            is action "FIL_PRINT";
+const ACTION: FIL_SEEK             is action "FIL_SEEK";
+const ACTION: FIL_SETBUF           is action "FIL_SETBUF";
+const ACTION: FIL_TELL             is action "FIL_TELL";
+const ACTION: FIL_VALUE            is action "FIL_VALUE";
+const ACTION: FIL_WRITE            is action "FIL_WRITE";
+const ACTION: FIL_WORD_READ        is action "FIL_WORD_READ";
 
 
 const proc: fil_prototypes (inout file: c_prog) is func
@@ -70,7 +72,9 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    filLit (fileType);");
     declareExtern(c_prog, "intType     filLng (fileType);");
     declareExtern(c_prog, "fileType    filOpen (const const_striType, const const_striType);");
+    declareExtern(c_prog, "fileType    filOpenNullDevice (void);");
     declareExtern(c_prog, "void        filPclose (fileType);");
+    declareExtern(c_prog, "void        filPipe (fileType *, fileType *);");
     declareExtern(c_prog, "fileType    filPopen (const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "void        filPrint (const const_striType);");
     declareExtern(c_prog, "void        filSeek (fileType, intType);");
@@ -300,6 +304,14 @@ const proc: process (FIL_OPEN, in reference: function,
   end func;
 
 
+const proc: process (FIL_OPEN_NULL_DEVICE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filOpenNullDevice()";
+  end func;
+
+
 const proc: process (FIL_OUT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -316,6 +328,19 @@ const proc: process (FIL_PCLOSE, in reference: function,
     c_expr.expr &:= "filPclose(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_PIPE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filPipe(&(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "));\n";
   end func;
 
 

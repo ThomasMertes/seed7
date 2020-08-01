@@ -1014,12 +1014,12 @@ THE VERSION.H FILE
                      used.
 
   os_remove: Function to be used instead of remove() under the
-            target operating system. If not defined remove() is
-            used.
+             target operating system. If not defined remove() is
+             used.
 
   os_rename: Function to be used instead of rename() under the
-            target operating system. If not defined rename() is
-            used.
+             target operating system. If not defined rename() is
+             used.
 
   os_fopen: Function to be used instead of fopen() under the
             target operating system. If not defined fopen() is
@@ -1072,7 +1072,7 @@ THE VERSION.H FILE
 
   OS_PATH_HAS_DRIVE_LETTERS: Defined when the absolute paths of
                              the operating system use drive
-                             letters.
+                             letters. Determined by chkccomp.c.
 
   MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, when
                                       absolute paths (paths
@@ -1087,10 +1087,31 @@ THE VERSION.H FILE
                         with drive letters must raise
                         RANGE_ERROR.
 
+  SEARCH_PATH_DELIMITER: The paths in the PATH environment
+                         variable are separated with this
+                         character. Linux/Unix/BSD use ':' and
+                         Windows uses ';'.
+
   EMULATE_ROOT_CWD: Defined in config.h, when the operating
                     system uses drive letters and reading the
                     directory "/" must return a list of
                     available drives.
+
+  REDIRECT_FILDES_1: Shell parameter to redirect to the file
+                     descriptor 1. Under Linux/Unix/BSD and
+                     Windows this is ">". The file to which the
+                     standard output should be redirected must
+                     be appended. E.g.: >myFile.
+
+  REDIRECT_FILDES_2: Shell parameter to redirect to the file
+                     descriptor 2. Under Linux/Unix/BSD and
+                     Windows this is "2>". The file to which
+                     the error output should be redirected must
+                     be appended. E.g.: 2>myFile.
+
+  NULL_DEVICE: Name of the NULL device.
+               Under Linux/Unix/BSD this is "/dev/null".
+               Under Windows this is "NUL:".
 
   ESCAPE_SHELL_COMMANDS: Depending on the shell/os the C
                          functions system() and popen() need
@@ -1383,13 +1404,13 @@ THE VERSION.H FILE
   CC_FLAGS: Contains C compiler flags which should be used when
             C programs are compiled.
 
-  REDIRECT_C_ERRORS: The redirect command to redirect the errors
-                     of the C compiler to a file. The MSVC
-                     stand-alone C compiler (CL) writes the error
-                     messages to standard output (use: "2>NUL: >"),
-                     while the Unix C compliers including MinGW and
-                     Cygwin write the error messages to the error
-                     output (use "2>").
+  CC_ERROR_FILDES: File descriptor to which the C compiler writes
+                   errors. The MSVC stand-alone C compiler (CL)
+                   writes the error messages to standard output
+                   (file descriptor 1). The C compliers of
+                   Linux/Unix/BSD and the compilers from MinGW and
+                   Cygwin write the error messages to the error
+                   output (file descriptor 2).
 
   LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
                          level debugging information to the

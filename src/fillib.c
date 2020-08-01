@@ -135,22 +135,32 @@ objectType fil_close (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType fil_cpy (listType arguments)
 
   {
-    objectType file_variable;
+    objectType dest;
 
   /* fil_cpy */
-    file_variable = arg_1(arguments);
-    isit_file(file_variable);
-    is_variable(file_variable);
+    dest = arg_1(arguments);
+    isit_file(dest);
+    is_variable(dest);
     isit_file(arg_3(arguments));
-    file_variable->value.fileValue = take_file(arg_3(arguments));
+    dest->value.fileValue = take_file(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* fil_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType fil_create (listType arguments)
 
   { /* fil_create */
@@ -422,6 +432,14 @@ objectType fil_open (listType arguments)
 
 
 
+objectType fil_openNullDevice (listType arguments)
+
+  { /* fil_openNullDevice */
+    return bld_file_temp(filOpenNullDevice());
+  } /* fil_openNullDevice */
+
+
+
 objectType fil_out (listType arguments)
 
   { /* fil_out */
@@ -430,6 +448,11 @@ objectType fil_out (listType arguments)
 
 
 
+/**
+ *  Wait for the process associated with aPipe/arg_1 to terminate.
+ *  @param aPipe Pipe to be closed (created by 'fil_popen').
+ *  @exception FILE_ERROR A system function returned an error.
+ */
 objectType fil_pclose (listType arguments)
 
   { /* fil_pclose */
@@ -437,6 +460,25 @@ objectType fil_pclose (listType arguments)
     filPclose(take_file(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* fil_pclose */
+
+
+
+objectType fil_pipe (listType arguments)
+
+  {
+    objectType inFile;
+    objectType outFile;
+
+  /* fil_pipe */
+    inFile = arg_1(arguments);
+    isit_file(inFile);
+    is_variable(inFile);
+    outFile = arg_2(arguments);
+    isit_file(outFile);
+    is_variable(outFile);
+    filPipe(&take_file(inFile), &take_file(outFile));
+    return SYS_EMPTY_OBJECT;
+  } /* fil_pipe */
 
 
 
@@ -458,7 +500,8 @@ objectType fil_pclose (listType arguments)
  *         "r" (read) and "w" (write) or with the text modes
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or NULL if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR 'command' is not representable as
+ *             operating system path, or 'mode' is illegal.
  */
 objectType fil_popen (listType arguments)
 

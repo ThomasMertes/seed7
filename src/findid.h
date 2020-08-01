@@ -42,4 +42,4 @@ void find_normal_ident (sySizeType length);
 void check_list_of_syntax_elements (const_listType elem_list);
 void clean_idents (void);
 void write_idents (void);
-void init_findid (errInfoType *err_info);
+void init_findid (progType aProg, errInfoType *err_info);

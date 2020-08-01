@@ -702,6 +702,19 @@ const func string: join (in array string: striArray, in string: delimiter) is fu
     end for;
   end func;
 
+const func array string: noEmptyStrings (in array string: striArray) is func
+  result
+    var array string: noEmptyStrings is 0 times "";
+  local
+    var string: stri is "";
+  begin
+    for stri range striArray do
+      if stri <> "" then
+        noEmptyStrings &:= stri;
+      end if;
+    end for;
+  end func;
+
 const func boolean: isDigitString (in string: stri) is func
   result
     var boolean: isDigitString is TRUE;
@@ -883,6 +896,10 @@ const proc: type_implements_interface (in type: aType, in type: interfaceType) i
     const proc: (inout interfaceType: dest) := (ref aType: source)          is action "ITF_CPY2";
     const func interfaceType: (attr interfaceType) conv (ref aType: aValue) is action "ITF_CONV2";
     const func interfaceType: toInterface (ref aType: aValue)               is action "ITF_TO_INTERFACE";
+
+    const func aType: (attr aType) conv (ref interfaceType: aValue)         is DYNAMIC;
+    const func aType: (attr aType) conv (ref aType: aValue)                 is
+      return aValue;
 
     const func aType: xalloc (in aType: newStuct) is func
       result

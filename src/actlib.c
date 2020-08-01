@@ -51,35 +51,45 @@
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType act_cpy (listType arguments)
 
   {
-    objectType act_variable;
+    objectType dest;
 
   /* act_cpy */
-    act_variable = arg_1(arguments);
-    isit_action(act_variable);
-    is_variable(act_variable);
+    dest = arg_1(arguments);
+    isit_action(dest);
+    is_variable(dest);
     isit_action(arg_3(arguments));
-    act_variable->value.actValue = take_action(arg_3(arguments));
+    dest->value.actValue = take_action(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* act_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType act_create (listType arguments)
 
   {
-    objectType act_to;
-    objectType act_from;
+    objectType dest;
+    objectType source;
 
   /* act_create */
-    act_to = arg_1(arguments);
-    act_from = arg_3(arguments);
-    isit_action(act_from);
-    disconnect_param_entities(act_to);
-    SET_CATEGORY_OF_OBJ(act_to, ACTOBJECT);
-    act_to->value.actValue = take_action(act_from);
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_action(source);
+    disconnect_param_entities(dest);
+    SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+    dest->value.actValue = take_action(source);
     return SYS_EMPTY_OBJECT;
   } /* act_create */
 
@@ -112,6 +122,12 @@ objectType act_eq (listType arguments)
 
 
 
+/**
+ *  Convert a string to an action.
+ *  @param actionName/arg_2 Name of the action to be converted.
+ *  @return an action which corresponds to the given string.
+ *  @exception RANGE_ERROR No such action exists.
+ */
 objectType act_gen (listType arguments)
 
   {
@@ -239,6 +255,12 @@ objectType act_str (listType arguments)
 
 
 
+/**
+ *  Get 'ACTION' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'ACTION' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> ACTOBJECT holds.
+ */
 objectType act_value (listType arguments)
 
   {

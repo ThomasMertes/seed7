@@ -191,29 +191,33 @@ objectType sct_conv (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType sct_cpy (listType arguments)
 
   {
-    objectType stru_to;
-    objectType stru_from;
+    objectType dest;
+    objectType source;
     memSizeType new_size;
     structType new_stru;
 
   /* sct_cpy */
-    stru_to = arg_1(arguments);
-    stru_from = arg_3(arguments);
-    isit_struct(stru_to);
-    isit_struct(stru_from);
-    is_variable(stru_to);
-    new_stru = take_struct(stru_to);
-    if (TEMP_OBJECT(stru_from)) {
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_struct(dest);
+    isit_struct(source);
+    is_variable(dest);
+    new_stru = take_struct(dest);
+    if (TEMP_OBJECT(source)) {
       destr_struct(new_stru->stru, new_stru->size);
       /* printf("FREE_STRUCT 6 %lu\n", new_stru); */
       FREE_STRUCT(new_stru, new_stru->size);
-      stru_to->value.structValue = take_struct(stru_from);
-      stru_from->value.structValue = NULL;
+      dest->value.structValue = take_struct(source);
+      source->value.structValue = NULL;
     } else {
-      new_size = take_struct(stru_from)->size;
+      new_size = take_struct(source)->size;
       if (new_stru->size != new_size) {
         if (!ALLOC_STRUCT(new_stru, new_size)) {
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -221,21 +225,21 @@ objectType sct_cpy (listType arguments)
           new_stru->usage_count = 1;
           new_stru->size = new_size;
           if (!crea_struct(new_stru->stru,
-              take_struct(stru_from)->stru, new_size)) {
+              take_struct(source)->stru, new_size)) {
             /* printf("FREE_STRUCT 7 %lu\n", new_stru); */
             FREE_STRUCT(new_stru, new_size);
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } /* if */
-          destr_struct(take_struct(stru_to)->stru,
-              take_struct(stru_to)->size);
-          /* printf("FREE_STRUCT 8 %lu\n", take_struct(stru_to)); */
-          FREE_STRUCT(take_struct(stru_to),
-              take_struct(stru_to)->size);
-          stru_to->value.structValue = new_stru;
+          destr_struct(take_struct(dest)->stru,
+              take_struct(dest)->size);
+          /* printf("FREE_STRUCT 8 %lu\n", take_struct(dest)); */
+          FREE_STRUCT(take_struct(dest),
+              take_struct(dest)->size);
+          dest->value.structValue = new_stru;
         } /* if */
       } else {
         /* The usage_count is left unchanged for a deep copy. */
-        cpy_array(new_stru->stru, take_struct(stru_from)->stru,
+        cpy_array(new_stru->stru, take_struct(source)->stru,
             new_size);
       } /* if */
     } /* if */
@@ -244,42 +248,48 @@ objectType sct_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType sct_create (listType arguments)
 
   {
-    objectType stru_to;
-    objectType stru_from;
+    objectType dest;
+    objectType source;
     memSizeType new_size;
     structType new_stru;
 
   /* sct_create */
-    stru_to = arg_1(arguments);
-    stru_from = arg_3(arguments);
-    SET_CATEGORY_OF_OBJ(stru_to, STRUCTOBJECT);
-    isit_struct(stru_from);
-    if (TEMP_OBJECT(stru_from)) {
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    SET_CATEGORY_OF_OBJ(dest, STRUCTOBJECT);
+    isit_struct(source);
+    if (TEMP_OBJECT(source)) {
 /*
 printf("create: pointer assignment\n");
 */
-      stru_to->value.structValue = take_struct(stru_from);
+      dest->value.structValue = take_struct(source);
       /* printf("sct_create: usage_count=%u %lu\n",
-          stru_to->value.structValue->usage_count,
-          (unsigned long) stru_to->value.structValue); */
-      stru_from->value.structValue = NULL;
+          dest->value.structValue->usage_count,
+          (unsigned long) dest->value.structValue); */
+      source->value.structValue = NULL;
     } else {
-      new_size = take_struct(stru_from)->size;
+      new_size = take_struct(source)->size;
       if (!ALLOC_STRUCT(new_stru, new_size)) {
-        stru_to->value.structValue = NULL;
+        dest->value.structValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_stru->usage_count = 1;
         new_stru->size = new_size;
-        stru_to->value.structValue = new_stru;
+        dest->value.structValue = new_stru;
         if (!crea_struct(new_stru->stru,
-            take_struct(stru_from)->stru, new_size)) {
+            take_struct(source)->stru, new_size)) {
           /* printf("FREE_STRUCT 9 %lu\n", new_stru); */
           FREE_STRUCT(new_stru, new_size);
-          stru_to->value.structValue = NULL;
+          dest->value.structValue = NULL;
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */

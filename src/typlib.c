@@ -100,50 +100,60 @@ objectType typ_cmp (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType typ_cpy (listType arguments)
 
   {
-    objectType type_variable;
+    objectType dest;
 
   /* typ_cpy */
-    type_variable = arg_1(arguments);
-    isit_type(type_variable);
-    is_variable(type_variable);
+    dest = arg_1(arguments);
+    isit_type(dest);
+    is_variable(dest);
     isit_type(arg_3(arguments));
-    type_variable->value.typeValue = take_type(arg_3(arguments));
+    dest->value.typeValue = take_type(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* typ_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType typ_create (listType arguments)
 
   {
-    objectType type_to;
+    objectType dest;
     typeType type_from;
 
   /* typ_create */
     logFunction(printf("typ_create\n"););
     isit_type(arg_3(arguments));
-    type_to = arg_1(arguments);
+    dest = arg_1(arguments);
     type_from = take_type(arg_3(arguments));
 #ifdef TRACE_typ_create
     printf("\nbefore type assignment\n");
-    trace1(type_to);
+    trace1(dest);
     printf("\n");
     trace1(type_from->match_obj);
     printf("\n");
 #endif
-    SET_CATEGORY_OF_OBJ(type_to, TYPEOBJECT);
-    type_to->value.typeValue = type_from;
-    if (!VAR_OBJECT(type_to)) {
+    SET_CATEGORY_OF_OBJ(dest, TYPEOBJECT);
+    dest->value.typeValue = type_from;
+    if (!VAR_OBJECT(dest)) {
       if (type_from->name == NULL &&
-          HAS_ENTITY(type_to) &&
-          GET_ENTITY(type_to)->ident != NULL) {
+          HAS_ENTITY(dest) &&
+          GET_ENTITY(dest)->ident != NULL) {
         /* printf("typ_create: Define ");
-        trace1(type_to);
+        trace1(dest);
         printf("\n"); */
-        type_from->name = GET_ENTITY(type_to)->ident;
+        type_from->name = GET_ENTITY(dest)->ident;
       } /* if */
     } /* if */
     logFunction(printf("typ_create -->\n"););

@@ -206,39 +206,56 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
 
 
 
-void prgCpy (progType *const prog_to, const progType prog_from)
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void prgCpy (progType *const dest, const progType source)
 
   {
     progType old_prog;
 
   /* prgCpy */
-    old_prog = *prog_to;
-    if (old_prog != prog_from) {
+    old_prog = *dest;
+    if (old_prog != source) {
       prgDestr(old_prog);
-      *prog_to = prog_from;
-      if (prog_from != NULL) {
-        prog_from->usage_count++;
+      *dest = source;
+      if (source != NULL) {
+        source->usage_count++;
       } /* if */
     } /* if */
-    /* printf("prgCpy: usage_count=%d\n", (*prog_to)->usage_count); */
+    /* printf("prgCpy: usage_count=%d\n", (*dest)->usage_count); */
   } /* prgCpy */
 
 
 
-progType prgCreate (const progType prog_from)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+progType prgCreate (const progType source)
 
   {
 
   /* prgCreate */
-    if (prog_from != NULL) {
-      prog_from->usage_count++;
+    if (source != NULL) {
+      source->usage_count++;
     } /* if */
-    /* printf("prgCreate: usage_count=%d\n", prog_from->usage_count); */
-    return prog_from;
+    /* printf("prgCreate: usage_count=%d\n", source->usage_count); */
+    return source;
   } /* prgCreate */
 
 
 
+/**
+ *  Free the memory referred by 'old_prog'.
+ *  After prgDestr is left 'old_prog' refers to not existing memory.
+ *  The memory where 'old_prog' is stored can be freed afterwards.
+ */
 void prgDestr (progType old_prog)
 
   {
@@ -279,17 +296,21 @@ void prgDestr (progType old_prog)
 
 
 
-intType prgErrorCount (const const_progType aProg)
+/**
+ *  Determine the number of errors in 'aProgram'.
+ *  @return the number of errors.
+ */
+intType prgErrorCount (const const_progType aProgram)
 
   {
     intType result;
 
   /* prgErrorCount */
-    if (aProg->error_count > INTTYPE_MAX) {
+    if (aProgram->error_count > INTTYPE_MAX) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = (intType) aProg->error_count;
+      result = (intType) aProgram->error_count;
     } /* if */
     return result;
   } /* prgErrorCount */
@@ -297,7 +318,7 @@ intType prgErrorCount (const const_progType aProg)
 
 
 /**
- *  Evaluate ''anExpression'' which is part of ''aProgram''.
+ *  Evaluate 'anExpression' which is part of 'aProgram'.
  *  @return the result of the evaluation.
  */
 objectType prgEval (progType aProgram, objectType anExpression)
@@ -318,7 +339,7 @@ objectType prgEval (progType aProgram, objectType anExpression)
 
 
 /**
- *  Execute the program referred by ''aProgram''.
+ *  Execute the program referred by 'aProgram'.
  */
 void prgExec (const progType aProgram, const const_rtlArrayType parameters,
     const const_setType options, const const_striType protFileName)
@@ -337,14 +358,14 @@ void prgExec (const progType aProgram, const const_rtlArrayType parameters,
 
 
 /**
- *  Parse the file with the name ''fileName''.
+ *  Parse the file with the name 'fileName'.
  *  @param fileName File name of the file to be parsed.
  *  @param options Options to be used when the file is parsed.
  *  @param libraryDirs Search path for include/library files.
  *  @param protFileName Name of the protocol file.
  *  @return the parsed program.
- *  @exception RANGE_ERROR ''fileName'' does not use the standard path
- *             representation or ''fileName'' is not representable in
+ *  @exception RANGE_ERROR 'fileName' does not use the standard path
+ *             representation or 'fileName' is not representable in
  *             the system path type.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
@@ -373,7 +394,7 @@ progType prgFilParse (const const_striType fileName, const const_setType options
 
 
 /**
- *  Determine the list of global defined objects in ''aProgram''.
+ *  Determine the list of global defined objects in 'aProgram'.
  *  The returned list contains constant and variable objects
  *  in the same order as the definitions of the source program.
  *  Literal objects and local objects are not part of this list.
@@ -472,6 +493,14 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
 
 
 
+/**
+ *  Returns the name of the program without path and extension.
+ *  This function does not follow symbolic links.
+ *  It determines, with which name a program was called.
+ *  When a symbolic link refers to a program, the name of
+ *  the symbolic link is returned.
+ *  @return the name of the program.
+ */
 const_striType prgName (const const_progType aProg)
 
   { /* prgName */
@@ -480,6 +509,11 @@ const_striType prgName (const const_progType aProg)
 
 
 
+/**
+ *  Return the absolute path of the program.
+ *  This function does follow symbolic links.
+ *  @return the absolute path of the program.
+ */
 const_striType prgPath (const const_progType aProg)
 
   { /* prgPath */
@@ -489,8 +523,8 @@ const_striType prgPath (const const_progType aProg)
 
 
 /**
- *  Parse the given ''string''.
- *  @param stri ''String'' to be parsed.
+ *  Parse the given 'string'.
+ *  @param stri 'String' to be parsed.
  *  @param options Options to be used when the file is parsed.
  *  @param libraryDirs Search path for include/library files.
  *  @param protFileName Name of the protocol file.
@@ -521,9 +555,9 @@ progType prgStrParse (const const_striType stri, const const_setType options,
 
 
 /**
- *  Determine object with ''syobjectName'' from program ''aProgram''.
- *  @return a reference to the object or NIL when no object ''syobjectName'' exists.
- *  @exception MEMORY_ERROR When ''syobjectName'' cannot be converted to
+ *  Determine object with 'syobjectName' from program 'aProgram'.
+ *  @return a reference to the object or NIL when no object 'syobjectName' exists.
+ *  @exception MEMORY_ERROR When 'syobjectName' cannot be converted to
  *             the internal representation.
  */
 objectType prgSyobject (const progType aProgram, const const_striType syobjectName)
@@ -554,16 +588,21 @@ objectType prgSyobject (const progType aProgram, const const_striType syobjectNa
 
 
 
-objectType prgSysvar (const const_progType aProg, const const_striType sysvarName)
+/**
+ *  Determine the value of the system variable 'name' in 'aProgram'.
+ *  @return a reference to the value of the system variable or
+ *          NIL when no system variable 'name' exists.
+ */
+objectType prgSysvar (const const_progType aProgram, const const_striType name)
 
   {
     int index_found;
     objectType result;
 
   /* prgSysvar */
-    index_found = find_sysvar(sysvarName);
+    index_found = findSysvar(name);
     if (index_found != -1) {
-      result = aProg->sys_var[index_found];
+      result = aProgram->sys_var[index_found];
     } else {
       result = NULL;
     } /* if */

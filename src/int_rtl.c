@@ -59,13 +59,15 @@
 #define LOWER_HALF_OF_UINT(A)            ((A) & UINT_LOWER_HALF_BITS_SET)
 #define UPPER_HALF_OF_UINT(A)            ((A) >> (INTTYPE_SIZE >> 1))
 
-/* Number of characters needed when the most negative  */
-/* integer is written with radix 2. One character is   */
-/* needed for the sign. Assume that integers are just  */
-/* signed bytes. In this case the most negative number */
-/* would be -128. -128 radix 2  returns  "-10000000"   */
-/* The result needs 9 digits although -128 fits into a */
-/* signed byte with 8 bits.                            */
+/**
+ *  Number of characters needed when the most negative
+ *  integer is written with radix 2. One character is
+ *  needed for the sign. Assume that integers are just
+ *  signed bytes. In this case the most negative number
+ *  would be -128. -128 radix 2  returns  "-10000000"
+ *  The result needs 9 digits although -128 fits into a
+ *  signed byte with 8 bits.
+ */
 #define RADIX_BUFFER_SIZE (CHAR_BIT * sizeof(intType) + 1)
 
 #define BYTE_BUFFER_SIZE sizeof(intType)
@@ -169,10 +171,12 @@ static const int least_significant[] = {
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
   };
 
-/* For a base between -8 and 8 use maxExponentOfBase[base + 8] */
-/* to determine the maximum exponent. When the exponent is     */
-/* between 0 and maxExponentOfBase[base + 8] the expression    */
-/* base ** exponent can be computed without overflow.          */
+/**
+ *  For a base between -8 and 8 use maxExponentOfBase[base + 8]
+ *  to determine the maximum exponent. When the exponent is
+ *  between 0 and maxExponentOfBase[base + 8] the expression
+ *  base ** exponent can be computed without overflow.
+ */
 static const intType maxExponentOfBase[] = {
     21, 22, 24, 27, 31, 39, 63,
     INTTYPE_MAX, INTTYPE_MAX, INTTYPE_MAX,

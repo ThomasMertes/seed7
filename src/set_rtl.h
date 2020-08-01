@@ -43,8 +43,8 @@
 setType setBaselit (const intType number);
 intType setCard (const const_setType set1);
 intType setCmp (const const_setType set1, const const_setType set2);
-void setCpy (setType *const set_to, const const_setType set_from);
-setType setCreate (const const_setType set_from);
+void setCpy (setType *const dest, const const_setType source);
+setType setCreate (const const_setType source);
 void setDestr (const const_setType old_set);
 setType setDiff (const const_setType set1, const const_setType set2);
 boolType setElem (const intType number, const const_setType set1);

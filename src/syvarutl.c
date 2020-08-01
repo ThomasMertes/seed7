@@ -82,15 +82,15 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
  *  @return the index of the system variable, or
  *          -1 when no system variable with the name is found.
  */
-int find_sysvar (const_striType stri)
+int findSysvar (const_striType stri)
 
   {
-    char sysvar_name[MAX_CSTRI_BUFFER_LEN + 1];
+    char sysvar_name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
     errInfoType err_info = OKAY_NO_ERROR;
     int result;
 
-  /* find_sysvar */
-    logFunction(printf("find_sysvar(\"%s\")\n",
+  /* findSysvar */
+    logFunction(printf("findSysvar(\"%s\")\n",
                        striAsUnquotedCStri(stri)););
     if (stri->size > MAX_CSTRI_BUFFER_LEN) {
       result = -1;
@@ -104,16 +104,16 @@ int find_sysvar (const_striType stri)
             strcmp(sysvar_name, sys_name[result]) != 0) {
           result--;
         } /* while */
-        /* printf("find_sysvar: %s -> %d\n", sysvar_name, result); */
+        /* printf("findSysvar: %s -> %d\n", sysvar_name, result); */
       } /* if */
     } /* if */
-    logFunction(printf("find_sysvar --> %d\n", result););
+    logFunction(printf("findSysvar --> %d\n", result););
     return result;
-  } /* find_sysvar */
+  } /* findSysvar */
 
 
 
-void init_sysvar (void)
+void init_sysvar (progType aProgram)
 
   {
     int number;
@@ -121,7 +121,7 @@ void init_sysvar (void)
   /* init_sysvar */
     logFunction(printf("init_sysvar\n"););
     for (number = 0; number < NUMBER_OF_SYSVARS; number++) {
-      prog->sys_var[number] = NULL;
+      aProgram->sys_var[number] = NULL;
     } /* for */
     logFunction(printf("init_sysvar -->\n"););
   } /* init_sysvar */

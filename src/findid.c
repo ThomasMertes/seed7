@@ -130,14 +130,15 @@ void find_normal_ident (sySizeType length)
 
 
 
-static identType put_ident (const_cstriType stri, errInfoType *err_info)
+static identType put_ident (progType aProgram, const_cstriType stri,
+    errInfoType *err_info)
 
   {
     register identType ident_found;
 
   /* put_ident */
     logFunction(printf("put_ident\n"););
-    if ((ident_found = get_ident(prog, (const_ustriType) stri)) == NULL) {
+    if ((ident_found = get_ident(aProgram, (const_ustriType) stri)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
     logFunction(printf("put_ident -->\n"););
@@ -279,37 +280,37 @@ void write_idents (void)
 
 
 
-void init_findid (errInfoType *err_info)
+void init_findid (progType aProg, errInfoType *err_info)
 
   { /* init_findid */
     logFunction(printf("init_findid\n"););
-    prog->id_for.lparen =    put_ident("(",       err_info);
-    prog->id_for.lbrack =    put_ident("[",       err_info);
-    prog->id_for.lbrace =    put_ident("{",       err_info);
-    prog->id_for.rparen =    put_ident(")",       err_info);
-    prog->id_for.rbrack =    put_ident("]",       err_info);
-    prog->id_for.rbrace =    put_ident("}",       err_info);
-    prog->id_for.dot =       put_ident(".",       err_info);
-    prog->id_for.colon =     put_ident(":",       err_info);
-    prog->id_for.comma =     put_ident(",",       err_info);
-    prog->id_for.semicolon = put_ident(";",       err_info);
-    prog->id_for.dollar =    put_ident("$",       err_info);
-    prog->id_for.r_arrow =   put_ident("->",      err_info);
-    prog->id_for.l_arrow =   put_ident("<-",      err_info);
-    prog->id_for.out_arrow = put_ident("<->",     err_info);
-    prog->id_for.in_arrow =  put_ident("-><-",    err_info);
-    prog->id_for.type =      put_ident("type",    err_info);
-    prog->id_for.constant =  put_ident("const",   err_info);
-    prog->id_for.ref =       put_ident("ref",     err_info);
-    prog->id_for.syntax =    put_ident("syntax",  err_info);
-    prog->id_for.system =    put_ident("system",  err_info);
-    prog->id_for.include =   put_ident("include", err_info);
-    prog->id_for.is =        put_ident("is",      err_info);
-    prog->id_for.func =      put_ident("func",    err_info);
-    prog->id_for.param =     put_ident("param",   err_info);
-    prog->id_for.enumlit =   put_ident("enumlit", err_info);
-    prog->id_for.subtype =   put_ident("subtype", err_info);
-    prog->id_for.newtype =   put_ident("newtype", err_info);
-    prog->id_for.action =    put_ident("action",  err_info);
+    aProg->id_for.lparen =    put_ident(aProg, "(",       err_info);
+    aProg->id_for.lbrack =    put_ident(aProg, "[",       err_info);
+    aProg->id_for.lbrace =    put_ident(aProg, "{",       err_info);
+    aProg->id_for.rparen =    put_ident(aProg, ")",       err_info);
+    aProg->id_for.rbrack =    put_ident(aProg, "]",       err_info);
+    aProg->id_for.rbrace =    put_ident(aProg, "}",       err_info);
+    aProg->id_for.dot =       put_ident(aProg, ".",       err_info);
+    aProg->id_for.colon =     put_ident(aProg, ":",       err_info);
+    aProg->id_for.comma =     put_ident(aProg, ",",       err_info);
+    aProg->id_for.semicolon = put_ident(aProg, ";",       err_info);
+    aProg->id_for.dollar =    put_ident(aProg, "$",       err_info);
+    aProg->id_for.r_arrow =   put_ident(aProg, "->",      err_info);
+    aProg->id_for.l_arrow =   put_ident(aProg, "<-",      err_info);
+    aProg->id_for.out_arrow = put_ident(aProg, "<->",     err_info);
+    aProg->id_for.in_arrow =  put_ident(aProg, "-><-",    err_info);
+    aProg->id_for.type =      put_ident(aProg, "type",    err_info);
+    aProg->id_for.constant =  put_ident(aProg, "const",   err_info);
+    aProg->id_for.ref =       put_ident(aProg, "ref",     err_info);
+    aProg->id_for.syntax =    put_ident(aProg, "syntax",  err_info);
+    aProg->id_for.system =    put_ident(aProg, "system",  err_info);
+    aProg->id_for.include =   put_ident(aProg, "include", err_info);
+    aProg->id_for.is =        put_ident(aProg, "is",      err_info);
+    aProg->id_for.func =      put_ident(aProg, "func",    err_info);
+    aProg->id_for.param =     put_ident(aProg, "param",   err_info);
+    aProg->id_for.enumlit =   put_ident(aProg, "enumlit", err_info);
+    aProg->id_for.subtype =   put_ident(aProg, "subtype", err_info);
+    aProg->id_for.newtype =   put_ident(aProg, "newtype", err_info);
+    aProg->id_for.action =    put_ident(aProg, "action",  err_info);
     logFunction(printf("init_findid -->\n"););
   } /* init_findid */

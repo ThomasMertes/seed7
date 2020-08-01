@@ -189,10 +189,8 @@ const proc: execute (in program: aProgram) is func
 
 (**
  *  Determine the value of the system variable ''name'' in ''aProgram''.
- *  @return a reference to the system variable or
+ *  @return a reference to the value of the system variable or
  *          NIL when no system variable ''name'' exists.
- *  @exception MEMORY_ERROR When ''name'' cannot be converted to
- *             the internal representation.
  *)
 const func reference: sysVar (in program: aProgram, in string: name)     is action "PRG_SYSVAR";
 
@@ -258,10 +256,11 @@ const func category: category (in reference: aReference)                 is acti
 
 
 (**
- *  Set the category of a referenced object.
+ *  Set the category of ''aReference'' to ''aCategory''.
  *  @exception RANGE_ERROR When ''aReference'' is NIL.
  *)
-const proc: setCategory (in reference: aReference, in category: cat)     is action "REF_SETCATEGORY";
+const proc: setCategory (in reference: aReference,
+                         in category: aCategory)                         is action "REF_SETCATEGORY";
 
 
 (**

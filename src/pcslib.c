@@ -49,6 +49,57 @@
 
 
 /**
+ *  Returns the error output file (stderr) of the given child process.
+ *  If the standard error file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the error output file of ''process'' or
+ *          NULL, if stderr has been redirected.
+ */
+objectType pcs_childStdErr (listType arguments)
+
+  { /* pcs_childStdErr */
+    isit_process(arg_1(arguments));
+    return bld_file_temp(
+        pcsChildStdErr(take_process(arg_1(arguments))));
+  } /* pcs_childStdErr */
+
+
+
+/**
+ *  Returns the standard input file (stdin) of the given child process.
+ *  If the standard input file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the standard input file of ''process'' or
+ *          NULL, if stdin has been redirected.
+ */
+objectType pcs_childStdIn (listType arguments)
+
+  { /* pcs_childStdIn */
+    isit_process(arg_1(arguments));
+    return bld_file_temp(
+        pcsChildStdIn(take_process(arg_1(arguments))));
+  } /* pcs_childStdIn */
+
+
+
+/**
+ *  Returns the standard output file (stdout) of the given child process.
+ *  If the standard output file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the standard output file of ''process'' or
+ *          NULL, if stdout has been redirected.
+ */
+objectType pcs_childStdOut (listType arguments)
+
+  { /* pcs_childStdOut */
+    isit_process(arg_1(arguments));
+    return bld_file_temp(
+        pcsChildStdOut(take_process(arg_1(arguments))));
+  } /* pcs_childStdOut */
+
+
+
+/**
  *  Compare two processes.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
@@ -65,55 +116,65 @@ objectType pcs_cmp (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType pcs_cpy (listType arguments)
 
   {
-    objectType process_to;
-    objectType process_from;
+    objectType dest;
+    objectType source;
     processType process_source;
     processType old_process;
 
   /* pcs_cpy */
-    process_to = arg_1(arguments);
-    process_from = arg_3(arguments);
-    isit_process(process_to);
-    isit_process(process_from);
-    is_variable(process_to);
-    process_source = take_process(process_from);
-    if (TEMP_OBJECT(process_from)) {
-      process_from->value.processValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_process(dest);
+    isit_process(source);
+    is_variable(dest);
+    process_source = take_process(source);
+    if (TEMP_OBJECT(source)) {
+      source->value.processValue = NULL;
     } else {
       if (process_source != NULL) {
         process_source->usage_count++;
       } /* if */
     } /* if */
-    old_process = take_process(process_to);
+    old_process = take_process(dest);
     if (old_process != NULL) {
       old_process->usage_count--;
       if (old_process->usage_count == 0) {
         pcsFree(old_process);
       } /* if */
     } /* if */
-    process_to->value.processValue = process_source;
+    dest->value.processValue = process_source;
     return SYS_EMPTY_OBJECT;
   } /* pcs_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType pcs_create (listType arguments)
 
   {
-    objectType process_from;
+    objectType source;
     processType process_value;
 
   /* pcs_create */
-    process_from = arg_3(arguments);
-    isit_process(process_from);
+    source = arg_3(arguments);
+    isit_process(source);
     SET_CATEGORY_OF_OBJ(arg_1(arguments), PROCESSOBJECT);
-    process_value = take_process(process_from);
+    process_value = take_process(source);
     arg_1(arguments)->value.processValue = process_value;
-    if (TEMP_OBJECT(process_from)) {
-      process_from->value.processValue = NULL;
+    if (TEMP_OBJECT(source)) {
+      source->value.processValue = NULL;
     } else {
       if (process_value != NULL) {
         process_value->usage_count++;
@@ -124,6 +185,11 @@ objectType pcs_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_process/arg_1'.
+ *  After pcs_destr is left 'old_process/arg_1' is NULL.
+ *  The memory where 'old_process/arg_1' is stored can be freed afterwards.
+ */
 objectType pcs_destr (listType arguments)
 
   {
@@ -319,11 +385,17 @@ objectType pcs_start (listType arguments)
   /* pcs_start */
     isit_stri(arg_1(arguments));
     isit_array(arg_2(arguments));
+    isit_file(arg_3(arguments));
+    isit_file(arg_4(arguments));
+    isit_file(arg_5(arguments));
     parameters = gen_rtl_array(take_array(arg_2(arguments)));
     if (parameters == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      process = pcsStart(take_stri(arg_1(arguments)), parameters);
+      process = pcsStart(take_stri(arg_1(arguments)), parameters,
+                         take_file(arg_3(arguments)),
+                         take_file(arg_4(arguments)),
+                         take_file(arg_5(arguments)));
       FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
     } /* if */
     return bld_process_temp(process);

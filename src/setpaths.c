@@ -309,6 +309,7 @@ int main (int argc, char **argv)
 #if !defined C_COMPILER && defined C_COMPILER_SCRIPT
       printf("#define C_COMPILER \"%s/%s\"\n",
              s7_lib_dir, C_COMPILER_SCRIPT);
+      fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", stdout);
 #endif
 #if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
       printf("#define GET_CC_VERSION_INFO \"\\\"%s/%s\\\" %s\"\n",
@@ -321,6 +322,7 @@ int main (int argc, char **argv)
       printf("#define C_COMPILER \"");
       write_as_utf8(buffer);
       printf("/%s\"\n", C_COMPILER_SCRIPT);
+      fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", stdout);
 #endif
 #if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
       printf("#define GET_CC_VERSION_INFO \"\\\"");

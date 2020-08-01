@@ -111,7 +111,7 @@ striType getExecutablePath (const const_striType arg_0)
         result = strCreate(arg_0);
       } else {
         cwd = cmdGetcwd();
-        result = concat_path(cwd, arg_0);
+        result = concatPath(cwd, arg_0);
         FREE_STRI(cwd, cwd->size);
       } /* if */
       if (unlikely(result == NULL)) {

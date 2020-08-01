@@ -163,6 +163,7 @@ chkccomp.h:
 version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h
 	echo ^#define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo ^#define NULL_DEVICE "NUL:" >> version.h
 	echo ^#define INT64TYPE_NO_SUFFIX_BUT_CAST >> version.h
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h
@@ -198,7 +199,7 @@ version.h: chkccomp.h
 	echo ^#define GET_CC_VERSION_INFO "bcc32.exe \076" >> version.h
 	echo ^#define CC_OPT_DEBUG_INFO "-y -v" >> version.h
 	echo ^#define CC_OPT_NO_WARNINGS "-w-" >> version.h
-	echo ^#define REDIRECT_C_ERRORS "\076" >> version.h
+	echo ^#define CC_ERROR_FILDES 1 >> version.h
 	echo ^#define LINKER_OPT_DEBUG_INFO "-v" >> version.h
 	echo ^#define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo ^#define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h

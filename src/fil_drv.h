@@ -31,4 +31,5 @@
 
 
 boolType filInputReady (fileType aFile);
+void filPipe (fileType *inFile, fileType *outFile);
 void setupFiles (void);

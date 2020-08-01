@@ -94,7 +94,7 @@ void continue_question (void)
       if (buffer[1] >= '0' && buffer[1] <= '9') {
         exception_num = strtoul(&buffer[1], NULL, 10);
         if (exception_num > OKAY_NO_ERROR && exception_num <= ACTION_ERROR) {
-          raise_exception(prog->sys_var[exception_num]);
+          raise_error((int) exception_num);
         } /* if */
       } else {
         mapTraceFlags2(&buffer[1], &prog->option_flags);

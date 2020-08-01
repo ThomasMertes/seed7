@@ -29,6 +29,20 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef FILE_UNKNOWN
+#undef FILE_UNKNOWN
+#endif
+
+#define FILE_ABSENT   0 /* A component of path does not exist */
+#define FILE_UNKNOWN  1 /* File exists but has an unknown type */
+#define FILE_REGULAR  2
+#define FILE_DIR      3
+#define FILE_CHAR     4
+#define FILE_BLOCK    5
+#define FILE_FIFO     6
+#define FILE_SYMLINK  7
+#define FILE_SOCKET   8
+
 #if HAS_SYMBOLIC_LINKS
 striType followLink (striType path);
 #endif
@@ -63,9 +77,6 @@ rtlArrayType cmdGetSearchPath (void);
 striType cmdHomeDir (void);
 void cmdMkdir (const const_striType dir_name);
 void cmdMove (const const_striType source_name, const const_striType dest_name);
-void cmdProcessCpy (processType *const process_to, const processType process_from);
-processType cmdProcessCreate (const processType process_from);
-void cmdProcessDestr (const processType old_process);
 striType cmdReadlink (const const_striType link_name);
 void cmdRemoveFile (const const_striType file_name);
 void cmdRemoveTree (const const_striType file_name);

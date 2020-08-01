@@ -144,7 +144,7 @@ const func char: getc (inout null_file: inFile) is func
  *)
 const func string: getwd (inout null_file: inFile) is func
   result
-    var string: stri is "";
+    var string: word is "";
   local
     var string: buffer is "";
   begin
@@ -153,7 +153,7 @@ const func string: getwd (inout null_file: inFile) is func
     until buffer <> " " and buffer <> "\t";
     while buffer <> " " and buffer <> "\t" and
         buffer <> "\n" and buffer <> "" do
-      stri &:= buffer;
+      word &:= buffer;
       buffer := gets(inFile, 1);
     end while;
     if buffer = "" then
@@ -177,13 +177,13 @@ const func string: getwd (inout null_file: inFile) is func
  *)
 const func string: getln (inout null_file: inFile) is func
   result
-    var string: stri is "";
+    var string: line is "";
   local
     var string: buffer is "";
   begin
     buffer := gets(inFile, 1);
     while buffer <> "\n" and buffer <> "" do
-      stri &:= buffer;
+      line &:= buffer;
       buffer := gets(inFile, 1);
     end while;
     if buffer = "" then

@@ -189,45 +189,49 @@ objectType bst_cmp (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType bst_cpy (listType arguments)
 
   {
-    objectType bstri_to;
-    objectType bstri_from;
+    objectType dest;
+    objectType source;
     memSizeType new_size;
     bstriType bstri_dest;
 
   /* bst_cpy */
-    bstri_to = arg_1(arguments);
-    bstri_from = arg_3(arguments);
-    isit_bstri(bstri_to);
-    isit_bstri(bstri_from);
-    is_variable(bstri_to);
-    bstri_dest = take_bstri(bstri_to);
-    if (TEMP_OBJECT(bstri_from)) {
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_bstri(dest);
+    isit_bstri(source);
+    is_variable(dest);
+    bstri_dest = take_bstri(dest);
+    if (TEMP_OBJECT(source)) {
       FREE_BSTRI(bstri_dest, bstri_dest->size);
-      bstri_to->value.bstriValue = take_bstri(bstri_from);
-      bstri_from->value.bstriValue = NULL;
+      dest->value.bstriValue = take_bstri(source);
+      source->value.bstriValue = NULL;
     } else {
-      new_size = take_bstri(bstri_from)->size;
+      new_size = take_bstri(source)->size;
       if (bstri_dest->size == new_size) {
-        if (bstri_dest != take_bstri(bstri_from)) {
-          /* It is possible that bstr_to == bstr_from holds. The */
-          /* behavior of memcpy() is undefined when source and   */
-          /* destination areas overlap (or are identical).       */
-          /* Therefore a check for this case is necessary.       */
-          memcpy(bstri_dest->mem, take_bstri(bstri_from)->mem,
+        if (bstri_dest != take_bstri(source)) {
+          /* It is possible that dest == source holds. The     */
+          /* behavior of memcpy() is undefined when source and */
+          /* destination areas overlap (or are identical).     */
+          /* Therefore a check for this case is necessary.     */
+          memcpy(bstri_dest->mem, take_bstri(source)->mem,
               new_size * sizeof(ucharType));
         } /* if */
       } else {
         if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          FREE_BSTRI(take_bstri(bstri_to), take_bstri(bstri_to)->size);
-          bstri_to->value.bstriValue = bstri_dest;
+          FREE_BSTRI(take_bstri(dest), take_bstri(dest)->size);
+          dest->value.bstriValue = bstri_dest;
           bstri_dest->size = new_size;
         } /* if */
-        memcpy(bstri_dest->mem, take_bstri(bstri_from)->mem,
+        memcpy(bstri_dest->mem, take_bstri(source)->mem,
             new_size * sizeof(ucharType));
       } /* if */
     } /* if */
@@ -236,32 +240,38 @@ objectType bst_cpy (listType arguments)
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType bst_create (listType arguments)
 
   {
-    objectType bstri_to;
-    objectType bstri_from;
+    objectType dest;
+    objectType source;
     memSizeType new_size;
     bstriType new_bstri;
 
   /* bst_create */
-    bstri_to = arg_1(arguments);
-    bstri_from = arg_3(arguments);
-    isit_bstri(bstri_from);
-    SET_CATEGORY_OF_OBJ(bstri_to, BSTRIOBJECT);
-    if (TEMP_OBJECT(bstri_from)) {
-      bstri_to->value.bstriValue = take_bstri(bstri_from);
-      bstri_from->value.bstriValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_bstri(source);
+    SET_CATEGORY_OF_OBJ(dest, BSTRIOBJECT);
+    if (TEMP_OBJECT(source)) {
+      dest->value.bstriValue = take_bstri(source);
+      source->value.bstriValue = NULL;
     } else {
 /*    printf("bstri_create %d !!!\n", in_file.line); */
-      new_size = take_bstri(bstri_from)->size;
+      new_size = take_bstri(source)->size;
       if (unlikely(!ALLOC_BSTRI_SIZE_OK(new_bstri, new_size))) {
-        bstri_to->value.bstriValue = NULL;
+        dest->value.bstriValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      bstri_to->value.bstriValue = new_bstri;
+      dest->value.bstriValue = new_bstri;
       new_bstri->size = new_size;
-      memcpy(new_bstri->mem, take_bstri(bstri_from)->mem,
+      memcpy(new_bstri->mem, take_bstri(source)->mem,
           new_size * sizeof(ucharType));
     } /* if */
     return SYS_EMPTY_OBJECT;

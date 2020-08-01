@@ -200,6 +200,7 @@ version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
+	echo "#define NULL_DEVICE \"/dev/null\"" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define WITH_SQL" >> version.h
@@ -223,7 +224,7 @@ version.h: chkccomp.h
 	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
+	echo "#define CC_ERROR_FILDES 2" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h

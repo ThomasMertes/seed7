@@ -162,12 +162,11 @@ const func string: toShellPath (in string: path) is
   return shellEscape(toOsPath(path));
 
 
-const func integer: shell (in string: command, in array string: paramList) is func
+const func string: shellParameters (in array string: paramList) is func
   result
-    var integer: returnCode is 0;
+    var string: parameters is "";
   local
     var string: parameter is "";
-    var string: parameters is "";
   begin
     for parameter range paramList do
       if parameters <> "" then
@@ -175,8 +174,11 @@ const func integer: shell (in string: command, in array string: paramList) is fu
       end if;
       parameters &:= shellEscape(parameter);
     end for;
-    returnCode := shell(command, parameters);
   end func;
+
+
+const func integer: shell (in string: command, in array string: paramList) is
+  return shell(command, shellParameters(paramList));
 
 
 const func clib_file: popenClibFile (in string: command,
@@ -211,7 +213,8 @@ type_implements_interface(popen_file, file);
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR ''command'' is not representable as
+ *             operating system path, or ''mode'' is illegal.
  *)
 const func file: popen (in string: command, in string: parameters,
     in string: mode) is func
@@ -251,7 +254,8 @@ const func file: popen (in string: command, in string: parameters,
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR The command is not representable as
+ *             operating system path, or ''mode'' is illegal.
  *)
 const func file: popen (in string: cmdAndParams, in string: mode) is func
   result
@@ -279,7 +283,8 @@ const func file: popen (in string: cmdAndParams, in string: mode) is func
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR ''command'' is not representable as
+ *             operating system path, or ''mode'' is illegal.
  *)
 const func file: popen (in string: command, in array string: paramList,
     in string: mode) is func
@@ -299,9 +304,14 @@ const func file: popen (in string: command, in array string: paramList,
   end func;
 
 
-const proc: close (in popen_file: aFile) is func
+(**
+ *  Wait for the process associated with aPipe to terminate.
+ *  @param aFile Pipe to be closed (created by 'popen').
+ *  @exception FILE_ERROR A system function returned an error.
+ *)
+const proc: close (in popen_file: aPipe) is func
   begin
-    pclose(aFile.ext_file);
+    pclose(aPipe.ext_file);
   end func;
 
 
@@ -332,7 +342,8 @@ type_implements_interface(popen8_file, file);
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR ''command'' is not representable as
+ *             operating system path, or ''mode'' is illegal.
  *)
 const func file: popen8 (in string: command, in string: parameters,
     in string: mode) is func
@@ -372,7 +383,8 @@ const func file: popen8 (in string: command, in string: parameters,
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR The command is not representable as
+ *             operating system path, or ''mode'' is illegal.
  *)
 const func file: popen8 (in string: cmdAndParams, in string: mode) is func
   result
@@ -400,7 +412,8 @@ const func file: popen8 (in string: cmdAndParams, in string: mode) is func
  *         "rt" (read) and "wt" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
- *  @exception RANGE_ERROR An illegal mode was used.
+ *  @exception RANGE_ERROR ''command'' is not representable as
+ *             operating system path, or ''mode'' is illegal.
  *)
 const func file: popen8 (in string: command, in array string: paramList,
     in string: mode) is func
@@ -420,7 +433,12 @@ const func file: popen8 (in string: command, in array string: paramList,
   end func;
 
 
-const proc: close (in popen8_file: aFile) is func
+(**
+ *  Wait for the process associated with aPipe to terminate.
+ *  @param aPipe UTF-8 encoded pipe to be closed (created by 'popen8').
+ *  @exception FILE_ERROR A system function returned an error.
+ *)
+const proc: close (in popen8_file: aPipe) is func
   begin
-    pclose(aFile.ext_file);
+    pclose(aPipe.ext_file);
   end func;

@@ -32,8 +32,8 @@
 void bstAppend (bstriType *const bstri_to, const_bstriType bstri_from);
 bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2);
 intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2);
-void bstCpy (bstriType *const bstri_to, const const_bstriType bstri_from);
-bstriType bstCreate (const const_bstriType bstri_from);
+void bstCpy (bstriType *const dest, const const_bstriType source);
+bstriType bstCreate (const const_bstriType source);
 void bstDestr (const const_bstriType old_bstring);
 intType bstHashCode (const const_bstriType bstri);
 bstriType bstParse (const const_striType stri);

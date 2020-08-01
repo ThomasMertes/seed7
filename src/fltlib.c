@@ -253,22 +253,32 @@ objectType flt_cosh (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType flt_cpy (listType arguments)
 
   {
-    objectType flt_variable;
+    objectType dest;
 
   /* flt_cpy */
-    flt_variable = arg_1(arguments);
-    isit_float(flt_variable);
-    is_variable(flt_variable);
+    dest = arg_1(arguments);
+    isit_float(dest);
+    is_variable(dest);
     isit_float(arg_3(arguments));
-    flt_variable->value.floatValue = take_float(arg_3(arguments));
+    dest->value.floatValue = take_float(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* flt_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType flt_create (listType arguments)
 
   { /* flt_create */
@@ -1089,6 +1099,12 @@ objectType flt_trunc (listType arguments)
 
 
 
+/**
+ *  Get 'float' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'float' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> FLOATOBJECT holds.
+ */
 objectType flt_value (listType arguments)
 
   {

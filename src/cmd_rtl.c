@@ -89,6 +89,9 @@
 
 #define MAX_CSTRI_BUFFER_LEN 40
 
+#ifndef CALL_C_COMPILER_FROM_SHELL
+#define CALL_C_COMPILER_FROM_SHELL 0
+#endif
 #ifndef CPLUSPLUS_COMPILER
 #define CPLUSPLUS_COMPILER C_COMPILER
 #endif
@@ -97,9 +100,6 @@
 #endif
 #ifndef CC_FLAGS
 #define CC_FLAGS ""
-#endif
-#ifndef REDIRECT_C_ERRORS
-#define REDIRECT_C_ERRORS ""
 #endif
 #ifndef LINKER_OPT_DEBUG_INFO
 #define LINKER_OPT_DEBUG_INFO ""
@@ -152,20 +152,6 @@
 #if DECLARE_OS_ENVIRON
 extern os_striType *os_environ;
 #endif
-
-#ifdef FILE_UNKNOWN
-#undef FILE_UNKNOWN
-#endif
-
-#define FILE_ABSENT   0 /* A component of path does not exist */
-#define FILE_UNKNOWN  1 /* File exists but has an unknown type */
-#define FILE_REGULAR  2
-#define FILE_DIR      3
-#define FILE_CHAR     4
-#define FILE_BLOCK    5
-#define FILE_FIFO     6
-#define FILE_SYMLINK  7
-#define FILE_SOCKET   8
 
 
 
@@ -1057,10 +1043,11 @@ striType followLink (striType path)
   /* followLink */
     logFunction(printf("followLink(\"%s\")", striAsUnquotedCStri(path));
                 fflush(stdout););
-    if (cmdFileTypeSL(path) == 7) {
+    if (cmdFileTypeSL(path) == FILE_SYMLINK) {
       startPath = path;
       path = cmdReadlink(startPath);
-      while (cmdFileTypeSL(path) == 7 && number_of_links_followed != 0) {
+      while (cmdFileTypeSL(path) == FILE_SYMLINK &&
+             number_of_links_followed != 0) {
         helpPath = path;
         path = cmdReadlink(helpPath);
         FREE_STRI(helpPath, helpPath->size);
@@ -1393,6 +1380,8 @@ striType cmdConfigValue (const const_striType name)
         opt = C_COMPILER;
       } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
         opt = CPLUSPLUS_COMPILER;
+      } else if (strcmp(opt_name, "CALL_C_COMPILER_FROM_SHELL") == 0) {
+        opt = CALL_C_COMPILER_FROM_SHELL ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "C_COMPILER_VERSION") == 0) {
         opt = C_COMPILER_VERSION;
       } else if (strcmp(opt_name, "GET_CC_VERSION_INFO") == 0) {
@@ -1403,8 +1392,9 @@ striType cmdConfigValue (const const_striType name)
         opt = CC_OPT_NO_WARNINGS;
       } else if (strcmp(opt_name, "CC_FLAGS") == 0) {
         opt = CC_FLAGS;
-      } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
-        opt = REDIRECT_C_ERRORS;
+      } else if (strcmp(opt_name, "CC_ERROR_FILDES") == 0) {
+        sprintf(buffer, "%d", CC_ERROR_FILDES);
+        opt = buffer;
       } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {
         opt = LINKER_OPT_DEBUG_INFO;
       } else if (strcmp(opt_name, "LINKER_OPT_NO_DEBUG_INFO") == 0) {
@@ -1433,6 +1423,12 @@ striType cmdConfigValue (const const_striType name)
         opt = COMPILER_LIB;
       } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
         opt = S7_LIB_DIR;
+      } else if (strcmp(opt_name, "REDIRECT_FILDES_1") == 0) {
+        opt = REDIRECT_FILDES_1;
+      } else if (strcmp(opt_name, "REDIRECT_FILDES_2") == 0) {
+        opt = REDIRECT_FILDES_2;
+      } else if (strcmp(opt_name, "NULL_DEVICE") == 0) {
+        opt = NULL_DEVICE;
       } else if (strcmp(opt_name, "BOOLTYPE") == 0) {
         opt = BOOLTYPE_STRI;
       } else if (strcmp(opt_name, "INT32TYPE") == 0) {

@@ -163,49 +163,59 @@ objectType pol_clear (listType arguments)
 
 
 
+/**
+ *  Assign source/arg_3 to dest/arg_1.
+ *  A copy function assumes that dest/arg_1 contains a legal value.
+ */
 objectType pol_cpy (listType arguments)
 
   {
-    objectType poll_to;
-    objectType poll_from;
+    objectType dest;
+    objectType source;
 
   /* pol_cpy */
-    poll_to = arg_1(arguments);
-    poll_from = arg_3(arguments);
-    isit_poll(poll_to);
-    isit_poll(poll_from);
-    is_variable(poll_to);
-    if (TEMP_OBJECT(poll_from)) {
-      polDestr(take_poll(poll_to));
-      poll_to->value.pollValue = take_poll(poll_from);
-      poll_from->value.pollValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_poll(dest);
+    isit_poll(source);
+    is_variable(dest);
+    if (TEMP_OBJECT(source)) {
+      polDestr(take_poll(dest));
+      dest->value.pollValue = take_poll(source);
+      source->value.pollValue = NULL;
     } else {
-      polCpy(poll_to->value.pollValue, take_poll(poll_from));
+      polCpy(dest->value.pollValue, take_poll(source));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* pol_cpy */
 
 
 
+/**
+ *  Initialize dest/arg_1 and assign source/arg_3 to it.
+ *  A create function assumes that the contents of dest/arg_1
+ *  is undefined. Create functions can be used to initialize
+ *  constants.
+ */
 objectType pol_create (listType arguments)
 
   {
-    objectType poll_to;
-    objectType poll_from;
+    objectType dest;
+    objectType source;
 
   /* pol_create */
     if (fileObjectOps.incrUsageCount == NULL) {
       initPollOps();
     } /* if */
-    poll_to = arg_1(arguments);
-    poll_from = arg_3(arguments);
-    isit_poll(poll_from);
-    SET_CATEGORY_OF_OBJ(poll_to, POLLOBJECT);
-    if (TEMP_OBJECT(poll_from)) {
-      poll_to->value.pollValue = take_poll(poll_from);
-      poll_from->value.pollValue = NULL;
+    dest = arg_1(arguments);
+    source = arg_3(arguments);
+    isit_poll(source);
+    SET_CATEGORY_OF_OBJ(dest, POLLOBJECT);
+    if (TEMP_OBJECT(source)) {
+      dest->value.pollValue = take_poll(source);
+      source->value.pollValue = NULL;
     } else {
-      poll_to->value.pollValue = polCreate(take_poll(poll_from));
+      dest->value.pollValue = polCreate(take_poll(source));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* pol_create */
