@@ -181,6 +181,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_clone_file (listtype arguments)
+#else
+
+objecttype cmd_clone_file (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_clone_file */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdCloneFile(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_clone_file */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_config_value (listtype arguments)
 #else
 
@@ -197,19 +215,19 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype cmd_copy (listtype arguments)
+objecttype cmd_copy_file (listtype arguments)
 #else
 
-objecttype cmd_copy (arguments)
+objecttype cmd_copy_file (arguments)
 listtype arguments;
 #endif
 
-  { /* cmd_copy */
+  { /* cmd_copy_file */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    cmdCopy(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
+    cmdCopyFile(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
-  } /* cmd_copy */
+  } /* cmd_copy_file */
 
 
 
@@ -244,6 +262,23 @@ listtype arguments;
     return(bld_int_temp(
         cmdFileType(take_stri(arg_1(arguments)))));
   } /* cmd_filetype */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_filetype_sl (listtype arguments)
+#else
+
+objecttype cmd_filetype_sl (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_filetype_sl */
+    isit_stri(arg_1(arguments));
+    return(bld_int_temp(
+        cmdFileTypeSL(take_stri(arg_1(arguments)))));
+  } /* cmd_filetype_sl */
 
 
 
@@ -302,6 +337,49 @@ listtype arguments;
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* cmd_get_atime */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_get_ctime (listtype arguments)
+#else
+
+objecttype cmd_get_ctime (arguments)
+listtype arguments;
+#endif
+
+  {
+    booltype is_dst;
+
+  /* cmd_get_ctime */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    isit_int(arg_9(arguments));
+    isit_bool(arg_10(arguments));
+    cmdGetCTime(take_stri(arg_1(arguments)),
+            &arg_2(arguments)->value.intvalue,
+            &arg_3(arguments)->value.intvalue,
+            &arg_4(arguments)->value.intvalue,
+            &arg_5(arguments)->value.intvalue,
+            &arg_6(arguments)->value.intvalue,
+            &arg_7(arguments)->value.intvalue,
+            &arg_8(arguments)->value.intvalue,
+            &arg_9(arguments)->value.intvalue,
+            &is_dst);
+    if (is_dst) {
+      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+    } else {
+      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_get_ctime */
 
 
 

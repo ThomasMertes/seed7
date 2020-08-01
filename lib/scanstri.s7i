@@ -729,8 +729,8 @@ const func string: getXmlTagOrContent (inout string: stri) is func
 
 (**
  *  Reads a XML/HTML tag head or a XML/HTML content from a 'string'.
- *  A XML/HTML tag head starts with < and ends before a > a
- *  whitespace character or EOF. The content text starts with
+ *  A XML/HTML tag head starts with < and ends before a > or a /
+ *  or a whitespace character or EOF. The content text starts with
  *  everything else and ends just before a < or with EOF. When the
  *  function is called it is assumed that 'stri' is empty or stri[1]
  *  contains the introducing < of a XML/HTML tag or the first
@@ -749,9 +749,14 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
     leng := length(stri);
     if pos <= leng then
       if stri[pos] = '<' then
-        repeat
-          incr(pos);
-        until pos > leng or stri[pos] = '>' or stri[pos] in white_space_char;
+        incr(pos);
+        if pos <= leng and stri[pos] not in white_space_char and
+            stri[pos] <> '>' then
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] in white_space_char or
+              stri[pos] = '>' or stri[pos] = '/';
+        end if;
         symbol := stri[.. pred(pos)];
         stri := stri[pos ..];
       else

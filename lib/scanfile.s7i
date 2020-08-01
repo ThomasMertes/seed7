@@ -833,8 +833,8 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
 
 (**
  *  Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
- *  A XML/HTML tag head starts with < and ends before a > a
- *  whitespace character or EOF. The content text starts with
+ *  A XML/HTML tag head starts with < and ends before a > or a /
+ *  or a whitespace character or EOF. The content text starts with
  *  everything else and ends just before a < or with EOF. When the
  *  function is called it is assumed that inFile.bufferChar
  *  contains the introducing < of a XML/HTML tag or the first
@@ -849,16 +849,72 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
     var string: symbol is "";
   begin
     if inFile.bufferChar = '<' then
-      repeat
-        symbol &:= str(inFile.bufferChar);
-        inFile.bufferChar := getc(inFile);
-      until inFile.bufferChar in white_space_char or
-          inFile.bufferChar = '>' or inFile.bufferChar = EOF;
+      symbol &:= str(inFile.bufferChar);
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar not in white_space_char and
+          inFile.bufferChar <> '>' and inFile.bufferChar <> EOF then
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_char or
+            inFile.bufferChar = '>' or inFile.bufferChar = '/' or
+            inFile.bufferChar = EOF;
+      end if;
     elsif inFile.bufferChar <> EOF then
       repeat
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
       until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a predefined XML entity from a 'file'.
+ *  @return the predefined XML entity or "" when EOF was reached.
+ *)
+const func string: getXmlCharacterReference (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    inFile.bufferChar := getc(inFile);
+    if inFile.bufferChar = '#' then
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar = 'x' then
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in hexdigit_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+        symbol := str(chr(toInt(symbol, 16)));
+      else
+        while inFile.bufferChar in digit_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+        symbol := str(chr(integer parse symbol));
+      end if;
+    else
+      while inFile.bufferChar <> ';' and inFile.bufferChar <> EOF do
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      end while;
+      if symbol = "amp" then
+        symbol := "&";
+      elsif symbol = "lt" then
+        symbol := "<";
+      elsif symbol = "gt" then
+        symbol := ">";
+      elsif symbol = "apos" then
+        symbol := "'";
+      elsif symbol = "quot" then
+        symbol := "\"";
+      else
+        symbol := "&" & symbol & ";";
+      end if;
+    end if;
+    if inFile.bufferChar = ';' then
+      inFile.bufferChar := getc(inFile);
     end if;
   end func;
 
@@ -993,6 +1049,16 @@ const proc: getNextXmlAttribute (inout file: inFile,
         attributeValue := "";
       end if;
     end if;
+  end func;
+
+
+const proc: skipXmlTag (inout file: inFile) is func
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getSymbolInXmlTag(inFile);
+    until symbol = ">" or symbol = "";
   end func;
 
 

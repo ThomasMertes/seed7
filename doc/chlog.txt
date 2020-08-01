@@ -1,3 +1,27 @@
+20090413:
+- A description of data struct elements was added to the chapters rational, bigRational,
+  complex, color and time in the manual.
+- A description of the functions fileTypeSL, getATime, getCTime, getMTime, setATime,
+  setMTime and removeAnyFile was added to the chapter 'OS access' in the manual.
+- The compiler (comp.sd7) was improved to correctly handle hashtables as elements of
+  structs.
+- The compiler (comp.sd7) was improved to to generate dispatcher functions which copy a
+  reference to a value when the interface needs the value itself (the value is used and
+  possibly freed afterwards by the caller).
+- The functions getXmlTagHeadOrContent in the scanfile.s7i and scanstri.s7i libraries were
+  improved to correctly read the head of empty element tags when they have no attributes
+  (E.g: The tag head of "<aTag/>" is "<aTag" ).
+- The functions getXmlCharacterReference and skipXmlTag were added to the scanfile.s7i
+  library.
+- The ENABLE_SORT template function, which allows the generation of a sort function, was
+  added to the seed7_05.s7i library.
+- The functions fileTypeSL, cloneFile and copyFile were added to the seed7_05.s7i library.
+- The functions str_dd_mm_yyyy, str_hh_mm, timestamp1970, time and getCTime were added to
+  the time.s7i library.
+- The function alternate_localtime_r in the file tim_win.c was improved to correctly
+  handle daylight saving time.
+- The tarx.sd7 example program was improved to use the function timestamp1970.
+
 20090329:
 - The chapters explaining exponentiation and operating system functions in the manual
   were improved.

@@ -37,12 +37,18 @@
 
 biginttype cmdBigFileSize (stritype file_name);
 void cmdChdir (stritype dir_name);
+void cmdCloneFile (stritype source_name, stritype dest_name);
 stritype cmdConfigValue (stritype name);
-void cmdCopy (stritype source_name, stritype dest_name);
+void cmdCopyFile (stritype source_name, stritype dest_name);
 inttype cmdFileSize (stritype file_name);
 inttype cmdFileType (stritype file_name);
+inttype cmdFileTypeSL (stritype file_name);
 stritype cmdGetcwd (void);
 void cmdGetATime (stritype file_name,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst);
+void cmdGetCTime (stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
     booltype *is_dst);
@@ -71,12 +77,15 @@ long improved_ftell (FILE *stream);
 
 biginttype cmdBigFileSize ();
 void cmdChdir ();
+void cmdCloneFile ();
 stritype cmdConfigValue ();
-void cmdCopy ();
+void cmdCopyFile ();
 inttype cmdFileSize ();
 inttype cmdFileType ();
+inttype cmdFileTypeSL ()
 stritype cmdGetcwd ();
 void cmdGetATime ();
+void cmdGetCTime ();
 void cmdGetMTime ();
 void cmdMkdir ();
 void cmdMove ();

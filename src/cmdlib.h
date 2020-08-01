@@ -29,12 +29,15 @@
 
 objecttype cmd_big_filesize (listtype);
 objecttype cmd_chdir (listtype);
+objecttype cmd_clone_file (listtype);
 objecttype cmd_config_value (listtype);
-objecttype cmd_copy (listtype);
+objecttype cmd_copy_file (listtype);
 objecttype cmd_filesize (listtype);
 objecttype cmd_filetype (listtype);
+objecttype cmd_filetype_sl (listtype);
 objecttype cmd_getcwd (listtype);
 objecttype cmd_get_atime (listtype);
+objecttype cmd_get_ctime (listtype);
 objecttype cmd_get_mtime (listtype);
 objecttype cmd_ls (listtype);
 objecttype cmd_mkdir (listtype);
@@ -51,12 +54,15 @@ objecttype cmd_symlink (listtype);
 
 objecttype cmd_big_filesize ();
 objecttype cmd_chdir ();
+objecttype cmd_clone_file ();
 objecttype cmd_config_value ();
-objecttype cmd_copy ();
+objecttype cmd_copy_file ();
 objecttype cmd_filesize ();
 objecttype cmd_filetype ();
+objecttype cmd_filetype_sl ();
 objecttype cmd_getcwd ();
 objecttype cmd_get_atime ();
+objecttype cmd_get_ctime ();
 objecttype cmd_get_mtime ();
 objecttype cmd_ls ();
 objecttype cmd_mkdir ();

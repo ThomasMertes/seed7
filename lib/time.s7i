@@ -51,13 +51,17 @@ const proc: GET_ATIME (in string param, inout integer param, inout integer param
     inout integer param, inout integer param, inout integer param, inout integer param,
     inout integer param, inout integer param, inout boolean param) is action "CMD_GET_ATIME";
 
-const proc: SET_ATIME (in string param, in integer param, in integer param,
-    in integer param, in integer param, in integer param, in integer param,
-    in integer param, in integer param) is action "CMD_SET_ATIME";
+const proc: GET_CTIME (in string param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout boolean param) is action "CMD_GET_CTIME";
 
 const proc: GET_MTIME (in string param, inout integer param, inout integer param,
     inout integer param, inout integer param, inout integer param, inout integer param,
     inout integer param, inout integer param, inout boolean param) is action "CMD_GET_MTIME";
+
+const proc: SET_ATIME (in string param, in integer param, in integer param,
+    in integer param, in integer param, in integer param, in integer param,
+    in integer param, in integer param) is action "CMD_SET_ATIME";
 
 const proc: SET_MTIME (in string param, in integer param, in integer param,
     in integer param, in integer param, in integer param, in integer param,
@@ -153,6 +157,12 @@ const func string: str_mm_dd_yyyy (in time: aTime, in string: delimiter) is
          aTime.year  lpad0 4;
 
 
+const func string: str_dd_mm_yyyy (in time: aTime, in string: delimiter) is
+  return aTime.day   lpad0 2 <& delimiter <&
+         aTime.month lpad0 2 <& delimiter <&
+         aTime.year  lpad0 4;
+
+
 const func string: str_d_m_yy (in time: aTime, in string: delimiter) is
   return aTime.day   <& delimiter <&
          aTime.month <& delimiter <&
@@ -163,6 +173,11 @@ const func string: str_d_m_yyyy (in time: aTime, in string: delimiter) is
   return aTime.day   <& delimiter <&
          aTime.month <& delimiter <&
          aTime.year  lpad0 4;
+
+
+const func string: str_hh_mm (in time: aTime, in string: delimiter) is
+  return aTime.hour   lpad0 2 <& delimiter <&
+         aTime.minute lpad0 2;
 
 
 (**
@@ -699,6 +714,30 @@ const func time: julianDayNumToTime (in integer: julianDayNumber) is func
 
 
 (**
+ *  Return a time expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *)
+const func integer: timestamp1970 (in time: aTime) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: yearBefore is 0;
+  begin
+    yearBefore := pred(aTime.year);
+    result := (((yearBefore * 365 +
+                 yearBefore mdiv 4 -
+                 yearBefore mdiv 100 +
+                 yearBefore mdiv 400 -
+              719162 +
+              pred(dayOfYear(aTime))) * 24 +
+              aTime.hour) * 60 +
+              aTime.minute) * 60 +
+              aTime.second -
+              aTime.timeZone * 60;
+  end func;
+
+
+(**
  *  Return the current time.
  *)
 const func time: time (NOW) is func
@@ -713,6 +752,23 @@ const func time: time (NOW) is func
 
 
 (**
+ *  Return the specified UTC time.
+ *)
+const func time: time (in integer: year, in integer: month, in integer: day,
+    in integer: hour, in integer: minute, in integer: second) is func
+  result
+    var time: result is time.value;
+  begin
+    result.year   := year;
+    result.month  := month;
+    result.day    := day;
+    result.hour   := hour;
+    result.minute := minute;
+    result.second := second;
+  end func;
+
+
+(**
  *  Wait until 'aTime' is reached
  *)
 const proc: await (ref time: aTime) is func
@@ -723,11 +779,42 @@ const proc: await (ref time: aTime) is func
   end func;
 
 
-const func time: getATime (in string: fileName) is func
+(**
+ *  Return the access time of the file described with 'filePath'.
+ *)
+const func time: getATime (in string: filePath) is func
   result
     var time: result is time.value;
   begin
-    GET_ATIME(fileName, result.year, result.month, result.day,
+    GET_ATIME(filePath, result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.mycro_second, result.timeZone,
+        result.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Return the change time of the file described with 'filePath'.
+ *)
+const func time: getCTime (in string: filePath) is func
+  result
+    var time: result is time.value;
+  begin
+    GET_CTIME(filePath, result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.mycro_second, result.timeZone,
+        result.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Return the modification time of the file described with 'filePath'.
+ *)
+const func time: getMTime (in string: filePath) is func
+  result
+    var time: result is time.value;
+  begin
+    GET_MTIME(filePath, result.year, result.month, result.day,
         result.hour, result.minute, result.second,
         result.mycro_second, result.timeZone,
         result.daylightSavingTime);
@@ -739,17 +826,6 @@ const proc: setATime (in string: fileName, in time: aTime) is func
     SET_ATIME(fileName, aTime.year, aTime.month, aTime.day,
         aTime.hour, aTime.minute, aTime.second,
         aTime.mycro_second, aTime.timeZone);
-  end func;
-
-
-const func time: getMTime (in string: fileName) is func
-  result
-    var time: result is time.value;
-  begin
-    GET_MTIME(fileName, result.year, result.month, result.day,
-        result.hour, result.minute, result.second,
-        result.mycro_second, result.timeZone,
-        result.daylightSavingTime);
   end func;
 
 

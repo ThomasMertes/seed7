@@ -217,6 +217,21 @@ struct tm *tm_result;
 #ifdef TRACE_TIM_WIN
     printf("BEGIN alternate_localtime_r(%ld)\n", *utc_seconds);
 #endif
+    if (time_zone_seconds == 1) {
+      utc_time.nanosecs100 = SECONDS_1601_1970 * 10000000;
+      /* FileTimeToLocalFileTime(&utc_time.filetime, &time_zone_delta.filetime);
+      time_zone_seconds = time_zone_delta.nanosecs100 / 10000000 - SECONDS_1601_1970; */
+      FileTimeToSystemTime(&utc_time.filetime, &utc_time_struct);
+      SystemTimeToTzSpecificLocalTime(NULL, &utc_time_struct, &local_time_struct);
+      tm_result->tm_year  = local_time_struct.wYear - 1900;
+      tm_result->tm_mon   = local_time_struct.wMonth - 1;
+      tm_result->tm_mday  = local_time_struct.wDay;
+      tm_result->tm_hour  = local_time_struct.wHour;
+      tm_result->tm_min   = local_time_struct.wMinute;
+      tm_result->tm_sec   = local_time_struct.wSecond;
+      time_zone_seconds = mkutc(tm_result);
+      /* printf("%ld\n", time_zone_seconds); */
+    } /* if */
     utc_time.nanosecs100 = (*utc_seconds + SECONDS_1601_1970) * 10000000;
     FileTimeToSystemTime(&utc_time.filetime, &utc_time_struct);
     SystemTimeToTzSpecificLocalTime(NULL, &utc_time_struct, &local_time_struct);
@@ -226,11 +241,6 @@ struct tm *tm_result;
     tm_result->tm_hour  = local_time_struct.wHour;
     tm_result->tm_min   = local_time_struct.wMinute;
     tm_result->tm_sec   = local_time_struct.wSecond;
-    if (time_zone_seconds == 1) {
-      utc_time.nanosecs100 = SECONDS_1601_1970 * 10000000;
-      FileTimeToLocalFileTime(&utc_time.filetime, &time_zone_delta.filetime);
-      time_zone_seconds = time_zone_delta.nanosecs100 / 10000000 - SECONDS_1601_1970;
-    } /* if */
     tm_result->tm_isdst = mkutc(tm_result) - *utc_seconds != time_zone_seconds;
     return(tm_result);
   } /* alternate_localtime_r */

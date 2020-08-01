@@ -619,7 +619,13 @@ destrfunctype data_destr_func;
 #endif
 
 { /* hshDestr */
+#ifdef TRACE_HSH_RTL
+    printf("BEGIN hshDestr(%lX)\n", (unsigned long) old_hash);
+#endif
     free_hash(old_hash, key_destr_func, data_destr_func);
+#ifdef TRACE_HSH_RTL
+    printf("END hshDestr\n");
+#endif
   } /* hshDestr */
 
 
@@ -729,6 +735,10 @@ comparetype cmp_func;
     rtlGenerictype result;
 
   /* hshIdx */
+#ifdef TRACE_HSH_RTL
+    printf("BEGIN hshIdx(%lX, %lu, %lu)\n",
+        (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode);
+#endif
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
@@ -746,8 +756,14 @@ comparetype cmp_func;
       result = result_hashelem->data.value.genericvalue;
     } else {
       raise_error(RANGE_ERROR);
-      return(0);
+      result = 0;
     } /* if */
+#ifdef TRACE_HSH_RTL
+    printf("END hshIdx(%lX, %lu, %lu) ==> %lX (%lX)\n",
+        (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode,
+	(unsigned long) result,
+        (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
+#endif
     return(result);
   } /* hshIdx */
 

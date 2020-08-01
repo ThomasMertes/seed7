@@ -141,6 +141,8 @@ var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
 var boolean_type_hash: isInterfaceType is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: isHashType is boolean_type_hash.EMPTY_HASH;
 var string_type_hash: parametersOfHshCreate is string_type_hash.EMPTY_HASH;
+var string_type_hash: parametersOfHshDestr is string_type_hash.EMPTY_HASH;
+var string_type_hash: parametersOfHshCpy is string_type_hash.EMPTY_HASH;
 var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
 var boolean_type_hash: int_types is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: enum_types is boolean_type_hash.EMPTY_HASH;
@@ -643,6 +645,24 @@ const proc: process_sct_destr_declaration (in type: object_type,
   end func;
 
 
+const proc: process_hsh_destr_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "static void destr_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= " (";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= "hshDestr((hashtype)(b)";
+    c_expr.expr &:= parametersOfHshDestr[object_type];
+    c_expr.expr &:= ");\n";
+    c_expr.expr &:= "}\n\n";
+    destr_declared @:= [object_type] TRUE;
+  end func;
+
+
 const proc: process_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
@@ -652,6 +672,8 @@ const proc: process_destr_declaration (in type: object_type,
         process_arr_destr_declaration(object_type, c_expr);
       elsif object_type in struct_elements then
         process_sct_destr_declaration(object_type, c_expr);
+      elsif object_type in parametersOfHshDestr then
+        process_hsh_destr_declaration(object_type, c_expr);
       elsif object_type = typetype or
           object_type = inttype or
           object_type = biginttype or
@@ -709,6 +731,14 @@ const proc: process_destr_call (in type: object_type,
       expr &:= "setDestr((settype)(" & param_b & "));\n";
     elsif object_type in simple_pod_type then
       noop;
+    elsif object_type in parametersOfHshDestr then
+      expr &:= "destr_";
+      expr &:= str(type_number(object_type));
+      expr &:= "((";
+      expr &:= type_name(object_type);
+      expr &:= ")(";
+      expr &:= param_b;
+      expr &:= "));\n";
     elsif object_type in array_element then
       expr &:= "destr_";
       expr &:= str(type_number(object_type));
@@ -844,6 +874,26 @@ const proc: process_sct_cpy_declaration (in type: object_type,
   end func;
 
 
+const proc: process_hsh_cpy_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "static void cpy_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= " (";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " *a, ";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= "hshCpy((hashtype *)(a), (hashtype)(b)";
+    c_expr.expr &:= parametersOfHshCpy[object_type];
+    c_expr.expr &:= ");\n";
+    c_expr.expr &:= "}\n\n";
+    cpy_declared @:= [object_type] TRUE;
+  end func;
+
+
 const proc: process_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
@@ -853,6 +903,8 @@ const proc: process_cpy_declaration (in type: object_type,
         process_arr_cpy_declaration(object_type, c_expr);
       elsif object_type in struct_elements then
         process_sct_cpy_declaration(object_type, c_expr);
+      elsif object_type in parametersOfHshCpy then
+        process_hsh_cpy_declaration(object_type, c_expr);
       elsif object_type = typetype or
           object_type = inttype or
           object_type = biginttype or
@@ -916,10 +968,24 @@ const proc: process_cpy_call (in type: object_type,
       expr &:= "setCpy(&(" & param_a & "), (settype)(" & param_b & "))";
     elsif object_type in simple_pod_type then
       expr &:= param_a & "=" & param_b;
+    elsif object_type in parametersOfHshCpy then
+      expr &:= "cpy_";
+      expr &:= str(type_number(object_type));
+      expr &:= "(&(";
+      expr &:= type_name(object_type);
+      expr &:= ")(";
+      expr &:= param_a;
+      expr &:= "), (";
+      expr &:= type_name(object_type);
+      expr &:= ")(";
+      expr &:= param_b;
+      expr &:= "))";
     elsif object_type in array_element then
       expr &:= "cpy_";
       expr &:= str(type_number(object_type));
       expr &:= "(&(";
+      expr &:= type_name(object_type);
+      expr &:= ")(";
       expr &:= param_a;
       expr &:= "), (";
       expr &:= type_name(object_type);
@@ -4135,10 +4201,21 @@ const proc: process_cmd_config_value (in ref_list: params, inout expr_type: c_ex
   end func;
 
 
-const proc: process_cmd_copy (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_cmd_clone_file (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "cmdCopy(";
+    c_expr.expr &:= "cmdCloneFile(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_cmd_copy_file (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdCopyFile(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
@@ -6179,9 +6256,12 @@ const proc: process_hsh_contains (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_hsh_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var type: param_type is void;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param2 is expr_type.value;
+    var expr_type: c_param3_6 is expr_type.value;
   begin
+    param_type := getExprResultType(params[2]);
     process_expr(params[1], c_param1);
     c_param2.temp_num := c_param1.temp_num;
     process_expr(params[2], c_param2);
@@ -6198,19 +6278,25 @@ const proc: process_hsh_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param2.result_expr;
       c_expr.expr &:= ");\n";
     else
+      c_param3_6.expr &:= ", (createfunctype)(";
+      process_expr(params[3], c_param3_6);
+      c_param3_6.expr &:= "), (destrfunctype)(";
+      process_expr(params[4], c_param3_6);
+      c_param3_6.expr &:= "), (createfunctype)(";
+      process_expr(params[5], c_param3_6);
+      c_param3_6.expr &:= "), (destrfunctype)(";
+      process_expr(params[6], c_param3_6);
+      c_param3_6.expr &:= ")";
+      if param_type not in parametersOfHshCpy then
+        parametersOfHshCpy @:= [param_type] c_param3_6.expr;
+      end if;
       c_expr.expr &:= "hshCpy(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "), (hashtype)(";
       c_expr.expr &:= c_param2.expr;
-      c_expr.expr &:= "), (createfunctype)(";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= "), (destrfunctype)(";
-      process_expr(params[4], c_expr);
-      c_expr.expr &:= "), (createfunctype)(";
-      process_expr(params[5], c_expr);
-      c_expr.expr &:= "), (destrfunctype)(";
-      process_expr(params[6], c_expr);
-      c_expr.expr &:= "));\n";
+      c_expr.expr &:= ")";
+      c_expr.expr &:= c_param3_6.expr;
+      c_expr.expr &:= ");\n";
     end if;
     if has_temp_values(c_param2) then
       c_expr.expr &:= c_param1.temp_frees;
@@ -6268,14 +6354,24 @@ const proc: process_hsh_create (in ref_list: params, inout expr_type: c_expr) is
 
 const proc: process_hsh_destr (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var type: param_type is void;
+    var expr_type: c_param2_3 is expr_type.value;
   begin
+    param_type := getExprResultType(params[1]);
+    c_param2_3.expr &:= ", (destrfunctype)(";
+    process_expr(params[2], c_param2_3);
+    c_param2_3.expr &:= "), (destrfunctype)(";
+    process_expr(params[3], c_param2_3);
+    c_param2_3.expr &:= ")";
+    if param_type not in parametersOfHshDestr then
+      parametersOfHshDestr @:= [param_type] c_param2_3.expr;
+    end if;
     c_expr.expr &:= "hshDestr((hashtype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (destrfunctype)(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "), (destrfunctype)(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "));\n";
+    c_expr.expr &:= ")";
+    c_expr.expr &:= c_param2_3.expr;
+    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -11555,8 +11651,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_chdir(params, c_expr);
       elsif action_name = "CMD_CONFIG_VALUE" then
         process_cmd_config_value(params, c_expr);
-      elsif action_name = "CMD_COPY" then
-        process_cmd_copy(params, c_expr);
+      elsif action_name = "CMD_CLONE_FILE" then
+        process_cmd_clone_file(params, c_expr);
+      elsif action_name = "CMD_COPY_FILE" then
+        process_cmd_copy_file(params, c_expr);
       elsif action_name = "CMD_FILESIZE" then
         process_cmd_filesize(params, c_expr);
       elsif action_name = "CMD_FILETYPE" then
@@ -14581,11 +14679,23 @@ const proc: process_dynamic_call (in reference: current_object,
         if result_type(getType(current_object)) <> voidtype then
           c_expr.expr &:= "return ";
         end if;
-        c_expr.expr &:= "o_";
-        create_name(matched_object, c_expr.expr);
-        c_expr.expr &:= "(";
-        process_dynamic_parameter_list(actual_params, matched_object, c_expr);
-        c_expr.expr &:= ");\n";
+        resultExpr.expr &:= "o_";
+        create_name(matched_object, resultExpr.expr);
+        resultExpr.expr &:= "(";
+        process_dynamic_parameter_list(actual_params, matched_object, resultExpr);
+        resultExpr.expr &:= ")\n";
+        if matched_object in return_ref_to_value then
+          c_expr.expr &:= "/* copy ref_to_value */ ";
+          process_create_declaration(result_type(getType(current_object)), global_c_expr);
+          process_create_call(result_type(getType(current_object)),
+              resultExpr.expr, c_expr.expr);
+        else
+          c_expr.expr &:= resultExpr.expr;
+        end if;
+        c_expr.temp_decls &:= resultExpr.temp_decls;
+        c_expr.temp_assigns &:= resultExpr.temp_assigns;
+        c_expr.temp_frees &:= resultExpr.temp_frees;
+        c_expr.expr &:= ";\n";
       elsif objectCategory = ACTOBJECT then
         if result_type(getType(current_object)) <> voidtype then
           c_expr.expr &:= "return ";
@@ -16145,7 +16255,8 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    chrStr (chartype);");
     writeln(c_prog, "chartype    chrUp (chartype);");
     writeln(c_prog, "biginttype  cmdBigFileSize (stritype);");
-    writeln(c_prog, "void        cmdCopy (stritype, stritype);");
+    writeln(c_prog, "void        cmdCloneFile (stritype, stritype);");
+    writeln(c_prog, "void        cmdCopyFile (stritype, stritype);");
     writeln(c_prog, "inttype     cmdFileSize (stritype);");
     writeln(c_prog, "stritype    cmdGetcwd (void);");
     writeln(c_prog, "void        cmdGetATime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");

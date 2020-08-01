@@ -704,6 +704,7 @@ stritype old_string;
 #endif
 
   { /* strDestr */
+    /* printf("strDestr(%lX)\n", old_string); */
     if (old_string != NULL) {
       FREE_STRI(old_string, old_string->size);
     } /* if */

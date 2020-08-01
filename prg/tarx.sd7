@@ -27,6 +27,18 @@ $ include "seed7_05.s7i";
   include "getf.s7i";
 
 
+const string: TMAGIC is "ustar";
+
+const char: REGTYPE  is '0';   # Regular file (preferred code)
+const char: AREGTYPE is '\0\'; # Regular file (alternate code)
+const char: LNKTYPE  is '1';   # Hard link.
+const char: SYMTYPE  is '2';   # Symbolic link
+const char: CHRTYPE  is '3';   # Character special
+const char: BLKTYPE  is '4';   # Block special
+const char: DIRTYPE  is '5';   # Directory
+const char: FIFOTYPE is '6';   # Named pipe
+const char: CONTTYPE is '7';   # Contiguous file
+
 const type: header is new struct
     var string: name is "";
     var integer: mode is 0;
@@ -35,7 +47,7 @@ const type: header is new struct
     var integer: size is 0;
     var integer: mtime is 0;
     var integer: chksum is 0;
-    var char: typeflag is ' ';
+    var char: typeflag is REGTYPE;
     var string: linkname is "";
     var string: magic is "";
     var string: version is "";
@@ -168,6 +180,7 @@ const proc: read (inout file: in_file, inout header: head) is func
   local
     var string: stri is "";
   begin
+    head := header.value;
     head.name :=     gets0(in_file,   100);
     head.mode :=     getoct(in_file,    8);
     head.uid :=      getoct(in_file,    8);
@@ -216,18 +229,18 @@ const proc: write (inout file: out_file, ref header: head) is func
   end func;
 
 
-const proc: status (in string: stri, inout header: head) is func
+const proc: status (in string: basePath, in string: name, inout header: head) is func
   begin
-    head.name :=     stri;
+    head.name :=     name;
     head.mode :=     33261; (*!!*)
     head.uid :=      100;
     head.gid :=      100;
-    head.size :=     fileSize(stri);
-    head.mtime :=    0;
+    head.size :=     fileSize(basePath & name);
+    head.mtime :=    timestamp1970(getMTime(basePath & name));
     head.chksum :=   0;
-    head.typeflag := '0';
+    head.typeflag := REGTYPE;
     head.linkname := "";
-    head.magic :=    "ustar";
+    head.magic :=    TMAGIC;
     head.version :=  "  ";
     head.uname :=    "";
     head.gname :=    "";
@@ -314,78 +327,53 @@ const func time: mtime_to_time (in var integer: mtime) is func
   end func;
 
 
-const func integer: time_to_mtime (in time: aTime) is func
-  result
-    var integer: result is 0;
-  local
-    const integer: normal_year_seconds is 365 * 24 * 60 * 60;
-    const integer: leap_year_seconds is 366 * 24 * 60 * 60;
-    const array integer: normal_year_months is [] (
-        31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
-    const array integer: leap_year_months is [] (
-        31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
-    const integer: day_seconds is 24 * 60 * 60;
-    const integer: hour_seconds is 60 * 60;
-    var integer: number is 0;
-  begin
-    for number range 1970 to pred(aTime.year) do
-      if isLeapYear(number) then
-        result +:= leap_year_seconds;
-      else
-        result +:= normal_year_seconds;
-      end if;
-    end for;
-    if isLeapYear(aTime.year) then
-      for number range 1 to pred(aTime.month) do
-        result +:= leap_year_months[number] * day_seconds;
-      end for;
-    else
-      for number range 1 to pred(aTime.month) do
-        result +:= normal_year_months[number] * day_seconds;
-      end for;
-    end if;
-    result +:= pred(aTime.day) * day_seconds +
-        pred(aTime.hour) * hour_seconds +
-        aTime.minute * 60 +
-        aTime.second;
-  end func;
-
-
 const proc: tar_tell (in string: in_file_name, in boolean: do_view,
     in array string: arg_list) is func
   local
     var file: in_file is STD_NULL;
     var string: stri is "";
     var header: head is header.value;
+    var time: modTime is time.value;
   begin
     in_file := open(in_file_name, "r");
     if in_file <> STD_NULL then
       read(in_file, head);
-      repeat
+      while head.name <> "" and head.magic = TMAGIC do
         if do_view then
-          if head.typeflag = '5' then
+          if head.typeflag = DIRTYPE then
             write("d");
           else
             write("-");
           end if;
           write_mode(head.mode);
           write(" ");
-          write(head.uname);
+          if head.uname <> "" then
+            write(head.uname);
+          else
+            write(head.uid);
+          end if;
           write("/");
-          write(head.gname);
+          if head.gname <> "" then
+            write(head.gname);
+          else
+            write(head.gid);
+          end if;
           write(head.size lpad 11);
           write(" ");
-          write(mtime_to_time(head.mtime));
+          modTime := mtime_to_time(head.mtime);
+          write(strDate(modTime));
+          write(" ");
+          write(str_hh_mm(modTime, ":"));
           write(" ");
         end if;
         writeln(head.name);
         (* check(OUT, head);
-        readln; *)
+           readln; *)
         if head.size <> 0 then
           seek(in_file, tell(in_file) + succ(pred(head.size) div 512) * 512);
         end if;
         read(in_file, head);
-      until head.name = "";
+      end while;
     else
       write("tarx: Cannot open \"");
       write(in_file_name);
@@ -404,27 +392,27 @@ const proc: tar_xtract (in string: in_file_name, in boolean: do_view,
     in_file := open(in_file_name, "r");
     if in_file <> STD_NULL then
       read(in_file, head);
-      repeat
+      while head.name <> "" and head.magic = TMAGIC do
         if do_view then
           write("x ");
           writeln(head.name);
         end if;
-        if head.typeflag = '5' then
+        if head.typeflag = DIRTYPE then
           mkdir(head.name);
-        else
+        elsif head.typeflag = REGTYPE or head.typeflag = AREGTYPE then
           if head.size <> 0 then
             stri := gets(in_file, succ(pred(head.size) div 512) * 512);
             putf(head.name, stri[ .. head.size]);
           end if;
         end if;
         read(in_file, head);
-      until head.name = "";
+      end while;
     end if;
   end func;
 
 
 const proc: tar_create (inout file: out_file, in boolean: do_view,
-    in string: path, in array string: arg_list) is func
+    in string: basePath, in string: path, in array string: arg_list) is func
   local
     var string: name is "";
     var array string: dir_content is 0 times "";
@@ -437,16 +425,16 @@ const proc: tar_create (inout file: out_file, in boolean: do_view,
         write("c ");
         writeln(name);
       end if;
-      dir_content := read_dir(name);
-      if length(dir_content) <> 0 then
-        status(name & "/", head);
-        head.typeflag := '5';
+      if fileType(basePath & name) = FILE_DIR then
+        dir_content := read_dir(basePath & name);
+        status(basePath, name & "/", head);
+        head.typeflag := DIRTYPE;
         head.size :=     0;
         write(out_file, head);
-        tar_create(out_file, do_view, name & "/", dir_content);
+        tar_create(out_file, do_view, basePath, name & "/", dir_content);
       else
         stri := getf(name);
-        status(name, head);
+        status(basePath, name, head);
         write(out_file, head);
         write(out_file, stri);
         if (succ(pred(head.size) div 512) * 512) - length(stri) >= 0 then
@@ -461,10 +449,20 @@ const proc: tar_create (in string: out_file_name, in boolean: do_view,
     in array string: arg_list) is func
   local
     var file: out_file is STD_NULL;
+    var string: name is "";
+    var integer: lastSlashPos is 0;
   begin
     out_file := open(out_file_name, "w");
     if out_file <> STD_NULL then
-      tar_create(out_file, do_view, "", arg_list);
+      for name range arg_list do
+        lastSlashPos := rpos(name, "/");
+        if lastSlashPos = 0 then
+          tar_create(out_file, do_view, "", "", [] name);
+        else
+          tar_create(out_file, do_view, name[ .. lastSlashPos],
+              "", [] (name[succ(lastSlashPos) ..]));
+        end if;
+      end for;
     end if;
   end func;
 

@@ -2028,6 +2028,9 @@ CONTENTS
   do not exist. The result of a 'rational' operation
   is undefined when it overflows.
 
+    Elements:
+      var integer: numerator is 0;
+      var integer: denominator is 1;
     Prefix operators:
       +         Identity
       -         Change sign
@@ -2101,6 +2104,9 @@ CONTENTS
   is not enough memory to represent a 'bigRational' value.
   In this case the exception 'MEMORY_ERROR' is raised.
 
+    Elements:
+      var bigInteger: numerator is 0_;
+      var bigInteger: denominator is 1_;
     Prefix operators:
       +         Identity
       -         Change sign
@@ -2300,6 +2306,9 @@ CONTENTS
   with an 'float' real part and an 'float' imaginary part.
   Complex literals do not exist. 
 
+    Elements:
+      var float: re is 0.0;
+      var float: im is 0.0;
     Prefix operators:
       +         Identity
       -         Change sign
@@ -3203,6 +3212,10 @@ CONTENTS
 
     The type 'color' describes colors.
 
+    Elements:
+      var integer: red_part is 0;
+      var integer: green_part is 0;
+      var integer: blue_part is 0;
     Constants:
       black         is color(0, 0, 0);
       dark_red      is color(32768, 0, 0);
@@ -3238,6 +3251,13 @@ CONTENTS
 
     The type 'time' describes times and dates.
 
+    Elements:
+      var integer: year is 0;
+      var integer: month is 1;
+      var integer: day is 1;
+      var integer: hour is 0;
+      var integer: minute is 0;
+      var integer: second is 0;
     Infix operators:
       +         Add a duration to a time
                   ( Type of right operand: duration )
@@ -3292,6 +3312,9 @@ CONTENTS
                   ( Type of result: integer )
       julianDayNumToTime(A)  Convert julian day number to time
                   ( Type of argument A: integer )
+      timestamp1970(A)  Time expressed in seconds since the
+                Unix Epoch (1970-01-01 00:00:00 UTC)
+                  ( Type of result: integer )
       compare(A, B) Compare function
                   ( Type of result: integer )
       hashCode(A) Hash function
@@ -6952,9 +6975,19 @@ CONTENTS
 
 12.3 fileType
 
-    The type of a file can determined with 'fileType':
+    The type of a file can determined with 'fileType' or
+    'fileTypeSL':
 
       const func integer: fileType (in string: filePath) is ...
+      const func integer: fileTypeSL (in string: filePath) is ...
+
+    The function 'fileType' does follow symbolic links.
+    Therefore 'fileType' never returns 'FILE_SYMLINK'.
+    The function 'fileTypeSL' does not follow symbolic
+    links. Therefore 'fileTypeSL' can also return
+    'FILE_SYMLINK'. Most functions which use a file path
+    except 'fileTypeSL' and 'readlink' follow
+    symbolic links. 
 
     Returns:
       
@@ -7013,6 +7046,86 @@ CONTENTS
           It was not possible to determine the file size.
       
 
+12.4 getATime
+
+    The access time of a file is returned by the function 'getATime':
+
+      const func time: getATime (in string: filePath) is ...
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      FILE_ERROR
+          The system returns an error.
+      
+
+12.4 getCTime
+
+    The change time of a file is returned by the function 'getCTime':
+
+      const func time: getCTime (in string: filePath) is ...
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      FILE_ERROR
+          The system returns an error.
+      
+
+12.4 getMTime
+
+    The modification time of a file is returned by the function 'getMTime':
+
+      const func time: getMTime (in string: filePath) is ...
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      FILE_ERROR
+          The system returns an error.
+      
+
+12.4 setATime
+
+    The function 'setATime' sets the access time of a file:
+
+      const proc: setATime (in string: filePath, in time: aTime) is ...
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      FILE_ERROR
+          The system returns an error.
+      
+
+12.4 setMTime
+
+    The function 'setMTime' sets the modification time of a file:
+
+      const proc: setMTime (in string: filePath, in time: aTime) is ...
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      FILE_ERROR
+          The system returns an error.
+      
+
 12.5 readlink
 
     The function 'readlink' reads the destination of a symbolic link:
@@ -7060,7 +7173,24 @@ CONTENTS
           The system function returns an error.
       
 
-12.7 Other functions
+12.7 removeAnyFile
+
+    The function 'removeAnyFile' removes a file independend
+    of its file type:
+
+      const proc: removeAnyFile (in string: filePath) is ...
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      FILE_ERROR
+          A system function to remove a file or to read a directory returns an error.
+      
+
+12.8 Other functions
 
     Other functions are:
 

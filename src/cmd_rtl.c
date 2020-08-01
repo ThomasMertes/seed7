@@ -35,6 +35,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
+#include "time.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #ifdef INCLUDE_SYS_UTIME
@@ -81,6 +82,13 @@
 #define SIZE_NORMAL_BUFFER   32768
 #define SIZE_RESERVE_BUFFER   2048
 
+#define PRESERVE_NOTHING    0x00
+#define PRESERVE_MODE       0x01
+#define PRESERVE_OWNERSHIP  0x02
+#define PRESERVE_TIMESTAMPS 0x04
+#define PRESERVE_SYMLINKS   0x08
+#define PRESERVE_ALL        0xFF
+
 
 
 #ifdef ANSI_C
@@ -107,7 +115,7 @@ char *strg2;
 
 #ifdef ANSI_C
 static void remove_any_file (os_path_stri, errinfotype *);
-static void copy_any_file (os_path_stri, os_path_stri, errinfotype *);
+static void copy_any_file (os_path_stri, os_path_stri, int, errinfotype *);
 #else
 static void remove_any_file ();
 static void copy_any_file ();
@@ -337,12 +345,14 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void copy_dir (os_path_stri from_name, os_path_stri to_name, errinfotype *err_info)
+static void copy_dir (os_path_stri from_name, os_path_stri to_name,
+    int flags, errinfotype *err_info)
 #else
 
-static void copy_dir (from_name, to_name, err_info)
+static void copy_dir (from_name, to_name, flags, err_info)
 os_path_stri from_name;
 os_path_stri to_name;
+ int flags;
 errinfotype *err_info;
 #endif
 
@@ -359,90 +369,84 @@ errinfotype *err_info;
     SIZE_TYPE new_size;
     os_path_stri resized_path;
     booltype init_path = TRUE;
-    os_stat_struct to_stat;
 
   /* copy_dir */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN copy_dir(\"%s\", \"%s\")\n", from_name, to_name);
 #endif
-/*  printf("opendir(%s);\n", from_name);
-    fflush(stdout); */
+    /* printf("opendir(%s);\n", from_name);
+       fflush(stdout); */
     if ((directory = os_opendir(from_name)) == NULL) {
       *err_info = FILE_ERROR;
     } else {
-      if (os_stat(to_name, &to_stat) == 0) {
-        /* Directore exists already */
+      if (os_mkdir(to_name, (S_IRWXU | S_IRWXG | S_IRWXO)) != 0) {
         *err_info = FILE_ERROR;
       } else {
-        if (os_mkdir(to_name, (S_IRWXU | S_IRWXG | S_IRWXO)) != 0) {
-          *err_info = FILE_ERROR;
-        } else {
+        do {
+          current_entry = os_readdir(directory);
+          /* printf("$%ld$\n", (long) current_entry);
+             fflush(stdout); */
+        } while (current_entry != NULL &&
+            (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
+             memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
+        from_name_size = os_path_strlen(from_name);
+        to_name_size = os_path_strlen(to_name);
+        while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
+          /* printf("!%s!\n", current_entry->d_name);
+             fflush(stdout); */
+          d_name_size = os_path_strlen(current_entry->d_name);
+          new_size = from_name_size + 1 + d_name_size;
+          if (new_size > from_path_capacity) {
+            resized_path = os_path_realloc(from_path, new_size);
+            if (resized_path != NULL) {
+              from_path = resized_path;
+              from_path_capacity = new_size;
+            } else if (from_path != NULL) {
+              os_path_free(from_path);
+              from_path = NULL;
+            } /* if */
+          } /* if */
+          new_size = to_name_size + 1 + d_name_size;
+          if (new_size > to_path_capacity) {
+            resized_path = os_path_realloc(to_path, new_size);
+            if (resized_path != NULL) {
+              to_path = resized_path;
+              to_path_capacity = new_size;
+            } else if (to_path != NULL) {
+              os_path_free(to_path);
+              to_path = NULL;
+            } /* if */
+          } /* if */
+          if (from_path != NULL && to_path != NULL) {
+            if (init_path) {
+              os_path_strcpy(from_path, from_name);
+              os_path_strcpy(&from_path[from_name_size], slash);
+              os_path_strcpy(to_path, to_name);
+              os_path_strcpy(&to_path[to_name_size], slash);
+              init_path = FALSE;
+            } /* if */
+            os_path_strcpy(&from_path[from_name_size + 1], current_entry->d_name);
+            os_path_strcpy(&to_path[to_name_size + 1], current_entry->d_name);
+            copy_any_file(from_path, to_path, flags, err_info);
+          } else {
+            *err_info = MEMORY_ERROR;
+          } /* if */
           do {
             current_entry = os_readdir(directory);
-  /*        printf("$%ld$\n", (long) current_entry);
-            fflush(stdout); */
+            /* printf("$%ld$\n", (long) current_entry);
+               fflush(stdout); */
           } while (current_entry != NULL &&
               (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
                memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
-          from_name_size = os_path_strlen(from_name);
-          to_name_size = os_path_strlen(to_name);
-          while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
-  /*        printf("!%s!\n", current_entry->d_name);
-            fflush(stdout); */
-            d_name_size = os_path_strlen(current_entry->d_name);
-            new_size = from_name_size + 1 + d_name_size;
-            if (new_size > from_path_capacity) {
-              resized_path = os_path_realloc(from_path, new_size);
-              if (resized_path != NULL) {
-                from_path = resized_path;
-                from_path_capacity = new_size;
-              } else if (from_path != NULL) {
-                os_path_free(from_path);
-                from_path = NULL;
-              } /* if */
-            } /* if */
-            new_size = to_name_size + 1 + d_name_size;
-            if (new_size > to_path_capacity) {
-              resized_path = os_path_realloc(to_path, new_size);
-              if (resized_path != NULL) {
-                to_path = resized_path;
-                to_path_capacity = new_size;
-              } else if (to_path != NULL) {
-                os_path_free(to_path);
-                to_path = NULL;
-              } /* if */
-            } /* if */
-            if (from_path != NULL && to_path != NULL) {
-              if (init_path) {
-                os_path_strcpy(from_path, from_name);
-                os_path_strcpy(&from_path[from_name_size], slash);
-                os_path_strcpy(to_path, to_name);
-                os_path_strcpy(&to_path[to_name_size], slash);
-                init_path = FALSE;
-              } /* if */
-              os_path_strcpy(&from_path[from_name_size + 1], current_entry->d_name);
-              os_path_strcpy(&to_path[to_name_size + 1], current_entry->d_name);
-              copy_any_file(from_path, to_path, err_info);
-            } else {
-              *err_info = MEMORY_ERROR;
-            } /* if */
-            do {
-              current_entry = os_readdir(directory);
-  /*          printf("$%ld$\n", (long) current_entry);
-              fflush(stdout); */
-            } while (current_entry != NULL &&
-                (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
-                 memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
-          } /* while */
-          if (*err_info != OKAY_NO_ERROR) {
-            remove_dir(to_name, err_info);
-          } /* if */
-          if (from_path != NULL) {
-            os_path_free(from_path);
-          } /* if */
-          if (to_path != NULL) {
-            os_path_free(to_path);
-          } /* if */
+        } /* while */
+        if (*err_info != OKAY_NO_ERROR) {
+          remove_dir(to_name, err_info);
+        } /* if */
+        if (from_path != NULL) {
+          os_path_free(from_path);
+        } /* if */
+        if (to_path != NULL) {
+          os_path_free(to_path);
         } /* if */
       } /* if */
       os_closedir(directory);
@@ -457,18 +461,21 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void copy_any_file (os_path_stri from_name, os_path_stri to_name, errinfotype *err_info)
+static void copy_any_file (os_path_stri from_name, os_path_stri to_name,
+    int flags, errinfotype *err_info)
 #else
 
-static void copy_any_file (from_name, to_name, err_info)
+static void copy_any_file (from_name, to_name, flags, err_info)
 os_path_stri from_name;
 os_path_stri to_name;
+int flags;
 errinfotype *err_info;
 #endif
 
   {
     os_stat_struct from_stat;
     os_stat_struct to_stat;
+    int from_stat_result;
 #ifdef HAS_SYMLINKS
     os_path_stri link_destination;
     ssize_t readlink_result;
@@ -479,10 +486,16 @@ errinfotype *err_info;
 #ifdef TRACE_CMD_RTL
     printf("BEGIN copy_any_file(\"%s\", \"%s\")\n", from_name, to_name);
 #endif
-    if (os_lstat(from_name, &from_stat) != 0) {
+    if (flags & PRESERVE_SYMLINKS) {
+      from_stat_result = os_lstat(from_name, &from_stat);
+    } else {
+      from_stat_result = os_stat(from_name, &from_stat);
+    } /* if */
+    if (from_stat_result != 0) {
       *err_info = FILE_ERROR;
     } else {
       if (os_stat(to_name, &to_stat) == 0) {
+        /* File exists already */
         *err_info = FILE_ERROR;
       } else {
         if (S_ISLNK(from_stat.st_mode)) {
@@ -510,14 +523,20 @@ errinfotype *err_info;
         } else if (S_ISREG(from_stat.st_mode)) {
           copy_file(from_name, to_name, err_info);
         } else if (S_ISDIR(from_stat.st_mode)) {
-          copy_dir(from_name, to_name, err_info);
+          copy_dir(from_name, to_name, flags, err_info);
         } /* if */
         if (*err_info == OKAY_NO_ERROR && !S_ISLNK(from_stat.st_mode)) {
-          os_chmod(to_name, from_stat.st_mode);
-          os_chown(to_name, from_stat.st_uid, from_stat.st_gid);
-          to_utime.actime = from_stat.st_atime;
-          to_utime.modtime = from_stat.st_mtime;
-          os_utime(to_name, &to_utime);
+          if (flags & PRESERVE_MODE) {
+            os_chmod(to_name, from_stat.st_mode);
+          } /* if */
+          if (flags & PRESERVE_OWNERSHIP) {
+            os_chown(to_name, from_stat.st_uid, from_stat.st_gid);
+          } /* if */
+          if (flags & PRESERVE_TIMESTAMPS) {
+            to_utime.actime = from_stat.st_atime;
+            to_utime.modtime = from_stat.st_mtime;
+            os_utime(to_name, &to_utime);
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -547,7 +566,7 @@ errinfotype *err_info;
     if (os_rename(from_name, to_name) != 0) {
       switch (errno) {
         case EXDEV:
-          copy_any_file(from_name, to_name, err_info);
+          copy_any_file(from_name, to_name, PRESERVE_ALL, err_info);
           if (*err_info == OKAY_NO_ERROR) {
             remove_any_file(from_name, err_info);
           } else {
@@ -730,6 +749,38 @@ stritype dir_name;
 
 #ifdef ANSI_C
 
+void cmdCloneFile (stritype source_name, stritype dest_name)
+#else
+
+void cmdCloneFile (source_name, dest_name)
+stritype source_name;
+stritype dest_name;
+#endif
+
+  {
+    os_path_stri os_source_name;
+    os_path_stri os_dest_name;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdCloneFile */
+    os_source_name = cp_to_os_path(source_name, &err_info);
+    if (os_source_name != NULL) {
+      os_dest_name = cp_to_os_path(dest_name, &err_info);
+      if (os_dest_name != NULL) {
+        copy_any_file(os_source_name, os_dest_name, PRESERVE_ALL, &err_info);
+        os_path_free(os_dest_name);
+      } /* if */
+      os_path_free(os_source_name);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdCloneFile */
+
+
+
+#ifdef ANSI_C
+
 stritype cmdConfigValue (stritype name)
 #else
 
@@ -832,10 +883,10 @@ stritype name;
 
 #ifdef ANSI_C
 
-void cmdCopy (stritype source_name, stritype dest_name)
+void cmdCopyFile (stritype source_name, stritype dest_name)
 #else
 
-void cmdCopy (source_name, dest_name)
+void cmdCopyFile (source_name, dest_name)
 stritype source_name;
 stritype dest_name;
 #endif
@@ -845,12 +896,12 @@ stritype dest_name;
     os_path_stri os_dest_name;
     errinfotype err_info = OKAY_NO_ERROR;
 
-  /* cmdCopy */
+  /* cmdCopyFile */
     os_source_name = cp_to_os_path(source_name, &err_info);
     if (os_source_name != NULL) {
       os_dest_name = cp_to_os_path(dest_name, &err_info);
       if (os_dest_name != NULL) {
-        copy_any_file(os_source_name, os_dest_name, &err_info); /* SYS_FILE_EXCEPTION */
+        copy_any_file(os_source_name, os_dest_name, PRESERVE_NOTHING, &err_info);
         os_path_free(os_dest_name);
       } /* if */
       os_path_free(os_source_name);
@@ -858,46 +909,7 @@ stritype dest_name;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-  } /* cmdCopy */
-
-
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-inttype cmdFileCTime (stritype file_name,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
-#else
-
-inttype cmdFileCTime (file_name)
-stritype file_name;
-#endif
-
-  {
-    os_path_stri os_path;
-    os_stat_struct stat_buf;
-    int stat_result;
-    errinfotype err_info = OKAY_NO_ERROR;
-    inttype result;
-
-  /* cmdFileCTime */
-    os_path = cp_to_os_path(file_name, &err_info);
-    if (os_path == NULL) {
-      raise_error(err_info);
-      result = 0;
-    } else {
-      stat_result = os_stat(os_path, &stat_buf);
-      os_path_free(os_path);
-      if (stat_result == 0) {
-        stat_buf.st_ctime;
-      } else {
-        result = 0;
-      } /* if */
-    } /* if */
-    return(result);
-  } /* cmdFileCTime */
-#endif
+  } /* cmdCopyFile */
 
 
 
@@ -979,7 +991,7 @@ stritype file_name;
       raise_error(err_info);
       result = 0;
     } else {
-      stat_result = os_lstat(os_path, &stat_buf);
+      stat_result = os_stat(os_path, &stat_buf);
       os_path_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
@@ -1008,6 +1020,60 @@ stritype file_name;
     } /* if */
     return(result);
   } /* cmdFileType */
+
+
+
+#ifdef ANSI_C
+
+inttype cmdFileTypeSL (stritype file_name)
+#else
+
+inttype cmdFileTypeSL (file_name)
+stritype file_name;
+#endif
+
+  {
+    os_path_stri os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    errinfotype err_info = OKAY_NO_ERROR;
+    inttype result;
+
+  /* cmdFileTypeSL */
+    os_path = cp_to_os_path(file_name, &err_info);
+    if (os_path == NULL) {
+      raise_error(err_info);
+      result = 0;
+    } else {
+      stat_result = os_lstat(os_path, &stat_buf);
+      os_path_free(os_path);
+      if (stat_result == 0) {
+        if (S_ISREG(stat_buf.st_mode)) {
+          result = 2;
+        } else if (S_ISDIR(stat_buf.st_mode)) {
+          result = 3;
+        } else if (S_ISCHR(stat_buf.st_mode)) {
+          result = 4;
+        } else if (S_ISBLK(stat_buf.st_mode)) {
+          result = 5;
+        } else if (S_ISFIFO(stat_buf.st_mode)) {
+          result = 6;
+        } else if (S_ISLNK(stat_buf.st_mode)) {
+          result = 7;
+        } else if (S_ISSOCK(stat_buf.st_mode)) {
+          result = 8;
+        } else {
+          result = 1;
+        } /* if */
+      } else {
+        result = 0;
+        if (errno != ENOENT || file_name->size == 0) {
+          raise_error(FILE_ERROR);
+        } /* if */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* cmdFileTypeSL */
 
 
 
@@ -1092,6 +1158,8 @@ booltype *is_dst;
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
 	    min, sec, mycro_sec, time_zone, is_dst);
+      } else {
+        raise_error(FILE_ERROR);
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
@@ -1100,6 +1168,61 @@ booltype *is_dst;
         *mycro_sec, *time_zone, *is_dst);
 #endif
   } /* cmdGetATime */
+
+
+
+#ifdef ANSI_C
+
+void cmdGetCTime (stritype file_name,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst)
+#else
+
+void cmdGetCTime (file_name,
+    year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
+stritype file_name;
+inttype *year;
+inttype *month;
+inttype *day;
+inttype *hour;
+inttype *min;
+inttype *sec;
+inttype *mycro_sec;
+inttype *time_zone;
+booltype *is_dst;
+#endif
+
+  {
+    os_path_stri os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdGetCTime */
+#ifdef TRACE_CMD_RTL
+    printf("BEGIN cmdGetCTime\n");
+#endif
+    os_path = cp_to_os_path(file_name, &err_info);
+    if (os_path == NULL) {
+      raise_error(err_info);
+    } else {
+      stat_result = os_stat(os_path, &stat_buf);
+      os_path_free(os_path);
+      if (stat_result == 0) {
+        timFromTimestamp(stat_buf.st_ctime,
+            year, month, day, hour,
+	    min, sec, mycro_sec, time_zone, is_dst);
+      } else {
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+#ifdef TRACE_CMD_RTL
+    printf("END cmdGetCTime(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+        *year, *month, *day, *hour, *min, *sec,
+        *mycro_sec, *time_zone, *is_dst);
+#endif
+  } /* cmdGetCTime */
 
 
 
@@ -1145,6 +1268,8 @@ booltype *is_dst;
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
 	    min, sec, mycro_sec, time_zone, is_dst);
+      } else {
+        raise_error(FILE_ERROR);
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
@@ -1232,7 +1357,7 @@ stritype dest_name;
     if (os_source_name != NULL) {
       os_dest_name = cp_to_os_path(dest_name, &err_info);
       if (os_dest_name != NULL) {
-        move_any_file(os_source_name, os_dest_name, &err_info); /* SYS_FILE_EXCEPTION */
+        move_any_file(os_source_name, os_dest_name, &err_info);
         os_path_free(os_dest_name);
       } /* if */
       os_path_free(os_source_name);
@@ -1392,23 +1517,26 @@ inttype time_zone;
   {
     os_path_stri os_path;
     os_stat_struct stat_buf;
-    int stat_result;
     os_utimbuf_struct utime_buf;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSetATime */
     os_path = cp_to_os_path(file_name, &err_info);
-    if (os_path == NULL) {
-      raise_error(err_info);
-    } else {
-      stat_result = os_stat(os_path, &stat_buf);
-      if (stat_result == 0) {
+    if (os_path != NULL) {
+      if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = timToTimestamp(year, month, day, hour,
 	    min, sec, mycro_sec, time_zone);
         utime_buf.modtime = stat_buf.st_mtime;
-        os_utime(os_path, &utime_buf);
+        if (os_utime(os_path, &utime_buf) != 0) {
+          err_info = FILE_ERROR;
+        } /* if */
+      } else {
+        err_info = FILE_ERROR;
       } /* if */
       os_path_free(os_path);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
     } /* if */
   } /* cmdSetATime */
 
@@ -1437,23 +1565,26 @@ inttype time_zone;
   {
     os_path_stri os_path;
     os_stat_struct stat_buf;
-    int stat_result;
     os_utimbuf_struct utime_buf;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSetMTime */
     os_path = cp_to_os_path(file_name, &err_info);
-    if (os_path == NULL) {
-      raise_error(err_info);
-    } else {
-      stat_result = os_stat(os_path, &stat_buf);
-      if (stat_result == 0) {
+    if (os_path != NULL) {
+      if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = stat_buf.st_atime;
         utime_buf.modtime = timToTimestamp(year, month, day, hour,
 	    min, sec, mycro_sec, time_zone);
-        os_utime(os_path, &utime_buf);
+        if (os_utime(os_path, &utime_buf) != 0) {
+          err_info = FILE_ERROR;
+        } /* if */
+      } else {
+        err_info = FILE_ERROR;
       } /* if */
       os_path_free(os_path);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
     } /* if */
   } /* cmdSetMTime */
 
