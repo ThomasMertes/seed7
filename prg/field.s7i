@@ -26,9 +26,9 @@
 (********************************************************************)
 
 
-const type: FIELD_FILE is sub NULL_FILE struct
+const type: field_file is sub NULL_FILE struct
     var file: in_file is STD_NULL;
-    var TEXT: out_file is STD_NULL;
+    var text: out_file is STD_NULL;
     var integer: linePos is 0;
     var integer: columnPos is 0;
     var integer: width is 0;
@@ -38,12 +38,12 @@ const type: FIELD_FILE is sub NULL_FILE struct
   end struct;
 
 
-const func FIELD_FILE: open_field (in file: in_fil, in TEXT: out_fil,
+const func field_file: open_field (in file: in_fil, in text: out_fil,
     in integer: line, in integer: column, in integer: width, in string: default) is func
   result
-    var FIELD_FILE: field_fil is FIELD_FILE.value;
+    var field_file: field_fil is field_file.value;
   begin
-    field_fil := FIELD_FILE.value;
+    field_fil := field_file.value;
     field_fil.in_file := in_fil;
     field_fil.out_file := out_fil;
     field_fil.linePos := line;
@@ -55,7 +55,7 @@ const func FIELD_FILE: open_field (in file: in_fil, in TEXT: out_fil,
   end func;
 
 
-const func string: getwd (inout FIELD_FILE: field_fil) is func
+const func string: getwd (inout field_file: field_fil) is func
   result
     var string: result is "";
   local
@@ -115,7 +115,7 @@ const func string: getwd (inout FIELD_FILE: field_fil) is func
   end func;
 
 
-const func string: getln (inout FIELD_FILE: field_fil) is func
+const func string: getln (inout field_file: field_fil) is func
   result
     var string: result is "";
   local
@@ -169,7 +169,7 @@ const func string: getln (inout FIELD_FILE: field_fil) is func
   end func;
 
 
-const func char: getc (inout FIELD_FILE: field_fil) is func
+const func char: getc (inout field_file: field_fil) is func
   result
     var char: ch is ' ';
   begin
@@ -181,7 +181,7 @@ const func char: getc (inout FIELD_FILE: field_fil) is func
   end func;
 
 
-const func string: gets (inout FIELD_FILE: field_fil, in integer: leng) is func
+const func string: gets (inout field_file: field_fil, in integer: leng) is func
   result
     var string: stri is "";
   begin

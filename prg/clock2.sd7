@@ -27,7 +27,7 @@ $ include "seed7_05.s7i";
 include "time.s7i";
 include "keybd.s7i";
 
-var time: last_time is NULL_TIME;
+var time: last_time is time.value;
 
 const proc: main is func
   begin

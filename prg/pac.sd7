@@ -30,9 +30,9 @@ include "float.s7i";
 include "time.s7i";
 
 
-var TEXT: scr is STD_NULL;
-var TEXT: labyrinth is STD_NULL;
-var TEXT: info_sheet is STD_NULL;
+var text: scr is STD_NULL;
+var text: labyrinth is STD_NULL;
+var text: info_sheet is STD_NULL;
 
 const type: place_type is new enum
     FREE_PLACE, DOT_PLACE, WALL_PLACE, POWER_PLACE
@@ -639,7 +639,7 @@ const proc: main_control is func
 
   local
     var integer: frequency is 0;
-    var time: start_time is NULL_TIME;
+    var time: start_time is time.value;
 
   begin (* main_control *)
     while playing do

@@ -29,17 +29,17 @@ include "window.s7i";
 include "keybd.s7i";
 include "time.s7i";
 
-var TEXT: scr is STD_NULL;
-var TEXT: camera is STD_NULL;
-var TEXT: win1 is STD_NULL;
-var TEXT: win2 is STD_NULL;
-var TEXT: win3 is STD_NULL;
-var TEXT: win4 is STD_NULL;
-var TEXT: curr_win is STD_NULL;
+var text: scr is STD_NULL;
+var text: camera is STD_NULL;
+var text: win1 is STD_NULL;
+var text: win2 is STD_NULL;
+var text: win3 is STD_NULL;
+var text: win4 is STD_NULL;
+var text: curr_win is STD_NULL;
 var char: ch is ' ';
 
 
-const proc: write_camera (ref TEXT: win) is func
+const proc: write_camera (ref text: win) is func
   begin
     writeln(win, "#########");
     writeln(win, "#####HAL#");
@@ -55,7 +55,7 @@ const proc: write_camera (ref TEXT: win) is func
   end func;
 
 
-const proc: focus_0 (ref TEXT: win) is func
+const proc: focus_0 (ref text: win) is func
   begin
     setPos(win, 6, 1);
     writeln(win, "##     ##");
@@ -65,7 +65,7 @@ const proc: focus_0 (ref TEXT: win) is func
   end func;
 
 
-const proc: focus_1 (ref TEXT: win) is func
+const proc: focus_1 (ref text: win) is func
   begin
     setPos(win, 6, 1);
     writeln(win, "##.---.##");
@@ -75,7 +75,7 @@ const proc: focus_1 (ref TEXT: win) is func
   end func;
 
 
-const proc: focus_2 (ref TEXT: win) is func
+const proc: focus_2 (ref text: win) is func
   begin
     setPos(win, 6, 1);
     writeln(win, "## ___ ##");
@@ -85,7 +85,7 @@ const proc: focus_2 (ref TEXT: win) is func
   end func;
 
 
-const proc: focus_3 (ref TEXT: win) is func
+const proc: focus_3 (ref text: win) is func
   begin
     setPos(win, 6, 1);
     writeln(win, "##     ##");
@@ -95,7 +95,7 @@ const proc: focus_3 (ref TEXT: win) is func
   end func;
 
 
-const proc: focus_4 (ref TEXT: win) is func
+const proc: focus_4 (ref text: win) is func
   begin
     setPos(win, 6, 1);
     writeln(win, "##     ##");
@@ -105,7 +105,7 @@ const proc: focus_4 (ref TEXT: win) is func
   end func;
 
 
-const proc: write_sys_0 (ref TEXT: win) is func
+const proc: write_sys_0 (ref text: win) is func
   begin
     clear(win);
     writeln(win);
@@ -119,7 +119,7 @@ const proc: write_sys_0 (ref TEXT: win) is func
   end func;
 
 
-const proc: write_sys_1 (ref TEXT: win) is func
+const proc: write_sys_1 (ref text: win) is func
   begin
     clear(win);
     writeln(win);
@@ -131,7 +131,7 @@ const proc: write_sys_1 (ref TEXT: win) is func
   end func;
 
 
-const proc: write_shp (ref TEXT: win) is func
+const proc: write_shp (ref text: win) is func
   begin
     clear(win);
     writeln(win, "  .          .           .      ");
@@ -146,7 +146,7 @@ const proc: write_shp (ref TEXT: win) is func
   end func;
 
 
-const proc: write_antenna (ref TEXT: win) is func
+const proc: write_antenna (ref text: win) is func
   begin
     clear(win);
     writeln(win, "                   /\",          ");
@@ -161,7 +161,7 @@ const proc: write_antenna (ref TEXT: win) is func
   end func;
 
 
-const proc: write_com (ref TEXT: win) is func
+const proc: write_com (ref text: win) is func
   begin
     clear(win);
     writeln(win);
@@ -175,7 +175,7 @@ const proc: write_com (ref TEXT: win) is func
   end func;
 
 
-const proc: write_lrn_0 (ref TEXT: win) is func
+const proc: write_lrn_0 (ref text: win) is func
   begin
     clear(win);
     writeln(win);
@@ -189,7 +189,7 @@ const proc: write_lrn_0 (ref TEXT: win) is func
   end func;
 
 
-const proc: write_lrn_1 (ref TEXT: win) is func
+const proc: write_lrn_1 (ref text: win) is func
   begin
     clear(win);
     writeln(win);

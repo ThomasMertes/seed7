@@ -1,0 +1,113 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  utf8.s7i      Read and write utf-8 files                        *)
+(*  Copyright (C) 2005  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: utf8_file is sub NULL_FILE struct
+    var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+    var string: name is "";
+  end struct;
+
+
+const func char: utf8_getc (ref PRIMITIVE_FILE param) is                       action "UT8_GETC";
+const func string: utf8_gets (ref PRIMITIVE_FILE param, ref integer param) is  action "UT8_STRI_READ";
+const func string: utf8_wrd_rd (ref PRIMITIVE_FILE param, inout char param) is action "UT8_WORD_READ";
+const func string: utf8_lin_rd (ref PRIMITIVE_FILE param, inout char param) is action "UT8_L_RD";
+const proc: utf8_write (ref PRIMITIVE_FILE param, in string param) is          action "UT8_WRITE";
+
+
+const func utf8_file: malloc (ref utf8_file: ext_file) is func
+  result
+    var utf8_file: result is utf8_file.value;
+  begin
+    result := ext_file;
+  end func;
+
+const func file: open_utf8 (in string: file_name, in string: access) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var utf8_file: new_file is utf8_file.value;
+  begin
+    open_file := PRIMITIVE_FILE_OPEN(file_name, access);
+    if open_file <> PRIMITIVE_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := file_name;
+      result := malloc(new_file);
+    end if;
+  end func;
+
+const proc: close (ref utf8_file: aFile) is func
+  begin
+    close(aFile.ext_file);
+  end func;
+
+const proc: flush (ref utf8_file: aFile) is func
+  begin
+    flush(aFile.ext_file);
+  end func;
+
+const proc: write (ref utf8_file: aFile, in string: stri) is func
+  begin
+    utf8_write(aFile.ext_file, stri);
+  end func;
+
+const proc: writeln (ref utf8_file: aFile) is func
+  begin
+    utf8_write(aFile.ext_file, "\n");
+  end func;
+
+const proc: backSpace (ref utf8_file: aFile) is func
+  begin
+    utf8_write(aFile.ext_file, "\b \b");
+  end func;
+
+const func char: getc (ref utf8_file: aFile) is
+  return utf8_getc(aFile.ext_file);
+
+const func string: gets (ref utf8_file: aFile, in integer: leng) is
+  return utf8_gets(aFile.ext_file, leng);
+
+const func string: getwd (inout utf8_file: aFile) is
+  return utf8_wrd_rd(aFile.ext_file, aFile.TERMINATION_CHAR);
+
+const func string: getln (inout utf8_file: aFile) is
+  return utf8_lin_rd(aFile.ext_file, aFile.TERMINATION_CHAR);
+
+const func boolean: eof (ref utf8_file: aFile) is
+  return eof(aFile.ext_file);
+
+const func integer: length (ref utf8_file: aFile) is
+  return length(aFile.ext_file);
+
+const proc: seek (ref utf8_file: aFile, in integer: pos) is func
+  begin
+    seek(aFile.ext_file, pos);
+  end func;
+
+const func integer: tell (ref utf8_file: aFile) is
+  return tell(aFile.ext_file);

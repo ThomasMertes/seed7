@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  upper.s7i     Filter file which turns characters to upper case  *)
-(*  Copyright (C) 1992, 1993, 1994 , 2005 Thomas Mertes             *)
+(*  Copyright (C) 1992, 1993, 1994, 2005 Thomas Mertes              *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,47 +26,47 @@
 (********************************************************************)
 
 
-const type: UPPER_FILE is sub NULL_FILE struct
+const type: upper_file is sub NULL_FILE struct
     var file: destination_file is STD_NULL;
   end struct;
 
 
-const func UPPER_FILE: open_upper (ref file: aFile) is func
+const func upper_file: open_upper (ref file: aFile) is func
   result
-    var UPPER_FILE: result is UPPER_FILE.value;
+    var upper_file: result is upper_file.value;
   begin
-    result := UPPER_FILE.value;
+    result := upper_file.value;
     result.destination_file := aFile;
   end func;
 
 
 (*
-const proc: page (ref UPPER_FILE: upper_fil) is func
+const proc: page (ref upper_file: upper_fil) is func
   begin
     page(upper_fil.destination_file);
   end func;
 *)
 
 
-const proc: (ref UPPER_FILE: upper_fil) << NL is func
+const proc: writeln (ref upper_file: upper_fil) is func
   begin
-    upper_fil.destination_file << NL;
+    writeln(upper_fil.destination_file);
   end func;
 
 
-const proc: (ref UPPER_FILE: upper_fil) << BS is func
+const proc: backSpace (ref upper_file: upper_fil) is func
   begin
-    upper_fil.destination_file << BS;
+    backSpace(upper_fil.destination_file);
   end func;
 
 
-const proc: (ref UPPER_FILE: upper_fil) << (ref string: stri) is func
+const proc: write (ref upper_file: upper_fil, ref string: stri) is func
   begin
-    upper_fil.destination_file << upper(stri);
+    write(upper_fil.destination_file, upper(stri));
   end func;
 
 
-const func string: gets (ref UPPER_FILE: upper_fil, in integer: leng) is func
+const func string: gets (ref upper_file: upper_fil, in integer: leng) is func
   result
     var string: stri is "";
   begin
@@ -75,13 +75,13 @@ const func string: gets (ref UPPER_FILE: upper_fil, in integer: leng) is func
 
 
 (*
-const proc: cursor_on (ref UPPER_FILE: upper_fil) is func
+const proc: cursor_on (ref upper_file: upper_fil) is func
   begin
     cursor_on(upper_fil.destination_file);
   end func;
 
 
-const proc: cursor_off (ref UPPER_FILE: upper_fil) is func
+const proc: cursor_off (ref upper_file: upper_fil) is func
   begin
     cursor_off(upper_fil.destination_file);
   end func;

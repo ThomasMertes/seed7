@@ -40,7 +40,6 @@ const type: time is new object struct
     var boolean: is_daylight_saving_time is FALSE;
   end struct;
 
-const time: NULL_TIME is time.value;
 
 const proc: GET_TIME (inout integer param, inout integer param, inout integer param,
     inout integer param, inout integer param, inout integer param, inout integer param,
@@ -101,7 +100,7 @@ const func string: str (in time: aTime) is
 
 const func time: (attr time) parse (in var string: stri) is func
   result
-    var time: result is NULL_TIME;
+    var time: result is time.value;
   begin
     result.year := integer parse getint(stri);
     if stri[1] <> '/' then
@@ -287,6 +286,75 @@ const func integer: hashCode (in time: tim) is
       tim.hour + tim.minute + tim.second + tim.mycro_second;
 
 
+const func time: truncToSecond (in time: tim) is func
+  result
+    var time: result is time.value;
+  begin
+    result := tim;
+    result.mycro_second := 0;
+  end func;
+    
+
+const func time: truncToMinute (in time: tim) is func
+  result
+    var time: result is time.value;
+  begin
+    result := tim;
+    result.second := 0;
+    result.mycro_second := 0;
+  end func;
+    
+
+const func time: truncToHour (in time: tim) is func
+  result
+    var time: result is time.value;
+  begin
+    result := tim;
+    result.minute := 0;
+    result.second := 0;
+    result.mycro_second := 0;
+  end func;
+    
+
+const func time: truncToDay (in time: tim) is func
+  result
+    var time: result is time.value;
+  begin
+    result := tim;
+    result.hour := 0;
+    result.minute := 0;
+    result.second := 0;
+    result.mycro_second := 0;
+  end func;
+    
+
+const func time: truncToMonth (in time: tim) is func
+  result
+    var time: result is time.value;
+  begin
+    result := tim;
+    result.day := 1;
+    result.hour := 0;
+    result.minute := 0;
+    result.second := 0;
+    result.mycro_second := 0;
+  end func;
+    
+
+const func time: truncToYear (in time: tim) is func
+  result
+    var time: result is time.value;
+  begin
+    result := tim;
+    result.month := 1;
+    result.day := 1;
+    result.hour := 0;
+    result.minute := 0;
+    result.second := 0;
+    result.mycro_second := 0;
+  end func;
+    
+
 const proc: NORMALIZE (inout time: tim) is func
   local
     var integer: month_length is 0;
@@ -328,7 +396,7 @@ const proc: NORMALIZE (inout time: tim) is func
 
 const func time: time (NOW) is func
   result
-    var time: TIME_VAL is NULL_TIME;
+    var time: TIME_VAL is time.value;
   begin
     (* writeln("before get_time"); *)
     GET_TIME(TIME_VAL.year, TIME_VAL.month, TIME_VAL.day,
@@ -358,8 +426,6 @@ const type: duration is new object struct
     var integer: second is 0;
     var integer: mycro_second is 0;
   end struct;
-
-const duration: NULL_DURATION is duration.value;
 
 
 const func integer: year (in duration: aDuration) is func
@@ -391,7 +457,7 @@ const func string: str (in duration: aDuration) is func
 
 const func duration: (attr duration) parse (in var string: stri) is func
   result
-    var duration: result is NULL_DURATION;
+    var duration: result is duration.value;
   begin
     result.year_365 := integer parse getint(stri);
     if stri[1] <> '/' then
@@ -514,7 +580,7 @@ const func boolean: (in duration: dur1) >= (in duration: dur2) is func
 
 const func duration: (in integer: YRS) . YEARS is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := YRS;
   end func;
@@ -522,7 +588,7 @@ const func duration: (in integer: YRS) . YEARS is func
 
 const func duration: (in integer: MONS) . MONTHS is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.month_30 := MONS;
   end func;
@@ -530,7 +596,7 @@ const func duration: (in integer: MONS) . MONTHS is func
 
 const func duration: (in integer: DS) . DAYS is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.day := DS;
   end func;
@@ -538,7 +604,7 @@ const func duration: (in integer: DS) . DAYS is func
 
 const func duration: (in integer: HRS) . HOURS is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.hour := HRS;
   end func;
@@ -546,7 +612,7 @@ const func duration: (in integer: HRS) . HOURS is func
 
 const func duration: (in integer: MINS) . MINUTES is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.minute := MINS;
   end func;
@@ -554,7 +620,7 @@ const func duration: (in integer: MINS) . MINUTES is func
 
 const func duration: (in integer: SECS) . SECONDS is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.second := SECS;
   end func;
@@ -562,7 +628,7 @@ const func duration: (in integer: SECS) . SECONDS is func
 
 const func duration: (in integer: MY_SECS) . MYCRO_SECONDS is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.mycro_second := MY_SECS;
   end func;
@@ -674,7 +740,7 @@ const proc: (inout time: tim) +:= (in duration: DUR) is func
 
 const func time: (in time: tim) + (in duration: DUR) is func
   result
-    var time: TIM_VAL is NULL_TIME;
+    var time: TIM_VAL is time.value;
   begin
     TIM_VAL.year := tim.year + year(DUR);
     TIM_VAL.month := tim.month + month(DUR);
@@ -689,7 +755,7 @@ const func time: (in time: tim) + (in duration: DUR) is func
 
 const func time: (in time: tim) - (in duration: DUR) is func
   result
-    var time: TIM_VAL is NULL_TIME;
+    var time: TIM_VAL is time.value;
   begin
     TIM_VAL.year := tim.year - year(DUR);
     TIM_VAL.month := tim.month - month(DUR);
@@ -704,7 +770,7 @@ const func time: (in time: tim) - (in duration: DUR) is func
 
 const func duration: (in time: tim1) - (in time: tim2) is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := tim1.year - tim2.year;
     dur_val.month_30 := tim1.month - tim2.month;
@@ -739,7 +805,7 @@ writeln(replace(dur_val.mycro_second lpad 6, " ", "0"));
 
 const func duration: - (in duration: DUR) is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := -DUR.year_365;
     dur_val.year_366 := -DUR.year_366;
@@ -756,7 +822,7 @@ const func duration: - (in duration: DUR) is func
 
 const func duration: + (in duration: DUR) is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := DUR.year_365;
     dur_val.year_366 := DUR.year_366;
@@ -773,7 +839,7 @@ const func duration: + (in duration: DUR) is func
 
 const func duration: (in duration: DUR1) + (in duration: DUR2) is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := DUR1.year_365 + DUR2.year_365;
     dur_val.year_366 := DUR1.year_366 + DUR2.year_366;
@@ -791,7 +857,7 @@ const func duration: (in duration: DUR1) + (in duration: DUR2) is func
 
 const func duration: (in duration: DUR1) - (in duration: DUR2) is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := DUR1.year_365 - DUR2.year_365;
     dur_val.year_366 := DUR1.year_366 - DUR2.year_366;
@@ -809,7 +875,7 @@ const func duration: (in duration: DUR1) - (in duration: DUR2) is func
 
 const func duration: (in integer: number) * (in duration: DUR) is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := number * DUR.year_365;
     dur_val.year_366 := number * DUR.year_366;
@@ -827,7 +893,7 @@ const func duration: (in integer: number) * (in duration: DUR) is func
 
 const func duration: (in duration: DUR) * (in integer: number) is func
   result
-    var duration: dur_val is NULL_DURATION;
+    var duration: dur_val is duration.value;
   begin
     dur_val.year_365 := DUR.year_365 * number;
     dur_val.year_366 := DUR.year_366 * number;

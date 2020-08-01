@@ -26,52 +26,52 @@
 (********************************************************************)
 
 
-const type: TEE_FILE is sub NULL_FILE struct
+const type: tee_file is sub NULL_FILE struct
     var file: out_file1 is STD_NULL;
     var file: out_file2 is STD_NULL;
   end struct;
 
 
-const func TEE_FILE: open_tee (ref file: out_fil1, ref file: out_fil2) is func
+const func tee_file: open_tee (ref file: out_fil1, ref file: out_fil2) is func
   result
-    var TEE_FILE: result is TEE_FILE.value;
+    var tee_file: result is tee_file.value;
   begin
-    result := TEE_FILE.value;
+    result := tee_file.value;
     result.out_file1 := out_fil1;
     result.out_file2 := out_fil2;
   end func;
 
 
-const proc: (ref TEE_FILE: tee_fil) << (ref string: stri) is func
+const proc: write (ref tee_file: tee_fil, ref string: stri) is func
   begin
-    tee_fil.out_file1 << stri;
-    tee_fil.out_file2 << stri;
+    write(tee_fil.out_file1, stri);
+    write(tee_fil.out_file2, stri);
   end func;
 
 
-const proc: (ref TEE_FILE: tee_fil) << NL is func
+const proc: writeln (ref tee_file: tee_fil) is func
   begin
-    tee_fil.out_file1 << NL;
-    tee_fil.out_file2 << NL;
+    writeln(tee_fil.out_file1);
+    writeln(tee_fil.out_file2);
   end func;
 
 
-const proc: (ref TEE_FILE: tee_fil) << BS is func
+const proc: backSpace (ref tee_file: tee_fil) is func
   begin
-    tee_fil.out_file1 << BS;
-    tee_fil.out_file2 << BS;
+    backSpace(tee_fil.out_file1);
+    backSpace(tee_fil.out_file2);
   end func;
 
 
 (*
-const proc: cursor_on (ref TEE_FILE: tee_fil) is func
+const proc: cursor_on (ref tee_file: tee_fil) is func
   begin
     cursor_on(tee_fil.out_file1);
     cursor_on(tee_fil.out_file2);
   end func;
 
 
-const proc: cursor_off (ref TEE_FILE: tee_fil) is func
+const proc: cursor_off (ref tee_file: tee_fil) is func
   begin
     cursor_off(tee_fil.out_file1);
     cursor_off(tee_fil.out_file2);

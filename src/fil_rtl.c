@@ -42,6 +42,9 @@
 #include "fil_rtl.h"
 
 
+#define BUFFER_SIZE 2048
+
+
 
 #ifdef ANSI_C
 
@@ -261,18 +264,38 @@ stritype stri;
   { /* filWrite */
 #ifdef WIDE_CHAR_STRINGS
     {
-      strelemtype *str;
+      register strelemtype *str;
       memsizetype len;
+      register uchartype *ustri;
+      register memsizetype buf_len;
+      uchartype buffer[BUFFER_SIZE];
 
       for (str = stri->mem, len = stri->size;
-          len > 0; str++, len--) {
-        putc((int) *str, fil1);
-      } /* while */
+          len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
+        for (ustri = buffer, buf_len = BUFFER_SIZE;
+            buf_len > 0; str++, ustri++, buf_len--) {
+	  if (*str >= 256) {
+            raise_error(RANGE_ERROR);
+            return;
+          } /* if */
+          *ustri = (uchartype) *str;
+        } /* for */
+        fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, fil1);
+      } /* for */
+      if (len > 0) {
+        for (ustri = buffer, buf_len = len;
+            buf_len > 0; str++, ustri++, buf_len--) {
+	  if (*str >= 256) {
+            raise_error(RANGE_ERROR);
+            return;
+          } /* if */
+          *ustri = (uchartype) *str;
+        } /* for */
+        fwrite(buffer, sizeof(uchartype), len, fil1);
+      } /* if */
     }
 #else
     fwrite(stri->mem, sizeof(strelemtype),
         (SIZE_TYPE) stri->size, fil1);
 #endif
   } /* filWrite */
-
-

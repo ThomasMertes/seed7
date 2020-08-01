@@ -265,8 +265,8 @@ listtype arguments;
     stritype stri;
 
   /* scr_write */
-    isit_stri(arg_3(arguments));
-    stri = take_stri(arg_3(arguments));
+    isit_stri(arg_2(arguments));
+    stri = take_stri(arg_2(arguments));
 #ifdef WIDE_CHAR_STRINGS
     {
       uchartype stri_buffer[2000];

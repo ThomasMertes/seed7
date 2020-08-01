@@ -97,6 +97,77 @@ stritype in_stri;
 
 
 
+#ifdef ANSI_C
+
+memsizetype utf8_to_stri (strelemtype *stri, ustritype ustri, SIZE_TYPE len)
+#else
+
+memsizetype utf8_to_stri (stri, ustri, len)
+strelemtype *stri;
+ustritype ustri;
+SIZE_TYPE len;
+#endif
+
+  { /* utf8_to_stri */
+    for (; len > 0; len--) {
+      if (*ustri <= 0x7F) {
+        *stri++ = (strelemtype) *ustri++;
+      } else if ((ustri[0] & 0xE0) == 0xC0 && len > 1 &&
+                 (ustri[1] & 0xC0) == 0x80) {
+        *stri++ = (ustri[0] & 0x1F) << 6 |
+                  (ustri[1] & 0x3F);
+        ustri += 2;
+        len--;
+      } else if ((ustri[0] & 0xF0) == 0xE0 && len > 2 &&
+                 (ustri[1] & 0xC0) == 0x80 &&
+                 (ustri[2] & 0xC0) == 0x80) {
+        *stri++ = (ustri[0] & 0x0F) << 12 |
+                  (ustri[1] & 0x3F) <<  6 |
+                  (ustri[2] & 0x3F);
+        ustri += 3;
+        len -= 2;
+      } else if ((ustri[0] & 0xF8) == 0xF0 && len > 3 &&
+                 (ustri[1] & 0xC0) == 0x80 &&
+                 (ustri[2] & 0xC0) == 0x80 &&
+                 (ustri[3] & 0xC0) == 0x80) {
+        *stri++ = (ustri[0] & 0x07) << 18 |
+                  (ustri[1] & 0x3F) << 12 |
+                  (ustri[2] & 0x3F) <<  6 |
+                  (ustri[3] & 0x3F);
+        ustri += 4;
+        len -= 3;
+       } else if ((ustri[0] & 0xFC) == 0xF8 && len > 4 &&
+                 (ustri[1] & 0xC0) == 0x80 &&
+                 (ustri[2] & 0xC0) == 0x80 &&
+                 (ustri[3] & 0xC0) == 0x80 &&
+                 (ustri[4] & 0xC0) == 0x80) {
+        *stri++ = (ustri[0] & 0x03) << 24 |
+                  (ustri[1] & 0x3F) << 18 |
+                  (ustri[2] & 0x3F) << 12 |
+                  (ustri[3] & 0x3F) <<  6 |
+                  (ustri[4] & 0x3F);
+        ustri += 5;
+        len -= 4;
+      } else if ((ustri[0] & 0xFC) == 0xFC && len > 5 &&
+                 (ustri[1] & 0xC0) == 0x80 &&
+                 (ustri[2] & 0xC0) == 0x80 &&
+                 (ustri[3] & 0xC0) == 0x80 &&
+                 (ustri[4] & 0xC0) == 0x80 &&
+                 (ustri[5] & 0xC0) == 0x80) {
+        *stri++ = (ustri[0] & 0x03) << 30 |
+                  (ustri[1] & 0x3F) << 24 |
+                  (ustri[2] & 0x3F) << 18 |
+                  (ustri[3] & 0x3F) << 12 |
+                  (ustri[4] & 0x3F) <<  6 |
+                  (ustri[5] & 0x3F);
+        ustri += 6;
+        len -= 5;
+      } /* if */
+    } /* while */
+  } /* utf8_to_stri */
+
+
+
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
@@ -197,7 +268,7 @@ SIZE_TYPE len;
   { /* stri_compress */
     for (; len > 0; stri++, ustri++, len--) {
       *ustri = (uchartype) *stri;
-    } /* while */
+    } /* for */
   } /* stri_compress */
 
 

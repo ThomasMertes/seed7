@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  striutl.h     Procedures to work with wide char strings.        */
+/*  ut8_rtl.h     Primitive actions for the UTF-8 file type.        */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,53 +23,26 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/striutl.h                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005  Thomas Mertes            */
-/*  Content: Procedures to work with wide char strings.             */
+/*  File: seed7/src/ut8_rtl.h                                       */
+/*  Changes: 2005  Thomas Mertes                                    */
+/*  Content: Primitive actions for the UTF-8 file type.             */
 /*                                                                  */
 /********************************************************************/
 
-#define compr_size(stri) (6 * (stri)->size)
-#define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, compr_size(stri));
-
-
 #ifdef ANSI_C
 
-memsizetype utf8_to_stri (strelemtype *, ustritype, SIZE_TYPE);
-cstritype cp_to_cstri (stritype);
-bstritype cp_to_bstri (stritype);
-stritype cp_to_stri (ustritype);
+chartype ut8Getc (filetype);
+stritype ut8LineRead (filetype, chartype *);
+stritype ut8StriRead (filetype, inttype);
+stritype ut8WordRead (filetype, chartype *);
+void ut8Write (filetype, stritype);
 
 #else
 
-memsizetype utf8_to_stri ();
-cstritype cp_to_cstri ();
-bstritype cp_to_bstri ();
-stritype cp_to_stri ();
-
-#endif
-
-
-#ifdef WIDE_CHAR_STRINGS
-
-#ifdef ANSI_C
-
-void stri_export (ustritype, stritype);
-void stri_expand (strelemtype *, ustritype, SIZE_TYPE);
-void stri_compress (ustritype, strelemtype *, SIZE_TYPE);
-
-#else
-
-void stri_export ();
-void stri_expand ();
-void stri_compress ();
-
-#endif
-
-#else
-
-#define stri_export(ustri,stri) memcpy((ustri), (stri)->mem, (stri)->size); (ustri)[(stri)->size] = '\0';
-#define stri_expand(stri,ustri,len) memcpy((stri), (ustri), (len))
-#define stri_compress(ustri,stri,len) memcpy((ustri), (stri), (len))
+chartype ut8Getc ();
+stritype ut8LineRead ();
+stritype ut8StriRead ();
+stritype ut8WordRead ();
+void ut8Write ();
 
 #endif

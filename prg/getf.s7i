@@ -47,7 +47,7 @@ const proc: putf (in string: file_name, ref string: stri) is func
     if stri <> "" then
       work_file := open(file_name, "w");
       if work_file <> STD_NULL then
-        work_file << stri;
+        write(work_file, stri);
         close(work_file);
       end if;
     end if;

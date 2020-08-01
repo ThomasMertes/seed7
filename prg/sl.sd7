@@ -43,14 +43,14 @@ const integer: MINCOLUMN  is  -87;
 const integer: MAXCOLUMN  is  168;
 
 
-var TEXT: scr is STD_NULL;
-var TEXT: win is STD_NULL;
-var TEXT: gen_win is STD_NULL;
-var TEXT: field_win is STD_NULL;
-var TEXT: cmd_win is STD_NULL;
-var TEXT: map_win is STD_NULL;
-var TEXT: header is STD_NULL;
-var TEXT: prot is STD_NULL;
+var text: scr is STD_NULL;
+var text: win is STD_NULL;
+var text: gen_win is STD_NULL;
+var text: field_win is STD_NULL;
+var text: cmd_win is STD_NULL;
+var text: map_win is STD_NULL;
+var text: header is STD_NULL;
+var text: prot is STD_NULL;
 
 const type: coord is new struct
     var integer: lin is 0;
@@ -248,7 +248,7 @@ const proc: writescreen is func
 
 
 
-const proc: writemap (in TEXT: map_win) is func
+const proc: writemap (in text: map_win) is func
   local
     var integer: index is 0;
     var integer: line_div is 0;

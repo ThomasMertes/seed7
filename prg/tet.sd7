@@ -31,9 +31,9 @@ include "keybd.s7i";
 const integer: FIELD_HEIGHT is 20;
 const integer: FIELD_WIDTH is 10;
 
-var TEXT: scr is STD_NULL;
-var TEXT: field is STD_NULL;
-var TEXT: info_sheet is STD_NULL;
+var text: scr is STD_NULL;
+var text: field is STD_NULL;
+var text: info_sheet is STD_NULL;
 
 var boolean: quit_round is FALSE;
 var integer: score is 0;
@@ -355,7 +355,7 @@ const proc: drop (inout piece: actual_piece) is func
 
 const proc: set_piece (inout piece: actual_piece) is func
   local
-    var time: start_time is NULL_TIME;
+    var time: start_time is time.value;
     var integer: counter is 0;
     var char: command is ' ';
   begin

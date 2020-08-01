@@ -171,7 +171,7 @@ const type: playerObj is sub screenObj struct
 const type: monsterObj is sub screenObj struct
     var integer: category is 1;
     var integer: saved_column_direction is 0;
-    var time:    action_time is NULL_TIME;
+    var time:    action_time is time.value;
     var integer: holes_passed is 0;
     var integer: basePoints is 0;
     var integer: points is 0;
@@ -201,7 +201,7 @@ const array integer: level_line is [](
 var array array boolean: field is FIELD_LINES times FIELD_COLUMNS times FALSE;
 var array array holeType: hole_status is FIELD_LINES times FIELD_COLUMNS times no_hole;
 
-var TEXT: scr is STD_NULL;
+var text: scr is STD_NULL;
 
 (*
 const array string: player_right_1 is [](
@@ -1051,7 +1051,7 @@ const proc: init_pictures is func
 
 const proc: pause_game is func
   local
-    var time: pause_time is NULL_TIME;
+    var time: pause_time is time.value;
     var duration: pause_duration is duration.value;
     var integer: number is 0;
     var char: cmd is ' ';
@@ -1065,7 +1065,7 @@ const proc: pause_game is func
     until cmd in {'\e', 'P', 'p'} or game.quit;
     pause_duration := time(NOW) - pause_time;
     for number range 1 to length(monster) do
-      if monster[number].action_time <> NULL_TIME then
+      if monster[number].action_time <> time.value then
         monster[number].action_time +:= pause_duration;
       end if;
     end for;
@@ -1817,10 +1817,10 @@ const proc: player_collision (inout monsterObj: currObject) is func
           if game.num_players > 1 then
             currObject.action_time := time(NOW) + 5 . SECONDS;
           else
-            currObject.action_time := NULL_TIME;
+            currObject.action_time := time.value;
           end if;
         end if;
-      elsif currObject.action_time <> NULL_TIME and
+      elsif currObject.action_time <> time.value and
           time(NOW) >= currObject.action_time then
         game.round_finished := TRUE;
       end if;
@@ -1995,7 +1995,7 @@ const proc: draw_reserve (in var integer: num_players) is func
 
 const proc: init_round (in integer: num_round) is func
   local
-    var time: start_time is NULL_TIME;
+    var time: start_time is time.value;
     var integer: number is 0;
     var char: cmd is ' ';
   begin
@@ -2591,7 +2591,7 @@ const proc: get_command (inout playerObj: playerObject) is func
 
 const proc: game_round is func
   local
-    var time: turn_time is NULL_TIME;
+    var time: turn_time is time.value;
     var integer: number is 0;
     var integer: progress is 0;
     var integer: new_bonus is 0;

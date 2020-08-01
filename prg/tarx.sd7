@@ -299,18 +299,55 @@ const func time: mtime_to_time (in var integer: mtime) is func
         incr(result.month);
       end while;
     else
-      while mtime >= leap_year_months[result.month] * day_seconds do
-        mtime -:= leap_year_months[result.month] * day_seconds;
+      while mtime >= normal_year_months[result.month] * day_seconds do
+        mtime -:= normal_year_months[result.month] * day_seconds;
         incr(result.month);
       end while;
     end if;
-    result.day :=    mtime div day_seconds;
+    result.day :=    mtime div day_seconds + 1;
     mtime :=         mtime rem day_seconds;
-    result.hour :=   mtime div hour_seconds;
+    result.hour :=   mtime div hour_seconds + 1;
     mtime :=         mtime rem hour_seconds;
     result.minute := mtime div 60;
     mtime :=         mtime rem 60;
     result.second := mtime;
+  end func;
+
+
+const func integer: time_to_mtime (in time: aTime) is func
+  result
+    var integer: result is 0;
+  local
+    const integer: normal_year_seconds is 365 * 24 * 60 * 60;
+    const integer: leap_year_seconds is 366 * 24 * 60 * 60;
+    const array integer: normal_year_months is [] (
+        31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+    const array integer: leap_year_months is [] (
+        31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+    const integer: day_seconds is 24 * 60 * 60;
+    const integer: hour_seconds is 60 * 60;
+    var integer: number is 0;
+  begin
+    for number range 1970 to pred(aTime.year) do
+      if leap_year(number) then
+        result +:= leap_year_seconds;
+      else
+        result +:= normal_year_seconds;
+      end if;
+    end for;
+    if leap_year(aTime.year) then
+      for number range 1 to pred(aTime.month) do
+        result +:= leap_year_months[number] * day_seconds;
+      end for;
+    else
+      for number range 1 to pred(aTime.month) do
+        result +:= normal_year_months[number] * day_seconds;
+      end for;
+    end if;
+    result +:= pred(aTime.day) * day_seconds +
+        pred(aTime.hour) * hour_seconds +
+        aTime.minute * 60 +
+        aTime.second;
   end func;
 
 
@@ -440,6 +477,8 @@ const proc: main is func
     var boolean: do_view is FALSE;
     var boolean: file_arg is FALSE;
     var array string: arg_list is 0 times "";
+    var integer: number is 0;
+    var integer: mtime is 0;
   begin
     if length(argv(PROGRAM)) >= 1 then
       option := argv(PROGRAM)[1];

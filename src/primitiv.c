@@ -56,6 +56,7 @@
 #include "timlib.h"
 #include "typlib.h"
 #include "unxlib.h"
+#include "ut8lib.h"
 
 #undef EXTERN
 #define EXTERN
@@ -517,6 +518,7 @@ static primactrecord prim_act_table[] = {
     { "STR_HASHCODE",      str_hashcode,      },
     { "STR_HEAD",          str_head,          },
     { "STR_IDX",           str_idx,           },
+    { "STR_IPOS",          str_ipos,          },
     { "STR_LE",            str_le,            },
     { "STR_LIT",           str_lit,           },
     { "STR_LNG",           str_lng,           },
@@ -568,7 +570,13 @@ static primactrecord prim_act_table[] = {
     { "UNX_PWD",           unx_pwd,           },
     { "UNX_RM",            unx_rm,            },
     { "UNX_SH",            unx_sh,            },
-    { "UNX_SLEEP",         unx_sleep,         }
+    { "UNX_SLEEP",         unx_sleep,         },
+
+    { "UT8_GETC",          ut8_getc,          },
+    { "UT8_L_RD",          ut8_l_rd,          },
+    { "UT8_STRI_READ",     ut8_stri_read,     },
+    { "UT8_WORD_READ",     ut8_word_read,     },
+    { "UT8_WRITE",         ut8_write,         }
   };
 
 

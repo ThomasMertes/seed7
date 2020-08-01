@@ -681,6 +681,25 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype str_ipos (listtype arguments)
+#else
+
+objecttype str_ipos (arguments)
+listtype arguments;
+#endif
+
+  { /* str_ipos */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    return(bld_int_temp(
+        strIpos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
+                take_int(arg_3(arguments)))));
+  } /* str_ipos */
+
+
+
+#ifdef ANSI_C
+
 objecttype str_le (listtype arguments)
 #else
 

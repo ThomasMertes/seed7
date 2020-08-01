@@ -398,6 +398,55 @@ stritype stri;
 
 #ifdef ANSI_C
 
+inttype strIpos (stritype main_stri, stritype searched, inttype from_index)
+#else
+
+inttype strIpos (main_stri, searched, from_index)
+stritype main_stri;
+stritype searched;
+inttype from_index;
+#endif
+
+  {
+    memsizetype main_size;
+    memsizetype searched_size;
+    strelemtype ch_1;
+    strelemtype *main_mem;
+    strelemtype *searched_mem;
+    strelemtype *search_start;
+    strelemtype *search_end;
+
+  /* strIpos */
+    if (from_index <= 0) {
+      raise_error(RANGE_ERROR);
+    } else {
+      main_size = main_stri->size;
+      searched_size = searched->size;
+      if (searched_size != 0 && from_index + searched_size - 1 <= main_size) {
+        searched_mem = searched->mem;
+        ch_1 = searched_mem[0];
+        main_mem = &main_stri->mem[from_index - 1];
+        main_size -= from_index;
+        search_start = main_mem;
+        search_end = &main_mem[main_size - searched_size + 1];
+        while ((search_start = (strelemtype *) search_strelem(search_start,
+            ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
+          if (memcmp(search_start, searched_mem,
+              (SIZE_TYPE) searched_size * sizeof(strelemtype)) == 0) {
+            return(((inttype) (search_start - main_mem)) + from_index);
+          } else {
+            search_start++;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return(0);
+  } /* strIpos */
+
+
+
+#ifdef ANSI_C
+
 booltype strLe (stritype stri1, stritype stri2)
 #else
 

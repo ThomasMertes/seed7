@@ -210,7 +210,7 @@ register int character;
         in_file.character = character;
       } /* if */
     } else if ((character & 0xF8) == 0xF0) {
-      result = (character & 0x0F) << 18;
+      result = (character & 0x07) << 18;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
         result |= (character & 0x3F) << 12;
@@ -240,8 +240,8 @@ register int character;
         err_character(CHAR_ILLEGAL, character);
         in_file.character = character;
       } /* if */
-    } else if ((ustri[0] & 0xFC) == 0xF8) {
-      result = (character & 0x0F) << 24;
+    } else if ((character & 0xFC) == 0xF8) {
+      result = (character & 0x03) << 24;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
         result |= (character & 0x3F) << 18;

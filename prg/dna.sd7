@@ -45,11 +45,11 @@ include "tan.dna";
 
 const string:   Version     is   "5.3";
 
-var TEXT: SCR is STD_NULL;
-var TEXT: field is STD_NULL;
-var TEXT: INFO is STD_NULL;
-var TEXT: STAT is STD_NULL;
-var TEXT: FSTAT is STD_NULL;
+var text: SCR is STD_NULL;
+var text: field is STD_NULL;
+var text: INFO is STD_NULL;
+var text: STAT is STD_NULL;
+var text: FSTAT is STD_NULL;
 
 const integer:  MAX_LINE    is      21;
 const integer:  MAX_COLUMN  is      21;

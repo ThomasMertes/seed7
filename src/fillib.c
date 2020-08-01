@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -27,18 +27,14 @@
 
 #include "stdlib.h"
 #include "stdio.h"
-#include "string.h"
-#include "errno.h"
 
 #include "version.h"
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
-#include "flistutl.h"
 #include "syvarutl.h"
 #include "striutl.h"
 #include "runerr.h"
-#include "runfile.h"
 #include "memory.h"
 #include "fil_rtl.h"
 
@@ -594,7 +590,7 @@ listtype arguments;
 
   { /* fil_write */
     isit_file(arg_1(arguments));
-    isit_stri(arg_3(arguments));
-    filWrite(take_file(arg_1(arguments)), take_stri(arg_3(arguments)));
+    isit_stri(arg_2(arguments));
+    filWrite(take_file(arg_1(arguments)), take_stri(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* fil_write */

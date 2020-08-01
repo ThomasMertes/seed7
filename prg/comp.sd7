@@ -1490,7 +1490,7 @@ const proc: process_drw_arc2 (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_drw_background (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "dra_background(";
+    c_expr.expr &:= "drwBackground(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -1683,7 +1683,8 @@ const proc: process_drw_image (in ref_list: params, inout expr_type: c_expr) is 
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-   c_expr.expr &:= ")";
+    c_expr.expr &:= ", 0, 0"; (* This is just a hack: This function will not work *)
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -2125,7 +2126,7 @@ const proc: process_fil_write (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= "filWrite(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -4277,6 +4278,19 @@ const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_str_ipos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "strIpos(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_str_le (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5345,6 +5359,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_str_head(params, c_expr);
     elsif action_name = "STR_IDX" then
       process_str_idx(params, c_expr);
+    elsif action_name = "STR_IPOS" then
+      process_str_ipos(params, c_expr);
     elsif action_name = "STR_LE" then
       process_str_le(params, c_expr);
     elsif action_name = "STR_LIT" then

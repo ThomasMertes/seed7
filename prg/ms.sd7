@@ -28,10 +28,10 @@ include "window.s7i";
 include "keybd.s7i";
 
 
-var TEXT: scr is STD_NULL;
-var TEXT: field is STD_NULL;
-var TEXT: status is STD_NULL;
-var TEXT: protocol is STD_NULL;
+var text: scr is STD_NULL;
+var text: field is STD_NULL;
+var text: status is STD_NULL;
+var text: protocol is STD_NULL;
 
 const integer: STRETCH_FACTOR is 2;
 

@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const type: DIR_FILE is sub NULL_FILE struct
+const type: dir_file is sub NULL_FILE struct
     var string: path is "";
     var array string: dir_array is 0 times "";
     var integer: curr_line is 0;
@@ -34,11 +34,11 @@ const type: DIR_FILE is sub NULL_FILE struct
   end struct;
 
 
-const func DIR_FILE: open_dir (in string: dir_name) is func
+const func dir_file: open_dir (in string: dir_name) is func
   result
-    var DIR_FILE: result is DIR_FILE.value;
+    var dir_file: result is dir_file.value;
   begin
-    result := DIR_FILE.value;
+    result := dir_file.value;
     result.path := "";
     result.dir_array := read_dir(dir_name);
     result.curr_line := 1;
@@ -46,11 +46,11 @@ const func DIR_FILE: open_dir (in string: dir_name) is func
   end func;
 
 
-const func DIR_FILE: open_dir_path (in string: dir_name) is func
+const func dir_file: open_dir_path (in string: dir_name) is func
   result
-    var DIR_FILE: result is DIR_FILE.value;
+    var dir_file: result is dir_file.value;
   begin
-    result := DIR_FILE.value;
+    result := dir_file.value;
     if dir_name[length(dir_name)] <> '/' then
       result.path := dir_name & "/";
     else
@@ -62,7 +62,7 @@ const func DIR_FILE: open_dir_path (in string: dir_name) is func
   end func;
 
 
-const func string: getln (inout DIR_FILE: dir_fil) is func
+const func string: getln (inout dir_file: dir_fil) is func
   result
     var string: stri is "";
   begin
@@ -75,7 +75,7 @@ const func string: getln (inout DIR_FILE: dir_fil) is func
   end func;
 
 
-const func string: getwd (inout DIR_FILE: dir_fil) is func
+const func string: getwd (inout dir_file: dir_fil) is func
   result
     var string: stri is "";
   begin
@@ -88,7 +88,7 @@ const func string: getwd (inout DIR_FILE: dir_fil) is func
   end func;
 
 
-const func string: gets (in DIR_FILE: dir_fil, in integer: leng) is func
+const func string: gets (in dir_file: dir_fil, in integer: leng) is func
   result
     var string: stri is "";
   begin

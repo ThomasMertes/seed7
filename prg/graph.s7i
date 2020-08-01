@@ -143,17 +143,19 @@ const proc: (ref GRAPH param) ::= (ref NULL_GRAPH param) is          action "ENU
 const proc: (ref GRAPH param) := (ref NULL_GRAPH param) is           action "ENU_CPY";
 
 
-const type: WINDOW is sub NULL_FILE struct
+(* The type window and its functions are not in use *)
+
+const type: window is sub NULL_FILE struct
     var PRIMITIVE_WINDOW: EXT_WINDOW is PRIMITIVE_WINDOW.value;
     var GRAPH: CONTENT is EMPTY_NODE;
   end struct;
 
-const WINDOW: NULL_WINDOW is WINDOW.value;
+const window: NULL_WINDOW is window.value;
 
-const proc: (ref WINDOW param) draw (ref GRAPH param) is          DYNAMIC;
+const proc: (ref window param) draw (ref GRAPH param) is          DYNAMIC;
 const proc: SHOW (ref GRAPH param) is                         DYNAMIC;
 
-const proc: (ref WINDOW param) draw (ref NULL_GRAPH param) is   noop;
+const proc: (ref window param) draw (ref NULL_GRAPH param) is   noop;
 
 
 var integer: CURR_X_POS is 0;
@@ -162,15 +164,15 @@ var integer: END_X_POS is 0;
 var integer: END_Y_POS is 0;
 
 
-const func WINDOW: OPEN_GRAPHIC (in integer: x_min, in integer: y_min, in integer: x_max, in integer: y_max) is func
+const func window: OPEN_GRAPHIC (in integer: x_min, in integer: y_min, in integer: x_max, in integer: y_max) is func
   result
-    var WINDOW: result is NULL_WINDOW;
+    var window: result is NULL_WINDOW;
   local
     var PRIMITIVE_WINDOW: NEW_WINDOW is PRIMITIVE_WINDOW.value;
   begin
     NEW_WINDOW := PRIMITIVE_GRAPHIC_OPEN(x_min, y_min, x_max, y_max, name(PROGRAM));
     if NEW_WINDOW <> PRIMITIVE_WINDOW.value then
-      result := WINDOW.value;
+      result := window.value;
       result.EXT_WINDOW := NEW_WINDOW;
     end if;
   end func;
@@ -191,11 +193,11 @@ const func LINE_GRAPH: LINE (in integer: x, in integer: y) is func
       result.end_y := y;
     end func;
 
-const proc: (inout WINDOW: CURR_WINDOW) draw (ref LINE_GRAPH: line) is func
+const proc: (inout window: curr_window) draw (ref LINE_GRAPH: line) is func
     begin
       END_X_POS := CURR_X_POS + line.end_x;
       END_Y_POS := CURR_Y_POS + line.end_y;
-      DRAW_LINE(CURR_WINDOW.EXT_WINDOW,
+      DRAW_LINE(curr_window.EXT_WINDOW,
           CURR_X_POS, CURR_Y_POS, END_X_POS, END_Y_POS);
     end func;
 
@@ -230,11 +232,11 @@ const func RECT_GRAPH: RECT (ref integer: x, ref integer: y) is func
       result.length_y := y;
     end func;
 
-const proc: (inout WINDOW: CURR_WINDOW) draw (ref RECT_GRAPH: rect) is func
+const proc: (inout window: curr_window) draw (ref RECT_GRAPH: rect) is func
     begin
       END_X_POS := CURR_X_POS + rect.length_x;
       END_Y_POS := CURR_Y_POS + rect.length_y;
-      DRAW_RECT(CURR_WINDOW.EXT_WINDOW,
+      DRAW_RECT(curr_window.EXT_WINDOW,
           CURR_X_POS, CURR_Y_POS, rect.length_x, rect.length_y);
     end func;
 
@@ -267,11 +269,11 @@ const func CIRCLE_GRAPH: CIRCLE (in integer: r) is func
       result.radius := r;
     end func;
 
-const proc: (inout WINDOW: CURR_WINDOW) draw (ref CIRCLE_GRAPH: circle) is func
+const proc: (inout window: curr_window) draw (ref CIRCLE_GRAPH: circle) is func
     begin
       END_X_POS := CURR_X_POS;
       END_Y_POS := CURR_Y_POS;
-      DRAW_CIRCLE(CURR_WINDOW.EXT_WINDOW,
+      DRAW_CIRCLE(curr_window.EXT_WINDOW,
           CURR_X_POS, CURR_Y_POS, circle.radius);
     end func;
 
@@ -306,11 +308,11 @@ const func ARC_GRAPH: ARC (in integer: x, in integer: y, in integer: r) is func
       result.radius := r;
     end func;
 
-const proc: (inout WINDOW: CURR_WINDOW) draw (ref ARC_GRAPH: arc) is func
+const proc: (inout window: curr_window) draw (ref ARC_GRAPH: arc) is func
     begin
       END_X_POS := CURR_X_POS + arc.end_x;
       END_Y_POS := CURR_Y_POS + arc.end_y;
-      DRAW_ARC2(CURR_WINDOW.EXT_WINDOW,
+      DRAW_ARC2(curr_window.EXT_WINDOW,
           CURR_X_POS, CURR_Y_POS, END_X_POS, END_Y_POS, arc.radius);
     end func;
 
@@ -347,12 +349,12 @@ const func CONN_GRAPH: (ref GRAPH: LEFT) conn (ref GRAPH: RIGHT) is func
       result.second := RIGHT;
     end func;
 
-const proc: (ref WINDOW: CURR_WINDOW) draw (ref CONN_GRAPH: conn) is func
+const proc: (ref window: curr_window) draw (ref CONN_GRAPH: conn) is func
     begin
-      CURR_WINDOW draw conn.first;
+      curr_window draw conn.first;
       CURR_X_POS := END_X_POS;
       CURR_Y_POS := END_Y_POS;
-      CURR_WINDOW draw conn.second;
+      curr_window draw conn.second;
     end func;
 
 const proc: SHOW (ref CONN_GRAPH: conn) is func
@@ -381,17 +383,17 @@ const func OVER_GRAPH: (ref GRAPH: left) over (ref GRAPH: right) is func
       result.second := right;
     end func;
 
-const proc: (ref WINDOW: CURR_WINDOW) draw (ref OVER_GRAPH: over) is func
+const proc: (ref window: curr_window) draw (ref OVER_GRAPH: over) is func
     local
       var integer: CURR_X_BACKUP is 0;
       var integer: CURR_Y_BACKUP is 0;
     begin
       CURR_X_BACKUP := CURR_X_POS;
       CURR_Y_BACKUP := CURR_Y_POS;
-      CURR_WINDOW draw over.first;
+      curr_window draw over.first;
       CURR_X_POS := CURR_X_BACKUP;
       CURR_Y_POS := CURR_Y_BACKUP;
-      CURR_WINDOW draw over.second;
+      curr_window draw over.second;
     end func;
 
 const proc: SHOW (ref OVER_GRAPH: over) is func
@@ -418,10 +420,10 @@ const func COLOR_GRAPH: (in pixel: col) color (ref GRAPH: pic) is func
       result.picture := pic;
     end func;
 
-const proc: (ref WINDOW: CURR_WINDOW) draw (ref COLOR_GRAPH: col_graph) is func
+const proc: (ref window: curr_window) draw (ref COLOR_GRAPH: col_graph) is func
     begin
       SET_COLOR(col_graph.color);
-      CURR_WINDOW draw col_graph.picture;
+      curr_window draw col_graph.picture;
       SET_COLOR(rgbPixel(0, 0, 0));
     end func;
 
@@ -447,7 +449,7 @@ const func MOVE_GRAPH: MOVE (in integer: x, in integer: y) is func
       result.end_y := y;
     end func;
 
-const proc: (ref WINDOW: CURR_WINDOW) draw (ref MOVE_GRAPH: move) is func
+const proc: (ref window: curr_window) draw (ref MOVE_GRAPH: move) is func
     begin
       END_X_POS := CURR_X_POS + move.end_x;
       END_Y_POS := CURR_Y_POS + move.end_y;
@@ -510,15 +512,15 @@ const func GRAPH: (ref GRAPH: CURR_GRAPH) mult (in integer: factor) is func
   end func;
 
 
-const proc: (ref WINDOW: CURR_WINDOW) << (ref GRAPH: DRAWING) is func
+const proc: (ref window: curr_window) << (ref GRAPH: DRAWING) is func
   begin
-    CURR_WINDOW.CONTENT := CURR_WINDOW.CONTENT conn DRAWING;
+    curr_window.CONTENT := curr_window.CONTENT conn DRAWING;
   end func;
 
 
-const proc: FLUSH (ref WINDOW: CURR_WINDOW) is func
+const proc: FLUSH (ref window: curr_window) is func
   begin
 (*  PRINT("FLUSH WINDOW"); *)
     DRAW(CLEAR);
-    CURR_WINDOW draw CURR_WINDOW.CONTENT;
+    curr_window draw curr_window.CONTENT;
   end func;

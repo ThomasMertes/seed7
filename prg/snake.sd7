@@ -73,9 +73,9 @@ SNAKE.picture := 'S';
 const proc: move (SNAKE, in direction_type param) is DYNAMIC;
 
 
-var TEXT: SCR is STD_NULL;
-var TEXT: WIN is STD_NULL;
-var TEXT: STATUS is STD_NULL;
+var text: scr is STD_NULL;
+var text: win is STD_NULL;
+var text: status is STD_NULL;
 
 
 const proc: beep is func
@@ -98,8 +98,8 @@ const proc: set_position (inout screen_object: scr_object) is func
       col := rand(1, MAX_COLUMN - 2);
       ch := FIELD[lin][col];
     until ch = BLANK;
-    setPos(WIN, lin, col);
-    WIN << scr_object.picture;
+    setPos(win, lin, col);
+    win << scr_object.picture;
     FIELD[lin][col] := scr_object.picture;
     scr_object.line := lin;
     scr_object.column := col;
@@ -109,10 +109,10 @@ const proc: set_position (inout screen_object: scr_object) is func
 const proc: show_status is func
 
   begin
-    setPos(STATUS, 1, MAX_COLUMN div 2 - 3);
-    STATUS << " ";
-    STATUS << SNAKE.length;
-    STATUS << " ";
+    setPos(status, 1, MAX_COLUMN div 2 - 3);
+    status << " ";
+    status << SNAKE.length;
+    status << " ";
   end func;
 
 
@@ -246,9 +246,9 @@ const proc: show (SNAKE) is func
   begin
     if SNAKE.grow <> 0 then
       if SNAKE.length = 0 then
-        setPos(WIN, SNAKE.position[SNAKE.end_index][1],
+        setPos(win, SNAKE.position[SNAKE.end_index][1],
             SNAKE.position[SNAKE.end_index][2]);
-        WIN << BODY;
+        win << BODY;
         FIELD[SNAKE.position[SNAKE.end_index][1]]
             [SNAKE.position[SNAKE.end_index][2]] := BODY;
       end if;
@@ -256,9 +256,9 @@ const proc: show (SNAKE) is func
       incr(SNAKE.length);
       show_status();
     else
-      setPos(WIN, SNAKE.position[SNAKE.end_index][1],
+      setPos(win, SNAKE.position[SNAKE.end_index][1],
           SNAKE.position[SNAKE.end_index][2]);
-      WIN << BLANK;
+      win << BLANK;
       FIELD[SNAKE.position[SNAKE.end_index][1]]
           [SNAKE.position[SNAKE.end_index][2]] := BLANK;
       incr(SNAKE.end_index);
@@ -268,12 +268,12 @@ const proc: show (SNAKE) is func
     SNAKE.position[SNAKE.head_index][1] := SNAKE.line;
     SNAKE.position[SNAKE.head_index][2] := SNAKE.column;
 
-    setPos(WIN, SNAKE.line, SNAKE.column);
-    WIN << SNAKE.picture;
+    setPos(win, SNAKE.line, SNAKE.column);
+    win << SNAKE.picture;
     FIELD[SNAKE.line][SNAKE.column] := SNAKE.picture;
-    setPos(WIN, SNAKE.position[pred(SNAKE.head_index)][1],
+    setPos(win, SNAKE.position[pred(SNAKE.head_index)][1],
         SNAKE.position[pred(SNAKE.head_index)][2]);
-    WIN << BODY;
+    win << BODY;
     FIELD[SNAKE.position[pred(SNAKE.head_index)][1]]
         [SNAKE.position[pred(SNAKE.head_index)][2]] := BODY;
   end func;
@@ -285,7 +285,7 @@ const func boolean: play(ROUND) is func
     var boolean: result is FALSE;
   local
     var char: inp is ' ';
-    var time: start_time is NULL_TIME;
+    var time: start_time is time.value;
     var integer: apple_counter is 0;
   begin
     show_status();
@@ -309,8 +309,8 @@ const func boolean: play(ROUND) is func
 
       if SNAKE.fence_movement then
         beep();
-        setPos(SCR, 1, 1);
-        SCR << "FENCE";
+        setPos(scr, 1, 1);
+        scr << "FENCE";
         inp := 'q';
       else
 
@@ -320,13 +320,13 @@ const func boolean: play(ROUND) is func
 
         if SNAKE.last_meal = BODY then
           beep();
-          setPos(SCR, 1, 1);
-          SCR << "BODY";
+          setPos(scr, 1, 1);
+          scr << "BODY";
           inp := 'q';
         elsif SNAKE.last_meal = '#' then
           beep();
-          setPos(SCR, 1, 1);
-          SCR << "#";
+          setPos(scr, 1, 1);
+          scr << "#";
           inp := 'q';
         elsif apple_counter >= 10 then
           inp := 'q';
@@ -370,8 +370,8 @@ const proc: init_level (in integer: level) is func
       when {2}:
         for number range 19 to 59 do
           FIELD[11][number] := '#';
-          setPos(WIN, 11, number);
-          WIN << "#";
+          setPos(win, 11, number);
+          win << "#";
         end for;
 (*      SNAKE(1).row = 7: SNAKE(2).row = 43
         SNAKE(1).col = 60: SNAKE(2).col = 20
@@ -381,10 +381,10 @@ const proc: init_level (in integer: level) is func
         for number range 6 to 16 do
           FIELD[number][19] := '#';
           FIELD[number][59] := '#';
-          setPos(WIN, number, 19);
-          WIN << "#";
-          setPos(WIN, number, 59);
-          WIN << "#";
+          setPos(win, number, 19);
+          win << "#";
+          setPos(win, number, 59);
+          win << "#";
         end for;
 (*      SNAKE(1).row = 25: SNAKE(2).row = 25
         SNAKE(1).col = 50: SNAKE(2).col = 30
@@ -394,18 +394,18 @@ const proc: init_level (in integer: level) is func
         for number range 1 to 12 do
           FIELD[number][19] := '#';
           FIELD[22 - number][59] := '#';
-          setPos(WIN, number, 19);
-          WIN << "#";
-          setPos(WIN, 22 - number, 59);
-          WIN << "#";
+          setPos(win, number, 19);
+          win << "#";
+          setPos(win, 22 - number, 59);
+          win << "#";
         end for;
         for number range 1 to 45 do
           FIELD[16][number] := '#';
           FIELD[6][79 - number] := '#';
-          setPos(WIN, 16, number);
-          WIN << "#";
-          setPos(WIN, 6, 79 - number);
-          WIN << "#";
+          setPos(win, 16, number);
+          win << "#";
+          setPos(win, 6, 79 - number);
+          win << "#";
         end for;
 (*      SNAKE(1).row = 7: SNAKE(2).row = 43
         SNAKE(1).col = 60: SNAKE(2).col = 20
@@ -415,18 +415,18 @@ const proc: init_level (in integer: level) is func
         for number range 6 to 16 do
           FIELD[number][19] := '#';
           FIELD[number][59] := '#';
-          setPos(WIN, number, 19);
-          WIN << "#";
-          setPos(WIN, number, 59);
-          WIN << "#";
+          setPos(win, number, 19);
+          win << "#";
+          setPos(win, number, 59);
+          win << "#";
         end for;
         for number range 21 to 57 do
           FIELD[4][number] := '#';
           FIELD[18][number] := '#';
-          setPos(WIN, 4, number);
-          WIN << "#";
-          setPos(WIN, 18, number);
-          WIN << "#";
+          setPos(win, 4, number);
+          win << "#";
+          setPos(win, 18, number);
+          win << "#";
         end for;
 (*      SNAKE(1).row = 25: SNAKE(2).row = 25
         SNAKE(1).col = 50: SNAKE(2).col = 30
@@ -442,20 +442,20 @@ const proc: init_level (in integer: level) is func
             FIELD[number][50] := '#';
             FIELD[number][60] := '#';
             FIELD[number][70] := '#';
-            setPos(WIN, number, 10);
-            WIN << "#";
-            setPos(WIN, number, 20);
-            WIN << "#";
-            setPos(WIN, number, 30);
-            WIN << "#";
-            setPos(WIN, number, 40);
-            WIN << "#";
-            setPos(WIN, number, 50);
-            WIN << "#";
-            setPos(WIN, number, 60);
-            WIN << "#";
-            setPos(WIN, number, 70);
-            WIN << "#";
+            setPos(win, number, 10);
+            win << "#";
+            setPos(win, number, 20);
+            win << "#";
+            setPos(win, number, 30);
+            win << "#";
+            setPos(win, number, 40);
+            win << "#";
+            setPos(win, number, 50);
+            win << "#";
+            setPos(win, number, 60);
+            win << "#";
+            setPos(win, number, 70);
+            win << "#";
           end if;
         end for;
 (*      SNAKE(1).row = 7: SNAKE(2).row = 43
@@ -465,14 +465,14 @@ const proc: init_level (in integer: level) is func
       when {7}:
 (*      for number range 4 to 49 STEP 2 do
           FIELD[number][40] := '#';
-          setPos(WIN, number, 40);
-          WIN << "#";
+          setPos(win, number, 40);
+          win << "#";
         end for; *)
         number := 1;
         while number <= 21 do
           FIELD[number][39] := '#';
-          setPos(WIN, number, 39);
-          WIN << "#";
+          setPos(win, number, 39);
+          win << "#";
           number +:= 2;
         end while;
 (*      SNAKE(1).row = 7: SNAKE(2).row = 43
@@ -488,20 +488,20 @@ const proc: init_level (in integer: level) is func
           FIELD[number][50] := '#';
           FIELD[22 - number][60] := '#';
           FIELD[number][70] := '#';
-          setPos(WIN, number, 10);
-          WIN << "#";
-          setPos(WIN, 22 - number, 20);
-          WIN << "#";
-          setPos(WIN, number, 30);
-          WIN << "#";
-          setPos(WIN, 22 - number, 40);
-          WIN << "#";
-          setPos(WIN, number, 50);
-          WIN << "#";
-          setPos(WIN, 22 - number, 60);
-          WIN << "#";
-          setPos(WIN, number, 70);
-          WIN << "#";
+          setPos(win, number, 10);
+          win << "#";
+          setPos(win, 22 - number, 20);
+          win << "#";
+          setPos(win, number, 30);
+          win << "#";
+          setPos(win, 22 - number, 40);
+          win << "#";
+          setPos(win, number, 50);
+          win << "#";
+          setPos(win, 22 - number, 60);
+          win << "#";
+          setPos(win, number, 70);
+          win << "#";
         end for;
 (*      SNAKE(1).row = 7: SNAKE(2).row = 43
         SNAKE(1).col = 65: SNAKE(2).col = 15
@@ -513,14 +513,14 @@ const proc: init_level (in integer: level) is func
           FIELD[number][2 * number + 1] := '#';
           FIELD[number][2 * number + 34] := '#';
           FIELD[number][2 * number + 35] := '#';
-          setPos(WIN, number, 2 * number);
-          WIN << "#";
-          setPos(WIN, number, 2 * number + 1);
-          WIN << "#";
-          setPos(WIN, number, 2 * number + 28);
-          WIN << "#";
-          setPos(WIN, number, 2 * number + 29);
-          WIN << "#";
+          setPos(win, number, 2 * number);
+          win << "#";
+          setPos(win, number, 2 * number + 1);
+          win << "#";
+          setPos(win, number, 2 * number + 28);
+          win << "#";
+          setPos(win, number, 2 * number + 29);
+          win << "#";
         end for;
 (*      SNAKE(1).row = 40: SNAKE(2).row = 15
         SNAKE(1).col = 75: SNAKE(2).col = 5
@@ -545,20 +545,20 @@ const proc: init_level (in integer: level) is func
           FIELD[number][50] := '#';
           FIELD[21 - number][60] := '#';
           FIELD[number][70] := '#';
-          setPos(WIN, number, 10);
-          WIN << "#";
-          setPos(WIN, 21 - number, 20);
-          WIN << "#";
-          setPos(WIN, number, 30);
-          WIN << "#";
-          setPos(WIN, 21 - number, 40);
-          WIN << "#";
-          setPos(WIN, number, 50);
-          WIN << "#";
-          setPos(WIN, 21 - number, 60);
-          WIN << "#";
-          setPos(WIN, number, 70);
-          WIN << "#";
+          setPos(win, number, 10);
+          win << "#";
+          setPos(win, 21 - number, 20);
+          win << "#";
+          setPos(win, number, 30);
+          win << "#";
+          setPos(win, 21 - number, 40);
+          win << "#";
+          setPos(win, number, 50);
+          win << "#";
+          setPos(win, 21 - number, 60);
+          win << "#";
+          setPos(win, number, 70);
+          win << "#";
           number +:= 2;
         end while;
 (*      SNAKE(1).row = 7: SNAKE(2).row = 43
@@ -568,8 +568,8 @@ const proc: init_level (in integer: level) is func
     end case;
 (*  for number range 1 to 21 do
       for column range 1 to 78 do
-        setPos(WIN, number, column);
-        WIN << FIELD[number][column];
+        setPos(win, number, column);
+        win << FIELD[number][column];
       end for;
     end for; *)
   end func;
@@ -582,26 +582,26 @@ const proc: main is func
     var integer: number1 is 0;
     var integer: number2 is 0;
   begin
-    SCR := open(SCREEN);
-    WIN := open_window(SCR, 2, 2, 21, 78);
-    STATUS := open_window(SCR, 23, 2, 1, 78);
+    scr := open(SCREEN);
+    win := open_window(scr, 2, 2, 21, 78);
+    status := open_window(scr, 23, 2, 1, 78);
 
-    MAX_LINE := 21; (* WIN.HEIGHT; *)
-    MAX_COLUMN := 78; (* WIN.WIDTH; *)
+    MAX_LINE := 21; (* height(win); *)
+    MAX_COLUMN := 78; (* width(win); *)
 
     repeat
-      box(WIN);
-      clear(WIN);
+      box(win);
+      clear(win);
 (*    number1 := heapsize(PROGRAM);
-      setPos(STATUS, 1, 1);
-      STATUS << number1;
-      STATUS << " "; *)
+      setPos(status, 1, 1);
+      status << number1;
+      status << " "; *)
       FIELD := 21 times (78 times BLANK);
 (*    number2 := heapsize(PROGRAM);
-      STATUS << number2;
-      STATUS << " ";
-      STATUS << number2 - number1;
-      STATUS << " "; *)
+      status << number2;
+      status << " ";
+      status << number2 - number1;
+      status << " "; *)
       init_level(level);
       SNAKE.picture := 'S';
       set_position(APPLE);

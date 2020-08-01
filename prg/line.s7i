@@ -26,22 +26,22 @@
 (********************************************************************)
 
 
-const type: LINE_FILE is sub NULL_FILE struct
+const type: line_file is sub NULL_FILE struct
     var file: in_file is STD_NULL;
     var string: line is "";
   end struct;
 
 
-const func LINE_FILE: open_line (ref file: in_fil) is func
+const func line_file: open_line (ref file: in_fil) is func
   result
-    var LINE_FILE: line_fil is LINE_FILE.value;
+    var line_file: line_fil is line_file.value;
   begin
-    line_fil := LINE_FILE.value;
+    line_fil := line_file.value;
     line_fil.in_file := in_fil;
   end func;
 
 
-const func string: getln (inout LINE_FILE: line_fil) is func
+const func string: getln (inout line_file: line_fil) is func
   result
     var string: stri is "";
   local
@@ -70,7 +70,7 @@ const func string: getln (inout LINE_FILE: line_fil) is func
   end func;
 
 
-const func char: getc (inout LINE_FILE: line_fil) is func
+const func char: getc (inout line_file: line_fil) is func
   result
     var char: ch is ' ';
   begin
@@ -82,7 +82,7 @@ const func char: getc (inout LINE_FILE: line_fil) is func
   end func;
 
 
-const func string: gets (inout LINE_FILE: line_fil, in integer: leng) is func
+const func string: gets (inout line_file: line_fil, in integer: leng) is func
   result
     var string: stri is "";
   begin

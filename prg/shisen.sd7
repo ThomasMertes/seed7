@@ -30,7 +30,7 @@ include "keybd.s7i";
 include "time.s7i";
 
 
-var TEXT: screen is STD_NULL;
+var text: screen is STD_NULL;
 
 const integer: UPPER_BORDER is 12 + 64 + 12;
 const integer: LEFT_BORDER is 64;

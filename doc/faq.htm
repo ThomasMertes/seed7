@@ -1,110 +1,203 @@
-
+<p></p><hr><b><big><p align="center">
 Frequently asked questions
-==========================
-
-
-
+</p></big></b><hr><!-- ========================== -->
+<p></p><!--(*-->
+<ul>
+<li><a href="#license"><b>
 Which license does Seed7 use?
-=============================
+</b></a></li>
+<li><a href="#free"><b>
+But Java and C# are also free?
+</b></a></li>
+<li><a href="#os"><b>
+On which operating systems does Seed7 run?
+</b></a></li>
+<li><a href="#bytecode"><b>
+Does the interpreter use bytecode?
+</b></a></li>
+<li><a href="#analyze"><b>
+How does the analyze phase of the interpreter work?
+</b></a></li>
+<li><a href="#compile"><b>
+Is it possible to compile Seed7 programs?
+</b></a></li>
+<li><a href="#statements"><b>
+Why does Seed7 not use the C statements like C++ and Java?
+</b></a></li>
+<li><a href="#declare_later"><b>
+Can I use something and declare it later?
+</b></a></li>
+<li><a href="#casts"><b>
+Are there automatic casts to the right type?
+</b></a></li>
+<li><a href="#overloading"><b>
+Can functions be overloaded?
+</b></a></li>
+<li><a href="#overload_result"><b>
+Can I overload two functions which just differ by the result type?
+</b></a></li>
+<li><a href="#variable_parameters"><b>
+Can functions have variable parameter lists?
+</b></a></li>
+<li><a href="#initialize_variables"><b>
+Why is it necessary to initialize all variables?
+</b></a></li>
+<li><a href="#garbage_collection"><b>
+Is there a garbage collection?
+</b></a></li>
+<li><a href="#object_oriented"><b>
+Is Seed7 object oriented?
+</b></a></li>
+<li><a href="#inherited_from_object"><b>
+Is everything inherited from object?
+</b></a></li>
+<li><a href="#container_classes"><b>
+What container classes do exist?
+</b></a></li>
+<li><a href="#primitive_types"><b>
+Are there primitive types?
+</b></a></li>
+<li><a href="#object_and_primitive_types"><b>
+What is the difference between object and primitive types?
+</b></a></li>
+<li><a href="#when_use_object_or_primitive_types"><b>
+When to use an object type and when an primitive type?
+</b></a></li>
+<li><a href="#how_does_the_assignment_work"><b>
+How does the assignment work?
+</b></a></li>
+<li><a href="#two_forms_of_assignment"><b>
+Why are there two forms of assignment?
+</b></a></li>
+<li><a href="#types of parameters"><b>
+What types of parameters does Seed7 have?
+</b></a></li>
+<li><a href="#constructors"><b>
+Where are the constructors?
+</b></a></li>
+<li><a href="#static_methods"><b>
+Are there static methods / class methods?
+</b></a></li>
+<li><a href="#generics"><b>
+Are there generics / templates?
+</b></a></li>
+<li><a href="#exceptions"><b>
+Are there exceptions?
+</b></a></li>
+<li><a href="#action"><b>
+What does action "XYZ_SOMETHING" mean?
+</b></a></li>
+<li><a href="#dollar_signs"><b>
+Why are there dollar signs at some places?
+</b></a></li>
+<li><a href="#boot_a_language"><b>
+Can I use an "abc.s7i" include file to boot to the abc language?
+</b></a></li>
+</ul><hr>
+<p></p><!--*)-->
 
+
+<a name="license"><b>Which license does Seed7 use?
+</b></a><hr><!-- ============================= -->
+<p>
 The hi Interpreter and the example programs (extension .sd7) are under the
 GPL (General Public License, see also the file COPYING).
-
+</p><p>
 The Seed7 Runtime Library is under the LGPL (Lesser General Public License,
 see also the file LGPL). The Seed7 include files (extension .s7i) are a part
 of the Seed7 Runtime Library.
-
+</p><p>
 Seed7 allows the interpretation and compilation of programms with any license.
 There is no restriction on the license of your Seed7 programs.
-
+</p><p>
 For the development of the Seed7 compiler it will be necessary to move some
 sourcecode from the hi Interpreter (under GPL) to the Seed7 Runtime Library
 (under LGPL). This will only be done to for the Seed7 runtime library and only
 as far as necessary to make no restriction on the license of compiled Seed7
 programs.
-
+</p><p>
 If you send me patches (I would be very pleased), it is assumed that you
 accept license changes from GPL to LGPL for parts of code which need to be
 in the runtime library to support compilation of Seed7 programs.
+</p>
 
-
-But Java and C# are also free?
-==============================
-
+<a name="free"><b>But Java and C# are also free?
+</b></a><hr><!-- ============================== -->
+<p>
 Seed7 is "Free as in Freedom" and not only "Free as in Free Beer" and this can
 make a big difference. Undocumented native interfaces are just not possible.
+</p>
 
-
-On which operating systems does Seed7 run?
-==========================================
-
+<a name="os"><b>On which operating systems does Seed7 run?
+</b></a><hr><!-- ========================================== -->
+<p>
 Linux is supported out of the box (because the development is done using
 Linux). For other operating systems it might be necessary to write driver
 modules for screen (=text console), graphics, time or other aspects of Seed7.
 The package contains various older driver modules which are not up to date,
 but can be used as base to write such driver modules.
+</p>
 
-
-Does the interpreter use bytecode?
-==================================
-
+<a name="bytecode"><b>Does the interpreter use bytecode?
+</b></a><hr><!-- ================================== -->
+<p>
 No, the analyze phase of the Seed7 interpreter produces call-code which consists
 of values and function calls. This call-code is just handled in memory and
 never written to a file. After the analyze phase the call-code is interpreted.
+</p>
 
-
-How does the analyze phase of the interpreter work?
-===================================================
-
+<a name="analyze"><b>How does the analyze phase of the interpreter work?
+</b></a><hr><!-- =================================================== -->
+<p>
 The analyzer reads successive expressions according to the syntax definitions.
 For each expression the analyzer searches the internal database of declared
 objects (this search proceess is called matching) and generates call-code for
 this expression. Then the call code for this expression is executed. Normally
 this expressions are declaration statements. In that case new declared objects
 are added to the internal database.
+</p>
 
-
-Is it possible to compile Seed7 programs?
-=========================================
-
+<a name="compile"><b>Is it possible to compile Seed7 programs?
+</b></a><hr><!-- ========================================= -->
+<p>
 Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
 compiler (written in Seed7) uses the analyze phase of the interpreter to convert
 a program to call-code and then generates a corresponding C program. This C
 program is compiled and linked aterwards.
 (Note that the compiler is currently not finished)
+</p>
 
-
-Why does Seed7 not use the C statements like C++ and Java?
-==========================================================
-
+<a name="statements"><b>Why does Seed7 not use the C statements like C++ and Java?
+</b></a><hr><!-- ========================================================== -->
+<p>
 The C statements have some weaknesses which are avoided with the Seed7 statements:
-
- 1. The c if-statement
-
+</p><p>
+<!--  1.  -->The c if-statement
+</p><pre>
       if (condition)
         statement;
-
+</pre><p>
     allows just one statement after the condition. By using the compound statement
     it is possible to have several statements after the condition
-
+</p><pre>
       if (condition) {
         statement1;
         statement2;
       }
-
+</pre><p>
     Adding or removing a statement in the second if-statement is always possible.
     In the first if-statement you must add braces if you add a statement otherwise
     you get an undesired effect. Adding statements to an if-statement is quite common.
-
+</p><p>
     Since both forms are legal and adding a statement to the first form can lead to
     errors Seed7 closes this possible source of errors with its if-statement:
-
+</p><pre>
       if condition then
         statement
       end if;
-
- 2. The following switch statement is formally correct but probably wrong
-
+</pre><p>
+<!--  2.  -->The following switch statement is formally correct but probably wrong
+</p><pre>
       switch (number) {
         case 1:
         case 2:
@@ -114,65 +207,65 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
           result = 8;
           break;
       }
-
+</pre><p>
     Forgetting break statements in a switch is another possible source of errors which
     is avoided in Seed7.
+</p>
 
-
-Can I use something and declare it later?
-=========================================
-
+<a name="declare_later"><b>Can I use something and declare it later?
+</b></a><hr><!-- ========================================= -->
+<p>
 No, everything must be declared before it is used. The possibility to declare new
 statements and new operators on one side and the strong typing requirements with
 compile time checks of the parameters on the other side would make the job of analyzing
 expressions with undeclared functions very complex.
-
+</p><p>
 Forward declarations help, if someting needs to be used before it can be declared fully.
+</p>
 
-
-Are there automatic casts to the right type?
-============================================
-
+<a name="casts"><b>Are there automatic casts to the right type?
+</b></a><hr><!-- ============================================ -->
+<p>
 No, because Seed7 is strong typed. This means that for every expression (and subexpression)
 you know its type at compile time without knowing where this expression is used.
 Although this means that you have to convert types explicit (for example from integer
 to float) it has more advantages than disadvantages:
+</p><ol>
+<li><!--  1.  -->The overloading rules are much simpler.</li>
+<li><!--  2.  -->An expression can be understood without it's calling context.</li>
+<li><!--  3.  -->Errors caused by unplanned automatic type conversions cannot happen.</li>
+<li><!--  4.  -->Since you have to do type conversions explicit you are more aware of the
+    run time overhead.</li>
+</ol>
 
- 1. The overloading rules are much simpler.
- 2. An expression can be understood without it's calling context.
- 3. Errors caused by unplanned automatic type conversions cannot happen.
- 4. Since you have to do type conversions explicit you are more aware of the
-    run time overhead.
-
-
-Can functions be overloaded?
-============================
-
+<a name="overloading"><b>Can functions be overloaded?
+</b></a><hr><!-- ============================ -->
+<p>
 Yes, functions, operators and statements can be overloaded. Additionally it is possible
 to define new operators and statements.
+</p>
 
-
-Can I overload two functions which just differ by the result type?
-==================================================================
-
+<a name="overload_result"><b>Can I overload two functions which just differ by the result type?
+</b></a><hr><!-- ================================================================== -->
+<p>
 No, it is not possible to overload a function (operator, statement) which has
 the same parameter types and just a different result type as another function. This is
 necessary to reach the goal of knowing the type of every expression without knowing
 where the expression is used.
+</p>
 
-
-Can functions have variable parameter lists?
-============================================
-
+<a name="variable_parameters"><b>Can functions have variable parameter lists?
+</b></a><hr><!-- ============================================ -->
+<p>
 No, because functions with variable parameter lists as the C printf function have
 some problems:
-
- - Type checking is only possible at run time.
- - The recognicion of overloaded functions becomes more complicated.
-
+</p><ul>
+<li><!--  -  -->Type checking is only possible at run time.</li>
+<li><!--  -  -->The recognicion of overloaded functions becomes more complicated.</li>
+</ul><p>
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
 So you could declare a function
-
+</p><pre>
   const proc: print_list (in array integer: arr) is func
     local
       var integer: number is 0;
@@ -181,69 +274,69 @@ So you could declare a function
         writeln(number);
       end for;
     end func;
-
+</pre><p>
 and call it with
-
+</p><pre>
   print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
+</pre><p></p>
 
-
-Why is it necessary to initialize all variables?
-================================================
-
+<a name="initialize_variables"><b>Why is it necessary to initialize all variables?
+</b></a><hr><!-- ================================================ -->
+<p>
 Forgetting to initialize a variable is a common source of errors. In some programming
 languages uninitialized variables have a random value which could lead to errors.
 To avoid errors caused by uninitialized variables in Seed7 each variable must be
 initialized when it is declared.
+</p>
 
-
-Is there a garbage collection?
-==============================
-
+<a name="garbage_collection"><b>Is there a garbage collection?
+</b></a><hr><!-- ============================== -->
+<p>
 There is no garbage collection process that interrupts the normal processing to
 free some memory. Seed7 uses a different mechanism to manage the memory.
-
+</p><p>
 Memory used by local variables and parameters is automatically freed when leaving
 a function.
-
+</p><p>
 Although functions can return arbitrary complex values (e.g. arrays of structures
 with string elements) the memory allocated for all intermediate results is freed
 automatically without the help of a garbage collector.
+</p>
 
-
-Is Seed7 object oriented?
-=========================
-
+<a name="object_oriented"><b>Is Seed7 object oriented?
+</b></a><hr><!-- ========================= -->
+<p>
 Yes, but object orientation is organized different compared to other object
 oriented languages.
-
+</p><p>
 An example of an object oriented type is 'file'. A 'file' describes references to
 values with some other type. A value of a 'file' can have one of the following types:
 null_file, external_file, echo_file, line_file, etc. Each of this 'file' value types
 acts differently to the same requests.
-
+</p><p>
 For the type 'file' two kinds of functions are defined:
-
- 1. Functions which work for all files the same way.
- 2. Dynamic functions which are just an interface. At run time the corresponding
-    function defined for the type of the value is used.
-
+<ol>
+<li><!--  1.  -->Functions which work for all files the same way.</li>
+<li><!--  2.  -->Dynamic functions which are just an interface. At run time the corresponding
+    function defined for the type of the value is used.</li>
+</ol></p><p>
 Compared to Java the type file can be seen as interface or abstract class, while the
 type of the file value can be seen as the class implementing the interface.
+</p>
 
-
-Is everything inherited from object?
-====================================
-
+<a name="inherited_from_object"><b>Is everything inherited from object?
+</b></a><hr><!-- ==================================== -->
+<p>
 There can be several base types, each with their own hierarchy. In many object
 oriented languages the class 'object' is used as element of all container classes.
 Abstract data types provide a better and type save solution for containers and
 other uses of the root class 'object'. Therefore a single rooted hierarchy is not
 needed.
+</p>
 
-
-What container classes do exist?
-================================
-
+<a name="container_classes"><b>What container classes do exist?
+</b></a><hr><!-- ================================ -->
+<p>
 Abstract data types are used to replace container classes. When using an
 abstract data type as container you have to specify the type of the element
 in the type declaration. Therefore abstract data types are always typesafe.
@@ -251,87 +344,87 @@ Typeless container classes with object elements do not exist. The only thing
 which comes near to this is the 'ref_list' which ist used in the reflection.
 A 'ref_list' should not be misused as container class. Examples of abstract
 data types are:
-
+</p><pre>
   array string
   array [boolean] string
   set of char
   set of integer
   hash [string] boolean
   hash [string] array array string
+</pre><p></p>
 
-
-Are there primitive types?
-==========================
-
+<a name="primitive_types"><b>Are there primitive types?
+</b></a><hr><!-- ========================== -->
+<p>
 As in C++, Java, C# and other hybrid object oriented languages there are
 predefined primitive types in Seed7. These are integer, char, boolean, string,
 float, rational, time and others. Additionally to the predefined primitive
 types there is also the possibility to declare new primitive types.
+</p>
 
-
-What is the difference between object and primitive types?
-==========================================================
-
+<a name="object_and_primitive_types"><b>What is the difference between object and primitive types?
+</b></a><hr><!-- ========================================================== -->
+<p>
 Variables with object types contain references to object values. This means
 that after
-
+</p><pre>
   a := b
-
+</pre><p>
 the variable 'a' refers to the same object as variable 'b'. Therefore changes
 on variable 'a' will effect variable 'b' as well (and vice versa) because both
 variables refer to the same object.
-
+</p><p>
 For primitive types a different logic is used. Variables with primitive types
 contain the value itself. This means that after
-
+</p><pre>
   a := b
-
+</pre><p>
 both variables are still distinct and changing one variable has no effect on
 the other.
-
+</p><p>
 If 'a' and 'b' are declared to have type 'aType' which contains the integer
 field 'property' you can do the following:
-
+</p><pre>
   b.property := 1;
   a := b;
   b.property := 2;
-
+</pre><p>
 Everything boils down to the question: What value does a.property have now.
+</p><ul>
+<li><!--  -  -->When 'aType' is an object type a.property has the value 2 because 'a' and 'b'
+   both refer to the same object.</li>
+<li><!--  -  -->When 'aType' is a primitive type a.property has still the value 1 because 'a'
+   and 'b' are distinct objects.</li>
+</ul>
 
- - When 'aType' is an object type a.property has the value 2 because 'a' and 'b'
-   both refer to the same object.
- - When 'aType' is a primitive type a.property has still the value 1 because 'a'
-   and 'b' are distinct objects.
-
-
-When to use an object type and when an primitive type?
-======================================================
-
+<a name="when_use_object_or_primitive_types"><b>When to use an object type and when an primitive type?
+</b></a><hr><!-- ====================================================== -->
+<p>
 You should declare a new primitive type if you don't need the object
 oriented paradigm that a variable (and a constant) is just a reference
 to the object. Another indication is: If you don't need two concepts of
 what is equal (An == operator and an equal method).
+</p>
 
-
-How does the assignment work?
-=============================
-
+<a name="how_does_the_assignment_work"><b>How does the assignment work?
+</b></a><hr><!-- ============================= -->
+<p>
 For object types just the reference to the object value is copied. For
 primitive types the value itself is copied. Since values can be very big
 (think of arrays of structs with string elements) value copies can be time
 consuming.
-
+</p><p>
 In pure object oriented languages the effect of independend objects after
 the assignment is reached in a different way: Every change to an object
 creates a new object and therefore the time consuming copy takes place with
 every change. Because usually changes to an object are more frequent than
 assignments this approach can be even more time consuming than the approach
 using value copys for the assignment.
+</p>
 
-
-Why are there two forms of assignment?
-======================================
-
+<a name="two_forms_of_assignment"><b>Why are there two forms of assignment?
+</b></a><hr><!-- ====================================== -->
+<p>
 Seed7 has an approach for the assignment where practical arguments count
 more than the classic object oriented principles. In Seed7 every type has
 its own logic for the assignment where sometimes a value copy and sometimes
@@ -339,25 +432,25 @@ a reference copy is the right thing to do. Exactly speaking there are many
 forms of assignment since every type can define its own assignment. If a
 value copy works like a deep or a shallow copy can also be defined depending
 on the type. 
-
+</p><p>
 For example: For integer, char, string variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with
 an assignment, therefore a reference copy seems appropriate.
-
+</p><p>
 And by the way:
 Although it is always stated that in object oriented languages everything
 is done with methods, this is just not true. Besides statements and operators
 in C++ and Java which are special even Smalltalk treats the assignment and
 the comparison special. Seed7 does not have such special treatment for the
 assignment and the comparison operators.
+</p>
 
-
-What types of parameters does Seed7 have?
-=========================================
-
+<a name="types of parameters"><b>What types of parameters does Seed7 have?
+</b></a><hr><!-- ========================================= -->
+<p>
 There are value and reference parameters. The formal parameter can be constant or
 variable. The combination of this features allows four types of parameters:
-
+</p><pre>
     +-----------+-----------+--------------+
     | parameter |  call by  | access right |
     +-----------+-----------+--------------+
@@ -366,123 +459,123 @@ variable. The combination of this features allows four types of parameters:
     | in var    |   value   | var          |
     | inout     | reference | var          |
     +-----------+-----------+--------------+
-
+</pre><p>
 Additionally every type defines an 'in' parameter which is either a 'val' or a
 'ref' parameter. Types with little memory requirements like 'integer', 'char'
 or 'boolean' use a 'val' parameter as 'in'. Other types like 'string', arrays
 and structs use a 'ref' parameter as 'in'. Usually it is not necessary to
 care if an 'in' parameter is by value or by reference.
+</p>
 
-
-Where are the constructors?
-===========================
-
+<a name="constructors"><b>Where are the constructors?
+</b></a><hr><!-- =========================== -->
+<p>
 Seed7 does not need constructors, but you can define normal functions which
 create a new value in a similar way as constructors do it.
-
+</p><p>
 Seed7 uses a special create statement ( ::= ) to initialize objects.
 Explicit calls of the create statement are not needed.
-
+</p><p>
 The lifetime of an object goes like this:
-
-1. Memory is reserved for the new object (stack or heap memory make no difference here).
-
-2. The content of the new memory is undefined (It may contain garbage), therefore a
+</p><ol><li>
+<!-- 1.  -->Memory is reserved for the new object (stack or heap memory make no difference here).
+</li><li>
+<!-- 2.  -->The content of the new memory is undefined (It may contain garbage), therefore a
    create statement is necessary instead of an assignment.
-
-3. The create statements copies the right expression to the left expression taking
+</li><li>
+<!-- 3.  -->The create statements copies the right expression to the left expression taking
    into account that the left expression is undefined.
-
-4. If the object is variable other values can be assigned using the assign statement ( := ).
+</li><li>
+<!-- 4.  -->If the object is variable other values can be assigned using the assign statement ( := ).
    The assignment can assume that the left expression contains a legal value. This allows
    that for strings (and some other types which are just references to a memory area) the
    memory containing the old string value (and not the memory of the object itself) can
    be freed when necessary.
-
-5. At the end of the lifetime of an object the destroy statement is executed.
+</li><li>
+<!-- 5.  -->At the end of the lifetime of an object the destroy statement is executed.
    For strings (and some other types which are just references to a memory area) the memory
    containing the string value (and not the memory of the object itself) is freed.
-
-6. The memory of the object is freed.
-
+</li><li>
+<!-- 6.  -->The memory of the object is freed.
+</li></ol><p>
 The first three steps are usually hidden in the declaration statement.
+</p>
 
-
-Are there static methods / class methods?
-=========================================
-
+<a name="static_methods"><b>Are there static methods / class methods?
+</b></a><hr><!-- ========================================= -->
+<p>
 Seed7 allows to define functions (procedures and statements) without corresponding
 class. When this is not desired Seed7 uses a special parameter, the attr (attribute)
 parameter, to archive the functionality of static methods (elsewhere named class
 methods) in a more general way. How a static method is declared is shown in the
 following example:
-
+</p><pre>
   const func integer: convert_to (attr integer, in char: ch) is func
     result
       var integer: result is 0;
     begin
       result := ord(ch);
     end func;
-
+</pre><p>
 The function convert_to can be called as
-
+</p><pre>
   number := convert_to(integer, 'a');
-
+</pre><p>
 Since the result of a function is not used to determine an overloaded function, this
 is sometimes the only way to use the same function name for different purposes as in:
-
+</p><pre>
   ch   := convert_to(char,    1);
   stri := convert_to(string,  1);
   ok   := convert_to(boolean, 1);
   num  := convert_to(typeof(num), 1);
-
+</pre><p>
 Attribute parameters allow a function to be attached to a certain type. But this concept
 is much more flexible than static methods (or class methods). A function can also
 have several attr parameters and attr parameters can be at any parameter position (not
 just the first parameter). Furthermore the type can be the result of a function as for
 example typeof(num).
+</p>
 
-
-Are there generics / templates?
-===============================
-
+<a name="generics"><b>Are there generics / templates?
+</b></a><hr><!-- =============================== -->
+<p>
 In Ada, C++ and Java generics (templates) use a special syntax to express this feature.
 In Seed7 you get this functionality for free without special syntax or other magic:
-
+</p><p>
 In Seed7 a function can contain declarations which are executed when the function is called.
 This way objects can be declared by calling a function (which contains the actual
 declarations). Additionally types are first class objects which can be used in type
 variables, constants, parameters and functions with types as result.
-
+</p><p>
 By combining this features the generic (template) functionality can be done easily.
+</p>
 
-
-Are there exceptions?
-=====================
-
+<a name="exceptions"><b>Are there exceptions?
+</b></a><hr><!-- ===================== -->
+<p>
 Yes, Seed7 has exceptions which are similar to the Ada and Java exceptions.
+</p>
 
-
-What does action "XYZ_SOMETHING" mean?
-======================================
-
+<a name="action"><b>What does action "XYZ_SOMETHING" mean?
+</b></a><hr><!-- ====================================== -->
+<p>
 Actions are used to call a corresponding C function in the interpreter.
 For example:
-
+</p><p>
 The action "INT_ADD" corresponds to the function 'int_add' in the file
 seed7/src/intlib.c .
-
+</p><p>
 In the interpreter all action functions get the parameters as list.
 The action functions take the parameters they need from the list, perform
 the action and deliver a result.
+</p>
 
-
-Why are there dollar signs at some places?
-==========================================
-
+<a name="dollar_signs"><b>Why are there dollar signs at some places?
+</b></a><hr><!-- ========================================== -->
+<p>
 The $ is used to force the analyzer to use a hardcoded expression recognition
 instead of the configuratable one. This mechanism is used to boot the Seed7 language:
-
+</p><p>
 At the beginning of the seed7_05.s7i file nothing is declared. This means that
 no statements, no functions, no operators, no types and no variables are predeclared.
 To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
@@ -491,25 +584,25 @@ types, system variables and syntax descriptions of operators and statements foll
 After finishing the include of syntax.s7i the file seed7_05.s7i contains some $
 declarations until the 'const' declaration statement is established. From that point
 onward almost no $ statements are needed.
+</p>
 
-
-Can I use an "abc.s7i" include file to boot to the abc language?
-================================================================
-
+<a name="boot_a_language"><b>Can I use an "abc.s7i" include file to boot to the abc language?
+</b></a><hr><!-- ================================================================ -->
+<p>
 Theoretically yes. In practice there would be several problems. For example:
-
- - All primitive actions are defined such that they fit to Seed7.
- - Some conepts like goto's, return's, brake's are not supported.
- - Some things like comments and $ pragmas are hardcoded.
-
+</p><ul>
+<li> <!-- - --> All primitive actions are defined such that they fit to Seed7.</li>
+<li> <!-- - --> Some conepts like goto's, return's, brake's are not supported.</li>
+<li> <!-- - --> Some things like comments and $ pragmas are hardcoded.</li>
+</ul><p>
 But basically booting various languages was one of the goals of the extendable
 programming language Seed7 and the hi Interpreter.
-
+</p><p>
 In practice it turned out to be a better approach to steal concepts from other
 programming languages and to integrate them in Seed7 than to split the development
 in different branches.
-
+</p><p>
 The capability to boot a language can be used to allow slightly different
 future versions of Seed7 to coexist with the current version. This is also the
 reason why the file seed7_05.s7i contains a version number (05).
-
+</p>

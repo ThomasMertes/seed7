@@ -26,8 +26,8 @@
 (********************************************************************)
 
 
-const type: WINDOW_FILE is sub NULL_FILE struct
-    var TEXT: out_file is STD_NULL;
+const type: window_file is sub NULL_FILE struct
+    var text: out_file is STD_NULL;
     var integer: upper_border is 0;
     var integer: left_border is 0;
     var integer: height is 0;
@@ -37,28 +37,28 @@ const type: WINDOW_FILE is sub NULL_FILE struct
   end struct;
 
 
-const func integer: height (in WINDOW_FILE: out_fil) is
+const func integer: height (in window_file: out_fil) is
   return out_fil.height;
 
 
-const func integer: width (in WINDOW_FILE: out_fil) is
+const func integer: width (in window_file: out_fil) is
   return out_fil.width;
 
 
-const func integer: line (in WINDOW_FILE: out_fil) is
+const func integer: line (in window_file: out_fil) is
   return out_fil.curr_line;
 
 
-const func integer: column (in WINDOW_FILE: out_fil) is
+const func integer: column (in window_file: out_fil) is
   return out_fil.curr_column;
 
 
-const func WINDOW_FILE: open_window (ref TEXT: out_fil,
+const func window_file: open_window (ref text: out_fil,
     in integer: upper, in integer: left, in integer: high, in integer: wide) is func
   result
-    var WINDOW_FILE: window_fil is WINDOW_FILE.value;
+    var window_file: window_fil is window_file.value;
   begin
-    window_fil := WINDOW_FILE.value;
+    window_fil := window_file.value;
     window_fil.out_file := out_fil;
     window_fil.upper_border := upper;
     window_fil.left_border := left;
@@ -77,7 +77,7 @@ const func WINDOW_FILE: open_window (ref TEXT: out_fil,
   end func;
 
 
-const proc: flush (ref WINDOW_FILE: window_fil) is func
+const proc: flush (ref window_file: window_fil) is func
   begin
     if window_fil.curr_line >= 1 and
         window_fil.curr_line <= window_fil.height and
@@ -91,9 +91,9 @@ const proc: flush (ref WINDOW_FILE: window_fil) is func
   end func;
 
 
-const proc: box (ref WINDOW_FILE: window_fil) is func
+const proc: box (ref window_file: window_fil) is func
   local
-    var TEXT: outf is STD_NULL;
+    var text: outf is STD_NULL;
     var integer: line is 1;
     var integer: start_line is 1;
     var integer: start_col is 1;
@@ -109,7 +109,7 @@ const proc: box (ref WINDOW_FILE: window_fil) is func
       for line range start_line to
           start_line + window_fil.height - 1 do
         setPos(outf, line, start_col);
-        outf << "|";
+        write(outf, "|");
       end for;
     end if;
     stri &:= "-" mult window_fil.width;
@@ -119,23 +119,23 @@ const proc: box (ref WINDOW_FILE: window_fil) is func
           start_line + window_fil.height - 1 do
         setPos(outf,
             line, window_fil.left_border + window_fil.width);
-        outf << "|";
+        write(outf, "|");
       end for;
     end if;
     if start_line > 1 then
       setPos(outf, start_line - 1, start_col);
-      outf << stri;
+      write(outf, stri);
     end if;
     if start_line + window_fil.height - 1 < height(window_fil.out_file) then
       setPos(outf, start_line + window_fil.height, start_col);
-      outf << stri;
+      write(outf, stri);
     end if;
   end func;
 
 
-const proc: clear_box (ref WINDOW_FILE: window_fil) is func
+const proc: clear_box (ref window_file: window_fil) is func
   local
-    var TEXT: outf is STD_NULL;
+    var text: outf is STD_NULL;
     var integer: line is 1;
     var integer: start_line is 1;
     var integer: start_col is 1;
@@ -151,7 +151,7 @@ const proc: clear_box (ref WINDOW_FILE: window_fil) is func
       for line range start_line to
           start_line + window_fil.height - 1 do
         setPos(outf, line, start_col);
-        outf << " ";
+        write(outf, " ");
       end for;
     end if;
     stri &:= " " mult window_fil.width;
@@ -161,21 +161,21 @@ const proc: clear_box (ref WINDOW_FILE: window_fil) is func
           start_line + window_fil.height - 1 do
         setPos(outf,
             line, window_fil.left_border + window_fil.width);
-        outf << " ";
+        write(outf, " ");
       end for;
     end if;
     if start_line > 1 then
       setPos(outf, start_line - 1, start_col);
-      outf << stri;
+      write(outf, stri);
     end if;
     if start_line + window_fil.height - 1 < height(window_fil.out_file) then
       setPos(outf, start_line + window_fil.height, start_col);
-      outf << stri;
+      write(outf, stri);
     end if;
   end func;
 
 
-const proc: clear (ref WINDOW_FILE: window_fil,
+const proc: clear (ref window_file: window_fil,
     in integer: upper, in integer: left, in integer: lower, in integer: right) is func
   begin
     clear(window_fil.out_file,
@@ -186,7 +186,7 @@ const proc: clear (ref WINDOW_FILE: window_fil,
   end func;
 
 
-const proc: clear (inout WINDOW_FILE: window_fil) is func
+const proc: clear (inout window_file: window_fil) is func
   begin
     clear(window_fil.out_file, window_fil.upper_border,
         window_fil.left_border,
@@ -197,7 +197,7 @@ const proc: clear (inout WINDOW_FILE: window_fil) is func
   end func;
 
 
-const proc: v_scroll (ref WINDOW_FILE: window_fil, in integer: count) is func
+const proc: v_scroll (ref window_file: window_fil, in integer: count) is func
   begin
     v_scroll(window_fil.out_file, window_fil.upper_border,
         window_fil.left_border,
@@ -206,7 +206,7 @@ const proc: v_scroll (ref WINDOW_FILE: window_fil, in integer: count) is func
   end func;
 
 
-const proc: v_scroll (ref WINDOW_FILE: window_fil,
+const proc: v_scroll (ref window_file: window_fil,
     in integer: upper, in integer: left, in integer: lower, in integer: right, in integer: count) is func
   begin
     v_scroll(window_fil.out_file,
@@ -218,7 +218,7 @@ const proc: v_scroll (ref WINDOW_FILE: window_fil,
   end func;
 
 
-const proc: h_scroll (ref WINDOW_FILE: window_fil, in integer: count) is func
+const proc: h_scroll (ref window_file: window_fil, in integer: count) is func
   begin
     h_scroll(window_fil.out_file, window_fil.upper_border,
         window_fil.left_border,
@@ -227,7 +227,7 @@ const proc: h_scroll (ref WINDOW_FILE: window_fil, in integer: count) is func
   end func;
 
 
-const proc: h_scroll (ref WINDOW_FILE: window_fil,
+const proc: h_scroll (ref window_file: window_fil,
     in integer: upper, in integer: left, in integer: lower, in integer: right, in integer: count) is func
   begin
     h_scroll(window_fil.out_file,
@@ -239,38 +239,38 @@ const proc: h_scroll (ref WINDOW_FILE: window_fil,
   end func;
 
 
-const proc: color (inout WINDOW_FILE: window_fil, in color: col) is func
+const proc: color (inout window_file: window_fil, in color: col) is func
   begin
     color(window_fil.out_file, col);
   end func;
 
 
-const proc: color (inout WINDOW_FILE: window_fil, in color: col1, in color: col2) is func
+const proc: color (inout window_file: window_fil, in color: col1, in color: col2) is func
   begin
     color(window_fil.out_file, col1, col2);
   end func;
 
 
-const proc: setPos (inout WINDOW_FILE: window_fil, in integer: line, in integer: column) is func
+const proc: setPos (inout window_file: window_fil, in integer: line, in integer: column) is func
   begin
     window_fil.curr_line := line;
     window_fil.curr_column := column;
   end func;
 
 
-const proc: setLine (inout WINDOW_FILE: window_fil, in integer: line) is func
+const proc: setLine (inout window_file: window_fil, in integer: line) is func
   begin
     window_fil.curr_line := line;
   end func;
 
 
-const proc: setColumn (inout WINDOW_FILE: window_fil, in integer: column) is func
+const proc: setColumn (inout window_file: window_fil, in integer: column) is func
   begin
     window_fil.curr_column := column;
   end func;
 
 
-const proc: (inout WINDOW_FILE: window_fil) << (ref string: stri) is func
+const proc: write (inout window_file: window_fil, in string: stri) is func
   begin
     if window_fil.curr_line >= 1 and
         window_fil.curr_line <= window_fil.height and
@@ -279,22 +279,22 @@ const proc: (inout WINDOW_FILE: window_fil) << (ref string: stri) is func
         setPos(window_fil.out_file,
             pred(window_fil.upper_border + window_fil.curr_line),
             pred(window_fil.left_border + window_fil.curr_column));
-        window_fil.out_file <<
-            stri[.. succ(window_fil.width - window_fil.curr_column)];
+        write(window_fil.out_file,
+            stri[.. succ(window_fil.width - window_fil.curr_column)]);
       elsif length(stri) >= 2 - window_fil.curr_column then
         setPos(window_fil.out_file,
             pred(window_fil.upper_border + window_fil.curr_line),
             window_fil.left_border);
-        window_fil.out_file <<
+        write(window_fil.out_file,
             stri[2 - window_fil.curr_column ..
-            succ(window_fil.width - window_fil.curr_column)];
+            succ(window_fil.width - window_fil.curr_column)]);
       end if;
     end if;
     window_fil.curr_column +:= length(stri);
   end func;
 
 
-const proc: (inout WINDOW_FILE: window_fil) << (in char: ch) is func
+const proc: write (inout window_file: window_fil, in char: ch) is func
   begin
     if window_fil.curr_line >= 1 and
         window_fil.curr_line <= window_fil.height and
@@ -303,13 +303,13 @@ const proc: (inout WINDOW_FILE: window_fil) << (in char: ch) is func
       setPos(window_fil.out_file,
           window_fil.upper_border + window_fil.curr_line - 1,
           window_fil.left_border + window_fil.curr_column - 1);
-      window_fil.out_file << ch;
+      write(window_fil.out_file, ch);
     end if;
     incr(window_fil.curr_column);
   end func;
 
 
-const proc: (inout WINDOW_FILE: window_fil) << NL is func
+const proc: writeln (inout window_file: window_fil) is func
   begin
     if window_fil.curr_line = window_fil.height then
       v_scroll(window_fil.out_file, window_fil.upper_border,
@@ -323,7 +323,7 @@ const proc: (inout WINDOW_FILE: window_fil) << NL is func
   end func;
 
 
-const proc: (inout WINDOW_FILE: window_fil) << BS is func
+const proc: backSpace (inout window_file: window_fil) is func
   begin
     if window_fil.curr_column > 1 then
       decr(window_fil.curr_column);
@@ -331,7 +331,7 @@ const proc: (inout WINDOW_FILE: window_fil) << BS is func
         setPos(window_fil.out_file,
             window_fil.upper_border + window_fil.curr_line - 1,
             window_fil.left_border + window_fil.curr_column - 1);
-        window_fil.out_file << " ";
+        write(window_fil.out_file, " ");
         setPos(window_fil.out_file,
             window_fil.upper_border + window_fil.curr_line - 1,
             window_fil.left_border + window_fil.curr_column - 1);
@@ -340,7 +340,7 @@ const proc: (inout WINDOW_FILE: window_fil) << BS is func
   end func;
 
 
-const proc: cursor_on (ref WINDOW_FILE: window_fil) is func
+const proc: cursor_on (ref window_file: window_fil) is func
   begin
     if window_fil.curr_line >= 1 and
         window_fil.curr_line <= window_fil.height and
@@ -354,7 +354,7 @@ const proc: cursor_on (ref WINDOW_FILE: window_fil) is func
   end func;
 
 
-const proc: cursor_off (ref WINDOW_FILE: window_fil) is func
+const proc: cursor_off (ref window_file: window_fil) is func
   begin
     if window_fil.curr_line >= 1 and
         window_fil.curr_line <= window_fil.height and

@@ -26,56 +26,56 @@
 (********************************************************************)
 
 
-const type: REVERSE_FILE is sub NULL_FILE struct
+const type: reverse_file is sub NULL_FILE struct
     var file: out_file is STD_NULL;
     var integer: line_size is 0;
   end struct;
 
 
-const func REVERSE_FILE: open_reverse (ref file: out_fil, in integer: lin_size) is func
+const func reverse_file: open_reverse (ref file: out_fil, in integer: lin_size) is func
   result
-    var REVERSE_FILE: result is REVERSE_FILE.value;
+    var reverse_file: result is reverse_file.value;
   begin
-    result := REVERSE_FILE.value;
+    result := reverse_file.value;
     result.out_file := out_fil;
     result.line_size := lin_size;
   end func;
 
 
 (*
-const proc: page (ref REVERSE_FILE: reverse_fil) is func
+const proc: page (ref reverse_file: reverse_fil) is func
   begin
     page(reverse_fil.out_file);
   end func;
 *)
 
 
-const proc: (ref REVERSE_FILE: reverse_fil) << (ref string: stri) is func
+const proc: write (ref reverse_file: reverse_fil, ref string: stri) is func
   local
     var integer: number is 0;
   begin
     for number range 1 to length(stri) do
       if stri[number] <> '\b' then
-        reverse_fil.out_file << stri[number];
-        reverse_fil.out_file << '\b';
-        reverse_fil.out_file << '\b';
+        write(reverse_fil.out_file, stri[number]);
+        write(reverse_fil.out_file, "\b");
+        write(reverse_fil.out_file, "\b");
       else
-        reverse_fil.out_file << "  ";
-        reverse_fil.out_file << '\b';
+        write(reverse_fil.out_file, "  ");
+        write(reverse_fil.out_file, "\b");
       end if;
     end for;
   end func;
 
 
-const proc: (ref REVERSE_FILE: reverse_fil) << NL is func
+const proc: writeln (ref reverse_file: reverse_fil) is func
   begin
-    reverse_fil.out_file << NL;
-    reverse_fil.out_file << "" lpad reverse_fil.line_size - 1;
+    writeln(reverse_fil.out_file);
+    write(reverse_fil.out_file, "" lpad pred(reverse_fil.line_size));
   end func;
 
 
-const proc: (ref REVERSE_FILE: reverse_fil) << BS is func
+const proc: backSpace (ref reverse_file: reverse_fil) is func
   begin
-    reverse_fil.out_file << "  ";
-    reverse_fil.out_file << '\b';
+    write(reverse_fil.out_file, "  ");
+    write(reverse_fil.out_file, "\b");
   end func;

@@ -27,19 +27,18 @@ $ include "seed7_05.s7i";
 include "time.s7i";
 include "keybd.s7i";
 
-var time: next_time is NULL_TIME;
-
 const proc: main is func
+  local
+    var time: next_time is time.value;
   begin
     writeln;
-    next_time := time(NOW) + 1 . SECONDS;
-    next_time.mycro_second := 0;
+    next_time := truncToSecond(time(NOW));
     while busy_getc(KEYBOARD) = KEY_NONE do
+      next_time +:= 1 . SECONDS;
       await(next_time);
       write(next_time);
       write(" \r");
       flush(OUT);
-      next_time := next_time + 1 . SECONDS;
     end while;
     writeln;
     writeln;

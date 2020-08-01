@@ -58,8 +58,8 @@ var array string: prg_label is 0 times "";
 
 var file: log is STD_NULL;
 var file: err is STD_NULL;
-var TEXT: scr is STD_NULL;
-var TEXT: win is STD_NULL;
+var text: scr is STD_NULL;
+var text: win is STD_NULL;
 
 var integer: file_line_number is 0;
 var string: statement_label is "";

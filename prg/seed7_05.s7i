@@ -628,6 +628,8 @@ const func integer: hashCode (in string param) is                 action "STR_HA
 
 const func integer: length (in string param) is                   action "STR_LNG";
 const func integer: pos (in string param, in string param) is     action "STR_POS";
+const func integer: pos (in string param, in string param,
+                         in integer param) is                     action "STR_IPOS";
 const func integer: rpos (in string param, in string param) is    action "STR_RPOS";
 (* const proc: count (in string param, in string param) is        action "STR_CNT"; *)
 const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
@@ -636,6 +638,30 @@ const func string: lower (in string param) is                     action "STR_LO
 const func string: str (in string param) is                       action "STR_STR";
 const func string: literal (in string param) is                   action "STR_LIT";
 const func string: c_literal (in string param) is                 action "STR_CLIT";
+
+const func string: replace2 (in string: main_stri, in string: search1,
+    in string: search2, in string: repl_stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: start_pos is 0;
+    var integer: end_pos is 0;
+  begin
+    result := main_stri;
+    start_pos := pos(result, search1);
+    while start_pos <> 0 do
+      end_pos := pos(result, search2, start_pos + length(search1));
+      if end_pos <> 0 then
+        end_pos +:= length(search2);
+        result := result[ .. pred(start_pos)] &
+            repl_stri & result[end_pos .. ];
+        end_pos := start_pos + length(repl_stri);
+        start_pos := pos(result, search1, end_pos);
+      else
+        start_pos := 0;
+      end if;
+    end while;
+  end func;
 
 const func string: getint (inout string: stri) is func
   result
@@ -2249,7 +2275,6 @@ BLOCK_DECLS(void);
 const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param) is       action "FIL_CPY";
 const func boolean: (ref PRIMITIVE_FILE param) = (ref PRIMITIVE_FILE param) is  action "FIL_EQ";
 const func boolean: (ref PRIMITIVE_FILE param) <> (ref PRIMITIVE_FILE param) is action "FIL_NE";
-const proc: (ref PRIMITIVE_FILE param) << (in string param) is                  action "FIL_WRITE";
 
 const func PRIMITIVE_FILE: PRIMITIVE_INPUT is         action "FIL_IN";
 const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is        action "FIL_OUT";
@@ -2259,10 +2284,11 @@ const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param
 const proc: close (ref PRIMITIVE_FILE param) is                           action "FIL_CLOSE";
 const func boolean: eof (ref PRIMITIVE_FILE param) is                     action "FIL_EOF";
 const proc: flush (ref PRIMITIVE_FILE param) is                           action "FIL_FLUSH";
-const func string: gets (ref PRIMITIVE_FILE param, ref integer param) is  action "FIL_STRI_READ";
 const func char: getc (ref PRIMITIVE_FILE param) is                       action "FIL_GETC";
+const func string: gets (ref PRIMITIVE_FILE param, ref integer param) is  action "FIL_STRI_READ";
 const func string: wrd_rd (ref PRIMITIVE_FILE param, inout char param) is action "FIL_WORD_READ";
 const func string: lin_rd (ref PRIMITIVE_FILE param, inout char param) is action "FIL_L_RD";
+const proc: write (ref PRIMITIVE_FILE param, in string param) is          action "FIL_WRITE";
 const func integer: length (ref PRIMITIVE_FILE param) is                  action "FIL_LNG";
 const proc: seek (ref PRIMITIVE_FILE param, ref integer param) is         action "FIL_SEEK";
 const func integer: tell (ref PRIMITIVE_FILE param) is                    action "FIL_TELL";
@@ -2272,16 +2298,17 @@ const char: EOF is chr(-1);
 
 (* Procedures and Elements granted for every file *)
 
-const type: file is           subtype object;
-const proc: destroy (ref file param) is             noop;
+const type: file is subtype object;
+IN_PARAM_IS_REFERENCE(file);
+const proc: destroy (ref file param) is                            noop;
 const proc: (ref file param) ::= (ref file param) is               action "CLS_CREATE";
 const proc: (inout file param) := (ref file param) is              action "CLS_CPY";
 
 const func boolean: (ref file param) = (ref file param) is DYNAMIC;
 const func boolean: (ref file param) <> (ref file param) is DYNAMIC;
-const proc: (ref file param) << (in string param) is DYNAMIC;
-const proc: (ref file param) << NL is DYNAMIC;
-const proc: (ref file param) << BS is DYNAMIC;
+const proc: write (ref file param, in string param) is DYNAMIC;
+const proc: writeln (ref file param) is DYNAMIC;
+const proc: backSpace (ref file param) is DYNAMIC;
 const proc: close (ref file param) is DYNAMIC;
 const proc: flush (ref file param) is DYNAMIC;
 const func file: malloc (ref file param) is DYNAMIC;
@@ -2314,9 +2341,14 @@ const func boolean: io_empty (in file: aFile) is
 const func boolean: io_filled (in file: aFile) is
   return not aFile.io_empty;
 
-const proc: writeln (ref file: aFile) is func
+const proc: (in file: aFile) << NL is func
   begin
-    aFile << NL;
+    writeln(aFile);
+  end func;
+
+const proc: (in file: aFile) << BS is func
+  begin
+    backSpace(aFile);
   end func;
 
 const proc: readln (inout file: aFile) is func
@@ -2345,7 +2377,7 @@ const func boolean: (ref NULL_FILE param) <> (ref NULL_FILE param) is  action "E
 const file: STD_NULL is NULL_FILE.value;
 const file: (attr file) . value is STD_NULL;
 
-const proc: (ref NULL_FILE param) << (in string param) is         noop;
+const proc: write (ref NULL_FILE param, in string param) is noop;
 const string: gets (ref NULL_FILE param, ref integer param) is "";
 
 const func char: getc (ref NULL_FILE: aFile) is
@@ -2393,9 +2425,9 @@ const proc: seek (ref NULL_FILE param, ref integer param) is noop;
 
 const integer: tell (ref NULL_FILE param) is 1;
 
-const proc: (ref NULL_FILE: aFile) << NL is noop;
+const proc: writeln (ref NULL_FILE: aFile) is noop;
 
-const proc: (ref NULL_FILE: aFile) << BS is noop;
+const proc: backSpace (ref NULL_FILE: aFile) is noop;
 
 const proc: (inout NULL_FILE: aFile) >> (inout string: stri) is func
   begin
@@ -2470,31 +2502,26 @@ const proc: flush (ref external_file: aFile) is func
     flush(aFile.ext_file);
   end func;
 
-const proc: (ref external_file: aFile) << (in string: stri) is func
+const proc: write (ref external_file: aFile, in string: stri) is func
   begin
-    aFile.ext_file << stri;
+    write(aFile.ext_file, stri);
   end func;
 
-const proc: (ref external_file: aFile) << (in char: ch) is func
+const proc: writeln (ref external_file: aFile) is func
   begin
-    aFile.ext_file << str(ch);
+    write(aFile.ext_file, "\n");
   end func;
 
-const proc: (ref external_file: aFile) << NL is func
+const proc: backSpace (ref external_file: aFile) is func
   begin
-    aFile << "\n";
+    write(aFile.ext_file, "\b \b");
   end func;
-
-const proc: (ref external_file: aFile) << BS is func
-  begin
-    aFile << "\b \b";
-  end func;
-
-const func string: gets (ref external_file: aFile, in integer: leng) is
-  return gets(aFile.ext_file, leng);
 
 const func char: getc (ref external_file: aFile) is
   return getc(aFile.ext_file);
+
+const func string: gets (ref external_file: aFile, in integer: leng) is
+  return gets(aFile.ext_file, leng);
 
 const func string: getwd (inout external_file: aFile) is
   return wrd_rd(aFile.ext_file, aFile.TERMINATION_CHAR);
@@ -2539,12 +2566,12 @@ var file: PROT_OUTFILE is STD_OUT;
 
 const proc: writeln is func
   begin
-    OUT << NL;
+    writeln(OUT);
   end func;
 
 const proc: write (NL) is func
   begin
-    OUT << NL;
+    writeln(OUT);
   end func;
 
 const proc: readln is func
@@ -2571,26 +2598,26 @@ const proc: (inout file: aFile) >> (inout string: stri) is func
     aFile.io_ok := TRUE;
   end func;
 
-const proc: write (in file: aFile, in string: stri) is func
+const proc: (in file: aFile) << (in string: stri) is func
   begin
-    aFile << stri;
+    write(aFile , stri);
   end func;
 
 const proc: writeln (in file: aFile, in string: stri) is func
   begin
-    aFile << stri;
-    aFile << NL;
+    write(aFile, stri);
+    writeln(aFile);
   end func;
 
 const proc: write (in string: stri) is func
   begin
-    OUT << stri;
+    write(OUT, stri);
   end func;
 
 const proc: writeln (in string: stri) is func
   begin
-    OUT << stri;
-    OUT << NL;
+    write(OUT, stri);
+    writeln(OUT);
   end func;
 
 const proc: read (inout file: aFile, inout string: stri) is func
@@ -2683,29 +2710,29 @@ const proc: enable_output (in type: aType) is func
   begin
     const proc: (in file: aFile) << (in aType: aValue) is func
       begin
-        aFile << str(aValue);
+        write(aFile, str(aValue));
       end func;
 
     const proc: write (in file: aFile, in aType: aValue) is func
       begin
-        aFile << str(aValue);
+        write(aFile, str(aValue));
       end func;
 
     const proc: writeln (in file: aFile, in aType: aValue) is func
       begin
-        aFile << str(aValue);
-        aFile << NL;
+        write(aFile, str(aValue));
+        writeln(aFile);
       end func;
 
     const proc: write (in aType: aValue) is func
       begin
-        OUT << aValue;
+        write(OUT, aValue);
       end func;
 
     const proc: writeln (in aType: aValue) is func
       begin
-        OUT << aValue;
-        OUT << NL;
+        write(OUT, aValue);
+        writeln(OUT);
       end func;
 
     const func string: (in aType: aValue) lpad (in integer: leng) is
@@ -2733,42 +2760,42 @@ enable_output(ACTION);
 enable_output(reference);
 
 
-(* TEXT *)
+(* text *)
 
-const type: TEXT is subtype file;
+const type: text is subtype file;
 
-(* Procedures and Elements granted for every TEXT *)
+(* Procedures and Elements granted for every text *)
 
-const proc: (ref TEXT param) << (in string param) is DYNAMIC;
-const proc: (ref TEXT param) << (ref char param) is DYNAMIC;
-const proc: (ref TEXT param) << NL is DYNAMIC;
-const proc: (ref TEXT param) << BS is DYNAMIC;
-const func integer: height (ref TEXT param) is DYNAMIC;
-const func integer: width (ref TEXT param) is DYNAMIC;
-const func integer: line (ref TEXT param) is DYNAMIC;
-const func integer: column (ref TEXT param) is DYNAMIC;
-const proc: clear (ref TEXT param) is DYNAMIC;
-const proc: clear (ref TEXT param, ref integer param, ref integer param,
+const proc: write (ref text param, in string param) is DYNAMIC;
+const proc: write (ref text param, in char param) is DYNAMIC;
+const proc: writeln (ref text param) is DYNAMIC;
+const proc: backSpace (ref text param) is DYNAMIC;
+const func integer: height (ref text param) is DYNAMIC;
+const func integer: width (ref text param) is DYNAMIC;
+const func integer: line (ref text param) is DYNAMIC;
+const func integer: column (ref text param) is DYNAMIC;
+const proc: clear (ref text param) is DYNAMIC;
+const proc: clear (ref text param, ref integer param, ref integer param,
     ref integer param, ref integer param) is DYNAMIC;
-const proc: v_scroll (ref TEXT param, in integer param) is DYNAMIC;
-const proc: v_scroll (ref TEXT param, ref integer param, ref integer param,
+const proc: v_scroll (ref text param, in integer param) is DYNAMIC;
+const proc: v_scroll (ref text param, ref integer param, ref integer param,
     ref integer param, ref integer param, ref integer param) is DYNAMIC;
-const proc: h_scroll (ref TEXT param, in integer param) is DYNAMIC;
-const proc: h_scroll (ref TEXT param, ref integer param, ref integer param,
+const proc: h_scroll (ref text param, in integer param) is DYNAMIC;
+const proc: h_scroll (ref text param, ref integer param, ref integer param,
     ref integer param, ref integer param, ref integer param) is DYNAMIC;
-const proc: color (ref TEXT param, ref color param) is DYNAMIC;
-const proc: color (ref TEXT param, ref color param, ref color param) is DYNAMIC;
-const proc: setPos (ref TEXT param, ref integer param, ref integer param) is DYNAMIC;
-const proc: setPosXY (ref TEXT param, ref integer param, ref integer param) is DYNAMIC;
-const proc: setLine (ref TEXT param, ref integer param) is DYNAMIC;
-const proc: setColumn (ref TEXT param, ref integer param) is DYNAMIC;
-const proc: setXY (ref TEXT param, ref integer param, ref integer param) is DYNAMIC;
-const proc: flush (ref TEXT param) is DYNAMIC;
-const proc: cursor (ref TEXT param, ref boolean param) is DYNAMIC;
-const proc: cursor_on (ref TEXT param) is DYNAMIC;
-const proc: cursor_off (ref TEXT param) is DYNAMIC;
-const proc: box (ref TEXT param) is DYNAMIC;
-const proc: clear_box (ref TEXT param) is DYNAMIC;
+const proc: color (ref text param, ref color param) is DYNAMIC;
+const proc: color (ref text param, ref color param, ref color param) is DYNAMIC;
+const proc: setPos (ref text param, ref integer param, ref integer param) is DYNAMIC;
+const proc: setPosXY (ref text param, ref integer param, ref integer param) is DYNAMIC;
+const proc: setLine (ref text param, ref integer param) is DYNAMIC;
+const proc: setColumn (ref text param, ref integer param) is DYNAMIC;
+const proc: setXY (ref text param, ref integer param, ref integer param) is DYNAMIC;
+const proc: flush (ref text param) is DYNAMIC;
+const proc: cursor (ref text param, ref boolean param) is DYNAMIC;
+const proc: cursor_on (ref text param) is DYNAMIC;
+const proc: cursor_off (ref text param) is DYNAMIC;
+const proc: box (ref text param) is DYNAMIC;
+const proc: clear_box (ref text param) is DYNAMIC;
 
 (* ARGS + ENV *)
 

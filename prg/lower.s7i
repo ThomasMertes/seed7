@@ -48,21 +48,21 @@ const proc: page (ref lower_file: lower_fil) is func
 *)
 
 
-const proc: (ref lower_file: lower_fil) << NL is func
+const proc: writeln (ref lower_file: lower_fil) is func
   begin
-    lower_fil.destination_file << NL;
+    writeln(lower_fil.destination_file);
   end func;
 
 
-const proc: (ref lower_file: lower_fil) << BS is func
+const proc: backSpace (ref lower_file: lower_fil) is func
   begin
-    lower_fil.destination_file << BS;
+    backSpace(lower_fil.destination_file);
   end func;
 
 
-const proc: (ref lower_file: lower_fil) << (ref string: stri) is func
+const proc: write (ref lower_file: lower_fil, ref string: stri) is func
   begin
-    lower_fil.destination_file << lower(stri);
+    write(lower_fil.destination_file, lower(stri));
   end func;
 
 

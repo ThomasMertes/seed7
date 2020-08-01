@@ -39,8 +39,8 @@ const integer: WINDOW_WIDTH is 640;
 const integer: WINDOW_HEIGHT is FIELD_HEIGHT * BLOCK_SIZE + 2 * FIELD_Y_START;
 const integer: AREA_WIDTH is FIELD_WIDTH * BLOCK_SIZE + 2 * FIELD_X_START;
 
-var TEXT: scr is STD_NULL;
-var TEXT: info_sheet is STD_NULL;
+var text: scr is STD_NULL;
+var text: info_sheet is STD_NULL;
 
 var boolean: quit_round is FALSE;
 var integer: score is 0;
@@ -370,7 +370,7 @@ const proc: drop (inout piece: actual_piece) is func
 
 const proc: set_piece (inout piece: actual_piece) is func
   local
-    var time: start_time is NULL_TIME;
+    var time: start_time is time.value;
     var integer: counter is 0;
     var char: command is ' ';
   begin

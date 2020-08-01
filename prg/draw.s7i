@@ -413,7 +413,7 @@ const proc: sound (in integer: freq, in integer: dur) is func
   end func;
 
 
-const type: GRAPH_FILE is sub NULL_FILE struct
+const type: graph_file is sub NULL_FILE struct
     var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
     var integer: line_delta is 0;
     var integer: column_delta is 0;
@@ -430,9 +430,9 @@ const type: GRAPH_FILE is sub NULL_FILE struct
   end struct;
 
 
-const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win) is func
+const func graph_file: open (in PRIMITIVE_WINDOW: graph_win) is func
   result
-    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+    var graph_file: graphFile is graph_file.value;
   begin
     graphFile.win := graph_win;
     graphFile.line_delta := 13;
@@ -448,10 +448,10 @@ const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win) is func
   end func;
 
 
-const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win,
+const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
     in integer: min_x, in integer: min_y) is func
   result
-    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+    var graph_file: graphFile is graph_file.value;
   begin
     graphFile.win := graph_win;
     graphFile.line_delta := 13;
@@ -467,10 +467,10 @@ const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win,
   end func;
 
 
-const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win,
+const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
     in integer: min_x, in integer: min_y, in integer: width, in integer: height) is func
   result
-    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+    var graph_file: graphFile is graph_file.value;
   begin
     graphFile.win := graph_win;
     graphFile.line_delta := 13;
@@ -486,9 +486,9 @@ const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win,
   end func;
 
 
-const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win, in integer: lin_delta) is func
+const func graph_file: open (in PRIMITIVE_WINDOW: graph_win, in integer: lin_delta) is func
   result
-    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+    var graph_file: graphFile is graph_file.value;
   begin
     graphFile.win := graph_win;
     graphFile.line_delta := lin_delta;
@@ -504,42 +504,42 @@ const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win, in integer: lin_del
   end func;
 
 
-const proc: flush (in GRAPH_FILE: graphFile) is func
+const proc: flush (in graph_file: graphFile) is func
   begin
     DRAW_FLUSH;
   end func;
 
 
-const proc: color (inout GRAPH_FILE: graphFile, in color: col) is func
+const proc: color (inout graph_file: graphFile, in color: col) is func
   begin
     graphFile.foreground := col;
   end func;
 
 
-const proc: color (inout GRAPH_FILE: graphFile, in color: col1, in color: col2) is func
+const proc: color (inout graph_file: graphFile, in color: col1, in color: col2) is func
   begin
     graphFile.foreground := col1;
     graphFile.background := col2;
   end func;
 
 
-const func integer: height (in GRAPH_FILE: graphFile) is
+const func integer: height (in graph_file: graphFile) is
   return graphFile.height;
 
 
-const func integer: width (in GRAPH_FILE: graphFile) is
+const func integer: width (in graph_file: graphFile) is
   return graphFile.width;
 
 
-const func integer: line (in GRAPH_FILE: graphFile) is
+const func integer: line (in graph_file: graphFile) is
   return graphFile.line;
 
 
-const func integer: column (in GRAPH_FILE: graphFile) is
+const func integer: column (in graph_file: graphFile) is
   return graphFile.column;
 
 
-const proc: clear (in GRAPH_FILE: graphFile,
+const proc: clear (in graph_file: graphFile,
     in integer: upper, in integer: left, in integer: lower, in integer: right) is func
   begin
     rectTo(curr_win,
@@ -551,16 +551,16 @@ const proc: clear (in GRAPH_FILE: graphFile,
   end func;
 
 
-const proc: clear (in GRAPH_FILE: graphFile) is func
+const proc: clear (in graph_file: graphFile) is func
   begin
     clear(graphFile, 1, 1, height(graphFile), width(graphFile));
   end func;
 
 
-const proc: cursor (ref GRAPH_FILE: graphFile, ref boolean: active) is noop;
+const proc: cursor (ref graph_file: graphFile, ref boolean: active) is noop;
 
 
-const proc: v_scroll (ref GRAPH_FILE: graphFile,
+const proc: v_scroll (ref graph_file: graphFile,
     in integer: upper, in integer: left, in integer: lower, in integer: right,
     in integer: count) is func
   local
@@ -606,7 +606,7 @@ const proc: v_scroll (ref GRAPH_FILE: graphFile,
   end func;
 
 
-const proc: h_scroll (ref GRAPH_FILE: graphFile,
+const proc: h_scroll (ref graph_file: graphFile,
     in integer: upper, in integer: left, in integer: lower, in integer: right,
     in integer: count) is func
   begin
@@ -614,7 +614,7 @@ const proc: h_scroll (ref GRAPH_FILE: graphFile,
   end func;
 
 
-const proc: setPos (inout GRAPH_FILE: graphFile, in integer: line, in integer: column) is func
+const proc: setPos (inout graph_file: graphFile, in integer: line, in integer: column) is func
   begin
     graphFile.line := line;
     graphFile.column := column;
@@ -623,7 +623,7 @@ const proc: setPos (inout GRAPH_FILE: graphFile, in integer: line, in integer: c
   end func;
 
 
-const proc: setPosXY (inout GRAPH_FILE: graphFile, in integer: xPos, in integer: yPos) is func
+const proc: setPosXY (inout graph_file: graphFile, in integer: xPos, in integer: yPos) is func
   begin
     graphFile.curr_x := graphFile.min_x + xPos;
     graphFile.curr_y := graphFile.min_y + yPos;
@@ -632,28 +632,28 @@ const proc: setPosXY (inout GRAPH_FILE: graphFile, in integer: xPos, in integer:
   end func;
 
 
-const proc: setLine (inout GRAPH_FILE: graphFile, in integer: line) is func
+const proc: setLine (inout graph_file: graphFile, in integer: line) is func
   begin
     graphFile.line := line;
     graphFile.curr_y := graphFile.min_y + graphFile.line_delta * line - 2;
   end func;
 
 
-const proc: setColumn (inout GRAPH_FILE: graphFile, in integer: column) is func
+const proc: setColumn (inout graph_file: graphFile, in integer: column) is func
   begin
     graphFile.column := column;
     graphFile.curr_x := graphFile.min_x + graphFile.column_delta * column - 6;
   end func;
 
 
-const proc: setXY (inout GRAPH_FILE: graphFile, in integer: xPos, in integer: yPos) is func
+const proc: setXY (inout graph_file: graphFile, in integer: xPos, in integer: yPos) is func
   begin
     graphFile.curr_x := graphFile.min_x + xPos;
     graphFile.curr_y := graphFile.min_y + yPos;
   end func;
 
 
-const proc: (inout GRAPH_FILE: graphFile) << (in string: stri) is func
+const proc: write (inout graph_file: graphFile, in string: stri) is func
   begin
     SET_COLOR(colorPixel(graphFile.foreground));
     SET_BACKGROUND(colorPixel(graphFile.background));
@@ -663,13 +663,13 @@ const proc: (inout GRAPH_FILE: graphFile) << (in string: stri) is func
   end func;
 
 
-const proc: (inout GRAPH_FILE: graphFile) << (ref char: ch) is func
+const proc: write (inout graph_file: graphFile, in char: ch) is func
   begin
-    graphFile << str(ch);
+    write(graphFile, str(ch));
   end func;
 
 
-const proc: (inout GRAPH_FILE: graphFile) << NL is func
+const proc: writeln (inout graph_file: graphFile) is func
   begin
     incr(graphFile.line);
     graphFile.column := 1;
@@ -678,13 +678,13 @@ const proc: (inout GRAPH_FILE: graphFile) << NL is func
   end func;
 
 
-const proc: cursor_on (inout GRAPH_FILE: graphFile) is func
+const proc: cursor_on (inout graph_file: graphFile) is func
   begin
-    graphFile << "_";
+    write(graphFile, "_");
   end func;
 
 
-const proc: cursor_off (inout GRAPH_FILE: graphFile) is func
+const proc: cursor_off (inout graph_file: graphFile) is func
   begin
-    graphFile << " ";
+    write(graphFile, " ");
   end func;

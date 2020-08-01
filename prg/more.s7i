@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const type: MORE_FILE is sub NULL_FILE struct
+const type: more_file is sub NULL_FILE struct
     var file: out_file is STD_NULL;
     var file: command_file is STD_NULL;
     var integer: pagesize is 0;
@@ -35,12 +35,12 @@ const type: MORE_FILE is sub NULL_FILE struct
   end struct;
 
 
-const func MORE_FILE: open_more (ref file: out_fil, ref file: cmd_fil,
+const func more_file: open_more (ref file: out_fil, ref file: cmd_fil,
     in integer: pg_size) is func
   result
-    var MORE_FILE: more_fil is MORE_FILE.value;
+    var more_file: more_fil is more_file.value;
   begin
-    more_fil := MORE_FILE.value;
+    more_fil := more_file.value;
     more_fil.out_file := out_fil;
     more_fil.command_file := cmd_fil;
     more_fil.pagesize := pg_size;
@@ -49,24 +49,24 @@ const func MORE_FILE: open_more (ref file: out_fil, ref file: cmd_fil,
   end func;
 
 
-const proc: page (inout MORE_FILE: more_fil) is func
+const proc: page (inout more_file: more_fil) is func
   begin
     more_fil.active := TRUE;
     more_fil.line := 0;
   end func;
 
 
-const proc: (inout MORE_FILE: more_fil) << NL is func
+const proc: writeln (inout more_file: more_fil) is func
   local
     var string: command is "";
   begin
     if more_fil.active then
-      more_fil.out_file << NL;
+      writeln(more_fil.out_file);
       incr(more_fil.line);
       if more_fil.line >= more_fil.pagesize then
-        more_fil.out_file << " *** MORE *** ";
+        write(more_fil.out_file, " *** MORE *** ");
         readln(more_fil.command_file, command);
-        more_fil.out_file << NL;
+        writeln(more_fil.out_file);
         if lower(command) = "q" then
           more_fil.active := FALSE;
         end if;
@@ -76,9 +76,9 @@ const proc: (inout MORE_FILE: more_fil) << NL is func
   end func;
 
 
-const proc: (ref MORE_FILE: more_fil) << (ref string: OBJ) is func
+const proc: write (ref more_file: more_fil, ref string: stri) is func
   begin
     if more_fil.active then
-      more_fil.out_file << OBJ;
+      write(more_fil.out_file, stri);
     end if;
   end func;

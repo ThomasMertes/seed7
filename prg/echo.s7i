@@ -26,25 +26,25 @@
 (********************************************************************)
 
 
-const type: ECHO_FILE is sub NULL_FILE struct
+const type: echo_file is sub NULL_FILE struct
     var file: in_file is STD_NULL;
     var file: out_file is STD_NULL;
     var integer: in_pos is 0;
   end struct;
 
 
-const func ECHO_FILE: open_echo (ref file: in_fil, ref file: out_fil) is func
+const func echo_file: open_echo (ref file: in_fil, ref file: out_fil) is func
   result
-    var ECHO_FILE: echo_fil is ECHO_FILE.value;
+    var echo_file: echo_fil is echo_file.value;
   begin
-    echo_fil := ECHO_FILE.value;
+    echo_fil := echo_file.value;
     echo_fil.in_file := in_fil;
     echo_fil.out_file := out_fil;
     echo_fil.in_pos := 0;
   end func;
 
 
-const func char: getc (inout ECHO_FILE: echo_fil) is func
+const func char: getc (inout echo_file: echo_fil) is func
   result
     var char: ch is ' ';
   local
@@ -57,40 +57,38 @@ const func char: getc (inout ECHO_FILE: echo_fil) is func
 (*    cursor_off(echo_fil.out_file); *)
       if ch >= ' ' and ch <= '~' then
         incr(echo_fil.in_pos);
-        echo_fil.out_file << ch;
+        write(echo_fil.out_file, ch);
       elsif ch = '\n' then
         echo_fil.in_pos := 0;
-        echo_fil.out_file << NL;
+        writeln(echo_fil.out_file);
       elsif ch = '\b' then
         if echo_fil.in_pos > 0 then
           decr(echo_fil.in_pos);
-          echo_fil.out_file << BS;
+          backSpace(echo_fil.out_file);
         end if;
       elsif ch = '\C' or ch = '\T' then
-        echo_fil.out_file << " terminate (y/n)? ";
+        write(echo_fil.out_file, " terminate (y/n)? ");
         flush(echo_fil.out_file);
         if lower(getc(echo_fil.in_file)) = 'y' then
-          echo_fil.out_file << "yes";
-          echo_fil.out_file << NL;
-          echo_fil.out_file << NL;
-          echo_fil.out_file << "*** PROGRAM TERMINATED BY USER";
-          echo_fil.out_file << NL;
+          writeln(echo_fil.out_file, "yes");
+          writeln(echo_fil.out_file);
+          writeln(echo_fil.out_file, "*** PROGRAM TERMINATED BY USER");
           exit(PROGRAM);
         else
           for number range 1 to 18 do
-            echo_fil.out_file << BS;
+            backSpace(echo_fil.out_file);
           end for;
         end if;
       else
         incr(echo_fil.in_pos);
         ch := '?';
-        echo_fil.out_file << ch;
+        write(echo_fil.out_file, ch);
       end if;
     until ch <> '\C' and ch <> '\T';
   end func;
 
 
-const func string: gets (inout ECHO_FILE: echo_fil, ref integer: length) is func
+const func string: gets (inout echo_file: echo_fil, ref integer: length) is func
   result
     var string: stri is "";
   local
