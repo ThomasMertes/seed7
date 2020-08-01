@@ -57,7 +57,7 @@ base language. A popular approach to do language extension was the
 use of macro definitions. The constructs of the base language were
 hard-coded.
 
-The design and development of Seed7 is based on independent research
+The design and development of Seed7 is based on independent research,
 which was done without knowing that the historic extensible
 programming language movement existed. Although Seed7 has different
 roots it reaches many of the original extensible programming language

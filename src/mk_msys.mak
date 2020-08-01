@@ -18,12 +18,15 @@ LDFLAGS = -Wl,--stack,4194304
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm -lws2_32
 # SYSTEM_LIBS = -lm -lws2_32 -lgmp
+SYSTEM_CONSOLE_LIBS =
 SYSTEM_DRAW_LIBS = -lgdi32
 SEED7_LIB = seed7_05.a
+CONSOLE_LIB = s7_con.a
 DRAW_LIB = s7_draw.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
-ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(SEED7_LIB)
+ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(SEED7_LIB)
+# CC = g++
 CC = gcc
 GET_CC_VERSION_INFO = $(CC) --version >
 
@@ -33,28 +36,28 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB = big_gmp
 
 # TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_OBJ = con_inf.o kbd_inf.o trm_inf.o
-# CONSOLE_SRC = con_inf.c kbd_inf.c trm_inf.c
+# CONSOLE_LIB_OBJ = con_inf.o kbd_inf.o trm_inf.o
+# CONSOLE_LIB_SRC = con_inf.c kbd_inf.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_OBJ = con_inf.o kbd_inf.o trm_cap.o
-# CONSOLE_SRC = con_inf.c kbd_inf.c trm_cap.c
+# CONSOLE_LIB_OBJ = con_inf.o kbd_inf.o trm_cap.o
+# CONSOLE_LIB_SRC = con_inf.c kbd_inf.c trm_cap.c
 # TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_OBJ = con_inf.o kbd_poll.o trm_inf.o
-# CONSOLE_SRC = con_inf.c kbd_poll.c trm_inf.c
+# CONSOLE_LIB_OBJ = con_inf.o kbd_poll.o trm_inf.o
+# CONSOLE_LIB_SRC = con_inf.c kbd_poll.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_OBJ = con_inf.o kbd_poll.o trm_cap.o
-# CONSOLE_SRC = con_inf.c kbd_poll.c trm_cap.c
+# CONSOLE_LIB_OBJ = con_inf.o kbd_poll.o trm_cap.o
+# CONSOLE_LIB_SRC = con_inf.c kbd_poll.c trm_cap.c
 
-# CONSOLE_OBJ = con_cur.o
-# CONSOLE_SRC = con_cur.c
-# CONSOLE_OBJ = con_cap.o
-# CONSOLE_SRC = con_cap.c
-# CONSOLE_OBJ = con_tcp.o
-# CONSOLE_SRC = con_tcp.c
-# CONSOLE_OBJ = con_x11.o
-# CONSOLE_SRC = con_x11.c
-CONSOLE_OBJ = con_win.o
-CONSOLE_SRC = con_win.c
+# CONSOLE_LIB_OBJ = con_cur.o
+# CONSOLE_LIB_SRC = con_cur.c
+# CONSOLE_LIB_OBJ = con_cap.o
+# CONSOLE_LIB_SRC = con_cap.c
+# CONSOLE_LIB_OBJ = con_tcp.o
+# CONSOLE_LIB_SRC = con_tcp.c
+# CONSOLE_LIB_OBJ = con_x11.o
+# CONSOLE_LIB_SRC = con_x11.c
+CONSOLE_LIB_OBJ = con_win.o
+CONSOLE_LIB_SRC = con_win.c
 
 MOBJ1 = hi.o
 POBJ1 = runerr.o option.o primitiv.o
@@ -70,7 +73,7 @@ GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
 ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o kbd_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
 ROBJ3 = heaputl.o striutl.o
-DOBJ1 = $(BIGINT_LIB).o $(CONSOLE_OBJ) cmd_win.o fil_win.o tim_win.o
+DOBJ1 = $(BIGINT_LIB).o cmd_win.o fil_win.o tim_win.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 DRAW_LIB_OBJ = drw_win.o
@@ -91,7 +94,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c kbd_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(CONSOLE_SRC) cmd_win.c fil_win.c tim_win.c
+DSRC1 = $(BIGINT_LIB).c cmd_win.c fil_win.c tim_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 DRAW_LIB_SRC = drw_win.c
@@ -102,7 +105,7 @@ hi: ../bin/hi.exe ../prg/hi.exe
 	../bin/hi.exe level
 
 ../bin/hi.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS) -o ../bin/hi
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/hi
 
 ../prg/hi.exe: ../bin/hi.exe
 	cp ../bin/hi.exe ../prg
@@ -110,7 +113,7 @@ hi: ../bin/hi.exe ../prg/hi.exe
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../prg/hi.exe depend a_depend b_depend c_depend d_depend version.h
+	rm -f *.o ../bin/*.a ../prg/hi.exe depend version.h
 
 dep: depend
 
@@ -181,8 +184,10 @@ version.h:
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
+	echo "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	echo "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
 	echo "#define SEED7_LIB \"$(SEED7_LIB)\"" >> version.h
+	echo "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> version.h
 	echo "#define DRAW_LIB \"$(DRAW_LIB)\"" >> version.h
 	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> version.h
@@ -190,26 +195,22 @@ version.h:
 	./setpaths.exe >> version.h
 	rm setpaths.exe
 
-depend: a_depend b_depend c_depend d_depend version.h
+depend: version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend
-
-a_depend: version.h
-	$(CC) $(CFLAGS) -M $(SEED7_LIB_SRC) > a_depend
-
-b_depend: version.h
-	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) > b_depend
-
-c_depend: version.h
-	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) > c_depend
-
-d_depend: version.h
-	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) > d_depend
+	$(CC) $(CFLAGS) -M $(SEED7_LIB_SRC) >> depend
+	$(CC) $(CFLAGS) -M $(CONSOLE_LIB_SRC) >> depend
+	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) >> depend
+	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) >> depend
+	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
 
 level.h:
 	../bin/hi.exe level
 
 ../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	ar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)
+
+../bin/$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
+	ar r ../bin/$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ../bin/$(DRAW_LIB): $(DRAW_LIB_OBJ)
 	ar r ../bin/$(DRAW_LIB) $(DRAW_LIB_OBJ)
@@ -225,6 +226,8 @@ wc: $(SRC)
 	wc $(SRC)
 	echo SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
+	echo CONSOLE_LIB_SRC:
+	wc $(CONSOLE_LIB_SRC)
 	echo DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
 	echo COMP_DATA_LIB_SRC:
@@ -233,15 +236,11 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend
-include a_depend
-include b_depend
-include c_depend
-include d_depend
 endif

@@ -85,7 +85,7 @@ const func string: gets (inout file: aFile, in integer: maxLength) is DYNAMIC;
 (**
  *  Read a word from a file.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", end-of-line or EOF.
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
  *  word ending character (' ', '\t', '\n' or EOF). 
@@ -96,7 +96,7 @@ const func string: getwd (inout file: aFile)                 is DYNAMIC;
 
 (**
  *  Read a line from a file.
- *  The function reads a string up to end-of-line or EOF.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
@@ -199,7 +199,7 @@ const func boolean: io_filled (in file: aFile) is
 
 (**
  *  Discard a line from a file.
- *  The function discards characters up to end-of-line or EOF.
+ *  The function discards characters up to end-of-line or [[char#EOF|EOF]].
  *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
  *)
@@ -229,7 +229,7 @@ const proc: writeln (inout file: aFile, in string: stri) is func
 (**
  *  Read a word from a file.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", end-of-line or EOF.
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
  *  word ending character (' ', '\t', '\n' or EOF). 
@@ -244,7 +244,7 @@ const proc: read (inout file: aFile, inout string: stri) is func
 
 (**
  *  Read a line from a file.
- *  The function reads a string up to end-of-line or EOF.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 

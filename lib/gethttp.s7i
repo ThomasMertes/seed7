@@ -101,20 +101,19 @@ const func string: toHttpAscii (in string: stri) is func
     var char: ch is ' ';
   begin
     stri8 := striToUtf8(stri);
-    for pos range 1 to length(stri8) do
-      ch := stri8[pos];
+    for ch key pos range stri8 do
       if ord(ch) >= 127 or ch < ' ' or
           ch in {'%', '/', '?', '&', '=', '+'} then
-        result &:= stri[start .. pred(pos)];
+        result &:= stri8[start .. pred(pos)];
         result &:= "%" <& str(ord(ch), 16) lpad0 2;
         start := succ(pos);
       elsif ch = ' ' then
-        result &:= stri[start .. pred(pos)];
+        result &:= stri8[start .. pred(pos)];
         result &:= "+";
         start := succ(pos);
       end if;
     end for;
-    result &:= stri[start ..];
+    result &:= stri8[start ..];
   end func;
 
 

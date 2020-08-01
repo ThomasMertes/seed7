@@ -27,7 +27,7 @@
 
 
 (**
- *  Integer for-loop, looping from ''startValue'' upward to ''endValue''.
+ *  [[integer|Integer]] for-loop, looping from ''startValue'' upward to ''endValue''.
  *  The variable ''aVar'' is initialized with ''startValue''. The
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is incremented. After the ''statements'' were
@@ -41,7 +41,7 @@ const proc: for (inout integer: aVar) range (in integer: startValue) to (in inte
 
 
 (**
- *  Integer for-loop, looping from ''startValue'' downward to ''endValue''.
+ *  [[integer|Integer]] for-loop, looping from ''startValue'' downward to ''endValue''.
  *  The variable ''aVar'' is initialized with ''startValue''. The
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is decremented. After the ''statements'' were
@@ -140,7 +140,7 @@ FOR_DECLS(boolean);
 
 
 (**
- *  For-loop which loops over the characters of a string.
+ *  For-loop which loops over the [[char|characters]] of a [[string]]
  *)
 const proc: for (inout char: variable) range (in string: stri) do
               (in proc: statements)
@@ -156,7 +156,7 @@ const proc: for (inout char: variable) range (in string: stri) do
 
 
 (**
- *  For-loop which loops over the keys (indices) of a string.
+ *  For-loop which loops over the keys (indices) of a [[string]].
  *)
 const proc: for key (inout integer: keyVar) range (in string: stri) do
               (in proc: statements)
@@ -169,7 +169,7 @@ const proc: for key (inout integer: keyVar) range (in string: stri) do
 
 
 (**
- *  For-loop which loops over characters and keys (indices) of a string.
+ *  For-loop which loops over [[char|characters]] and keys (indices) of a [[string]].
  *)
 const proc: for (inout char: variable) key (inout integer: keyVar) range (in string: stri) do
               (in proc: statements)

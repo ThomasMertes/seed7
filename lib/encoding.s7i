@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "chartype.s7i";
+
+
 (**
  *  Encode a string with the Base64 encoding.
  *  Base64 encodes a byte string as ASCII string. This is done by
@@ -341,4 +344,137 @@ const func string: fromUuencoded (in string: stri) is func
         lineLength := 0;
       end if;
     end while;
+  end func;
+
+
+(**
+ *  Encode a string with percent-encoding.
+ *  Percent-encoding encodes a byte string as ASCII string. This is done
+ *  by encoding all characters, which are not in the set of unreserved
+ *  characters (A-Z, a-z, 0-9 - _ . ~). The encoding uses a percent sign
+ *  ('%') followed by two hexadecimal digits, which represent the ordinal
+ *  value of the encoded character.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
+const func string: toPercentEncoded (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    const set of char: unreservedChars is alphanum_char | {'-', '_', '.', '~'};
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    for ch key pos range stri do
+      if ch > '\255\' then
+        raise RANGE_ERROR;
+      elsif ch not in unreservedChars then
+        result &:= stri[start .. pred(pos)];
+        result &:= "%" <& str(ord(ch), 16) lpad0 2;
+        start := succ(pos);
+      end if;
+    end for;
+    result &:= stri[start ..];
+  end func;
+
+
+(**
+ *  Decode a percent-encoded string.
+ *  Percent-encoding encodes a byte string as ASCII string. It uses
+ *  the percent sign ('%') followed by two hexadecimal digits to
+ *  encode characters that otherwise would not be allowed in an
+ *  URL. Allowed URL characters are encoded as themself.
+ *  @return the decoded string.
+ *)
+const func string: fromPercentEncoded (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: pos is 0;
+  begin
+    result := stri;
+    pos := pos(result, '%', succ(pos));
+    while pos <> 0 do
+      if pos <= length(result) - 2 and
+          result[succ(pos)] in hexdigit_char and
+          result[pos + 2] in hexdigit_char then
+        result := result[.. pred(pos)] &
+            str(chr(toInt(result[succ(pos) len 2], 16))) &
+            result[pos + 3 ..];
+      end if;
+      pos := pos(result, '%', succ(pos));
+    end while;
+  end func;
+
+
+(**
+ *  Encode a string with URL encoding.
+ *  URL encoding encodes a byte string as ASCII string. This is done
+ *  by encoding all characters, which are not in the set of unreserved
+ *  characters (A-Z, a-z, 0-9 - _ . ~). The encoding uses a percent sign
+ *  ('%') followed by two hexadecimal digits, which represent the ordinal
+ *  value of the encoded character. A plus sign ('+') is used to encode
+ *  a space (' ').
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
+const func string: toUrlEncoded (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    const set of char: unreservedChars is alphanum_char | {'-', '_', '.', '~'};
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    for ch key pos range stri do
+      if ch > '\255\' then
+        raise RANGE_ERROR;
+      elsif ch = ' ' then
+        result &:= stri[start .. pred(pos)];
+        result &:= '+';
+        start := succ(pos);
+      elsif ch not in unreservedChars then
+        result &:= stri[start .. pred(pos)];
+        result &:= "%" <& str(ord(ch), 16) lpad0 2;
+        start := succ(pos);
+      end if;
+    end for;
+    result &:= stri[start ..];
+  end func;
+
+
+(**
+ *  Decode an URL encoded string.
+ *  URL encoding encodes a byte string as ASCII string. It uses
+ *  the percent sign ('%') followed by two hexadecimal digits to
+ *  encode characters that otherwise would not be allowed in an
+ *  URL. A plus sign ('+') is used to encode a space (' ').
+ *  Allowed URL characters are encoded as themself.
+ *  @return the decoded string.
+ *)
+const func string: fromUrlEncoded (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    for ch key pos range stri do
+      if ch = '%' and pos <= length(stri) - 2 and
+          stri[succ(pos)] in hexdigit_char and
+          stri[pos + 2] in hexdigit_char then
+        result &:= stri[start .. pred(pos)];
+        result &:= chr(toInt(stri[succ(pos) len 2], 16));
+        pos +:= 2;
+        start := succ(pos);
+      elsif ch = '+' then
+        result &:= stri[start .. pred(pos)];
+        result &:= ' ';
+        start := succ(pos);
+      end if;
+    end for;
+    result &:= stri[start ..];
   end func;

@@ -56,9 +56,6 @@
 
 #undef TRACE_X11
 
-#undef FLAG_EVENTS
-#undef TRACE_KBD
-
 #ifndef C_PLUS_PLUS
 #define c_class class
 #endif
@@ -88,8 +85,6 @@ typedef struct x11_winstruct {
 
 typedef const struct x11_winstruct *const_x11_wintype;
 
-static x11_wintype window_hash[1024];
-
 #define to_window(win)    (((const_x11_wintype) win)->window)
 #define to_backup(win)    (((const_x11_wintype) win)->backup)
 #define to_clip_mask(win) (((const_x11_wintype) win)->clip_mask)
@@ -103,6 +98,8 @@ static x11_wintype window_hash[1024];
 #define is_var_pixmap(win)    (((x11_wintype) win)->is_pixmap)
 #define to_var_width(win)     (((x11_wintype) win)->width)
 #define to_var_height(win)    (((x11_wintype) win)->height)
+
+static x11_wintype window_hash[1024];
 
 Visual *default_visual;
 
@@ -299,6 +296,35 @@ XExposeEvent *xexpose;
     printf("end redraw\n");
 #endif
   } /* redraw */
+
+
+
+#ifdef ANSI_C
+
+void doFlush (void)
+#else
+
+void doFlush ()
+#endif
+
+  { /* doFlush */
+    XFlush(mydisplay);
+    XSync(mydisplay, 0);
+  } /* doFlush */
+
+
+
+#ifdef ANSI_C
+
+void flushBeforeRead (void)
+#else
+
+void flushBeforeRead ()
+#endif
+
+  { /* flushBeforeRead */
+    /* Not necessary, since XNextEvent() does a flush */
+  } /* flushBeforeRead */
 
 
 

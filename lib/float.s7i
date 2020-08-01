@@ -318,6 +318,16 @@ const func integer: trunc (ref float: number)                    is action "FLT_
 const func boolean: isNaN (ref float: number)                    is action "FLT_ISNAN";
 
 
+(**
+ *  Determine if a number is -0.0.
+ *  This function is the only possibility to determine if a number
+ *  is -0.0. The comparison operators (=, <>, <, >, <=, >=) and
+ *  the function ''compare'' treat 0.0 and -0.0 as equal. The
+ *  ''digits'' operator and the ''str'' function convert -0.0 to
+ *  the string "0.0".
+ *  @return TRUE if the number is -0.0,
+ *          FALSE otherwise.
+ *)
 const func boolean: isNegativeZero (in float: number)            is action "FLT_ISNEGATIVEZERO";
 
 

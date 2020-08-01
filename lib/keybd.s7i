@@ -147,7 +147,7 @@ const func string: getk (in console_keybd_file: keybd) is func
 (**
  *  Read a word from the console keyboard file.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains ' ',
@@ -164,7 +164,7 @@ const func string: getwd (inout console_keybd_file: keybd) is func
 
 (**
  *  Read a line from the console keyboard file.
- *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains '\n' or
@@ -269,7 +269,7 @@ const func string: getk (in graph_keybd_file: keybd) is func
 (**
  *  Read a word from the graphic keyboard file.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains ' ',
@@ -286,7 +286,7 @@ const func string: getwd (inout graph_keybd_file: keybd) is func
 
 (**
  *  Read a line from the graphic keyboard file.
- *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains '\n' or

@@ -195,7 +195,7 @@ const func string: gets (in external_file: aFile, in integer: maxLength) is
 (**
  *  Read a word from an external_file.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains ' ',
@@ -210,7 +210,7 @@ const func string: getwd (inout external_file: aFile) is
 
 (**
  *  Read a line from an external_file.
- *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains '\n' or

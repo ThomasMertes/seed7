@@ -344,7 +344,7 @@ const proc: boxTo (in integer: x1, in integer: y1,
 
 (**
  *  Draws a circle with the color 'col' to the window 'win'.
- *  The circle has the given 'radius' and it's center is at (x, y).
+ *  The circle has the given 'radius' and its center is at (x, y).
  *)
 const proc: circle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius, in color: col) is func
@@ -355,7 +355,7 @@ const proc: circle (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws a circle with the color 'col' to the current window 'curr_win'.
- *  The circle has the given 'radius' and it's center is at (x, y).
+ *  The circle has the given 'radius' and its center is at (x, y).
  *)
 const proc: circle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
@@ -365,7 +365,7 @@ const proc: circle (in integer: x, in integer: y, in integer: radius, in color: 
 
 (**
  *  Draws a filled circle with the color 'col' to the window 'win'.
- *  The circle has the given 'radius' and it's center is at (x, y).
+ *  The circle has the given 'radius' and its center is at (x, y).
  *)
 const proc: fcircle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius, in color: col) is func
@@ -376,7 +376,7 @@ const proc: fcircle (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws a filled circle with the color 'col' to the current window 'curr_win'.
- *  The circle has the given 'radius' and it's center is at (x, y).
+ *  The circle has the given 'radius' and its center is at (x, y).
  *)
 const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
@@ -386,7 +386,7 @@ const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color:
 
 (**
  *  Draws an arc with the color 'col' to the window 'win'.
- *  The arc has the given 'radius' and it's center is at (x, y).
+ *  The arc has the given 'radius' and its center is at (x, y).
  *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
  *)
 const proc: arc (inout PRIMITIVE_WINDOW: win,
@@ -399,7 +399,7 @@ const proc: arc (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws an arc with the color 'col' to the current window 'curr_win'.
- *  The arc has the given 'radius' and it's center is at (x, y).
+ *  The arc has the given 'radius' and its center is at (x, y).
  *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
  *)
 const proc: arc (in integer: x, in integer: y, in integer: radius,
@@ -416,10 +416,15 @@ const proc: chord (in integer: x, in integer: y, in integer: radius,
   end func;
 
 
-const proc: pieslice (in integer: x, in integer: y, in integer: r,
+(**
+ *  Draws a filled sector with color ''col'' to ''curr_win''.
+ *  The sector has the given 'radius' and its center is at (x, y).
+ *  The sector begins at 'startAngle' and spans over 'sweepAngle'.
+ *)
+const proc: pieslice (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    FILL_ARCPIESLICE(curr_win, x, y, r, startAngle, sweepAngle, colorPixel(col));
+    FILL_ARCPIESLICE(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
   end func;
 
 

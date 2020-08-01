@@ -963,10 +963,14 @@ stritype name;
         opt = LINKER_FLAGS;
       } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
         opt = SYSTEM_LIBS;
+      } else if (strcmp(opt_name, "SYSTEM_CONSOLE_LIBS") == 0) {
+        opt = SYSTEM_CONSOLE_LIBS;
       } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
         opt = SYSTEM_DRAW_LIBS;
       } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
         opt = SEED7_LIB;
+      } else if (strcmp(opt_name, "CONSOLE_LIB") == 0) {
+        opt = CONSOLE_LIB;
       } else if (strcmp(opt_name, "DRAW_LIB") == 0) {
         opt = DRAW_LIB;
       } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {

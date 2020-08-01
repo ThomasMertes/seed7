@@ -1,7 +1,30 @@
+20111003:
+- A check for MEMORY_ERROR was removed from "chkexc.sd7" (thanks to
+  Pietro Cerutti for pointing out problems under 64-bit FreeBSD).
+- Documentation comments in "complex.s7i", "draw.s7i", "float.s7i",
+  "external_file.s7i", "forloop.s7i", "html_ent.s7i", "keybd.s7i",
+  "null_file.s7i", "socket.s7i", "stdio.s7i" and "xml_ent.s7i" were
+  improved.
+- The compiler (comp.sd7) and the makefiles were improved, such that
+  executables only link console libraries (ncurses, etc.), when
+  necessary.
+- The function 'encodeHtmlContent' was added to "html_ent.s7i".
+- The function 'fromPercentEncoded' was moved from "cgi.s7i" to
+  "encoding.s7i".
+- The functions 'toPercentEncoded', 'toUrlEncoded' and
+  'fromUrlEncoded' were added to the library "encoding.s7i".
+- Compiler, runtime libraries and makefiles were improved to support
+  the configuration macros CONSOLE_LIB (name of the Seed7 console
+  library) and SYSTEM_CONSOLE_LIBS (link option for the console
+  library of the OS).
+- The makefiles were improved to write all dependencies in the file
+  "depend", instead of "depend", "a_depend", "b_depend", "c_depend"
+  and "d_depend".
+
 20110918:
 - Support for 'drwGetPixel' was added to the compiler (thanks to
   DJ Redick, for reporting compilation problems with wator.sd7").
-- FAQ answers, explaining how interpreter and compiler look for
+- FAQ answers, explaining how interpreter and compiler search for
   include libraries, were improved.
 - The function 'str', which converts a bigInteger number to a string
   representation with a given base, was added to "bigint.s7i".

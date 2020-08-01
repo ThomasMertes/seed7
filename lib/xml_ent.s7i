@@ -43,8 +43,9 @@ const xmlEntityHashType: predeclaredXmlEntities is genPredeclaredXmlEntities;
 
 
 (**
- *  Return a string with all XML entities of the argument replaced by
- *  the corresponding characters.
+ *  Decode a string, which contains XML entities.
+ *  @return a string were XML entities are replaced by
+ *          the corresponding characters.
  *)
 const func string: decodeXmlEntities (in string: stri, in xmlEntityHashType: xmlEntityHash) is func
   result

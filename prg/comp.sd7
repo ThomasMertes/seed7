@@ -74,6 +74,7 @@ var integer: evaluate_const_expr   is 1;
 var boolean: declare_with_extern_c is FALSE;
 var boolean: generate_c_plus_plus  is FALSE;
 
+var boolean: consoleLibraryUsed  is FALSE;
 var boolean: drawLibraryUsed     is FALSE;
 var boolean: compilerLibraryUsed is FALSE;
 var boolean: compDataLibraryUsed is FALSE;
@@ -15640,6 +15641,7 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "CON" then
+      consoleLibraryUsed := TRUE;
       if action_name = "CON_CLEAR" then
         process_con_clear(params, c_expr);
       elsif action_name = "CON_CURSOR" then
@@ -16146,6 +16148,7 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "KBD" then
+      consoleLibraryUsed := TRUE;
       if action_name = "KBD_BUSY_GETC" then
         process_kbd_busy_getc(params, c_expr);
       elsif action_name = "KBD_GETC" then
@@ -22840,9 +22843,11 @@ const proc: pass_3 (in string: source, in program: prog,
     const string: LINKER_OPT_OUTPUT_FILE    is configValue("LINKER_OPT_OUTPUT_FILE");
     const string: LINKER_FLAGS              is configValue("LINKER_FLAGS");
     const string: SYSTEM_LIBS               is configValue("SYSTEM_LIBS");
+    const string: SYSTEM_CONSOLE_LIBS       is configValue("SYSTEM_CONSOLE_LIBS");
     const string: SYSTEM_DRAW_LIBS          is configValue("SYSTEM_DRAW_LIBS");
     var string: s7_lib_dir     is "";
     var string: seed7_lib      is "";
+    var string: console_lib    is "";
     var string: draw_lib       is "";
     var string: comp_data_lib  is "";
     var string: compiler_lib   is "";
@@ -22863,6 +22868,7 @@ const proc: pass_3 (in string: source, in program: prog,
       writeln("Calling the C compiler ...");
       s7_lib_dir    := configValue("S7_LIB_DIR");
       seed7_lib     := s7_lib_dir & "/" & configValue("SEED7_LIB");
+      console_lib   := s7_lib_dir & "/" & configValue("CONSOLE_LIB");
       draw_lib      := s7_lib_dir & "/" & configValue("DRAW_LIB");
       comp_data_lib := s7_lib_dir & "/" & configValue("COMP_DATA_LIB");
       compiler_lib  := s7_lib_dir & "/" & configValue("COMPILER_LIB");
@@ -22934,10 +22940,15 @@ const proc: pass_3 (in string: source, in program: prog,
       end if;
       if okay then
         if compilerLibraryUsed then
+          consoleLibraryUsed := TRUE;
           drawLibraryUsed := TRUE;
         end if;
         if fileType(seed7_lib) <> FILE_REGULAR then
           writeln("*** Seed7 library " <& literal(seed7_lib) <& " missing");
+          okay := FALSE;
+        end if;
+        if consoleLibraryUsed and fileType(console_lib) <> FILE_REGULAR then
+          writeln("*** Console library " <& literal(console_lib) <& " missing");
           okay := FALSE;
         end if;
         if drawLibraryUsed and fileType(draw_lib) <> FILE_REGULAR then
@@ -22986,10 +22997,16 @@ const proc: pass_3 (in string: source, in program: prog,
             if compDataLibraryUsed then
               link_params &:= " \"" & toOsPath(comp_data_lib) & "\"";
             end if;
+            if consoleLibraryUsed then
+              link_params &:= " \"" & toOsPath(console_lib) & "\"";
+            end if;
             if drawLibraryUsed then
               link_params &:= " \"" & toOsPath(draw_lib) & "\"";
             end if;
             link_params &:= " \"" & toOsPath(seed7_lib) & "\"";
+            if consoleLibraryUsed then
+              link_params &:= " " & SYSTEM_CONSOLE_LIBS;
+            end if;
             if drawLibraryUsed then
               link_params &:= " " & SYSTEM_DRAW_LIBS;
             end if;

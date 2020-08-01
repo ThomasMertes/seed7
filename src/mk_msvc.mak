@@ -17,12 +17,14 @@ LDFLAGS = /F0x400000
 # LDFLAGS = -pg
 SYSTEM_LIBS = user32.lib ws2_32.lib
 # SYSTEM_LIBS = user32.lib ws2_32.lib gmp.lib
+SYSTEM_CONSOLE_LIBS =
 SYSTEM_DRAW_LIBS = gdi32.lib
 SEED7_LIB = seed7_05.lib
+CONSOLE_LIB = s7_con.lib
 DRAW_LIB = s7_draw.lib
 COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
-ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(SEED7_LIB)
+ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
 CC = cl
 GET_CC_VERSION_INFO = $(CC) 2>
 
@@ -32,28 +34,28 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB = big_gmp
 
 # TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_OBJ = con_inf.obj kbd_inf.obj trm_inf.obj
-# CONSOLE_SRC = con_inf.c kbd_inf.c trm_inf.c
+# CONSOLE_LIB_OBJ = con_inf.obj kbd_inf.obj trm_inf.obj
+# CONSOLE_LIB_SRC = con_inf.c kbd_inf.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_OBJ = con_inf.obj kbd_inf.obj trm_cap.obj
-# CONSOLE_SRC = con_inf.c kbd_inf.c trm_cap.c
+# CONSOLE_LIB_OBJ = con_inf.obj kbd_inf.obj trm_cap.obj
+# CONSOLE_LIB_SRC = con_inf.c kbd_inf.c trm_cap.c
 # TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_OBJ = con_inf.obj kbd_poll.obj trm_inf.obj
-# CONSOLE_SRC = con_inf.c kbd_poll.c trm_inf.c
+# CONSOLE_LIB_OBJ = con_inf.obj kbd_poll.obj trm_inf.obj
+# CONSOLE_LIB_SRC = con_inf.c kbd_poll.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_OBJ = con_inf.obj kbd_poll.obj trm_cap.obj
-# CONSOLE_SRC = con_inf.c kbd_poll.c trm_cap.c
+# CONSOLE_LIB_OBJ = con_inf.obj kbd_poll.obj trm_cap.obj
+# CONSOLE_LIB_SRC = con_inf.c kbd_poll.c trm_cap.c
 
-# CONSOLE_OBJ = con_cur.obj
-# CONSOLE_SRC = con_cur.c
-# CONSOLE_OBJ = con_cap.obj
-# CONSOLE_SRC = con_cap.c
-# CONSOLE_OBJ = con_tcp.obj
-# CONSOLE_SRC = con_tcp.c
-# CONSOLE_OBJ = con_x11.obj
-# CONSOLE_SRC = con_x11.c
-CONSOLE_OBJ = con_win.obj
-CONSOLE_SRC = con_win.c
+# CONSOLE_LIB_OBJ = con_cur.obj
+# CONSOLE_LIB_SRC = con_cur.c
+# CONSOLE_LIB_OBJ = con_cap.obj
+# CONSOLE_LIB_SRC = con_cap.c
+# CONSOLE_LIB_OBJ = con_tcp.obj
+# CONSOLE_LIB_SRC = con_tcp.c
+# CONSOLE_LIB_OBJ = con_x11.obj
+# CONSOLE_LIB_SRC = con_x11.c
+CONSOLE_LIB_OBJ = con_win.obj
+CONSOLE_LIB_SRC = con_win.c
 
 MOBJ1 = hi.obj
 POBJ1 = runerr.obj option.obj primitiv.obj
@@ -69,7 +71,7 @@ GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj
 ROBJ2 = flt_rtl.obj hsh_rtl.obj int_rtl.obj kbd_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
 ROBJ3 = heaputl.obj striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj $(CONSOLE_OBJ) cmd_win.obj dir_win.obj fil_win.obj tim_win.obj
+DOBJ1 = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj fil_win.obj tim_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 DRAW_LIB_OBJ = drw_win.obj
@@ -90,7 +92,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c kbd_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(CONSOLE_SRC) cmd_win.c dir_win.c fil_win.c tim_win.c
+DSRC1 = $(BIGINT_LIB).c cmd_win.c dir_win.c fil_win.c tim_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 DRAW_LIB_SRC = drw_win.c
@@ -101,7 +103,7 @@ hi: ..\bin\hi.exe ..\prg\hi.exe
 	..\bin\hi level
 
 ..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) -o ..\bin\hi $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
+	$(CC) $(LDFLAGS) -o ..\bin\hi $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
 
 ..\prg\hi.exe: ..\bin\hi.exe
 	copy ..\bin\hi.exe ..\prg /Y
@@ -190,8 +192,10 @@ version.h:
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
+	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
 	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
@@ -211,6 +215,9 @@ level.h:
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	lib /out:..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
+..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
+	lib /out:..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
 	lib /out:..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
@@ -225,6 +232,8 @@ wc: $(SRC)
 	wc $(SRC)
 	echo SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
+	echo CONSOLE_LIB_SRC:
+	wc $(CONSOLE_LIB_SRC)
 	echo DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
 	echo COMP_DATA_LIB_SRC:
@@ -233,7 +242,7 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)

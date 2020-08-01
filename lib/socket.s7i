@@ -186,7 +186,8 @@ const listener: (attr listener) . value is baseListener.value;
 (**
  *  [[file|File]] implementation type for OS sockets.
  *  This type supports communication via sockets. A ''socket'' is
- *  not seekable. The functions ''length'', ''seek'' and ''tell''
+ *  not seekable. The functions [[#length(in_null_file)|length]],
+ *  [[#seek(in_null_file,in_integer)|seek]] and [[#tell(in_null_file)|tell]]
  *  raise FILE_ERROR.
  *)
 const type: socket is sub null_file struct
@@ -366,7 +367,7 @@ const func string: gets (inout socket: aSocket, in integer: maxLength) is
 (**
  *  Read a word from ''aSocket''.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left the aSocket.bufferChar contains ' ',
@@ -380,7 +381,7 @@ const func string: getwd (inout socket: aSocket) is
 
 (**
  *  Read a line from 'aSocket'.
- *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string. That
  *  means that the "\r" of a "\r\n" sequence is silently removed. When
  *  the function is left the aSocket.bufferChar contains '\n' or EOF.
@@ -396,7 +397,7 @@ const func string: getln (inout socket: aSocket) is
  *  The end-of-file indicator is set when at least one request to read
  *  from the socket failed. The socket functions ''getc'', ''gets'',
  *  ''getln'' and ''getwd'' indicate the end-of-file situation by
- *  setting ''bufferChar'' to EOF.
+ *  setting ''bufferChar'' to [[char#EOF|EOF]].
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
 const func boolean: eof (in socket: aSocket) is

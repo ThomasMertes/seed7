@@ -31,7 +31,7 @@ include "math.s7i";
 
 
 (**
- *  Complex numbers represented with 'float' real part and imaginary part.
+ *  Complex numbers represented with [[float]] real part and imaginary part.
  *  Complex literals do not exist.
  *)
 const type: complex is new object struct
@@ -80,7 +80,7 @@ const func complex: polar (in float: magnitude, in float: angle) is func
 
 
 (**
- *  Convert an integer to a complex.
+ *  Convert an [[integer]] to a complex.
  *  @return the result of the conversion.
  *)
 const func complex: (attr complex) conv (in integer: re) is func
@@ -93,7 +93,7 @@ const func complex: (attr complex) conv (in integer: re) is func
 
 
 (**
- *  Conversion a float to a complex.
+ *  Conversion a [[float]] to a complex.
  *  @return the result of the conversion.
  *)
 const func complex: (attr complex) conv (in float: re) is func
@@ -289,7 +289,7 @@ const func float: arg (in complex: number) is
 
 
 (**
- *  Compute the exponentiation of a complex base by an integer exponent.
+ *  Compute the exponentiation of a complex base by an [[integer]] exponent.
  *  @return the result of the exponentation.
  *)
 const func complex: (in complex: base) ** (in integer: exponent) is func
@@ -332,7 +332,7 @@ const func integer: hashCode (in complex: num) is
 
 
 (**
- *  Convert a complex number to a string.
+ *  Convert a complex number to a [[string]].
  *  The number is converted to a string with real and imaginary
  *  part (e.g.: "1.5-2.8i"). Real and imaginary part are separated
  *  with a + or - sign.
@@ -352,7 +352,7 @@ const func string: str (in complex: number) is func
 
 
 (**
- *  Convert a string to a complex number.
+ *  Convert a [[string]] to a complex number.
  *  The string must contain real and imaginary part (e.g.: "1.5-2.8i").
  *  Real and imaginary part must be separated with a + or - sign.
  *  @return the complex result of the conversion.
@@ -380,7 +380,7 @@ const func complex: (attr complex) parse (in string: stri) is func
 
 
 (**
- *  Return the conversion of a complex number to a string.
+ *  Return the conversion of a complex number to a [[string]].
  *  The precision parameter specifies the number of digits after
  *  the decimal point.
  *)

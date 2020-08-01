@@ -339,8 +339,9 @@ const htmlCharNameHashType: htmlCharNameHash is genHtmlCharNameHash(htmlEntityLi
 
 
 (**
- *  Return a string with all HTML entities of the argument replaced by
- *  the corresponding characters.
+ *  Decode a string, which contains HTML entities.
+ *  @return a string were all HTML entities are replaced by
+ *          the corresponding characters.
  *)
 const func string: decodeHtmlEntities (in string: stri) is func
   result
@@ -383,8 +384,11 @@ const func string: decodeHtmlEntities (in string: stri) is func
 
 
 (**
- *  Return a string which has all argument characters which can be
- *  described as HTML entities by the corresponding HTML entity.
+ *  Encode a string with HTML entities.
+ *  This function encodes all characters, which can be described
+ *  as HTML entities.
+ *  @return a string were characters are replaced by the
+ *          corresponding HTML entity.
  *)
 const func string: encodeHtmlEntities (in string: stri) is func
   result
@@ -406,6 +410,44 @@ const func string: encodeHtmlEntities (in string: stri) is func
   end func;
 
 
+(**
+ *  Encode a string, such that it can be used as HTML content.
+ *  HTML content is the text between HTML start tag and end tag.
+ *  In HTML content only the characers '&' and '<' must be encoded.
+ *  @return a string were & and < are encoded as HTML entities.
+ *)
+const func string: encodeHtmlContent (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: old_pos is 1;
+    var integer: index is 0;
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(stri) do
+      ch := stri[index];
+      if ch = '&' then
+        result &:= stri[old_pos .. pred(index)];
+        result &:= "&amp;";
+        old_pos := succ(index);
+      elsif ch = '<' then
+        result &:= stri[old_pos .. pred(index)];
+        result &:= "&lt;";
+        old_pos := succ(index);
+      end if;
+    end for;
+    result &:= stri[old_pos ..];
+  end func;
+
+
+(**
+ *  Encode and quote a string, such that it can be used as HTML attribute value.
+ *  HTML attribute values are used in HTML start tags.
+ *  This function quotes an HTML attribute value with double quotes (").
+ *  The characters '<', '>', '\"' and '&' are encoded with the predefined
+ *  HTML entities ''&amp;lt;'', ''&amp;gt;'', ''&amp;quot;'' and ''&amp;amp;''.
+ *  @return a quoted string were < > " and & are encoded as HTML entities.
+ *)
 const func string: quoteHtmlAttrValue (in string: stri) is func
   result
     var string: result is "\"";

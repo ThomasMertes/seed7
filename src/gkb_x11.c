@@ -47,6 +47,9 @@
 #include "common.h"
 #include "kbd_drv.h"
 
+#undef FLAG_EVENTS
+#undef TRACE_KBD
+
 
 extern Display *mydisplay;
 static booltype eventPresent = FALSE;
@@ -59,10 +62,14 @@ Window button_window = 0;
 #ifdef ANSI_C
 
 extern void redraw (XExposeEvent *xexpose);
+extern void doFlush (void);
+extern void flushBeforeRead (void);
 
 #else
 
 extern void redraw ();
+extern void doFlush ();
+extern void flushBeforeRead ();
 
 #endif
 
@@ -86,6 +93,7 @@ chartype gkbGetc ()
 #ifdef TRACE_KBD
     printf("begin gkbGetc\n");
 #endif
+    flushBeforeRead();
     result = K_NONE;
     if (eventPresent) {
       eventPresent = FALSE;
@@ -519,7 +527,10 @@ chartype gkbGetc ()
         } /* if */
         break;
       default:
+#ifdef FLAG_EVENTS
         printf("Other Event %d\n", currentEvent.type);
+#endif
+        result = gkbGetc();
         break;
     } /* switch */
 #ifdef TRACE_KBD
@@ -641,6 +652,7 @@ booltype gkbKeyPressed ()
 #ifdef TRACE_KBD
     printf("begin gkbKeyPressed\n");
 #endif
+    flushBeforeRead();
     processEvents();
 #ifdef TRACE_KBD
     printf("end gkbKeyPressed ==> %d\n", eventPresent);
@@ -914,7 +926,6 @@ void drwFlush ()
 /*  printf("drwFlush()\n"); */
     processEvents();
     do {
-      XFlush(mydisplay);
-      XSync(mydisplay, 0);
+      doFlush();
     } while (processEvents());
   } /* drwFlush */
