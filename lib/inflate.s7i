@@ -217,7 +217,7 @@ const proc: decodeFixedHuffmanCodes (in string: compressed, inout integer: byteP
         distance := decodeDistance(compressed, bytePos, bitPos, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
-          uncompressed &:= "\0\" mult length;
+          uncompressed &:= "\0;" mult length;
           for number range nextPos to nextPos + length - 1 do
             uncompressed @:= [number] uncompressed[number - distance];
           end for;
@@ -367,7 +367,7 @@ const proc: decodeDynamicHuffmanCodes (in string: compressed, inout integer: byt
         distance := decodeDistance(compressed, bytePos, bitPos, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
-          uncompressed &:= "\0\" mult length;
+          uncompressed &:= "\0;" mult length;
           for number range nextPos to nextPos + length - 1 do
             uncompressed @:= [number] uncompressed[number - distance];
           end for;

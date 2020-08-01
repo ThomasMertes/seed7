@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/str_rtl.c                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005, 2010  Thomas Mertes      */
+/*  Changes: 1991 - 1994, 2005, 2008 - 2014  Thomas Mertes          */
 /*  Content: Primitive actions for the string type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -49,15 +49,6 @@
 
 
 #define CHAR_DELTA_BEYOND 128
-
-static const_cstritype stri_escape_sequence[] = {
-    "\\0\\",  "\\1\\",  "\\2\\",  "\\3\\",  "\\4\\",
-    "\\5\\",  "\\6\\",  "\\a",    "\\b",    "\\t",
-    "\\n",    "\\v",    "\\f",    "\\r",    "\\14\\",
-    "\\15\\", "\\16\\", "\\17\\", "\\18\\", "\\19\\",
-    "\\20\\", "\\21\\", "\\22\\", "\\23\\", "\\24\\",
-    "\\25\\", "\\26\\", "\\e",    "\\28\\", "\\29\\",
-    "\\30\\", "\\31\\"};
 
 
 
@@ -1165,8 +1156,7 @@ inttype strChIPos (const const_stritype mainStri, const chartype searched,
 stritype strChMult (const chartype ch, const inttype factor)
 
   {
-    inttype pos;
-    strelemtype *result_pointer;
+    register strelemtype *result_pointer;
     stritype result;
 
   /* strChMult */
@@ -1184,9 +1174,7 @@ stritype strChMult (const chartype ch, const inttype factor)
       } else {
         result->size = (memsizetype) factor;
         result_pointer = result->mem;
-        for (pos = factor; pos > 0; pos--) {
-          result_pointer[pos - 1] = (strelemtype) ch;
-        } /* for */
+        memset_to_strelem(result_pointer, ch, (memsizetype) factor);
       } /* if */
     } /* if */
     return result;
@@ -1329,10 +1317,10 @@ stritype strCLit (const const_stritype stri)
           } else if (character == '\\' || character == '\"') {
 #endif
             result->mem[pos]     = (strelemtype) '\\';
-            result->mem[pos + 1] = (strelemtype) character;
+            result->mem[pos + 1] = character;
             pos += 2;
           } else {
-            result->mem[pos]     = (strelemtype) character;
+            result->mem[pos]     = character;
             pos++;
           } /* if */
         } else if (character < 256) {
@@ -2158,21 +2146,47 @@ stritype strLit (const const_stritype stri)
         character = (strelemtype) stri->mem[position];
         if (character < 127) {
           if (character < ' ') {
-            pos += cstri_expand2(&result->mem[pos],
-                stri_escape_sequence[character]);
+            result->mem[pos] = (strelemtype) '\\';
+            if (stri_escape_sequence[character][1] <= '9') {
+              /* Numeric escape sequence with one or two digits. */
+              if (character <= 9) {
+                result->mem[pos + 1] = character + '0';
+                result->mem[pos + 2] = (strelemtype) ';';
+                pos += 3;
+              } else {
+                result->mem[pos + 1] = (strelemtype) stri_escape_sequence[character][1];
+                result->mem[pos + 2] = (strelemtype) stri_escape_sequence[character][2];
+                result->mem[pos + 3] = (strelemtype) ';';
+                pos += 4;
+              } /* if */
+            } else {
+              /* Character escape sequence. */
+              result->mem[pos + 1] = (strelemtype) stri_escape_sequence[character][1];
+              pos += 2;
+            } /* if */
           } else if (character == '\\' || character == '\"') {
             result->mem[pos]     = (strelemtype) '\\';
-            result->mem[pos + 1] = (strelemtype) character;
+            result->mem[pos + 1] = character;
             pos += 2;
           } else {
-            result->mem[pos]     = (strelemtype) character;
+            result->mem[pos]     = character;
             pos++;
           } /* if */
-        } else if (character < 159 || character >= 255) {
-          sprintf(buffer, "\\%lu\\", (unsigned long) character);
+        } else if (character <= 160) {
+          /* Write characters between 128 and 160 as decimal. */
+          /* This code is much faster than sprintf().         */
+          result->mem[pos]     = (strelemtype) '\\';
+          result->mem[pos + 3] = character % 10 + '0';
+          character /= 10;
+          result->mem[pos + 2] = character % 10 + '0';
+          result->mem[pos + 1] = '1';
+          result->mem[pos + 4] = (strelemtype) ';';
+          pos += 5;
+        } else if (character >= 256) {
+          sprintf(buffer, "\\%lu;", (unsigned long) character);
           pos += cstri_expand2(&result->mem[pos], buffer);
         } else {
-          result->mem[pos] = (strelemtype) character;
+          result->mem[pos] = character;
           pos++;
         } /* if */
       } /* for */
@@ -2471,7 +2485,7 @@ stritype strMult (const const_stritype stri, const inttype factor)
 
   {
     memsizetype len;
-    inttype number;
+    memsizetype number;
     strelemtype *result_pointer;
     strelemtype ch;
     memsizetype result_size;
@@ -2504,11 +2518,9 @@ stritype strMult (const const_stritype stri, const inttype factor)
           result_pointer = result->mem;
           if (len == 1) {
             ch = stri->mem[0];
-            for (number = factor; number > 0; number--) {
-              result_pointer[number - 1] = ch;
-            } /* for */
+            memset_to_strelem(result_pointer, ch, (memsizetype) factor);
           } else {
-            for (number = factor; number > 0; number--) {
+            for (number = (memsizetype) factor; number > 0; number--) {
               memcpy(result_pointer, stri->mem, len * sizeof(strelemtype));
               result_pointer += len;
             } /* for */
@@ -3697,7 +3709,7 @@ stritype strTail (const const_stritype stri, inttype start)
 
 
 /**
- *  Convert a string to an UTF-8 encoded string.
+ *  Convert a string to an UTF-8 encoded string of bytes.
  *  @param stri Normal (UTF-32) string to be converted to UTF-8.
  *  @return 'stri' converted to a string of bytes with UTF-8 encoding.
  */
@@ -3856,7 +3868,7 @@ stritype strUpTemp (const stritype stri)
  *  Convert a string with bytes in UTF-8 encoding to UTF-32.
  *  @param utf8 String of bytes encoded with UTF-8.
  *  @return 'utf8' converted to a normal (UTF-32) string.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *                         when 'utf8' is not encoded with UTF-8.
  */
 stritype strUtf8ToStri (const_stritype utf8)
@@ -3965,3 +3977,30 @@ stritype strUtf8ToStri (const_stritype utf8)
     } /* if */
     return result;
   } /* strUtf8ToStri */
+
+
+
+stritype strZero (const inttype factor)
+
+  {
+    stritype result;
+
+  /* strZero */
+#ifdef TRACE_STR_RTL
+    printf("strZero(%ld)\n", factor);
+#endif
+    if (unlikely(factor < 0)) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      if (unlikely((uinttype) factor > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) factor))) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result->size = (memsizetype) factor;
+        memset(result->mem, 0, (memsizetype) factor * sizeof(strelemtype));
+      } /* if */
+    } /* if */
+    return result;
+  } /* strZero */

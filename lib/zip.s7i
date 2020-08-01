@@ -51,7 +51,7 @@ const func integer: rpos (inout file: inFile, in string: stri) is func
 
 
 const type: local_file_header is new struct
-    var string:  signature                  is "";  # 4 bytes ("PK\3\\4\")
+    var string:  signature                  is "";  # 4 bytes ("PK\3;\4;")
     var integer: version_needed_to_extract  is 0;   # 2 bytes
     var integer: general_purpose_bit_flag   is 0;   # 2 bytes
     var integer: compression_method         is 0;   # 2 bytes
@@ -72,7 +72,7 @@ const func local_file_header: get_local_header (inout file: inFile) is func
     var local_file_header: header is local_file_header.value;
   begin
     header.signature := gets(inFile, 4);
-    if header.signature = "PK\3\\4\" then
+    if header.signature = "PK\3;\4;" then
       header.version_needed_to_extract   := getUInt16Le(inFile);
       header.general_purpose_bit_flag    := getUInt16Le(inFile);
       header.compression_method          := getUInt16Le(inFile);
@@ -108,7 +108,7 @@ const proc: write (in local_file_header: header) is func
 
 
 const type: end_of_central_directory is new struct
-    var string:  signature                                    is "";  # 4 bytes ("PK\5\\6\")
+    var string:  signature                                    is "";  # 4 bytes ("PK\5;\6;")
     var integer: number_of_this_disk                          is 0;   # 2 bytes
     var integer: disk_number_with_start_of_central_directory  is 0;   # 2 bytes
     var integer: entries_in_central_directory_on_this_disk    is 0;   # 2 bytes
@@ -125,7 +125,7 @@ const func end_of_central_directory: get_end_of_central_directory (inout file: i
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
   begin
     endOfCentDir.signature := gets(inFile, 4);
-    if endOfCentDir.signature = "PK\5\\6\" then
+    if endOfCentDir.signature = "PK\5;\6;" then
       endOfCentDir.number_of_this_disk                          := getUInt16Le(inFile);
       endOfCentDir.disk_number_with_start_of_central_directory  := getUInt16Le(inFile);
       endOfCentDir.entries_in_central_directory_on_this_disk    := getUInt16Le(inFile);
@@ -158,7 +158,7 @@ const func end_of_central_directory: read_end_of_central_directory (inout file: 
   local
     var integer: pos is 0;
   begin
-    pos := rpos(inFile, "PK\5\\6\");
+    pos := rpos(inFile, "PK\5;\6;");
     if pos <> 0 then
       seek(inFile, pos);
       endOfCentDir := get_end_of_central_directory(inFile);
@@ -167,7 +167,7 @@ const func end_of_central_directory: read_end_of_central_directory (inout file: 
 
 
 const type: central_file_header is new struct
-    var string: signature                        is "";  # 4 bytes ("PK\1\\2\")
+    var string: signature                        is "";  # 4 bytes ("PK\1;\2;")
     var integer: version_made_by                 is 0;   # 2 bytes
     var integer: version_needed_to_extract       is 0;   # 2 bytes
     var integer: general_purpose_bit_flag        is 0;   # 2 bytes
@@ -195,7 +195,7 @@ const func central_file_header: get_central_header (inout file: inFile) is func
     var central_file_header: centralHeader is central_file_header.value;
   begin
     centralHeader.signature := gets(inFile, 4);
-    if centralHeader.signature = "PK\1\\2\" then
+    if centralHeader.signature = "PK\1;\2;" then
       centralHeader.version_made_by                 := getUInt16Le(inFile);
       centralHeader.version_needed_to_extract       := getUInt16Le(inFile);
       centralHeader.general_purpose_bit_flag        := getUInt16Le(inFile);
@@ -228,7 +228,7 @@ const proc: list_zip_dir (inout file: inFile) is func
     # write(endOfCentDir);
     seek(inFile, succ(endOfCentDir.offset_of_start_of_central_directory));
     centralHeader := get_central_header(inFile);
-    while centralHeader.signature = "PK\1\\2\" do
+    while centralHeader.signature = "PK\1;\2;" do
       writeln(centralHeader.file_name rpad 50 <& centralHeader.compressed_size lpad 8 <& centralHeader.uncompressed_size lpad 8 <&
           centralHeader.extra_field_length lpad 6 <& centralHeader.general_purpose_bit_flag lpad 6);
       centralHeader := get_central_header(inFile);
@@ -236,7 +236,7 @@ const proc: list_zip_dir (inout file: inFile) is func
     # writeln(literal(centralHeader.signature));
 (*
     header := get_local_header(inFile);
-    while header.signature = "PK\3\\4\" do
+    while header.signature = "PK\3;\4;" do
       writeln(header.file_name rpad 50 <& header.compressed_size lpad 8 <& header.uncompressed_size lpad 8 <&
           header.extra_field_length lpad 6 <& header.general_purpose_bit_flag lpad 6);
       writeln(length(header.extra_field) <& " " <& literal(header.extra_field));
@@ -271,7 +271,7 @@ const func array string: read_zip_dir (in string: zipFileName) is func
       # write(endOfCentDir);
       seek(zipFile, succ(endOfCentDir.offset_of_start_of_central_directory));
       centralHeader := get_central_header(zipFile);
-      while centralHeader.signature = "PK\1\\2\" do
+      while centralHeader.signature = "PK\1;\2;" do
         filenames &:= [] (centralHeader.file_name);
         centralHeader := get_central_header(zipFile);
       end while;
@@ -294,7 +294,7 @@ const func string: getZipContent (inout file: inFile, in string: filePath) is fu
     endOfCentDir := read_end_of_central_directory(inFile);
     seek(inFile, succ(endOfCentDir.offset_of_start_of_central_directory));
     centralHeader := get_central_header(inFile);
-    while centralHeader.signature = "PK\1\\2\" and not found do
+    while centralHeader.signature = "PK\1;\2;" and not found do
       centralHeader := get_central_header(inFile);
       if centralHeader.file_name = filePath then
         found := TRUE;

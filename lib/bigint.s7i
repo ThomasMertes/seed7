@@ -382,9 +382,6 @@ const func bigInteger: (attr bigInteger) parse (in string: stri)         is acti
 const func bigInteger: bigInteger (in string: stri, in integer: base)    is action "BIG_PARSE_BASED";
 
 
-const func string: c_literal (in bigInteger: number)                     is action "BIG_CLIT";
-
-
 (**
  *  Compute pseudo-random number in the range [low, high].
  *  The random values are uniform distributed.

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2012  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/traceutl.c                                      */
-/*  Changes: 1990 - 1994, 2012  Thomas Mertes                       */
+/*  Changes: 1990 - 1994, 2008, 2010 - 2014  Thomas Mertes          */
 /*  Content: Tracing and protocol procedures.                       */
 /*                                                                  */
 /********************************************************************/
@@ -191,14 +191,14 @@ static void prot_char (chartype cvalue)
     char buffer[51];
 
   /* prot_char */
-    if (cvalue <= (chartype) 26) {
-      sprintf(buffer, "\'\\%c\'", ((int) cvalue) + '@');
-    } else if (cvalue <= (chartype) 31) {
-      sprintf(buffer, "\'\\%lu\\\'", (unsigned long) cvalue);
-    } else if (cvalue <= (chartype) 127) {
-      sprintf(buffer, "\'%c\'", (int) cvalue);
+    if (cvalue < 127) {
+      if (cvalue < ' ') {
+        sprintf(buffer, "\'%s\'", stri_escape_sequence[cvalue]);
+      } else {
+        sprintf(buffer, "\'%c\'", (int) cvalue);
+      } /* if */
     } else {
-      sprintf(buffer, "\'\\%lu\\\'", (unsigned long) cvalue);
+      sprintf(buffer, "\'\\%lu;\'", (unsigned long) cvalue);
     } /* if */
     prot_cstri(buffer);
   } /* prot_char */
@@ -218,20 +218,20 @@ void prot_os_stri (const const_os_stritype os_stri)
         char buffer[51];
 
         for (; *stri != 0 && stri - os_stri <= 128; stri++) {
-          if ((os_uchartype) *stri <= (os_uchartype) 31) {
-            sprintf(buffer, "\\%03o", (unsigned int) (os_uchartype) *stri);
-          } else if ((os_uchartype) *stri == (os_uchartype) '\\') {
-            sprintf(buffer, "\\\\");
-          } else if ((os_uchartype) *stri == (os_uchartype) '\"') {
-            sprintf(buffer, "\\\"");
-          } else if ((os_uchartype) *stri <= (os_uchartype) 127) {
-            sprintf(buffer, "%c", (int) *stri);
-          } else if ((os_uchartype) *stri == (os_uchartype) -1) {
-            sprintf(buffer, "\\EOF\\");
+          if ((os_uchartype) *stri < (os_uchartype) 127) {
+            if ((os_uchartype) *stri < (os_uchartype) ' ') {
+              strcpy(buffer, cstri_escape_sequence[(os_uchartype) *stri]);
+            } else if ((os_uchartype) *stri == (os_uchartype) '\\') {
+              sprintf(buffer, "\\\\");
+            } else if ((os_uchartype) *stri == (os_uchartype) '\"') {
+              sprintf(buffer, "\\\"");
+            } else {
+              sprintf(buffer, "%c", (int) *stri);
+            } /* if */
           } else if ((os_uchartype) *stri <= (os_uchartype) 255) {
             sprintf(buffer, "\\%3o", (unsigned int) (os_uchartype) *stri);
           } else {
-            sprintf(buffer, "\\u%4lx\\", (unsigned long) (os_uchartype) *stri);
+            sprintf(buffer, "\\u%4lx", (unsigned long) (os_uchartype) *stri);
           } /* if */
           prot_cstri(buffer);
           /* putc((int) *stri, protfile); */
@@ -266,20 +266,20 @@ void prot_stri_unquoted (const const_stritype stri)
         size = 128;
       } /* if */
       for (str = stri->mem, len = size; len > 0; str++, len--) {
-        if (*str <= (chartype) 26) {
-          sprintf(buffer, "\\%c", ((int) *str) + '@');
-        } else if (*str <= (chartype) 31) {
-          sprintf(buffer, "\\%lu\\", (unsigned long) *str);
-        } else if (*str == (chartype) '\\') {
-          sprintf(buffer, "\\\\");
-        } else if (*str == (chartype) '\"') {
-          sprintf(buffer, "\\\"");
-        } else if (*str <= (chartype) 127) {
-          sprintf(buffer, "%c", (int) *str);
+        if (*str < 127) {
+          if (*str < ' ') {
+            strcpy(buffer, stri_escape_sequence[*str]);
+          } else if (*str == (chartype) '\\') {
+            sprintf(buffer, "\\\\");
+          } else if (*str == (chartype) '\"') {
+            sprintf(buffer, "\\\"");
+          } else {
+            sprintf(buffer, "%c", (int) *str);
+          } /* if */
         } else if (*str == (chartype) -1) {
-          sprintf(buffer, "\\-1\\");
+          sprintf(buffer, "\\-1;");
         } else {
-          sprintf(buffer, "\\%lu\\", (unsigned long) *str);
+          sprintf(buffer, "\\%lu;", (unsigned long) *str);
         } /* if */
         prot_cstri(buffer);
         /* putc((int) *str, protfile); */
@@ -328,16 +328,18 @@ void prot_bstri (bstritype bstri)
 
         for (str = bstri->mem, len = size;
             len > 0; str++, len--) {
-          if (*str <= (uchartype) 26) {
-            sprintf(buffer, "\\%c", ((int) *str) + '@');
-          } else if (*str <= (uchartype) 31) {
-            sprintf(buffer, "\\%u\\", *str);
-          } else if (*str <= (uchartype) 127) {
-            sprintf(buffer, "%c", (int) *str);
-          } else if (*str == (uchartype) -1) {
-            sprintf(buffer, "\\-1\\");
+          if (*str < 127) {
+            if (*str < ' ') {
+              strcpy(buffer, stri_escape_sequence[*str]);
+            } else if (*str == '\\') {
+              sprintf(buffer, "\\\\");
+            } else if (*str == '\"') {
+              sprintf(buffer, "\\\"");
+            } else {
+              sprintf(buffer, "%c", (int) *str);
+            } /* if */
           } else {
-            sprintf(buffer, "\\%u\\", *str);
+            sprintf(buffer, "\\%u;", *str);
           } /* if */
           prot_cstri(buffer);
         } /* while */

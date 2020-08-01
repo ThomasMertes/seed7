@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Scanner                                      */
 /*  File: seed7/src/scanner.c                                       */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990, 1991, 1992, 1993, 1994, 2014  Thomas Mertes      */
 /*  Content: Read the next symbol from the source file.             */
 /*                                                                  */
 /*  The scan_symbol is tuned for maximum performance.               */
@@ -55,7 +55,7 @@
 
 
 
-static inline void scan_comment (void)
+static void scan_comment (void)
 
   {
     register int character;
@@ -135,11 +135,26 @@ void scan_byte_order_mark (void)
 #ifdef TRACE_SCANNER
     printf("BEGIN scan_byte_order_mark\n");
 #endif
-    if (in_file.character != EOF && (in_file.character & 0xC0) == 0xC0) {
-      /* character range 0xC0 to 0xFF (192 to 255) */
+    if (in_file.character >= 0xC0 && in_file.character <= 0xFD) {
+      /* character range 192 to 253 (leading bits 11......) */
       unicode_char = utf8_char(in_file.character);
       if (unicode_char != 0xFEFF /* Byte-order mark */) {
         err_char(CHAR_ILLEGAL, unicode_char);
+        while (char_class(in_file.character) == ILLEGALCHAR) {
+          in_file.character = next_character();
+        } /* while */
+      } /* if */
+    } else if (in_file.character == 0xFE || in_file.character == 0xFF) {
+      unicode_char = (chartype) in_file.character << 8;
+      in_file.character = next_character();
+      unicode_char |= (chartype) in_file.character;
+      if (unicode_char == 0xFEFF || unicode_char == 0xFFFE) {
+        err_char(UTF16_BYTE_ORDER_MARK_FOUND, unicode_char);
+        while (char_class(in_file.character) != EOFCHAR) {
+          in_file.character = next_character();
+        } /* while */
+      } else {
+        err_char(CHAR_ILLEGAL, unicode_char >> 8);
         while (char_class(in_file.character) == ILLEGALCHAR) {
           in_file.character = next_character();
         } /* while */
@@ -161,8 +176,8 @@ static void scan_illegal (void)
 #ifdef TRACE_SCANNER
     printf("BEGIN scan_illegal\n");
 #endif
-    if ((in_file.character & 0xC0) == 0xC0) {
-      /* character range 0xC0 to 0xFF (192 to 255) */
+    if (in_file.character >= 0xC0 && in_file.character <= 0xFF) {
+      /* character range 192 to 255 (leading bits 11......) */
       unicode_char = utf8_char(in_file.character);
       err_char(CHAR_ILLEGAL, unicode_char);
       while (char_class(in_file.character) == ILLEGALCHAR) {

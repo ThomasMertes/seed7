@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tar.s7i       Tar archive library                               *)
-(*  Copyright (C) 1994, 2004, 2005, 2010  Thomas Mertes             *)
+(*  Copyright (C) 1994, 2004, 2005, 2010, 2014  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -36,7 +36,7 @@ include "gzip.s7i";
 const string: TMAGIC is "ustar";
 
 const char: REGTYPE      is '0';   # Regular file (preferred code)
-const char: AREGTYPE     is '\0\'; # Regular file (alternate code)
+const char: AREGTYPE     is '\0;'; # Regular file (alternate code)
 const char: LNKTYPE      is '1';   # Hard link.
 const char: SYMTYPE      is '2';   # Symbolic link
 const char: CHRTYPE      is '3';   # Character special
@@ -105,29 +105,29 @@ const proc: check (ref file: outFile, ref header: head) is func
   end func;
 
 
-const func string: gets0 (inout file: inFile, in integer: leng) is func
+const func string: gets0 (inout file: inFile, in integer: length) is func
   result
     var string: stri is "";
   local
     var integer: zeroBytePos is 0;
   begin
-    stri := gets(inFile, leng);
-    zeroBytePos := pos(stri, "\0\");
+    stri := gets(inFile, length);
+    zeroBytePos := pos(stri, "\0;");
     if zeroBytePos <> 0 then
       stri := stri[ .. pred(zeroBytePos)];
     end if;
   end func;
 
 
-const func string: gets0spc (inout file: inFile, in integer: leng) is func
+const func string: gets0spc (inout file: inFile, in integer: length) is func
   result
     var string: stri is "";
   local
     var integer: zeroBytePos is 0;
     var integer: spacePos is 0;
   begin
-    stri := gets(inFile, leng);
-    zeroBytePos := pos(stri, "\0\");
+    stri := gets(inFile, length);
+    zeroBytePos := pos(stri, "\0;");
     if zeroBytePos <> 0 then
       stri := stri[ .. pred(zeroBytePos)];
     end if;
@@ -138,54 +138,46 @@ const func string: gets0spc (inout file: inFile, in integer: leng) is func
   end func;
 
 
-const func integer: getoct (inout file: inFile, in integer: leng) is func
+const func integer: getoct (inout file: inFile, in integer: length) is func
   result
     var integer: number is 0;
   local
     var string: stri is "";
+    var integer: start is 1;
+    var integer: pos is 0;
   begin
-    stri := gets(inFile, leng);
-    while stri[1 .. 1] = " " do
-      stri := stri[2 .. ];
+    stri := gets(inFile, length);
+    while start <= length(stri) and stri[start] = ' ' do
+      incr(start);
     end while;
-    if stri <> "" and stri[1] >= '0' and stri[1] <= '9' then
-      number := ord(stri[1]) - ord('0');
-      stri := stri[2 .. ];
-      while stri <> "" and stri[1] >= '0' and stri[1] <= '9' do
-        number := 8 * number + ord(stri[1]) - ord('0');
-        stri := stri[2 .. ];
-      end while;
-    end if;
-  end func;
-
-
-const proc: puts0 (inout string: out_stri, in string: stri, in integer: leng) is func
-  begin
-    out_stri &:= stri[ .. leng];
-    if length(stri) < leng then
-      out_stri &:= "\0\" mult leng - length(stri);
-    end if;
-  end func;
-
-
-const proc: putspc (inout string: out_stri, in string: stri, in integer: leng) is func
-  begin
-    out_stri &:= stri[ .. leng];
-    if length(stri) < leng then
-      out_stri &:= " " mult leng - length(stri);
-    end if;
-  end func;
-
-
-const proc: putoct (inout string: out_stri, in var integer: number, in integer: leng) is func
-  local
-    var string: stri is "";
-  begin
-    while number <> 0 do
-      stri := str(number mod 8) & stri;
-      number := number mdiv 8;
+    pos := start;
+    while pos <= length(stri) and stri[pos] >= '0' and stri[pos] <= '7' do
+      incr(pos);
     end while;
-    out_stri &:= "0" mult pred(leng - length(stri)) <& stri <& "\0\";
+    if pos > start then
+      number := integer(stri[start .. pred(pos)], 8);
+    end if;
+  end func;
+
+
+const proc: puts0 (inout string: out_stri, in string: stri, in integer: length) is func
+  begin
+    out_stri &:= stri[ .. length];
+    if length(stri) < length then
+      out_stri &:= "\0;" mult length - length(stri);
+    end if;
+  end func;
+
+
+const proc: putspc (inout string: out_stri, in string: stri, in integer: length) is func
+  begin
+    out_stri &:= stri[ .. length] rpad length;
+  end func;
+
+
+const proc: putoct (inout string: out_stri, in integer: number, in integer: length) is func
+  begin
+    out_stri &:= number radix 8 lpad0 pred(length) <& "\0;";
   end func;
 
 
@@ -207,23 +199,23 @@ const proc: readHeadBlock (inout file: inFile, inout header: head) is func
     var string: stri is "";
   begin
     head := header.value;
-    head.name :=        gets0(inFile,  100);
+    head.name :=                gets0(inFile,  100);
     head.mode := fileMode conv getoct(inFile,    8);
-    head.uid :=        getoct(inFile,    8);
-    head.gid :=        getoct(inFile,    8);
-    head.size :=       getoct(inFile,   12);
-    head.mtime :=      getoct(inFile,   12);
-    head.chksum :=     getoct(inFile,    8);
-    head.typeflag :=     getc(inFile);
-    head.linkname :=    gets0(inFile,  100);
-    head.magic :=    gets0spc(inFile,    6);
-    head.version :=      gets(inFile,    2);
-    head.uname :=       gets0(inFile,   32);
-    head.gname :=       gets0(inFile,   32);
-    head.devmajor :=   getoct(inFile,    8);
-    head.devminor :=   getoct(inFile,    8);
-    head.prefix :=      gets0(inFile,  155);
-    stri :=              gets(inFile,   12);
+    head.uid :=                getoct(inFile,    8);
+    head.gid :=                getoct(inFile,    8);
+    head.size :=               getoct(inFile,   12);
+    head.mtime :=              getoct(inFile,   12);
+    head.chksum :=             getoct(inFile,    8);
+    head.typeflag :=             getc(inFile);
+    head.linkname :=            gets0(inFile,  100);
+    head.magic :=            gets0spc(inFile,    6);
+    head.version :=              gets(inFile,    2);
+    head.uname :=               gets0(inFile,   32);
+    head.gname :=               gets0(inFile,   32);
+    head.devmajor :=           getoct(inFile,    8);
+    head.devminor :=           getoct(inFile,    8);
+    head.prefix :=              gets0(inFile,  155);
+    stri :=                      gets(inFile,   12);
   end func;
 
 
@@ -236,7 +228,7 @@ const proc: readHead (inout file: inFile, inout header: head) is func
     if head.name <> "" and head.magic = TMAGIC and
         head.typeflag = LONGNAMETYPE and head.size <> 0 then
       fileName := gets0(inFile, head.size);
-      seek(inFile, tell(inFile) - head.size + succ(pred(head.size) mdiv 512) * 512);
+      seek(inFile, tell(inFile) + 511 - pred(head.size) mod 512);
       readHeadBlock(inFile, head);
       # check(STD_OUT, head);
       head.name := fileName;
@@ -294,7 +286,7 @@ const proc: writeHead (inout file: outFile, ref header: head) is func
       longNameHead.prefix   := "";
       writeHeadBlock(outFile, longNameHead);
       write(outFile, head.name);
-      write(outFile, "\0\" mult succ(pred(longNameHead.size) mdiv 512) * 512 - longNameHead.size);
+      write(outFile, "\0;" mult 511 - pred(longNameHead.size) mod 512);
     end if;
     writeHeadBlock(outFile, head);
   end func;
@@ -307,9 +299,9 @@ const proc: setUpHead (in string: basePath, in string: name,
     head.mode     := fileMode(basePath & name);
     head.uid      := 100;
     head.gid      := 100;
-    head.size     := fileSize(basePath & name);
+    head.size     := 0;
     head.mtime    := timestamp1970(getMTime(basePath & name));
-    head.chksum   := 0;
+    head.chksum   := 0;  # Filled later
     head.typeflag := REGTYPE;
     head.linkname := "";
     head.magic    := TMAGIC;
@@ -418,7 +410,7 @@ const proc: tarTell (in string: inFileName, in array string: arg_list,
     if inFile <> STD_NULL then
       magicBytes := gets(inFile, 2);
       seek(inFile, 1);
-      if magicBytes = "\31\\139\" then
+      if magicBytes = "\31;\139;" then
         inFile := gunzip(inFile);
       elsif do_unzip then
         write("tar7: File \"");
@@ -502,7 +494,7 @@ const proc: tarXtract (in string: inFileName, in array string: arg_list,
     if inFile <> STD_NULL then
       magicBytes := gets(inFile, 2);
       seek(inFile, 1);
-      if magicBytes = "\31\\139\" then
+      if magicBytes = "\31;\139;" then
         inFile := gunzip(inFile);
       elsif do_unzip then
         write("tar7: File \"");
@@ -550,17 +542,15 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
         dir_content := readDir(basePath & name);
         setUpHead(basePath, name, "/", head);
         head.typeflag := DIRTYPE;
-        head.size :=     0;
         writeHead(outFile, head);
         tarCreate(outFile, basePath, name & "/", dir_content, do_view);
       else
         stri := getf(basePath & name);
         setUpHead(basePath, name, "", head);
+        head.size := length(stri);
         writeHead(outFile, head);
         write(outFile, stri);
-        if (succ(pred(head.size) mdiv 512) * 512) - length(stri) >= 0 then
-          write(outFile, "\0\" mult (succ(pred(head.size) mdiv 512) * 512) - length(stri));
-        end if;
+        write(outFile, "\0;" mult 511 - pred(head.size) mod 512);
       end if;
     end for;
   end func;

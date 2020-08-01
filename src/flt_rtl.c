@@ -490,6 +490,9 @@ floattype fltParse (const const_stritype stri)
     floattype result;
 
   /* fltParse */
+    /* printf("fltParse(");
+        prot_stri(stri);
+        printf(")\n"); */
 #ifdef USE_STRTOD
     if (likely(stri->size <= MAX_CSTRI_BUFFER_LEN)) {
       cstri = NULL;

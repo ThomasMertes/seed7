@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  ut8_rtl.c     Primitive actions for the UTF-8 file type.        */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/ut8_rtl.c                                       */
-/*  Changes: 2005  Thomas Mertes                                    */
+/*  Changes: 2005, 2010, 2013, 2014  Thomas Mertes                  */
 /*  Content: Primitive actions for the UTF-8 file type.             */
 /*                                                                  */
 /********************************************************************/
@@ -242,9 +242,14 @@ chartype ut8Getc (filetype inFile)
 
   /* ut8Getc */
     character = getc(inFile);
-    if (character != EOF && character > 0x7F) {
+    if (character != EOF && character >= 0x80) {
       /* character range 0x80 to 0xFF (128 to 255) */
-      if (character >= 0xC0 && character <= 0xDF) {
+      if (unlikely(character <= 0xBF)) {
+        /* character range 0xC0 to 0xBF (128 to 191) */
+        /* Unexpected UTF-8 continuation byte.       */
+        raise_error(RANGE_ERROR);
+        return 0;
+      } else if (character <= 0xDF) {
         /* character range 192 to 223 (leading bits 110.....) */
         result = (chartype) (character & 0x1F) << 6;
         character = getc(inFile);
@@ -263,7 +268,7 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if (character >= 0xE0 && character <= 0xEF) {
+      } else if (character <= 0xEF) {
         /* character range 224 to 239 (leading bits 1110....) */
         result = (chartype) (character & 0x0F) << 12;
         character = getc(inFile);
@@ -289,7 +294,7 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if (character >= 0xF0 && character <= 0xF7) {
+      } else if (character <= 0xF7) {
         /* character range 240 to 247 (leading bits 11110...) */
         result = (chartype) (character & 0x07) << 18;
         character = getc(inFile);
@@ -324,7 +329,7 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if (character >= 0xF8 && character <= 0xFB) {
+      } else if (character <= 0xFB) {
         /* character range 248 to 251 (leading bits 111110..) */
         result = (chartype) (character & 0x03) << 24;
         character = getc(inFile);
@@ -364,7 +369,7 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if (character >= 0xFC && character <= 0xFF) {
+      } else { /* if (character <= 0xFF) { */
         /* character range 252 to 255 (leading bits 111111..) */
         result = (chartype) (character & 0x03) << 30;
         character = getc(inFile);
@@ -411,13 +416,9 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else {
-        /* character not in range 0xC0 to 0xFF (192 to 255) */
-        raise_error(RANGE_ERROR);
-        return 0;
       } /* if */
     } else {
-      result = (chartype) character;
+      result = (chartype) (schartype) character;
     } /* if */
     return result;
   } /* ut8Getc */

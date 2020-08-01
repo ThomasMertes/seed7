@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_drv.h     Driver functions for the bigInteger type.         */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_drv.h                                       */
-/*  Changes: 2005, 2006, 2008, 2009, 2010  Thomas Mertes            */
+/*  Changes: 2005, 2006, 2008 - 2010, 2013, 2014  Thomas Mertes     */
 /*  Content: Driver functions for the bigInteger type.              */
 /*                                                                  */
 /********************************************************************/
@@ -49,7 +49,6 @@ biginttype bigAdd (const_biginttype summand1, const_biginttype summand2);
 biginttype bigAddTemp (biginttype summand1, const const_biginttype summand2);
 biginttype bigAnd (const_biginttype big1, const_biginttype big2);
 inttype bigBitLength (const const_biginttype big1);
-stritype bigCLit (const const_biginttype big1);
 inttype bigCmp (const const_biginttype big1, const const_biginttype big2);
 inttype bigCmpSignedDigit (const const_biginttype big1, inttype number);
 void bigCpy (biginttype *const big_to, const const_biginttype big_from);
@@ -72,7 +71,6 @@ biginttype bigFromUInt32 (uint32type number);
 biginttype bigGcd (const const_biginttype big1, const const_biginttype big2);
 void bigGrow (biginttype *const big_variable, const const_biginttype delta);
 inttype bigHashCode (const const_biginttype big1);
-biginttype bigImport (const const_ustritype buffer);
 void bigIncr (biginttype *const big_variable);
 biginttype bigIPow (const const_biginttype base, inttype exponent);
 biginttype bigLog2 (const const_biginttype big1);

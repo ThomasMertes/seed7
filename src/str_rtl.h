@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.h     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/str_rtl.h                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005  Thomas Mertes            */
+/*  Changes: 1991 - 1994, 2005, 2008 - 2014  Thomas Mertes          */
 /*  Content: Primitive actions for the string type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -120,3 +120,4 @@ stritype strTrim (const const_stritype stri);
 stritype strUp (const const_stritype stri);
 stritype strUpTemp (const stritype stri);
 stritype strUtf8ToStri (const_stritype utf8);
+stritype strZero (const inttype factor);

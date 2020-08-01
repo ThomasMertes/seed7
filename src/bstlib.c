@@ -431,7 +431,7 @@ objecttype bst_ne (listtype arguments)
 /**
  *  Convert a string to a 'bstring' value.
  *  @return the 'bstring' result of the conversion.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
 objecttype bst_parse (listtype arguments)

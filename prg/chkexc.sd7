@@ -1672,10 +1672,10 @@ const proc: check_string is func
     end block;
 
     block
-      stri := str('\99999\');
+      stri := str('\99999;');
       incr(number);
     exception
-      catch RANGE_ERROR: writeln(" ***** str('\\99999\\') raises RANGE_ERROR");
+      catch RANGE_ERROR: writeln(" ***** str('\\99999;') raises RANGE_ERROR");
       okay := FALSE;
     end block;
 

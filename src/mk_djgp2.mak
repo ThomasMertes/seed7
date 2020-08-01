@@ -137,7 +137,7 @@ version.h: chkccomp.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define AWAIT_WITH_SELECT >> version.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
-	echo #define OS_STRI_USES_CODEPAGE >> version.h
+	echo #define OS_STRI_USES_CODE_PAGE >> version.h
 	echo #define os_lstat stat >> version.h
 	echo #define os_fseek fseek >> version.h
 	echo #define os_ftell ftell >> version.h

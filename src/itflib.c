@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/itflib.c                                        */
-/*  Changes: 1993, 1994, 2002, 2008  Thomas Mertes                  */
+/*  Changes: 1993, 1994, 2002, 2008, 2013, 2014  Thomas Mertes      */
 /*  Content: All primitive actions for interface types.             */
 /*                                                                  */
 /********************************************************************/
@@ -114,8 +114,9 @@ objecttype itf_cpy (listtype arguments)
     trace1(interface_from);
     printf("\n");
 #endif
-    old_value = take_interface(interface_to);
     if (CATEGORY_OF_OBJ(interface_to) == STRUCTOBJECT) {
+      old_struct = take_struct(interface_to);
+      old_value = NULL;
       /* printf("before SET_CATEGORY: ");
       trace1(interface_to);
       printf("\n"); */
@@ -124,6 +125,9 @@ objecttype itf_cpy (listtype arguments)
       printf("after SET_CATEGORY: ");
       trace1(interface_to);
       printf("\n"); */
+    } else {
+      old_struct = NULL;
+      old_value = take_interface(interface_to);
     } /* if */
     new_value = take_interface(interface_from);
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
@@ -148,8 +152,10 @@ objecttype itf_cpy (listtype arguments)
     interface_to->value.objvalue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
-    if (CATEGORY_OF_OBJ(old_value) == STRUCTOBJECT) {
-      old_struct = take_struct(old_value);
+    if (old_value == NULL || CATEGORY_OF_OBJ(old_value) == STRUCTOBJECT) {
+      if (old_struct == NULL) {
+        old_struct = take_struct(old_value);
+      } /* if */
       /* printf("itf_cpy: destroy usage_count=%lu %lu\n", old_struct->usage_count, (unsigned long) old_struct); */
       if (old_struct->usage_count != 0) {
         old_struct->usage_count--;
@@ -157,7 +163,9 @@ objecttype itf_cpy (listtype arguments)
           destr_struct(old_struct->stru, old_struct->size);
           /* printf("FREE_STRUCT 12 %lu\n", old_struct); */
           FREE_STRUCT(old_struct, old_struct->size);
-          FREE_OBJECT(old_value);
+          if (old_value != NULL) {
+            FREE_OBJECT(old_value);
+          } /* if */
         } /* if */
       } /* if */
     } else if (CATEGORY_OF_OBJ(old_value) != DECLAREDOBJECT &&
@@ -188,8 +196,9 @@ objecttype itf_cpy2 (listtype arguments)
     interface_from = arg_3(arguments);
     isit_interface(interface_to);
     /* isit_struct(interface_from); allow FORWARDOBJECT */
-    old_value = take_interface(interface_to);
     if (CATEGORY_OF_OBJ(interface_to) == STRUCTOBJECT) {
+      old_struct = take_struct(interface_to);
+      old_value = NULL;
       /* printf("before SET_CATEGORY: ");
       trace1(interface_to);
       printf("\n"); */
@@ -198,6 +207,9 @@ objecttype itf_cpy2 (listtype arguments)
       printf("after SET_CATEGORY: ");
       trace1(interface_to);
       printf("\n"); */
+    } else {
+      old_struct = NULL;
+      old_value = take_interface(interface_to);
     } /* if */
     new_value = interface_from;
     if (CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
@@ -221,8 +233,10 @@ objecttype itf_cpy2 (listtype arguments)
     interface_to->value.objvalue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
-    if (CATEGORY_OF_OBJ(old_value) == STRUCTOBJECT) {
-      old_struct = take_struct(old_value);
+    if (old_value == NULL || CATEGORY_OF_OBJ(old_value) == STRUCTOBJECT) {
+      if (old_struct == NULL) {
+        old_struct = take_struct(old_value);
+      } /* if */
       /* printf("itf_cpy2: destroy usage_count=%lu %lu\n", old_struct->usage_count, (unsigned long) old_struct); */
       if (old_struct->usage_count != 0) {
         old_struct->usage_count--;
@@ -230,7 +244,9 @@ objecttype itf_cpy2 (listtype arguments)
           destr_struct(old_struct->stru, old_struct->size);
           /* printf("FREE_STRUCT 13 %lu\n", old_struct); */
           FREE_STRUCT(old_struct, old_struct->size);
-          FREE_OBJECT(old_value);
+          if (old_value != NULL) {
+            FREE_OBJECT(old_value);
+          } /* if */
         } /* if */
       } /* if */
     } else if (CATEGORY_OF_OBJ(old_value) != DECLAREDOBJECT &&
@@ -310,7 +326,7 @@ objecttype itf_create2 (listtype arguments)
     printf("\n");
 #endif
     new_value = interface_from;
-    if (CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
+    if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
       if (TEMP_OBJECT(interface_from) || TEMP2_OBJECT(interface_from)) {
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -324,8 +340,8 @@ objecttype itf_create2 (listtype arguments)
       if (new_value->value.structvalue->usage_count != 0) {
         new_value->value.structvalue->usage_count++;
       } /* if */
-    } else if (CATEGORY_OF_OBJ(interface_from) != DECLAREDOBJECT &&
-               CATEGORY_OF_OBJ(interface_from) != FORWARDOBJECT) {
+    } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
+               CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
       run_exception(STRUCTOBJECT, interface_from);
     } /* if */
     interface_to->value.objvalue = new_value;

@@ -253,86 +253,6 @@ inttype bigBitLength (const const_biginttype big1)
 
 
 
-stritype bigCLit (const const_biginttype big1)
-
-  {
-    size_t count;
-    size_t export_count;
-    size_t pos;
-    char byteBuffer[22];
-    int sign;
-    unsigned int carry;
-    ustritype buffer;
-    memsizetype charIndex;
-    memsizetype result_size;
-    stritype result;
-
-  /* bigCLit */
-    count = (mpz_sizeinbase(big1, 2) + 7) / 8;
-    buffer = malloc(count);
-    if (buffer == NULL) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      mpz_export(buffer, &export_count, 1, 1, 0, 0, big1);
-      sign = mpz_sgn(big1);
-      if (sign < 0) {
-        carry = 1;
-        pos = export_count;
-        while (pos > 0) {
-          pos--;
-          carry += ~buffer[pos] & 0xFF;
-          buffer[pos] = (uchartype) (carry & 0xFF);
-          carry >>= 8;
-        } /* while */
-      } /* if */
-      result_size = 21 + count * 5;
-      if ((sign > 0 && buffer[0] >= 128) ||
-          (sign < 0 && buffer[0] <= 127)) {
-        result_size += 5;
-        count++;
-      } /* if */
-      if (!ALLOC_STRI_CHECK_SIZE(result, result_size)) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = result_size;
-        sprintf(byteBuffer, "{0x%02x,0x%02x,0x%02x,0x%02x,",
-            (unsigned int) (count >> 24 & 0xFF),
-            (unsigned int) (count >> 16 & 0xFF),
-            (unsigned int) (count >>  8 & 0xFF),
-            (unsigned int) (count       & 0xFF));
-        cstri_expand(result->mem, byteBuffer, 21);
-        charIndex = 21;
-        if (sign == 0) {
-          cstri_expand(&result->mem[charIndex], "0x00}", 5);
-        } else {
-          if (sign < 0) {
-            if (buffer[0] <= 127) {
-              cstri_expand(&result->mem[charIndex], "0xff,", 5);
-              charIndex += 5;
-            } /* if */
-          } else {
-            if (buffer[0] >= 128) {
-              cstri_expand(&result->mem[charIndex], "0x00,", 5);
-              charIndex += 5;
-            } /* if */
-          } /* for */
-          for (pos = 0; pos < export_count; pos++) {
-            sprintf(byteBuffer, "0x%02x,", buffer[pos]);
-            cstri_expand(&result->mem[charIndex], byteBuffer, 5);
-            charIndex += 5;
-          } /* for */
-          charIndex -= 5;
-          result->mem[charIndex + 4] = '}';
-        } /* if */
-      } /* if */
-      free(buffer);
-    } /* if */
-    return result;
-  } /* bigCLit */
-
-
-
 /**
  *  Compare two 'bigInteger' numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
@@ -781,21 +701,6 @@ inttype bigHashCode (const const_biginttype big1)
     result = (inttype) (mpz_getlimbn(big1, 0) << 5 ^ count << 3 ^ mpz_getlimbn(big1, count - 1));
     return result;
   } /* bigHashCode */
-
-
-
-biginttype bigImport (const const_ustritype buffer)
-
-  {
-    memsizetype byteDigitCount;
-
-  /* bigImport */
-    byteDigitCount = ((memsizetype) buffer[0]) << 24 |
-                     ((memsizetype) buffer[1]) << 16 |
-                     ((memsizetype) buffer[2]) <<  8 |
-                     ((memsizetype) buffer[3]);
-    return bigFromByteBufferBe(byteDigitCount, &buffer[4], TRUE);
-  } /* bigImport */
 
 
 

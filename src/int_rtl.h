@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.h     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/int_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994, 2000, 2005, 2010  Thomas Mertes      */
+/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2014  Thomas Mertes    */
 /*  Content: Primitive actions for the integer type.                */
 /*                                                                  */
 /********************************************************************/
@@ -45,8 +45,10 @@ int uint64LeastSignificantBit (uint64type number);
 #endif
 inttype intBinom (inttype n_number, inttype k_number);
 inttype intBitLength (inttype number);
-inttype intBytesBe2UInt (const const_stritype byteStri);
-inttype intBytesLe2UInt (const const_stritype byteStri);
+stritype intBytesBe (inttype number, booltype isSigned);
+inttype intBytesBe2Int (const const_stritype byteStri, booltype isSigned);
+stritype intBytesLe (inttype number, booltype isSigned);
+inttype intBytesLe2Int (const const_stritype byteStri, booltype isSigned);
 inttype intCmp (inttype number1, inttype number2);
 void intCpy (inttype *dest, inttype source);
 inttype intLog2 (inttype number);
@@ -62,5 +64,3 @@ stritype intStr (inttype number);
 #ifdef ALLOW_STRITYPE_SLICES
 stritype intStrToBuffer (inttype number, stritype buffer);
 #endif
-bstritype intToBStriBe (inttype number);
-bstritype intToBStriLe (inttype number);

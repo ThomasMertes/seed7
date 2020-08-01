@@ -39,7 +39,7 @@ const func string: (in string: stri1) >< (in string: stri2) is func
     if length(stri1) <> length(stri2) then
       raise RANGE_ERROR;
     else
-      xorResult := "\0\" mult length(stri1);
+      xorResult := "\0;" mult length(stri1);
       for index range 1 to length(stri1) do
         xorResult @:= [index] chr(ord(bin32(stri1[index]) >< bin32(stri2[index])));
       end for;
@@ -51,7 +51,7 @@ const func string: (in string: stri1) >< (in string: stri2) is func
  *  Compute a message authentication code with the given [[msgdigest#digestAlgorithm|digestAlgorithm]].
  *  @param digestAlg The [[msgdigest#digestAlgorithm|digestAlgorithm]] to be used.
  *  @return the message authentication code produced with ''digestAlg''.
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255\'.
+ *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
  *)
 const func string: hmac (in digestAlgorithm: digestAlg, in var string: cryptoKey,
     in string: message) is func
@@ -68,9 +68,9 @@ const func string: hmac (in digestAlgorithm: digestAlg, in var string: cryptoKey
       cryptoKey := msgDigest(digestAlg, cryptoKey);
     end if;
     # Keys shorter than blockSize are zero-padded.
-    cryptoKey &:= "\0\" mult (blockSize - length(cryptoKey));
-    o_key_pad := ("\16#5c\" mult blockSize) >< cryptoKey;
-    i_key_pad := ("\16#36\" mult blockSize) >< cryptoKey;
+    cryptoKey &:= "\0;" mult (blockSize - length(cryptoKey));
+    o_key_pad := ("\16#5c;" mult blockSize) >< cryptoKey;
+    i_key_pad := ("\16#36;" mult blockSize) >< cryptoKey;
     authenticationCode := msgDigest(digestAlg, o_key_pad &
                                     msgDigest(digestAlg, i_key_pad & message));
   end func;

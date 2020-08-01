@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_rtl.c     Primitive actions for the C library file type.    */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_rtl.c                                       */
-/*  Changes: 1992, 1993, 1994, 2009, 2013  Thomas Mertes            */
+/*  Changes: 1992, 1993, 1994, 2009, 2013, 2014  Thomas Mertes      */
 /*  Content: Primitive actions for the C library file type.         */
 /*                                                                  */
 /********************************************************************/
@@ -504,7 +504,6 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
     memsizetype bytes_in_buffer = 1;
     memsizetype stri_pos;
     register strelemtype *to;
-    register memsizetype pos;
 
   /* read_string */
     /* printf("stri->size=%lu\n", stri->size); */
@@ -519,9 +518,7 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
         /* printf("#A# bytes_in_buffer=%d stri_pos=%d\n",
             bytes_in_buffer, stri_pos); */
         to = &stri->mem[stri_pos];
-        for (pos = bytes_in_buffer; pos > 0; pos--) {
-          to[pos - 1] = buffer[pos - 1];
-        } /* for */
+        memcpy_to_strelem(to, buffer, bytes_in_buffer);
         stri_pos += bytes_in_buffer;
       } /* if */
     } /* while */
@@ -535,9 +532,7 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
         /* printf("#B# bytes_in_buffer=%d stri_pos=%d\n",
             bytes_in_buffer, stri_pos); */
         to = &stri->mem[stri_pos];
-        for (pos = bytes_in_buffer; pos > 0; pos--) {
-          to[pos - 1] = buffer[pos - 1];
-        } /* for */
+        memcpy_to_strelem(to, buffer, bytes_in_buffer);
         stri_pos += bytes_in_buffer;
       } /* if */
     } /* if */
@@ -555,7 +550,6 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
     memsizetype bytes_in_buffer = 1;
     memsizetype result_pos;
     register strelemtype *to;
-    register memsizetype pos;
     memsizetype new_size;
     stritype resized_result;
     stritype result;
@@ -591,9 +585,7 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
             } /* if */
           } /* if */
           to = &result->mem[result_pos];
-          for (pos = bytes_in_buffer; pos > 0; pos--) {
-            to[pos - 1] = buffer[pos - 1];
-          } /* for */
+          memcpy_to_strelem(to, buffer, bytes_in_buffer);
           result_pos += bytes_in_buffer;
         } /* if */
       } /* while */
@@ -619,9 +611,7 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
             } /* if */
           } /* if */
           to = &result->mem[result_pos];
-          for (pos = bytes_in_buffer; pos > 0; pos--) {
-            to[pos - 1] = buffer[pos - 1];
-          } /* for */
+          memcpy_to_strelem(to, buffer, bytes_in_buffer);
           result_pos += bytes_in_buffer;
         } /* if */
       } /* if */
@@ -875,11 +865,8 @@ stritype filGets (filetype inFile, inttype length)
           } else {
             uchartype *from = (uchartype *) result->mem;
             strelemtype *to = result->mem;
-            memsizetype pos;
 
-            for (pos = num_of_chars_read; pos > 0; pos--) {
-              to[pos - 1] = from[pos - 1];
-            } /* for */
+            memcpy_to_strelem(to, from, num_of_chars_read);
           } /* if */
         } else {
           num_of_chars_read = read_string(inFile, result, &err_info);

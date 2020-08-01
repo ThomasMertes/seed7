@@ -21,7 +21,7 @@
 /*  Module: Runtime                                                 */
 /*  File: seed7/src/objutl.c                                        */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: isit_.. and bld_.. functions for primitive datatypes.  */
+/*  Content: isit_.. and bld_.. functions for primitive data types. */
 /*                                                                  */
 /********************************************************************/
 

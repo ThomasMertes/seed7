@@ -57,7 +57,7 @@ const proc: main is func
         write(ord(ch) <& " ");
         if ch in keyDescription then
           writeln(keyDescription[ch]);
-        elsif ch >= ' ' and ch <= '~' or ch >= '\160\' then
+        elsif ch >= ' ' and ch <= '~' or ch >= '\160;' then
           writeln(ch);
         else
           writeln;

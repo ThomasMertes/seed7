@@ -1,3 +1,76 @@
+20140216:
+- A new numeric escape sequence for string literals has been
+  introduced. A backslash followed by an integer literal and a
+  semicolon is interpreted as character with the specified ordinal
+  number. E.g.: "abc\128;def". With the old numeric escape sequence
+  this would be "abc\128\def". Terminating the escape sequence
+  with ; instead of \ improves the readability, especially when
+  escape sequences follow each other. Instead of "\8\\12\\7\8\9\\\"
+  it is now possible to write "\8;\12;\7;8\9;\\" The old escape
+  sequence is still supported, but it is deprecated and should not
+  be used. Future versions will warn about the deprecated escape
+  sequence.
+- The conversion functions 'bytes' and 'bytes2Int' in bytedata.s7c
+  have been improved to support all combinations of signedness and
+  endianess.
+- The functions bStriBe and bStriLe have been removed from
+  bstring.s7i. The function 'bytes' in bytedata.s7c can be used as
+  replacement.
+- Checks for lowestSetBit and UNSIGNED conversions with the
+  functions 'bytes' and 'bytes2Int' have been added to chkint.sd7.
+- Checks for UNSIGNED conversions with the functions 'bytes' and
+  'bytes2BigInt' have been added to chkbig.sd7.
+- Checks for the function rand have been added to chkset.sd7.
+- The parser has been improved to write error messages when the
+  source file contains unexpected UTF-8 continuation bytes, solitary
+  UTF-8 start bytes, extended control codes from the C1 set or an
+  UTF-16 byte order mark.
+- In tar.s7i the functions getoct, putspc and putoct have been
+  improved. The computation of the size of padding data has also
+  been improved.
+- The compiler has been improved to optimize string initialisations
+  with the function strZero. StrZero creates a string of arbitrary
+  length with '\0;' (zero) bytes.
+- The compiler has been improved to optimize integer exponentiation
+  (action INT_POW). Now the multiplication pattern is determined at
+  compile time and the number of multiplications is reduced.
+- The performance of the function setCard in set_rtl.c has been
+  improved by a factor of 2.5.
+- The performance of the function setRand in set_rtl.c has been
+  improved by a factor of 2.3.
+- Loop unrolling inspired by Duff's device has been introduced in
+  striutl.h. The unrolling is used for tight loops which copy byte
+  data to Seed7 strings in fil_rtl.c, soc_rtl.c and bst_rtl.c. The
+  performance improvement has been verified with gcc and valgrind.
+- The example program err.sd7, which checks compile time error
+  messages, has been improved.
+- The old way to store the data of constant bigIntegers has been
+  removed from compiler and runtime library.
+- The buffers used in intRadix and intRadixPow2 (file int_rtl.c) have
+  been enlarged to fit for the most negative number with a base of 2.
+- In itflib.c the functions itf_cpy and itf_cpy2 have been fixed to
+  work correctly, when the destination is converted from a struct to
+  an interface.
+- In traceutl.c the tracing of characters has been improved in the
+  functions prot_char, prot_os_stri, prot_stri_unquoted and
+  prot_bstri.
+- In ut8_rtl.c the function ut8Getc has been improved to use smarter
+  checks for ranges of characters.
+- The deprecated variant of the function str, which has a second
+  parameter to specify a numeric base, has been removed. The
+  operators radix and RADIX can be used instead.
+- Interpreter and compiler have been improved to support the new
+  actions INT_BYTES_BE, INT_BYTES_LE, INT_BYTES_BE_2_INT and
+  INT_BYTES_LE_2_INT. The functions intBytesBe, int_bytesBe,
+  intBytesLe, int_bytesLe, intBytesBe2Int, int_bytesBe2Int,
+  intBytesLe2Int and int_bytesLe2Int have been added.
+- Support for the actions BIG_CLIT, INT_TO_BSTRI_BE, INT_TO_BSTRI_LE,
+  INT_BYTES_BE_2_UINT and INT_BYTES_LE_2_UINT has been removed from
+  interpreter and compiler. The functions bigImport, bigCLit,
+  big_clit, intToBStriBe, int_toBStriBe, intToBStriLe, int_toBStriLe,
+  intBytesBe2UInt, int_bytes_be_2_uint, intBytesLe2UInt and
+  int_bytes_le_2_uint have been removed.
+
 20140202:
 - The manual chapter describing the foreign function interface has
   been improved.

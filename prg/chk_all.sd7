@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chk_all.sd7   Runs interpreted and compiled checks.             *)
-(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*  Copyright (C) 2008, 2014  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -41,6 +41,8 @@ const string: chkint_output is "\n\
   \Based integer literals work correct.\n\
   \Conversion of integer to big endian byte string works correct.\n\
   \Conversion of integer to little endian byte string works correct.\n\
+  \Conversion of big endian byte string to integer works correct.\n\
+  \Conversion of little endian byte string to integer works correct.\n\
   \-i is correct computed in the range -10 to 10.\n\
   \Addition works correct for selected values.\n\
   \a div b is integer division and a rem b is integer remainder:\n\
@@ -55,7 +57,7 @@ const string: chkint_output is "\n\
   \odd(i) works correct in the range -20 to 20.\n\
   \!i works correct for i in the range 0 to 12.\n\
   \n ! k is correct for n <= 30.\n\
-  \i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4.\n\
+  \Power works correct for selected values.\n\
   \Computing powers of two works correct.\n\
   \Integer sqrt is correct for values between 0 and 1000.\n\
   \Integer sqrt is correct for 11000 random values.\n\
@@ -65,7 +67,8 @@ const string: chkint_output is "\n\
   \Integer str does work correct.\n\
   \Integer parse does work correct.\n\
   \Integer lpad0 does work correct.\n\
-  \Integer bitLength does work correct.\n";
+  \Integer bitLength does work correct.\n\
+  \Integer lowestSetBit does work correct.\n";
 
 const string: chkflt_output is "\n\
   \Comparison of float values works correct.\n\
@@ -160,6 +163,7 @@ const string: chkbool_output is "\n\
 
 const string: chkset_output is "\n\
   \card(bitset) works correct.\n\
+  \rand(bitset) works correct.\n\
   \incl(bitset, integer) works correct.\n\
   \set compare works correct.\n\
   \set relations work correct.\n\

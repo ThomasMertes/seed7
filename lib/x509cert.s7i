@@ -76,45 +76,45 @@ const type: x509cert is new struct
   end struct;
 
 
-const string: ALIASED_ENTRY_NAME_OID        is encodeObjectIdentifier([] (2, 5, 4, 1));   # "U\4\\1\"
-const string: KNOWLEDGE_INFORMATION_OID     is encodeObjectIdentifier([] (2, 5, 4, 2));   # "U\4\\2\"
-const string: COMMON_NAME_OID               is encodeObjectIdentifier([] (2, 5, 4, 3));   # "U\4\\3\"
-const string: SURNAME_OID                   is encodeObjectIdentifier([] (2, 5, 4, 4));   # "U\4\\4\"
-const string: SERIAL_NUMBER_OID             is encodeObjectIdentifier([] (2, 5, 4, 5));   # "U\4\\5\"
-const string: COUNTRY_NAME_OID              is encodeObjectIdentifier([] (2, 5, 4, 6));   # "U\4\\6\"
-const string: LOCALITY_NAME_OID             is encodeObjectIdentifier([] (2, 5, 4, 7));   # "U\4\\a"
-const string: STATE_OR_OR_PROVINCE_NAME_OID is encodeObjectIdentifier([] (2, 5, 4, 8));   # "U\4\\b"
-const string: STREET_ADDRESS_OID            is encodeObjectIdentifier([] (2, 5, 4, 9));   # "U\4\\t"
-const string: ORGANIZATION_NAME_OID         is encodeObjectIdentifier([] (2, 5, 4, 10));  # "U\4\\n"
-const string: ORGANIZATION_UNIT_NAME_OID    is encodeObjectIdentifier([] (2, 5, 4, 11));  # "U\4\\v"
-const string: TITLE_OID                     is encodeObjectIdentifier([] (2, 5, 4, 12));  # "U\4\\f"
+const string: ALIASED_ENTRY_NAME_OID        is encodeObjectIdentifier([] (2, 5, 4, 1));   # "U\4;\1;"
+const string: KNOWLEDGE_INFORMATION_OID     is encodeObjectIdentifier([] (2, 5, 4, 2));   # "U\4;\2;"
+const string: COMMON_NAME_OID               is encodeObjectIdentifier([] (2, 5, 4, 3));   # "U\4;\3;"
+const string: SURNAME_OID                   is encodeObjectIdentifier([] (2, 5, 4, 4));   # "U\4;\4;"
+const string: SERIAL_NUMBER_OID             is encodeObjectIdentifier([] (2, 5, 4, 5));   # "U\4;\5;"
+const string: COUNTRY_NAME_OID              is encodeObjectIdentifier([] (2, 5, 4, 6));   # "U\4;\6;"
+const string: LOCALITY_NAME_OID             is encodeObjectIdentifier([] (2, 5, 4, 7));   # "U\4;\a"
+const string: STATE_OR_OR_PROVINCE_NAME_OID is encodeObjectIdentifier([] (2, 5, 4, 8));   # "U\4;\b"
+const string: STREET_ADDRESS_OID            is encodeObjectIdentifier([] (2, 5, 4, 9));   # "U\4;\t"
+const string: ORGANIZATION_NAME_OID         is encodeObjectIdentifier([] (2, 5, 4, 10));  # "U\4;\n"
+const string: ORGANIZATION_UNIT_NAME_OID    is encodeObjectIdentifier([] (2, 5, 4, 11));  # "U\4;\v"
+const string: TITLE_OID                     is encodeObjectIdentifier([] (2, 5, 4, 12));  # "U\4;\f"
 
-const string: SUBJECT_KEY_IDENTIFIER_OID    is encodeObjectIdentifier([] (2, 5, 29, 14));  # "U\29\\14\"
-const string: KEY_USAGE_OID                 is encodeObjectIdentifier([] (2, 5, 29, 15));  # "U\29\\15\"
-const string: SUBJECT_ALT_NAME              is encodeObjectIdentifier([] (2, 5, 29, 17));  # "U\29\\17\"
-const string: BASIC_CONSTRAINTS_OID         is encodeObjectIdentifier([] (2, 5, 29, 19));  # "U\29\\19\"
-const string: CRLD_DISTRIBUTION_POINTS_OID  is encodeObjectIdentifier([] (2, 5, 29, 31));  # "U\29\\31\"
-const string: CERTIFICATE_POLICIES_OID      is encodeObjectIdentifier([] (2, 5, 29, 32));  # "U\29\ "
-const string: AUTHORITY_KEY_IDENTIFIER_OID  is encodeObjectIdentifier([] (2, 5, 29, 35));  # "U\29\#"
-const string: EXT_KEY_USAGE_OID             is encodeObjectIdentifier([] (2, 5, 29, 37));  # "U\29\%"
+const string: SUBJECT_KEY_IDENTIFIER_OID    is encodeObjectIdentifier([] (2, 5, 29, 14));  # "U\29;\14;"
+const string: KEY_USAGE_OID                 is encodeObjectIdentifier([] (2, 5, 29, 15));  # "U\29;\15;"
+const string: SUBJECT_ALT_NAME              is encodeObjectIdentifier([] (2, 5, 29, 17));  # "U\29;\17;"
+const string: BASIC_CONSTRAINTS_OID         is encodeObjectIdentifier([] (2, 5, 29, 19));  # "U\29;\19;"
+const string: CRLD_DISTRIBUTION_POINTS_OID  is encodeObjectIdentifier([] (2, 5, 29, 31));  # "U\29;\31;"
+const string: CERTIFICATE_POLICIES_OID      is encodeObjectIdentifier([] (2, 5, 29, 32));  # "U\29; "
+const string: AUTHORITY_KEY_IDENTIFIER_OID  is encodeObjectIdentifier([] (2, 5, 29, 35));  # "U\29;#"
+const string: EXT_KEY_USAGE_OID             is encodeObjectIdentifier([] (2, 5, 29, 37));  # "U\29;%"
 
-const string: CERT_TYPE_OID                 is encodeObjectIdentifier([] (2, 16, 840, 1, 113730, 1, 1));  # "`\134\H\1\\134\�B\1\\1\"
+const string: CERT_TYPE_OID                 is encodeObjectIdentifier([] (2, 16, 840, 1, 113730, 1, 1));  # "`\134;H\1;\134;�B\1;\1;"
 
 # iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) 1
-const string: PKCS_1 is  encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 1));  # "*\134\H\134\\247\\r\1\\1\";
-const string: RSA_ENCRYPTION_OID         is PKCS_1 & "\1\";
-const string: MD2_WITH_RSA_ENCRYPTION    is PKCS_1 & "\2\";
-const string: MD5_WITH_RSA_ENCRYPTION    is PKCS_1 & "\4\";
-const string: SHA1_WITH_RSA_ENCRYPTION   is PKCS_1 & "\5\";
-const string: RSAES_OAEP_OID             is PKCS_1 & "\7\";
-const string: MGF1_OID                   is PKCS_1 & "\8\";
-const string: P_SPECIFIED_OID            is PKCS_1 & "\9\";
-const string: RSASSA_PSS_OID             is PKCS_1 & "\10\";
-const string: SHA256_WITH_RSA_ENCRYPTION is PKCS_1 & "\11\";
-const string: SHA384_WITH_RSA_ENCRYPTION is PKCS_1 & "\12\";
-const string: SHA512_WITH_RSA_ENCRYPTION is PKCS_1 & "\13\";
+const string: PKCS_1 is  encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 1));  # "*\134;H\134;\247;\r\1;\1;";
+const string: RSA_ENCRYPTION_OID         is PKCS_1 & "\1;";
+const string: MD2_WITH_RSA_ENCRYPTION    is PKCS_1 & "\2;";
+const string: MD5_WITH_RSA_ENCRYPTION    is PKCS_1 & "\4;";
+const string: SHA1_WITH_RSA_ENCRYPTION   is PKCS_1 & "\5;";
+const string: RSAES_OAEP_OID             is PKCS_1 & "\7;";
+const string: MGF1_OID                   is PKCS_1 & "\8;";
+const string: P_SPECIFIED_OID            is PKCS_1 & "\9;";
+const string: RSASSA_PSS_OID             is PKCS_1 & "\10;";
+const string: SHA256_WITH_RSA_ENCRYPTION is PKCS_1 & "\11;";
+const string: SHA384_WITH_RSA_ENCRYPTION is PKCS_1 & "\12;";
+const string: SHA512_WITH_RSA_ENCRYPTION is PKCS_1 & "\13;";
 
-const string: SHA1_OID is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));  # "+\14\\3\\2\\26\"
+const string: SHA1_OID is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));  # "+\14;\3;\2;\26;"
 
 
 const func algorithmIdentifierType: getAlgorithmIdentifier (in string: stri, inout integer: pos) is func
@@ -231,7 +231,7 @@ const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) i
     end if;
     # The initial octet of a bit-string encodes
     # the number of unused bits in the final octet.
-    stri &:= genAsn1Element(tagBitString, "\0\" & subjectPublicKey);
+    stri &:= genAsn1Element(tagBitString, "\0;" & subjectPublicKey);
     stri := genAsn1Sequence(stri);
   end func;
 
@@ -480,7 +480,7 @@ const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) 
     signature := genAsn1Sequence(signature);
     cert.signatureValue := rsaEncryptBytes(encryptionKey, signature);
     stri &:= genX509AlgorithmIdentifier(cert.signatureAlgorithm);
-    stri &:= genAsn1Element(tagBitString, "\0\" & cert.signatureValue);
+    stri &:= genAsn1Element(tagBitString, "\0;" & cert.signatureValue);
     stri := genAsn1Sequence(stri);
   end func;
 

@@ -350,7 +350,7 @@ const func boolean: confirmSave (inout stateType: state) is func
           proceed := upper(command) <> "Q";
           if command = "Yes" then
             confirmed := TRUE;
-            state.emptyBlock := "\0\" mult state.blockSize;
+            state.emptyBlock := "\0;" mult state.blockSize;
           end if;
         end if;
       end if;
@@ -639,7 +639,7 @@ const proc: copyFile (inout stateType: state) is func
             missingBytes := bigInteger conv (state.chunkSize) - bigLength(chunkContent);
           end if;
           seek(outFile, currPosition + bigLength(chunkContent));
-          write(outFile, "\0\" mult ord(missingBytes));
+          write(outFile, "\0;" mult ord(missingBytes));
           addBadArea(state, currPosition + bigLength(chunkContent), missingBytes);
           if state.skipSize > state.chunkSize then
             if currPosition + bigInteger conv (state.skipSize) > state.inFileSize then
@@ -650,7 +650,7 @@ const proc: copyFile (inout stateType: state) is func
             missingBytes -:= bigInteger conv (state.chunkSize);
             if missingBytes > 0_ then
               seek(outFile, currPosition + bigInteger conv (state.chunkSize));
-              write(outFile, "\0\" mult ord(missingBytes));
+              write(outFile, "\0;" mult ord(missingBytes));
               addBadArea(state, currPosition + bigInteger conv (state.chunkSize), missingBytes);
             end if;
             currPosition +:= bigInteger conv (state.skipSize);
@@ -695,7 +695,7 @@ const func string: repairBlock (inout stateType: state, in bigInteger: blockPosi
       end if;
     elsif destinationBlock = state.emptyBlock then
       repairedBlock := sourceBlock &
-          "\0\" mult (length(destinationBlock) - length(sourceBlock));
+          "\0;" mult (length(destinationBlock) - length(sourceBlock));
       removeBadArea(state, blockPosition, bigLength(sourceBlock));
       writeln(log, "fix block " <& blockPosition <&
           " (length " <& length(sourceBlock) <& "), which was empty before");

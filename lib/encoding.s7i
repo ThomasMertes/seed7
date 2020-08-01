@@ -36,7 +36,7 @@ include "chartype.s7i";
  *  representation. The radix-64 digits are encoded with letters,
  *  digits and the characters '+' and '/'.
  *  @return the Base64 encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
 const func string: toBase64 (in string: byteStri) is func
   result
@@ -56,7 +56,7 @@ const func string: toBase64 (in string: byteStri) is func
         threeBytes <<:= 8;
         if subIndex <= length(byteStri) then
           ch := byteStri[subIndex];
-          if ch >= '\256\' then
+          if ch >= '\256;' then
             raise RANGE_ERROR;
           end if;
           threeBytes +:= ord(ch);
@@ -146,7 +146,7 @@ const func string: fromBase64 (in string: base64) is func
  *  themself. Other byte values are encoded with '=' followed by two
  *  hexadecimal digits representing the byte's numeric value.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
 const func string: toQuotedPrintable (in string: byteStri) is func
   result
@@ -159,7 +159,7 @@ const func string: toQuotedPrintable (in string: byteStri) is func
   begin
     for index range 1 to length(byteStri) do
       ch := byteStri[index];
-      if ch >= '\256\' then
+      if ch >= '\256;' then
         raise RANGE_ERROR;
       elsif ch = '\n' or (ch = '\r' and
           index < length(byteStri) and byteStri[succ(index)] = '\n') then
@@ -177,7 +177,7 @@ const func string: toQuotedPrintable (in string: byteStri) is func
           end if;
         end if;
         counter := 1;
-      elsif ch >= '\127\' or ch = '=' or (ch < ' ' and ch <> '\9\') then
+      elsif ch >= '\127;' or ch = '=' or (ch < ' ' and ch <> '\9;') then
         quoted &:= byteStri[startPos .. pred(index)];
         if counter >= 74 then
           quoted &:= "=\n";
@@ -243,7 +243,7 @@ const func string: fromQuotedPrintable (in string: quoted) is func
  *  line starts with a radix-64 digit character indicating the number
  *  of data bytes encoded on that line.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
 const func string: toUuencoded (in string: byteStri) is func
   result
@@ -268,7 +268,7 @@ const func string: toUuencoded (in string: byteStri) is func
           threeBytes <<:= 8;
           if subIndex <= length(byteStri) then
             ch := byteStri[subIndex];
-            if ch >= '\256\' then
+            if ch >= '\256;' then
               raise RANGE_ERROR;
             end if;
             threeBytes +:= ord(ch);
@@ -352,7 +352,7 @@ const func string: fromUuencoded (in string: uuencoded) is func
  *  ('%') followed by two hexadecimal digits, which represent the ordinal
  *  value of the encoded character.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
 const func string: toPercentEncoded (in string: byteStri) is func
   result
@@ -364,7 +364,7 @@ const func string: toPercentEncoded (in string: byteStri) is func
     var char: ch is ' ';
   begin
     for ch key pos range byteStri do
-      if ch > '\255\' then
+      if ch > '\255;' then
         raise RANGE_ERROR;
       elsif ch not in unreservedChars then
         percentEncoded &:= byteStri[start .. pred(pos)];
@@ -414,7 +414,7 @@ const func string: fromPercentEncoded (in string: percentEncoded) is func
  *  value of the encoded character. A plus sign ('+') is used to encode
  *  a space (' ').
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
 const func string: toUrlEncoded (in string: byteStri) is func
   result
@@ -426,7 +426,7 @@ const func string: toUrlEncoded (in string: byteStri) is func
     var char: ch is ' ';
   begin
     for ch key pos range byteStri do
-      if ch > '\255\' then
+      if ch > '\255;' then
         raise RANGE_ERROR;
       elsif ch = ' ' then
         urlEncoded &:= byteStri[start .. pred(pos)];

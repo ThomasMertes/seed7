@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/biglib.h                                        */
-/*  Changes: 2005, 2006  Thomas Mertes                              */
+/*  Changes: 2005, 2006, 2013, 2014  Thomas Mertes                  */
 /*  Content: All primitive actions for the bigInteger type.         */
 /*                                                                  */
 /********************************************************************/
@@ -28,7 +28,6 @@
 objecttype big_abs            (listtype arguments);
 objecttype big_add            (listtype arguments);
 objecttype big_bit_length     (listtype arguments);
-objecttype big_clit           (listtype arguments);
 objecttype big_cmp            (listtype arguments);
 objecttype big_conv           (listtype arguments);
 objecttype big_cpy            (listtype arguments);

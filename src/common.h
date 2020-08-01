@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  common.h      Basic type definitions and settings.              */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/common.h                                        */
-/*  Changes: 1992 - 1994, 2005, 2011, 2013  Thomas Mertes           */
+/*  Changes: 1992 - 1994, 2005, 2011, 2013, 2014  Thomas Mertes     */
 /*  Content: Basic type definitions and settings.                   */
 /*                                                                  */
 /********************************************************************/
@@ -233,8 +233,12 @@ typedef uint64type              uinttype;
 
 #if   BITSETTYPE_SIZE == 32
 typedef uint32type         bitsettype;
+#define bitsetMostSignificantBit  uint32MostSignificantBit
+#define bitsetLeastSignificantBit uint32LeastSignificantBit
 #elif BITSETTYPE_SIZE == 64
 typedef uint64type         bitsettype;
+#define bitsetMostSignificantBit  uint64MostSignificantBit
+#define bitsetLeastSignificantBit uint64LeastSignificantBit
 #endif
 
 

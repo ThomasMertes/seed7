@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bytedata.s7i  Convert byte data to and from strings             *)
-(*  Copyright (C) 2009, 2013  Thomas Mertes                         *)
+(*  Copyright (C) 2009, 2013, 2014  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -53,8 +53,8 @@ const type: endianess is new enum
 
 (**
  *  Get a zero terminated string from ''stri'' starting from ''currPos''.
- *  CurrPos is advanced after the zero ('\0\') character.
- *  @return the zero terminated string without the zero ('\0\') character.
+ *  CurrPos is advanced after the zero ('\0;') character.
+ *  @return the zero terminated string without the zero ('\0;') character.
  *)
 const func string: getAsciiz (in string: stri, inout integer: currPos) is func
   result
@@ -63,7 +63,7 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
     var integer: startPos is 0;
   begin
     startPos := currPos;
-    currPos := pos(stri, '\0\', startPos);
+    currPos := pos(stri, '\0;', startPos);
     if currPos = 0 then
       resultStri := stri[startPos ..];
       currPos := succ(length(stri));
@@ -78,7 +78,7 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
  *  Convert a [[string]] of bytes to its hexadecimal representation.
  *  Each byte is represented by two hexadecimal digits.
  *  @return the hexadecimal representation of the given [[string]].
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
 const func string: hex (in string: stri) is func
   result
@@ -87,7 +87,7 @@ const func string: hex (in string: stri) is func
     var char: ch is ' ';
   begin
     for ch range stri do
-      if ch > '\255\' then
+      if ch > '\255;' then
         raise RANGE_ERROR;
       end if;
       hex &:= ord(ch) radix 16 lpad0 2;
@@ -101,7 +101,7 @@ const func string: hex (in string: stri) is func
  *)
 const func string: int16AsTwoBytesLe (in integer: number) is func
   result
-    var string: twoBytes is "\0\" mult 2;
+    var string: twoBytes is "\0;" mult 2;
   begin
     twoBytes @:= [1] chr( number        mod 256);
     twoBytes @:= [2] chr((number >>  8) mod 256);
@@ -114,7 +114,7 @@ const func string: int16AsTwoBytesLe (in integer: number) is func
  *)
 const func string: int32AsFourBytesLe (in integer: number) is func
   result
-    var string: fourBytes is "\0\" mult 4;
+    var string: fourBytes is "\0;" mult 4;
   begin
     fourBytes @:= [1] chr( number        mod 256);
     fourBytes @:= [2] chr((number >>  8) mod 256);
@@ -129,7 +129,7 @@ const func string: int32AsFourBytesLe (in integer: number) is func
  *)
 const func string: int64AsEightBytesLe (in integer: number) is func
   result
-    var string: eightBytes is "\0\" mult 8;
+    var string: eightBytes is "\0;" mult 8;
   begin
     eightBytes @:= [1] chr( number        mod 256);
     eightBytes @:= [2] chr((number >>  8) mod 256);
@@ -148,7 +148,7 @@ const func string: int64AsEightBytesLe (in integer: number) is func
  *)
 const func string: int16AsTwoBytesBe (in integer: number) is func
   result
-    var string: twoBytes is "\0\" mult 2;
+    var string: twoBytes is "\0;" mult 2;
   begin
     twoBytes @:= [1] chr((number >>  8) mod 256);
     twoBytes @:= [2] chr( number        mod 256);
@@ -161,7 +161,7 @@ const func string: int16AsTwoBytesBe (in integer: number) is func
  *)
 const func string: int32AsFourBytesBe (in integer: number) is func
   result
-    var string: fourBytes is "\0\" mult 4;
+    var string: fourBytes is "\0;" mult 4;
   begin
     fourBytes @:= [1] chr((number >> 24) mod 256);
     fourBytes @:= [2] chr((number >> 16) mod 256);
@@ -176,7 +176,7 @@ const func string: int32AsFourBytesBe (in integer: number) is func
  *)
 const func string: int64AsEightBytesBe (in integer: number) is func
   result
-    var string: eightBytes is "\0\" mult 8;
+    var string: eightBytes is "\0;" mult 8;
   begin
     eightBytes @:= [1] chr((number >> 56) mod 256);
     eightBytes @:= [2] chr((number >> 48) mod 256);
@@ -189,12 +189,23 @@ const func string: int64AsEightBytesBe (in integer: number) is func
   end func;
 
 
-const func string: bytes (in integer: number, SIGNED, LE) is
-  return str(bStriLe(number));
+const func string: bytesBe (in integer: number,
+                            in boolean: isSigned) is action "INT_BYTES_BE";
 
+const func string: bytesLe (in integer: number,
+                            in boolean: isSigned) is action "INT_BYTES_LE";
+
+const func string: bytes (in integer: number, UNSIGNED, BE) is
+  return bytesBe(number, FALSE);
+
+const func string: bytes (in integer: number, UNSIGNED, LE) is
+  return bytesLe(number, FALSE);
 
 const func string: bytes (in integer: number, SIGNED, BE) is
-  return str(bStriBe(number));
+  return bytesBe(number, TRUE);
+
+const func string: bytes (in integer: number, SIGNED, LE) is
+  return bytesLe(number, TRUE);
 
 
 (**
@@ -212,27 +223,24 @@ const func string: bytes (in integer: number, SIGNED, BE) is
  *  @param endian Determines the [[#endianess|endianess]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a string with the shortest binary representation of ''number''.
- *  @exception RANGE_ERROR When ''sign'' is unsigned and ''number'' is negative.
+ *  @exception RANGE_ERROR When ''sign'' is UNSIGNED and ''number'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: bytes (in integer: number,
     in signedness: sign, in endianess: endian) is DYNAMIC;
 
 
-const func string: bytes (in bigInteger: number, UNSIGNED, LE) is
-  return str(bStriLe(number, FALSE));
-
-
 const func string: bytes (in bigInteger: number, UNSIGNED, BE) is
   return str(bStriBe(number, FALSE));
 
-
-const func string: bytes (in bigInteger: number, SIGNED, LE) is
-  return str(bStriLe(number, TRUE));
-
+const func string: bytes (in bigInteger: number, UNSIGNED, LE) is
+  return str(bStriLe(number, FALSE));
 
 const func string: bytes (in bigInteger: number, SIGNED, BE) is
   return str(bStriBe(number, TRUE));
+
+const func string: bytes (in bigInteger: number, SIGNED, LE) is
+  return str(bStriLe(number, TRUE));
 
 
 (**
@@ -243,7 +251,7 @@ const func string: bytes (in bigInteger: number, SIGNED, BE) is
  *   bytes(1497451343_, SIGNED, LE)                        returns "OKAY"
  *   bytes(8316866959935304777_, UNSIGNED, LE)             returns "It works"
  *   bytes(54818063270363344731475178867_, UNSIGNED, BE)   returns "± plus-minus"
- *   bytes(54818063270363344731475178867_, SIGNED, BE)     returns "\0\± plus-minus"
+ *   bytes(54818063270363344731475178867_, SIGNED, BE)     returns "\0;± plus-minus"
  *   bytes(-24410099243900992862068771469_, SIGNED, BE)    returns "± plus-minus"
  *   bytes(-24410099243900992862068771469_, UNSIGNED, LE)  raises RANGE_ERROR
  *  @param number BigInteger number to be converted.
@@ -262,17 +270,30 @@ const func string: bytes (in bigInteger: number,
     in signedness: sign, in endianess: endian) is DYNAMIC;
 
 
-const func integer: bytes2Int (in string: byteStri, UNSIGNED, LE)  is action "INT_BYTES_LE_2_UINT";
+const func integer: bytesBe2Int (in string: byteStri,
+                                 in boolean: isSigned) is action "INT_BYTES_BE_2_INT";
 
+const func integer: bytesLe2Int (in string: byteStri,
+                                 in boolean: isSigned) is action "INT_BYTES_LE_2_INT";
 
-const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE)  is action "INT_BYTES_BE_2_UINT";
+const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE) is
+  return bytesBe2Int(byteStri, FALSE);
+
+const func integer: bytes2Int (in string: byteStri, UNSIGNED, LE) is
+  return bytesLe2Int(byteStri, FALSE);
+
+const func integer: bytes2Int (in string: byteStri, SIGNED, BE) is
+  return bytesBe2Int(byteStri, TRUE);
+
+const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is
+  return bytesLe2Int(byteStri, TRUE);
 
 
 (**
  *  Convert a [[string]] of bytes to an [[integer]].
- *   bytes2Int("I\150\\2\\210\", UNSIGNED, BE)  returns  1234567890
- *   bytes2Int("\210\\2\\150\I", UNSIGNED, LE)  returns  1234567890
- *   bytes2Int(":\222\h\177\", UNSIGNED, BE)    returns   987654321
+ *   bytes2Int("I\150;\2;\210;", UNSIGNED, BE)  returns  1234567890
+ *   bytes2Int("\210;\2;\150;I", UNSIGNED, LE)  returns  1234567890
+ *   bytes2Int(":\222;h\177;", UNSIGNED, BE)    returns   987654321
  *  @param byteStri String of bytes to be converted. The bytes are
  *         interpreted as binary representation with a base of 256.
  *  @param sign Determines the [[#signedness|signedness]] of ''byteStri''.
@@ -283,38 +304,34 @@ const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE)  is action "IN
  *  @param endian Determines the [[#endianess|endianess]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return an integer created from ''byteStri''.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func integer: bytes2Int (in string: byteStri,
     in signedness: sign, in endianess: endian) is DYNAMIC;
 
 
-const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, LE) is
-  return bStriLe2BigInt(bstring parse byteStri, FALSE);
-
-
 const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, BE) is
   return bStriBe2BigInt(bstring parse byteStri, FALSE);
 
+const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, LE) is
+  return bStriLe2BigInt(bstring parse byteStri, FALSE);
+
+const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, BE) is
+  return bStriBe2BigInt(bstring parse byteStri, TRUE);
 
 const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
   return bStriLe2BigInt(bstring parse byteStri, TRUE);
 
 
-const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, BE) is
-  return bStriBe2BigInt(bstring parse byteStri, TRUE);
-
-
 (**
  *  Convert a [[string]] of bytes to a [[bigint|bigInteger]].
- *   bytes2BigInt("I\150\\2\\210\", SIGNED, BE)        returns  1234567890_
- *   bytes2BigInt("\210\\2\\150\I", UNSIGNED, LE)      returns  1234567890_
- *   bytes2BigInt(":\222\h\177\", SIGNED, BE)          returns   987654321_
- *   bytes2BigInt("\139\\208\\3\\152\", UNSIGNED, BE)  returns  2345665432_
- *   bytes2BigInt("\139\\208\\3\\152\", SIGNED, BE)    returns -1949301864_
- *   bytes2BigInt("\152\\3\\208\\139\", UNSIGNED, LE)  returns  2345665432_
+ *   bytes2BigInt("I\150;\2;\210;", SIGNED, BE)        returns  1234567890_
+ *   bytes2BigInt("\210;\2;\150;I", UNSIGNED, LE)      returns  1234567890_
+ *   bytes2BigInt(":\222;h\177;", SIGNED, BE)          returns   987654321_
+ *   bytes2BigInt("\139;\208;\3;\152;", UNSIGNED, BE)  returns  2345665432_
+ *   bytes2BigInt("\139;\208;\3;\152;", SIGNED, BE)    returns -1949301864_
+ *   bytes2BigInt("\152;\3;\208;\139;", UNSIGNED, LE)  returns  2345665432_
  *  @param byteStri String of bytes to be converted. The bytes are
  *         interpreted as binary representation with a base of 256.
  *  @param sign Determines the [[#signedness|signedness]] of ''byteStri''.
@@ -325,7 +342,7 @@ const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, BE) is
  *  @param endian Determines the [[#endianess|endianess]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a bigInteger created from ''byteStri''.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: bytes2BigInt (in string: byteStri,

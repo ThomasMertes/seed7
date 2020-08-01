@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  striutl.c     Procedures to work with wide char strings.        */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/striutl.c                                       */
-/*  Changes: 1991 - 1994, 2005 - 2013  Thomas Mertes                */
+/*  Changes: 1991 - 1994, 2005 - 2014  Thomas Mertes                */
 /*  Content: Procedures to work with wide char strings.             */
 /*                                                                  */
 /********************************************************************/
@@ -46,6 +46,15 @@
 #define EXTERN
 #include "striutl.h"
 
+
+const_cstritype stri_escape_sequence[] = {
+    "\\0;",  "\\1;",  "\\2;",  "\\3;",  "\\4;",
+    "\\5;",  "\\6;",  "\\a",   "\\b",   "\\t",
+    "\\n",   "\\v",   "\\f",   "\\r",   "\\14;",
+    "\\15;", "\\16;", "\\17;", "\\18;", "\\19;",
+    "\\20;", "\\21;", "\\22;", "\\23;", "\\24;",
+    "\\25;", "\\26;", "\\e",   "\\28;", "\\29;",
+    "\\30;", "\\31;"};
 
 const_cstritype cstri_escape_sequence[] = {
     "\\000", "\\001", "\\002", "\\003", "\\004",
@@ -72,13 +81,13 @@ os_chartype emulated_root[] = {'/', '\0'};
 #define OS_STRI_SIZE(size)  ((size) * 2)
 #define OS_BSTRI_SIZE(size) (((size) * 2 + 1) * sizeof(os_chartype))
 
-#elif defined OS_STRI_USES_CODEPAGE
+#elif defined OS_STRI_USES_CODE_PAGE
 
 #define MAX_OS_STRI_SIZE    ((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1)
 #define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN / sizeof(os_chartype)) - 1)
 #define OS_STRI_SIZE(size)  (size)
 #define OS_BSTRI_SIZE(size) (((size) + 1) * sizeof(os_chartype))
-int codepage = DEFAULT_CODEPAGE;
+int code_page = DEFAULT_CODE_PAGE;
 
 #elif defined OS_STRI_UTF8
 
@@ -379,11 +388,11 @@ static inline void stri_to_os_utf8 (register ustritype out_stri,
 
 
 
-void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len)
+void ustri_expand (strelemtype *const stri, const const_ustritype ustri, size_t len)
 
   { /* ustri_expand */
-    for (; len > 0; stri++, ustri++, len--) {
-      *stri = (strelemtype) *ustri;
+    for (; len > 0; len--) {
+      stri[len - 1] = (strelemtype) ustri[len - 1];
     } /* while */
   } /* ustri_expand */
 
@@ -395,8 +404,8 @@ size_t ustri_expand2 (strelemtype *const stri, const_ustritype ustri)
     size_t pos = 0;
 
   /* ustri_expand2 */
-    for (; *ustri != '\0'; ustri++, pos++) {
-      stri[pos] = (strelemtype) *ustri;
+    for (; ustri[pos] != '\0'; pos++) {
+      stri[pos] = (strelemtype) ustri[pos];
     } /* while */
     return pos;
   } /* ustri_expand2 */
@@ -460,7 +469,7 @@ void conv_to_cstri (cstritype cstri, const const_stritype stri,
  *         null terminated C string is written.
  *  @param stri Seed7 UTF-32 string to be converted.
  *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when stri contains a null character 
+ *                  RANGE_ERROR when stri contains a null character
  *                        or a character that is higher than the
  *                        highest allowed Unicode character (U+10FFFF).
  */
@@ -479,18 +488,20 @@ memsizetype stri_to_wstri (const wstritype out_wstri,
     errinfotype *const err_info)
 
   {
+    register strelemtype ch;
     register wstritype wstri;
 
   /* stri_to_wstri */
     wstri = out_wstri;
     for (; len > 0; wstri++, strelem++, len--) {
-      if (likely(*strelem <= 0xFFFF)) {
-        *wstri = (os_chartype) *strelem;
-      } else if (*strelem <= 0x10FFFF) {
-        strelemtype currChar = *strelem - 0x10000;
-        *wstri = (os_chartype) (0xD800 | (currChar >> 10));
+      ch = *strelem;
+      if (likely(ch <= 0xFFFF)) {
+        *wstri = (os_chartype) ch;
+      } else if (ch <= 0x10FFFF) {
+        ch -= 0x10000;
+        *wstri = (os_chartype) (0xD800 | (ch >> 10));
         wstri++;
-        *wstri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
+        *wstri = (os_chartype) (0xDC00 | (ch & 0x3FF));
       } else {
         *err_info = RANGE_ERROR;
         len = 1;
@@ -505,20 +516,24 @@ static inline void conv_to_os_stri (register os_stritype os_stri,
     register const strelemtype *strelem, memsizetype len,
     errinfotype *const err_info)
 
-  { /* conv_to_os_stri */
+  {
+    register strelemtype ch;
+
+  /* conv_to_os_stri */
     for (; len > 0; os_stri++, strelem++, len--) {
-      if (likely(*strelem <= 0xFFFF)) {
-        if (*strelem == '\0') {
+      ch = *strelem;
+      if (likely(ch <= 0xFFFF)) {
+        if (unlikely(ch == '\0')) {
           *err_info = RANGE_ERROR;
           len = 1;
         } else {
-          *os_stri = (os_chartype) *strelem;
+          *os_stri = (os_chartype) ch;
         } /* if */
-      } else if (*strelem <= 0x10FFFF) {
-        strelemtype currChar = *strelem - 0x10000;
-        *os_stri = (os_chartype) (0xD800 | (currChar >> 10));
+      } else if (ch <= 0x10FFFF) {
+        ch -= 0x10000;
+        *os_stri = (os_chartype) (0xD800 | (ch >> 10));
         os_stri++;
-        *os_stri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
+        *os_stri = (os_chartype) (0xDC00 | (ch & 0x3FF));
       } else {
         *err_info = RANGE_ERROR;
         len = 1;
@@ -529,7 +544,7 @@ static inline void conv_to_os_stri (register os_stritype os_stri,
 
 
 
-#elif defined OS_STRI_USES_CODEPAGE
+#elif defined OS_STRI_USES_CODE_PAGE
 
 static unsigned char map_to_437_160[] = {
 /*  160 */  255,  173,  155,  156,  '?',  157,  '?',  '?',  '?',  '?',
@@ -610,10 +625,10 @@ static inline void conv_to_os_stri (os_stritype os_stri,
     unsigned char ch;
 
   /* conv_to_os_stri */
-    if (codepage == 437) {
+    if (code_page == 437) {
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
-          if (*strelem == '\0') {
+          if (unlikely(*strelem == '\0')) {
             *err_info = RANGE_ERROR;
             len = 1;
           } else {
@@ -653,10 +668,10 @@ static inline void conv_to_os_stri (os_stritype os_stri,
           } /* if */
         } /* if */
       } /* for */
-    } else if (codepage == 850) {
+    } else if (code_page == 850) {
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
-          if (*strelem == '\0') {
+          if (unlikely(*strelem == '\0')) {
             *err_info = RANGE_ERROR;
             len = 1;
           } else {
@@ -705,15 +720,15 @@ static inline void conv_to_os_stri (const os_stritype os_stri,
 
 
 
-static inline void conv_to_os_stri (os_stritype os_stri,
-    const strelemtype *strelem, memsizetype len, errinfotype *err_info)
+static inline void conv_to_os_stri (const os_stritype os_stri,
+    const strelemtype *const strelem, memsizetype len, errinfotype *err_info)
 
   { /* conv_to_os_stri */
-    for (; len > 0; strelem++, os_stri++, len--) {
-      if (unlikely(*strelem == '\0' || *strelem >= 256)) {
+    for (; len > 0; len--) {
+      if (unlikely(strelem[len - 1] == '\0' || strelem[len - 1] >= 256)) {
         *err_info = RANGE_ERROR;
       } /* if */
-      *os_stri = (os_chartype) *strelem;
+      os_stri[len - 1] = (os_chartype) strelem[len - 1];
     } /* for */
     *os_stri = '\0';
   } /* conv_to_os_stri */
@@ -794,7 +809,7 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
 
 
 
-#elif defined OS_STRI_USES_CODEPAGE
+#elif defined OS_STRI_USES_CODE_PAGE
 
 static strelemtype map_from_437[] = {
 /*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
@@ -876,11 +891,11 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
   /* conv_from_os_stri */
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
       stri->size = length;
-      if (codepage == 437) {
+      if (code_page == 437) {
         for (pos = 0; pos < length; pos++) {
           stri->mem[pos] = map_from_437[(unsigned char) os_stri[pos]];
         } /* for */
-      } else if (codepage == 850) {
+      } else if (code_page == 850) {
         for (pos = 0; pos < length; pos++) {
           stri->mem[pos] = map_from_850[(unsigned char) os_stri[pos]];
         } /* for */
@@ -1021,7 +1036,7 @@ cstritype stri_to_cstri (const const_stritype stri, errinfotype *err_info)
  *  @param stri Seed7 UTF-32 string to be converted.
  *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when stri contains a null character 
+ *                  RANGE_ERROR when stri contains a null character
  *                        or a character that is higher than the
  *                        highest allowed Unicode character (U+10FFFF).
  *  @return an UTF-8 encoded null terminated C string or

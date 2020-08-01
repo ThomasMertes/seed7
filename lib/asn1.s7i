@@ -220,7 +220,7 @@ const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: 
       # Indefinite form
       # writeln(" *** indefinite form ***");
       dataElement.indefinite := TRUE;
-      eocPos := pos(stri, "\0\\0\", pos);
+      eocPos := pos(stri, "\0;\0;", pos);
       if eocPos <> 0 then
         dataElement.length := eocPos - pos;
       else
@@ -391,7 +391,7 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
       writeln(" *** indefinite form ***");
       posAfterwards := pos;
       contents := getAsciiz(stri, posAfterwards);
-      if pos <= length(stri) and stri[pos] = '\0\' then
+      if pos <= length(stri) and stri[pos] = '\0;' then
         incr(pos);
       else
         writeln(" *** Second byte of EOC (End-of-Content) not 0");

@@ -1159,7 +1159,7 @@ const proc: readChar (inout char: ch) is func
     if stri <> "" then
       ch := upper(stri[1]);
     else
-      ch := '\0\';
+      ch := '\0;';
     end if;
   end func; (* readChar *)
 

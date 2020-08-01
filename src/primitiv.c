@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/primitiv.c                                      */
-/*  Changes: 1992, 1993, 1994, 2004  Thomas Mertes                  */
+/*  Changes: 1992, 1993, 1994, 2004 - 2014  Thomas Mertes           */
 /*  Content: Table definitions for all primitive actions.           */
 /*                                                                  */
 /********************************************************************/
@@ -114,7 +114,6 @@ static primactrecord prim_act_table[] = {
     { "BIG_ABS",                 big_abs,                 },
     { "BIG_ADD",                 big_add,                 },
     { "BIG_BIT_LENGTH",          big_bit_length,          },
-    { "BIG_CLIT",                big_clit,                },
     { "BIG_CMP",                 big_cmp,                 },
     { "BIG_CONV",                big_conv,                },
     { "BIG_CPY",                 big_cpy,                 },
@@ -488,8 +487,10 @@ static primactrecord prim_act_table[] = {
     { "INT_AND_ASSIGN",          int_and_assign,          },
     { "INT_BINOM",               int_binom,               },
     { "INT_BIT_LENGTH",          int_bit_length,          },
-    { "INT_BYTES_BE_2_UINT",     int_bytes_be_2_uint,     },
-    { "INT_BYTES_LE_2_UINT",     int_bytes_le_2_uint,     },
+    { "INT_BYTES_BE",            int_bytesBe,             },
+    { "INT_BYTES_BE_2_INT",      int_bytesBe2Int,         },
+    { "INT_BYTES_LE",            int_bytesLe,             },
+    { "INT_BYTES_LE_2_INT",      int_bytesLe2Int,         },
     { "INT_CMP",                 int_cmp,                 },
     { "INT_CONV",                int_conv,                },
     { "INT_CPY",                 int_cpy,                 },
@@ -534,8 +535,6 @@ static primactrecord prim_act_table[] = {
     { "INT_SQRT",                int_sqrt,                },
     { "INT_STR",                 int_str,                 },
     { "INT_SUCC",                int_succ,                },
-    { "INT_TO_BSTRI_BE",         int_toBStriBe,           },
-    { "INT_TO_BSTRI_LE",         int_toBStriLe,           },
     { "INT_URSHIFT",             int_urshift,             },
     { "INT_URSHIFT_ASSIGN",      int_urshift_assign,      },
     { "INT_VALUE",               int_value,               },

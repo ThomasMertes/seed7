@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  striutl.h     Procedures to work with wide char strings.        */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,11 +24,12 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/striutl.h                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005  Thomas Mertes            */
+/*  Changes: 1991 - 1994, 2005 - 2014  Thomas Mertes                */
 /*  Content: Procedures to work with wide char strings.             */
 /*                                                                  */
 /********************************************************************/
 
+extern const_cstritype stri_escape_sequence[];
 extern const_cstritype cstri_escape_sequence[];
 
 #define MAX_UTF8_EXPANSION_FACTOR 6
@@ -38,6 +39,58 @@ extern const_cstritype cstri_escape_sequence[];
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 #define cstri_expand2(stri,cstri) ustri_expand2(stri, (const_ustritype) cstri)
+
+#define USE_DUFFS_UNROLLING
+#ifdef USE_DUFFS_UNROLLING
+
+#define memcpy_to_strelem(dest,src,len) \
+  if (len != 0) { \
+      register memsizetype pos = (len + 7) & ~(memsizetype) 7; \
+      switch (len & 7) { \
+        case 0: do { dest[pos - 1] = src[pos - 1]; \
+        case 7:      dest[pos - 2] = src[pos - 2]; \
+        case 6:      dest[pos - 3] = src[pos - 3]; \
+        case 5:      dest[pos - 4] = src[pos - 4]; \
+        case 4:      dest[pos - 5] = src[pos - 5]; \
+        case 3:      dest[pos - 6] = src[pos - 6]; \
+        case 2:      dest[pos - 7] = src[pos - 7]; \
+        case 1:      dest[pos - 8] = src[pos - 8]; \
+                } while((pos -= 8) > 0); \
+      } /* switch */\
+    } /* if */
+
+#define memset_to_strelem(dest,ch,len) \
+    if (len != 0) { \
+      register memsizetype pos = (len + 7) & ~(memsizetype) 7; \
+      switch (len & 7) { \
+        case 0: do { dest[pos - 1] = ch; \
+        case 7:      dest[pos - 2] = ch; \
+        case 6:      dest[pos - 3] = ch; \
+        case 5:      dest[pos - 4] = ch; \
+        case 4:      dest[pos - 5] = ch; \
+        case 3:      dest[pos - 6] = ch; \
+        case 2:      dest[pos - 7] = ch; \
+        case 1:      dest[pos - 8] = ch; \
+                } while((pos -= 8) > 0); \
+      } /* switch */ \
+    } /* if */
+
+#else
+
+#define memcpy_to_strelem(dest,src,len) \
+    { register memsizetype pos = len; \
+      for (; pos > 0; pos--) { \
+        dest[pos - 1] = src[pos - 1]; \
+      } /* for */ \
+    }
+
+#define memset_to_strelem(dest,ch,len) \
+    { register memsizetype pos = len; \
+    for (; pos > 0; pos--) { \
+      dest[pos - 1] = (strelemtype) ch; \
+    } /* for */
+
+#endif
 
 
 #ifdef OS_STRI_WCHAR
@@ -90,7 +143,7 @@ void conv_to_cstri (cstritype cstri, const const_stritype stri,
                     errinfotype *err_info);
 void conv_to_cstri8 (cstritype cstri, const const_stritype stri,
                      errinfotype *err_info);
-void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
+void ustri_expand (strelemtype *const stri, const const_ustritype ustri, size_t len);
 size_t ustri_expand2 (strelemtype *const stri, const_ustritype ustri);
 #ifdef OS_STRI_WCHAR
 memsizetype stri_to_wstri (const wstritype out_wstri,

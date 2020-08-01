@@ -2496,104 +2496,6 @@ inttype bigBitLength (const const_biginttype big1)
 
 
 
-stritype bigCLit (const const_biginttype big1)
-
-  {
-    memsizetype pos;
-    int byteNum;
-    static const char hex_digit[] = "0123456789abcdef";
-    char byteBuffer[22];
-    bigdigittype digit;
-    memsizetype byteDigitCount;
-    memsizetype charIndex;
-    memsizetype bufferDigitCount;
-    memsizetype result_size;
-    stritype result;
-
-  /* bigCLit */
-    /* The expression computing byteDigitCount does not overflow        */
-    /* because the number of bytes in a bigInteger fits in memsizetype. */
-    byteDigitCount = big1->size * (BIGDIGIT_SIZE >> 3);
-    digit = big1->bigdigits[big1->size - 1];
-    byteNum = (BIGDIGIT_SIZE >> 3) - 1;
-    if (IS_NEGATIVE(digit)) {
-      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
-        byteDigitCount--;
-        byteNum--;
-      } /* while */
-      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
-        byteDigitCount++;
-        /* Not used afterwards: byteNum++; */
-      } /* if */
-    } else {
-      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
-        byteDigitCount--;
-        byteNum--;
-      } /* while */
-      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
-        byteDigitCount++;
-        /* Not used afterwards: byteNum++; */
-      } /* if */
-    } /* if */
-    if (unlikely(byteDigitCount > (MAX_STRI_LEN - 21) / 5 ||
-                 byteDigitCount > 0xFFFFFFFF ||
-                 (result_size = byteDigitCount * 5 + 21,
-                 !ALLOC_STRI_SIZE_OK(result, result_size)))) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      result->size = result_size;
-      sprintf(byteBuffer, "{0x%02x,0x%02x,0x%02x,0x%02x,",
-          (unsigned int) (byteDigitCount >> 24 & 0xFF),
-          (unsigned int) (byteDigitCount >> 16 & 0xFF),
-          (unsigned int) (byteDigitCount >>  8 & 0xFF),
-          (unsigned int) (byteDigitCount       & 0xFF));
-      cstri_expand(result->mem, byteBuffer, 21);
-      charIndex = 21;
-      pos = big1->size;
-      while (pos > 0) {
-        pos--;
-        digit = big1->bigdigits[pos];
-#if BIGDIGIT_SIZE == 8
-        memcpy(byteBuffer, "0x00,", 5);
-        byteBuffer[2]  = hex_digit[digit >>  4 & 0xF];
-        byteBuffer[3]  = hex_digit[digit       & 0xF];
-#elif BIGDIGIT_SIZE == 16
-        memcpy(byteBuffer, "0x00,0x00,", 10);
-        byteBuffer[2]  = hex_digit[digit >> 12 & 0xF];
-        byteBuffer[3]  = hex_digit[digit >>  8 & 0xF];
-        byteBuffer[7]  = hex_digit[digit >>  4 & 0xF];
-        byteBuffer[8]  = hex_digit[digit       & 0xF];
-#elif BIGDIGIT_SIZE == 32
-        memcpy(byteBuffer, "0x00,0x00,0x00,0x00,", 20);
-        byteBuffer[2]  = hex_digit[digit >> 28 & 0xF];
-        byteBuffer[3]  = hex_digit[digit >> 24 & 0xF];
-        byteBuffer[7]  = hex_digit[digit >> 20 & 0xF];
-        byteBuffer[8]  = hex_digit[digit >> 16 & 0xF];
-        byteBuffer[12] = hex_digit[digit >> 12 & 0xF];
-        byteBuffer[13] = hex_digit[digit >>  8 & 0xF];
-        byteBuffer[17] = hex_digit[digit >>  4 & 0xF];
-        byteBuffer[18] = hex_digit[digit       & 0xF];
-#endif
-        if ((pos + 1) * (BIGDIGIT_SIZE >> 3) <= byteDigitCount) {
-          cstri_expand(&result->mem[charIndex], byteBuffer, 5 * (BIGDIGIT_SIZE >> 3));
-          charIndex += 5 * (BIGDIGIT_SIZE >> 3);
-        } else {
-          bufferDigitCount = byteDigitCount - pos * (BIGDIGIT_SIZE >> 3);
-          cstri_expand(&result->mem[charIndex],
-              &byteBuffer[5 * ((BIGDIGIT_SIZE >> 3) - bufferDigitCount)],
-              5 * bufferDigitCount);
-          charIndex += 5 * bufferDigitCount;
-        } /* if */
-      } /* while */
-      charIndex -= 5;
-      result->mem[charIndex + 4] = '}';
-    } /* if */
-    return result;
-  } /* bigCLit */
-
-
-
 /**
  *  Compare two 'bigInteger' numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
@@ -3543,21 +3445,6 @@ inttype bigHashCode (const const_biginttype big1)
     result = (inttype) (big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1]);
     return result;
   } /* bigHashCode */
-
-
-
-biginttype bigImport (const const_ustritype buffer)
-
-  {
-    memsizetype byteDigitCount;
-
-  /* bigImport */
-    byteDigitCount = ((memsizetype) buffer[0]) << 24 |
-                     ((memsizetype) buffer[1]) << 16 |
-                     ((memsizetype) buffer[2]) <<  8 |
-                     ((memsizetype) buffer[3]);
-    return bigFromByteBufferBe(byteDigitCount, &buffer[4], TRUE);
-  } /* bigImport */
 
 
 

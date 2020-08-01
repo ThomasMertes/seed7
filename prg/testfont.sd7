@@ -76,8 +76,8 @@ const proc: main is func
     for yPos key index range [] (284, 302, 324, 348, 377, 408, 445, 486) do
       setFont(screen, fontList[index]);
       setPosXY(screen, 1018 -
-          width(fontList[index], "\160\¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"), yPos);
-      write(screen, "\160\¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿");
+          width(fontList[index], "\160;¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"), yPos);
+      write(screen, "\160;¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿");
     end for;
     for yPos key index range [] (532, 570, 602, 632, 657, 680, 699, 716) do
       setFont(screen, fontList[length(fontList) - index + 1]);

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2014  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Error                                        */
 /*  File: seed7/src/error.c                                         */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990, 1991, 1992, 1993, 1994, 2014  Thomas Mertes      */
 /*  Content: Submit normal compile time error messages.             */
 /*                                                                  */
 /*  Normal compile time error messages do not terminate the         */
@@ -234,7 +234,7 @@ static void write_symbol (void)
       if (symbol.charvalue >= ' ' && symbol.charvalue <= '~') {
         printf(" \"'%c'\"\n", (char) symbol.charvalue);
       } else {
-        printf(" \"'\\%lu\\'\"\n", (unsigned long) symbol.charvalue);
+        printf(" \"'\\%lu;'\"\n", (unsigned long) symbol.charvalue);
       } /* if */
     } else if (symbol.sycategory == STRILITERAL) {
       printf(" ");
@@ -629,7 +629,7 @@ void err_object (errortype err, const_objecttype obj_found)
             if (obj_found->value.charvalue >= ' ' && obj_found->value.charvalue <= '~') {
               printf("\"'%c'\"\n", (char) obj_found->value.charvalue);
             } else {
-              printf("\"'\\%lu\\'\"\n", (unsigned long) obj_found->value.charvalue);
+              printf("\"'\\%lu;'\"\n", (unsigned long) obj_found->value.charvalue);
             } /* if */
             break;
           case STRIOBJECT:
@@ -897,13 +897,16 @@ void err_cchar (errortype err, int character)
         printf("String continuations should end with \"\\\" not \"");
         break;
       case WRONGNUMERICALESCAPE:
-        printf("Numerical escape sequences should end with \"\\\" not \"");
+        printf("Numerical escape sequences should end with \";\" not \"");
         break;
       case STRINGESCAPE:
         printf("Illegal string escape \"\\");
         break;
       case UTF8_CONTINUATION_BYTE_EXPECTED:
         printf("UTF-8 continuation byte expected found \"");
+        break;
+      case UNEXPECTED_UTF8_CONTINUATION_BYTE:
+        printf("Unexpected UTF-8 continuation byte found \"");
         break;
       default:
         undef_err();
@@ -912,7 +915,7 @@ void err_cchar (errortype err, int character)
     if (character >= ' ' && character <= '~') {
       printf("%c\"\n", character);
     } else {
-      printf("\\%u\\\" (U+%04x)\n", character, character);
+      printf("\\%u;\" (U+%04x)\n", character, character);
     } /* if */
     print_error_line();
     display_compilation_info();
@@ -926,25 +929,31 @@ void err_char (errortype err, chartype character)
     place_of_error(err);
     switch (err) {
       case CHAR_ILLEGAL:
-        printf("Illegal character in text \"");
+        printf("Illegal character in text");
         break;
       case OVERLONG_UTF8_ENCODING:
-        printf("Overlong UTF-8 encoding used for character \"");
+        printf("Overlong UTF-8 encoding used for character");
         break;
       case UTF16_SURROGATE_CHAR_FOUND:
-        printf("UTF-16 surrogate character found in UTF-8 encoding \"");
+        printf("UTF-16 surrogate character found in UTF-8 encoding");
         break;
       case CHAR_NOT_UNICODE:
-        printf("Non Unicode character found \"");
+        printf("Non Unicode character found");
+        break;
+      case SOLITARY_UTF8_START_BYTE:
+        printf("Solitary UTF-8 start byte found");
+        break;
+      case UTF16_BYTE_ORDER_MARK_FOUND:
+        printf("UTF-16 byte order mark found");
         break;
       default:
         undef_err();
         break;
     } /* switch */
     if (character >= ' ' && character <= '~') {
-      printf("%c\"\n", (char) character);
+      printf(" \"%c\"\n", (char) character);
     } else {
-      printf("\\%lu\\\" (U+%04lx)\n", (unsigned long) character, (unsigned long) character);
+      printf(" \"\\%lu;\" (U+%04lx)\n", (unsigned long) character, (unsigned long) character);
     } /* if */
     print_error_line();
     display_compilation_info();

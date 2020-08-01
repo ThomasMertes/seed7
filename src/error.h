@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2014  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -85,7 +85,10 @@ typedef enum {
     OVERLONG_UTF8_ENCODING,
     UTF16_SURROGATE_CHAR_FOUND,
     CHAR_NOT_UNICODE,
-    UTF8_CONTINUATION_BYTE_EXPECTED
+    UTF8_CONTINUATION_BYTE_EXPECTED,
+    UNEXPECTED_UTF8_CONTINUATION_BYTE,
+    SOLITARY_UTF8_START_BYTE,
+    UTF16_BYTE_ORDER_MARK_FOUND
   } errortype;
 
 

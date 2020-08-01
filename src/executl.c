@@ -21,7 +21,7 @@
 /*  Module: Interpreter                                             */
 /*  File: seed7/src/executl.c                                       */
 /*  Changes: 1993, 1994  Thomas Mertes                              */
-/*  Content: Initalisation operation procedures used at runtime.    */
+/*  Content: Initialization operation procedures used at runtime.   */
 /*                                                                  */
 /********************************************************************/
 

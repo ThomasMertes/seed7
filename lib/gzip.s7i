@@ -93,7 +93,7 @@ const func string: gunzip (in string: compressed) is func
     var integer: bitPos is 0;
     var boolean: bfinal is FALSE;
   begin
-    if compressed[1 len 2] = "\31\\139\" then
+    if compressed[1 len 2] = "\31;\139;" then
       readGzipHeader(compressed, bytePos);
       repeat
         processCompressedBlock(compressed, bytePos, bitPos, uncompressed, bfinal);
@@ -124,7 +124,7 @@ const func file: openGunzipFile (in string: compressed) is func
   local
     var gunzipFile: new_gunzipFile is gunzipFile.value;
   begin
-    if compressed[1 len 2] = "\31\\139\" then
+    if compressed[1 len 2] = "\31;\139;" then
       new_gunzipFile.compressed := compressed;
       readGzipHeader(new_gunzipFile.compressed, new_gunzipFile.bytePos);
       newFile := toInterface(new_gunzipFile);
@@ -278,13 +278,13 @@ const func file: gunzip (inout file: aFile) is func
  *)
 const func string: gzip (in string: uncompressed) is func
   result
-    var string: compressed is "\31\\139\";  # Identification for gzip format
+    var string: compressed is "\31;\139;";  # Identification for gzip format
   begin
-    compressed &:= '\8\';  # Compression method: Deflate
-    compressed &:= '\0\';  # Flags
+    compressed &:= '\8;';  # Compression method: Deflate
+    compressed &:= '\0;';  # Flags
     compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
-    compressed &:= '\0\';  # Extra flags
-    compressed &:= '\3\';  # Operating system: Unix
+    compressed &:= '\0;';  # Extra flags
+    compressed &:= '\3;';  # Operating system: Unix
     deflateBlock(uncompressed, compressed, TRUE);
     compressed &:= int32AsFourBytesLe(ord(crc32(uncompressed)));
     compressed &:= int32AsFourBytesLe(length(uncompressed));
@@ -295,7 +295,7 @@ const type: gzipFile is sub null_file struct
     var file: destFile is STD_NULL;
     var deflateData: deflateState is deflateData.value;
     var string: uncompressed is "";
-    var string: compressed is "\31\\139\";  # Identification for gzip format
+    var string: compressed is "\31;\139;";  # Identification for gzip format
   end struct;
 
 type_implements_interface(gzipFile, file);
@@ -317,11 +317,11 @@ const func file: openGzipFile (inout file: destFile) is func
     var gzipFile: new_gzipFile is gzipFile.value;
   begin
     new_gzipFile.destFile := destFile;
-    new_gzipFile.compressed &:= '\8\';  # Compression method: Deflate
-    new_gzipFile.compressed &:= '\0\';  # Flags
+    new_gzipFile.compressed &:= '\8;';  # Compression method: Deflate
+    new_gzipFile.compressed &:= '\0;';  # Flags
     new_gzipFile.compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
-    new_gzipFile.compressed &:= '\0\';  # Extra flags
-    new_gzipFile.compressed &:= '\3\';  # Operating system: Unix
+    new_gzipFile.compressed &:= '\0;';  # Extra flags
+    new_gzipFile.compressed &:= '\3;';  # Operating system: Unix
     beginDeflateBlock(new_gzipFile.deflateState, new_gzipFile.compressed, TRUE);
     newFile := toInterface(new_gzipFile);
   end func;

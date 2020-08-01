@@ -40,7 +40,7 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 
 const integer: MAX_SHOWN_BIGINT_LITERAL_BITLENGTH is 256;
 const integer: MAX_SHOWN_STRI_LITERAL_LENGTH is 256;
-const boolean: STORE_BIGINTS_AS_BSTRINGS is TRUE;
+const boolean: SHOW_STATISTIC is FALSE;
 
 const bigInteger: INTTYPE_MAX is 2_ ** pred(ccConf.INTTYPE_SIZE) - 1_;
 
@@ -1933,6 +1933,9 @@ const proc: process_big_create_call (in bigInteger: number, inout string: expr) 
 
 const proc: process_str_create_call (in string: stri, inout string: expr) is func
 
+  local
+    var char: ch is ' ';
+    var integer: index is 2;
   begin
     if stri = "" then
       incr(countOptimizations);
@@ -1945,9 +1948,26 @@ const proc: process_str_create_call (in string: stri, inout string: expr) is fun
       expr &:= literal(stri);
       expr &:= " */\n";
     else
-      expr &:= "strCreate(";
-      expr &:= stringLiteral(stri);
-      expr &:= ");\n";
+      ch := stri[1];
+      while index <= length(stri) and ch = stri[index] do
+        incr(index);
+      end while;
+      if index > length(stri) then
+        incr(countOptimizations);
+        if ch = '\0;' then
+          expr &:= "strZero(";
+        else
+          expr &:= "strChMult(";
+          expr &:= charLiteral(ch);
+          expr &:= ", ";
+        end if;
+        expr &:= integerLiteral(length(stri));
+        expr &:= ");\n";
+      else
+        expr &:= "strCreate(";
+        expr &:= stringLiteral(stri);
+        expr &:= ");\n";
+      end if;
     end if;
   end func;
 
@@ -2741,7 +2761,7 @@ const func boolean: isPureFunction (in reference: function) is func
          "ARR_CONV", "ARR_EMPTY", "ARR_EXTEND", "ARR_GEN", "ARR_HEAD", "ARR_IDX",
          "ARR_LNG", "ARR_MAXIDX", "ARR_MINIDX", "ARR_RANGE", "ARR_SORT",
          "ARR_SUBARR", "ARR_TAIL", "ARR_TIMES",
-         "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CLIT", "BIG_CMP", "BIG_CONV",
+         "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CMP", "BIG_CONV",
          "BIG_DIV", "BIG_EQ", "BIG_FROM_BSTRI_BE", "BIG_FROM_BSTRI_LE", "BIG_GCD",
          "BIG_GE", "BIG_GT", "BIG_HASHCODE", "BIG_ICONV", "BIG_IPOW", "BIG_LE",
          "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT", "BIG_LT", "BIG_MDIV",
@@ -4899,16 +4919,6 @@ const proc: process_big_bit_length (in ref_list: params, inout expr_type: c_expr
     c_expr.expr &:= "bigBitLength(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process_big_clit (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "bigCLit(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -10652,20 +10662,48 @@ const proc: process_int_bit_length (in ref_list: params, inout expr_type: c_expr
   end func;
 
 
-const proc: process_int_bytes_be_2_uint (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_int_bytes_be (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "intBytesBe2UInt(";
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "intBytesBe(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_int_bytes_be_2_int (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "intBytesBe2Int(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
 
-const proc: process_int_bytes_le_2_uint (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_int_bytes_le (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "intBytesLe2UInt(";
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "intBytesLe(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_int_bytes_le_2_int (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "intBytesLe2Int(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -11503,8 +11541,22 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
     inout expr_type: c_expr) is func
 
   local
+    const array string: power is [2] (
+        (*  2 *) "x*x", "x*x*x", "(a=x*x,a*a)", "(a=x*x,a*a*x)", "(a=x*x*x,a*a)",
+        (*  7 *) "(a=x*x,a*a*a*x)", "(b=(a=x*x,a*a),b*b)", "(b=(a=x*x,a*a),b*b*x)",
+        (* 10 *) "(b=(a=x*x,a*a*x),b*b)", "(b=(a=x*x,a*a*x),b*b*x)",
+        (* 12 *) "(b=(a=x*x*x,a*a),b*b)", "(b=(a=x*x,a*a),b*b*b*x)",
+        (* 14 *) "(b=(a=x*x,a*a*a*x),b*b)", "(b=(a=x*x*x,a*a),b*b*a)",
+        (* 16 *) "(c=(b=(a=x*x,a*a),b*b),c*c)", "(c=(b=(a=x*x,a*a),b*b),c*c*x)",
+        (* 18 *) "(c=(b=(a=x*x,a*a),b*b),c*c*a)", "(c=(b=(a=x*x,a*a*x),b*a),c*c*b)",
+        (* 20 *) "(c=(b=(a=x*x,a*a*x),b*b),c*c)", "(c=(b=(a=x*x,a*a*x),b*b),c*c*x)",
+        (* 22 *) "(c=(b=(a=x*x,a*a*x),b*b*x),c*c)");
+    const string: variables is "abc";
     var reference: evaluatedBase is NIL;
-    var string: base_name is "";
+    var string: powerTemplate is "";
+    var string: baseName is "";
+    var string: variableName is "";
+    var char: ch is ' ';
   begin
     if exponent < 0 then
       incr(countOptimizations);
@@ -11518,17 +11570,22 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
     elsif exponent = 1 then
       incr(countOptimizations);
       process_expr(base, c_expr);
-    elsif exponent in {2, 3} then
+    elsif exponent in {2 .. maxIdx(power)} then
       incr(countOptimizations);
+      powerTemplate := power[exponent];
       c_expr.expr &:= "(";
-      base_name := getParameterAsVariable("inttype", "tmp_", base, c_expr);
-      c_expr.expr &:= base_name;
-      c_expr.expr &:= "*";
-      c_expr.expr &:= base_name;
-      if exponent = 3 then
-        c_expr.expr &:= "*";
-        c_expr.expr &:= base_name;
-      end if;
+      baseName := getParameterAsVariable("inttype", "tmp_", base, c_expr);
+      for ch range variables do
+        if pos(powerTemplate, ch) <> 0 then
+          incr(c_expr.temp_num);
+          variableName := str(ch) & "_" & str(c_expr.temp_num);
+          c_expr.temp_decls &:= "inttype ";
+          c_expr.temp_decls &:= variableName;
+          c_expr.temp_decls &:= ";\n";
+          powerTemplate := replace(powerTemplate, str(ch), variableName);
+        end if;
+      end for;
+      c_expr.expr &:= replace(powerTemplate, "x", baseName);
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "intPow(";
@@ -12021,26 +12078,6 @@ const proc: process_int_succ (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")+1";
-  end func;
-
-
-const proc: process_int_to_bstri_be (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_bstri_result(c_expr);
-    c_expr.result_expr := "intToBStriBe(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process_int_to_bstri_le (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_bstri_result(c_expr);
-    c_expr.result_expr := "intToBStriLe(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -16141,23 +16178,47 @@ const proc: process_str_ltrim (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_const_str_mult (in string: stri, in reference: factor,
+    inout expr_type: c_expr) is func
+
+  local
+    var char: ch is ' ';
+  begin
+    if length(stri) = 1 then
+      incr(countOptimizations);
+      ch := stri[1];
+      if ch = '\0;' then
+        c_expr.result_expr := "strZero(";
+      else
+        c_expr.result_expr := "strChMult(";
+        c_expr.result_expr &:= charLiteral(ch);
+        c_expr.result_expr &:= ", ";
+      end if;
+    else
+      c_expr.result_expr := "strMult(";
+      c_expr.result_expr &:= stringLiteral(stri);
+      c_expr.result_expr &:= ", ";
+    end if;
+    getStdParamToResultExpr(factor, c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_str_mult (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
   begin
     prepare_stri_result(c_expr);
-    if getConstant(params[1], STRIOBJECT, evaluatedParam) and
-        length(getValue(evaluatedParam, string)) = 1 then
-      c_expr.result_expr := "strChMult(";
-      c_expr.result_expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_mult(getValue(evaluatedParam, string), params[3], c_expr);
     else
       c_expr.result_expr := "strMult(";
       getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
     end if;
-    c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -17463,8 +17524,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_big_add(params, c_expr);
       elsif action_name = "BIG_BIT_LENGTH" then
         process_big_bit_length(params, c_expr);
-      elsif action_name = "BIG_CLIT" then
-        process_big_clit(params, c_expr);
       elsif action_name = "BIG_CMP" then
         process_big_cmp(params, c_expr);
       elsif action_name = "BIG_CONV" then
@@ -18166,10 +18225,14 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_binom(params, c_expr);
       elsif action_name = "INT_BIT_LENGTH" then
         process_int_bit_length(params, c_expr);
-      elsif action_name = "INT_BYTES_BE_2_UINT" then
-        process_int_bytes_be_2_uint(params, c_expr);
-      elsif action_name = "INT_BYTES_LE_2_UINT" then
-        process_int_bytes_le_2_uint(params, c_expr);
+      elsif action_name = "INT_BYTES_BE" then
+        process_int_bytes_be(params, c_expr);
+      elsif action_name = "INT_BYTES_BE_2_INT" then
+        process_int_bytes_be_2_int(params, c_expr);
+      elsif action_name = "INT_BYTES_LE" then
+        process_int_bytes_le(params, c_expr);
+      elsif action_name = "INT_BYTES_LE_2_INT" then
+        process_int_bytes_le_2_int(params, c_expr);
       elsif action_name = "INT_CMP" then
         process_int_cmp(params, c_expr);
       elsif action_name = "INT_CONV" then
@@ -18258,10 +18321,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_str(params, c_expr);
       elsif action_name = "INT_SUCC" then
         process_int_succ(params, c_expr);
-      elsif action_name = "INT_TO_BSTRI_BE" then
-        process_int_to_bstri_be(params, c_expr);
-      elsif action_name = "INT_TO_BSTRI_LE" then
-        process_int_to_bstri_le(params, c_expr);
       elsif action_name = "INT_URSHIFT" then
         process_int_urshift(params, c_expr);
       elsif action_name = "INT_URSHIFT_ASSIGN" then
@@ -20614,11 +20673,26 @@ const proc: process_param_list_declaration (in ref_list: formal_params, inout ex
   end func;
 
 
-const proc: process_result_declaration (in reference: result_object, in reference: result_init,
-    inout expr_type: c_expr) is func
+const proc: process_result_declaration (in reference: result_object,
+    in var reference: result_init, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedExpr is NIL;
   begin
     if result_object <> NIL then
+      if evaluate_const_expr >= 2 and isConstant(result_init) then
+        block
+          evaluatedExpr := evaluate(prog, result_init);
+          if evaluatedExpr <> NIL then
+            incr(countEvaluations);
+            result_init := evaluatedExpr;
+          end if;
+        exception
+          catch NUMERIC_ERROR: noop;
+          catch RANGE_ERROR:   noop;
+          catch FILE_ERROR:    noop;
+        end block;
+      end if;
       process_local_declaration(result_object, result_init, c_expr);
     end if;
   end func;
@@ -23533,7 +23607,6 @@ const proc: write_prototypes is func
     declareExtern("biginttype  bigAddTemp (biginttype, const const_biginttype);");
     declareExtern("biginttype  bigAnd (const_biginttype, const_biginttype);");
     declareExtern("inttype     bigBitLength (const const_biginttype);");
-    declareExtern("stritype    bigCLit (const const_biginttype);");
     declareExtern("inttype     bigCmp (const const_biginttype, const const_biginttype);");
     declareExtern("inttype     bigCmpGeneric (const generictype, const generictype);");
     declareExtern("inttype     bigCmpSignedDigit (const const_biginttype, inttype);");
@@ -23560,7 +23633,6 @@ const proc: write_prototypes is func
     declareExtern("void        bigGrow (biginttype *const, const const_biginttype);");
     declareExtern("inttype     bigHashCode (const const_biginttype);");
     declareExtern("char       *bigHexCStri (const const_biginttype);");
-    declareExtern("biginttype  bigImport (const const_ustritype);");
     declareExtern("void        bigIncr (biginttype *const);");
     declareExtern("biginttype  bigIPow (const const_biginttype, inttype);");
     declareExtern("biginttype  bigLog2 (const const_biginttype);");
@@ -23809,8 +23881,10 @@ const proc: write_prototypes is func
     declareExtern("arraytype   hshValues (const const_hashtype, const createfunctype, const destrfunctype);");
     declareExtern("inttype     intBinom (inttype, inttype);");
     declareExtern("inttype     intBitLength (inttype);");
-    declareExtern("inttype     intBytesBe2UInt (const const_stritype);");
-    declareExtern("inttype     intBytesLe2UInt (const const_stritype);");
+    declareExtern("stritype    intBytesBe (inttype, booltype);");
+    declareExtern("inttype     intBytesBe2Int (const const_stritype, booltype);");
+    declareExtern("stritype    intBytesLe (inttype, booltype);");
+    declareExtern("inttype     intBytesLe2Int (const const_stritype, booltype);");
     declareExtern("inttype     intCmp (inttype, inttype);");
     declareExtern("inttype     intCmpGeneric (const generictype, const generictype);");
     declareExtern("void        intCpy (inttype *, inttype);");
@@ -23825,8 +23899,6 @@ const proc: write_prototypes is func
     declareExtern("inttype     intSqrt (inttype);");
     declareExtern("stritype    intStr (inttype);");
     declareExtern("stritype    intStrToBuffer (inttype, stritype);");
-    declareExtern("bstritype   intToBStriBe (inttype);");
-    declareExtern("bstritype   intToBStriLe (inttype);");
     declareExtern("inttype     intValue (objreftype);");
     declareExtern("interfacetype itfCreate (const interfacetype);");
     declareExtern("generictype itfCreateGeneric (const generictype);");
@@ -24033,6 +24105,7 @@ const proc: write_prototypes is func
     declareExtern("stritype    strUpTemp (const stritype);");
     declareExtern("stritype    strUtf8ToStri (const_stritype);");
     declareExtern("stritype    strValue (objreftype);");
+    declareExtern("stritype    strZero (const inttype);");
     declareExtern("stritype    cstri8_or_cstri_to_stri (char *);");
     declareExtern("void        timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("void        timFromIntTimestamp (inttype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
@@ -24526,7 +24599,7 @@ const func string: int64AsEightBytes (in integer: number) is func
                  str(chr((number >> 48) mod 256)) &
                  str(chr((number >> 56) mod 256));
       else
-        stri &:= "\0\\0\\0\\0\";
+        stri &:= "\0;\0;\0;\0;";
       end if;
     else
       if ccConf.INTTYPE_SIZE = 64 then
@@ -24535,7 +24608,7 @@ const func string: int64AsEightBytes (in integer: number) is func
                 str(chr((number >> 40) mod 256)) &
                 str(chr((number >> 32) mod 256));
       else
-        stri := "\0\\0\\0\\0\";
+        stri := "\0;\0;\0;\0;";
       end if;
       stri &:= str(chr((number >> 24) mod 256)) &
                str(chr((number >> 16) mod 256)) &
@@ -24569,37 +24642,16 @@ const proc: init_bigint_constants (inout expr_type: c_expr) is func
   local
     var bigint_index_hash: bigint_index is bigint_index_hash.EMPTY_HASH;
     var integer: number is 0;
-    var bigInteger: big1 is bigInteger.value;
     var bstring: bstri is bstring.value;
-    var string: literal is "";
-    var integer: pos is 0;
   begin
     bigint_index := flip(bigint_const_table);
-    if STORE_BIGINTS_AS_BSTRINGS then
-      for number range sort(keys(bigint_index)) do
-        big1 := bigint_index[number][1];
-        bstri := bStriLe(big1, TRUE);
-        if bstri not in bstri_const_table then
-          bstri_const_table @:= [bstri] length(bstri_const_table);
-        end if;
-        bigint_bstri_table @:= [number] bstri_const_table[bstri];
-      end for;
-    else
-      for number range sort(keys(bigint_index)) do
-        literal := c_literal(big1);
-        c_expr.expr &:= "/* big[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "] */ static const unsigned char big_";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "[]=";
-        c_expr.expr &:= literal[.. 41];
-        for pos range 42 to length(literal) step 80 do
-          c_expr.expr &:= "\n";
-          c_expr.expr &:= literal[pos len 80];
-        end for;
-        c_expr.expr &:= ";\n";
-      end for;
-    end if;
+    for number range sort(keys(bigint_index)) do
+      bstri := bStriLe(bigint_index[number][1], TRUE);
+      if bstri not in bstri_const_table then
+        bstri_const_table @:= [bstri] length(bstri_const_table);
+      end if;
+      bigint_bstri_table @:= [number] bstri_const_table[bstri];
+    end for;
   end func;
 
 
@@ -24617,41 +24669,24 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= str(length(bigint_const_table));
       c_expr.expr &:= " * sizeof(biginttype)));\n";
       bigint_index := flip(bigint_const_table);
-      if STORE_BIGINTS_AS_BSTRINGS then
-        for number range sort(keys(bigint_index)) do
-          big1 := bigint_index[number][1];
-          c_expr.expr &:= "big[";
-          c_expr.expr &:= str(number);
-          c_expr.expr &:= "]=bigFromBStriLe(";
-          if ccConf.ALLOW_BSTRITYPE_SLICES then
-            c_expr.expr &:= "&";
-          end if;
-          c_expr.expr &:= "bst[";
-          c_expr.expr &:= str(bigint_bstri_table[number]);
-          c_expr.expr &:= "], 1);";
-          if bitLength(big1) <= MAX_SHOWN_BIGINT_LITERAL_BITLENGTH then
-            c_expr.expr &:= " /* ";
-            c_expr.expr &:= str(big1);
-            c_expr.expr &:= " */";
-          end if;
-          c_expr.expr &:= "\n";
-        end for;
-      else
-        for number range sort(keys(bigint_index)) do
-          big1 := bigint_index[number][1];
-          c_expr.expr &:= "big[";
-          c_expr.expr &:= str(number);
-          c_expr.expr &:= "]=bigImport(big_";
-          c_expr.expr &:= str(number);
-          c_expr.expr &:= ");";
-          if bitLength(big1) <= MAX_SHOWN_BIGINT_LITERAL_BITLENGTH then
-            c_expr.expr &:= " /* ";
-            c_expr.expr &:= str(big1);
-            c_expr.expr &:= " */";
-          end if;
-          c_expr.expr &:= "\n";
-        end for;
-      end if;
+      for number range sort(keys(bigint_index)) do
+        big1 := bigint_index[number][1];
+        c_expr.expr &:= "big[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]=bigFromBStriLe(";
+        if ccConf.ALLOW_BSTRITYPE_SLICES then
+          c_expr.expr &:= "&";
+        end if;
+        c_expr.expr &:= "bst[";
+        c_expr.expr &:= str(bigint_bstri_table[number]);
+        c_expr.expr &:= "], 1);";
+        if bitLength(big1) <= MAX_SHOWN_BIGINT_LITERAL_BITLENGTH then
+          c_expr.expr &:= " /* ";
+          c_expr.expr &:= str(big1);
+          c_expr.expr &:= " */";
+        end if;
+        c_expr.expr &:= "\n";
+      end for;
     end if;
   end func;
 
@@ -24788,6 +24823,7 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
     var array integer: stringPosition is 0 times 0;
     var integer: number is 0;
     var string: stri is "";
+    var integer: combinedStriLength is 0;
     var string: striChars is "";
     var integer: striPos is 0;
     var integer: striIndex is 0;
@@ -24804,6 +24840,7 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
       if length in lengthToStriNum then
         for number range lengthToStriNum[length] do
           stri := stri_index[number][1];
+          combinedStriLength +:= length(stri);
           striPos := pos(striChars, stri);
           if striPos = 0 then
             found := FALSE;
@@ -24831,6 +24868,11 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
     end for;
     write_striChars(striChars, c_expr);
     write_str_table(stri_index, stringPosition, c_expr);
+    if SHOW_STATISTIC then
+      writeln(combinedStriLength <& " chars in all strings");
+      writeln(length(striChars) <& " chars in string pool");
+      writeln(combinedStriLength - length(striChars) <& " chars of string memory saved");
+    end if;
   end func;
 
 
@@ -24982,6 +25024,7 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
     var array integer: stringPosition is 0 times 0;
     var integer: number is 0;
     var string: stri is "";
+    var integer: combinedBStriLength is 0;
     var string: bstriChars is "";
     var integer: striPos is 0;
     var integer: striIndex is 0;
@@ -24998,6 +25041,7 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
       if length in lengthToStriNum then
         for number range lengthToStriNum[length] do
           stri := str(bstri_index[number][1]);
+          combinedBStriLength +:= length(stri);
           striPos := pos(bstriChars, stri);
           if striPos = 0 then
             found := FALSE;
@@ -25025,6 +25069,11 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
     end for;
     write_bstriChars(bstriChars, c_expr);
     write_bst_table(bstri_index, stringPosition, c_expr);
+    if SHOW_STATISTIC then
+      writeln(combinedBStriLength <& " chars in all bstrings");
+      writeln(length(bstriChars) <& " chars in bstring pool");
+      writeln(combinedBStriLength - length(bstriChars) <& " chars of bstring memory saved");
+    end if;
   end func;
 
 

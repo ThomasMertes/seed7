@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  set_rtl.h     Primitive actions for the set type.               */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/set_rtl.h                                       */
-/*  Changes: 2004, 2005  Thomas Mertes                              */
+/*  Changes: 2004, 2005, 2010, 2012 - 2014  Thomas Mertes           */
 /*  Content: Primitive actions for the set type.                    */
 /*                                                                  */
 /********************************************************************/

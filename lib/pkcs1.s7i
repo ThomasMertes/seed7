@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  pkcs1.s7i     RSA public-key cryptography standard #1 support.  *)
-(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*  Copyright (C) 2013, 2014  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -122,12 +122,9 @@ const func string: int2Octets (in bigInteger: number, in integer: length) is fun
   result
     var string: stri is "";
   begin
-    stri := bytes(number, SIGNED, BE);
+    stri := bytes(number, UNSIGNED, BE);
     if length(stri) < length then
-      stri := "\0\" mult (length - length(stri)) & stri;
-    elsif length(stri) = succ(length) and stri[1] = '\0\' then
-      # The octet string of an nonnegative integer does not need a leading '\0\'.
-      stri := stri[2 ..];
+      stri := "\0;" mult (length - length(stri)) & stri;
     elsif length(stri) <> length then
       raise RANGE_ERROR;
     end if;
@@ -137,7 +134,7 @@ const func string: int2Octets (in bigInteger: number, in integer: length) is fun
 (**
  *  Convert an octet [[string]] to a nonnegative [[bigint|bigInteger]] (OS2IP).
  *  @return a nonnegative bigInteger created from the big-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
 const func bigInteger: octets2int (in string: stri) is
   return bytes2BigInt(stri, UNSIGNED, BE);
@@ -162,15 +159,15 @@ const func string: emeOaepEncoding (in string: message, in string: label, in int
     var string: maskedSeed is "";
   begin
     lHash := sha1(label);
-    ps := "\0\" mult modulusLen - length(message) - 2 * hLen - 2;
-    db := lHash & ps & "\1\" & message;
+    ps := "\0;" mult modulusLen - length(message) - 2 * hLen - 2;
+    db := lHash & ps & "\1;" & message;
     # Generate a random octet string seed of length hLen.
     seed := int2Octets(rand(0_, 2_ ** (hLen * 8) - 1_), hLen);
     dbMask := mgf1Sha1(seed, modulusLen - hLen - 1);
     maskedDb := db >< dbMask;
     seedMask := mgf1Sha1(maskedDb, hLen);
     maskedSeed := seed >< seedMask;
-    encodedMessage := "\0\" & maskedSeed & maskedDb;
+    encodedMessage := "\0;" & maskedSeed & maskedDb;
   end func;
 
 
@@ -208,7 +205,7 @@ const func string: emeOaepDecoding (in string: encodedMessage, in string: label,
       raise RANGE_ERROR;
     end if;
     pos := succ(hLen);
-    while db[pos] <> '\1\' do
+    while db[pos] <> '\1;' do
       incr(pos);
     end while;
     message := db[succ(pos) ..];
@@ -227,9 +224,9 @@ const func string: emePkcs1V15Encoding (in string: message, in integer: modulusL
     var string: ps is "";
   begin
     for pos range 1 to modulusLen - length(message) - 3 do
-      ps &:= rand('\1\', '\255\');
+      ps &:= rand('\1;', '\255;');
     end for;
-    encodedMessage := "\0\\2\" & ps & "\0\" & message;
+    encodedMessage := "\0;\2;" & ps & "\0;" & message;
   end func;
 
 
@@ -245,10 +242,10 @@ const func string: emePkcs1V15Decoding (in string: encodedMessage, in integer: m
   local
     var integer: pos is 0;
   begin
-    if not startsWith(encodedMessage, "\0\\2\") then
+    if not startsWith(encodedMessage, "\0;\2;") then
       raise RANGE_ERROR;
     else
-      pos := pos(encodedMessage[3 ..], '\0\');
+      pos := pos(encodedMessage[3 ..], '\0;');
       if pos = 0 then
         raise RANGE_ERROR;
       else
@@ -302,7 +299,7 @@ const func bigInteger: rsaDecrypt (in rsaKey: decryptionKey, in bigInteger: ciph
  *  @return the RSAES-OAEP encrypted [[string]] of bytes.
  *  @exception RANGE_ERROR when the length of the ''message'' is too long
  *                         to be encrypted.
- *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255\'.
+ *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255;'.
  *)
 const func string: rsaesOaepEncrypt (in rsaKey: encryptionKey, in string: message,
     in string: label) is func
@@ -327,7 +324,7 @@ const func string: rsaesOaepEncrypt (in rsaKey: encryptionKey, in string: messag
  *  @return the RSAES-OAEP decrypted [[string]] of bytes.
  *  @exception RANGE_ERROR when the length of the ''ciphertext'' is too long
  *                         to be decrypted.
- *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255\'.
+ *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255;'.
  *)
 const func string: rsaesOaepDecrypt (in rsaKey: decryptionKey, in string: ciphertext,
     in string: label) is func
@@ -355,7 +352,7 @@ const func string: rsaesOaepDecrypt (in rsaKey: decryptionKey, in string: cipher
  *  @return the RSAES-PKCS1-V1_5 encrypted [[string]] of bytes.
  *  @exception RANGE_ERROR when the length of the ''message'' is too long
  *                         to be encrypted.
- *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255\'.
+ *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255;'.
  *)
 const func string: rsaesPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: message) is func
   result
@@ -381,7 +378,7 @@ const func string: rsaesPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: me
  *  @return the RSAES-PKCS1-V1_5 decrypted [[string]] of bytes.
  *  @exception RANGE_ERROR when the length of the ''ciphertext'' is too long
  *                         to be decrypted.
- *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255\'.
+ *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255;'.
  *)
 const func string: rsaesPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: ciphertext) is func
   result
@@ -407,7 +404,7 @@ const func string: rsaEncryptBytes (in rsaKey: encryptionKey, in string: message
   result
     var string: ciphertext is "";
   begin
-    ciphertext := bytes(rsaEncrypt(encryptionKey, octets2int("\1\\255\\255\\0\" & message)), SIGNED, BE);
+    ciphertext := bytes(rsaEncrypt(encryptionKey, octets2int("\1;\255;\255;\0;" & message)), SIGNED, BE);
   end func;
 
 
@@ -418,15 +415,15 @@ const func string: rsaDecryptBytes (in rsaKey: decryptionKey, in string: ciphert
     var integer: pos is 0;
   begin
     message := bytes(rsaDecrypt(decryptionKey, octets2int(ciphertext)), SIGNED, BE);
-    if startsWith(message, "\1\") then
+    if startsWith(message, "\1;") then
       pos := 2;
-      while pos <= length(message) and message[pos] <> '\0\' do
+      while pos <= length(message) and message[pos] <> '\0;' do
         incr(pos);
       end while;
       message := message[succ(pos) ..];
-    (* elsif startsWith(message, "\0\") then
+    (* elsif startsWith(message, "\0;") then
       pos := 2;
-      while pos <= length(message) and message[pos] = '\0\' do
+      while pos <= length(message) and message[pos] = '\0;' do
         incr(pos);
       end while;
       message := message[pos ..]; *)

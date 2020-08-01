@@ -328,7 +328,7 @@ const func string: get_symbol (inout string: line) is func
         if start <= leng then
           ch := line[start];
         else
-          ch := '\0\';
+          ch := '\0;';
         end if;
       until ch <> ' ' and ch <> '\t';
       index := start;
@@ -504,7 +504,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch := '\0\';
+              ch := '\0;';
             end if;
           until ch <> ' ' and ch <> '\t';
           if ch = '>' then
@@ -524,7 +524,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch := '\0\';
+              ch := '\0;';
             end if;
           until ch <> ' ' and ch <> '\t';
           if ch = '=' then
@@ -544,7 +544,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch := '\0\';
+              ch := '\0;';
             end if;
           until ch <> ' ' and ch <> '\t';
           if ch = '<' then
@@ -1525,99 +1525,99 @@ const func string: extendedKeyCode (in char: current_key) is func
   begin
     case current_key of
       when {KEY_NL}:        keyCode := "\r";
-      when {KEY_ALT_A}:     keyCode := "\0\\30\";
-      when {KEY_ALT_B}:     keyCode := "\0\\48\";
-      when {KEY_ALT_C}:     keyCode := "\0\\46\";
-      when {KEY_ALT_D}:     keyCode := "\0\\32\";
-      when {KEY_ALT_E}:     keyCode := "\0\\18\";
-      when {KEY_ALT_F}:     keyCode := "\0\\33\";
-      when {KEY_ALT_G}:     keyCode := "\0\\34\";
-      when {KEY_ALT_H}:     keyCode := "\0\\35\";
-      when {KEY_ALT_I}:     keyCode := "\0\\23\";
-      when {KEY_ALT_J}:     keyCode := "\0\\36\";
-      when {KEY_ALT_K}:     keyCode := "\0\\37\";
-      when {KEY_ALT_L}:     keyCode := "\0\\38\";
-      when {KEY_ALT_M}:     keyCode := "\0\\50\";
-      when {KEY_ALT_N}:     keyCode := "\0\\49\";
-      when {KEY_ALT_O}:     keyCode := "\0\\24\";
-      when {KEY_ALT_P}:     keyCode := "\0\\25\";
-      when {KEY_ALT_Q}:     keyCode := "\0\\16\";
-      when {KEY_ALT_R}:     keyCode := "\0\\19\";
-      when {KEY_ALT_S}:     keyCode := "\0\\31\";
-      when {KEY_ALT_T}:     keyCode := "\0\\20\";
-      when {KEY_ALT_U}:     keyCode := "\0\\22\";
-      when {KEY_ALT_V}:     keyCode := "\0\\47\";
-      when {KEY_ALT_W}:     keyCode := "\0\\17\";
-      when {KEY_ALT_X}:     keyCode := "\0\\45\";
-      when {KEY_ALT_Y}:     keyCode := "\0\\21\";
-      when {KEY_ALT_Z}:     keyCode := "\0\\44\";
-      when {KEY_ALT_0}:     keyCode := "\0\\120\";
-      when {KEY_ALT_1}:     keyCode := "\0\\121\";
-      when {KEY_ALT_2}:     keyCode := "\0\\122\";
-      when {KEY_ALT_3}:     keyCode := "\0\\123\";
-      when {KEY_ALT_4}:     keyCode := "\0\\124\";
-      when {KEY_ALT_5}:     keyCode := "\0\\125\";
-      when {KEY_ALT_6}:     keyCode := "\0\\126\";
-      when {KEY_ALT_7}:     keyCode := "\0\\127\";
-      when {KEY_ALT_8}:     keyCode := "\0\\128\";
-      when {KEY_ALT_9}:     keyCode := "\0\\129\";
-      when {KEY_F1}:        keyCode := "\0\;";
-      when {KEY_F2}:        keyCode := "\0\<";
-      when {KEY_F3}:        keyCode := "\0\=";
-      when {KEY_F4}:        keyCode := "\0\>";
-      when {KEY_F5}:        keyCode := "\0\?";
-      when {KEY_F6}:        keyCode := "\0\@";
-      when {KEY_F7}:        keyCode := "\0\A";
-      when {KEY_F8}:        keyCode := "\0\B";
-      when {KEY_F9}:        keyCode := "\0\C";
-      when {KEY_F10}:       keyCode := "\0\D";
-      when {KEY_SFT_F1}:    keyCode := "\0\T";
-      when {KEY_SFT_F2}:    keyCode := "\0\U";
-      when {KEY_SFT_F3}:    keyCode := "\0\V";
-      when {KEY_SFT_F4}:    keyCode := "\0\W";
-      when {KEY_SFT_F5}:    keyCode := "\0\X";
-      when {KEY_SFT_F6}:    keyCode := "\0\Y";
-      when {KEY_SFT_F7}:    keyCode := "\0\Z";
-      when {KEY_SFT_F8}:    keyCode := "\0\[";
-      when {KEY_SFT_F9}:    keyCode := "\0\\\";
-      when {KEY_SFT_F10}:   keyCode := "\0\]";
-      when {KEY_CTL_F1}:    keyCode := "\0\^";
-      when {KEY_CTL_F2}:    keyCode := "\0\_";
-      when {KEY_CTL_F3}:    keyCode := "\0\`";
-      when {KEY_CTL_F4}:    keyCode := "\0\a";
-      when {KEY_CTL_F5}:    keyCode := "\0\b";
-      when {KEY_CTL_F6}:    keyCode := "\0\c";
-      when {KEY_CTL_F7}:    keyCode := "\0\d";
-      when {KEY_CTL_F8}:    keyCode := "\0\e";
-      when {KEY_CTL_F9}:    keyCode := "\0\f";
-      when {KEY_CTL_F10}:   keyCode := "\0\g";
-      when {KEY_ALT_F1}:    keyCode := "\0\h";
-      when {KEY_ALT_F2}:    keyCode := "\0\i";
-      when {KEY_ALT_F3}:    keyCode := "\0\j";
-      when {KEY_ALT_F4}:    keyCode := "\0\k";
-      when {KEY_ALT_F5}:    keyCode := "\0\l";
-      when {KEY_ALT_F6}:    keyCode := "\0\m";
-      when {KEY_ALT_F7}:    keyCode := "\0\n";
-      when {KEY_ALT_F8}:    keyCode := "\0\o";
-      when {KEY_ALT_F9}:    keyCode := "\0\p";
-      when {KEY_ALT_F10}:   keyCode := "\0\q";
-      when {KEY_BACKTAB}:   keyCode := "\0\\15\";
-      when {KEY_LEFT}:      keyCode := "\0\K";
-      when {KEY_RIGHT}:     keyCode := "\0\M";
-      when {KEY_UP}:        keyCode := "\0\H";
-      when {KEY_DOWN}:      keyCode := "\0\P";
-      when {KEY_HOME}:      keyCode := "\0\G";
-      when {KEY_END}:       keyCode := "\0\O";
-      when {KEY_PGUP}:      keyCode := "\0\I";
-      when {KEY_PGDN}:      keyCode := "\0\Q";
-      when {KEY_INS}:       keyCode := "\0\R";
-      when {KEY_DEL}:       keyCode := "\0\S";
-      when {KEY_CTL_LEFT}:  keyCode := "\0\\115\";
-      when {KEY_CTL_RIGHT}: keyCode := "\0\\116\";
-      when {KEY_CTL_HOME}:  keyCode := "\0\\119\";
-      when {KEY_CTL_END}:   keyCode := "\0\\117\";
-      when {KEY_CTL_PGUP}:  keyCode := "\0\\132\";
-      when {KEY_CTL_PGDN}:  keyCode := "\0\\118\";
+      when {KEY_ALT_A}:     keyCode := "\0;\30;";
+      when {KEY_ALT_B}:     keyCode := "\0;\48;";
+      when {KEY_ALT_C}:     keyCode := "\0;\46;";
+      when {KEY_ALT_D}:     keyCode := "\0;\32;";
+      when {KEY_ALT_E}:     keyCode := "\0;\18;";
+      when {KEY_ALT_F}:     keyCode := "\0;\33;";
+      when {KEY_ALT_G}:     keyCode := "\0;\34;";
+      when {KEY_ALT_H}:     keyCode := "\0;\35;";
+      when {KEY_ALT_I}:     keyCode := "\0;\23;";
+      when {KEY_ALT_J}:     keyCode := "\0;\36;";
+      when {KEY_ALT_K}:     keyCode := "\0;\37;";
+      when {KEY_ALT_L}:     keyCode := "\0;\38;";
+      when {KEY_ALT_M}:     keyCode := "\0;\50;";
+      when {KEY_ALT_N}:     keyCode := "\0;\49;";
+      when {KEY_ALT_O}:     keyCode := "\0;\24;";
+      when {KEY_ALT_P}:     keyCode := "\0;\25;";
+      when {KEY_ALT_Q}:     keyCode := "\0;\16;";
+      when {KEY_ALT_R}:     keyCode := "\0;\19;";
+      when {KEY_ALT_S}:     keyCode := "\0;\31;";
+      when {KEY_ALT_T}:     keyCode := "\0;\20;";
+      when {KEY_ALT_U}:     keyCode := "\0;\22;";
+      when {KEY_ALT_V}:     keyCode := "\0;\47;";
+      when {KEY_ALT_W}:     keyCode := "\0;\17;";
+      when {KEY_ALT_X}:     keyCode := "\0;\45;";
+      when {KEY_ALT_Y}:     keyCode := "\0;\21;";
+      when {KEY_ALT_Z}:     keyCode := "\0;\44;";
+      when {KEY_ALT_0}:     keyCode := "\0;\120;";
+      when {KEY_ALT_1}:     keyCode := "\0;\121;";
+      when {KEY_ALT_2}:     keyCode := "\0;\122;";
+      when {KEY_ALT_3}:     keyCode := "\0;\123;";
+      when {KEY_ALT_4}:     keyCode := "\0;\124;";
+      when {KEY_ALT_5}:     keyCode := "\0;\125;";
+      when {KEY_ALT_6}:     keyCode := "\0;\126;";
+      when {KEY_ALT_7}:     keyCode := "\0;\127;";
+      when {KEY_ALT_8}:     keyCode := "\0;\128;";
+      when {KEY_ALT_9}:     keyCode := "\0;\129;";
+      when {KEY_F1}:        keyCode := "\0;;";
+      when {KEY_F2}:        keyCode := "\0;<";
+      when {KEY_F3}:        keyCode := "\0;=";
+      when {KEY_F4}:        keyCode := "\0;>";
+      when {KEY_F5}:        keyCode := "\0;?";
+      when {KEY_F6}:        keyCode := "\0;@";
+      when {KEY_F7}:        keyCode := "\0;A";
+      when {KEY_F8}:        keyCode := "\0;B";
+      when {KEY_F9}:        keyCode := "\0;C";
+      when {KEY_F10}:       keyCode := "\0;D";
+      when {KEY_SFT_F1}:    keyCode := "\0;T";
+      when {KEY_SFT_F2}:    keyCode := "\0;U";
+      when {KEY_SFT_F3}:    keyCode := "\0;V";
+      when {KEY_SFT_F4}:    keyCode := "\0;W";
+      when {KEY_SFT_F5}:    keyCode := "\0;X";
+      when {KEY_SFT_F6}:    keyCode := "\0;Y";
+      when {KEY_SFT_F7}:    keyCode := "\0;Z";
+      when {KEY_SFT_F8}:    keyCode := "\0;[";
+      when {KEY_SFT_F9}:    keyCode := "\0;\\";
+      when {KEY_SFT_F10}:   keyCode := "\0;]";
+      when {KEY_CTL_F1}:    keyCode := "\0;^";
+      when {KEY_CTL_F2}:    keyCode := "\0;_";
+      when {KEY_CTL_F3}:    keyCode := "\0;`";
+      when {KEY_CTL_F4}:    keyCode := "\0;a";
+      when {KEY_CTL_F5}:    keyCode := "\0;b";
+      when {KEY_CTL_F6}:    keyCode := "\0;c";
+      when {KEY_CTL_F7}:    keyCode := "\0;d";
+      when {KEY_CTL_F8}:    keyCode := "\0;e";
+      when {KEY_CTL_F9}:    keyCode := "\0;f";
+      when {KEY_CTL_F10}:   keyCode := "\0;g";
+      when {KEY_ALT_F1}:    keyCode := "\0;h";
+      when {KEY_ALT_F2}:    keyCode := "\0;i";
+      when {KEY_ALT_F3}:    keyCode := "\0;j";
+      when {KEY_ALT_F4}:    keyCode := "\0;k";
+      when {KEY_ALT_F5}:    keyCode := "\0;l";
+      when {KEY_ALT_F6}:    keyCode := "\0;m";
+      when {KEY_ALT_F7}:    keyCode := "\0;n";
+      when {KEY_ALT_F8}:    keyCode := "\0;o";
+      when {KEY_ALT_F9}:    keyCode := "\0;p";
+      when {KEY_ALT_F10}:   keyCode := "\0;q";
+      when {KEY_BACKTAB}:   keyCode := "\0;\15;";
+      when {KEY_LEFT}:      keyCode := "\0;K";
+      when {KEY_RIGHT}:     keyCode := "\0;M";
+      when {KEY_UP}:        keyCode := "\0;H";
+      when {KEY_DOWN}:      keyCode := "\0;P";
+      when {KEY_HOME}:      keyCode := "\0;G";
+      when {KEY_END}:       keyCode := "\0;O";
+      when {KEY_PGUP}:      keyCode := "\0;I";
+      when {KEY_PGDN}:      keyCode := "\0;Q";
+      when {KEY_INS}:       keyCode := "\0;R";
+      when {KEY_DEL}:       keyCode := "\0;S";
+      when {KEY_CTL_LEFT}:  keyCode := "\0;\115;";
+      when {KEY_CTL_RIGHT}: keyCode := "\0;\116;";
+      when {KEY_CTL_HOME}:  keyCode := "\0;\119;";
+      when {KEY_CTL_END}:   keyCode := "\0;\117;";
+      when {KEY_CTL_PGUP}:  keyCode := "\0;\132;";
+      when {KEY_CTL_PGDN}:  keyCode := "\0;\118;";
       otherwise:            keyCode := str(current_key);
     end case;
   end func;
@@ -1637,12 +1637,12 @@ const func integer: keyboardScanCode (in char: current_key) is func
       when {'^' (* At keypad: '6' *) }:                      scanCode := 16#07;
       when {'&' (* At keypad: '7' *) }:                      scanCode := 16#08;
       when {'*' (* At keypad: '8' *) }:                      scanCode := 16#09;
-      when {'(' (* At keypad: '9' *) }:                      scanCode := 16#0A;
-      when {')' (* At keypad: '0' *) }:                      scanCode := 16#0B;
-      when {'_', '-'}:                                       scanCode := 16#0C;
-      when {'+', '='}:                                       scanCode := 16#0D;
-      when {KEY_BS}:                                         scanCode := 16#0E;
-      when {KEY_TAB}:                                        scanCode := 16#0F;
+      when {'(' (* At keypad: '9' *) }:                      scanCode := 16#0a;
+      when {')' (* At keypad: '0' *) }:                      scanCode := 16#0b;
+      when {'_', '-'}:                                       scanCode := 16#0c;
+      when {'+', '='}:                                       scanCode := 16#0d;
+      when {KEY_BS}:                                         scanCode := 16#0e;
+      when {KEY_TAB}:                                        scanCode := 16#0f;
       when {'Q', 'q', KEY_ALT_Q, KEY_CTL_Q}:                 scanCode := 16#10;
       when {'W', 'w', KEY_ALT_W, KEY_CTL_W}:                 scanCode := 16#11;
       when {'E', 'e', KEY_ALT_E, KEY_CTL_E}:                 scanCode := 16#12;
@@ -1653,12 +1653,12 @@ const func integer: keyboardScanCode (in char: current_key) is func
       when {'I', 'i', KEY_ALT_I  (* KEY_TAB=KEY_CTL_I *) }:  scanCode := 16#17;
       when {'O', 'o', KEY_ALT_O, KEY_CTL_O}:                 scanCode := 16#18;
       when {'P', 'p', KEY_ALT_P, KEY_CTL_P}:                 scanCode := 16#19;
-      when {'{', '['}:                                       scanCode := 16#1A;
-      when {'}', ']'}:                                       scanCode := 16#1B;
-      when {KEY_NL}:                                         scanCode := 16#1C;
-      #     Not mapped: CTRL                                 scanCode := 16#1D;
-      when {'A', 'a', KEY_ALT_A, KEY_CTL_A}:                 scanCode := 16#1E;
-      when {'S', 's', KEY_ALT_S, KEY_CTL_S}:                 scanCode := 16#1F;
+      when {'{', '['}:                                       scanCode := 16#1a;
+      when {'}', ']'}:                                       scanCode := 16#1b;
+      when {KEY_NL}:                                         scanCode := 16#1c;
+      #     Not mapped: CTRL                                 scanCode := 16#1d;
+      when {'A', 'a', KEY_ALT_A, KEY_CTL_A}:                 scanCode := 16#1e;
+      when {'S', 's', KEY_ALT_S, KEY_CTL_S}:                 scanCode := 16#1f;
       when {'D', 'd', KEY_ALT_D, KEY_CTL_D}:                 scanCode := 16#20;
       when {'F', 'f', KEY_ALT_F, KEY_CTL_F}:                 scanCode := 16#21;
       when {'G', 'g', KEY_ALT_G, KEY_CTL_G}:                 scanCode := 16#22;
@@ -1669,12 +1669,12 @@ const func integer: keyboardScanCode (in char: current_key) is func
       when {':', ';'}:                                       scanCode := 16#27;
       when {'"', '\''}:                                      scanCode := 16#28;
       when {'~', '`'}:                                       scanCode := 16#29;
-      #     Not mapped: LEFT SHIFT                           scanCode := 16#2A;
-      when {'|', '\\'}:                                      scanCode := 16#2B;
-      when {'Z', 'z', KEY_ALT_Z, KEY_CTL_Z}:                 scanCode := 16#2C;
-      when {'X', 'x', KEY_ALT_X, KEY_CTL_X}:                 scanCode := 16#2D;
-      when {'C', 'c', KEY_ALT_C, KEY_CTL_C}:                 scanCode := 16#2E;
-      when {'V', 'v', KEY_ALT_V, KEY_CTL_V}:                 scanCode := 16#2F;
+      #     Not mapped: LEFT SHIFT                           scanCode := 16#2a;
+      when {'|', '\\'}:                                      scanCode := 16#2b;
+      when {'Z', 'z', KEY_ALT_Z, KEY_CTL_Z}:                 scanCode := 16#2c;
+      when {'X', 'x', KEY_ALT_X, KEY_CTL_X}:                 scanCode := 16#2d;
+      when {'C', 'c', KEY_ALT_C, KEY_CTL_C}:                 scanCode := 16#2e;
+      when {'V', 'v', KEY_ALT_V, KEY_CTL_V}:                 scanCode := 16#2f;
       when {'B', 'b', KEY_ALT_B, KEY_CTL_B}:                 scanCode := 16#30;
       when {'N', 'n', KEY_ALT_N, KEY_CTL_N}:                 scanCode := 16#31;
       when {'M', 'm', KEY_ALT_M, KEY_CTL_M}:                 scanCode := 16#32;
@@ -1685,12 +1685,12 @@ const func integer: keyboardScanCode (in char: current_key) is func
       #     Not mapped: PRTSC or *                           scanCode := 16#37;
       #     Not mapped: ALT                                  scanCode := 16#38;
       when {' '}:                                            scanCode := 16#39;
-      #     Not mapped: CAPSLOCK                             scanCode := 16#3A;
-      when {KEY_F1,  KEY_SFT_F1,  KEY_CTL_F1,  KEY_ALT_F1}:  scanCode := 16#3B;
-      when {KEY_F2,  KEY_SFT_F2,  KEY_CTL_F2,  KEY_ALT_F2}:  scanCode := 16#3C;
-      when {KEY_F3,  KEY_SFT_F3,  KEY_CTL_F3,  KEY_ALT_F3}:  scanCode := 16#3D;
-      when {KEY_F4,  KEY_SFT_F4,  KEY_CTL_F4,  KEY_ALT_F4}:  scanCode := 16#3E;
-      when {KEY_F5,  KEY_SFT_F5,  KEY_CTL_F5,  KEY_ALT_F5}:  scanCode := 16#3F;
+      #     Not mapped: CAPSLOCK                             scanCode := 16#3a;
+      when {KEY_F1,  KEY_SFT_F1,  KEY_CTL_F1,  KEY_ALT_F1}:  scanCode := 16#3b;
+      when {KEY_F2,  KEY_SFT_F2,  KEY_CTL_F2,  KEY_ALT_F2}:  scanCode := 16#3c;
+      when {KEY_F3,  KEY_SFT_F3,  KEY_CTL_F3,  KEY_ALT_F3}:  scanCode := 16#3d;
+      when {KEY_F4,  KEY_SFT_F4,  KEY_CTL_F4,  KEY_ALT_F4}:  scanCode := 16#3e;
+      when {KEY_F5,  KEY_SFT_F5,  KEY_CTL_F5,  KEY_ALT_F5}:  scanCode := 16#3f;
       when {KEY_F6,  KEY_SFT_F6,  KEY_CTL_F6,  KEY_ALT_F6}:  scanCode := 16#40;
       when {KEY_F7,  KEY_SFT_F7,  KEY_CTL_F7,  KEY_ALT_F7}:  scanCode := 16#41;
       when {KEY_F8,  KEY_SFT_F8,  KEY_CTL_F8,  KEY_ALT_F8}:  scanCode := 16#42;
@@ -1701,12 +1701,12 @@ const func integer: keyboardScanCode (in char: current_key) is func
       when {KEY_HOME,       KEY_CTL_HOME,  '7'}:             scanCode := 16#47;
       when {KEY_UP,         KEY_CTL_UP,    '8'}:             scanCode := 16#48;
       when {KEY_PGUP,       KEY_CTL_PGUP,  '9'}:             scanCode := 16#49;
-      #     Already mapped: '-'                              scanCode := 16#4A;
-      when {KEY_LEFT,       KEY_CTL_LEFT,  '4'}:             scanCode := 16#4B;
-      when {KEY_PAD_CENTER,                '5'}:             scanCode := 16#4C;
-      when {KEY_RIGHT,      KEY_CTL_RIGHT, '6'}:             scanCode := 16#4D;
-      #     Already mapped: '+'                              scanCode := 16#4E;
-      when {KEY_END,        KEY_CTL_END,   '1'}:             scanCode := 16#4F;
+      #     Already mapped: '-'                              scanCode := 16#4a;
+      when {KEY_LEFT,       KEY_CTL_LEFT,  '4'}:             scanCode := 16#4b;
+      when {KEY_PAD_CENTER,                '5'}:             scanCode := 16#4c;
+      when {KEY_RIGHT,      KEY_CTL_RIGHT, '6'}:             scanCode := 16#4d;
+      #     Already mapped: '+'                              scanCode := 16#4e;
+      when {KEY_END,        KEY_CTL_END,   '1'}:             scanCode := 16#4f;
       when {KEY_DOWN,       KEY_CTL_DOWN,  '2'}:             scanCode := 16#50;
       when {KEY_PGDN,       KEY_CTL_PGDN,  '3'}:             scanCode := 16#51;
       when {KEY_INS,        KEY_CTL_INS,   '0'}:             scanCode := 16#52;
@@ -4650,7 +4650,7 @@ const proc: exec_print_using (inout file: outFile,
                     if index1 <= length(param1) then
                       ch1 := param1[index1];
                     else
-                      ch1 := '\0\';
+                      ch1 := '\0;';
                     end if;
                   until ch1 <> ' ';
                   if ch1 = '\\' then
@@ -4673,7 +4673,7 @@ const proc: exec_print_using (inout file: outFile,
               if index1 < length(param1) then
                 ch2 := param1[succ(index1)];
               else
-                ch2 := '\0\';
+                ch2 := '\0;';
               end if;
               if ch1 = '#' or
                   ch1 = '+' and ch2 in {'#', '.'} or
@@ -4699,12 +4699,12 @@ const proc: exec_print_using (inout file: outFile,
                   if index2 <= length(param1) then
                     ch1 := param1[index2];
                   else
-                    ch1 := '\0\';
+                    ch1 := '\0;';
                   end if;
                   if index2 < length(param1) then
                     ch2 := param1[succ(index2)];
                   else
-                    ch2 := '\0\';
+                    ch2 := '\0;';
                   end if;
                   if ch1 = ',' and ch2 = '#' then
                     ch1 := ch2;
@@ -4716,7 +4716,7 @@ const proc: exec_print_using (inout file: outFile,
                   if index2 <= length(param1) then
                     ch1 := param1[index2];
                   else
-                    ch1 := '\0\';
+                    ch1 := '\0;';
                   end if;
                   while ch1 = '#' do
                     incr(index2);
@@ -4724,12 +4724,12 @@ const proc: exec_print_using (inout file: outFile,
                     if index2 <= length(param1) then
                       ch1 := param1[index2];
                     else
-                      ch1 := '\0\';
+                      ch1 := '\0;';
                     end if;
                     if index2 < length(param1) then
                       ch2 := param1[succ(index2)];
                     else
-                      ch2 := '\0\';
+                      ch2 := '\0;';
                     end if;
                     if ch1 = ',' and ch2 = '#' then
                       ch1 := ch2;
@@ -4749,7 +4749,7 @@ const proc: exec_print_using (inout file: outFile,
                   if index1 <= length(param1) then
                     ch1 := param1[index1];
                   else
-                    ch1 := '\0\';
+                    ch1 := '\0;';
                   end if;
                   ch2 := param2[index3];
                   if ch1 = ',' then
@@ -6188,7 +6188,7 @@ const func string: readVarNameFromBloadFile (inout file: aFile, inout integer: b
       for count range 1 to number do
         ch := getc(aFile);
         incr(byteIndex);
-        if ch >= '\128\' then
+        if ch >= '\128;' then
           ch := chr(ord(ch) - 128);
         end if;
         bloadName &:= str(ch);
@@ -6245,7 +6245,7 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
       # writeln(log, "name_end=" <& name_end);
       aFile := basicOpen(file_name, "r");
       if aFile <> STD_NULL then
-        if getc(aFile) = '\16#FD\' then
+        if getc(aFile) = '\16#FD;' then
           ignore(gets(aFile, 4));
           sizeInBytes := ord(getc(aFile)) + 256 * ord(getc(aFile));
           writeln(log, "sizeInBytes=" <& sizeInBytes);

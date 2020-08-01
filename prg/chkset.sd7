@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkset.sd7    Checks set literals and operations                *)
-(*  Copyright (C) 2004, 2012  Thomas Mertes                         *)
+(*  Copyright (C) 2004, 2012, 2014  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -73,6 +73,43 @@ const proc: check_card is func
     else
       writeln(" ***** card(set) does not work correct");
       writeln;
+    end if;
+  end func;
+
+
+const proc: check_rand is func
+  local
+    var boolean: okay is TRUE;
+    var integer: size_of_set is 0;
+    var integer: number is 0;
+    var integer: random_num is 0;
+    var bitset: test_set is EMPTY_SET;
+  begin
+    okay := TRUE;
+    for size_of_set range 0 to 128 do
+      test_set := EMPTY_SET;
+      for number range 1 to size_of_set do
+        repeat
+          random_num := rand(-128, 128);
+        until random_num not in test_set;
+        incl(test_set, random_num);
+      end for;
+      for number range 1 to size_of_set do
+        random_num := rand(test_set);
+        if random_num not in test_set then
+          writeln(" ***** rand(set) returns something that is not in the set.");
+          okay := FALSE;
+        end if;
+        excl(test_set, random_num);
+      end for;
+      if test_set <> EMPTY_SET then
+        writeln(" ***** rand(set) should return all elements of a set.");
+        okay := FALSE;
+      end if;
+    end for;
+
+    if okay then
+      writeln("rand(bitset) works correct.");
     end if;
   end func;
 
@@ -6239,6 +6276,7 @@ const proc: main is func
   begin
     writeln;
     check_card;
+    check_rand;
     check_incl;
     check_compare;
     check_relations;

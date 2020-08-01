@@ -285,7 +285,7 @@ inttype bstHashCode (const const_bstritype bstri)
 /**
  *  Convert a string to a 'bstring' value.
  *  @return the 'bstring' result of the conversion.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
 bstritype bstParse (const const_stritype stri)
@@ -325,6 +325,8 @@ bstritype bstParse (const const_stritype stri)
 stritype bstStr (const const_bstritype bstri)
 
   {
+    register const uchartype *from = bstri->mem;
+    register strelemtype *to;
     stritype result;
 
   /* bstStr */
@@ -332,7 +334,8 @@ stritype bstStr (const const_bstritype bstri)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = bstri->size;
-      ustri_expand(result->mem, bstri->mem, bstri->size);
+      to = result->mem;
+      memcpy_to_strelem(to, from, bstri->size);
     } /* if */
     return result;
   } /* bstStr */

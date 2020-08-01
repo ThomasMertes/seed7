@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Scanner                                      */
 /*  File: seed7/src/literal.c                                       */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2012 - 2014  Thomas Mertes                */
 /*  Content: Read next char or string literal from the source file. */
 /*                                                                  */
 /********************************************************************/
@@ -126,7 +126,7 @@ static unsigned int escape_sequence (unsigned int position)
       } else {
         symbol.charvalue = (chartype) symbol.intvalue;
       } /* if */
-      if (in_file.character != '\\') {
+      if (in_file.character != ';' && in_file.character != '\\') {
         character = in_file.character;
         err_cchar(WRONGNUMERICALESCAPE, character);
       } else {
@@ -154,33 +154,45 @@ static unsigned int escape_sequence (unsigned int position)
 
 
 
+/**
+ *  Read an UTF-8 character.
+ *  The caller must assure that 'character' contains an
+ *  UTF-8 start byte (range 192 to 255 (leading bits 11......).
+ *  @param character UTF-8 start byte.
+ *  @return an UTF-32 character.
+ */
 chartype utf8_char (register int character)
 
   {
     chartype result;
 
   /* utf8_char */
-    if (character >= 0xC0 && character <= 0xDF) {
+    if (character <= 0xDF) {
       /* character range 192 to 223 (leading bits 110.....) */
       result = (chartype) (character & 0x1F) << 6;
       character = next_character();
       if (character >= 0x80 && character <= 0xBF) {
         /* character range 128 to 191 (leading bits 10......) */
         result |= character & 0x3F;
-        if (result <= 0x7F) {
-          /* Overlong encodings are illegal */
-          err_char(OVERLONG_UTF8_ENCODING, result);
+        if (result <= 0x9F) {
+          if (result <= 0x7F) {
+            /* Overlong encodings are illegal */
+            err_char(OVERLONG_UTF8_ENCODING, result);
+          } else {
+            /* Extended control codes from the C1 set are illegal */
+            err_char(CHAR_ILLEGAL, result);
+          } /* if */
         } else {
           /* correct encodings are in the range */
-          /* 0x80 to 0x07FF (128 to 2047)       */
+          /* 0xA0 to 0x07FF (160 to 2047)       */
         } /* if */
         in_file.character = next_character();
       } else {
         result = 0xC0 | result >> 6; /* Restore 8 bit char */
-        err_char(CHAR_ILLEGAL, result);
+        err_char(SOLITARY_UTF8_START_BYTE, result);
         in_file.character = character;
       } /* if */
-    } else if (character >= 0xE0 && character <= 0xEF) {
+    } else if (character <= 0xEF) {
       /* character range 224 to 239 (leading bits 1110....) */
       result = (chartype) (character & 0x0F) << 12;
       character = next_character();
@@ -208,10 +220,10 @@ chartype utf8_char (register int character)
         } /* if */
       } else {
         result = 0xE0 | result >> 12; /* Restore 8 bit char */
-        err_char(CHAR_ILLEGAL, result);
+        err_char(SOLITARY_UTF8_START_BYTE, result);
         in_file.character = character;
       } /* if */
-    } else if (character >= 0xF0 && character <= 0xF7) {
+    } else if (character <= 0xF7) {
       /* character range 240 to 247 (leading bits 11110...) */
       result = (chartype) (character & 0x07) << 18;
       character = next_character();
@@ -247,10 +259,10 @@ chartype utf8_char (register int character)
         } /* if */
       } else {
         result = 0xF0 | result >> 18; /* Restore 8 bit char */
-        err_char(CHAR_ILLEGAL, result);
+        err_char(SOLITARY_UTF8_START_BYTE, result);
         in_file.character = character;
       } /* if */
-    } else if (character >= 0xF8 && character <= 0xFB) {
+    } else if (character <= 0xFB) {
       /* character range 248 to 251 (leading bits 111110..) */
       result = (chartype) (character & 0x03) << 24;
       character = next_character();
@@ -291,10 +303,10 @@ chartype utf8_char (register int character)
         } /* if */
       } else {
         result = 0xF8 | result >> 24; /* Restore 8 bit char */
-        err_char(CHAR_ILLEGAL, result);
+        err_char(SOLITARY_UTF8_START_BYTE, result);
         in_file.character = character;
       } /* if */
-    } else if (character >= 0xFC && character <= 0xFF) {
+    } else { /* if (character <= 0xFF) */
       /* character range 252 to 255 (leading bits 111111..) */
       result = (chartype) (character & 0x03) << 30;
       character = next_character();
@@ -343,14 +355,9 @@ chartype utf8_char (register int character)
         } /* if */
       } else {
         result = 0xFC | result >> 30; /* Restore 8 bit char */
-        err_char(CHAR_ILLEGAL, result);
+        err_char(SOLITARY_UTF8_START_BYTE, result);
         in_file.character = character;
       } /* if */
-    } else {
-      /* character not in range 0xC0 to 0xFF (192 to 255) */
-      err_cchar(CHAR_ILLEGAL, character);
-      in_file.character = next_character();
-      result = '?';
     } /* if */
     return result;
   } /* utf8_char */
@@ -480,11 +487,16 @@ void lit_char (void)
         if (in_file.character >= (int) ' ' && in_file.character <= (int) '~') {
           symbol.charvalue = (chartype) in_file.character;
           in_file.character = next_character();
-        } else if ((in_file.character & 0xC0) == 0xC0) {
-          /* character range 0xC0 to 0xFF (192 to 255) */
+        } else if (in_file.character >= 0xC0 && in_file.character <= 0xFF) {
+          /* character range 192 to 255 (leading bits 11......) */
           symbol.charvalue = utf8_char(in_file.character);
         } else {
-          err_cchar(CHAR_ILLEGAL, in_file.character);
+          if (in_file.character >= 0x80 && in_file.character <= 0xBF) {
+            /* character range 128 to 191 (leading bits 10......) */
+            err_cchar(UNEXPECTED_UTF8_CONTINUATION_BYTE, in_file.character);
+          } else {
+            err_cchar(CHAR_ILLEGAL, in_file.character);
+          } /* if */
           symbol.charvalue = ' ';
           in_file.character = next_character();
         } /* if */
@@ -570,17 +582,22 @@ void lit_string (void)
       } else if (character == '\\') {
         position = escape_sequence(position);
         character = in_file.character;
+      } else if (character >= 0xC0 && character <= 0xFF) {
+        /* character range 192 to 255 (leading bits 11......) */
+        check_stri_length(position);
+        symbol.strivalue->mem[position++] = utf8_char(character);
+        character = in_file.character;
       } else if (character == '\n' || character == '\r' ||
           character == EOF) {
         err_warning(STRINGEXCEEDS);
         reading_string = FALSE;
-      } else if ((character & 0xC0) == 0xC0) {
-        /* character range 0xC0 to 0xFF (192 to 255) */
-        check_stri_length(position);
-        symbol.strivalue->mem[position++] = utf8_char(character);
-        character = in_file.character;
       } else {
-        err_cchar(CHAR_ILLEGAL, character);
+        if (character >= 0x80 && character <= 0xBF) {
+          /* character range 128 to 191 (leading bits 10......) */
+          err_cchar(UNEXPECTED_UTF8_CONTINUATION_BYTE, character);
+        } else {
+          err_cchar(CHAR_ILLEGAL, character);
+        } /* if */
         do {
           check_stri_length(position);
           symbol.strivalue->mem[position++] = (strelemtype) character;

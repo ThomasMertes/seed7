@@ -445,7 +445,7 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
   Several concepts in use by other languages are not present
 </p><ul>
     <li>There is no goto statement.
-      Hidden goto's like break- and continue-statements are
+      Hidden gotos like break- and continue-statements are
       also omitted.</li>
 
     <li>There is no return statement. Instead a result variable
@@ -976,7 +976,7 @@ FOR_DECLS(<span class="type">boolean</span>);
     <li>Syntax declarations</li>
     <li>System declarations</li>
 </ul><p>
-  which are described in detail in the following subchapters.
+  which are described in detail in the following sub-chapters.
 </p>
 
 <a name="decls_Normal_declarations"><h3>3.1 Normal declarations</h3></a>
@@ -1757,11 +1757,11 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <a name="types_PREDEFINED_TYPES"><h2>5. PREDEFINED TYPES</h2></a>
 
 <p>
-    In the following subchapters the predefined types of the
+    In the following sub-chapters the predefined types of the
   standard library are introduced. The operators have, when not
-  stated otherwise, the type described in the subchapter as
+  stated otherwise, the type described in the sub-chapter as
   parameter type and result type. The relations have also the
-  type described in the subchapter as parameter type and
+  type described in the sub-chapter as parameter type and
   a result of type <tt><a class="type" href="#types_boolean">boolean</a></tt>. In the descriptions <tt><b>&rArr;</b></tt> is used
   to show an equivalent expression.
 </p>
@@ -2840,14 +2840,14 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 </table></dd></dl><p>
   Additionally the following escape sequence can be used:
 </p><ul>
-    <li>Two backslashes with an integer literal between them are
-      interpreted as character with the specified ordinal number.
+    <li>A backslash followed by an integer literal and a semicolon
+      is interpreted as character with the specified ordinal number.
       Note that the integer literal is interpreted decimal unless
       it is written as based integer.</li>
 </ul><p>
   Examples of character literals are:
 </p><pre class="box">
-    <span class="stri">'a'</span>   <span class="stri">' '</span>   <span class="stri">'\n'</span>   <span class="stri">'!'</span>   <span class="stri">'\\'</span>   <span class="stri">'2'</span>   <span class="stri">'"'</span>   <span class="stri">'\"'</span>   <span class="stri">'\''</span>   <span class="stri">'\8\'</span>
+    <span class="stri">'a'</span>   <span class="stri">' '</span>   <span class="stri">'\n'</span>   <span class="stri">'!'</span>   <span class="stri">'\\'</span>   <span class="stri">'2'</span>   <span class="stri">'"'</span>   <span class="stri">'\"'</span>   <span class="stri">'\''</span>   <span class="stri">'\8;'</span>
 </pre><p>
   To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
@@ -2907,7 +2907,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <p>
     The type <tt><a class="type" href="#types_string">string</a></tt> describes sequences of Unicode characters
   (including the empty string). The characters in the <tt><a class="type" href="#types_string">string</a></tt>
-  use the UTF-32 encoding. Strings are not <tt><span class="stri">'\0\'</span></tt> terminated.
+  use the UTF-32 encoding. Strings are not <tt><span class="stri">'\0;'</span></tt> terminated.
   Therefore they can also contain binary data. Although <tt><a class="type" href="#types_string">string</a></tt>s
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a <tt><a class="type" href="#types_string">string</a></tt> value. In this case the
@@ -3074,7 +3074,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <span class="func">endsWith</span>(A,B) Determine if a string ends with a suffix.
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     endsWith(<span class="stri">"hello.sd7"</span>, <span class="stri">".sd7"</span>) <b>&rArr;</b> <span class="var">TRUE</span>,
-                    endsWith(<span class="stri">"A string"</span>, <span class="stri">"\0\"</span>) <b>&rArr;</b> <span class="var">FALSE</span> )
+                    endsWith(<span class="stri">"A string"</span>, <span class="stri">"\0;"</span>) <b>&rArr;</b> <span class="var">FALSE</span> )
       <span class="func">equalAtIndex</span>(A,B,C) Check if A has the searched characters B starting from C.
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     equalAtIndex(<span class="stri">"The quick brown fox"</span>, <span class="stri">"quick"</span>, 5) <b>&rArr;</b> <span class="var">TRUE</span>,
@@ -4486,7 +4486,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <a name="params_PARAMETERS"><h2>6. PARAMETERS</h2></a>
 
 <p>
-    The following subchapters introduce the parameter types of
+    The following sub-chapters introduce the parameter types of
   Seed7.
 </p>
 
@@ -5481,7 +5481,7 @@ clear(window1);
     <li>An interface which allows the user to define
       his own file types.</li>
 </ul><p>
-  In the following subchapters we discuss each of these goals.
+  In the following sub-chapters we discuss each of these goals.
 </p>
 
 <a name="file_Conversion_to_strings_and_back"><h3>8.1 Conversion to strings and back</h3></a>
@@ -6036,7 +6036,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   Note that <tt><span class="func">open</span></tt> opens BYTE files. Writing
   a character with an ordinal >= 256 such as
 </p><pre class="indent">
-writeln(my_out, <span class="stri">"illegal char: \256\"</span>);
+writeln(my_out, <span class="stri">"illegal char: \256;"</span>);
 </pre><p>
   results in the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>. To write Unicode
   characters other file types must be used. The libraries
@@ -6048,19 +6048,19 @@ my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"w"
 </pre><p>
   An UTF-8 file accepts all Unicode characters. That way
 </p><pre class="indent">
-writeln(my_out, <span class="stri">"Unicode char: \256\"</span>);
+writeln(my_out, <span class="stri">"Unicode char: \256;"</span>);
 </pre><p>
   works without problems. UTF-8 files are byte order independent.
   Therefore they do not need a byte order mark (BOM).
   In case a BOM is required it can be written by the user program:
 </p><pre class="indent">
 my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"w"</span>);
-write(<span class="stri">"\16#FEFF\"</span>);
+write(<span class="stri">"\16#feff;"</span>);
 </pre><p>
   The following example expects a mandatory BOM at the beginning of an UTF-8 file:
 </p><pre class="indent">
 my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"</span>);
-<span class="keywd">if</span> getc(my_file) &lt;> <span class="stri">'\16#FEFF\'</span> <span class="keywd">then</span>
+<span class="keywd">if</span> getc(my_file) &lt;> <span class="stri">'\16#feff;'</span> <span class="keywd">then</span>
   writeln(<span class="stri">"The BOM is missing"</span>");
 <span class="keywd">else</span>
   ...
@@ -6069,7 +6069,7 @@ my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"
   Accepting an optional BOM at the beginning of an UTF-8 file is done with:
 </p><pre class="indent">
 my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"</span>);
-<span class="keywd">if</span> getc(my_file) &lt;> <span class="stri">'\16#FEFF\'</span> <span class="keywd">then</span>
+<span class="keywd">if</span> getc(my_file) &lt;> <span class="stri">'\16#feff;'</span> <span class="keywd">then</span>
   <span class="comment"># This is a file without BOM (the first character will be read later).</span>
   seek(my_file, 1);
 <span class="keywd">end if</span>;
@@ -8034,13 +8034,13 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
       Note that in this case the leading spaces in the new line
       are not part of the string.</li>
 
-    <li>Two backslashes with an integer literal between them is
-      interpreted as character with the specified ordinal number.
+    <li>A backslash followed by an integer literal and a semicolon
+      is interpreted as character with the specified ordinal number.
       Note that the integer literal is interpreted decimal unless
       it is written as based integer.</li>
 </ul><p>
   Strings are implemented with length field and UTF-32 encoding.
-  Strings are not '\0\' terminated and therefore can also contain
+  Strings are not <tt><span class="stri">'\0;'</span></tt> terminated and therefore can also contain
   binary data.
 </p><dl><dt>
   Syntax:
@@ -8063,7 +8063,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
     <dt><a name="tokens_ebnf_escape_sequence">escape_sequence</a> ::=</dt><dd>
       '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |<br />
       '\\' | '\''' | '\"' | '\' <a class="ebnf" href="#tokens_ebnf_upper_case_letter">upper_case_letter</a> |<br />
-      '\' { <a class="ebnf" href="#tokens_ebnf_space">space</a> } '\' | '\' <a class="ebnf" href="#tokens_ebnf_integer_literal">integer_literal</a> '\' .</dd>
+      '\' { <a class="ebnf" href="#tokens_ebnf_space">space</a> } '\' | '\' <a class="ebnf" href="#tokens_ebnf_integer_literal">integer_literal</a> ';' .</dd>
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_apostrophe">apostrophe</a> ::=</dt><dd>
       ''' .</dd>
@@ -8074,7 +8074,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
     A character literal is an UTF-8 encoded Unicode character
   enclosed in apostrophes. For example:
 </p><pre class="indent">
-<span class="stri">'a'</span>   <span class="stri">' '</span>   <span class="stri">'\n'</span>   <span class="stri">'!'</span>   <span class="stri">'\\'</span>   <span class="stri">'2'</span>   <span class="stri">'"' </span>  <span class="stri">'\"'</span>   <span class="stri">'\''</span>
+<span class="stri">'a'</span>   <span class="stri">' '</span>   <span class="stri">'\n'</span>   <span class="stri">'!'</span>   <span class="stri">'\\'</span>   <span class="stri">'2'</span>   <span class="stri">'"' </span>  <span class="stri">'\"'</span>   <span class="stri">'\''</span>   <span class="stri">'\8;'</span>
 </pre><p>
   To represent control characters and certain other characters in
   character literals the same escape sequences as for <a class="link" href="#tokens_String_literals">string
@@ -10898,7 +10898,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">20:</td> <td width="10"></td><td>Use \" instead of "" to represent " in a string</td></tr>
     <tr><td align="right">21:</td> <td width="10"></td><td>Use / instead of \\ as path delimiter</td></tr>
     <tr><td align="right">22:</td> <td width="10"></td><td>Illegal string escape "\%s"</td></tr>
-    <tr><td align="right">23:</td> <td width="10"></td><td>Numerical escape sequences should end with "\" not "%s");</td></tr>
+    <tr><td align="right">23:</td> <td width="10"></td><td>Numerical escape sequences should end with ";" not "%s");</td></tr>
     <tr><td align="right">24:</td> <td width="10"></td><td>String continuations should end with "\" not "%s");</td></tr>
     <tr><td align="right">25:</td> <td width="10"></td><td>String literal exceeds source line</td></tr>
     <tr><td align="right">26:</td> <td width="10"></td><td>Name expected found "%s"</td></tr>
@@ -10936,6 +10936,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">58:</td> <td width="10"></td><td>UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)</td></tr>
     <tr><td align="right">59:</td> <td width="10"></td><td>Non Unicode character found "%s" (U+%04x)</td></tr>
     <tr><td align="right">60:</td> <td width="10"></td><td>UTF-8 continuation byte expected found "%s" (U+%04x)</td></tr>
+    <tr><td align="right">61:</td> <td width="10"></td><td>Unexpected UTF-8 continuation byte found "%s" (U+%04x)</td></tr>
+    <tr><td align="right">62:</td> <td width="10"></td><td>Solitary UTF-8 start byte found "%s" (U+%04x)</td></tr>
+    <tr><td align="right">63:</td> <td width="10"></td><td>UTF-16 byte order mark found "%s" (U+%04x)</td></tr>
     <tr><td align="right">   </td> <td width="10"></td><td>Undefined error</td></tr>
 </table></dd></dl><p></p>
 

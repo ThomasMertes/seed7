@@ -211,8 +211,8 @@ const func string: getln (inout editLineFile: inEditLine) is func
             write(inEditLine.outFile, line[pos len 20]);
             moveLeft(inEditLine.outFile, line[pos len 20]);
           end if;
-        elsif ch >= ' ' and ch <= '~' or ch >= '\160\' and ch <= '\255\' or
-              ch >= '\256\' and ch <= '\16#10FFFF\' and inEditLine.allowUnicode then
+        elsif ch >= ' ' and ch <= '~' or ch >= '\160;' and ch <= '\255;' or
+              ch >= '\256;' and ch <= '\16#10ffff;' and inEditLine.allowUnicode then
           line := line[.. pred(pos)] & str(ch) & line[pos ..];
           write(inEditLine.outFile, line[pos ..]);
           moveLeft(inEditLine.outFile, line[succ(pos) ..]);

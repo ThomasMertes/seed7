@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  err.sd7       Test for almost all possible compile time errors  *)
-(*  Copyright (C) 1994, 2004, 2007, 2013  Thomas Mertes             *)
+(*  Copyright (C) 1994, 2004, 2007, 2013, 2014  Thomas Mertes       *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -24,7 +24,7 @@
 
 $ include "seed7_05.s7i";
 include "qwtry";(* Include file "qwtry" not found                *)
-(* char: *)    (* Illegal character in text "\8\" (U+0008)      *)
+(* char: *)    (* Illegal character in text "\8;" (U+0008)      *)
 $ illegal;      (* Illegal pragma "illegal"                      *)
 $ const ACTION: (* Illegal action "z"                            *)  a is $ action "z";
 $ system "qwer" (* Illegal system declaration "qwer"             *)  is qwer;
@@ -42,7 +42,7 @@ ignore(          (* Character literal exceeds source line        *) '
 ignore("a""b");  (* Use \" instead of "" to represent " in a string  *)
 include "\\a";   (* Use / instead of \ as path delimiter         *)
 ignore("\!");    (* Illegal string escape "\!"                   *)
-ignore("\8y");   (* Numerical escape sequences should end with "\" not "y"  *) ignore("\
+ignore("\8y");   (* Numerical escape sequences should end with ";" not "y"  *) ignore("\
 continued");     (* String continuations should end with "\" not "c"  *)
 ignore(" ...     (* String literal exceeds source line  *)
 );
@@ -86,8 +86,10 @@ $ const char: d  (* "newtype", "subtype", "func", "enumlit" or "action" expected
 $ const $ apple: (* "func" or "type" expected found "apple" *)  e is 1;
 $ const jkl:     (* Type expected found jkl                 *)  b is 5;
 $ syntax expr: .i2.i3 is -> 3; const expr: i4 is i2 i5;
-ignore("¿Ä");    (* Overlong UTF-8 encoding used for character "\0\" (U+0000) *)
-ignore("Ì†Ä");   (* UTF-16 surrogate character found in UTF-8 encoding "\55296\" (U+d800) *)
-ignore("ÙêÄÄ");  (* Non Unicode character found "\1114112\" (U+110000) *)
+ignore("¿Ä");    (* Overlong UTF-8 encoding used for character "\0;" (U+0000) *)
+ignore("Ì†Ä");   (* UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+d800) *)
+ignore("ÙêÄÄ");  (* Non Unicode character found "\1114112;" (U+110000) *)
 ignore("ÌÄA");   (* UTF-8 continuation byte expected found "A" *)
+ignore("Ä");     (* Unexpected UTF-8 continuation byte found "\128;" (U+0080) *)
+ignore("ÌA");    (* Solitary UTF-8 start byte found "\237;" (U+00ed) *)
                 (* Unclosed comment

@@ -420,11 +420,6 @@ $ include "char.s7i";
 
 $ include "string.s7i";
 
-# The function stri with a base is deprecated.
-# The radix operator should be used instead.
-const func string: str (in integer: number, in integer: base) is
-  return number radix base;
-
 const func char: (attr char) parse (in string: stri) is
   return stri[1];
 
@@ -815,7 +810,7 @@ const proc: body (ref type: STRU) is (ref expr: DECLS) end body is func
 
 const proc: type_implements_interface (in type: aType, in type: interfaceType) is func
   begin
-    const proc: (ref interfaceType param) ::= (ref aType param)             is action "ITF_CREATE2";
+    const proc: (ref interfaceType param) ::= (ref aType param)             is action "ITF_CREATE";
     const proc: (inout interfaceType: dest) := (ref aType: source)          is action "ITF_CPY2";
     const func interfaceType: (attr interfaceType) conv (ref aType: aValue) is action "ITF_CONV2";
     const func interfaceType: toInterface (ref aType: aValue)               is action "ITF_TO_INTERFACE";

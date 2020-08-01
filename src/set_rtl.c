@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  set_rtl.c     Primitive actions for the set type.               */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/set_rtl.c                                       */
-/*  Changes: 2004, 2005, 2010, 2012, 2013  Thomas Mertes            */
+/*  Changes: 2004, 2005, 2010, 2012 - 2014  Thomas Mertes           */
 /*  Content: Primitive actions for the set type.                    */
 /*                                                                  */
 /********************************************************************/
@@ -46,7 +46,8 @@
 #include "set_rtl.h"
 
 
-static int card_byte[] = {
+#ifdef OUT_OF_ORDER
+static const int card_byte[] = {
     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
@@ -64,6 +65,33 @@ static int card_byte[] = {
     3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
     4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
   };
+#endif
+
+
+
+/**
+ *  Determine the number of one bits in a bitset.
+ *  The function uses a combination of sideways additions and
+ *  a multiplication to count the bits set in a bitset element.
+ *  @return the number of one bits.
+ */
+static inline uinttype bitsetPopulation (bitsettype bitset)
+
+  { /* bitsetPopulation */
+#if BITSETTYPE_SIZE == 32
+    bitset -= (bitset >> 1) & UINT32_SUFFIX(0x55555555);
+    bitset =  (bitset       & UINT32_SUFFIX(0x33333333)) +
+             ((bitset >> 2) & UINT32_SUFFIX(0x33333333));
+    bitset = (bitset + (bitset >> 4)) & UINT32_SUFFIX(0x0f0f0f0f);
+    return (uinttype) ((bitset * UINT32_SUFFIX(0x01010101)) >> 24);
+#elif BITSETTYPE_SIZE == 64
+    bitset -= (bitset >> 1) & UINT64_SUFFIX(0x5555555555555555);
+    bitset =  (bitset       & UINT64_SUFFIX(0x3333333333333333)) +
+             ((bitset >> 2) & UINT64_SUFFIX(0x3333333333333333));
+    bitset = (bitset + (bitset >> 4)) & UINT64_SUFFIX(0x0f0f0f0f0f0f0f0f);
+    return (uinttype) ((bitset * UINT64_SUFFIX(0x0101010101010101)) >> 56);
+#endif
+  } /* bitsetPopulation */
 
 
 
@@ -135,6 +163,43 @@ settype setBaselit (const inttype number)
 
 /**
  *  Compute the cardinality of a set.
+ *  The function is based on the function bitsetPopulation, which
+ *  uses a combination of sideways additions and a multiplication
+ *  to count the bits set in a bitset element.
+ *  @return the number of elements in 'aSet'.
+ */
+inttype setCard (const const_settype aSet)
+
+  {
+    memsizetype index_beyond;
+    memsizetype bitset_index;
+    bitsettype bitset;
+    uinttype card = 0;
+    inttype result;
+
+  /* setCard */
+    index_beyond = bitsetSize(aSet);
+    for (bitset_index = index_beyond; bitset_index > 0; bitset_index--) {
+      bitset = aSet->bitset[bitset_index - 1];
+      card += bitsetPopulation(bitset);
+    } /* for */
+    if (card > INTTYPE_MAX) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      result = (inttype) card;
+    } /* if */
+    /* printf(" = %d\n", result); */
+    return result;
+  } /* setCard */
+
+
+
+#ifdef OUT_OF_ORDER
+/**
+ *  Compute the cardinality of a set.
+ *  The function uses table lookups to count the bits set in
+ *  a bitset element.
  *  @return the number of elements in 'aSet'.
  */
 inttype setCard (const const_settype aSet)
@@ -160,6 +225,7 @@ inttype setCard (const const_settype aSet)
     /* printf(" = %d\n", result); */
     return result;
   } /* setCard */
+#endif
 
 
 
@@ -1026,7 +1092,7 @@ inttype setMax (const const_settype aSet)
       bitset_index--;
       curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
-        result = uintMostSignificantBit(curr_bitset);
+        result = bitsetMostSignificantBit(curr_bitset);
         result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
         return result;
       } /* if */
@@ -1059,7 +1125,7 @@ inttype setMin (const const_settype aSet)
     while (bitset_index < bitset_size) {
       curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
-        result = uintLeastSignificantBit(curr_bitset);
+        result = bitsetLeastSignificantBit(curr_bitset);
         result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
         return result;
       } /* if */
@@ -1092,7 +1158,7 @@ inttype setNext (const const_settype set1, const inttype number)
       bit_index = ((unsigned int) number) & bitset_mask;
       curr_bitset = set1->bitset[bitset_index] & (~(bitsettype) 1 << bit_index);
       if (curr_bitset != 0) {
-        result = uintLeastSignificantBit(curr_bitset);
+        result = bitsetLeastSignificantBit(curr_bitset);
         result += (set1->min_position + (inttype) bitset_index) << bitset_shift;
         return result;
       } /* if */
@@ -1100,7 +1166,7 @@ inttype setNext (const const_settype set1, const inttype number)
       while (bitset_index < bitset_size) {
         curr_bitset = set1->bitset[bitset_index];
         if (unlikely(curr_bitset != 0)) {
-          result = uintLeastSignificantBit(curr_bitset);
+          result = bitsetLeastSignificantBit(curr_bitset);
           result += (set1->min_position + (inttype) bitset_index) << bitset_shift;
           return result;
         } /* if */
@@ -1124,7 +1190,6 @@ inttype setRand (const const_settype aSet)
   {
     inttype num_elements;
     inttype elem_index;
-    memsizetype bitset_size;
     memsizetype bitset_index;
     bitsettype curr_bitset;
     inttype result;
@@ -1136,21 +1201,26 @@ inttype setRand (const const_settype aSet)
       return 0;
     } else {
       elem_index = intRand(1, num_elements);
-      bitset_size = bitsetSize(aSet);
-      bitset_index = 0;
-      while (bitset_index < bitset_size) {
-        curr_bitset = aSet->bitset[bitset_index];
+      for (bitset_index = bitsetSize(aSet);
+           bitset_index > 0 && elem_index > BITSETTYPE_SIZE; bitset_index--) {
+        curr_bitset = aSet->bitset[bitset_index - 1];
+        /* When elem_index > BITSETTYPE_SIZE holds */
+        /* the element cannot be in curr_bitset.   */
+        elem_index -= (inttype) bitsetPopulation(curr_bitset);
+      } /* for */
+      for (; bitset_index > 0; bitset_index--) {
+        curr_bitset = aSet->bitset[bitset_index - 1];
         while (curr_bitset != 0) {
-          result = uintLeastSignificantBit(curr_bitset);
           elem_index--;
           if (elem_index == 0) {
-            result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
+            result = bitsetLeastSignificantBit(curr_bitset) +
+                ((aSet->min_position + (inttype) (bitset_index - 1)) << bitset_shift);
             return result;
           } /* if */
-          curr_bitset &= ~((bitsettype) 1 << result);
+          /* Turn off the rightmost one bit of curr_bitset: */
+          curr_bitset &= curr_bitset - 1;
         } /* while */
-        bitset_index++;
-      } /* while */
+      } /* for */
     } /* if */
     raise_error(RANGE_ERROR);
     return 0;

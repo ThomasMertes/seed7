@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chkccomp   Check properties of C compiler and runtime.          */
-/*  Copyright (C) 2010, 2011, 2012  Thomas Mertes                   */
+/*  Copyright (C) 2010 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Chkccomp                                                */
 /*  File: seed7/src/chkccomp.c                                      */
-/*  Changes: 2010, 2011, 2012  Thomas Mertes                        */
+/*  Changes: 2010 - 2014  Thomas Mertes                             */
 /*  Content: Program to Check properties of C compiler and runtime. */
 /*                                                                  */
 /********************************************************************/
@@ -651,6 +651,9 @@ int main (int argc, char **argv)
     testUnion.charvalue = 'X';
     if (testUnion.charvalue != (char) testUnion.genericvalue) {
       puts("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT");
+    } /* if */
+    if (EOF != -1) {
+      puts("#define EOF_IS_NOT_MINUS_ONE");
     } /* if */
     if (!compilationOkay("#include <stdio.h>\n"
                          "typedef struct emptystruct { } emptyrecord;\n"

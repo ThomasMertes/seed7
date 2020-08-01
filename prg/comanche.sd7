@@ -59,7 +59,7 @@ const proc: sendHttpResponse (inout file: sock, in string: response,
     writeln(sock, "Content-Length: " <& length(response));
     if contentType <> "" then
       writeln(sock, "Content-Type: " <& contentType);
-    elsif startsWith(response, "\137\PNG") then
+    elsif startsWith(response, "\137;PNG") then
       writeln(sock, "Content-Type: image/png");
     elsif pos(response, "<html") = 0 then
       writeln(sock, "Content-Type: text/html");

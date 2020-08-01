@@ -54,6 +54,16 @@
 #define LOWER_HALVE_OF_UINT(A)           ((A) & UINT_LOWER_HALVE_BITS_SET)
 #define UPPER_HALVE_OF_UINT(A)           ((A) >> (INTTYPE_SIZE >> 1))
 
+/* Number of characters needed when the most negative  */
+/* integer is written with radix 2. One character is   */
+/* needed for the sign. Assume that integers are just  */
+/* signed bytes. In this case the most negative number */
+/* would be -128. -128 radix 2  returns  "-10000000"   */
+/* The result needs 9 digits although -128 fits into a */
+/* signed byte with 8 bits.                            */
+#define RADIX_BUFFER_SIZE (8 * sizeof(inttype) + 1)
+
+#define BYTE_BUFFER_SIZE sizeof(inttype)
 
 #if   INTTYPE_SIZE == 32
 #define DECIMAL_DIGITS(num)                    \
@@ -136,7 +146,7 @@ static const int most_significant[] = {
   };
 
 static const int least_significant[] = {
-   -1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+    8, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
     5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -404,7 +414,7 @@ int uint16MostSignificantBit (uint16type number)
     int result;
 
   /* uint16MostSignificantBit */
-    if (number & 0xff00) {
+    if (number > 0xff) {
       result = 8 + most_significant[number >> 8];
     } else {
       result = most_significant[number];
@@ -421,9 +431,9 @@ int uint32MostSignificantBit (uint32type number)
 
   /* uint32MostSignificantBit */
     result = 0;
-    if (number & 0xffff0000) {
+    if (number > 0xffff) {
       number >>= 16;
-      result += 16;
+      result = 16;
     } /* if */
     if (number & 0xff00) {
       number >>= 8;
@@ -443,11 +453,7 @@ int uint64MostSignificantBit (uint64type number)
 
   /* uint64MostSignificantBit */
     result = 0;
-#ifdef INT64TYPE_SUFFIX_LL
-    if (number & 0xffffffff00000000LL) {
-#else
-    if (number & 0xffffffff00000000) {
-#endif
+    if (number > 0xffffffff) {
       number >>= 32;
       result = 32;
     } /* if */
@@ -503,7 +509,7 @@ int uint32LeastSignificantBit (uint32type number)
     result = 0;
     if ((number & 0xffff) == 0) {
       number >>= 16;
-      result += 16;
+      result = 16;
     } /* if */
     if ((number & 0xff) == 0) {
       number >>= 8;
@@ -755,72 +761,255 @@ inttype intBitLength (inttype number)
 
 
 /**
- *  Convert a string of bytes (interpreted as big-endian) to an integer.
- *  @param byteStri String of bytes interpreted as big-endian binary integer.
- *  @return a non-negative integer created from the big-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present or
- *             when the string is too long to fit into an integer or
- *             when the result would be negative.
+ *  Convert an integer into a big-endian string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Integer number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'number' is converted to a result where the most significant
+ *         byte has an ordinal >= 128.
+ *  @return a string with the shortest binary representation of 'number'.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-inttype intBytesBe2UInt (const const_stritype byteStri)
+stritype intBytesBe (inttype number, booltype isSigned)
 
   {
-    memsizetype pos;
-    uinttype result = 0;
+    strelemtype buffer[BYTE_BUFFER_SIZE];
+    unsigned int pos = BYTE_BUFFER_SIZE;
+    stritype result;
 
-  /* intBytesBe2UInt */
-    if (unlikely(byteStri->size > sizeof(inttype))) {
-      raise_error(RANGE_ERROR);
+  /* intBytesBe */
+    /* printf("intBytesBe(%016lx, %d)\n", number, isSigned); */
+    if (number >= 0) {
+      do {
+        pos--;
+        buffer[pos] = (strelemtype) (number & 0xff);
+        number >>= 8;
+      } while (number != 0);
+      if (isSigned && buffer[pos] >= 128) {
+        pos--;
+        buffer[pos] = 0;
+      } /* if */
+    } else if (isSigned) {
+      do {
+        pos--;
+        buffer[pos] = (strelemtype) (number & 0xff);
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+        number >>= 8;
+#else
+        number = ~(~number >> 8);
+#endif
+      } while (number != -1);
+      if (buffer[pos] <= 127) {
+        pos--;
+        buffer[pos] = 255;
+      } /* if */
     } else {
-      for (pos = 0; pos < byteStri->size; pos++) {
-        if (unlikely(byteStri->mem[pos] >= 256)) {
-          raise_error(RANGE_ERROR);
-        } /* if */
-        result <<= 8;
-        result += byteStri->mem[pos];
-      } /* for */
-    } /* if */
-    if (unlikely(result > INTTYPE_MAX)) {
       raise_error(RANGE_ERROR);
-      result = 0;
+      return NULL;
     } /* if */
-    return (inttype) result;
-  } /* intBytesBe2UInt */
+    if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) (BYTE_BUFFER_SIZE - pos))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = (memsizetype) (BYTE_BUFFER_SIZE - pos);
+      memcpy(result->mem, &buffer[pos],
+             (memsizetype) (BYTE_BUFFER_SIZE - pos) * sizeof(strelemtype));
+    } /* if */
+    return result;
+  } /* intBytesBe */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as big-endian) to an integer.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary big-endian representation with a
+ *         base of 256.
+ *  @param isSigned Determines the signedness of 'byteStri'.
+ *         When 'isSigned' is TRUE 'byteStri' is interpreted as
+ *         signed value in the twos-complement representation.
+ *         In this case the result is negative when the most significant
+ *         byte (the first byte) has an ordinal >= 128.
+ *  @return an integer created from 'byteStri'.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
+ *             when the result value cannot be represented with an integer.
+ */
+inttype intBytesBe2Int (const const_stritype byteStri, booltype isSigned)
+
+  {
+    memsizetype pos = 0;
+    inttype result = 0;
+
+  /* intBytesBe2Int */
+    /* printf("intBytesBe2Int(");
+       prot_stri(byteStri);
+       printf(", %d)\n", isSigned); */
+    if (!isSigned || byteStri->size == 0 || byteStri->mem[0] <= 127) {
+      if (unlikely(byteStri->size >= sizeof(inttype))) {
+        while (pos < byteStri->size && byteStri->mem[pos] == 0) {
+          pos++;
+        } /* if */
+        if (unlikely(byteStri->size - pos > sizeof(inttype) ||
+                     (byteStri->size - pos == sizeof(inttype) &&
+                      byteStri->mem[pos] >= 128))) {
+          raise_error(RANGE_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+    } else { /* isSigned && byteStri->size != 0 && byteStri->mem[0] >= 128 */
+      if (unlikely(byteStri->size >= sizeof(inttype))) {
+        while (pos < byteStri->size && byteStri->mem[pos] == 255) {
+          pos++;
+        } /* if */
+        if (unlikely(byteStri->size - pos > sizeof(inttype) ||
+                     (byteStri->size - pos == sizeof(inttype) &&
+                      byteStri->mem[pos] <= 127))) {
+          raise_error(RANGE_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+      result = -1;
+    } /* if */
+    for (; pos < byteStri->size; pos++) {
+      if (unlikely(byteStri->mem[pos] >= 256)) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+      result <<= 8;
+      result += byteStri->mem[pos];
+    } /* for */
+    return result;
+  } /* intBytesBe2Int */
+
+
+
+/**
+ *  Convert an integer into a little-endian string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Integer number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'number' is converted to a result where the most significant
+ *         byte has an ordinal >= 128.
+ *  @return a string with the shortest binary representation of 'number'.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+stritype intBytesLe (inttype number, booltype isSigned)
+
+  {
+    strelemtype buffer[BYTE_BUFFER_SIZE];
+    unsigned int pos = 0;
+    stritype result;
+
+  /* intBytesLe */
+    /* printf("intBytesLe(%016lx, %d)\n", number, isSigned); */
+    if (number >= 0) {
+      do {
+        buffer[pos] = (uchartype) (number & 0xff);
+        number >>= 8;
+        pos++;
+      } while (number != 0);
+      if (isSigned && buffer[pos - 1] >= 128) {
+        buffer[pos] = 0;
+        pos++;
+      } /* if */
+    } else if (isSigned) {
+      do {
+        buffer[pos] = (uchartype) (number & 0xff);
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+        number >>= 8;
+#else
+        number = ~(~number >> 8);
+#endif
+        pos++;
+      } while (number != -1);
+      if (buffer[pos - 1] <= 127) {
+        buffer[pos] = 255;
+        pos++;
+      } /* if */
+    } else {
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } /* if */
+    if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) (pos))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = (memsizetype) (pos);
+      memcpy(result->mem, &buffer[0],
+             (memsizetype) pos * sizeof(strelemtype));
+    } /* if */
+    return result;
+  } /* intBytesLe */
 
 
 
 /**
  *  Convert a string of bytes (interpreted as little-endian) to an integer.
- *  @param byteStri String of bytes interpreted as little-endian binary integer.
- *  @return a non-negative integer created from the big-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present or
- *             when the string is too long to fit into an integer or
- *             when the result would be negative.
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary little-endian representation with a
+ *         base of 256.
+ *  @param isSigned Determines the signedness of 'byteStri'.
+ *         When 'isSigned' is TRUE 'byteStri' is interpreted as
+ *         signed value in the twos-complement representation.
+ *         In this case the result is negative when the most significant
+ *         byte (the last byte) has an ordinal >= 128.
+ *  @return an integer created from 'byteStri'.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present or
+ *             when the result value cannot be represented with an integer.
  */
-inttype intBytesLe2UInt (const const_stritype byteStri)
+inttype intBytesLe2Int (const const_stritype byteStri, booltype isSigned)
 
   {
     memsizetype pos;
-    uinttype result = 0;
+    inttype result = 0;
 
-  /* intBytesLe2UInt */
-    if (unlikely(byteStri->size > sizeof(inttype))) {
-      raise_error(RANGE_ERROR);
-    } else {
-      for (pos = byteStri->size; pos > 0; pos--) {
-        if (unlikely(byteStri->mem[pos - 1] >= 256)) {
-          raise_error(RANGE_ERROR);
+  /* intBytesLe2Int */
+    /* printf("intBytesLe2Int(");
+       prot_stri(byteStri);
+       printf(", %d)\n", isSigned); */
+    pos = byteStri->size;
+    if (!isSigned || byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
+      if (unlikely(byteStri->size >= sizeof(inttype))) {
+        while (pos > 0 && byteStri->mem[pos - 1] == 0) {
+          pos--;
         } /* if */
-        result <<= 8;
-        result += byteStri->mem[pos - 1];
-      } /* for */
+        if (unlikely(pos > sizeof(inttype) ||
+                     (pos == sizeof(inttype) &&
+                      byteStri->mem[pos - 1] >= 128))) {
+          raise_error(RANGE_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+    } else { /* isSigned && byteStri->size != 0 && byteStri->mem[pos - 1] >= 128 */
+      if (unlikely(byteStri->size >= sizeof(inttype))) {
+        while (pos > 0 && byteStri->mem[pos - 1] == 255) {
+          pos--;
+        } /* if */
+        if (unlikely(pos > sizeof(inttype) ||
+                     (pos == sizeof(inttype) &&
+                      byteStri->mem[pos - 1] <= 127))) {
+          raise_error(RANGE_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+      result = -1;
     } /* if */
-    if (unlikely(result > INTTYPE_MAX)) {
-      raise_error(RANGE_ERROR);
-      result = 0;
-    } /* if */
-    return (inttype) result;
-  } /* intBytesLe2UInt */
+    for (; pos > 0; pos--) {
+      if (unlikely(byteStri->mem[pos - 1] >= 256)) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+      result <<= 8;
+      result += byteStri->mem[pos - 1];
+    } /* for */
+    return result;
+  } /* intBytesLe2Int */
 
 
 
@@ -901,17 +1090,12 @@ inttype intLowestSetBit (inttype number)
     inttype result;
 
   /* intLowestSetBit */
-    result = 0;
-    if ((number & 0xffff) == 0) {
-      number >>= 16;
-      result += 16;
+    if (number == 0) {
+      result = -1;
+    } else {
+      result = uintLeastSignificantBit((uinttype) number);
     } /* if */
-    if ((number & 0xff) == 0) {
-      number >>= 8;
-      result += 8;
-    } /* if */
-    result += least_significant[number & 0xff];
-    return (inttype) result;
+    return result;
   } /* intLowestSetBit */
 
 
@@ -1087,7 +1271,7 @@ stritype intRadix (inttype number, inttype base, booltype upperCase)
     uinttype unsigned_number;
     booltype negative;
     const_cstritype digits;
-    strelemtype buffer_1[75];
+    strelemtype buffer_1[RADIX_BUFFER_SIZE];
     strelemtype *buffer;
     memsizetype length;
     stritype result;
@@ -1106,14 +1290,14 @@ stritype intRadix (inttype number, inttype base, booltype upperCase)
         unsigned_number = (uinttype) number;
       } /* if */
       digits = digitTable[upperCase];
-      buffer = &buffer_1[75];
+      buffer = &buffer_1[RADIX_BUFFER_SIZE];
       do {
         *(--buffer) = (strelemtype) (digits[unsigned_number % (uinttype) base]);
       } while ((unsigned_number /= (uinttype) base) != 0);
       if (negative) {
         *(--buffer) = (strelemtype) '-';
       } /* if */
-      length = (memsizetype) (&buffer_1[75] - buffer);
+      length = (memsizetype) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -1144,7 +1328,7 @@ stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
     uinttype unsigned_number;
     booltype negative;
     const_cstritype digits;
-    strelemtype buffer_1[50];
+    strelemtype buffer_1[RADIX_BUFFER_SIZE];
     strelemtype *buffer;
     memsizetype length;
     stritype result;
@@ -1159,14 +1343,14 @@ stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
       unsigned_number = (uinttype) number;
     } /* if */
     digits = digitTable[upperCase];
-    buffer = &buffer_1[50];
+    buffer = &buffer_1[RADIX_BUFFER_SIZE];
     do {
       *(--buffer) = (strelemtype) (digits[unsigned_number & (uinttype) mask]);
     } while ((unsigned_number >>= shift) != 0);
     if (negative) {
       *(--buffer) = (strelemtype) '-';
     } /* if */
-    length = (memsizetype) (&buffer_1[50] - buffer);
+    length = (memsizetype) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
       raise_error(MEMORY_ERROR);
       return NULL;
@@ -1331,117 +1515,3 @@ stritype intStrToBuffer (inttype number, stritype buffer)
     return buffer;
   } /* intStrToBuffer */
 #endif
-
-
-
-/**
- *  Convert an integer into a big-endian bstring.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a bstring with the big-endian representation.
- */
-bstritype intToBStriBe (inttype number)
-
-  {
-    uchartype buffer[8];
-    int pos = 7;
-    bstritype result;
-
-  /* intToBStriBe */
-    /* printf("intToBStriBe(%016lx)\n", number); */
-    if (number > 0) {
-      do {
-        buffer[pos] = (uchartype) (number & 0xff);
-        number >>= 8;
-        pos--;
-      } while (number != 0);
-      if (buffer[pos + 1] <= 127) {
-        pos++;
-      } else {
-        buffer[pos] = 0;
-      } /* if */
-    } else if (number < 0) {
-      do {
-        buffer[pos] = (uchartype) (number & 0xff);
-#ifdef RSHIFT_DOES_SIGN_EXTEND
-        number >>= 8;
-#else
-        number = ~(~number >> 8);
-#endif
-        pos--;
-      } while (number != -1);
-      if (buffer[pos + 1] >= 128) {
-        pos++;
-      } else {
-        buffer[pos] = 255;
-      } /* if */
-    } else {
-      buffer[7] = '\0';
-    } /* if */
-    if (!ALLOC_BSTRI_SIZE_OK(result, (memsizetype) (8 - pos))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      result->size = (memsizetype) (8 - pos);
-      memcpy(result->mem, &buffer[pos],
-             (memsizetype) (8 - pos) * sizeof(uchartype));
-    } /* if */
-    return result;
-  } /* intToBStriBe */
-
-
-
-/**
- *  Convert an integer into a little-endian bstring.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a bstring with the little-endian representation.
- */
-bstritype intToBStriLe (inttype number)
-
-  {
-    uchartype buffer[8];
-    int pos = 0;
-    bstritype result;
-
-  /* intToBStriLe */
-    /* printf("intToBStriLe(%016lx)\n", number); */
-    if (number > 0) {
-      do {
-        buffer[pos] = (uchartype) (number & 0xff);
-        number >>= 8;
-        pos++;
-      } while (number != 0);
-      if (buffer[pos - 1] <= 127) {
-        pos--;
-      } else {
-        buffer[pos] = 0;
-      } /* if */
-    } else if (number < 0) {
-      do {
-        buffer[pos] = (uchartype) (number & 0xff);
-#ifdef RSHIFT_DOES_SIGN_EXTEND
-        number >>= 8;
-#else
-        number = ~(~number >> 8);
-#endif
-        pos++;
-      } while (number != -1);
-      if (buffer[pos - 1] >= 128) {
-        pos--;
-      } else {
-        buffer[pos] = 255;
-      } /* if */
-    } else {
-      buffer[0] = '\0';
-    } /* if */
-    if (!ALLOC_BSTRI_SIZE_OK(result, (memsizetype) (pos + 1))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      result->size = (memsizetype) (pos + 1);
-      memcpy(result->mem, &buffer[0],
-             (memsizetype) (pos + 1) * sizeof(uchartype));
-    } /* if */
-    return result;
-  } /* intToBStriLe */

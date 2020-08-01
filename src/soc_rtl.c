@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  soc_rtl.c     Primitive actions for the socket type.            */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/soc_rtl.c                                       */
-/*  Changes: 2007, 2011, 2013  Thomas Mertes                        */
+/*  Changes: 2007, 2011, 2013, 2014  Thomas Mertes                  */
 /*  Content: Primitive actions for the socket type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -581,11 +581,8 @@ stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndica
         } else {
           if (result_size > 0) {
             register strelemtype *to = result->mem;
-            register memsizetype pos;
 
-            for (pos = result_size; pos > 0; pos--) {
-              to[pos - 1] = buffer[pos - 1];
-            } /* for */
+            memcpy_to_strelem(to, buffer, result_size);
           } /* if */
           result->size = result_size;
           if (result_size == 0 && result_size < bytes_requested) {
@@ -606,11 +603,8 @@ stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndica
           if (result_size > 0) {
             register const uchartype *from = (uchartype *) result->mem;
             register strelemtype *to = result->mem;
-            register memsizetype pos;
 
-            for (pos = result_size; pos > 0; pos--) {
-              to[pos - 1] = from[pos - 1];
-            } /* for */
+            memcpy_to_strelem(to, from, result_size);
           } /* if */
           result->size = result_size;
           if (result_size < bytes_requested) {
@@ -1187,11 +1181,8 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
         } else {
           if (result_size > 0) {
             register strelemtype *to = result->mem;
-            register memsizetype pos;
 
-            for (pos = result_size; pos > 0; pos--) {
-              to[pos - 1] = buffer[pos - 1];
-            } /* for */
+            memcpy_to_strelem(to, buffer, result_size);
           } /* if */
           result->size = result_size;
           *terminationChar = '\n';
@@ -1223,11 +1214,8 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
             /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
             {
               register strelemtype *to = &result->mem[result_pos];
-              register memsizetype pos;
 
-              for (pos = bytes_requested; pos > 0; pos--) {
-                to[pos - 1] = buffer[pos - 1];
-              } /* for */
+              memcpy_to_strelem(to, buffer, bytes_requested);
             }
             result_pos += bytes_requested;
             bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(buffer),
@@ -1279,11 +1267,8 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
             /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
             if (result_size > 0) {
               register strelemtype *to = &result->mem[result_pos];
-              register memsizetype pos;
 
-              for (pos = bytes_requested; pos > 0; pos--) {
-                to[pos - 1] = buffer[pos - 1];
-              } /* for */
+              memcpy_to_strelem(to, buffer, bytes_requested);
             } /* if */
             result->size = result_size;
             *terminationChar = '\n';
@@ -1423,11 +1408,8 @@ inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
       if (new_stri_size > 0) {
         register const uchartype *from = (uchartype *) (*stri)->mem;
         register strelemtype *to = (*stri)->mem;
-        register memsizetype pos = new_stri_size;
 
-        for (pos = new_stri_size; pos > 0; pos--) {
-          to[pos - 1] = from[pos - 1];
-        } /* for */
+        memcpy_to_strelem(to, from, new_stri_size);
       } /* if */
       (*stri)->size = new_stri_size;
       if (new_stri_size < old_stri_size) {
@@ -1519,11 +1501,8 @@ inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype fl
       if (stri_size > 0) {
         register const uchartype *from = (uchartype *) (*stri)->mem;
         register strelemtype *to = (*stri)->mem;
-        register memsizetype pos;
 
-        for (pos = stri_size; pos > 0; pos--) {
-          to[pos - 1] = from[pos - 1];
-        } /* for */
+        memcpy_to_strelem(to, from, stri_size);
       } /* if */
       (*stri)->size = stri_size;
       if (stri_size < bytes_requested) {

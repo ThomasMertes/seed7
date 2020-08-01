@@ -38,7 +38,7 @@
 #if defined USE_DIRECT || defined USE_DIRDOS || defined USE_DIRWIN
 #include "direct.h"
 #endif
-#ifdef OS_STRI_USES_CODEPAGE
+#ifdef OS_STRI_USES_CODE_PAGE
 #include "dos.h"
 #endif
 #ifdef UNISTD_H_PRESENT
@@ -52,9 +52,9 @@
  *
  *  OS_STRI_WCHAR
  *      System calls (os_...) use wide characters.
- *  OS_STRI_USES_CODEPAGE
+ *  OS_STRI_USES_CODE_PAGE
  *      System calls (os_...) use characters (type char)
- *      encoded with a codepage (only the codepages
+ *      encoded with a code page (only the code pages
  *      437 and 850 are supported).
  *  os_getcwd
  *      Copy the current working directory to a buffer.
@@ -69,8 +69,8 @@
 
 #define BUFFER_LEN 4096
 
-#ifdef OS_STRI_USES_CODEPAGE
-int codepage;
+#ifdef OS_STRI_USES_CODE_PAGE
+int code_page;
 #endif
 
 
@@ -134,7 +134,7 @@ void write_as_utf8 (os_chartype *wstri)
 
 
 #else
-#ifdef OS_STRI_USES_CODEPAGE
+#ifdef OS_STRI_USES_CODE_PAGE
 
 char *conv_437[] = {
     "\\000", "\\001", "\\002", "\\003", "\\004", "\\005", "\\006", "\\007",
@@ -229,11 +229,11 @@ char *conv_850[] = {
 void write_as_utf8 (os_chartype *cstri)
 
   { /* write_as_utf8 */
-    if (codepage == 437) {
+    if (code_page == 437) {
       for (; *cstri != '\0'; cstri++) {
         printf("%s", conv_437[*cstri]);
       } /* for */
-    } else if (codepage == 850) {
+    } else if (code_page == 850) {
       for (; *cstri != '\0'; cstri++) {
         printf("%s", conv_850[*cstri]);
       } /* for */
@@ -257,20 +257,20 @@ void write_as_utf8 (os_chartype *cstri)
 
 
 
-#ifdef OS_STRI_USES_CODEPAGE
-int get_codepage (void)
+#ifdef OS_STRI_USES_CODE_PAGE
+int get_code_page (void)
 
   {
     union REGS r;
-    int codepage;
+    int code_page;
 
-  /* get_codepage */
+  /* get_code_page */
     r.h.ah = (unsigned char) 0x66;
     r.h.al = (unsigned char) 0x01;
     int86(0x21, &r, &r);
-    codepage = r.w.bx;
-    return codepage;
-  } /* get_codepage */
+    code_page = r.w.bx;
+    return code_page;
+  } /* get_code_page */
 #endif
 
 
@@ -283,9 +283,9 @@ int main (int argc, char **argv)
     os_chartype buffer[BUFFER_LEN];
 
   /* main */
-#ifdef OS_STRI_USES_CODEPAGE
-    codepage = get_codepage();
-    printf("#define DEFAULT_CODEPAGE %d\n", codepage);
+#ifdef OS_STRI_USES_CODE_PAGE
+    code_page = get_code_page();
+    printf("#define DEFAULT_CODE_PAGE %d\n", code_page);
 #endif
     chdir("../bin");
     printf("#define S7_LIB_DIR \"");

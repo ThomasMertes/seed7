@@ -700,7 +700,7 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
     rawDataSize := height * (3 * width + padding);
     stri := "BM";
     stri &:= int32AsFourBytesLe(rawDataSize + 54);
-    stri &:= "\0\" mult 4;               # reserved1, reserved2
+    stri &:= "\0;" mult 4;               # reserved1, reserved2
     stri &:= int32AsFourBytesLe(54);     # offset to pixel array
     stri &:= int32AsFourBytesLe(40);     # header size
     stri &:= int32AsFourBytesLe(width);
@@ -722,7 +722,7 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
         stri &:= chr(col.red_part   div 256);
         incr(index);
       end for;
-      stri &:= "\0\" mult padding;
+      stri &:= "\0;" mult padding;
     end for;
   end func;
 
