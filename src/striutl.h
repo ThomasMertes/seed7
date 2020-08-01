@@ -193,7 +193,7 @@ striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
                             errInfoType *err_info);
 striType conv_from_os_stri (const const_os_striType os_stri, memSizeType length);
 os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info);
-striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info);
+striType os_stri_to_stri (const const_os_striType os_stri, errInfoType *err_info);
 striType stri_to_standard_path (const striType stri);
 striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info);
 #if EMULATE_ROOT_CWD

@@ -1,3 +1,40 @@
+20170702:
+- The performance of the function bigStr() in big_rtl.c has been
+  improved by a factor of 2.7 (measured with gcc and valgrind when
+  str(123456789_**12345) is computed). Now A binary method is used to
+  convert large bigInteger numbers to a string.
+- The performance of the function bigRadix2To36() in big_rtl.c has
+  been improved by a factor of 7.3 (measured with gcc and valgrind
+  when 123456789_**12345 radix 7 is computed). Now A binary method is
+  used to convert large bigInteger numbers to a string.
+- The compiler (s7c.sd7) has been improved to create destructors for
+  local DATABASEOBJECTs and SQLSTMTOBJECTs.
+- The database driver sql_odbc.c has been improved to support the
+  type SQL_BIT.
+- The database driver sql_odbc.c has been improved to close the
+  the database only after all prepared statements have been freed.
+- Support to read BLOBs (Binary large objects) and wide character
+  CLOBs (Character large objects) from an ODBC database has been
+  added to sql_odbc.c. SQL_DATA_AT_EXEC is used to flag BLOBs and
+  CLOBs for the buffer types SQL_CHAR, SQL_VARCHAR, SQL_LONGVARCHAR,
+  SQL_WCHAR, SQL_WVARCHAR, SQL_WLONGVARCHAR, SQL_BINARY,
+  SQL_VARBINARY and SQL_LONGVARBINARY.
+- The function bigInteger(string), which converts a string to a
+  bigInteger number, has been added to bigint.s7i.
+- Checks that test the conversion of a bigInteger to a string (with
+  the function str() and the operators RADIX and radix) have been
+  added to chkbig.sd7.
+- The example program db7.sd7 has been improved to list column
+  headers even when no line was found.
+- The functions getConversionDivisor, basicToStri, binaryToStri,
+  basicRadix2To36, binaryRadix2To36, uBigDivRem1, bigDivRem1,
+  bigDivRemSizeLess and bigDivRem have been added to big_rtl.c.
+- The program chkccomp.c has been improved to have better checks for
+  utime and fileno.
+- Documentation about the macros used have been added to chkccomp.c.
+- In src/read_me.txt descriptions of C_COMPILER, C_COMPILER_SCRIPT,
+  CC_FLAGS and LINKER have been improved.
+
 20170530:
 - The example program db7.sd7 has been added. Db7 is a Database
   inspector with browser interface.
@@ -271,7 +308,7 @@
 
 20170129:
 - The new library filesys.s7i has been added. It defines the interface
-  fileSys. Files of TAR, ZIP and JAR achives and files from FTP and
+  fileSys. Files of TAR, ZIP and JAR archives and files from FTP and
   the operating system can be accessed via the fileSys interface. The
   file system changes are work in progress.
 - The libraries tar.s7i, zip.s7i, ftp.s7i and osfiles.s7i have been
@@ -598,7 +635,7 @@
   subtraction of integer.first have been added to chkint.s7i.
 - First steps have been done for a compiler optimization of adding
   and subtracting several summands in a chain.
-- Occurances of nodeValue and MDULEOBJECT have been removed from
+- Occurrences of nodeValue and MDULEOBJECT have been removed from
   interpreter and runtime library.
 - The function prg_find has been removed from prglib.c.
 - The function ref_find has been removed from reflib.c.
@@ -965,7 +1002,7 @@
   set_rtl.c, sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c, sql_post.c
   and sql_rtl.c.
 - Checks for err_info != OKAY_NO_ERROR have been replaced by checks
-  for pointer variables beeing NULL in sql_lite.c, sql_my.c,
+  for pointer variables being NULL in sql_lite.c, sql_my.c,
   sql_oci.c, sql_odbc.c and sql_post.c. Since the address of
   err_info is used this variable cannot be placed into a register.
 - Several variables have been changed to constants.
@@ -1020,7 +1057,7 @@
   cmd_rtl.c, cmd_unx.c, cmd_win.c, con_win.c, hshlib.c, hsh_rtl.c,
   soc_rtl.c, striutl.c and traceutl.c.
 - Checks for err_info != OKAY_NO_ERROR have been replaced by checks
-  for pointer variables beeing NULL in cmd_win.c, dir_rtl.c,
+  for pointer variables being NULL in cmd_win.c, dir_rtl.c,
   fil_rtl.c, pcs_unx.c, pcs_win.c, striutl.c. Since the address of
   err_info is used this variable cannot be placed into a register.
   The pointer variables used now can be placed into a register.
@@ -1335,7 +1372,7 @@
 - In fil_rtl.c the function read_and_alloc_stri has been changed to
   read the data into a list of buffers. Afterwards the string is
   allocated, the data is copied and the buffer list is freed. This
-  improves the perfomance, when the file is a pipe.
+  improves the performance, when the file is a pipe.
 - In fil_rtl.c the function doGetsFromTerminal has been changed to
   check for a negative length.
 - In soc_rtl.c the function read_and_alloc_stri has been added. This
@@ -1633,7 +1670,7 @@
   improved to write the file type.
 - The compilation of the action ARR_IDX in the compiler (file
   arr_act.s7i) has been improved.
-- In des.s7i and tdes.s7i all occurances of subkey have been renamed
+- In des.s7i and tdes.s7i all occurrences of subkey have been renamed
   to subKey.
 - In sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c and sql_post.c the
   function setupFuncTable has been changed to use count.sql_func
@@ -1698,7 +1735,7 @@
 - In bigint.s7i the performance of the binomial coefficient operator
   (infix operator symbol: ! ) has been improved by 17% (measured with
   gcc and valgrind).
-- The optimization of constant expessions in the compiler has been
+- The optimization of constant expressions in the compiler has been
   improved.
 - The program esc2qte.c has been added. This program searches for
   backslash escaped spaces and quotes the string instead. It is used
@@ -1924,7 +1961,7 @@
   functions read and readln in enable_input.s7i. The functions read
   and readln now raise range RANGE_ERROR when the conversion to the
   target type fails.
-- Occurances of io_ok, io_error, io_empty and io_filled have been
+- Occurrences of io_ok, io_error, io_empty and io_filled have been
   removed from the libraries. This undocumented feature was not used
   for years. The function succeeds and the functions read and readln
   with default value are better suited for error checking, when data
@@ -2076,9 +2113,9 @@
   improved such that the for-variable has the correct value, when it
   is used in the until-condition.
 - The function replaceN has been added to string.s7i. This function
-  does replacements until no occurance of the target string is left.
-  This function is used by toStdPath to replace multiple occurances
-  of a character by one occurance (replace("/a///b////c", "//", "/")
+  does replacements until no occurrence of the target string is left.
+  This function is used by toStdPath to replace multiple occurrences
+  of a character by one occurrence (replace("/a///b////c", "//", "/")
   returns "/a/b/c").
 - The program calc.sd7 has been renamed to calc7.sd7.
 - The program calc7.sd7 has been changed to accept the commands
@@ -2822,7 +2859,7 @@
   aligned memory the same way as malloc returns aligned memory.
 - The program chkccomp.c has been improved to define the macro
   'inline', when the C compiler does not support the keyword inline.
-- Occurances of 'INLINE' have been replaced with 'inline' in the
+- Occurrences of 'INLINE' have been replaced with 'inline' in the
   files analyze.c, atom.c, big_gmp.c, big_rtl.c, chr_rtl.c, exec.c,
   findid.c, infile.c, int_rtl.c, numlit.c, parser.c, rfl_data.c,
   scanner.c, striutl.c, strlib.c, str_rtl.c, syntax.c and ut8_rtl.c.

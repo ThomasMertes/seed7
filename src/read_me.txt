@@ -1381,7 +1381,19 @@ THE VERSION.H FILE
 
   C_COMPILER: Contains the command to call the stand-alone C
               compiler and linker (Most IDEs provide also a
-              stand-alone compiler/linker).
+              stand-alone compiler/linker). When the C compiler is
+              called via a script C_COMPILER_SCRIPT is defined and
+              C_COMPILER is not defined by a makefile. In that
+              case C_COMPILER is defined by setpaths.c together
+              with the flag CALL_C_COMPILER_FROM_SHELL.
+
+  C_COMPILER_SCRIPT: Relative path of a script that calls the
+                     stand-alone C compiler and linker.
+
+  CALL_C_COMPILER_FROM_SHELL: Flag that is defined when the
+                              stand-alone C compiler and linker is
+                              called via a script (defined with
+                              C_COMPILER_SCRIPT).
 
   C_COMPILER_VERSION: Contains a string describing the version of
                       the C compiler which compiled the Seed7
@@ -1410,7 +1422,7 @@ THE VERSION.H FILE
                          one command does not work, with the option
                          LINKER_OPT_OUTPUT_FILE.
 
-  CC_FLAGS: Contains C compiler flags which should be used when
+  CC_FLAGS: Contains C compiler flags, which should be used when
             C programs are compiled.
 
   CC_ERROR_FILDES: File descriptor to which the C compiler writes
@@ -1420,6 +1432,10 @@ THE VERSION.H FILE
                    Linux/Unix/BSD and the compilers from MinGW and
                    Cygwin write the error messages to the error
                    output (file descriptor 2).
+
+  LINKER: Defined when C_COMPILER does just invoke the stand-alone
+          C compiler. In that case LINKER contains the command to
+          call the stand-alone linker.
 
   LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
                          level debugging information to the

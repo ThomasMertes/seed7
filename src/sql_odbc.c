@@ -91,6 +91,7 @@ typedef struct {
 typedef struct {
     uintType       usage_count;
     sqlFuncType    sqlFunc;
+    dbType         db;
     SQLHSTMT       ppStmt;
     memSizeType    param_array_capacity;
     memSizeType    param_array_size;
@@ -384,9 +385,12 @@ static void freeDatabase (databaseType database)
     dbType db;
 
   /* freeDatabase */
+    logFunction(printf("freeDatabase(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
     FREE_RECORD(db, dbRecord, count.database);
+    logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
 
@@ -398,7 +402,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     memSizeType pos;
 
   /* freePreparedStmt */
-    logFunction(printf("freePreparedStmt(%lx)\n",
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->param_array != NULL) {
@@ -413,17 +417,24 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       } /* for */
       FREE_TABLE(preparedStmt->result_array, resultDataRecord, preparedStmt->result_array_size);
     } /* if */
-    if (preparedStmt->executeSuccessful &&
-        (preparedStmt->fetchOkay || preparedStmt->fetchFinished)) {
-      if (unlikely(SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE) != SQL_SUCCESS)) {
-        setDbErrorMsg("freePreparedStmt", "SQLFreeStmt",
-                      SQL_HANDLE_STMT, preparedStmt->ppStmt);
-        logError(printf("freePreparedStmt: SQLFreeStmt SQL_CLOSE:\n%s\n",
-                        dbError.message););
-        raise_error(DATABASE_ERROR);
+    if (preparedStmt->db->sql_connection != SQL_NULL_HANDLE) {
+      if (preparedStmt->executeSuccessful &&
+          (preparedStmt->fetchOkay || preparedStmt->fetchFinished)) {
+        if (unlikely(SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE) != SQL_SUCCESS)) {
+          setDbErrorMsg("freePreparedStmt", "SQLFreeStmt",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("freePreparedStmt: SQLFreeStmt SQL_CLOSE:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } /* if */
       } /* if */
+      SQLFreeHandle(SQL_HANDLE_STMT, preparedStmt->ppStmt);
     } /* if */
-    SQLFreeHandle(SQL_HANDLE_STMT, preparedStmt->ppStmt);
+    preparedStmt->db->usage_count--;
+    if (preparedStmt->db->usage_count == 0) {
+      /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
+      freeDatabase((databaseType) preparedStmt->db);
+    } /* if */
     FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
@@ -446,6 +457,7 @@ static const char *nameOfBufferType (int buffer_type)
       case SQL_WCHAR:                     typeName = "SQL_WCHAR"; break;
       case SQL_WVARCHAR:                  typeName = "SQL_WVARCHAR"; break;
       case SQL_WLONGVARCHAR:              typeName = "SQL_WLONGVARCHAR"; break;
+      case SQL_BIT:                       typeName = "SQL_BIT"; break;
       case SQL_TINYINT:                   typeName = "SQL_TINYINT"; break;
       case SQL_SMALLINT:                  typeName = "SQL_SMALLINT"; break;
       case SQL_INTEGER:                   typeName = "SQL_INTEGER"; break;
@@ -496,6 +508,7 @@ static const char *nameOfCType (int buffer_type)
     switch (buffer_type) {
       case SQL_C_CHAR:                      typeName = "SQL_C_CHAR"; break;
       case SQL_C_WCHAR:                     typeName = "SQL_C_WCHAR"; break;
+      case SQL_C_BIT:                       typeName = "SQL_C_BIT"; break;
       case SQL_C_STINYINT:                  typeName = "SQL_C_STINYINT"; break;
       case SQL_C_SSHORT:                    typeName = "SQL_C_SSHORT"; break;
       case SQL_C_SLONG:                     typeName = "SQL_C_SLONG"; break;
@@ -615,9 +628,6 @@ static void setupResultColumn (preparedStmtType preparedStmt,
         case SQL_CHAR:
         case SQL_VARCHAR:
         case SQL_LONGVARCHAR:
-        case SQL_WCHAR:
-        case SQL_WVARCHAR:
-        case SQL_WLONGVARCHAR:
           c_type = SQL_C_WCHAR;
           if (dataLength == SQLLEN_MAX) {
             resultData->sql_data_at_exec = TRUE;
@@ -635,10 +645,70 @@ static void setupResultColumn (preparedStmtType preparedStmt,
             column_size = ((memSizeType) dataLength + 1) * 2;
           } /* if */
           /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
+          printf("dataLength: %ld\n", dataLength);
+          printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
           printf("octetLength: %ld\n", octetLength);
           printf("column_size: " FMT_U_MEM "\n", column_size);
           printf("precision: " FMT_D64 "\n", precision);
           printf("scale: " FMT_D64 "\n", scale); */
+          break;
+        case SQL_WCHAR:
+        case SQL_WVARCHAR:
+        case SQL_WLONGVARCHAR:
+          c_type = SQL_C_WCHAR;
+          if (dataLength == SQLLEN_MAX/2) {
+            resultData->sql_data_at_exec = TRUE;
+            column_size = (memSizeType) SQL_DATA_AT_EXEC;
+          } else if (dataLength < 0) {
+            dbInconsistent("setupResultColumn", "SQLColAttribute");
+            logError(printf("setupResultColumn: DataLength negative: %ld\n",
+                            dataLength););
+            *err_info = DATABASE_ERROR;
+          } else if ((SQLULEN) dataLength > (MAX_MEMSIZETYPE / 2) - 1) {
+            logError(printf("setupResultColumn: DataLength too big: %ld\n",
+                            dataLength););
+            *err_info = MEMORY_ERROR;
+          } else {
+            column_size = ((memSizeType) dataLength + 1) * 2;
+          } /* if */
+          /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
+          printf("dataLength: %ld\n", dataLength);
+          printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
+          printf("octetLength: %ld\n", octetLength);
+          printf("column_size: " FMT_U_MEM "\n", column_size);
+          printf("precision: " FMT_D64 "\n", precision);
+          printf("scale: " FMT_D64 "\n", scale); */
+          break;
+        case SQL_BINARY:
+        case SQL_VARBINARY:
+        case SQL_LONGVARBINARY:
+          c_type = SQL_C_BINARY;
+          if (dataLength == SQLLEN_MAX) {
+            resultData->sql_data_at_exec = TRUE;
+            column_size = (memSizeType) SQL_DATA_AT_EXEC;
+          } else if (dataLength < 0) {
+            dbInconsistent("setupResultColumn", "SQLColAttribute");
+            logError(printf("setupResultColumn: DataLength negative: %ld\n",
+                            dataLength););
+            *err_info = DATABASE_ERROR;
+          } else if ((SQLULEN) dataLength > MAX_MEMSIZETYPE) {
+            logError(printf("setupResultColumn: DataLength too big: %ld\n",
+                            dataLength););
+            *err_info = MEMORY_ERROR;
+          } else {
+            column_size = (memSizeType) dataLength;
+          } /* if */
+          /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
+          printf("dataLength: %ld\n", dataLength);
+          printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
+          printf("octetLength: %ld\n", octetLength);
+          printf("column_size: " FMT_U_MEM "\n", column_size);
+          printf("precision: " FMT_D64 "\n", precision);
+          printf("scale: " FMT_D64 "\n", scale); */
+          break;
+        case SQL_BIT:
+          c_type = SQL_C_BIT;
+          column_size = sizeof(char);
           break;
         case SQL_TINYINT:
           c_type = SQL_C_STINYINT;
@@ -883,23 +953,6 @@ static void setupResultColumn (preparedStmtType preparedStmt,
         case SQL_INTERVAL_MINUTE_TO_SECOND:
           c_type = SQL_C_INTERVAL_MINUTE_TO_SECOND;
           column_size = sizeof(SQL_INTERVAL_STRUCT);
-          break;
-        case SQL_BINARY:
-        case SQL_VARBINARY:
-        case SQL_LONGVARBINARY:
-          c_type = SQL_C_BINARY;
-          if (dataLength < 0) {
-            dbInconsistent("setupResultColumn", "SQLColAttribute");
-            logError(printf("setupResultColumn: DataLength negative: %ld\n",
-                            dataLength););
-            *err_info = DATABASE_ERROR;
-          } else if ((SQLULEN) dataLength > MAX_MEMSIZETYPE) {
-            logError(printf("setupResultColumn: DataLength too big: %ld\n",
-                            dataLength););
-            *err_info = MEMORY_ERROR;
-          } else {
-            column_size = (memSizeType) dataLength;
-          } /* if */
           break;
         default:
           logError(printf("setupResultColumn: Column %hd has the unknown type %s.\n",
@@ -2488,6 +2541,8 @@ static void sqlClose (databaseType database)
     dbType db;
 
   /* sqlClose */
+    logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     db = (dbType) database;
     if (db->sql_connection != SQL_NULL_HANDLE) {
       SQLDisconnect(db->sql_connection);
@@ -2498,6 +2553,7 @@ static void sqlClose (databaseType database)
       SQLFreeHandle(SQL_HANDLE_ENV, db->sql_environment);
       db->sql_environment = SQL_NULL_HANDLE;
     } /* if */
+    logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 
 
@@ -2536,6 +2592,10 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         /* printf("buffer_type: %s\n",
            nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
         switch (preparedStmt->result_array[column - 1].buffer_type) {
+          case SQL_BIT:
+            columnValue = bigFromInt32((int32Type)
+                (*(char *) preparedStmt->result_array[column - 1].buffer) != 0);
+            break;
           case SQL_TINYINT:
             columnValue = bigFromInt32((int32Type)
                 *(int8Type *) preparedStmt->result_array[column - 1].buffer);
@@ -2615,6 +2675,11 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         /* printf("buffer_type: %s\n",
            nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
         switch (preparedStmt->result_array[column - 1].buffer_type) {
+          case SQL_BIT:
+            *numerator = bigFromInt32((int32Type)
+                (*(char *) preparedStmt->result_array[column - 1].buffer) != 0);
+            *denominator = bigFromInt32(1);
+            break;
           case SQL_TINYINT:
             *numerator = bigFromInt32((int32Type)
                 *(int8Type *) preparedStmt->result_array[column - 1].buffer);
@@ -2722,6 +2787,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
             } else {
               columnValue = *(const_wstriType) preparedStmt->result_array[column - 1].buffer - '0';
             } /* if */
+            break;
+          case SQL_BIT:
+            columnValue = *(char *) preparedStmt->result_array[column - 1].buffer;
             break;
           case SQL_TINYINT:
             columnValue = *(int8Type *) preparedStmt->result_array[column - 1].buffer;
@@ -3082,6 +3150,9 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         /* printf("buffer_type: %s\n",
            nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
         switch (preparedStmt->result_array[column - 1].buffer_type) {
+          case SQL_BIT:
+            columnValue = *(char *) preparedStmt->result_array[column - 1].buffer != 0;
+            break;
           case SQL_TINYINT:
             columnValue = *(int8Type *) preparedStmt->result_array[column - 1].buffer;
             break;
@@ -3345,7 +3416,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
+    /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
     if (preparedStmt->executeSuccessful &&
         (preparedStmt->fetchOkay || preparedStmt->fetchFinished)) {
       if (unlikely(SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE) != SQL_SUCCESS)) {
@@ -3400,7 +3471,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
     } else if (preparedStmt->result_array_size == 0) {
       preparedStmt->fetchOkay = FALSE;
     } else if (!preparedStmt->fetchFinished) {
-      /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
+      /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
       fetch_result = SQLFetch(preparedStmt->ppStmt);
       if (fetch_result == SQL_SUCCESS) {
         /* printf("fetch success\n");
@@ -3466,53 +3537,61 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    query = stri_to_wstri_buf(sqlStatementStri, &query_length, &err_info);
-    if (query == NULL) {
+    if (db->sql_connection == SQL_NULL_HANDLE) {
+      logError(printf("sqlPrepare: Database is not open.\n"););
+      err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      if (query_length > SQLINTEGER_MAX) {
-        logError(printf("sqlPrepare: query_length > SQLINTEGER_MAX: (query_length = " FMT_U_MEM ")\n",
-                        query_length););
-        err_info = MEMORY_ERROR;
+      query = stri_to_wstri_buf(sqlStatementStri, &query_length, &err_info);
+      if (query == NULL) {
         preparedStmt = NULL;
-      } else if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
-        err_info = MEMORY_ERROR;
       } else {
-        memset(preparedStmt, 0, sizeof(preparedStmtRecord));
-        if (SQLAllocHandle(SQL_HANDLE_STMT,
-                           db->sql_connection,
-                           &preparedStmt->ppStmt) != SQL_SUCCESS) {
-          setDbErrorMsg("sqlPrepare", "SQLAllocHandle",
-                        SQL_HANDLE_DBC, db->sql_connection);
-          logError(printf("sqlPrepare: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
-                          dbError.message););
-          FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-          err_info = DATABASE_ERROR;
+        if (query_length > SQLINTEGER_MAX) {
+          logError(printf("sqlPrepare: query_length > SQLINTEGER_MAX: (query_length = " FMT_U_MEM ")\n",
+                          query_length););
+          err_info = MEMORY_ERROR;
           preparedStmt = NULL;
-        } else if (SQLPrepareW(preparedStmt->ppStmt,
-                               (SQLWCHAR *) query,
-                               (SQLINTEGER) query_length) != SQL_SUCCESS) {
-          setDbErrorMsg("sqlPrepare", "SQLPrepare",
-                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
-          logError(printf("sqlPrepare: SQLPrepare:\n%s\n",
-                          dbError.message););
-          FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-          err_info = DATABASE_ERROR;
-          preparedStmt = NULL;
+        } else if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+          err_info = MEMORY_ERROR;
         } else {
-          preparedStmt->usage_count = 1;
-          preparedStmt->sqlFunc = db->sqlFunc;
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
-          preparedStmt->fetchFinished = TRUE;
-          setupResult(preparedStmt, &err_info);
-          if (unlikely(err_info != OKAY_NO_ERROR)) {
-            freePreparedStmt((sqlStmtType) preparedStmt);
+          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+          if (SQLAllocHandle(SQL_HANDLE_STMT,
+                             db->sql_connection,
+                             &preparedStmt->ppStmt) != SQL_SUCCESS) {
+            setDbErrorMsg("sqlPrepare", "SQLAllocHandle",
+                          SQL_HANDLE_DBC, db->sql_connection);
+            logError(printf("sqlPrepare: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
+                            dbError.message););
+            FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+            err_info = DATABASE_ERROR;
             preparedStmt = NULL;
+          } else if (SQLPrepareW(preparedStmt->ppStmt,
+                                 (SQLWCHAR *) query,
+                                 (SQLINTEGER) query_length) != SQL_SUCCESS) {
+            setDbErrorMsg("sqlPrepare", "SQLPrepare",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("sqlPrepare: SQLPrepare:\n%s\n",
+                            dbError.message););
+            FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+            err_info = DATABASE_ERROR;
+            preparedStmt = NULL;
+          } else {
+            preparedStmt->usage_count = 1;
+            preparedStmt->sqlFunc = db->sqlFunc;
+            preparedStmt->executeSuccessful = FALSE;
+            preparedStmt->fetchOkay = FALSE;
+            preparedStmt->fetchFinished = TRUE;
+            preparedStmt->db = db;
+            db->usage_count++;
+            setupResult(preparedStmt, &err_info);
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
+              freePreparedStmt((sqlStmtType) preparedStmt);
+              preparedStmt = NULL;
+            } /* if */
           } /* if */
         } /* if */
+        free_wstri(query, sqlStatementStri);
       } /* if */
-      free_wstri(query, sqlStatementStri);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

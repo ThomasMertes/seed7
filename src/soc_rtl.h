@@ -40,7 +40,7 @@
 
 
 #ifdef USE_WINSOCK
-cstriType wsaErrorMessage (void);
+const_cstriType wsaErrorMessage (void);
 #endif
 socketType socAccept (socketType sock, bstriType *address);
 intType socAddrFamily (const const_bstriType address);

@@ -200,6 +200,19 @@ static const uint8Type radixDigitsInBigdigit[] = {
 #endif
 
 
+bigIntType *conversionDivisorCache[] = {
+    /*  0 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    /* 10 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    /* 20 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    /* 30 */ NULL, NULL, NULL, NULL, NULL, NULL, NULL
+  };
+
+unsigned int conversionDivisorCacheSize[] = {
+    /*  0 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    /* 30 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  };
+
+
 #define IS_NEGATIVE(digit) (((digit) & BIGDIGIT_SIGN) != 0)
 
 static const unsigned int digit_value[] = {
@@ -963,6 +976,239 @@ static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int ba
 
 
 /**
+ *  Computes base ** (2 ** exponent) to be used as conversion divisor.
+ *  The function uses a cache to avoid a recomputation.
+ *  The result is used by binaryToStri and binaryRadix2To36 as
+ *  divisor. The functions binaryToStri and binaryRadix2To36 use
+ *  the binary algorithm to convert a bigInteger to a string.
+ *  @return base ** (2 ** exponent).
+ */
+static bigIntType getConversionDivisor (unsigned int base, unsigned int exponent)
+
+  {
+    bigIntType *divisorCache;
+    unsigned int size;
+    unsigned int pos;
+    bigIntType divisor;
+
+  /* getConversionDivisor */
+    logFunction(printf("getConversionDivisor(%u, %u)\n", base, exponent););
+    divisorCache = conversionDivisorCache[base];
+    size = conversionDivisorCacheSize[base];
+    if (exponent < size) {
+      divisor = divisorCache[exponent];
+    } else {
+      divisorCache = realloc(divisorCache, (exponent + 1) * sizeof(bigIntType));
+      if (unlikely(divisorCache == NULL)) {
+        raise_error(MEMORY_ERROR);
+        divisor = NULL;
+      } else {
+        if (size == 0) {
+          divisorCache[0] = bigFromUInt32(base);
+          size = 1;
+        } /* if */
+        for (pos = size; pos <= exponent; ++pos) {
+          divisorCache[pos] = bigSquare(divisorCache[pos - 1]);
+        } /* for */
+        conversionDivisorCache[base] = divisorCache;
+        conversionDivisorCacheSize[base] = exponent + 1;
+        divisor = divisorCache[exponent];
+      } /* if */
+    } /* if */
+    logFunction(printf("getConversionDivisor --> %s\n", bigHexCStri(divisor)););
+    return divisor;
+  } /* getConversionDivisor */
+
+
+
+static memSizeType basicToStri (const bigIntType unsignedBig,
+    striType buffer, memSizeType pos)
+
+  {
+    bigDigitType digit;
+    int digit_pos;
+
+  /* basicToStri */
+    logFunction(printf("basicToStri(%s, *, " FMT_U_MEM ")\n",
+                       bigHexCStri(unsignedBig), pos););
+    do {
+      digit = uBigDivideByPowerOf10(unsignedBig);
+      /* printf("unsignedBig->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
+         unsignedBig->size, digit); */
+      if (unsignedBig->bigdigits[unsignedBig->size - 1] == 0) {
+        unsignedBig->size--;
+      } /* if */
+      if (unsignedBig->size > 1 || unsignedBig->bigdigits[0] != 0) {
+        for (digit_pos = DECIMAL_DIGITS_IN_BIGDIGIT;
+            digit_pos != 0; digit_pos--) {
+          buffer->mem[pos] = '0' + digit % 10;
+          digit /= 10;
+          pos--;
+        } /* for */
+      } else {
+        do {
+          buffer->mem[pos] = '0' + digit % 10;
+          digit /= 10;
+          pos--;
+        } while (digit != 0);
+      } /* if */
+    } while (unsignedBig->size > 1 || unsignedBig->bigdigits[0] != 0);
+    logFunction(printf("basicToStri --> " FMT_U_MEM "\n", pos););
+    return pos;
+  } /* basicToStri */
+
+
+
+static memSizeType binaryToStri (bigIntType unsignedBig, striType buffer,
+    unsigned int exponent, boolType zeroPad, memSizeType pos)
+
+  {
+    bigIntType divisor;
+    bigIntType quotient;
+    bigIntType remainder;
+    memSizeType endPos;
+
+  /* binaryToStri */
+    logFunction(printf("binaryToStri(%s, *, %u, %d, " FMT_U_MEM ")\n",
+                       bigHexCStri(unsignedBig), exponent, zeroPad, pos););
+    if (exponent > 8) {
+      exponent--;
+      divisor = getConversionDivisor(10, exponent);
+      if (divisor != NULL) {
+        quotient = bigDivRem(unsignedBig, divisor, &remainder);
+        if (quotient != NULL) {
+          if (zeroPad || (quotient->size > 1 || quotient->bigdigits[0] != 0)) {
+            pos = binaryToStri(remainder, buffer, exponent, TRUE, pos);
+            pos = binaryToStri(quotient, buffer, exponent, zeroPad, pos);
+          } else {
+            pos = binaryToStri(remainder, buffer, exponent, FALSE, pos);
+          } /* if */
+          FREE_BIG(remainder, remainder->size);
+          FREE_BIG(quotient, quotient->size);
+        } /* if */
+      } /* if */
+    } else {
+      endPos = pos;
+      pos = basicToStri(unsignedBig, buffer, pos);
+      if (zeroPad) {
+        /* printf(FMT_U_MEM " " FMT_U_MEM " " FMT_U_MEM
+               " insert " FMT_U_MEM " zero digits.\n",
+               pos, endPos, (memSizeType) 1 << exponent,
+               pos - (endPos - ((memSizeType) 1 << exponent))); */
+        endPos -= (memSizeType) 1 << exponent;
+        while (pos > endPos) {
+          buffer->mem[pos] = '0';
+          pos--;
+        } /* while */
+      } /* if */
+    } /* if */
+    logFunction(printf("binaryToStri --> " FMT_U_MEM "\n", pos););
+    return pos;
+  } /* binaryToStri */
+
+
+
+static memSizeType basicRadix2To36 (const bigIntType unsignedBig,
+    striType buffer, unsigned int base, boolType upperCase, memSizeType pos)
+
+  {
+    const_ustriType digits;
+    bigDigitType divisor_digit;
+    uint8Type digits_in_bigdigit;
+    bigDigitType digit;
+    int digit_pos;
+
+  /* basicRadix2To36 */
+    logFunction(printf("basicRadix2To36(%s, *, %u, %d, " FMT_U_MEM ")\n",
+                       bigHexCStri(unsignedBig), base, upperCase, pos););
+    digits = digitTable[upperCase];
+    divisor_digit = powerOfRadixInBigdigit[base - 2];
+    /* printf("divisor_digit: " FMT_U_DIG "\n", divisor_digit); */
+    digits_in_bigdigit = radixDigitsInBigdigit[base - 2];
+    /* printf("digits_in_bigdigit: %hd\n", digits_in_bigdigit); */
+    do {
+      digit = uBigDivideByDigit(unsignedBig, divisor_digit);
+      /* printf("unsignedBig->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
+         unsignedBig->size, digit); */
+      if (unsignedBig->bigdigits[unsignedBig->size - 1] == 0) {
+        unsignedBig->size--;
+      } /* if */
+      if (unsignedBig->size > 1 || unsignedBig->bigdigits[0] != 0) {
+        for (digit_pos = digits_in_bigdigit;
+            digit_pos != 0; digit_pos--) {
+          buffer->mem[pos] = (strElemType) (digits[digit % base]);
+          digit /= base;
+          pos--;
+        } /* for */
+      } else {
+        do {
+          buffer->mem[pos] = (strElemType) (digits[digit % base]);
+          digit /= base;
+          pos--;
+        } while (digit != 0);
+      } /* if */
+    } while (unsignedBig->size > 1 || unsignedBig->bigdigits[0] != 0);
+    logFunction(printf("basicRadix2To36 --> " FMT_U_MEM "\n", pos););
+    return pos;
+  } /* basicRadix2To36 */
+
+
+
+static memSizeType binaryRadix2To36 (bigIntType unsignedBig,
+    striType buffer, unsigned int base, boolType upperCase,
+    unsigned int exponent, boolType zeroPad, memSizeType pos)
+
+  {
+    bigIntType divisor;
+    bigIntType quotient;
+    bigIntType remainder;
+    memSizeType endPos;
+
+  /* binaryRadix2To36 */
+    logFunction(printf("binaryRadix2To36(%s, *, %u, %d, %u, %u, "
+                       FMT_U_MEM ")\n", bigHexCStri(unsignedBig),
+                       base, upperCase, exponent, zeroPad, pos););
+    if (exponent > 8) {
+      exponent--;
+      divisor = getConversionDivisor(base, exponent);
+      if (divisor != NULL) {
+        quotient = bigDivRem(unsignedBig, divisor, &remainder);
+        if (quotient != NULL) {
+          if (zeroPad || (quotient->size > 1 || quotient->bigdigits[0] != 0)) {
+            pos = binaryRadix2To36(remainder, buffer, base, upperCase,
+                                  exponent, TRUE, pos);
+            pos = binaryRadix2To36(quotient, buffer, base, upperCase,
+                                  exponent, zeroPad, pos);
+          } else {
+            pos = binaryRadix2To36(remainder, buffer, base, upperCase,
+                                  exponent, FALSE, pos);
+          } /* if */
+          FREE_BIG(remainder, remainder->size);
+          FREE_BIG(quotient, quotient->size);
+        } /* if */
+      } /* if */
+    } else {
+      endPos = pos;
+      pos = basicRadix2To36(unsignedBig, buffer, base, upperCase, pos);
+      if (zeroPad) {
+        /* printf(FMT_U_MEM " " FMT_U_MEM " " FMT_U_MEM
+               " insert " FMT_U_MEM " zero digits.\n",
+               pos, endPos, (memSizeType) 1 << exponent,
+               pos - (endPos - ((memSizeType) 1 << exponent))); */
+        endPos -= (memSizeType) 1 << exponent;
+        while (pos > endPos) {
+          buffer->mem[pos] = '0';
+          pos--;
+        } /* while */
+      } /* if */
+    } /* if */
+    logFunction(printf("binaryRadix2To36 --> " FMT_U_MEM "\n", pos););
+    return pos;
+  } /* binaryRadix2To36 */
+
+
+
+/**
  *  Convert a big integer number to a string using a radix.
  *  The conversion uses the numeral system with the specified base.
  *  The base is a power of two and it is specified indirectly with
@@ -1122,11 +1368,6 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
     unsigned int estimate_shift;
     bigIntType unsigned_big;
     boolType negative;
-    const_ustriType digits;
-    bigDigitType divisor_digit;
-    uint8Type digits_in_bigdigit;
-    uint8Type digit_pos;
-    bigDigitType digit;
     memSizeType pos;
     memSizeType result_size;
     memSizeType final_result_size;
@@ -1168,35 +1409,12 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          digits = digitTable[upperCase];
-          divisor_digit = powerOfRadixInBigdigit[base - 2];
-          /* printf("divisor_digit: " FMT_U_DIG "\n", divisor_digit); */
-          digits_in_bigdigit = radixDigitsInBigdigit[base - 2];
-          /* printf("digits_in_bigdigit: %hd\n", digits_in_bigdigit); */
-          pos = result_size - 1;
-          do {
-            digit = uBigDivideByDigit(unsigned_big, divisor_digit);
-            /* printf("unsigned_big->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
-               unsigned_big->size, digit); */
-            if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
-              unsigned_big->size--;
-            } /* if */
-            if (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0) {
-              for (digit_pos = digits_in_bigdigit;
-                  digit_pos != 0; digit_pos--) {
-                result->mem[pos] = (strElemType) (digits[digit % base]);
-                digit /= base;
-                pos--;
-              } /* for */
-            } else {
-              do {
-                result->mem[pos] = (strElemType) (digits[digit % base]);
-                digit /= base;
-                pos--;
-              } while (digit != 0);
-            } /* if */
-          } while (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0);
-          FREE_BIG(unsigned_big, big1->size + 1);
+          /* pos = basicRadix2To36(unsigned_big, result, base, upperCase,
+                                result_size - 1); */
+          pos = binaryRadix2To36(unsigned_big, result, base, upperCase, (unsigned int) 
+                                 memSizeMostSignificantBit(result_size) + 1,
+                                 FALSE, result_size - 1);
+          FREE_BIG(unsigned_big, big1->size);
           pos++;
           if (negative) {
             final_result_size = result_size - pos + 1;
@@ -1340,8 +1558,9 @@ static void uBigDecr (const bigIntType big1)
 
 
 /**
- *  Computes an integer division of dividend by one divisor_digit for
- *  nonnegative big integers. The divisor_digit must not be zero.
+ *  Computes the quotient of an integer division of dividend by one
+ *  divisor_digit for nonnegative big integers. The divisor_digit
+ *  must not be zero.
  */
 static void uBigDiv1 (const const_bigIntType dividend,
     const bigDigitType divisor_digit, const bigIntType quotient)
@@ -1365,8 +1584,8 @@ static void uBigDiv1 (const const_bigIntType dividend,
 
 /**
  *  Computes an integer division of dividend by one divisor_digit
- *  for signed big integers. The memory for the result is requested
- *  and the normalized result is returned. This function handles
+ *  for signed big integers. The memory for the quotient is requested
+ *  and the normalized quotient is returned. This function handles
  *  also the special case of a division by zero.
  *  @return the quotient of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
@@ -1425,13 +1644,13 @@ static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit
 /**
  *  Computes an integer division of dividend by divisor for signed big
  *  integers when dividend has less digits than divisor. The memory for
- *  the result is requested and the normalized result is returned. Normally
+ *  the quotient is requested and the normalized quotient is returned. Normally
  *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  When abs(dividend) < abs(divisor) holds the result is 0. The cases when
+ *  When abs(dividend) < abs(divisor) holds the quotient is 0. The cases when
  *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
  *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
- *  result is -1. In all other cases the result is 0.
+ *  quotient is -1. In all other cases the quotient is 0.
  *  @return the quotient of the integer division.
  */
 static bigIntType bigDivSizeLess (const const_bigIntType dividend,
@@ -1470,7 +1689,7 @@ static bigIntType bigDivSizeLess (const const_bigIntType dividend,
 
 
 /**
- *  Multiplies big2 with multiplier and subtracts the result from
+ *  Multiplies big2 with multiplier and subtracts the product from
  *  big1 at the digit position pos1 of big1. Big1, big2 and
  *  multiplier are nonnegative big integer values.
  *  The algorithm tries to save computations. Therefore
@@ -1540,17 +1759,18 @@ static void uBigAddTo (const bigIntType big1, const const_bigIntType big2,
 
 
 /**
- *  Computes an integer division of dividend by divisor for nonnegative big
- *  integers. The remainder is delivered in dividend. There are several
- *  preconditions. Divisor must have at least 2 digits and dividend must
- *  have at least one digit more than divisor. If dividend and divisor have
- *  the same length in digits nothing is done. The most significant bit of
- *  divisor must be set. The most significant digit of dividend must be
- *  less than the most significant digit of divisor. The computations to
- *  meet this predonditions are done outside this function. The special
- *  cases with a one digit divisor or a dividend with less digits than
- *  divisor are handled in other functions. This algorithm based on the
- *  algorithm from D.E. Knuth described in "The art of computer programming"
+ *  Computes quotient and remainder of an integer division of dividend by
+ *  divisor for nonnegative big integers. The remainder is delivered in
+ *  dividend. There are several preconditions for this function. Divisor
+ *  must have at least 2 digits and dividend must have at least one
+ *  digit more than divisor. If dividend and divisor have the same length in
+ *  digits nothing is done. The most significant bit of divisor must be
+ *  set. The most significant digit of dividend must be less than the
+ *  most significant digit of divisor. The computations to meet this
+ *  predonditions are done outside this function. The special cases
+ *  with a one digit divisor or a dividend with less digits than divisor are
+ *  handled in other functions. This algorithm based on the algorithm
+ *  from D.E. Knuth described in "The art of computer programming"
  *  volume 2 (Seminumerical algorithms).
  */
 static void uBigDiv (const bigIntType dividend, const const_bigIntType divisor,
@@ -1593,11 +1813,187 @@ static void uBigDiv (const bigIntType dividend, const const_bigIntType divisor,
 
 
 /**
- *  Computes the remainder of a integer division of dividend by
+ *  Computes quotient and remainder of an integer division of dividend
+ *  by one divisor_digit for nonnegative big integers. The divisor_digit
+ *  must not be zero. The remainder of the division is returned.
+ */
+static bigDigitType uBigDivRem1 (const const_bigIntType dividend,
+    const bigDigitType divisor_digit, const bigIntType quotient)
+
+  {
+    memSizeType pos;
+    doubleBigDigitType carry = 0;
+
+  /* uBigDivRem1 */
+    pos = dividend->size;
+    do {
+      pos--;
+      carry <<= BIGDIGIT_SIZE;
+      carry += dividend->bigdigits[pos];
+      quotient->bigdigits[pos] = (bigDigitType) ((carry / divisor_digit) & BIGDIGIT_MASK);
+      carry %= divisor_digit;
+    } while (pos > 0);
+    return (bigDigitType) carry;
+  } /* uBigDivRem1 */
+
+
+/**
+ *  Computes quotient and remainder of the integer division dividend
+ *  by one divisor_digit for signed big integers. The memory for the
+ *  quotient is requested and the normalized quotient is returned.
+ *  The memory for the remainder is requested and the normalized
+ *  remainder is assigned to *remainder. This function handles also
+ *  the special case of a division by zero.
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
+static bigIntType bigDivRem1 (const_bigIntType dividend, bigDigitType divisor_digit,
+    bigIntType *remainder)
+
+  {
+    boolType quotientNegative = FALSE;
+    boolType remainderNegative = FALSE;
+    bigIntType dividend_help = NULL;
+    bigIntType quotient;
+
+  /* bigDivRem1 */
+    if (unlikely(divisor_digit == 0)) {
+      logError(printf("bigDivRem1(%s, " FMT_U_DIG "): Division by zero.\n",
+                      bigHexCStri(dividend), divisor_digit););
+      *remainder = NULL;
+      raise_error(NUMERIC_ERROR);
+      return NULL;
+    } else {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(quotient, dividend->size + 1))) {
+        *remainder = NULL;
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else if (unlikely(!ALLOC_BIG_SIZE_OK(*remainder, 1))) {
+        FREE_BIG(quotient, quotient->size);
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        quotient->size = dividend->size + 1;
+        (*remainder)->size = 1;
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
+          quotientNegative = TRUE;
+          remainderNegative = TRUE;
+          dividend_help = alloc_positive_copy_of_negative_big(dividend);
+          dividend = dividend_help;
+          if (unlikely(dividend_help == NULL)) {
+            FREE_BIG(quotient, quotient->size);
+            FREE_BIG(*remainder, (*remainder)->size);
+            *remainder = NULL;
+            raise_error(MEMORY_ERROR);
+            return NULL;
+          } /* if */
+        } /* if */
+        quotient->bigdigits[quotient->size - 1] = 0;
+        if (IS_NEGATIVE(divisor_digit)) {
+          quotientNegative = !quotientNegative;
+          /* The unsigned value is negated to avoid a signed integer */
+          /* overflow when the smallest signed integer is negated.   */
+          divisor_digit = -divisor_digit;
+        } /* if */
+        (*remainder)->bigdigits[0] = uBigDivRem1(dividend, divisor_digit, quotient);
+        if (quotientNegative) {
+          negate_positive_big(quotient);
+        } /* if */
+        quotient = normalize(quotient);
+        if (remainderNegative) {
+          negate_positive_big(*remainder);
+        } /* if */
+        if (dividend_help != NULL) {
+          FREE_BIG(dividend_help, dividend_help->size);
+        } /* if */
+        return quotient;
+      } /* if */
+    } /* if */
+  } /* bigDivRem1 */
+
+
+
+/**
+ *  Computes quotient and remainder of the integer division of dividend
+ *  by divisor for signed big integers when dividend has less digits than
+ *  divisor. The memory for the quotient is requested and the normalized
+ *  quotient is returned. The memory for the remainder is requested and
+ *  the normalized remainder is assigned to *remainder. Normally
+ *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
+ *  When abs(dividend) < abs(divisor) holds the quotient is 0 and the
+ *  remainder is dividend. The cases when
+ *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
+ *  and divisor = 0x00008000 (0x000080000000...). In this cases the
+ *  quotient is -1 and the remainder is 0. In all other cases the quotient
+ *  is 0 and the remainder is dividend.
+ *  @return the quotient of the integer division.
+ */
+static bigIntType bigDivRemSizeLess (const const_bigIntType dividend,
+    const const_bigIntType divisor, bigIntType *remainder)
+
+  {
+    memSizeType pos;
+    boolType remainderIs0;
+    bigIntType quotient;
+
+  /* bigDivRemSizeLess */
+    if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, 1))) {
+      *remainder = NULL;
+      raise_error(MEMORY_ERROR);
+    } else {
+      quotient->size = 1;
+      if (unlikely(dividend->size + 1 == divisor->size &&
+                   dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
+                   divisor->bigdigits[divisor->size - 1] == 0 &&
+                   divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN)) {
+        remainderIs0 = TRUE;
+        pos = dividend->size - 1;
+        while (pos > 0) {
+          pos--;
+          if (likely(dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0)) {
+            remainderIs0 = FALSE;
+            pos = 0;
+          } /* if */
+        } /* while */
+      } else {
+        remainderIs0 = FALSE;
+      } /* if */
+      if (remainderIs0) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(*remainder, 1))) {
+          FREE_BIG(quotient, 1);
+          raise_error(MEMORY_ERROR);
+          quotient = NULL;
+        } else {
+          (*remainder)->size = 1;
+          (*remainder)->bigdigits[0] = 0;
+          quotient->bigdigits[0] = BIGDIGIT_MASK;
+        } /* if */
+      } else {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(*remainder, dividend->size))) {
+          FREE_BIG(quotient, 1);
+          raise_error(MEMORY_ERROR);
+          quotient = NULL;
+        } else {
+          (*remainder)->size = dividend->size;
+          memcpy((*remainder)->bigdigits, dividend->bigdigits,
+                 (size_t) dividend->size * sizeof(bigDigitType));
+          quotient->bigdigits[0] = 0;
+        } /* if */
+      } /* if */
+    } /* if */
+    return quotient;
+  } /* bigDivRemSizeLess */
+
+
+
+/**
+ *  Computes the remainder of an integer division of dividend by
  *  one divisor_digit for nonnegative big integers. The divisor_digit must
  *  not be zero.
  */
-static bigDigitType uBigRem1 (const const_bigIntType dividend, const bigDigitType divisor_digit)
+static bigDigitType uBigRem1 (const const_bigIntType dividend,
+    const bigDigitType divisor_digit)
 
   {
     memSizeType pos;
@@ -1674,35 +2070,9 @@ static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit
 
 
 /**
- *  Computes an integer division of dividend by one divisor_digit for
- *  nonnegative big integers. The divisor_digit must not be zero.
- *  The remainder of the division is returned.
- */
-static bigDigitType uBigMDiv1 (const const_bigIntType dividend,
-    const bigDigitType divisor_digit, const bigIntType quotient)
-
-  {
-    memSizeType pos;
-    doubleBigDigitType carry = 0;
-
-  /* uBigMDiv1 */
-    pos = dividend->size;
-    do {
-      pos--;
-      carry <<= BIGDIGIT_SIZE;
-      carry += dividend->bigdigits[pos];
-      quotient->bigdigits[pos] = (bigDigitType) ((carry / divisor_digit) & BIGDIGIT_MASK);
-      carry %= divisor_digit;
-    } while (pos > 0);
-    return (bigDigitType) carry;
-  } /* uBigMDiv1 */
-
-
-
-/**
  *  Computes an integer modulo division of dividend by one
  *  divisor_digit for signed big integers. The memory for the
- *  result is requested and the normalized result is returned.
+ *  quotient is requested and the normalized quotient is returned.
  *  This function handles also the special case of a division by
  *  zero.
  *  @return the quotient of the integer division.
@@ -1745,7 +2115,7 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
           /* overflow when the smallest signed integer is negated.   */
           divisor_digit = -divisor_digit;
         } /* if */
-        remainder = uBigMDiv1(dividend, divisor_digit, quotient);
+        remainder = uBigDivRem1(dividend, divisor_digit, quotient);
         if (negative) {
           if (remainder != 0) {
             uBigIncr(quotient);
@@ -1766,15 +2136,15 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
 /**
  *  Computes a modulo integer division of dividend by divisor for signed
  *  big integers when dividend has less digits than divisor. The memory for
- *  the result is requested and the normalized result is returned. Normally
+ *  the quotient is requested and the normalized quotient is returned. Normally
  *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  When abs(dividend) < abs(divisor) holds the result is 0 or -1. The cases
+ *  When abs(dividend) < abs(divisor) holds the quotient is 0 or -1. The cases
  *  when dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
  *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
- *  result is -1. In the cases when the result is 0 or -1 the
+ *  quotient is -1. In the cases when the quotient is 0 or -1 the
  *  following check is done: When dividend and divisor have different signs
- *  the result is -1 otherwise the result is 0.
+ *  the quotient is -1 otherwise the quotient is 0.
  *  @return the quotient of the integer division.
  */
 static bigIntType bigMDivSizeLess (const const_bigIntType dividend,
@@ -3721,7 +4091,7 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
         dividend_help->size++;
       } /* if */
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
-        FREE_BIG(dividend_help,  dividend->size + 2);
+        FREE_BIG(dividend_help, dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -3735,7 +4105,10 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, dividend_help->size - divisor_help->size + 1))) {
+        FREE_BIG(dividend_help, dividend->size + 2);
+        FREE_BIG(divisor_help, divisor->size + 1);
         raise_error(MEMORY_ERROR);
+        return NULL;
       } else {
         quotient->size = dividend_help->size - divisor_help->size + 1;
         quotient->bigdigits[quotient->size - 1] = 0;
@@ -3767,6 +4140,125 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
     logFunction(printf("bigDiv --> %s\n", bigHexCStri(quotient)););
     return quotient;
   } /* bigDiv */
+
+
+
+/**
+ *  Integer division truncated towards zero.
+ *  The memory for the quotient is requested and the normalized
+ *  quotient is returned. The memory for the remainder is
+ *  requested and the normalized remainder is assigned to
+ *  *remainderAddr. When divisor has just one digit or when
+ *  dividend has less digits than divisor the bigDivRem1() or
+ *  bigDivRemSizeLess() functions are called. In the general case
+ *  the absolute values of dividend and divisor are taken. Then
+ *  dividend is extended by one leading zero digit. After that
+ *  dividend and divisor are shifted to the left such that the
+ *  most significant bit of divisor is set. This fulfills the
+ *  preconditions for calling uBigDiv() which does the main
+ *  work of the division.
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ */
+bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType divisor,
+    bigIntType *remainderAddr)
+
+  {
+    boolType quotientNegative = FALSE;
+    boolType remainderNegative = FALSE;
+    bigIntType divisor_help;
+    unsigned int shift;
+    bigIntType quotient;
+    bigIntType remainder;
+
+  /* bigDivRem */
+    logFunction(printf("bigDivRem(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
+    if (divisor->size == 1) {
+      quotient = bigDivRem1(dividend, divisor->bigdigits[0], remainderAddr);
+    } else if (dividend->size < divisor->size) {
+      quotient = bigDivRemSizeLess(dividend, divisor, remainderAddr);
+    } else {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(remainder, dividend->size + 2))) {
+        *remainderAddr = NULL;
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
+          quotientNegative = TRUE;
+          remainderNegative = TRUE;
+          positive_copy_of_negative_big(remainder, dividend);
+        } else {
+          remainder->size = dividend->size;
+          memcpy(remainder->bigdigits, dividend->bigdigits,
+                 (size_t) dividend->size * sizeof(bigDigitType));
+        } /* if */
+        remainder->bigdigits[remainder->size] = 0;
+        remainder->size++;
+      } /* if */
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
+        FREE_BIG(remainder,  dividend->size + 2);
+        *remainderAddr = NULL;
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        if (IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
+          quotientNegative = !quotientNegative;
+          positive_copy_of_negative_big(divisor_help, divisor);
+        } else {
+          divisor_help->size = divisor->size;
+          memcpy(divisor_help->bigdigits, divisor->bigdigits,
+                 (size_t) divisor->size * sizeof(bigDigitType));
+        } /* if */
+      } /* if */
+      if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, remainder->size - divisor_help->size + 1))) {
+        FREE_BIG(remainder,  dividend->size + 2);
+        FREE_BIG(divisor_help, divisor->size + 1);
+        *remainderAddr = NULL;
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        quotient->size = remainder->size - divisor_help->size + 1;
+        quotient->bigdigits[quotient->size - 1] = 0;
+        shift = (unsigned int)
+            (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
+        if (shift == 0) {
+          /* The most significant digit of divisor_help is 0. Just ignore it */
+          remainder->size--;
+          divisor_help->size--;
+          if (divisor_help->size == 1) {
+            remainder->bigdigits[0] = uBigDivRem1(remainder, divisor_help->bigdigits[0], quotient);
+            memset(&remainder->bigdigits[1], 0,
+                   (size_t) (remainder->size - 1) * sizeof(bigDigitType));
+          } else {
+            uBigDiv(remainder, divisor_help, quotient);
+          } /* if */
+          remainder->bigdigits[remainder->size] = 0;
+          divisor_help->size++;
+        } else {
+          shift = BIGDIGIT_SIZE - shift;
+          uBigLShift(remainder, shift);
+          uBigLShift(divisor_help, shift);
+          uBigDiv(remainder, divisor_help, quotient);
+          uBigRShift(remainder, shift);
+        } /* if */
+        remainder->bigdigits[dividend->size + 1] = 0;
+        remainder->size = dividend->size + 2;
+        if (quotientNegative) {
+          negate_positive_big(quotient);
+        } /* if */
+        quotient = normalize(quotient);
+        if (remainderNegative) {
+          negate_positive_big(remainder);
+        } /* if */
+        remainder = normalize(remainder);
+      } /* if */
+      FREE_BIG(divisor_help, divisor->size + 1);
+      *remainderAddr = remainder;
+    } /* if */
+    logFunction(printf("bigDivRem --> %s\n", bigHexCStri(quotient)););
+    return quotient;
+  } /* bigDivRem */
 
 
 
@@ -5372,7 +5864,7 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
         dividend_help->size++;
       } /* if */
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
-        FREE_BIG(dividend_help,  dividend->size + 2);
+        FREE_BIG(dividend_help, dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -5386,7 +5878,10 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, dividend_help->size - divisor_help->size + 1))) {
+        FREE_BIG(dividend_help, dividend->size + 2);
+        FREE_BIG(divisor_help, divisor->size + 1);
         raise_error(MEMORY_ERROR);
+        return NULL;
       } else {
         quotient->size = dividend_help->size - divisor_help->size + 1;
         quotient->bigdigits[quotient->size - 1] = 0;
@@ -5397,7 +5892,7 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
           dividend_help->size--;
           divisor_help->size--;
           if (divisor_help->size == 1) {
-            mdiv1_remainder = uBigMDiv1(dividend_help, divisor_help->bigdigits[0], quotient);
+            mdiv1_remainder = uBigDivRem1(dividend_help, divisor_help->bigdigits[0], quotient);
           } else {
             uBigDiv(dividend_help, divisor_help, quotient);
           } /* if */
@@ -6806,8 +7301,6 @@ striType bigStr (const const_bigIntType big1)
   {
     bigIntType unsigned_big;
     memSizeType pos;
-    bigDigitType digit;
-    int digit_pos;
     memSizeType result_size;
     memSizeType final_result_size;
     striType resized_result;
@@ -6840,29 +7333,10 @@ striType bigStr (const const_bigIntType big1)
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          pos = result_size - 1;
-          do {
-            digit = uBigDivideByPowerOf10(unsigned_big);
-            /* printf("unsigned_big->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
-               unsigned_big->size, digit); */
-            if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
-              unsigned_big->size--;
-            } /* if */
-            if (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0) {
-              for (digit_pos = DECIMAL_DIGITS_IN_BIGDIGIT;
-                  digit_pos != 0; digit_pos--) {
-                result->mem[pos] = '0' + digit % 10;
-                digit /= 10;
-                pos--;
-              } /* for */
-            } else {
-              do {
-                result->mem[pos] = '0' + digit % 10;
-                digit /= 10;
-                pos--;
-              } while (digit != 0);
-            } /* if */
-          } while (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0);
+          /* pos = basicToStri(unsigned_big, result, result_size - 1); */
+          pos = binaryToStri(unsigned_big, result, (unsigned int)
+                             memSizeMostSignificantBit(result_size) + 1,
+                             FALSE, result_size - 1);
           FREE_BIG(unsigned_big, big1->size);
           pos++;
           if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {

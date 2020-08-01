@@ -2010,7 +2010,7 @@ os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info)
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
-striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info)
+striType os_stri_to_stri (const const_os_striType os_stri, errInfoType *err_info)
 
   {
     striType stri;

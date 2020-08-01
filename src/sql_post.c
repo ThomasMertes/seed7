@@ -400,9 +400,12 @@ static void freeDatabase (databaseType database)
     dbType db;
 
   /* freeDatabase */
+    logFunction(printf("freeDatabase(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
     FREE_RECORD(db, dbRecord, count.database);
+    logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
 
@@ -1549,11 +1552,14 @@ static void sqlClose (databaseType database)
     dbType db;
 
   /* sqlClose */
+    logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     db = (dbType) database;
     if (db->connection != NULL) {
       PQfinish(db->connection);
       db->connection = NULL;
     } /* if */
+    logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 
 
@@ -2580,55 +2586,61 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    statementStri = processBindVarsInStatement(sqlStatementStri, &err_info);
-    if (statementStri == NULL) {
+    if (db->connection == NULL) {
+      logError(printf("sqlPrepare: Database is not open.\n"););
+      err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      query = stri_to_cstri8(statementStri, &err_info);
-      if (query == NULL) {
+      statementStri = processBindVarsInStatement(sqlStatementStri, &err_info);
+      if (statementStri == NULL) {
         preparedStmt = NULL;
       } else {
-        if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
-          err_info = MEMORY_ERROR;
+        query = stri_to_cstri8(statementStri, &err_info);
+        if (query == NULL) {
+          preparedStmt = NULL;
         } else {
-          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
-          preparedStmt->stmtNum = db->nextStmtNum;
-          db->nextStmtNum++;
-          sprintf(preparedStmt->stmtName, "prepstat_" FMT_U, preparedStmt->stmtNum);
-          prepare_result = PQprepare(db->connection, preparedStmt->stmtName, query, 0, NULL);
-          if (prepare_result == NULL) {
-            FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+          if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
             err_info = MEMORY_ERROR;
-            preparedStmt = NULL;
           } else {
-            if (PQresultStatus(prepare_result) != PGRES_COMMAND_OK) {
-              setDbErrorMsg("sqlPrepare", "PQprepare", db->connection);
-              logError(printf("sqlPrepare: PQprepare returns a status of %s:\n%s",
-                              PQresStatus(PQresultStatus(prepare_result)),
-                              dbError.message););
+            memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+            preparedStmt->stmtNum = db->nextStmtNum;
+            db->nextStmtNum++;
+            sprintf(preparedStmt->stmtName, "prepstat_" FMT_U, preparedStmt->stmtNum);
+            prepare_result = PQprepare(db->connection, preparedStmt->stmtName, query, 0, NULL);
+            if (prepare_result == NULL) {
               FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-              err_info = DATABASE_ERROR;
+              err_info = MEMORY_ERROR;
               preparedStmt = NULL;
             } else {
-              preparedStmt->usage_count = 1;
-              preparedStmt->sqlFunc = db->sqlFunc;
-              preparedStmt->connection = db->connection;
-              preparedStmt->integerDatetimes = db->integerDatetimes;
-              preparedStmt->executeSuccessful = FALSE;
-              preparedStmt->execute_result = NULL;
-              preparedStmt->fetchOkay = FALSE;
-              setupParametersAndResult(preparedStmt, &err_info);
-              if (unlikely(err_info != OKAY_NO_ERROR)) {
-                freePreparedStmt((sqlStmtType) preparedStmt);
+              if (PQresultStatus(prepare_result) != PGRES_COMMAND_OK) {
+                setDbErrorMsg("sqlPrepare", "PQprepare", db->connection);
+                logError(printf("sqlPrepare: PQprepare returns a status of %s:\n%s",
+                                PQresStatus(PQresultStatus(prepare_result)),
+                                dbError.message););
+                FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+                err_info = DATABASE_ERROR;
                 preparedStmt = NULL;
+              } else {
+                preparedStmt->usage_count = 1;
+                preparedStmt->sqlFunc = db->sqlFunc;
+                preparedStmt->connection = db->connection;
+                preparedStmt->integerDatetimes = db->integerDatetimes;
+                preparedStmt->executeSuccessful = FALSE;
+                preparedStmt->execute_result = NULL;
+                preparedStmt->fetchOkay = FALSE;
+                setupParametersAndResult(preparedStmt, &err_info);
+                if (unlikely(err_info != OKAY_NO_ERROR)) {
+                  freePreparedStmt((sqlStmtType) preparedStmt);
+                  preparedStmt = NULL;
+                } /* if */
               } /* if */
+              PQclear(prepare_result);
             } /* if */
-            PQclear(prepare_result);
           } /* if */
+          free_cstri8(query, statementStri);
         } /* if */
-        free_cstri8(query, statementStri);
+        FREE_STRI(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
       } /* if */
-      FREE_STRI(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

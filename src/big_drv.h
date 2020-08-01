@@ -59,6 +59,8 @@ bigIntType bigCreate (const const_bigIntType source);
 void bigDecr (bigIntType *const big_variable);
 void bigDestr (const const_bigIntType old_bigint);
 bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divisor);
+bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType divisor,
+    bigIntType *remainderAddr);
 boolType bigEq (const const_bigIntType big1, const const_bigIntType big2);
 boolType bigEqSignedDigit (const const_bigIntType big1, intType number);
 bigIntType bigFromByteBufferBe (const memSizeType size,

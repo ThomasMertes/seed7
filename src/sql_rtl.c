@@ -1266,6 +1266,7 @@ sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
     if (unlikely(database == NULL ||
                  ((dbType) database)->sqlFunc == NULL ||
                  ((dbType) database)->sqlFunc->sqlPrepare == NULL)) {
+      logError(printf("sqlPrepare: Database is not open.\n"););
       raise_error(RANGE_ERROR);
       preparedStmt = NULL;
     } else {

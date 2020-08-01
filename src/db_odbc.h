@@ -197,6 +197,7 @@ typedef SQLHANDLE SQLHDESC;
 #define SQL_LONGVARBINARY  (-4)
 #define SQL_BIGINT         (-5)
 #define SQL_TINYINT        (-6)
+#define SQL_BIT            (-7)
 #define SQL_WCHAR          (-8)
 #define SQL_WVARCHAR       (-9)
 #define SQL_WLONGVARCHAR  (-10)
@@ -209,6 +210,7 @@ typedef SQLHANDLE SQLHDESC;
 #define SQL_C_DOUBLE         SQL_DOUBLE
 #define SQL_C_NUMERIC        SQL_NUMERIC
 #define SQL_C_BINARY         SQL_BINARY
+#define SQL_C_BIT            SQL_BIT
 #define SQL_C_TYPE_DATE      SQL_TYPE_DATE
 #define SQL_C_TYPE_TIME      SQL_TYPE_TIME
 #define SQL_C_TYPE_TIMESTAMP SQL_TYPE_TIMESTAMP

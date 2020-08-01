@@ -263,9 +263,12 @@ static void freeDatabase (databaseType database)
     dbType db;
 
   /* freeDatabase */
+    logFunction(printf("freeDatabase(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
     FREE_RECORD(db, dbRecord, count.database);
+    logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
 
@@ -963,11 +966,14 @@ static void sqlClose (databaseType database)
     dbType db;
 
   /* sqlClose */
+    logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     db = (dbType) database;
     if (db->connection != NULL) {
       sqlite3_close(db->connection);
+      db->connection = NULL;
     } /* if */
-    db->connection = NULL;
+    logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 
 
@@ -1760,43 +1766,49 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    query = stri_to_cstri8(sqlStatementStri, &err_info);
-    if (query == NULL) {
+    if (db->connection == NULL) {
+      logError(printf("sqlPrepare: Database is not open.\n"););
+      err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
-        err_info = MEMORY_ERROR;
+      query = stri_to_cstri8(sqlStatementStri, &err_info);
+      if (query == NULL) {
+        preparedStmt = NULL;
       } else {
-        memset(preparedStmt, 0, sizeof(preparedStmtRecord));
-        prepare_result = sqlite3_prepare(db->connection, query, -1, &preparedStmt->ppStmt, NULL);
-        if (prepare_result != SQLITE_OK) {
-          setDbErrorMsg("sqlPrepare", "sqlite3_prepare", db->connection);
-          logError(printf("sqlPrepare: sqlite3_prepare error %d: %s\n",
-                          prepare_result, sqlite3_errmsg(db->connection)););
-          FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-          err_info = DATABASE_ERROR;
-          preparedStmt = NULL;
+        if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+          err_info = MEMORY_ERROR;
         } else {
-          column_count = sqlite3_column_count(preparedStmt->ppStmt);
-          if (column_count < 0) {
-            dbInconsistent("sqlPrepare", "sqlite3_column_count");
-            logError(printf("sqlPrepare: "
-                            "Sqlite3_column_count returns negative column count: %d\n",
-                            column_count););
+          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+          prepare_result = sqlite3_prepare(db->connection, query, -1, &preparedStmt->ppStmt, NULL);
+          if (prepare_result != SQLITE_OK) {
+            setDbErrorMsg("sqlPrepare", "sqlite3_prepare", db->connection);
+            logError(printf("sqlPrepare: sqlite3_prepare error %d: %s\n",
+                            prepare_result, sqlite3_errmsg(db->connection)););
             FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
             err_info = DATABASE_ERROR;
             preparedStmt = NULL;
           } else {
-            preparedStmt->usage_count = 1;
-            preparedStmt->sqlFunc = db->sqlFunc;
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-            preparedStmt->fetchFinished = TRUE;
-            preparedStmt->result_column_count = (unsigned int) column_count;
+            column_count = sqlite3_column_count(preparedStmt->ppStmt);
+            if (column_count < 0) {
+              dbInconsistent("sqlPrepare", "sqlite3_column_count");
+              logError(printf("sqlPrepare: "
+                              "Sqlite3_column_count returns negative column count: %d\n",
+                              column_count););
+              FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+              err_info = DATABASE_ERROR;
+              preparedStmt = NULL;
+            } else {
+              preparedStmt->usage_count = 1;
+              preparedStmt->sqlFunc = db->sqlFunc;
+              preparedStmt->executeSuccessful = FALSE;
+              preparedStmt->fetchOkay = FALSE;
+              preparedStmt->fetchFinished = TRUE;
+              preparedStmt->result_column_count = (unsigned int) column_count;
+            } /* if */
           } /* if */
         } /* if */
+        free_cstri8(query, sqlStatementStri);
       } /* if */
-      free_cstri8(query, sqlStatementStri);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

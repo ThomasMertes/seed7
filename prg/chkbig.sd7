@@ -515,7 +515,7 @@ const proc: chkStringConv is func
         str(bigInteger parse "1208925819614629174706176") <> "1208925819614629174706176" or
         str(bigInteger parse "1208925819614629174706177") <> "1208925819614629174706177" or
         str(bigInteger parse "1208925819614629174706178") <> "1208925819614629174706178" then
-      writeln("Decimal conversion of a positive bigInteger does not work correct.");
+      writeln(" ***** Decimal conversion of a positive bigInteger does not work correct.");
       okay := FALSE;
     end if;
 
@@ -683,7 +683,7 @@ const proc: chkStringConv is func
         str(bigInteger parse "+1208925819614629174706176") <> "1208925819614629174706176" or
         str(bigInteger parse "+1208925819614629174706177") <> "1208925819614629174706177" or
         str(bigInteger parse "+1208925819614629174706178") <> "1208925819614629174706178" then
-      writeln("Decimal conversion of a positive bigInteger with sign does not work correct.");
+      writeln(" ***** Decimal conversion of a positive bigInteger with sign does not work correct.");
       okay := FALSE;
     end if;
 
@@ -850,7 +850,12 @@ const proc: chkStringConv is func
         str(bigInteger parse "-1208925819614629174706176") <> "-1208925819614629174706176" or
         str(bigInteger parse "-1208925819614629174706177") <> "-1208925819614629174706177" or
         str(bigInteger parse "-1208925819614629174706178") <> "-1208925819614629174706178" then
-      writeln("Decimal conversion of a negative bigInteger does not work correct.");
+      writeln(" ***** Decimal conversion of a negative bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bigInteger parse str(123456789_ ** 1234) <> 123456789_ ** 1234 then
+      writeln(" ***** Decimal conversion of large bigInteger does not work correct.");
       okay := FALSE;
     end if;
 
@@ -2267,10 +2272,28 @@ const proc: chkRadix is func
     end if;
 
     bigNum := 123456789_ ** 12345;
-    if bigInteger(bigNum radix 16, 16) <> bigNum then
+    if  bigInteger(bigNum radix  2,  2) <> bigNum or
+        bigInteger(bigNum RADIX  2,  2) <> bigNum or
+        bigInteger(bigNum radix  4,  4) <> bigNum or
+        bigInteger(bigNum RADIX  4,  4) <> bigNum or
+        bigInteger(bigNum radix  8,  8) <> bigNum or
+        bigInteger(bigNum RADIX  8,  8) <> bigNum or
+        bigInteger(bigNum radix 16, 16) <> bigNum or
+        bigInteger(bigNum RADIX 16, 16) <> bigNum or
+        bigInteger(bigNum radix 32, 32) <> bigNum or
+        bigInteger(bigNum RADIX 32, 32) <> bigNum then
       writeln(" ***** The radix operator for bigInteger does not work correct for big values.");
       okay := FALSE;
     end if;
+
+    bigNum := 123456789_ ** 1234;
+    for base range 2 to 36 do
+      if  bigInteger(bigNum radix base, base) <> bigNum or
+          bigInteger(bigNum RADIX base, base) <> bigNum then
+        writeln(" ***** The radix operator for large bigInteger does not work correct.");
+        okay := FALSE;
+      end if;
+    end for;
 
     bigNum := 123_;
     if  not raisesRangeError(bigNum radix          1 ) or

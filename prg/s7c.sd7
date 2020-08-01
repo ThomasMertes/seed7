@@ -717,6 +717,16 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_frees &:= "prgDestr(o_";
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
+    elsif valueCategory = DATABASEOBJECT then
+      c_declaration.temp_decls &:= "=NULL";
+      c_declaration.temp_frees &:= "sqlDestrDb(o_";
+      create_name(current_object, c_declaration.temp_frees);
+      c_declaration.temp_frees &:= ");\n";
+    elsif valueCategory = SQLSTMTOBJECT then
+      c_declaration.temp_decls &:= "=NULL";
+      c_declaration.temp_frees &:= "sqlDestrStmt(o_";
+      create_name(current_object, c_declaration.temp_frees);
+      c_declaration.temp_frees &:= ");\n";
     elsif valueCategory = CONSTENUMOBJECT then
       c_declaration.temp_decls &:= "=";
       c_declaration.temp_decls &:= enum_value(getValue(object_value, reference));
@@ -758,10 +768,6 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_expr.temp_to_null &:= c_value.temp_to_null;
       function_declared @:= [object_value] TRUE;
     elsif valueCategory = ACTOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
-    elsif valueCategory = DATABASEOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
-    elsif valueCategory = SQLSTMTOBJECT then
       c_declaration.temp_decls &:= "=NULL";
     else
       c_declaration.temp_decls &:= "/* ";

@@ -374,6 +374,8 @@ typedef uint32Type         memSizeType;
 #define FMT_U_MEM          FMT_U32
 #define FMT_X_MEM          FMT_X32
 #define MEMSIZETYPE_DECIMAL_SIZE  UINT32TYPE_DECIMAL_SIZE
+#define memSizeMostSignificantBit  uint32MostSignificantBit
+#define memSizeLeastSignificantBit uint32LeastSignificantBit
 #elif POINTER_SIZE == 64
 typedef uint64Type         memSizeType;
 #define MAX_MEMSIZETYPE    0xFFFFFFFFFFFFFFFF
@@ -386,6 +388,8 @@ typedef uint64Type         memSizeType;
 #define FMT_U_MEM          FMT_U64
 #define FMT_X_MEM          FMT_X64
 #define MEMSIZETYPE_DECIMAL_SIZE  UINT64TYPE_DECIMAL_SIZE
+#define memSizeMostSignificantBit  uint64MostSignificantBit
+#define memSizeLeastSignificantBit uint64LeastSignificantBit
 #endif
 
 #if OS_OFF_T_SIZE == 32

@@ -398,14 +398,29 @@ const func string: (in var bigInteger: number) RADIX (in integer: base)  is acti
  *  Convert a [[string]] to a ''bigInteger'' number.
  *  The [[string]] must contain an integer literal consisting of an
  *  optional + or - sign, followed by a sequence of digits. Other
- *  characters as well as leading or trailing whitespace characters are
- *  not allowed. The sequence of digits is taken to be decimal.
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''bigInteger'' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or does not contain
+ *  @exception RANGE_ERROR When the string is empty or it does not contain
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
 const func bigInteger: (attr bigInteger) parse (in string: stri)         is action "BIG_PARSE";
+
+
+(**
+ *  Convert a [[string]] to a ''bigInteger'' number.
+ *  The [[string]] must contain an integer literal consisting of an
+ *  optional + or - sign, followed by a sequence of digits. Other
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed. The sequence of digits is taken to be decimal.
+ *  @return the ''bigInteger'' result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or it does not contain
+ *             an integer literal.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *)
+const func bigInteger: bigInteger (in string: stri) is
+    return bigInteger parse stri;
 
 
 (**

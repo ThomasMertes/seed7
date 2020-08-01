@@ -39,6 +39,9 @@
  *      Define the function _matherr() which handles floating point errors.
  *  PATH_DELIMITER:
  *      Path delimiter character used by the command shell of the operating system.
+ *  OS_STRI_WCHAR:
+ *      Defined when the system calls (os_...) use wide characters (type wchar_t)
+ *      for string and path parameters.
  *  QUOTE_WHOLE_SHELL_COMMAND:
  *      Defined when shell commands, starting with " need to be quoted again.
  *  OBJECT_FILE_EXTENSION:
@@ -47,14 +50,33 @@
  *      The extension which is used by the operating system for executables.
  *  C_COMPILER:
  *      Contains the command to call the stand-alone C compiler and linker.
+ *      When the C compiler is called via a script C_COMPILER_SCRIPT is defined
+ *      and C_COMPILER is not defined. In that case TEST_C_COMPILER is defined
+ *      (in chkccomp.h) and it is used instead of C_COMPILER as command of
+ *      the stand-alone C compiler and linker.
+ *  CC_FLAGS:
+ *      Contains C compiler flags, which should be used when C programs are
+ *      compiled.
  *  CC_NO_OPT_OUTPUT_FILE:
  *      Defined, when compiling and linking with one command cannot use -o.
  *  CC_ERROR_FILDES:
  *      File descriptor to which the C compiler writes errors.
+ *  LINKER:
+ *      Defined when C_COMPILER does just invoke the stand-alone C compiler.
+ *      In that case LINKER contains the command to call the stand-alone linker.
  *  LINKER_OPT_OUTPUT_FILE:
  *      Contains the linker option to provide the output filename (e.g.: "-o ").
  *  SYSTEM_LIBS:
  *      Contains system libraries for the stand-alone linker.
+ *  INTERPRETER_FOR_EXECUTABLE:
+ *      Defines an interpreter that is used when compiler and linker create
+ *      a file that must be interpreted.
+ *  INT64TYPE_NO_SUFFIX_BUT_CAST:
+ *      Defined when 64-bit integer literals do not use a suffix.
+ *  INT_DIV_BY_ZERO_POPUP:
+ *      Defined when an integer division by zero may trigger a popup window.
+ *      Consequently chkccomp.c defines CHECK_INT_DIV_BY_ZERO, to avoid the
+ *      popup.
  */
 
 #include "stdlib.h"
@@ -77,6 +99,9 @@
  *  removed after chkccomp was compiled and executed.
  *  In chkccomp.h the following macros might be defined:
  *
+ *  TEST_C_COMPILER
+ *      If TEST_C_COMPILER is defined it is used instead of C_COMPILER
+ *      as command of the stand-alone C compiler and linker.
  *  WRITE_CC_VERSION_INFO
  *      Write the version of the C compiler to the file "cc_vers.txt".
  *      E.g.: #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt");
@@ -135,6 +160,7 @@ static const char *int128TypeStri = NULL;
 static const char *uint128TypeStri = NULL;
 
 static const char *makeDirDefinition = NULL;
+static const char *removeDirDefinition = NULL;
 
 
 
@@ -818,9 +844,10 @@ static int getSizeof (const char *typeName)
                     "#include <time.h>\n"
                     "#include <sys/types.h>\n"
                     "#include \"tst_vers.h\"\n"
-                    "int main(int argc, char *argv[])"
+                    "int main(int argc, char *argv[])\n"
                     "{printf(\"%%d\\n\",(int)sizeof(%s));return 0;}\n",
                     typeName);
+    /* printf("getSizeof(%s):\n%s\n", typeName, buffer); */
     if (compileAndLinkOk(buffer)) {
       computedSize = doTest();
       if (computedSize == -1) {
@@ -2078,8 +2105,42 @@ static const char *defineMakeDir (void)
       makeDirDefinition = "#include <sys/stat.h>\n#include <sys/types.h>\n"
                           "#define makeDir(path,mode) mkdir(path,mode)\n";
     } /* if */
+    /* fprintf(logFile, "Internal makeDirDefinition:\n%s\n", makeDirDefinition); */
     return makeDirDefinition;
   } /* defineMakeDir */
+
+
+
+static const char *defineRemoveDir (void)
+
+  {
+    const char *removeDirDefinition = NULL;
+
+  /* defineRemoveDir */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      removeDirDefinition = "#include <direct.h>\n"
+                            "#define removeDir(path) rmdir(path)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      removeDirDefinition = "#include <unistd.h>\n"
+                            "#define removeDir(path) rmdir(path)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{_rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      removeDirDefinition = "#include <direct.h>\n"
+                            "#define removeDir(path) _rmdir(path)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{_rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      removeDirDefinition = "#include <unistd.h>\n"
+                            "#define removeDir(path) _rmdir(path)\n";
+    } /* if */
+    /* fprintf(logFile, "Internal removeDirDefinition:\n%s\n", removeDirDefinition); */
+    return removeDirDefinition;
+  } /* defineRemoveDir */
 
 
 
@@ -2323,13 +2384,13 @@ static void determineOsUtime (FILE *versionFile)
       } /* if */
       if (os_utime_stri != NULL) {
         sprintf(buffer,
-                "#include <stdio.h>\n#include <%s>\n#include <errno.h>\n%s"
+                "#include <stdio.h>\n#include <%s>\n#include <errno.h>\n%s\n%s"
                 "int main(int argc,char *argv[])"
                 "{%s utime_buf;makeDir(\"tmp_empty_dir2\",0755);\n"
                 "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
                 "printf(\"%%d\\n\",utime(\"tmp_empty_dir2\",&utime_buf)!=0&&errno==EACCES);\n"
-                "if(remove(\"tmp_empty_dir2\")!=0)rmdir(\"tmp_empty_dir2\");return 0;}\n",
-                utime_include, makeDirDefinition, os_utimbuf_struct_stri);
+                "if(remove(\"tmp_empty_dir2\")!=0)removeDir(\"tmp_empty_dir2\");return 0;}\n",
+                utime_include, makeDirDefinition, removeDirDefinition, os_utimbuf_struct_stri);
         if (compileAndLinkOk(buffer) && doTest() == 1) {
           fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
           fprintf(versionFile, "#define os_utime_orig %s\n", os_utime_stri);
@@ -2525,10 +2586,36 @@ static void determineOsWCharFunctions (FILE *versionFile)
 
 static void determineOsFunctions (FILE *versionFile)
 
-  { /* determineOsFunctions */
+  {
+    char buffer[BUFFER_SIZE];
+    const char *fileno = "fileno";
+
+  /* determineOsFunctions */
     determineOsDirAccess(versionFile);
 #ifdef OS_STRI_WCHAR
     determineOsWCharFunctions(versionFile);
+#endif
+    if (!compileAndLinkOk("#include <stdio.h>\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "printf(\"%d\\n\", fileno(stdin)==0);\n"
+                          "return 0;}\n") &&
+        compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "printf(\"%d\\n\", _fileno(stdin)==0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define fileno _fileno\n");
+      fileno = "_fileno";
+    } /* if */
+#ifndef FILENO_WORKS_FOR_NULL
+    sprintf(buffer, "#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
+                    "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                    "int main(int argc, char *argv[]){\n"
+                    "FILE *aFile = NULL;\n"
+                    "signal(SIGSEGV,handleSig);\n"
+                    "printf(\"%%d\\n\", %s(aFile) == -1); return 0;}\n", fileno);
+    if (assertCompAndLnk(buffer)) {
+      fprintf(versionFile, "#define FILENO_WORKS_FOR_NULL %d\n", doTest() == 1);
+    } /* if */
 #endif
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"
@@ -2542,18 +2629,17 @@ static void determineOsFunctions (FILE *versionFile)
                                 "return 0;}\n")) {
       fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
     } /* if */
-    fprintf(versionFile,
-            "#define HAS_FCNTL_SETFD_CLOEXEC %d\n",
-            compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
-                             "#include <fcntl.h>\n"
-                             "int main(int argc,char *argv[])\n"
-                             "{FILE *aFile;int fd;\n"
-                             "printf(\"%d\\n\",\n"
-                             "(aFile = fopen(\"version.h\", \"r\")) != NULL &&\n"
-                             "(fd = fileno(aFile)) != -1 &&\n"
-                             "fcntl(fd,F_SETFD,FD_CLOEXEC) == 0);\n"
-                             "return 0;}\n") &&
-            doTest() == 1);
+    sprintf(buffer, "#include <stdio.h>\n#include <unistd.h>\n"
+                    "#include <fcntl.h>\n"
+                    "int main(int argc,char *argv[])\n"
+                    "{FILE *aFile;int fd;\n"
+                    "printf(\"%%d\\n\",\n"
+                    "(aFile = fopen(\"version.h\", \"r\")) != NULL &&\n"
+                    "(fd = %s(aFile)) != -1 &&\n"
+                    "fcntl(fd,F_SETFD,FD_CLOEXEC) == 0);\n"
+                    "return 0;}\n", fileno);
+    fprintf(versionFile, "#define HAS_FCNTL_SETFD_CLOEXEC %d\n",
+            compileAndLinkOk(buffer) && doTest() == 1);
     fprintf(versionFile,
             "#define HAS_PIPE2 %d\n",
             compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
@@ -3745,6 +3831,9 @@ int main (int argc, char **argv)
     if (argc >= 2) {
       versionFileName = argv[1];
     } /* if */
+    if (!fileIsRegular(versionFileName)) {
+      fprintf(logFile, "\n *** fileIsRegular(\"%s\") fails.\n", versionFileName);
+    } /* if */
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
     prepareCompileCommand();
@@ -3776,18 +3865,9 @@ int main (int argc, char **argv)
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
     makeDirDefinition = defineMakeDir();
+    removeDirDefinition = defineRemoveDir();
     determineOsFunctions(versionFile);
     checkPopen(versionFile);
-#ifndef FILENO_WORKS_FOR_NULL
-    if (assertCompAndLnk("#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc, char *argv[]){\n"
-                         "FILE *aFile = NULL;\n"
-                         "signal(SIGSEGV,handleSig);\n"
-                         "printf(\"%d\\n\", fileno(aFile) == -1); return 0;}\n")) {
-      fprintf(versionFile, "#define FILENO_WORKS_FOR_NULL %d\n", doTest() == 1);
-    } /* if */
-#endif
     if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{printf(\"%d\\n\", fseek(stdin, 0,  SEEK_SET) == 0);\n"
                          "return 0;}\n")) {

@@ -275,9 +275,12 @@ static void freeDatabase (databaseType database)
     dbType db;
 
   /* freeDatabase */
+    logFunction(printf("freeDatabase(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
     FREE_RECORD(db, dbRecord, count.database);
+    logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
 
@@ -289,7 +292,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     memSizeType pos;
 
   /* freePreparedStmt */
-    logFunction(printf("freePreparedStmt(%lx)\n",
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->param_array != NULL) {
@@ -1210,11 +1213,14 @@ static void sqlClose (databaseType database)
     dbType db;
 
   /* sqlClose */
+    logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     db = (dbType) database;
     if (db->connection != NULL) {
       mysql_close(db->connection);
+      db->connection = NULL;
     } /* if */
-    db->connection = NULL;
+    logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 
 
@@ -1910,7 +1916,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
+    /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
     preparedStmt->fetchOkay = FALSE;
     bind_param_result = mysql_stmt_bind_param(preparedStmt->ppStmt, preparedStmt->param_array);
     if (unlikely(bind_param_result != 0)) {
@@ -1976,7 +1982,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
     } else if (preparedStmt->result_array_size == 0) {
       preparedStmt->fetchOkay = FALSE;
     } else if (!preparedStmt->fetchFinished) {
-      /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
+      /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
       fetch_result = mysql_stmt_fetch(preparedStmt->ppStmt);
       if (fetch_result == 0) {
         preparedStmt->fetchOkay = TRUE;
@@ -2042,51 +2048,57 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    query = stri_to_cstri8_buf(sqlStatementStri, &query_length, &err_info);
-    if (query == NULL) {
+    if (db->connection == NULL) {
+      logError(printf("sqlPrepare: Database is not open.\n"););
+      err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
-        err_info = MEMORY_ERROR;
+      query = stri_to_cstri8_buf(sqlStatementStri, &query_length, &err_info);
+      if (query == NULL) {
+        preparedStmt = NULL;
       } else {
-        memset(preparedStmt, 0, sizeof(preparedStmtRecord));
-        preparedStmt->ppStmt = mysql_stmt_init(db->connection);
-        if (preparedStmt->ppStmt == NULL) {
-          setDbErrorMsg("sqlPrepare", "mysql_stmt_init",
-                        mysql_errno(db->connection),
-                        mysql_error(db->connection));
-          logError(printf("sqlPrepare: mysql_stmt_init error: %s\n",
-                          mysql_error(db->connection)););
-          FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-          err_info = DATABASE_ERROR;
-          preparedStmt = NULL;
+        if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+          err_info = MEMORY_ERROR;
         } else {
-          prepare_result = mysql_stmt_prepare(preparedStmt->ppStmt, query, query_length);
-          if (prepare_result != 0) {
-            setDbErrorMsg("sqlPrepare", "mysql_stmt_prepare",
-                          mysql_stmt_errno(preparedStmt->ppStmt),
-                          mysql_stmt_error(preparedStmt->ppStmt));
-            logError(printf("sqlPrepare: mysql_stmt_prepare error: %s\n",
-                            mysql_stmt_error(preparedStmt->ppStmt)););
-            mysql_stmt_close(preparedStmt->ppStmt);
+          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+          preparedStmt->ppStmt = mysql_stmt_init(db->connection);
+          if (preparedStmt->ppStmt == NULL) {
+            setDbErrorMsg("sqlPrepare", "mysql_stmt_init",
+                          mysql_errno(db->connection),
+                          mysql_error(db->connection));
+            logError(printf("sqlPrepare: mysql_stmt_init error: %s\n",
+                            mysql_error(db->connection)););
             FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
             err_info = DATABASE_ERROR;
             preparedStmt = NULL;
           } else {
-            preparedStmt->usage_count = 1;
-            preparedStmt->sqlFunc = db->sqlFunc;
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-            preparedStmt->fetchFinished = TRUE;
-            setupResult(preparedStmt, &err_info);
-            if (unlikely(err_info != OKAY_NO_ERROR)) {
-              freePreparedStmt((sqlStmtType) preparedStmt);
+            prepare_result = mysql_stmt_prepare(preparedStmt->ppStmt, query, query_length);
+            if (prepare_result != 0) {
+              setDbErrorMsg("sqlPrepare", "mysql_stmt_prepare",
+                            mysql_stmt_errno(preparedStmt->ppStmt),
+                            mysql_stmt_error(preparedStmt->ppStmt));
+              logError(printf("sqlPrepare: mysql_stmt_prepare error: %s\n",
+                              mysql_stmt_error(preparedStmt->ppStmt)););
+              mysql_stmt_close(preparedStmt->ppStmt);
+              FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+              err_info = DATABASE_ERROR;
               preparedStmt = NULL;
+            } else {
+              preparedStmt->usage_count = 1;
+              preparedStmt->sqlFunc = db->sqlFunc;
+              preparedStmt->executeSuccessful = FALSE;
+              preparedStmt->fetchOkay = FALSE;
+              preparedStmt->fetchFinished = TRUE;
+              setupResult(preparedStmt, &err_info);
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                freePreparedStmt((sqlStmtType) preparedStmt);
+                preparedStmt = NULL;
+              } /* if */
             } /* if */
           } /* if */
         } /* if */
+        free_cstri8(query, sqlStatementStri);
       } /* if */
-      free_cstri8(query, sqlStatementStri);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

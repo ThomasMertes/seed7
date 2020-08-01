@@ -55,11 +55,11 @@
   /*                                                                */
   /*   #define PTR_LESS(P1,P2) ((P1) < (P2))                        */
   /*                                                                */
-  /* The K&R standard allowes pointer comparisons only inside of    */
+  /* The K&R standard allows pointer comparisons only inside        */
   /* arrays. So the true less comparison does not conform to the    */
-  /* standard. The macro below converts the pointers to long so it  */
-  /* is confoming to the standard. Taking only the lower bits for   */
-  /* the comparison has a "random" effect for the binary tree.      */
+  /* standard. The macro below casts the pointers to unsigned long, */
+  /* so it is confoming to the standard. Taking only the lower bits */
+  /* for the comparison has a "random" effect for the binary tree.  */
   /* This speeds the tree up a measurable amount of time.           */
 
 #define PTR_LESS(P1,P2) (((memSizeType) (P1) & 0377L) < ((memSizeType) (P2) & 0377L))

@@ -433,8 +433,8 @@ striType fltDgts (floatType number, intType precision)
         /* prinf() will always work ok.                            */
         if (precision > PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION) {
           pos = (memSizeType) (strchr(buffer, '.') - buffer);
-          if (precision >= len - pos) {
-            memSizeType numZeros = precision - (len - pos) + 1;
+          if ((memSizeType) precision >= len - pos) {
+            memSizeType numZeros = (memSizeType) precision - (len - pos) + 1;
             memset(&buffer[len], '0', numZeros);
             len += numZeros;
             buffer[len] = '\0';

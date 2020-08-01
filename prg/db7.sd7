@@ -30,8 +30,12 @@ $ include "seed7_05.s7i";
   include "sql_base.s7i";
 
 
-# SqLite: SELECT name FROM sqlite_master WHERE type='table';
-# MySql:  SHOW TABLES;
+# Get list of tables:
+# SqLite:     SELECT name FROM sqlite_master WHERE type='table'
+# Odbc:       SELECT table_name FROM information_schema.tables
+# Postgresql: SELECT table_name FROM information_schema.tables
+# MySql:      SHOW TABLES
+# OCI:        select table_name from cat
 
 
 var submitButton: exit is submitButton(dialogColumn(image(createPixmap(exit_pic, 1, light_gray)) & label("Exit")));
@@ -167,12 +171,12 @@ const proc: displayResult (inout browserConnection: browser,
   begin
     repeat
       tableData := fetchLines(statement, numLines);
+      columnHeaders := dialogSequenceBase.value;
+      for column range 1 to columnCount(statement) do
+        columnHeaders &:= label(columnName(statement, column));
+      end for;
+      resultTable := dialogTable(columnHeaders, tableData);
       if length(tableData) <> 0 then
-        columnHeaders := dialogSequenceBase.value;
-        for key column range tableData[1] do
-          columnHeaders &:= label(columnName(statement, column));
-        end for;
-        resultTable := dialogTable(columnHeaders, tableData);
         resultWebPage := webForm("DB7",
             dialogColumn(
               image(readBmp("header3.bmp")) &
@@ -188,6 +192,8 @@ const proc: displayResult (inout browserConnection: browser,
               image(readBmp("header3.bmp")) &
               header(1, "Database Inspector 7") &
               header(2, command) &
+              resultTable &
+              vspace(20) &
               label("Nothing found.") &
               vspace(20) &
               dialogSequence(returnButton & next & logout & exit)

@@ -219,19 +219,20 @@ static int init_winsock (void)
 
 
 
-cstriType wsaErrorMessage (void)
+const_cstriType wsaErrorMessage (void)
 
   {
     static char buffer[ERROR_MESSAGE_BUFFER_SIZE];
+    const_cstriType errorMessage = buffer;
 
   /* wsaErrorMessage */
     if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                        NULL, WSAGetLastError(),
                        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                        buffer, ERROR_MESSAGE_BUFFER_SIZE, NULL) == 0) {
-      strcpy(buffer, "Unable to get error message.");
+      errorMessage = "Unable to get error message.";
     } /* if */
-    return buffer;
+    return errorMessage;
   } /* wsaErrorMessage */
 #endif
 
