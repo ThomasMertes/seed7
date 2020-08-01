@@ -143,8 +143,8 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
                        striAsUnquotedCStri(currentProg->program_path)););
     if (currentProg != NULL) {
       set_fail_flag(FALSE);
-      fail_value = (objectType) NULL;
-      fail_expression = (listType) NULL;
+      fail_value = NULL;
+      fail_expression = NULL;
       fail_stack = NULL;
       if (currentProg->main_object != NULL) {
         progBackup = prog;
@@ -323,8 +323,8 @@ void prgExec (const progType currentProg, const const_rtlArrayType argv,
     int_options = (uintType) setSConv(options);
     interpret(currentProg, argv, 0, int_options, protFileName);
     set_fail_flag(FALSE);
-    fail_value = (objectType) NULL;
-    fail_expression = (listType) NULL;
+    fail_value = NULL;
+    fail_expression = NULL;
   } /* prgExec */
 
 

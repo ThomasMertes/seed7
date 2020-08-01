@@ -558,7 +558,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
     interpreter_exception = TRUE;
     initAnalyze();
     resultProg = NULL;
-    if (sourceFileArgument->size > 4 &&
+    if (sourceFileArgument->size > STRLEN(".sd7") &&
         sourceFileArgument->mem[sourceFileArgument->size - 4] == '.' &&
         sourceFileArgument->mem[sourceFileArgument->size - 3] == 's' &&
         sourceFileArgument->mem[sourceFileArgument->size - 2] == 'd' &&
@@ -566,10 +566,11 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
       nameLen = sourceFileArgument->size;
       add_extension = FALSE;
     } else {
-      nameLen = sourceFileArgument->size + 4;
+      nameLen = sourceFileArgument->size + STRLEN(".sd7");
       add_extension = TRUE;
     } /* if */
     if (strChPos(sourceFileArgument, (charType) '\\') != 0) {
+      logError(printf("analyzeFile(\"%s\", ...): Backslash in filename.\n"););
       *err_info = RANGE_ERROR;
     } else if (!ALLOC_STRI_CHECK_SIZE(sourceFilePath, nameLen)) {
       *err_info = MEMORY_ERROR;
@@ -579,14 +580,14 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
              sourceFileArgument->size * sizeof(strElemType));
       if (add_extension) {
         memcpy_to_strelem(&sourceFilePath->mem[sourceFileArgument->size],
-                          (const_ustriType) ".sd7", 4);
+                          (const_ustriType) ".sd7", STRLEN(".sd7"));
       } /* if */
       open_infile(sourceFilePath,
                   (options & WRITE_LIBRARY_NAMES) != 0,
                   (options & WRITE_LINE_NUMBERS) != 0, err_info);
       if (*err_info == FILE_ERROR && add_extension) {
         *err_info = OKAY_NO_ERROR;
-        sourceFilePath->size = nameLen - 4;
+        sourceFilePath->size = nameLen - STRLEN(".sd7");
         open_infile(sourceFilePath,
                     (options & WRITE_LIBRARY_NAMES) != 0,
                     (options & WRITE_LINE_NUMBERS) != 0, err_info);

@@ -136,7 +136,7 @@ int wstati64 (const wchar_t *path, os_stat_struct *stat_buf)
         result = -1;
       } /* if */
     } /* if */
-    logFunction(printf(" --> %d\n", result););
+    logFunctionResult(printf("%d\n", result););
     return result;
   } /* wstati64 */
 
@@ -179,6 +179,6 @@ int fstati64 (int fd, os_stat_struct *stat_buf)
         stat_buf->st_size = ((int64Type) info.nFileSizeHigh << 32) | info.nFileSizeLow;
       } /* if */
     } /* if */
-    logFunction(printf(" --> %d\n", result););
+    logFunctionResult(printf("%d\n", result););
     return result;
   } /* fstati64 */

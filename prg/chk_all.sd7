@@ -132,6 +132,7 @@ const string: chkchr_output is "\n\
 const string: chkstr_output is "\n\
   \String literals work correct.\n\
   \String comparisons work correct.\n\
+  \String length works correct.\n\
   \String indices work correct.\n\
   \String head works correct.\n\
   \String tail works correct.\n\

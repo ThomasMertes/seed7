@@ -496,9 +496,11 @@ static void helem_data_to_list (listType *list_insert_place,
     hashElemType helem, errInfoType *err_info)
 
   { /* helem_data_to_list */
-    if (helem != NULL && *err_info == OKAY_NO_ERROR) {
-      incl_list(list_insert_place, &helem->data, err_info);
+    incl_list(list_insert_place, &helem->data, err_info);
+    if (helem->next_less != NULL && *err_info == OKAY_NO_ERROR) {
       helem_data_to_list(list_insert_place, helem->next_less, err_info);
+    } /* if */
+    if (helem->next_greater != NULL && *err_info == OKAY_NO_ERROR) {
       helem_data_to_list(list_insert_place, helem->next_greater, err_info);
     } /* if */
   } /* helem_data_to_list */
@@ -509,18 +511,21 @@ listType hash_data_to_list (hashType hash, errInfoType *err_info)
 
   {
     unsigned int number;
-    hashElemType *helem;
+    hashElemType *table;
     listType result;
 
   /* hash_data_to_list */
     result = NULL;
-    if (hash != NULL) {
+    if (hash->size != 0) {
       number = hash->table_size;
-      helem = &hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        helem_data_to_list(&result, *helem, err_info);
-        number--;
-        helem++;
+      table = hash->table;
+      while (number != 0 && *err_info == OKAY_NO_ERROR) {
+        do {
+          number--;
+        } while (number != 0 && table[number] == NULL);
+        if (number != 0 || table[number] != NULL) {
+          helem_data_to_list(&result, table[number], err_info);
+        } /* if */
       } /* while */
     } /* if */
     return result;
@@ -532,9 +537,11 @@ static void helem_key_to_list (listType *list_insert_place,
     hashElemType helem, errInfoType *err_info)
 
   { /* helem_key_to_list */
-    if (helem != NULL && *err_info == OKAY_NO_ERROR) {
-      incl_list(list_insert_place, &helem->key, err_info);
+    incl_list(list_insert_place, &helem->key, err_info);
+    if (helem->next_less != NULL && *err_info == OKAY_NO_ERROR) {
       helem_key_to_list(list_insert_place, helem->next_less, err_info);
+    } /* if */
+    if (helem->next_greater != NULL && *err_info == OKAY_NO_ERROR) {
       helem_key_to_list(list_insert_place, helem->next_greater, err_info);
     } /* if */
   } /* helem_key_to_list */
@@ -545,18 +552,21 @@ listType hash_keys_to_list (hashType hash, errInfoType *err_info)
 
   {
     unsigned int number;
-    hashElemType *helem;
+    hashElemType *table;
     listType result;
 
   /* hash_keys_to_list */
     result = NULL;
-    if (hash != NULL) {
+    if (hash->size != 0) {
       number = hash->table_size;
-      helem = &hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        helem_key_to_list(&result, *helem, err_info);
-        number--;
-        helem++;
+      table = hash->table;
+      while (number != 0 && *err_info == OKAY_NO_ERROR) {
+        do {
+          number--;
+        } while (number != 0 && table[number] == NULL);
+        if (number != 0 || table[number] != NULL) {
+          helem_key_to_list(&result, table[number], err_info);
+        } /* if */
       } /* while */
     } /* if */
     return result;

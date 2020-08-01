@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chkccomp.c    Check properties of C compiler and runtime.       */
-/*  Copyright (C) 2010 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 2010 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -1156,20 +1156,23 @@ void numericProperties (FILE *versionFile)
       fprintf(versionFile, "#define BIG_ENDIAN_INTTYPE %d\n", doTest());
     } /* if */
     checkIntDivisions(versionFile);
-    if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
-                         "#include<signal.h>\n"
-                         "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
-                         "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "long a=LONG_MAX;long b=1;\n"
-                         "signal(SIGILL,handleSigill);\nsignal(SIGABRT,handleSigabrt);\n"
-                         "printf(\"%d\\n\",a+b==LONG_MIN);return 0;}\n")) {
+    sprintf(buffer, "#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
+                    "#include<signal.h>\n"
+                    "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
+                    "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
+                    "int main(int argc,char *argv[]){\n"
+                    "%s a=0x7fffffffffffffff,b=1,c=2;\n"
+                    "signal(SIGILL,handleSigill);\nsignal(SIGABRT,handleSigabrt);\n"
+                    "printf(\"%%d\\n\",a+b==0x8000000000000000 && a*c== -2);return 0;}\n",
+                    int64TypeStri);
+    if (compileAndLinkOk(buffer)) {
       switch (doTest()) {
         case 2:  fputs("#define OVERFLOW_SIGNAL \"SIGILL\"\n", versionFile);  break;
         case 3:  fputs("#define OVERFLOW_SIGNAL \"SIGABRT\"\n", versionFile); break;
         default: fputs("#define OVERFLOW_SIGNAL \"\"\n", versionFile);        break;
       } /* switch */
     } else {
+      fputs("#define INT_MULT64_COMPILE_ERROR\n", versionFile);
       fputs("#define OVERFLOW_SIGNAL \"\"\n", versionFile);
     } /* if */
 #ifdef TURN_OFF_FP_EXCEPTIONS

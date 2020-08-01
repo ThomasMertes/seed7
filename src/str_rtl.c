@@ -879,7 +879,7 @@ void strAppend (striType *const destination, const_striType extension)
       } /* if */
 #endif
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
 #else
@@ -948,7 +948,7 @@ void strAppend (striType *const destination, const_striType extension)
       } /* if */
 #endif
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
 #endif
@@ -1025,7 +1025,7 @@ void strAppendTemp (striType *const destination, const striType extension)
       } /* if */
 #endif
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppendTemp */
 
 
@@ -1434,7 +1434,7 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
                stri2->size * sizeof(strElemType));
       } /* if */
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strConcat */
 
@@ -1542,7 +1542,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
       } /* if */
 #endif
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(stri1)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri1)););
     return stri1;
   } /* strConcatTemp */
 
@@ -1619,7 +1619,7 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
         *stri_to = stri_dest;
       } /* if */
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*stri_to)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*stri_to)););
   } /* strCopy */
 
 #else
@@ -1672,7 +1672,7 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
     /* Therefore memmove() is used instead of memcpy().     */
     memmove(stri_dest->mem, stri_from->mem,
         new_size * sizeof(strElemType));
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*stri_to)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*stri_to)););
   } /* strCopy */
 
 #endif
@@ -1706,7 +1706,7 @@ striType strCreate (const const_striType stri_from)
         memcpy(result->mem, stri_from->mem, new_size * sizeof(strElemType));
       } /* if */
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strCreate */
 
@@ -1770,7 +1770,7 @@ striType strEmpty (void)
     } else {
       result->size = 0;
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strEmpty */
 
@@ -1852,7 +1852,7 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strHeadSlice */
 
 #endif
@@ -1896,7 +1896,7 @@ striType strHead (const const_striType stri, const intType stop)
         result->size = 0;
       } /* if */
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strHead */
 
@@ -2222,15 +2222,18 @@ striType strLow (const const_striType stri)
     striType result;
 
   /* strLow */
+    logFunction(printf("strLow(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
     striSize = stri->size;
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = striSize;
       toLower(stri->mem, stri->size, result->mem);
-      return result;
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
   } /* strLow */
 
 
@@ -2244,7 +2247,11 @@ striType strLow (const const_striType stri)
 striType strLowTemp (const striType stri)
 
   { /* strLowTemp */
+    logFunction(printf("strLowTemp(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
     toLower(stri->mem, stri->size, stri->mem);
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri)););
     return stri;
   } /* strLowTemp */
 
@@ -2724,7 +2731,7 @@ void strPush (striType *const destination, const charType extension)
       *destination = stri_dest;
     } /* if */
 #endif
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strPush */
 
 
@@ -2761,7 +2768,7 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strRangeSlice */
 
 #endif
@@ -2808,9 +2815,9 @@ striType strRange (const const_striType stri, intType start, intType stop)
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
-        return NULL;
+      } else {
+        result->size = 0;
       } /* if */
-      result->size = 0;
     } /* if */
     return result;
   } /* strRange */
@@ -3585,7 +3592,7 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strSubstrSlice */
 
 #endif
@@ -3631,9 +3638,9 @@ striType strSubstr (const const_striType stri, intType start, intType length)
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
-        return NULL;
+      } else {
+        result->size = 0;
       } /* if */
-      result->size = 0;
     } /* if */
     return result;
   } /* strSubstr */
@@ -3669,7 +3676,7 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strTailSlice */
 
 #endif
@@ -3712,9 +3719,9 @@ striType strTail (const const_striType stri, intType start)
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
-        return NULL;
+      } else {
+        result->size = 0;
       } /* if */
-      result->size = 0;
     } /* if */
     return result;
   } /* strTail */
@@ -3849,15 +3856,18 @@ striType strUp (const const_striType stri)
     striType result;
 
   /* strUp */
+    logFunction(printf("strUp(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
     striSize = stri->size;
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = striSize;
       toUpper(stri->mem, stri->size, result->mem);
-      return result;
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
   } /* strUp */
 
 
@@ -3871,7 +3881,11 @@ striType strUp (const const_striType stri)
 striType strUpTemp (const striType stri)
 
   { /* strUpTemp */
+    logFunction(printf("strUpTemp(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
     toUpper(stri->mem, stri->size, stri->mem);
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri)););
     return stri;
   } /* strUpTemp */
 

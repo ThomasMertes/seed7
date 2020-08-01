@@ -1107,8 +1107,8 @@ objectType exec_expr (const progType currentProg, objectType object,
     logFunction(printf("exec_expr\n"););
     if (currentProg != NULL) {
       set_fail_flag(FALSE);
-      fail_value = (objectType) NULL;
-      fail_expression = (listType) NULL;
+      fail_value = NULL;
+      fail_expression = NULL;
       progBackup = prog;
       prog = currentProg;
       set_protfile_name(NULL);
@@ -1139,8 +1139,8 @@ objectType exec_expr (const progType currentProg, objectType object,
           *err_info = ACTION_ERROR;
         } /* if */
         set_fail_flag(FALSE);
-        fail_value = (objectType) NULL;
-        fail_expression = (listType) NULL;
+        fail_value = NULL;
+        fail_expression = NULL;
       } /* if */
       prog = progBackup;
     } else {

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -45,6 +45,7 @@
 #include "objutl.h"
 #include "exec.h"
 #include "runerr.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -54,7 +55,6 @@
 #define TABLE_BITS 10
 #define TABLE_SIZE(bits) ((unsigned int) 1 << (bits))
 #define TABLE_MASK(bits) (TABLE_SIZE(bits)-1)
-#define ARRAY_SIZE_INCREMENT 512
 
 
 
@@ -85,19 +85,22 @@ static void free_hash (hashType old_hash, objectType key_destr_func,
 
   {
     unsigned int number;
-    hashElemType *curr_helem;
+    hashElemType *table;
 
   /* free_hash */
     if (old_hash != NULL) {
-      number = old_hash->table_size;
-      curr_helem = &old_hash->table[0];
-      while (number > 0) {
-        if (*curr_helem != NULL) {
-          free_helem(*curr_helem, key_destr_func, data_destr_func);
-        } /* if */
-        number--;
-        curr_helem++;
-      } /* while */
+      if (old_hash->size != 0) {
+        number = old_hash->table_size;
+        table = old_hash->table;
+        while (number != 0) {
+          do {
+            number--;
+          } while (number != 0 && table[number] == NULL);
+          if (number != 0 || table[number] != NULL) {
+            free_helem(table[number], key_destr_func, data_destr_func);
+          } /* if */
+        } /* while */
+      } /* if */
       FREE_HASH(old_hash, old_hash->table_size);
     } /* if */
   } /* free_hash */
@@ -111,7 +114,7 @@ static hashElemType new_helem (objectType key, objectType data,
     hashElemType helem;
 
   /* new_helem */
-    if (!ALLOC_RECORD(helem, hashElemRecord, count.helem)) {
+    if (unlikely(!ALLOC_RECORD(helem, hashElemRecord, count.helem))) {
       *err_info = MEMORY_ERROR;
     } else {
       helem->key.descriptor.property = NULL;
@@ -136,7 +139,7 @@ static hashType new_hash (unsigned int bits)
     hashType hash;
 
   /* new_hash */
-    if (ALLOC_HASH(hash, TABLE_SIZE(bits))) {
+    if (likely(ALLOC_HASH(hash, TABLE_SIZE(bits)))) {
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
@@ -155,7 +158,7 @@ static hashElemType create_helem (hashElemType source_helem,
     hashElemType dest_helem;
 
   /* create_helem */
-    if (!ALLOC_RECORD(dest_helem, hashElemRecord, count.helem)) {
+    if (unlikely(!ALLOC_RECORD(dest_helem, hashElemRecord, count.helem))) {
       *err_info = MEMORY_ERROR;
     } else {
       memcpy(&dest_helem->key.descriptor, &source_helem->key.descriptor,
@@ -200,7 +203,7 @@ static hashType create_hash (hashType source_hash,
 
   /* create_hash */
     new_size = source_hash->table_size;
-    if (!ALLOC_HASH(dest_hash, new_size)) {
+    if (unlikely(!ALLOC_HASH(dest_hash, new_size))) {
       *err_info = MEMORY_ERROR;
     } else {
       dest_hash->bits = source_hash->bits;
@@ -227,94 +230,68 @@ static hashType create_hash (hashType source_hash,
 
 
 
-static void keys_helem (arrayType *key_array, memSizeType *arr_pos,
-    hashElemType curr_helem, objectType key_create_func, errInfoType *err_info)
+static memSizeType keys_helem (const arrayType key_array, memSizeType arr_pos,
+    const hashElemType curr_helem, objectType key_create_func)
 
   {
-    memSizeType array_size;
-    arrayType resized_key_array;
     objectType dest_obj;
 
   /* keys_helem */
-    array_size = arraySize(*key_array);
-    if (*arr_pos + 1 >= array_size) {
-      if (array_size > MAX_ARR_LEN - ARRAY_SIZE_INCREMENT ||
-          (*key_array)->max_position > MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
-        resized_key_array = NULL;
-      } else {
-        resized_key_array = REALLOC_ARRAY(*key_array,
-            array_size, array_size + ARRAY_SIZE_INCREMENT);
-      } /* if */
-      if (resized_key_array == NULL) {
-        *err_info = MEMORY_ERROR;
-        return;
-      } else {
-        *key_array = resized_key_array;
-        COUNT3_ARRAY(array_size, array_size + ARRAY_SIZE_INCREMENT);
-        (*key_array)->max_position += ARRAY_SIZE_INCREMENT;
-      } /* if */
-    } /* if */
-    dest_obj = &(*key_array)->arr[*arr_pos];
+    arr_pos--;
+    dest_obj = &key_array->arr[arr_pos];
     memcpy(&dest_obj->descriptor, &curr_helem->key.descriptor, sizeof(descriptorUnion));
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->key));
     dest_obj->type_of = curr_helem->key.type_of;
     param3_call(key_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->key);
-    (*arr_pos)++;
     if (curr_helem->next_less != NULL) {
-      keys_helem(key_array, arr_pos, curr_helem->next_less, key_create_func, err_info);
+      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_less,
+                           key_create_func);
     } /* if */
     if (curr_helem->next_greater != NULL) {
-      keys_helem(key_array, arr_pos, curr_helem->next_greater, key_create_func, err_info);
+      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_greater,
+                           key_create_func);
     } /* if */
+    return arr_pos;
   } /* keys_helem */
 
 
 
-static arrayType keys_hash (hashType curr_hash, objectType key_create_func,
-    objectType key_destr_func, errInfoType *err_info)
+static inline arrayType keys_hash (const const_hashType curr_hash,
+    objectType key_create_func, objectType key_destr_func)
 
   {
     memSizeType arr_pos;
     memSizeType number;
-    hashElemType *curr_helem;
-    memSizeType array_size;
-    arrayType resized_key_array;
+    const hashElemType *table;
     arrayType key_array;
 
   /* keys_hash */
-    if (!ALLOC_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
-      *err_info = MEMORY_ERROR;
+    if (unlikely(curr_hash->size > INTTYPE_MAX ||
+                 !ALLOC_ARRAY(key_array, curr_hash->size))) {
+      raise_error(MEMORY_ERROR);
+      key_array = NULL;
     } else {
       key_array->min_position = 1;
-      key_array->max_position = ARRAY_SIZE_INCREMENT;
-      arr_pos = 0;
-      number = curr_hash->table_size;
-      curr_helem = &curr_hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        if (*curr_helem != NULL) {
-          keys_helem(&key_array, &arr_pos, *curr_helem, key_create_func, err_info);
+      key_array->max_position = (intType) curr_hash->size;
+      if (curr_hash->size != 0) {
+        arr_pos = curr_hash->size;
+        number = curr_hash->table_size;
+        table = curr_hash->table;
+        do {
+          do {
+            number--;
+          } while (table[number] == NULL);
+          arr_pos = keys_helem(key_array, arr_pos, table[number],
+                               key_create_func);
+        } while (arr_pos != 0 && !fail_flag);
+        if (unlikely(fail_flag)) {
+          for (; arr_pos < curr_hash->size; arr_pos++) {
+            param2_call(key_destr_func, &key_array->arr[arr_pos], SYS_DESTR_OBJECT);
+          } /* for */
+          FREE_ARRAY(key_array, curr_hash->size);
+          key_array = NULL;
         } /* if */
-        number--;
-        curr_helem++;
-      } /* while */
-      array_size = arraySize(key_array);
-      if (*err_info == OKAY_NO_ERROR) {
-        resized_key_array = REALLOC_ARRAY(key_array, array_size, arr_pos);
-        if (resized_key_array == NULL) {
-          *err_info = MEMORY_ERROR;
-        } else {
-          key_array = resized_key_array;
-          COUNT3_ARRAY(array_size, arr_pos);
-          key_array->max_position = (intType) arr_pos;
-        } /* if */
-      } /* if */
-      if (unlikely(*err_info != OKAY_NO_ERROR)) {
-        for (number = 0; number < arr_pos; number++) {
-          param2_call(key_destr_func, &key_array->arr[number], SYS_DESTR_OBJECT);
-        } /* for */
-        FREE_ARRAY(key_array, array_size);
-        key_array = NULL;
       } /* if */
     } /* if */
     return key_array;
@@ -322,94 +299,68 @@ static arrayType keys_hash (hashType curr_hash, objectType key_create_func,
 
 
 
-static void values_helem (arrayType *value_array, memSizeType *arr_pos,
-    hashElemType curr_helem, objectType value_create_func, errInfoType *err_info)
+static memSizeType values_helem (const arrayType value_array, memSizeType arr_pos,
+    const hashElemType curr_helem, const objectType value_create_func)
 
   {
-    memSizeType array_size;
-    arrayType resized_value_array;
     objectType dest_obj;
 
   /* values_helem */
-    array_size = arraySize(*value_array);
-    if (*arr_pos + 1 >= array_size) {
-      if (array_size > MAX_ARR_LEN - ARRAY_SIZE_INCREMENT ||
-          (*value_array)->max_position > MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
-        resized_value_array = NULL;
-      } else {
-        resized_value_array = REALLOC_ARRAY(*value_array,
-            array_size, array_size + ARRAY_SIZE_INCREMENT);
-      } /* if */
-      if (resized_value_array == NULL) {
-        *err_info = MEMORY_ERROR;
-        return;
-      } else {
-        *value_array = resized_value_array;
-        COUNT3_ARRAY(array_size, array_size + ARRAY_SIZE_INCREMENT);
-        (*value_array)->max_position += ARRAY_SIZE_INCREMENT;
-      } /* if */
-    } /* if */
-    dest_obj = &(*value_array)->arr[*arr_pos];
+    arr_pos--;
+    dest_obj = &value_array->arr[arr_pos];
     memcpy(&dest_obj->descriptor, &curr_helem->data.descriptor, sizeof(descriptorUnion));
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->data));
     dest_obj->type_of = curr_helem->data.type_of;
     param3_call(value_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->data);
-    (*arr_pos)++;
     if (curr_helem->next_less != NULL) {
-      values_helem(value_array, arr_pos, curr_helem->next_less, value_create_func, err_info);
+      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_less,
+                             value_create_func);
     } /* if */
     if (curr_helem->next_greater != NULL) {
-      values_helem(value_array, arr_pos, curr_helem->next_greater, value_create_func, err_info);
+      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_greater,
+                             value_create_func);
     } /* if */
+    return arr_pos;
   } /* values_helem */
 
 
 
-static arrayType values_hash (hashType curr_hash, objectType value_create_func,
-    objectType value_destr_func, errInfoType *err_info)
+static inline arrayType values_hash (const const_hashType curr_hash,
+    const objectType value_create_func, const objectType value_destr_func)
 
   {
     memSizeType arr_pos;
     memSizeType number;
-    hashElemType *curr_helem;
-    memSizeType array_size;
-    arrayType resized_value_array;
+    const hashElemType *table;
     arrayType value_array;
 
   /* values_hash */
-    if (!ALLOC_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
-      *err_info = MEMORY_ERROR;
+    if (unlikely(curr_hash->size > INTTYPE_MAX ||
+                 !ALLOC_ARRAY(value_array, curr_hash->size))) {
+      raise_error(MEMORY_ERROR);
+      value_array = NULL;
     } else {
       value_array->min_position = 1;
-      value_array->max_position = ARRAY_SIZE_INCREMENT;
-      arr_pos = 0;
-      number = curr_hash->table_size;
-      curr_helem = &curr_hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        if (*curr_helem != NULL) {
-          values_helem(&value_array, &arr_pos, *curr_helem, value_create_func, err_info);
+      value_array->max_position = (intType) curr_hash->size;
+      if (curr_hash->size != 0) {
+        arr_pos = curr_hash->size;
+        number = curr_hash->table_size;
+        table = curr_hash->table;
+        do {
+          do {
+            number--;
+          } while (table[number] == NULL);
+          arr_pos = values_helem(value_array, arr_pos, table[number],
+                                 value_create_func);
+        } while (arr_pos != 0 && !fail_flag);
+        if (unlikely(fail_flag)) {
+          for (; arr_pos < curr_hash->size; arr_pos++) {
+            param2_call(value_destr_func, &value_array->arr[arr_pos], SYS_DESTR_OBJECT);
+          } /* for */
+          FREE_ARRAY(value_array, curr_hash->size);
+          value_array = NULL;
         } /* if */
-        number--;
-        curr_helem++;
-      } /* while */
-      array_size = arraySize(value_array);
-      if (*err_info == OKAY_NO_ERROR) {
-        resized_value_array = REALLOC_ARRAY(value_array, array_size, arr_pos);
-        if (resized_value_array == NULL) {
-          *err_info = MEMORY_ERROR;
-        } else {
-          value_array = resized_value_array;
-          COUNT3_ARRAY(array_size, arr_pos);
-          value_array->max_position = (intType) arr_pos;
-        } /* if */
-      } /* if */
-      if (unlikely(*err_info != OKAY_NO_ERROR)) {
-        for (number = 0; number < arr_pos; number++) {
-          param2_call(value_destr_func, &value_array->arr[number], SYS_DESTR_OBJECT);
-        } /* for */
-        FREE_ARRAY(value_array, array_size);
-        value_array = NULL;
       } /* if */
     } /* if */
     return value_array;
@@ -421,10 +372,12 @@ static void for_helem (objectType for_variable, hashElemType curr_helem,
     objectType statement, objectType data_copy_func)
 
   { /* for_helem */
-    if (curr_helem != NULL) {
-      param3_call(data_copy_func, for_variable, SYS_ASSIGN_OBJECT, &curr_helem->data);
-      evaluate(statement);
+    param3_call(data_copy_func, for_variable, SYS_ASSIGN_OBJECT, &curr_helem->data);
+    evaluate(statement);
+    if (curr_helem->next_less != NULL) {
       for_helem(for_variable, curr_helem->next_less, statement, data_copy_func);
+    } /* if */
+    if (curr_helem->next_greater != NULL) {
       for_helem(for_variable, curr_helem->next_greater, statement, data_copy_func);
     } /* if */
   } /* for_helem */
@@ -436,15 +389,18 @@ static void for_hash (objectType for_variable, hashType curr_hash,
 
   {
     unsigned int number;
-    hashElemType *curr_helem;
+    const hashElemType *table;
 
   /* for_hash */
     number = curr_hash->table_size;
-    curr_helem = &curr_hash->table[0];
-    while (number > 0) {
-      for_helem(for_variable, *curr_helem, statement, data_copy_func);
-      number--;
-      curr_helem++;
+    table = curr_hash->table;
+    while (number != 0) {
+      do {
+        number--;
+      } while (number != 0 && table[number] == NULL);
+      if (number != 0 || table[number] != NULL) {
+        for_helem(for_variable, table[number], statement, data_copy_func);
+      } /* if */
     } /* while */
   } /* for_hash */
 
@@ -454,10 +410,12 @@ static void for_key_helem (objectType key_variable, hashElemType curr_helem,
     objectType statement, objectType key_copy_func)
 
   { /* for_key_helem */
-    if (curr_helem != NULL) {
-      param3_call(key_copy_func, key_variable, SYS_ASSIGN_OBJECT, &curr_helem->key);
-      evaluate(statement);
+    param3_call(key_copy_func, key_variable, SYS_ASSIGN_OBJECT, &curr_helem->key);
+    evaluate(statement);
+    if (curr_helem->next_less != NULL) {
       for_key_helem(key_variable, curr_helem->next_less, statement, key_copy_func);
+    } /* if */
+    if (curr_helem->next_greater != NULL) {
       for_key_helem(key_variable, curr_helem->next_greater, statement, key_copy_func);
     } /* if */
   } /* for_key_helem */
@@ -469,15 +427,18 @@ static void for_key_hash (objectType key_variable, hashType curr_hash,
 
   {
     unsigned int number;
-    hashElemType *curr_helem;
+    const hashElemType *table;
 
   /* for_key_hash */
     number = curr_hash->table_size;
-    curr_helem = &curr_hash->table[0];
-    while (number > 0) {
-      for_key_helem(key_variable, *curr_helem, statement, key_copy_func);
-      number--;
-      curr_helem++;
+    table = curr_hash->table;
+    while (number != 0) {
+      do {
+        number--;
+      } while (number != 0 && table[number] == NULL);
+      if (number != 0 || table[number] != NULL) {
+        for_key_helem(key_variable, table[number], statement, key_copy_func);
+      } /* if */
     } /* while */
   } /* for_key_hash */
 
@@ -488,12 +449,14 @@ static void for_data_key_helem (objectType for_variable, objectType key_variable
     objectType key_copy_func)
 
   { /* for_data_key_helem */
-    if (curr_helem != NULL) {
-      param3_call(data_copy_func, for_variable, SYS_ASSIGN_OBJECT, &curr_helem->data);
-      param3_call(key_copy_func, key_variable, SYS_ASSIGN_OBJECT, &curr_helem->key);
-      evaluate(statement);
+    param3_call(data_copy_func, for_variable, SYS_ASSIGN_OBJECT, &curr_helem->data);
+    param3_call(key_copy_func, key_variable, SYS_ASSIGN_OBJECT, &curr_helem->key);
+    evaluate(statement);
+    if (curr_helem->next_less != NULL) {
       for_data_key_helem(for_variable, key_variable, curr_helem->next_less, statement,
           data_copy_func, key_copy_func);
+    } /* if */
+    if (curr_helem->next_greater != NULL) {
       for_data_key_helem(for_variable, key_variable, curr_helem->next_greater, statement,
           data_copy_func, key_copy_func);
     } /* if */
@@ -507,16 +470,19 @@ static void for_data_key_hash (objectType for_variable, objectType key_variable,
 
   {
     unsigned int number;
-    hashElemType *curr_helem;
+    const hashElemType *table;
 
   /* for_data_key_hash */
     number = curr_hash->table_size;
-    curr_helem = &curr_hash->table[0];
-    while (number > 0) {
-      for_data_key_helem(for_variable, key_variable, *curr_helem, statement,
-          data_copy_func, key_copy_func);
-      number--;
-      curr_helem++;
+    table = curr_hash->table;
+    while (number != 0) {
+      do {
+        number--;
+      } while (number != 0 && table[number] == NULL);
+      if (number != 0 || table[number] != NULL) {
+        for_data_key_helem(for_variable, key_variable, table[number], statement,
+            data_copy_func, key_copy_func);
+      } /* if */
     } /* while */
   } /* for_data_key_hash */
 
@@ -622,7 +588,7 @@ objectType hsh_conv (listType arguments)
     } else {
       arr1 = take_hash(hsh_arg);
       result_size = arr1->max_position - arr1->min_position + 1;
-      if (!ALLOC_HASH(result_hash, result_size)) {
+      if (unlikely(!ALLOC_HASH(result_hash, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result_hash->min_position = arr1->min_position;
@@ -1255,15 +1221,13 @@ objectType hsh_keys (listType arguments)
     objectType key_create_func;
     objectType key_destr_func;
     arrayType key_array;
-    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_keys */
     isit_hash(arg_1(arguments));
     aHashMap = take_hash(arg_1(arguments));
     key_create_func = take_reference(arg_2(arguments));
     key_destr_func = take_reference(arg_3(arguments));
-    key_array = keys_hash(aHashMap, key_create_func, key_destr_func,
-        &err_info);
+    key_array = keys_hash(aHashMap, key_create_func, key_destr_func);
     return bld_array_temp(key_array);
   } /* hsh_keys */
 
@@ -1437,14 +1401,12 @@ objectType hsh_values (listType arguments)
     objectType value_create_func;
     objectType value_destr_func;
     arrayType value_array;
-    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_values */
     isit_hash(arg_1(arguments));
     aHashMap = take_hash(arg_1(arguments));
     value_create_func = take_reference(arg_2(arguments));
     value_destr_func = take_reference(arg_3(arguments));
-    value_array = values_hash(aHashMap, value_create_func, value_destr_func,
-        &err_info);
+    value_array = values_hash(aHashMap, value_create_func, value_destr_func);
     return bld_array_temp(value_array);
   } /* hsh_values */

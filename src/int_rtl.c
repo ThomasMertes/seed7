@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -208,6 +208,13 @@ static uintType high_seed;
 
 
 
+/**
+ *  Initialize the seed of the random number generator.
+ *  Data from the current time and from the clock() function is used
+ *  to set up the random number generator. This function is called
+ *  once from the interpreter or from the main function of a compiled
+ *  program.
+ */
 void setupRand (void)
 
   {
@@ -292,6 +299,30 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
                        *product_high, product_low););
     return product_low;
   } /* uint_mult */
+
+
+
+#ifdef HAS_DOUBLE_INTTYPE
+/**
+ *  Compute a random unsigned number in the range 0 .. UINTTYPE_MAX.
+ *  The linear congruential method is used to generate the random
+ *  sequence of uintType numbers. The generator uses double uintType
+ *  numbers for the seed. Only the high bits of the seed (high_seed)
+ *  are used as random number. This avoids that the lower-order bits
+ *  of the generated sequence have a short period.
+ *  @return the random number.
+ */
+uintType uintRand (void)
+
+  { /* uintRand */
+    logFunction(printf("uintRand\n"););
+    seed = seed * RAND_MULTIPLIER + RAND_INCREMENT;
+    logFunction(printf("uintRand --> " F_X(08) "\n",
+                       (uintType) (seed >> INTTYPE_SIZE)););
+    return (uintType) (seed >> INTTYPE_SIZE);
+  } /* uintRand */
+
+#else
 
 
 
@@ -390,30 +421,6 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
                        *sum_high, sum_low););
     return sum_low;
   } /* uint2_add */
-
-
-
-#ifdef HAS_DOUBLE_INTTYPE
-/**
- *  Compute a random unsigned number in the range 0 .. UINTTYPE_MAX.
- *  The linear congruential method is used to generate the random
- *  sequence of uintType numbers. The generator uses double uintType
- *  numbers for the seed. Only the high bits of the seed (high_seed)
- *  are used as random number. This avoids that the lower-order bits
- *  of the generated sequence have a short period.
- *  @return the random number.
- */
-uintType uintRand (void)
-
-  { /* uintRand */
-    logFunction(printf("uintRand\n"););
-    seed = seed * RAND_MULTIPLIER + RAND_INCREMENT;
-    logFunction(printf("uintRand --> " F_X(08) "\n",
-                       (uintType) (seed >> INTTYPE_SIZE)););
-    return (uintType) (seed >> INTTYPE_SIZE);
-  } /* uintRand */
-
-#else
 
 
 
@@ -1648,6 +1655,63 @@ striType intLpad0 (intType number, const intType pad_size)
 
 
 /**
+ *  Multiply two integer numbers.
+ *  @return the product of the two numbers.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ */
+intType intMultOvfChk (intType factor1, intType factor2)
+
+  {
+    intType product;
+
+  /* intMultOvfChk */
+    logFunction(printf("intMultOvfChk(" FMT_D ", " FMT_D ")\n",
+                       factor1, factor2););
+    if (factor1 < 0) {
+      if (factor2 < 0) {
+        if (unlikely(factor1 < INTTYPE_MAX / factor2)) {
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
+                          "factor1 < " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MAX / factor2););
+          raise_error(OVERFLOW_ERROR);
+          return 0;
+        } /* if */
+      } else if (factor2 != 0) {
+        if (unlikely(factor1 < INTTYPE_MIN / factor2)) {
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
+                          "factor1 < " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MIN / factor2););
+          raise_error(OVERFLOW_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+    } else if (factor1 != 0) {
+      if (factor2 < 0) {
+        if (unlikely(factor2 < INTTYPE_MIN / factor1)) {
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
+                          "factor2 < " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MIN / factor1););
+          raise_error(OVERFLOW_ERROR);
+          return 0;
+        } /* if */
+      } else if (factor2 != 0) {
+        if (unlikely(factor2 > INTTYPE_MAX / factor1)) {
+          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
+                          "factor2 > " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MAX / factor1););
+          raise_error(OVERFLOW_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+    } /* if */
+    product = factor1 * factor2;
+    logFunction(printf("intMultOvfChk --> " FMT_D "\n", product););
+    return product;
+  } /* intMultOvfChk */
+
+
+
+/**
  *  Convert a string to an integer number.
  *  The string must contain an integer literal consisting of an
  *  optional + or - sign, followed by a sequence of digits. Other
@@ -2014,63 +2078,6 @@ intType intRand (intType low, intType high)
     logFunction(printf("intRand --> " FMT_D "\n", randomNumber););
     return randomNumber;
   } /* intRand */
-
-
-
-/**
- *  Multiply two integer numbers.
- *  @return the product of the two numbers.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
- */
-intType intMultOvfChk (intType factor1, intType factor2)
-
-  {
-    intType product;
-
-  /* intMultOvfChk */
-    logFunction(printf("intMultOvfChk(" FMT_D ", " FMT_D ")\n",
-                       factor1, factor2););
-    if (factor1 < 0) {
-      if (factor2 < 0) {
-        if (unlikely(factor1 < INTTYPE_MAX / factor2)) {
-          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
-                          "factor1 < " FMT_D "\n",
-                          factor1, factor2, INTTYPE_MAX / factor2););
-          raise_error(OVERFLOW_ERROR);
-          return 0;
-        } /* if */
-      } else if (factor2 != 0) {
-        if (unlikely(factor1 < INTTYPE_MIN / factor2)) {
-          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
-                          "factor1 < " FMT_D "\n",
-                          factor1, factor2, INTTYPE_MIN / factor2););
-          raise_error(OVERFLOW_ERROR);
-          return 0;
-        } /* if */
-      } /* if */
-    } else if (factor1 != 0) {
-      if (factor2 < 0) {
-        if (unlikely(factor2 < INTTYPE_MIN / factor1)) {
-          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
-                          "factor2 < " FMT_D "\n",
-                          factor1, factor2, INTTYPE_MIN / factor1););
-          raise_error(OVERFLOW_ERROR);
-          return 0;
-        } /* if */
-      } else if (factor2 != 0) {
-        if (unlikely(factor2 > INTTYPE_MAX / factor1)) {
-          logError(printf("intMultOvfChk(" FMT_D ", " FMT_D "): "
-                          "factor2 > " FMT_D "\n",
-                          factor1, factor2, INTTYPE_MAX / factor1););
-          raise_error(OVERFLOW_ERROR);
-          return 0;
-        } /* if */
-      } /* if */
-    } /* if */
-    product = factor1 * factor2;
-    logFunction(printf("intMultOvfChk --> " FMT_D "\n", product););
-    return product;
-  } /* intMultOvfChk */
 
 
 

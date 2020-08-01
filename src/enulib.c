@@ -116,7 +116,7 @@ objectType enu_genlit (listType arguments)
   /* enu_genlit */
     enum_to = arg_1(arguments);
     SET_CATEGORY_OF_OBJ(enum_to, ENUMLITERALOBJECT);
-    enum_to->value.nodeValue = (nodeType) NULL;
+    enum_to->value.nodeValue = NULL;
     return SYS_EMPTY_OBJECT;
   } /* enu_genlit */
 

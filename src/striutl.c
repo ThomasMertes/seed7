@@ -508,7 +508,7 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
       /* printf("beyond=%08lx\n", new_stack_alloc->beyond); */
       new_stack_alloc->curr_free = new_stack_alloc->start;
       stack_alloc = new_stack_alloc;
-      POP_OS_STRI(*var, SIZ_OS_STRI(len));
+      (void) POP_OS_STRI(*var, SIZ_OS_STRI(len));
       success = TRUE;
     } /* if */
     logFunction(printf("heapAllocOsStri(%lx, %lu) --> %s\n",

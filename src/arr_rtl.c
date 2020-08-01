@@ -153,8 +153,7 @@ static striType getProgramName (const const_striType arg_0)
       memcpy(program_name->mem, &arg_0->mem[lastSlashPos],
              name_len * sizeof(strElemType));
     } /* if */
-    logFunction(printf(" --> \"%s\"\n",
-                       striAsUnquotedCStri(program_name)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(program_name)););
     return program_name;
   } /* getProgramName */
 

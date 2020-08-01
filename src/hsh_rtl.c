@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hsh_rtl.c     Primitive actions for the hash map type.          */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -61,7 +61,6 @@
 #define TABLE_BITS 10
 #define TABLE_SIZE(bits) ((unsigned int) 1 << (bits))
 #define TABLE_MASK(bits) (TABLE_SIZE(bits)-1)
-#define ARRAY_SIZE_INCREMENT 512
 
 
 
@@ -89,19 +88,22 @@ static void free_hash (const const_rtlHashType old_hash,
 
   {
     unsigned int number;
-    const rtlHashElemType *curr_helem;
+    const rtlHashElemType *table;
 
   /* free_hash */
     if (old_hash != NULL) {
-      number = old_hash->table_size;
-      curr_helem = &old_hash->table[0];
-      while (number > 0) {
-        if (*curr_helem != NULL) {
-          free_helem(*curr_helem, key_destr_func, data_destr_func);
-        } /* if */
-        number--;
-        curr_helem++;
-      } /* while */
+      if (old_hash->size != 0) {
+        number = old_hash->table_size;
+        table = old_hash->table;
+        while (number != 0) {
+          do {
+            number--;
+          } while (number != 0 && table[number] == NULL);
+          if (number != 0 || table[number] != NULL) {
+            free_helem(table[number], key_destr_func, data_destr_func);
+          } /* if */
+        } /* while */
+      } /* if */
       FREE_RTL_HASH(old_hash, old_hash->table_size);
     } /* if */
   } /* free_hash */
@@ -117,7 +119,7 @@ static rtlHashElemType new_helem (genericType key, genericType data,
 
   /* new_helem */
     /* printf("new_helem(" FMT_U_GEN ", " FMT_U_GEN ")\n", key, data); */
-    if (!ALLOC_RECORD(helem, rtlHashElemRecord, count.rtl_helem)) {
+    if (unlikely(!ALLOC_RECORD(helem, rtlHashElemRecord, count.rtl_helem))) {
       *err_info = MEMORY_ERROR;
     } else {
       helem->key.value.genericValue = key_create_func(key);
@@ -139,7 +141,7 @@ static rtlHashType new_hash (unsigned int bits)
     rtlHashType hash;
 
   /* new_hash */
-    if (ALLOC_RTL_HASH(hash, TABLE_SIZE(bits))) {
+    if (likely(ALLOC_RTL_HASH(hash, TABLE_SIZE(bits)))) {
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
@@ -159,7 +161,7 @@ static rtlHashElemType create_helem (const const_rtlHashElemType source_helem,
     rtlHashElemType dest_helem;
 
   /* create_helem */
-    if (!ALLOC_RECORD(dest_helem, rtlHashElemRecord, count.rtl_helem)) {
+    if (unlikely(!ALLOC_RECORD(dest_helem, rtlHashElemRecord, count.rtl_helem))) {
       *err_info = MEMORY_ERROR;
     } else {
       dest_helem->key.value.genericValue =
@@ -197,7 +199,7 @@ static rtlHashType create_hash (const const_rtlHashType source_hash,
 
   /* create_hash */
     new_size = source_hash->table_size;
-    if (!ALLOC_RTL_HASH(dest_hash, new_size)) {
+    if (unlikely(!ALLOC_RTL_HASH(dest_hash, new_size))) {
       *err_info = MEMORY_ERROR;
     } else {
       dest_hash->bits = source_hash->bits;
@@ -263,93 +265,55 @@ static void copy_hash (const rtlHashType dest_hash, const const_rtlHashType sour
 
 
 
-static void keys_helem (rtlArrayType *key_array, memSizeType *arr_pos,
-    const_rtlHashElemType curr_helem, const createFuncType key_create_func,
-    errInfoType *err_info)
+static memSizeType keys_helem (const rtlArrayType key_array,
+    memSizeType arr_pos, const const_rtlHashElemType curr_helem,
+    const createFuncType key_create_func)
 
-  {
-    memSizeType array_size;
-    rtlArrayType resized_key_array;
-
-  /* keys_helem */
-    array_size = arraySize(*key_array);
-    if (*arr_pos + 1 >= array_size) {
-      if (array_size > MAX_RTL_ARR_LEN - ARRAY_SIZE_INCREMENT ||
-          (*key_array)->max_position > MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
-        resized_key_array = NULL;
-      } else {
-        resized_key_array = REALLOC_RTL_ARRAY(*key_array,
-            array_size, array_size + ARRAY_SIZE_INCREMENT);
-      } /* if */
-      if (resized_key_array == NULL) {
-        *err_info = MEMORY_ERROR;
-        return;
-      } else {
-        *key_array = resized_key_array;
-        COUNT3_RTL_ARRAY(array_size, array_size + ARRAY_SIZE_INCREMENT);
-        (*key_array)->max_position += ARRAY_SIZE_INCREMENT;
-      } /* if */
-    } /* if */
-    (*key_array)->arr[*arr_pos].value.genericValue =
+  { /* keys_helem */
+    arr_pos--;
+    key_array->arr[arr_pos].value.genericValue =
         key_create_func(curr_helem->key.value.genericValue);
-    (*arr_pos)++;
     if (curr_helem->next_less != NULL) {
-      keys_helem(key_array, arr_pos, curr_helem->next_less, key_create_func,
-                 err_info);
+      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_less,
+                           key_create_func);
     } /* if */
     if (curr_helem->next_greater != NULL) {
-      keys_helem(key_array, arr_pos, curr_helem->next_greater, key_create_func,
-                 err_info);
+      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_greater,
+                           key_create_func);
     } /* if */
+    return arr_pos;
   } /* keys_helem */
 
 
 
-static rtlArrayType keys_hash (const const_rtlHashType curr_hash,
-    const createFuncType key_create_func, const destrFuncType key_destr_func,
-    errInfoType *err_info)
+static inline rtlArrayType keys_hash (const const_rtlHashType curr_hash,
+    const createFuncType key_create_func)
 
   {
     memSizeType arr_pos;
     memSizeType number;
-    const rtlHashElemType *curr_helem;
-    memSizeType array_size;
-    rtlArrayType resized_key_array;
+    const rtlHashElemType *table;
     rtlArrayType key_array;
 
   /* keys_hash */
-    if (!ALLOC_RTL_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
-      *err_info = MEMORY_ERROR;
+    if (unlikely(curr_hash->size > INTTYPE_MAX ||
+                 !ALLOC_RTL_ARRAY(key_array, curr_hash->size))) {
+      raise_error(MEMORY_ERROR);
+      key_array = NULL;
     } else {
       key_array->min_position = 1;
-      key_array->max_position = ARRAY_SIZE_INCREMENT;
-      arr_pos = 0;
-      number = curr_hash->table_size;
-      curr_helem = &curr_hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        if (*curr_helem != NULL) {
-          keys_helem(&key_array, &arr_pos, *curr_helem, key_create_func, err_info);
-        } /* if */
-        number--;
-        curr_helem++;
-      } /* while */
-      array_size = arraySize(key_array);
-      if (*err_info == OKAY_NO_ERROR) {
-        resized_key_array = REALLOC_RTL_ARRAY(key_array, array_size, arr_pos);
-        if (resized_key_array == NULL) {
-          *err_info = MEMORY_ERROR;
-        } else {
-          key_array = resized_key_array;
-          COUNT3_RTL_ARRAY(array_size, arr_pos);
-          key_array->max_position = (intType) arr_pos;
-        } /* if */
-      } /* if */
-      if (unlikely(*err_info != OKAY_NO_ERROR)) {
-        for (number = 0; number < arr_pos; number++) {
-          key_destr_func(key_array->arr[number].value.genericValue);
-        } /* for */
-        FREE_RTL_ARRAY(key_array, array_size);
-        key_array = NULL;
+      key_array->max_position = (intType) curr_hash->size;
+      if (curr_hash->size != 0) {
+        arr_pos = curr_hash->size;
+        number = curr_hash->table_size;
+        table = curr_hash->table;
+        do {
+          do {
+            number--;
+          } while (table[number] == NULL);
+          arr_pos = keys_helem(key_array, arr_pos, table[number],
+                               key_create_func);
+        } while (arr_pos != 0);
       } /* if */
     } /* if */
     return key_array;
@@ -357,93 +321,55 @@ static rtlArrayType keys_hash (const const_rtlHashType curr_hash,
 
 
 
-static void values_helem (rtlArrayType *value_array, memSizeType *arr_pos,
-    const_rtlHashElemType curr_helem, const createFuncType value_create_func,
-    errInfoType *err_info)
+static memSizeType values_helem (const rtlArrayType value_array,
+    memSizeType arr_pos, const const_rtlHashElemType curr_helem,
+    const createFuncType value_create_func)
 
-  {
-    memSizeType array_size;
-    rtlArrayType resized_value_array;
-
-  /* values_helem */
-    array_size = arraySize(*value_array);
-    if (*arr_pos + 1 >= array_size) {
-      if (array_size > MAX_RTL_ARR_LEN - ARRAY_SIZE_INCREMENT ||
-          (*value_array)->max_position > MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
-        resized_value_array = NULL;
-      } else {
-        resized_value_array = REALLOC_RTL_ARRAY(*value_array,
-            array_size, array_size + ARRAY_SIZE_INCREMENT);
-      } /* if */
-      if (resized_value_array == NULL) {
-        *err_info = MEMORY_ERROR;
-        return;
-      } else {
-        *value_array = resized_value_array;
-        COUNT3_RTL_ARRAY(array_size, array_size + ARRAY_SIZE_INCREMENT);
-        (*value_array)->max_position += ARRAY_SIZE_INCREMENT;
-      } /* if */
-    } /* if */
-    (*value_array)->arr[*arr_pos].value.genericValue =
+  { /* values_helem */
+    arr_pos--;
+    value_array->arr[arr_pos].value.genericValue =
         value_create_func(curr_helem->data.value.genericValue);
-    (*arr_pos)++;
     if (curr_helem->next_less != NULL) {
-      values_helem(value_array, arr_pos, curr_helem->next_less, value_create_func,
-                   err_info);
+      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_less,
+                             value_create_func);
     } /* if */
     if (curr_helem->next_greater != NULL) {
-      values_helem(value_array, arr_pos, curr_helem->next_greater, value_create_func,
-                   err_info);
+      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_greater,
+                             value_create_func);
     } /* if */
+    return arr_pos;
   } /* values_helem */
 
 
 
-static rtlArrayType values_hash (const const_rtlHashType curr_hash,
-    const createFuncType value_create_func, const destrFuncType value_destr_func,
-    errInfoType *err_info)
+static inline rtlArrayType values_hash (const const_rtlHashType curr_hash,
+    const createFuncType value_create_func)
 
   {
     memSizeType arr_pos;
     memSizeType number;
-    const rtlHashElemType *curr_helem;
-    memSizeType array_size;
-    rtlArrayType resized_value_array;
+    const rtlHashElemType *table;
     rtlArrayType value_array;
 
   /* values_hash */
-    if (!ALLOC_RTL_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
-      *err_info = MEMORY_ERROR;
+    if (unlikely(curr_hash->size > INTTYPE_MAX ||
+                 !ALLOC_RTL_ARRAY(value_array, curr_hash->size))) {
+      raise_error(MEMORY_ERROR);
+      value_array = NULL;
     } else {
       value_array->min_position = 1;
-      value_array->max_position = ARRAY_SIZE_INCREMENT;
-      arr_pos = 0;
-      number = curr_hash->table_size;
-      curr_helem = &curr_hash->table[0];
-      while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        if (*curr_helem != NULL) {
-          values_helem(&value_array, &arr_pos, *curr_helem, value_create_func, err_info);
-        } /* if */
-        number--;
-        curr_helem++;
-      } /* while */
-      array_size = arraySize(value_array);
-      if (*err_info == OKAY_NO_ERROR) {
-        resized_value_array = REALLOC_RTL_ARRAY(value_array, array_size, arr_pos);
-        if (resized_value_array == NULL) {
-          *err_info = MEMORY_ERROR;
-        } else {
-          value_array = resized_value_array;
-          COUNT3_RTL_ARRAY(array_size, arr_pos);
-          value_array->max_position = (intType) arr_pos;
-        } /* if */
-      } /* if */
-      if (unlikely(*err_info != OKAY_NO_ERROR)) {
-        for (number = 0; number < arr_pos; number++) {
-          value_destr_func(value_array->arr[number].value.genericValue);
-        } /* for */
-        FREE_RTL_ARRAY(value_array, array_size);
-        value_array = NULL;
+      value_array->max_position = (intType) curr_hash->size;
+      if (curr_hash->size != 0) {
+        arr_pos = curr_hash->size;
+        number = curr_hash->table_size;
+        table = curr_hash->table;
+        do {
+          do {
+            number--;
+          } while (table[number] == NULL);
+          arr_pos = values_helem(value_array, arr_pos, table[number],
+                                 value_create_func);
+        } while (arr_pos != 0);
       } /* if */
     } /* if */
     return value_array;
@@ -1007,11 +933,9 @@ rtlArrayType hshKeys (const const_rtlHashType aHashMap,
 
   {
     rtlArrayType key_array;
-    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshKeys */
-    key_array = keys_hash(aHashMap, key_create_func, key_destr_func,
-        &err_info);
+    key_array = keys_hash(aHashMap, key_create_func);
     return key_array;
   } /* hshKeys */
 
@@ -1097,10 +1021,8 @@ rtlArrayType hshValues (const const_rtlHashType aHashMap,
 
   {
     rtlArrayType value_array;
-    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshValues */
-    value_array = values_hash(aHashMap, value_create_func, value_destr_func,
-        &err_info);
+    value_array = values_hash(aHashMap, value_create_func);
     return value_array;
   } /* hshValues */

@@ -613,8 +613,10 @@ typedef mpz_srcptr  const_bigIntType;
 
 #if LOG_FUNCTIONS_EVERYWHERE || (defined LOG_FUNCTIONS && LOG_FUNCTIONS)
 #define logFunction(logStatements) printf(__FILE__ ": "); logStatements
+#define logFunctionResult(logStatements) printf(" --> "); logStatements
 #else
 #define logFunction(logStatements)
+#define logFunctionResult(logStatements)
 #endif
 
 #define logMessage(logStatements)
@@ -630,6 +632,7 @@ typedef mpz_srcptr  const_bigIntType;
 
 /* Allow to activate selected logging functions by adding X. */
 
-#define logFunctionX(logStatements) logStatements
+#define logFunctionX(logStatements) printf(__FILE__ ": "); logStatements
+#define logFunctionResultX(logStatements) printf(" --> "); logStatements
 #define logMessageX(logStatements) logStatements
 #define logErrorX(logStatements) printf(" *** "); logStatements

@@ -25,6 +25,7 @@
 $ include "seed7_05.s7i";
   include "stdio.s7i";
 
+const integer: MAX_LEVEL is 10;
 const integer: THINK_INDICATOR_START_LEVEL is 2;
 
 const char: COMPUTER_STONE is 'o';
@@ -354,7 +355,7 @@ const proc: calculate_move (
     inout integer: current_value) is func
 
   local
-    var array moveType: best_move is 9 times moveType.value;
+    var array moveType: best_move is MAX_LEVEL times moveType.value;
     var integer: best_move_count is 0; (* 0 .. 9 *)
     var integer: min_value is 0; (* 0 .. 9 *)
     var integer: max_value is 0; (* 0 .. 9 *)
@@ -746,6 +747,7 @@ const proc: start is func
 
   local
     var char: answer is ' ';
+    var string: levelAnswer is "";
 
   begin (* start *)
     exit_program := FALSE;
@@ -765,21 +767,27 @@ const proc: start is func
         rules();
       end if;
       repeat
-        write("Level (1-9)? ");
-        answer := upper(getc(IN));
-        if answer = '\n' then
-          answer := '0';
-        else
-          readln;
-        end if;
-        if answer = 'Q' then
+        level := 0;
+        write("Level (1-" <& MAX_LEVEL <& ")? ");
+        readln(levelAnswer);
+        if upper(levelAnswer) = "Q" then
           exit_program := TRUE;
-        else
+          level := 1;
+        elsif levelAnswer = "" then
           writeln;
+        else
+          block
+            level := integer parse levelAnswer;
+            if level <= 0 or level > MAX_LEVEL then
+              writeln("   Level must be between 1 and " <& MAX_LEVEL <& ".");
+            end if;
+          exception
+            catch RANGE_ERROR:
+              writeln("   '" <& levelAnswer <& "' is not a legal level.");
+          end block;
         end if;
-      until (answer >= '1' and answer <= '9') or exit_program;
+      until level >= 1 and level <= MAX_LEVEL;
       if not exit_program then
-        level := ord(answer) - ord('0');
         generate_start_board();
       end if;
     end if;

@@ -65,13 +65,13 @@ intType intLog10 (intType number);
 intType intLog2 (intType number);
 intType intLowestSetBit (intType number);
 striType intLpad0 (intType number, const intType pad_size);
+intType intMultOvfChk (intType factor1, intType factor2);
 intType intParse (const const_striType stri);
 intType intPow (intType base, intType exponent);
 intType intPowOvfChk (intType base, intType exponent);
 striType intRadix (intType number, intType base, boolType upperCase);
 striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase);
 intType intRand (intType low, intType high);
-intType intMultOvfChk (intType factor1, intType factor2);
 intType intSqrt (intType number);
 striType intStr (intType number);
 #ifdef ALLOW_STRITYPE_SLICES

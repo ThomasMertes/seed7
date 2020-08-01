@@ -590,7 +590,7 @@ objectType str_elemcpy (listType arguments)
                       striAsUnquotedCStri(stri), position,
                       take_char(arg_6(arguments)),
                       position <= 0 ? "<= 0" : "> length(destination)"););
-     return raise_exception(SYS_RNG_EXCEPTION);
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       stri->mem[position - 1] = (strElemType) take_char(arg_6(arguments));
     } /* if */

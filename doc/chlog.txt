@@ -1,3 +1,35 @@
+20160130:
+- A code page for pdf doc encoding has been added to charsets.s7i.
+- An optimization for the length of concatenated strings has been
+  added to the compiler (in file str_act.s7i).
+- Checks for the string length function have been added to
+  chkstr.sd7.
+- The checks for the string operators := and &:= have been rewritten
+  to use one line for each testcase.
+- The example program rever.sd7 has been improved to allow a level
+  of 10.
+- The compiler has been improved to create code that raises the
+  exception ACTION_ERROR, when at runtime no implementation function
+  is found for an interface function.
+- The performance of the hash table functions keys (which returns
+  all keys) and values (which returns all values) has been improved
+  in interpreted and compiled programs. For an average testcase
+  hshKeys() (in hsh_rtl.c) now uses only 27% of the previous runtime
+  (measured with gcc and valgrind).
+- In hshlib.c the performance of the functions free_hash,
+  keys_helem, keys_hash, values_helem, values_hash, for_helem,
+  for_hash, for_key_helem, for_key_hash, for_data_key_helem and
+  for_data_key_hash has been improved.
+- In hsh_rtl.c the performance of the functions free_hash,
+  keys_helem, keys_hash, values_helem and values_hash has been
+  improved.
+- In listutl.c the performance of the functions helem_data_to_list,
+  hash_data_to_list, helem_key_to_list and hash_keys_to_list has
+  been improved.
+- Several functions in cmd_rtl.c have been improved to work
+  correctly, when logError is activated (os_path is freed now after
+  its last use in logError).
+
 20151216:
 - A compiler bug, triggered with a nested function and an array
   parameter, has been fixed. Many thanks go to "rfnbs" for providing

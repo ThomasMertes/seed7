@@ -57,7 +57,7 @@ identType new_ident (const_ustriType name, sySizeType length)
     if (ALLOC_RECORD(created_ident, identRecord, count.ident)) {
       if (!ALLOC_ID_NAME(created_ident->name, length)) {
         FREE_RECORD(created_ident, identRecord, count.ident);
-        created_ident = (identType) NULL;
+        created_ident = NULL;
       } else {
         COUNT_ID_NAME(length);
         memcpy(created_ident->name, name, (size_t) length);

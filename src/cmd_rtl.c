@@ -857,7 +857,11 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
 
   /* setEnvironmentVariable */
     if (strChPos(name, (charType) '=') != 0) {
-      /* Putenv() expects a string of the form "name=value". */
+      logError(printf("setEnvironmentVariable(\"%s\", ",
+                      striAsUnquotedCStri(name));
+               printf("\"%s\", *): "
+                      "Name contains '=' (putenv() works with \"name=value\").\n",
+                      striAsUnquotedCStri(value)););
       *err_info = RANGE_ERROR;
     } else if (unlikely(name->size > MAX_STRI_LEN - value->size - 1)) {
       /* Number of bytes does not fit into memSizeType. */
@@ -1069,7 +1073,7 @@ striType followLink (striType path)
         FREE_STRI(startPath, startPath->size);
       } /* if */
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(path)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(path)););
     return path;
   } /* followLink */
 #endif
@@ -1683,14 +1687,15 @@ setType cmdFileMode (const const_striType filePath)
       }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
-      os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
         logError(printf("cmdFileMode: os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
+        os_stri_free(os_path);
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
+        os_stri_free(os_path);
         /* printf("cmdFileMode: st_mode=0%o\n", stat_buf.st_mode); */
 #if MODE_BITS_NORMAL
         result = setIConv(0777 & stat_buf.st_mode);
@@ -1791,7 +1796,7 @@ intType cmdFileSize (const const_striType filePath)
         raise_error(err_info);
       } /* if */
     } /* if */
-    logFunction(printf(" --> " FMT_D "\n", size_of_file););
+    logFunctionResult(printf("" FMT_D "\n", size_of_file););
     return size_of_file;
   } /* cmdFileSize */
 
@@ -1845,7 +1850,6 @@ intType cmdFileType (const const_striType filePath)
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       saved_errno = errno;
-      os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
@@ -1862,7 +1866,7 @@ intType cmdFileType (const const_striType filePath)
           logError(printf("cmdFileType: os_stat(\"" FMT_S_OS "\", *) "
                           "returns a mode of S_IFLNK.\n",
                           os_path););
-          raise_error(FILE_ERROR);
+          err_info = FILE_ERROR;
         } else if (S_ISSOCK(stat_buf.st_mode)) {
           type_of_file = FILE_SOCKET;
         } else {
@@ -1881,11 +1885,15 @@ intType cmdFileType (const const_striType filePath)
                           os_path, saved_errno, strerror(saved_errno)););
           /* printf("filePath->size=%lu\n", filePath->size); */
           /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
-          raise_error(FILE_ERROR);
+          err_info = FILE_ERROR;
         } /* if */
       } /* if */
+      os_stri_free(os_path);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } /* if */
     } /* if */
-    logFunction(printf(" --> " FMT_D "\n", type_of_file););
+    logFunctionResult(printf("" FMT_D "\n", type_of_file););
     return type_of_file;
   } /* cmdFileType */
 
@@ -1938,7 +1946,6 @@ intType cmdFileTypeSL (const const_striType filePath)
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
       saved_errno = errno;
-      os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
@@ -1961,16 +1968,20 @@ intType cmdFileTypeSL (const const_striType filePath)
         type_of_file = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
             saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
-          logError(printf("cmdFileTypeSL: os_stat(\"" FMT_S_OS "\") failed:\n"
+          logError(printf("cmdFileTypeSL: os_lstat(\"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, saved_errno, strerror(saved_errno)););
           /* printf("filePath->size=%lu\n", filePath->size); */
           /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
-          raise_error(FILE_ERROR);
+          err_info = FILE_ERROR;
         } /* if */
       } /* if */
+      os_stri_free(os_path);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } /* if */
     } /* if */
-    logFunction(printf(" --> " FMT_D "\n", type_of_file););
+    logFunctionResult(printf("" FMT_D "\n", type_of_file););
     return type_of_file;
   } /* cmdFileTypeSL */
 
@@ -2025,7 +2036,7 @@ striType cmdGetcwd (void)
 #ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(cwd)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(cwd)););
     return cwd;
   } /* cmdGetcwd */
 
@@ -2077,7 +2088,7 @@ striType cmdGetenv (const const_striType name)
         raise_error(err_info);
       } /* if */
     } /* if */
-    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* cmdGetenv */
 
@@ -2124,17 +2135,20 @@ void cmdGetATime (const const_striType filePath,
       }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
-      os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
         logError(printf("cmdGetATime: os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
       } else {
         /* printf("cmdGetATime: st_atime=%ld\n", stat_buf.st_atime); */
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
+      } /* if */
+      os_stri_free(os_path);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
       } /* if */
     } /* if */
     logFunction(printf("cmdGetATime(" F_D(04) "-" F_D(02) "-" F_D(02) " "
@@ -2186,17 +2200,20 @@ void cmdGetCTime (const const_striType filePath,
       }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
-      os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
         logError(printf("cmdGetCTime: os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
       } else {
         /* printf("cmdGetCTime: st_ctime=%ld\n", stat_buf.st_ctime); */
         timFromTimestamp(stat_buf.st_ctime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
+      } /* if */
+      os_stri_free(os_path);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
       } /* if */
     } /* if */
     logFunction(printf("cmdGetCTime(" F_D(04) "-" F_D(02) "-" F_D(02) " "
@@ -2248,17 +2265,20 @@ void cmdGetMTime (const const_striType filePath,
       }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
-      os_stri_free(os_path);
       if (unlikely(stat_result != 0)) {
         logError(printf("cmdGetMTime: os_stat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
       } else {
         /* printf("cmdGetMTime: st_mtime=%ld\n", stat_buf.st_mtime); */
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
+      } /* if */
+      os_stri_free(os_path);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
       } /* if */
     } /* if */
     logFunction(printf("cmdGetMTime(" F_D(04) "-" F_D(02) "-" F_D(02) " "
@@ -2866,6 +2886,11 @@ void cmdSetATime (const const_striType filePath,
         /* printf("cmdSetATime: actime=%ld\n", utime_buf.actime); */
         utime_buf.modtime = stat_buf.st_mtime;
         if (utime_buf.actime == (time_t) -1) {
+          logError(printf("cmdSetATime: timToTimestamp("
+                          F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
+                          F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed.\n",
+                          year, month, day, hour, min, sec,
+                          micro_sec, time_zone););
           err_info = RANGE_ERROR;
         } else if (os_utime(os_path, &utime_buf) != 0) {
           logError(printf("cmdSetATime: os_utime(\"" FMT_S_OS "\") failed:\n"
@@ -2981,7 +3006,12 @@ void cmdSetMTime (const const_striType filePath,
         utime_buf.modtime = timToTimestamp(year, month, day, hour,
             min, sec, micro_sec, time_zone);
         /* printf("cmdSetMTime: modtime=%ld\n", utime_buf.modtime); */
-        if (utime_buf.actime == (time_t) -1) {
+        if (utime_buf.modtime == (time_t) -1) {
+          logError(printf("cmdSetMTime: timToTimestamp("
+                          F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
+                          F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed.\n",
+                          year, month, day, hour, min, sec,
+                          micro_sec, time_zone););
           err_info = RANGE_ERROR;
         } else if (os_utime(os_path, &utime_buf) != 0) {
           logError(printf("cmdSetMTime: os_utime(\"" FMT_S_OS "\") failed:\n"

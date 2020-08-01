@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  charsets.s7i  Code pages for various character sets             *)
-(*  Copyright (C) 2006, 2008, 2009, 2010  Thomas Mertes             *)
+(*  Copyright (C) 2006, 2008 - 2010, 2016  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -1378,6 +1378,24 @@ const string: iso_8859_16 is "\
     \ĐŃÒÓÔŐÖŚŰÙÚÛÜĘȚß\
     \àáâăäćæçèéêëìíîï\
     \đńòóôőöśűùúûüęțÿ";
+
+const string: pdf_doc_encoding is "\
+    \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+    \\0;\0;\0;\0;\0;\0;\0;\0;\728;\711;\710;\729;\733;\731;\730;\732;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\0;\
+    \•†‡…—–ƒ⁄‹›−‰„“”‘\
+    \’‚™ﬁﬂŁŒŠŸŽıłœšž\0;\
+    \€¡¢£¤¥¦§¨©ª«¬\0;®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+    \àáâãäåæçèéêëìíîï\
+    \ðñòóôõö÷øùúûüýþÿ";
 
 (**
  *  Conversion table from Mac OS Roman encoding to Unicode.

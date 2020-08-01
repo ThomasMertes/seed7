@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkstr.sd7    Checks string literals and operations             *)
-(*  Copyright (C) 1992 - 1994, 2004, 2009, 2013, 2014 Thomas Mertes *)
+(*  Copyright (C) 1992 - 1994, 2004, 2009 Thomas Mertes             *)
+(*                2013 - 2016 Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -2326,6 +2327,408 @@ const proc: check_string_comparisons is func
     end if;
     if okay then
       writeln("String comparisons work correct.");
+    end if;
+  end func;
+
+
+const proc: check_string_length is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  length("")                            <>  0 or
+        length("a")                           <>  1 or
+        length("ab")                          <>  2 or
+        length("abc")                         <>  3 or
+        length("abcdefghijklghijklmnopqxyz")  <> 26 or
+        length("\0;")                         <>  1 or
+        length("\0;\0;")                      <>  2 or
+        length("\0;\0;\0;\0;\0;\0;\0;\0;\0;") <>  9 or
+        length(striExpr(""))                            <>  0 or
+        length(striExpr("a"))                           <>  1 or
+        length(striExpr("ab"))                          <>  2 or
+        length(striExpr("abc"))                         <>  3 or
+        length(striExpr("abcdefghijklghijklmnopqxyz"))  <> 26 or
+        length(striExpr("\0;"))                         <>  1 or
+        length(striExpr("\0;\0;"))                      <>  2 or
+        length(striExpr("\0;\0;\0;\0;\0;\0;\0;\0;\0;")) <>  9 or
+
+        length(         ""  &          "" ) <> 0 or
+        length(striExpr("") &          "" ) <> 0 or
+        length(         ""  & striExpr("")) <> 0 or
+        length(striExpr("") & striExpr("")) <> 0 or
+        length(         ""  &          "c" ) <> 1 or
+        length(striExpr("") &          "c" ) <> 1 or
+        length(         ""  & striExpr("c")) <> 1 or
+        length(striExpr("") & striExpr("c")) <> 1 or
+        length(         "ab"  &          "" ) <> 2 or
+        length(striExpr("ab") &          "" ) <> 2 or
+        length(         "ab"  & striExpr("")) <> 2 or
+        length(striExpr("ab") & striExpr("")) <> 2 or
+        length(         "ab"  &          "c" ) <> 3 or
+        length(striExpr("ab") &          "c" ) <> 3 or
+        length(         "ab"  & striExpr("c")) <> 3 or
+        length(striExpr("ab") & striExpr("c")) <> 3 or
+
+        length(         ""  &          ""  &          "" ) <> 0 or
+        length(striExpr("") &          ""  &          "" ) <> 0 or
+        length(         ""  & striExpr("") &          "" ) <> 0 or
+        length(striExpr("") & striExpr("") &          "" ) <> 0 or
+        length(         ""  &          ""  & striExpr("")) <> 0 or
+        length(striExpr("") &          ""  & striExpr("")) <> 0 or
+        length(         ""  & striExpr("") & striExpr("")) <> 0 or
+        length(striExpr("") & striExpr("") & striExpr("")) <> 0 or
+        length(         ""  &          ""  &          "g" ) <> 1 or
+        length(striExpr("") &          ""  &          "g" ) <> 1 or
+        length(         ""  & striExpr("") &          "g" ) <> 1 or
+        length(striExpr("") & striExpr("") &          "g" ) <> 1 or
+        length(         ""  &          ""  & striExpr("g")) <> 1 or
+        length(striExpr("") &          ""  & striExpr("g")) <> 1 or
+        length(         ""  & striExpr("") & striExpr("g")) <> 1 or
+        length(striExpr("") & striExpr("") & striExpr("g")) <> 1 or
+        length(         ""  &          "ef"  &          "" ) <> 2 or
+        length(striExpr("") &          "ef"  &          "" ) <> 2 or
+        length(         ""  & striExpr("ef") &          "" ) <> 2 or
+        length(striExpr("") & striExpr("ef") &          "" ) <> 2 or
+        length(         ""  &          "ef"  & striExpr("")) <> 2 or
+        length(striExpr("") &          "ef"  & striExpr("")) <> 2 or
+        length(         ""  & striExpr("ef") & striExpr("")) <> 2 or
+        length(striExpr("") & striExpr("ef") & striExpr("")) <> 2 or
+        length(         ""  &          "ef"  &          "g" ) <> 3 or
+        length(striExpr("") &          "ef"  &          "g" ) <> 3 or
+        length(         ""  & striExpr("ef") &          "g" ) <> 3 or
+        length(striExpr("") & striExpr("ef") &          "g" ) <> 3 or
+        length(         ""  &          "ef"  & striExpr("g")) <> 3 or
+        length(striExpr("") &          "ef"  & striExpr("g")) <> 3 or
+        length(         ""  & striExpr("ef") & striExpr("g")) <> 3 or
+        length(striExpr("") & striExpr("ef") & striExpr("g")) <> 3 or
+        length(         "abcd"  &          ""  &          "" ) <> 4 or
+        length(striExpr("abcd") &          ""  &          "" ) <> 4 or
+        length(         "abcd"  & striExpr("") &          "" ) <> 4 or
+        length(striExpr("abcd") & striExpr("") &          "" ) <> 4 or
+        length(         "abcd"  &          ""  & striExpr("")) <> 4 or
+        length(striExpr("abcd") &          ""  & striExpr("")) <> 4 or
+        length(         "abcd"  & striExpr("") & striExpr("")) <> 4 or
+        length(striExpr("abcd") & striExpr("") & striExpr("")) <> 4 or
+        length(         "abcd"  &          ""  &          "g" ) <> 5 or
+        length(striExpr("abcd") &          ""  &          "g" ) <> 5 or
+        length(         "abcd"  & striExpr("") &          "g" ) <> 5 or
+        length(striExpr("abcd") & striExpr("") &          "g" ) <> 5 or
+        length(         "abcd"  &          ""  & striExpr("g")) <> 5 or
+        length(striExpr("abcd") &          ""  & striExpr("g")) <> 5 or
+        length(         "abcd"  & striExpr("") & striExpr("g")) <> 5 or
+        length(striExpr("abcd") & striExpr("") & striExpr("g")) <> 5 or
+        length(         "abcd"  &          "ef"  &          "" ) <> 6 or
+        length(striExpr("abcd") &          "ef"  &          "" ) <> 6 or
+        length(         "abcd"  & striExpr("ef") &          "" ) <> 6 or
+        length(striExpr("abcd") & striExpr("ef") &          "" ) <> 6 or
+        length(         "abcd"  &          "ef"  & striExpr("")) <> 6 or
+        length(striExpr("abcd") &          "ef"  & striExpr("")) <> 6 or
+        length(         "abcd"  & striExpr("ef") & striExpr("")) <> 6 or
+        length(striExpr("abcd") & striExpr("ef") & striExpr("")) <> 6 or
+        length(         "abcd"  &          "ef"  &          "g" ) <> 7 or
+        length(striExpr("abcd") &          "ef"  &          "g" ) <> 7 or
+        length(         "abcd"  & striExpr("ef") &          "g" ) <> 7 or
+        length(striExpr("abcd") & striExpr("ef") &          "g" ) <> 7 or
+        length(         "abcd"  &          "ef"  & striExpr("g")) <> 7 or
+        length(striExpr("abcd") &          "ef"  & striExpr("g")) <> 7 or
+        length(         "abcd"  & striExpr("ef") & striExpr("g")) <> 7 or
+        length(striExpr("abcd") & striExpr("ef") & striExpr("g")) <> 7 or
+
+        length(         ""  &          ""  &          ""  &          "" ) <> 0 or
+        length(striExpr("") &          ""  &          ""  &          "" ) <> 0 or
+        length(         ""  & striExpr("") &          ""  &          "" ) <> 0 or
+        length(striExpr("") & striExpr("") &          ""  &          "" ) <> 0 or
+        length(         ""  &          ""  & striExpr("") &          "" ) <> 0 or
+        length(striExpr("") &          ""  & striExpr("") &          "" ) <> 0 or
+        length(         ""  & striExpr("") & striExpr("") &          "" ) <> 0 or
+        length(striExpr("") & striExpr("") & striExpr("") &          "" ) <> 0 or
+        length(         ""  &          ""  &          ""  & striExpr("")) <> 0 or
+        length(striExpr("") &          ""  &          ""  & striExpr("")) <> 0 or
+        length(         ""  & striExpr("") &          ""  & striExpr("")) <> 0 or
+        length(striExpr("") & striExpr("") &          ""  & striExpr("")) <> 0 or
+        length(         ""  &          ""  & striExpr("") & striExpr("")) <> 0 or
+        length(striExpr("") &          ""  & striExpr("") & striExpr("")) <> 0 or
+        length(         ""  & striExpr("") & striExpr("") & striExpr("")) <> 0 or
+        length(striExpr("") & striExpr("") & striExpr("") & striExpr("")) <> 0 or
+        length(         ""  &          ""  &          ""  &          "o" ) <> 1 or
+        length(striExpr("") &          ""  &          ""  &          "o" ) <> 1 or
+        length(         ""  & striExpr("") &          ""  &          "o" ) <> 1 or
+        length(striExpr("") & striExpr("") &          ""  &          "o" ) <> 1 or
+        length(         ""  &          ""  & striExpr("") &          "o" ) <> 1 or
+        length(striExpr("") &          ""  & striExpr("") &          "o" ) <> 1 or
+        length(         ""  & striExpr("") & striExpr("") &          "o" ) <> 1 or
+        length(striExpr("") & striExpr("") & striExpr("") &          "o" ) <> 1 or
+        length(         ""  &          ""  &          ""  & striExpr("o")) <> 1 or
+        length(striExpr("") &          ""  &          ""  & striExpr("o")) <> 1 or
+        length(         ""  & striExpr("") &          ""  & striExpr("o")) <> 1 or
+        length(striExpr("") & striExpr("") &          ""  & striExpr("o")) <> 1 or
+        length(         ""  &          ""  & striExpr("") & striExpr("o")) <> 1 or
+        length(striExpr("") &          ""  & striExpr("") & striExpr("o")) <> 1 or
+        length(         ""  & striExpr("") & striExpr("") & striExpr("o")) <> 1 or
+        length(striExpr("") & striExpr("") & striExpr("") & striExpr("o")) <> 1 or
+        length(         ""  &          ""  &          "mn"  &          "" ) <> 2 or
+        length(striExpr("") &          ""  &          "mn"  &          "" ) <> 2 or
+        length(         ""  & striExpr("") &          "mn"  &          "" ) <> 2 or
+        length(striExpr("") & striExpr("") &          "mn"  &          "" ) <> 2 or
+        length(         ""  &          ""  & striExpr("mn") &          "" ) <> 2 or
+        length(striExpr("") &          ""  & striExpr("mn") &          "" ) <> 2 or
+        length(         ""  & striExpr("") & striExpr("mn") &          "" ) <> 2 or
+        length(striExpr("") & striExpr("") & striExpr("mn") &          "" ) <> 2 or
+        length(         ""  &          ""  &          "mn"  & striExpr("")) <> 2 or
+        length(striExpr("") &          ""  &          "mn"  & striExpr("")) <> 2 or
+        length(         ""  & striExpr("") &          "mn"  & striExpr("")) <> 2 or
+        length(striExpr("") & striExpr("") &          "mn"  & striExpr("")) <> 2 or
+        length(         ""  &          ""  & striExpr("mn") & striExpr("")) <> 2 or
+        length(striExpr("") &          ""  & striExpr("mn") & striExpr("")) <> 2 or
+        length(         ""  & striExpr("") & striExpr("mn") & striExpr("")) <> 2 or
+        length(striExpr("") & striExpr("") & striExpr("mn") & striExpr("")) <> 2 or
+        length(         ""  &          ""  &          "mn"  &          "o" ) <> 3 or
+        length(striExpr("") &          ""  &          "mn"  &          "o" ) <> 3 or
+        length(         ""  & striExpr("") &          "mn"  &          "o" ) <> 3 or
+        length(striExpr("") & striExpr("") &          "mn"  &          "o" ) <> 3 or
+        length(         ""  &          ""  & striExpr("mn") &          "o" ) <> 3 or
+        length(striExpr("") &          ""  & striExpr("mn") &          "o" ) <> 3 or
+        length(         ""  & striExpr("") & striExpr("mn") &          "o" ) <> 3 or
+        length(striExpr("") & striExpr("") & striExpr("mn") &          "o" ) <> 3 or
+        length(         ""  &          ""  &          "mn"  & striExpr("o")) <> 3 or
+        length(striExpr("") &          ""  &          "mn"  & striExpr("o")) <> 3 or
+        length(         ""  & striExpr("") &          "mn"  & striExpr("o")) <> 3 or
+        length(striExpr("") & striExpr("") &          "mn"  & striExpr("o")) <> 3 or
+        length(         ""  &          ""  & striExpr("mn") & striExpr("o")) <> 3 or
+        length(striExpr("") &          ""  & striExpr("mn") & striExpr("o")) <> 3 or
+        length(         ""  & striExpr("") & striExpr("mn") & striExpr("o")) <> 3 or
+        length(striExpr("") & striExpr("") & striExpr("mn") & striExpr("o")) <> 3 or
+        length(         ""  &          "ijkl"  &          ""  &          "" ) <> 4 or
+        length(striExpr("") &          "ijkl"  &          ""  &          "" ) <> 4 or
+        length(         ""  & striExpr("ijkl") &          ""  &          "" ) <> 4 or
+        length(striExpr("") & striExpr("ijkl") &          ""  &          "" ) <> 4 or
+        length(         ""  &          "ijkl"  & striExpr("") &          "" ) <> 4 or
+        length(striExpr("") &          "ijkl"  & striExpr("") &          "" ) <> 4 or
+        length(         ""  & striExpr("ijkl") & striExpr("") &          "" ) <> 4 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("") &          "" ) <> 4 or
+        length(         ""  &          "ijkl"  &          ""  & striExpr("")) <> 4 or
+        length(striExpr("") &          "ijkl"  &          ""  & striExpr("")) <> 4 or
+        length(         ""  & striExpr("ijkl") &          ""  & striExpr("")) <> 4 or
+        length(striExpr("") & striExpr("ijkl") &          ""  & striExpr("")) <> 4 or
+        length(         ""  &          "ijkl"  & striExpr("") & striExpr("")) <> 4 or
+        length(striExpr("") &          "ijkl"  & striExpr("") & striExpr("")) <> 4 or
+        length(         ""  & striExpr("ijkl") & striExpr("") & striExpr("")) <> 4 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("") & striExpr("")) <> 4 or
+        length(         ""  &          "ijkl"  &          ""  &          "o" ) <> 5 or
+        length(striExpr("") &          "ijkl"  &          ""  &          "o" ) <> 5 or
+        length(         ""  & striExpr("ijkl") &          ""  &          "o" ) <> 5 or
+        length(striExpr("") & striExpr("ijkl") &          ""  &          "o" ) <> 5 or
+        length(         ""  &          "ijkl"  & striExpr("") &          "o" ) <> 5 or
+        length(striExpr("") &          "ijkl"  & striExpr("") &          "o" ) <> 5 or
+        length(         ""  & striExpr("ijkl") & striExpr("") &          "o" ) <> 5 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("") &          "o" ) <> 5 or
+        length(         ""  &          "ijkl"  &          ""  & striExpr("o")) <> 5 or
+        length(striExpr("") &          "ijkl"  &          ""  & striExpr("o")) <> 5 or
+        length(         ""  & striExpr("ijkl") &          ""  & striExpr("o")) <> 5 or
+        length(striExpr("") & striExpr("ijkl") &          ""  & striExpr("o")) <> 5 or
+        length(         ""  &          "ijkl"  & striExpr("") & striExpr("o")) <> 5 or
+        length(striExpr("") &          "ijkl"  & striExpr("") & striExpr("o")) <> 5 or
+        length(         ""  & striExpr("ijkl") & striExpr("") & striExpr("o")) <> 5 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("") & striExpr("o")) <> 5 or
+        length(         ""  &          "ijkl"  &          "mn"  &          "" ) <> 6 or
+        length(striExpr("") &          "ijkl"  &          "mn"  &          "" ) <> 6 or
+        length(         ""  & striExpr("ijkl") &          "mn"  &          "" ) <> 6 or
+        length(striExpr("") & striExpr("ijkl") &          "mn"  &          "" ) <> 6 or
+        length(         ""  &          "ijkl"  & striExpr("mn") &          "" ) <> 6 or
+        length(striExpr("") &          "ijkl"  & striExpr("mn") &          "" ) <> 6 or
+        length(         ""  & striExpr("ijkl") & striExpr("mn") &          "" ) <> 6 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("mn") &          "" ) <> 6 or
+        length(         ""  &          "ijkl"  &          "mn"  & striExpr("")) <> 6 or
+        length(striExpr("") &          "ijkl"  &          "mn"  & striExpr("")) <> 6 or
+        length(         ""  & striExpr("ijkl") &          "mn"  & striExpr("")) <> 6 or
+        length(striExpr("") & striExpr("ijkl") &          "mn"  & striExpr("")) <> 6 or
+        length(         ""  &          "ijkl"  & striExpr("mn") & striExpr("")) <> 6 or
+        length(striExpr("") &          "ijkl"  & striExpr("mn") & striExpr("")) <> 6 or
+        length(         ""  & striExpr("ijkl") & striExpr("mn") & striExpr("")) <> 6 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("mn") & striExpr("")) <> 6 or
+        length(         ""  &          "ijkl"  &          "mn"  &          "o" ) <> 7 or
+        length(striExpr("") &          "ijkl"  &          "mn"  &          "o" ) <> 7 or
+        length(         ""  & striExpr("ijkl") &          "mn"  &          "o" ) <> 7 or
+        length(striExpr("") & striExpr("ijkl") &          "mn"  &          "o" ) <> 7 or
+        length(         ""  &          "ijkl"  & striExpr("mn") &          "o" ) <> 7 or
+        length(striExpr("") &          "ijkl"  & striExpr("mn") &          "o" ) <> 7 or
+        length(         ""  & striExpr("ijkl") & striExpr("mn") &          "o" ) <> 7 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("mn") &          "o" ) <> 7 or
+        length(         ""  &          "ijkl"  &          "mn"  & striExpr("o")) <> 7 or
+        length(striExpr("") &          "ijkl"  &          "mn"  & striExpr("o")) <> 7 or
+        length(         ""  & striExpr("ijkl") &          "mn"  & striExpr("o")) <> 7 or
+        length(striExpr("") & striExpr("ijkl") &          "mn"  & striExpr("o")) <> 7 or
+        length(         ""  &          "ijkl"  & striExpr("mn") & striExpr("o")) <> 7 or
+        length(striExpr("") &          "ijkl"  & striExpr("mn") & striExpr("o")) <> 7 or
+        length(         ""  & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 7 or
+        length(striExpr("") & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 7 or
+        length(         "abcdefgh"  &          ""  &          ""  &          "" ) <> 8 or
+        length(striExpr("abcdefgh") &          ""  &          ""  &          "" ) <> 8 or
+        length(         "abcdefgh"  & striExpr("") &          ""  &          "" ) <> 8 or
+        length(striExpr("abcdefgh") & striExpr("") &          ""  &          "" ) <> 8 or
+        length(         "abcdefgh"  &          ""  & striExpr("") &          "" ) <> 8 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("") &          "" ) <> 8 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("") &          "" ) <> 8 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("") &          "" ) <> 8 or
+        length(         "abcdefgh"  &          ""  &          ""  & striExpr("")) <> 8 or
+        length(striExpr("abcdefgh") &          ""  &          ""  & striExpr("")) <> 8 or
+        length(         "abcdefgh"  & striExpr("") &          ""  & striExpr("")) <> 8 or
+        length(striExpr("abcdefgh") & striExpr("") &          ""  & striExpr("")) <> 8 or
+        length(         "abcdefgh"  &          ""  & striExpr("") & striExpr("")) <> 8 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("") & striExpr("")) <> 8 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("") & striExpr("")) <> 8 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("") & striExpr("")) <> 8 or
+        length(         "abcdefgh"  &          ""  &          ""  &          "o" ) <> 9 or
+        length(striExpr("abcdefgh") &          ""  &          ""  &          "o" ) <> 9 or
+        length(         "abcdefgh"  & striExpr("") &          ""  &          "o" ) <> 9 or
+        length(striExpr("abcdefgh") & striExpr("") &          ""  &          "o" ) <> 9 or
+        length(         "abcdefgh"  &          ""  & striExpr("") &          "o" ) <> 9 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("") &          "o" ) <> 9 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("") &          "o" ) <> 9 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("") &          "o" ) <> 9 or
+        length(         "abcdefgh"  &          ""  &          ""  & striExpr("o")) <> 9 or
+        length(striExpr("abcdefgh") &          ""  &          ""  & striExpr("o")) <> 9 or
+        length(         "abcdefgh"  & striExpr("") &          ""  & striExpr("o")) <> 9 or
+        length(striExpr("abcdefgh") & striExpr("") &          ""  & striExpr("o")) <> 9 or
+        length(         "abcdefgh"  &          ""  & striExpr("") & striExpr("o")) <> 9 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("") & striExpr("o")) <> 9 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("") & striExpr("o")) <> 9 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("") & striExpr("o")) <> 9 or
+        length(         "abcdefgh"  &          ""  &          "mn"  &          "" ) <> 10 or
+        length(striExpr("abcdefgh") &          ""  &          "mn"  &          "" ) <> 10 or
+        length(         "abcdefgh"  & striExpr("") &          "mn"  &          "" ) <> 10 or
+        length(striExpr("abcdefgh") & striExpr("") &          "mn"  &          "" ) <> 10 or
+        length(         "abcdefgh"  &          ""  & striExpr("mn") &          "" ) <> 10 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("mn") &          "" ) <> 10 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("mn") &          "" ) <> 10 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("mn") &          "" ) <> 10 or
+        length(         "abcdefgh"  &          ""  &          "mn"  & striExpr("")) <> 10 or
+        length(striExpr("abcdefgh") &          ""  &          "mn"  & striExpr("")) <> 10 or
+        length(         "abcdefgh"  & striExpr("") &          "mn"  & striExpr("")) <> 10 or
+        length(striExpr("abcdefgh") & striExpr("") &          "mn"  & striExpr("")) <> 10 or
+        length(         "abcdefgh"  &          ""  & striExpr("mn") & striExpr("")) <> 10 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("mn") & striExpr("")) <> 10 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("mn") & striExpr("")) <> 10 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("mn") & striExpr("")) <> 10 or
+        length(         "abcdefgh"  &          ""  &          "mn"  &          "o" ) <> 11 or
+        length(striExpr("abcdefgh") &          ""  &          "mn"  &          "o" ) <> 11 or
+        length(         "abcdefgh"  & striExpr("") &          "mn"  &          "o" ) <> 11 or
+        length(striExpr("abcdefgh") & striExpr("") &          "mn"  &          "o" ) <> 11 or
+        length(         "abcdefgh"  &          ""  & striExpr("mn") &          "o" ) <> 11 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("mn") &          "o" ) <> 11 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("mn") &          "o" ) <> 11 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("mn") &          "o" ) <> 11 or
+        length(         "abcdefgh"  &          ""  &          "mn"  & striExpr("o")) <> 11 or
+        length(striExpr("abcdefgh") &          ""  &          "mn"  & striExpr("o")) <> 11 or
+        length(         "abcdefgh"  & striExpr("") &          "mn"  & striExpr("o")) <> 11 or
+        length(striExpr("abcdefgh") & striExpr("") &          "mn"  & striExpr("o")) <> 11 or
+        length(         "abcdefgh"  &          ""  & striExpr("mn") & striExpr("o")) <> 11 or
+        length(striExpr("abcdefgh") &          ""  & striExpr("mn") & striExpr("o")) <> 11 or
+        length(         "abcdefgh"  & striExpr("") & striExpr("mn") & striExpr("o")) <> 11 or
+        length(striExpr("abcdefgh") & striExpr("") & striExpr("mn") & striExpr("o")) <> 11 or
+        length(         "abcdefgh"  &          "ijkl"  &          ""  &          "" ) <> 12 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          ""  &          "" ) <> 12 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          ""  &          "" ) <> 12 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          ""  &          "" ) <> 12 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("") &          "" ) <> 12 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("") &          "" ) <> 12 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("") &          "" ) <> 12 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("") &          "" ) <> 12 or
+        length(         "abcdefgh"  &          "ijkl"  &          ""  & striExpr("")) <> 12 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          ""  & striExpr("")) <> 12 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          ""  & striExpr("")) <> 12 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          ""  & striExpr("")) <> 12 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("") & striExpr("")) <> 12 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("") & striExpr("")) <> 12 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("") & striExpr("")) <> 12 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("") & striExpr("")) <> 12 or
+        length(         "abcdefgh"  &          "ijkl"  &          ""  &          "o" ) <> 13 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          ""  &          "o" ) <> 13 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          ""  &          "o" ) <> 13 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          ""  &          "o" ) <> 13 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("") &          "o" ) <> 13 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("") &          "o" ) <> 13 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("") &          "o" ) <> 13 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("") &          "o" ) <> 13 or
+        length(         "abcdefgh"  &          "ijkl"  &          ""  & striExpr("o")) <> 13 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          ""  & striExpr("o")) <> 13 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          ""  & striExpr("o")) <> 13 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          ""  & striExpr("o")) <> 13 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("") & striExpr("o")) <> 13 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("") & striExpr("o")) <> 13 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("") & striExpr("o")) <> 13 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("") & striExpr("o")) <> 13 or
+        length(         "abcdefgh"  &          "ijkl"  &          "mn"  &          "" ) <> 14 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          "mn"  &          "" ) <> 14 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          "mn"  &          "" ) <> 14 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          "mn"  &          "" ) <> 14 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("mn") &          "" ) <> 14 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("mn") &          "" ) <> 14 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("mn") &          "" ) <> 14 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("mn") &          "" ) <> 14 or
+        length(         "abcdefgh"  &          "ijkl"  &          "mn"  & striExpr("")) <> 14 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          "mn"  & striExpr("")) <> 14 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          "mn"  & striExpr("")) <> 14 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          "mn"  & striExpr("")) <> 14 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("mn") & striExpr("")) <> 14 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("mn") & striExpr("")) <> 14 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("mn") & striExpr("")) <> 14 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("mn") & striExpr("")) <> 14 or
+        length(         "abcdefgh"  &          "ijkl"  &          "mn"  &          "o" ) <> 15 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          "mn"  &          "o" ) <> 15 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          "mn"  &          "o" ) <> 15 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          "mn"  &          "o" ) <> 15 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("mn") &          "o" ) <> 15 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("mn") &          "o" ) <> 15 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("mn") &          "o" ) <> 15 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("mn") &          "o" ) <> 15 or
+        length(         "abcdefgh"  &          "ijkl"  &          "mn"  & striExpr("o")) <> 15 or
+        length(striExpr("abcdefgh") &          "ijkl"  &          "mn"  & striExpr("o")) <> 15 or
+        length(         "abcdefgh"  & striExpr("ijkl") &          "mn"  & striExpr("o")) <> 15 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") &          "mn"  & striExpr("o")) <> 15 or
+        length(         "abcdefgh"  &          "ijkl"  & striExpr("mn") & striExpr("o")) <> 15 or
+        length(striExpr("abcdefgh") &          "ijkl"  & striExpr("mn") & striExpr("o")) <> 15 or
+        length(         "abcdefgh"  & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 15 or
+        length(striExpr("abcdefgh") & striExpr("ijkl") & striExpr("mn") & striExpr("o")) <> 15 or
+
+        length(         "ab"  &          "cd"  &          "ef"  &          "gh"  &          "ij" ) <> 10 or
+        length(striExpr("ab") &          "cd"  &          "ef"  &          "gh"  &          "ij" ) <> 10 or
+        length(         "ab"  & striExpr("cd") &          "ef"  &          "gh"  &          "ij" ) <> 10 or
+        length(striExpr("ab") & striExpr("cd") &          "ef"  &          "gh"  &          "ij" ) <> 10 or
+        length(         "ab"  &          "cd"  & striExpr("ef") &          "gh"  &          "ij" ) <> 10 or
+        length(striExpr("ab") &          "cd"  & striExpr("ef") &          "gh"  &          "ij" ) <> 10 or
+        length(         "ab"  & striExpr("cd") & striExpr("ef") &          "gh"  &          "ij" ) <> 10 or
+        length(striExpr("ab") & striExpr("cd") & striExpr("ef") &          "gh"  &          "ij" ) <> 10 or
+        length(         "ab"  &          "cd"  &          "ef"  & striExpr("gh") &          "ij" ) <> 10 or
+        length(striExpr("ab") &          "cd"  &          "ef"  & striExpr("gh") &          "ij" ) <> 10 or
+        length(         "ab"  & striExpr("cd") &          "ef"  & striExpr("gh") &          "ij" ) <> 10 or
+        length(striExpr("ab") & striExpr("cd") &          "ef"  & striExpr("gh") &          "ij" ) <> 10 or
+        length(         "ab"  &          "cd"  & striExpr("ef") & striExpr("gh") &          "ij" ) <> 10 or
+        length(striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") &          "ij" ) <> 10 or
+        length(         "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") &          "ij" ) <> 10 or
+        length(striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") &          "ij" ) <> 10 or
+        length(         "ab"  &          "cd"  &          "ef"  &          "gh"  & striExpr("ij")) <> 10 or
+        length(striExpr("ab") &          "cd"  &          "ef"  &          "gh"  & striExpr("ij")) <> 10 or
+        length(         "ab"  & striExpr("cd") &          "ef"  &          "gh"  & striExpr("ij")) <> 10 or
+        length(striExpr("ab") & striExpr("cd") &          "ef"  &          "gh"  & striExpr("ij")) <> 10 or
+        length(         "ab"  &          "cd"  & striExpr("ef") &          "gh"  & striExpr("ij")) <> 10 or
+        length(striExpr("ab") &          "cd"  & striExpr("ef") &          "gh"  & striExpr("ij")) <> 10 or
+        length(         "ab"  & striExpr("cd") & striExpr("ef") &          "gh"  & striExpr("ij")) <> 10 or
+        length(striExpr("ab") & striExpr("cd") & striExpr("ef") &          "gh"  & striExpr("ij")) <> 10 or
+        length(         "ab"  &          "cd"  &          "ef"  & striExpr("gh") & striExpr("ij")) <> 10 or
+        length(striExpr("ab") &          "cd"  &          "ef"  & striExpr("gh") & striExpr("ij")) <> 10 or
+        length(         "ab"  & striExpr("cd") &          "ef"  & striExpr("gh") & striExpr("ij")) <> 10 or
+        length(striExpr("ab") & striExpr("cd") &          "ef"  & striExpr("gh") & striExpr("ij")) <> 10 or
+        length(         "ab"  &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 or
+        length(striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 or
+        length(         "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 or
+        length(striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij")) <> 10 then
+      writeln(" ***** length(STRING) does not work correct.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String length works correct.");
     end if;
   end func;
 
@@ -10845,52 +11248,20 @@ const proc: do_assign (inout string: dest, ref string: source) is func
 const proc: check_string_assign is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
     var string: stri is "";
   begin
-    okay := TRUE;
-    stri := "asdfghjkl";
-    if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := \"asdfghjkl\"' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := stri;
-    if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := stri' does not work correct.");
-      okay := FALSE;
-    end if;
-    do_assign(stri, stri);
-    if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := stri' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := stri[2 ..];
-    if stri <> "sdfghjkl" then
-      writeln(" ***** 'stri := stri[2 ..]' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := stri[.. 7];
-    if stri <> "sdfghjk" then
-      writeln(" ***** 'stri := stri[.. 7]' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := stri[2 .. 6];
-    if stri <> "dfghj" then
-      writeln(" ***** 'stri := stri[2 .. 6]' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := stri[2 len 3];
-    if stri <> "fgh" then
-      writeln(" ***** 'stri := stri[2 len 3]' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "asdfghjkl";
-    if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := \"asdfghjkl\"' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := stri[2 ..][.. 7];
-    if stri <> "sdfghjk" then
-      writeln(" ***** 'stri := stri[2 ..][.. 7]' does not work correct.");
+    stri := "asdfghjkl";      ok := ok and stri = "asdfghjkl";
+    stri := stri;             ok := ok and stri = "asdfghjkl";
+    do_assign(stri, stri);    ok := ok and stri = "asdfghjkl";
+    stri := stri[2 ..];       ok := ok and stri = "sdfghjkl";
+    stri := stri[.. 7];       ok := ok and stri = "sdfghjk";
+    stri := stri[2 .. 6];     ok := ok and stri = "dfghj";
+    stri := stri[2 len 3];    ok := ok and stri = "fgh";
+    stri := "asdfghjkl";      ok := ok and stri = "asdfghjkl";
+    stri := stri[2 ..][.. 7]; ok := ok and stri = "sdfghjk";
+    if not ok then
+      writeln(" ***** String assignment does not work correct.");
       okay := FALSE;
     end if;
     if okay then
@@ -10912,86 +11283,24 @@ const proc: do_append (inout string: dest, ref string: source) is func
 const proc: check_string_append is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
     var string: stri is "";
-    var string: stri2 is "";
   begin
-    okay := TRUE;
-    stri := "123";
-    stri &:= "456";
-    if stri <> "123456" then
-      writeln(" ***** stri &:= \"456\" does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "1234567890";
-    stri &:= stri;
-    if stri <> "12345678901234567890" then
-      writeln(" ***** stri &:= stri does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "1234567890";
-    do_append(stri, stri);
-    if stri <> "12345678901234567890" then
-      writeln(" ***** stri &:= stri does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "1234567890";
-    stri &:= stri[2 ..];
-    if stri <> "1234567890234567890" then
-      writeln(" ***** stri &:= stri[2 ..] does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "1234567890";
-    stri &:= stri[.. 9];
-    if stri <> "1234567890123456789" then
-      writeln(" ***** stri &:= stri[.. 9] does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "1234567890";
-    stri &:= stri[2 .. 9];
-    if stri <> "123456789023456789" then
-      writeln(" ***** stri &:= stri[2 .. 9] does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "1234567890";
-    stri &:= stri[2 len 8];
-    if stri <> "123456789023456789" then
-      writeln(" ***** stri &:= stri[2 len 8] does not work correct.");
-      okay := FALSE;
-    end if;
-    stri2 := "1234567890";
-    stri2 &:= stri2[2 ..][.. 8];
-    if stri2 <> "123456789023456789" then
-      writeln(" ***** stri2 &:= stri2[2 ..][.. 8] does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "12345";
-    stri &:= str('6');
-    if stri <> "123456" then
-      writeln(" ***** stri &:= str('6') does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "12345";
-    stri &:= str(chr(48));
-    if stri <> "123450" then
-      writeln(" ***** stri &:= str(chr(48)) does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "12345";
-    stri &:= '6';
-    if stri <> "123456" then
-      writeln(" ***** stri &:= '6' does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "12345";
-    stri &:= chr(48);
-    if stri <> "123450" then
-      writeln(" ***** stri &:= chr(48) does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "12345";
-    stri &:= stri[3];
-    if stri <> "123453" then
-      writeln(" ***** stri &:= stri[3] does not work correct.");
+    stri := "123";        stri &:= "456";            ok := ok and stri = "123456";
+    stri := "1234567890"; stri &:= stri;             ok := ok and stri = "12345678901234567890";
+    stri := "1234567890"; do_append(stri, stri);     ok := ok and stri = "12345678901234567890";
+    stri := "1234567890"; stri &:= stri[2 ..];       ok := ok and stri = "1234567890234567890";
+    stri := "1234567890"; stri &:= stri[.. 9];       ok := ok and stri = "1234567890123456789";
+    stri := "1234567890"; stri &:= stri[2 .. 9];     ok := ok and stri = "123456789023456789";
+    stri := "1234567890"; stri &:= stri[2 len 8];    ok := ok and stri = "123456789023456789";
+    stri := "1234567890"; stri &:= stri[2 ..][.. 8]; ok := ok and stri = "123456789023456789";
+    stri := "12345";      stri &:= str('6');         ok := ok and stri = "123456";
+    stri := "12345";      stri &:= str(chr(48));     ok := ok and stri = "123450";
+    stri := "12345";      stri &:= '6';              ok := ok and stri = "123456";
+    stri := "12345";      stri &:= chr(48);          ok := ok and stri = "123450";
+    stri := "12345";      stri &:= stri[3];          ok := ok and stri = "123453";
+    if not ok then
+      writeln(" ***** String append does not work correct.");
       okay := FALSE;
     end if;
     if okay then
@@ -11003,852 +11312,152 @@ const proc: check_string_append is func
 const proc: check_string_assign_at is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
     var string: stri is "";
     var integer: index is 0;
     var char: ch is 'X';
   begin
-    okay := TRUE;
-    stri := "a";
-    stri @:= [1] 'X';
-    if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [1] 'X';
-    if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [2] 'X';
-    if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] 'X';
-    if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] 'X';
-    if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [3] 'X';
-    if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] 'X';
-    if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] 'X';
-    if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] 'X';
-    if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [4] 'X';
-    if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
+    stri := "a";    stri @:= [1] 'X'; ok := ok and stri = "X";
+    stri := "ab";   stri @:= [1] 'X'; ok := ok and stri = "Xb";
+    stri := "ab";   stri @:= [2] 'X'; ok := ok and stri = "aX";
+    stri := "abc";  stri @:= [1] 'X'; ok := ok and stri = "Xbc";
+    stri := "abc";  stri @:= [2] 'X'; ok := ok and stri = "aXc";
+    stri := "abc";  stri @:= [3] 'X'; ok := ok and stri = "abX";
+    stri := "abcd"; stri @:= [1] 'X'; ok := ok and stri = "Xbcd";
+    stri := "abcd"; stri @:= [2] 'X'; ok := ok and stri = "aXcd";
+    stri := "abcd"; stri @:= [3] 'X'; ok := ok and stri = "abXd";
+    stri := "abcd"; stri @:= [4] 'X'; ok := ok and stri = "abcX";
 
-    stri := "a";
-    stri @:= [1] ch;
-    if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [1] ch;
-    if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [2] ch;
-    if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] ch;
-    if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] ch;
-    if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [3] ch;
-    if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] ch;
-    if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] ch;
-    if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] ch;
-    if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [4] ch;
-    if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
+    stri := "a";    stri @:= [1] ch; ok := ok and stri = "X";
+    stri := "ab";   stri @:= [1] ch; ok := ok and stri = "Xb";
+    stri := "ab";   stri @:= [2] ch; ok := ok and stri = "aX";
+    stri := "abc";  stri @:= [1] ch; ok := ok and stri = "Xbc";
+    stri := "abc";  stri @:= [2] ch; ok := ok and stri = "aXc";
+    stri := "abc";  stri @:= [3] ch; ok := ok and stri = "abX";
+    stri := "abcd"; stri @:= [1] ch; ok := ok and stri = "Xbcd";
+    stri := "abcd"; stri @:= [2] ch; ok := ok and stri = "aXcd";
+    stri := "abcd"; stri @:= [3] ch; ok := ok and stri = "abXd";
+    stri := "abcd"; stri @:= [4] ch; ok := ok and stri = "abcX";
 
-    stri := "a";
-    index := 1;
-    stri @:= [index] 'X';
-    if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    index := 1;
-    stri @:= [index] 'X';
-    if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    index := 2;
-    stri @:= [index] 'X';
-    if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 1;
-    stri @:= [index] 'X';
-    if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 2;
-    stri @:= [index] 'X';
-    if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 3;
-    stri @:= [index] 'X';
-    if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 1;
-    stri @:= [index] 'X';
-    if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 2;
-    stri @:= [index] 'X';
-    if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 3;
-    stri @:= [index] 'X';
-    if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 4;
-    stri @:= [index] 'X';
-    if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
+    stri := "a";    index := 1; stri @:= [index] 'X'; ok := ok and stri = "X";
+    stri := "ab";   index := 1; stri @:= [index] 'X'; ok := ok and stri = "Xb";
+    stri := "ab";   index := 2; stri @:= [index] 'X'; ok := ok and stri = "aX";
+    stri := "abc";  index := 1; stri @:= [index] 'X'; ok := ok and stri = "Xbc";
+    stri := "abc";  index := 2; stri @:= [index] 'X'; ok := ok and stri = "aXc";
+    stri := "abc";  index := 3; stri @:= [index] 'X'; ok := ok and stri = "abX";
+    stri := "abcd"; index := 1; stri @:= [index] 'X'; ok := ok and stri = "Xbcd";
+    stri := "abcd"; index := 2; stri @:= [index] 'X'; ok := ok and stri = "aXcd";
+    stri := "abcd"; index := 3; stri @:= [index] 'X'; ok := ok and stri = "abXd";
+    stri := "abcd"; index := 4; stri @:= [index] 'X'; ok := ok and stri = "abcX";
 
-    stri := "a";
-    index := 1;
-    stri @:= [index] ch;
-    if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    index := 1;
-    stri @:= [index] ch;
-    if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    index := 2;
-    stri @:= [index] ch;
-    if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 1;
-    stri @:= [index] ch;
-    if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 2;
-    stri @:= [index] ch;
-    if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 3;
-    stri @:= [index] ch;
-    if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 1;
-    stri @:= [index] ch;
-    if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 2;
-    stri @:= [index] ch;
-    if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 3;
-    stri @:= [index] ch;
-    if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 4;
-    stri @:= [index] ch;
-    if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
+    stri := "a";    index := 1; stri @:= [index] ch; ok := ok and stri = "X";
+    stri := "ab";   index := 1; stri @:= [index] ch; ok := ok and stri = "Xb";
+    stri := "ab";   index := 2; stri @:= [index] ch; ok := ok and stri = "aX";
+    stri := "abc";  index := 1; stri @:= [index] ch; ok := ok and stri = "Xbc";
+    stri := "abc";  index := 2; stri @:= [index] ch; ok := ok and stri = "aXc";
+    stri := "abc";  index := 3; stri @:= [index] ch; ok := ok and stri = "abX";
+    stri := "abcd"; index := 1; stri @:= [index] ch; ok := ok and stri = "Xbcd";
+    stri := "abcd"; index := 2; stri @:= [index] ch; ok := ok and stri = "aXcd";
+    stri := "abcd"; index := 3; stri @:= [index] ch; ok := ok and stri = "abXd";
+    stri := "abcd"; index := 4; stri @:= [index] ch; ok := ok and stri = "abcX";
 
-    stri := "a";
-    stri @:= [1] "X";
-    if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [1] "X";
-    if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [2] "X";
-    if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [1] "XY";
-    if stri <> "XY" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] "X";
-    if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] "X";
-    if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [3] "X";
-    if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] "XY";
-    if stri <> "XYc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] "XY";
-    if stri <> "aXY" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] "XYZ";
-    if stri <> "XYZ" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] "X";
-    if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] "X";
-    if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] "X";
-    if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [4] "X";
-    if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] "XY";
-    if stri <> "XYcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] "XY";
-    if stri <> "aXYd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] "XY";
-    if stri <> "abXY" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] "XYZ";
-    if stri <> "XYZd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] "XYZ";
-    if stri <> "aXYZ" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] "XYZA";
-    if stri <> "XYZA" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
+    stri := "a";    stri @:= [1] "X";    ok := ok and stri = "X";
+    stri := "ab";   stri @:= [1] "X";    ok := ok and stri = "Xb";
+    stri := "ab";   stri @:= [2] "X";    ok := ok and stri = "aX";
+    stri := "ab";   stri @:= [1] "XY";   ok := ok and stri = "XY";
+    stri := "abc";  stri @:= [1] "X";    ok := ok and stri = "Xbc";
+    stri := "abc";  stri @:= [2] "X";    ok := ok and stri = "aXc";
+    stri := "abc";  stri @:= [3] "X";    ok := ok and stri = "abX";
+    stri := "abc";  stri @:= [1] "XY";   ok := ok and stri = "XYc";
+    stri := "abc";  stri @:= [2] "XY";   ok := ok and stri = "aXY";
+    stri := "abc";  stri @:= [1] "XYZ";  ok := ok and stri = "XYZ";
+    stri := "abcd"; stri @:= [1] "X";    ok := ok and stri = "Xbcd";
+    stri := "abcd"; stri @:= [2] "X";    ok := ok and stri = "aXcd";
+    stri := "abcd"; stri @:= [3] "X";    ok := ok and stri = "abXd";
+    stri := "abcd"; stri @:= [4] "X";    ok := ok and stri = "abcX";
+    stri := "abcd"; stri @:= [1] "XY";   ok := ok and stri = "XYcd";
+    stri := "abcd"; stri @:= [2] "XY";   ok := ok and stri = "aXYd";
+    stri := "abcd"; stri @:= [3] "XY";   ok := ok and stri = "abXY";
+    stri := "abcd"; stri @:= [1] "XYZ";  ok := ok and stri = "XYZd";
+    stri := "abcd"; stri @:= [2] "XYZ";  ok := ok and stri = "aXYZ";
+    stri := "abcd"; stri @:= [1] "XYZA"; ok := ok and stri = "XYZA";
 
-    stri := "a";
-    index := 1;
-    stri @:= [index] "X";
-    if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    index := 1;
-    stri @:= [index] "X";
-    if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    index := 2;
-    stri @:= [index] "X";
-    if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    index := 1;
-    stri @:= [index] "XY";
-    if stri <> "XY" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 1;
-    stri @:= [index] "X";
-    if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 2;
-    stri @:= [index] "X";
-    if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 3;
-    stri @:= [index] "X";
-    if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 1;
-    stri @:= [index] "XY";
-    if stri <> "XYc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 2;
-    stri @:= [index] "XY";
-    if stri <> "aXY" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    index := 1;
-    stri @:= [index] "XYZ";
-    if stri <> "XYZ" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 1;
-    stri @:= [index] "X";
-    if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 2;
-    stri @:= [index] "X";
-    if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 3;
-    stri @:= [index] "X";
-    if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 4;
-    stri @:= [index] "X";
-    if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 1;
-    stri @:= [index] "XY";
-    if stri <> "XYcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 2;
-    stri @:= [index] "XY";
-    if stri <> "aXYd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 3;
-    stri @:= [index] "XY";
-    if stri <> "abXY" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 1;
-    stri @:= [index] "XYZ";
-    if stri <> "XYZd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 2;
-    stri @:= [index] "XYZ";
-    if stri <> "aXYZ" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    index := 1;
-    stri @:= [index] "XYZA";
-    if stri <> "XYZA" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
+    stri := "a";    index := 1; stri @:= [index] "X";    ok := ok and stri = "X";
+    stri := "ab";   index := 1; stri @:= [index] "X";    ok := ok and stri = "Xb";
+    stri := "ab";   index := 2; stri @:= [index] "X";    ok := ok and stri = "aX";
+    stri := "ab";   index := 1; stri @:= [index] "XY";   ok := ok and stri = "XY";
+    stri := "abc";  index := 1; stri @:= [index] "X";    ok := ok and stri = "Xbc";
+    stri := "abc";  index := 2; stri @:= [index] "X";    ok := ok and stri = "aXc";
+    stri := "abc";  index := 3; stri @:= [index] "X";    ok := ok and stri = "abX";
+    stri := "abc";  index := 1; stri @:= [index] "XY";   ok := ok and stri = "XYc";
+    stri := "abc";  index := 2; stri @:= [index] "XY";   ok := ok and stri = "aXY";
+    stri := "abc";  index := 1; stri @:= [index] "XYZ";  ok := ok and stri = "XYZ";
+    stri := "abcd"; index := 1; stri @:= [index] "X";    ok := ok and stri = "Xbcd";
+    stri := "abcd"; index := 2; stri @:= [index] "X";    ok := ok and stri = "aXcd";
+    stri := "abcd"; index := 3; stri @:= [index] "X";    ok := ok and stri = "abXd";
+    stri := "abcd"; index := 4; stri @:= [index] "X";    ok := ok and stri = "abcX";
+    stri := "abcd"; index := 1; stri @:= [index] "XY";   ok := ok and stri = "XYcd";
+    stri := "abcd"; index := 2; stri @:= [index] "XY";   ok := ok and stri = "aXYd";
+    stri := "abcd"; index := 3; stri @:= [index] "XY";   ok := ok and stri = "abXY";
+    stri := "abcd"; index := 1; stri @:= [index] "XYZ";  ok := ok and stri = "XYZd";
+    stri := "abcd"; index := 2; stri @:= [index] "XYZ";  ok := ok and stri = "aXYZ";
+    stri := "abcd"; index := 1; stri @:= [index] "XYZA"; ok := ok and stri = "XYZA";
 
-    stri := "a";
-    stri @:= [1] stri;
-    if stri <> "a" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [1] stri[1 len 1];
-    if stri <> "ab" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [1] stri[2 len 1];
-    if stri <> "bb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [2] stri[1 len 1];
-    if stri <> "aa" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [2] stri[2 len 1];
-    if stri <> "ab" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "ab";
-    stri @:= [1] stri;
-    if stri <> "ab" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] stri[1 len 1];
-    if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] stri[2 len 1];
-    if stri <> "bbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] stri[3 len 1];
-    if stri <> "cbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] stri[1 len 1];
-    if stri <> "aac" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] stri[2 len 1];
-    if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] stri[3 len 1];
-    if stri <> "acc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [3] stri[1 len 1];
-    if stri <> "aba" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [3] stri[2 len 1];
-    if stri <> "abb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [3] stri[3 len 1];
-    if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] stri[1 len 2];
-    if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] stri[2 len 2];
-    if stri <> "bcc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] stri[1 len 2];
-    if stri <> "aab" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [2] stri[2 len 2];
-    if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abc";
-    stri @:= [1] stri;
-    if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[1 len 1];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[2 len 1];
-    if stri <> "bbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[3 len 1];
-    if stri <> "cbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri @:= [1] stri[4 len 1];
-    if stri <> "dbcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[1 len 1];
-    if stri <> "aacd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[2 len 1];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[3 len 1];
-    if stri <> "accd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[4 len 1];
-    if stri <> "adcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] stri[1 len 1];
-    if stri <> "abad" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] stri[2 len 1];
-    if stri <> "abbd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] stri[3 len 1];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] stri[4 len 1];
-    if stri <> "abdd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [4] stri[1 len 1];
-    if stri <> "abca" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [4] stri[2 len 1];
-    if stri <> "abcb" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [4] stri[3 len 1];
-    if stri <> "abcc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [4] stri[4 len 1];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[1 len 2];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[2 len 2];
-    if stri <> "bccd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[3 len 2];
-    if stri <> "cdcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[1 len 2];
-    if stri <> "aabd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[2 len 2];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[3 len 2];
-    if stri <> "acdd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] stri[1 len 2];
-    if stri <> "abab" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] stri[2 len 2];
-    if stri <> "abbc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [3] stri[3 len 2];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[1 len 3];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri[2 len 3];
-    if stri <> "bcdd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[1 len 3];
-    if stri <> "aabc" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[2 len 3];
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [1] stri;
-    if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcd";
-    stri @:= [2] stri[3 len 1] & stri[2 .. 2];
-    if stri <> "acbd" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
+    stri := "a";    stri @:= [1] stri;          ok := ok and stri = "a";
+    stri := "ab";   stri @:= [1] stri[1 len 1]; ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [1] stri[2 len 1]; ok := ok and stri = "bb";
+    stri := "ab";   stri @:= [2] stri[1 len 1]; ok := ok and stri = "aa";
+    stri := "ab";   stri @:= [2] stri[2 len 1]; ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [1] stri;          ok := ok and stri = "ab";
+    stri := "abc";  stri @:= [1] stri[1 len 1]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [1] stri[2 len 1]; ok := ok and stri = "bbc";
+    stri := "abc";  stri @:= [1] stri[3 len 1]; ok := ok and stri = "cbc";
+    stri := "abc";  stri @:= [2] stri[1 len 1]; ok := ok and stri = "aac";
+    stri := "abc";  stri @:= [2] stri[2 len 1]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [2] stri[3 len 1]; ok := ok and stri = "acc";
+    stri := "abc";  stri @:= [3] stri[1 len 1]; ok := ok and stri = "aba";
+    stri := "abc";  stri @:= [3] stri[2 len 1]; ok := ok and stri = "abb";
+    stri := "abc";  stri @:= [3] stri[3 len 1]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [1] stri[1 len 2]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [1] stri[2 len 2]; ok := ok and stri = "bcc";
+    stri := "abc";  stri @:= [2] stri[1 len 2]; ok := ok and stri = "aab";
+    stri := "abc";  stri @:= [2] stri[2 len 2]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [1] stri;          ok := ok and stri = "abc";
+    stri := "abcd"; stri @:= [1] stri[1 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [1] stri[2 len 1]; ok := ok and stri = "bbcd";
+    stri := "abcd"; stri @:= [1] stri[3 len 1]; ok := ok and stri = "cbcd";
+    stri := "abcd"; stri @:= [1] stri[4 len 1]; ok := ok and stri = "dbcd";
+    stri := "abcd"; stri @:= [2] stri[1 len 1]; ok := ok and stri = "aacd";
+    stri := "abcd"; stri @:= [2] stri[2 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [2] stri[3 len 1]; ok := ok and stri = "accd";
+    stri := "abcd"; stri @:= [2] stri[4 len 1]; ok := ok and stri = "adcd";
+    stri := "abcd"; stri @:= [3] stri[1 len 1]; ok := ok and stri = "abad";
+    stri := "abcd"; stri @:= [3] stri[2 len 1]; ok := ok and stri = "abbd";
+    stri := "abcd"; stri @:= [3] stri[3 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [3] stri[4 len 1]; ok := ok and stri = "abdd";
+    stri := "abcd"; stri @:= [4] stri[1 len 1]; ok := ok and stri = "abca";
+    stri := "abcd"; stri @:= [4] stri[2 len 1]; ok := ok and stri = "abcb";
+    stri := "abcd"; stri @:= [4] stri[3 len 1]; ok := ok and stri = "abcc";
+    stri := "abcd"; stri @:= [4] stri[4 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [1] stri[1 len 2]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [1] stri[2 len 2]; ok := ok and stri = "bccd";
+    stri := "abcd"; stri @:= [1] stri[3 len 2]; ok := ok and stri = "cdcd";
+    stri := "abcd"; stri @:= [2] stri[1 len 2]; ok := ok and stri = "aabd";
+    stri := "abcd"; stri @:= [2] stri[2 len 2]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [2] stri[3 len 2]; ok := ok and stri = "acdd";
+    stri := "abcd"; stri @:= [3] stri[1 len 2]; ok := ok and stri = "abab";
+    stri := "abcd"; stri @:= [3] stri[2 len 2]; ok := ok and stri = "abbc";
+    stri := "abcd"; stri @:= [3] stri[3 len 2]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [1] stri[1 len 3]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [1] stri[2 len 3]; ok := ok and stri = "bcdd";
+    stri := "abcd"; stri @:= [2] stri[1 len 3]; ok := ok and stri = "aabc";
+    stri := "abcd"; stri @:= [2] stri[2 len 3]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [1] stri;          ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [2] stri[3 len 1] & stri[2 .. 2]; ok := ok and stri = "acbd";
 
-    stri := "abcdefghijklmnopqrstuvwxyz";
-    stri @:= [7] stri [13 len 11];
-    if stri <> "abcdefmnopqrstuvwrstuvwxyz" then
-      writeln(" ***** @:= for strings does not work correct.");
-      okay := FALSE;
-    end if;
-    stri := "abcdefghijklmnopqrstuvwxyz";
-    stri @:= [13] stri [7 len 11];
-    if stri <> "abcdefghijklghijklmnopqxyz" then
+    stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [ 7] stri [13 len 11]; ok := ok and stri = "abcdefmnopqrstuvwrstuvwxyz";
+    stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [13] stri [ 7 len 11]; ok := ok and stri = "abcdefghijklghijklmnopqxyz";
+    if not ok then
       writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
@@ -11867,6 +11476,7 @@ const proc: main is func
     writeln;
     check_string_literal;
     check_string_comparisons;
+    check_string_length;
     check_string_index;
     check_string_head;
     check_string_tail;

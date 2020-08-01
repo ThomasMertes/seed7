@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2016  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -3509,6 +3509,7 @@ const proc: process_dynamic_call (in reference: current_object,
       end if;
     else
       c_expr.expr &:= "/* NOT FOUND */\n";
+      c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
     end if;
   end func;
 
@@ -3674,6 +3675,7 @@ const proc: process_dynamic_condition (in reference: current_object,
     else
       param_list := formal_params;
       matched_object := match(prog, param_list);
+      (*
       if matched_object = NIL then
         c_expr.expr &:= "printf(\"NOT FOUND:\\n\");\n";
         for formal_param range formal_params do
@@ -3681,8 +3683,6 @@ const proc: process_dynamic_condition (in reference: current_object,
           if paramCategory <> SYMBOLOBJECT then
             param_type := getType(formal_param);
             if param_type in implements then
-              c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
-              (*
               c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
               if isPointerParam(formal_param) then
                 c_expr.expr &:= "((interfaceType) *o_";
@@ -3691,10 +3691,7 @@ const proc: process_dynamic_condition (in reference: current_object,
               end if;
               create_name(formal_param, c_expr.expr);
               c_expr.expr &:= ")->type_num);\n";
-              *)
             elsif param_type in enum_literal then
-              c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
-              (*
               c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
               if isPointerParam(formal_param) then
                 c_expr.expr &:= "*o_";
@@ -3703,13 +3700,15 @@ const proc: process_dynamic_condition (in reference: current_object,
               end if;
               create_name(formal_param, c_expr.expr);
               c_expr.expr &:= ");\n";
-              *)
             else
               c_expr.expr &:= "printf(\"other param_type\\n\");\n";
             end if;
+          else
+            c_expr.expr &:= "printf(\"" <& striToUtf8(str(formal_param)) <& "\\n\");\n";
           end if;
         end for;
       end if;
+      *)
       process_dynamic_call(current_object, matched_object, formal_params, c_expr);
     end if;
   end func;
@@ -7275,7 +7274,7 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 3.0  Copyright (c) 1990-2015 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 3.0  Copyright (c) 1990-2016 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
