@@ -207,13 +207,17 @@ static consoleType create_console (int height, int width)
   /* create_console */
     new_con = (consoleType) malloc(sizeof(consoleRecord));
     if (new_con != NULL) {
-      new_con->char_data = (strElemType *) malloc((size_t) (height * width) * sizeof(strElemType));
+      new_con->char_data = (strElemType *)
+          malloc((size_t) (height * width) * sizeof(strElemType));
       new_con->chars = (strElemType **) malloc ((size_t) height * sizeof(strElemType *));
-      new_con->attrib_data = (unsigned char *) malloc((size_t) (height * width) * sizeof(unsigned char));
-      new_con->attributes = (unsigned char **) malloc ((size_t) height * sizeof(unsigned char *));
+      new_con->attrib_data = (unsigned char *)
+          malloc((size_t) (height * width) * sizeof(unsigned char));
+      new_con->attributes = (unsigned char **)
+          malloc ((size_t) height * sizeof(unsigned char *));
       new_con->space = (strElemType *) malloc((size_t) width * sizeof(strElemType));
-      if (new_con->char_data != NULL && new_con->chars != NULL && new_con->attrib_data != NULL &&
-          new_con->attributes != NULL &&new_con->space != NULL) {
+      if (new_con->char_data != NULL && new_con->chars != NULL &&
+          new_con->attrib_data != NULL && new_con->attributes != NULL &&
+          new_con->space != NULL) {
         for (line = 0; line < height; line++) {
           new_con->chars[line] = &new_con->char_data[line * width];
           new_con->attributes[line] = &new_con->attrib_data[line * width];
@@ -522,7 +526,8 @@ void conWrite (const const_striType stri)
               if (cursor_position_okay) {
                 start_pos = 0;
               } else {
-                putgoto(cursor_address, cursor_column + start_pos - 1, cursor_line - 1); /* cursor motion */
+                /* cursor motion */
+                putgoto(cursor_address, cursor_column + start_pos - 1, cursor_line - 1);
               } /* if */
               if (ceol_standout_glitch) {
                 for (position = 0; position <= end_pos - start_pos; position++) {
@@ -531,7 +536,8 @@ void conWrite (const const_striType stri)
                   } /* if */
                   strelem_fwrite(&new_line[start_pos + position], 1, stdout);
                 } /* for */
-                if (cursor_column + end_pos < con->width && new_attr[end_pos + 1] != curr_attr) {
+                if (cursor_column + end_pos < con->width &&
+                    new_attr[end_pos + 1] != curr_attr) {
                   setattr(new_attr[end_pos + 1]);
                 } /* if */
               } else {
@@ -1194,7 +1200,8 @@ static void doRightScroll (int startlin, int startcol,
           while (new_line[end_pos] == old_line[end_pos]) {
             end_pos--;
           } /* while */
-          putgoto(cursor_address, startcol + count + start_pos - 1, line); /* cursor motion */
+          /* cursor motion */
+          putgoto(cursor_address, startcol + count + start_pos - 1, line);
           strelem_fwrite(&old_line[start_pos],
               (unsigned int) (end_pos - start_pos + 1), stdout);
           memmove(&new_line[start_pos], &old_line[start_pos],

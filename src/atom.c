@@ -197,17 +197,10 @@ objectType read_atom (void)
       case PARENSYMBOL:
         if (current_ident->entity == NULL) {
           atomic_object = gen_object();
-          /* printf("read_atom a: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
         } else if (current_ident->entity->data.owner != NULL) {
           atomic_object = current_ident->entity->data.owner->obj;
         } else {
           atomic_object = current_ident->entity->syobject;
-          /* if (HAS_PROPERTY(atomic_object)) {
-            atomic_object->descriptor.property->file_number = in_file.file_number;
-            atomic_object->descriptor.property->line = in_file.line;
-            atomic_object->descriptor.property->syNumberInLine = symbol.syNumberInLine;
-          } $$ if */
-          /* printf("read_atom b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
         } /* if */
         break;
       case INTLITERAL:
@@ -264,7 +257,6 @@ objectType read_name (void)
       atomic_object = current_ident->entity->data.owner->obj;
     } else {
       atomic_object = current_ident->entity->syobject;
-      /* printf("read_name b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
     } /* if */
     scan_symbol();
     logFunction(printf("read_name -->\n"););

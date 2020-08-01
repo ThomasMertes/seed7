@@ -122,6 +122,7 @@ static sqlFuncType sqlFunc = NULL;
 #define SIZEOF_SQLT_NUM 22
 #define MANTISSA_LEN 40
 #define LONG_DATA_BUFFER_SIZE_INCREMENT 4096
+#define ERROR_MESSAGE_BUFFER_SIZE 1024
 
 #define SET_NUMBER_TO_POSITIVE_INFINITY(buffer, length) \
         length = 2; \
@@ -436,11 +437,11 @@ static void printError (OCIError *oci_error)
 
   {
     sb4 errcode;
-    char buffer[1024];
+    char buffer[ERROR_MESSAGE_BUFFER_SIZE];
 
   /* printError */
-    if (OCIErrorGet(oci_error, 1, NULL, &errcode, (OraText *) buffer, 1024,
-                    OCI_HTYPE_ERROR) != OCI_SUCCESS) {
+    if (OCIErrorGet(oci_error, 1, NULL, &errcode, (OraText *) buffer,
+                    ERROR_MESSAGE_BUFFER_SIZE, OCI_HTYPE_ERROR) != OCI_SUCCESS) {
       printf(" *** Failed to get error description.\n");
     } else {
       printf("errcode: " FMT_D32 "\n", errcode);

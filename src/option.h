@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2015  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/option.h                                        */
-/*  Changes: 1994  Thomas Mertes                                    */
+/*  Changes: 1994, 2015  Thomas Mertes                              */
 /*  Content: Reads and interprets the command line options.         */
 /*                                                                  */
 /********************************************************************/
@@ -51,22 +51,4 @@ typedef struct {
     rtlArrayType      seed7_libraries;
     rtlArrayType      argv;
     memSizeType       argv_start;
-  } optionType;
-
-#ifdef DO_INIT
-optionType option = {
-    NULL,  /* source_file_name  */
-    NULL,  /* prot_file_name    */
-    FALSE, /* write_help        */
-    FALSE, /* analyze_only      */
-    FALSE, /* execute_always    */
-    0,     /* parser_options    */
-    0,     /* exec_options      */
-    TRUE,  /* handle_signals    */
-    NULL,  /* seed7_libraries   */
-    NULL,  /* argv              */
-    0,     /* argv_start        */
-  };
-#else
-EXTERN optionType option;
-#endif
+  } optionRecord, *optionType;

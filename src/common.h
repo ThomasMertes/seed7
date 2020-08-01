@@ -63,9 +63,9 @@ typedef UINT8TYPE          uint8Type;
 #define F_D8(width) "%" #width "hhd"
 #define F_U8(width) "%" #width "hhu"
 #define F_X8(width) "%" #width "hhx"
-#define FMT_D8  "%hhd"
-#define FMT_U8  "%hhu"
-#define FMT_X8  "%hhx"
+#define FMT_D8      "%hhd"
+#define FMT_U8      "%hhu"
+#define FMT_X8      "%hhx"
 
 
 typedef INT16TYPE          int16Type;
@@ -77,9 +77,9 @@ typedef UINT16TYPE         uint16Type;
 #define F_D16(width) "%" #width "hd"
 #define F_U16(width) "%" #width "hu"
 #define F_X16(width) "%" #width "hx"
-#define FMT_D16  "%hd"
-#define FMT_U16  "%hu"
-#define FMT_X16  "%hx"
+#define FMT_D16      "%hd"
+#define FMT_U16      "%hu"
+#define FMT_X16      "%hx"
 
 
 typedef INT32TYPE          int32Type;
@@ -99,6 +99,12 @@ typedef UINT32TYPE         uint32Type;
 #define FMT_D32      "%" INT32TYPE_FORMAT "d"
 #define FMT_U32      "%" INT32TYPE_FORMAT "u"
 #define FMT_X32      "%" INT32TYPE_FORMAT "x"
+
+/* INT32TYPE_DECIMAL_SIZE includes space for the sign */
+#define INT32TYPE_DECIMAL_SIZE      11
+/* UINT32TYPE_DECIMAL_SIZE does not need space for a sign */
+#define UINT32TYPE_DECIMAL_SIZE     10
+#define DECIMAL_DIGITS_IN_INT32TYPE  9
 
 
 #ifdef INT64TYPE
@@ -126,9 +132,15 @@ typedef UINT64TYPE         uint64Type;
 #define F_D64(width) "%" #width INT64TYPE_FORMAT "d"
 #define F_U64(width) "%" #width INT64TYPE_FORMAT "u"
 #define F_X64(width) "%" #width INT64TYPE_FORMAT "x"
-#define FMT_D64  "%" INT64TYPE_FORMAT "d"
-#define FMT_U64  "%" INT64TYPE_FORMAT "u"
-#define FMT_X64  "%" INT64TYPE_FORMAT "x"
+#define FMT_D64      "%" INT64TYPE_FORMAT "d"
+#define FMT_U64      "%" INT64TYPE_FORMAT "u"
+#define FMT_X64      "%" INT64TYPE_FORMAT "x"
+
+/* INT64TYPE_DECIMAL_SIZE includes space for the sign */
+#define INT64TYPE_DECIMAL_SIZE      20
+/* UINT64TYPE_DECIMAL_SIZE does not need space for a sign */
+#define UINT64TYPE_DECIMAL_SIZE     20
+#define DECIMAL_DIGITS_IN_INT64TYPE 18
 #endif
 
 
@@ -163,8 +175,8 @@ typedef uint64Type                doubleUintType;
 #define FMT_D                     FMT_D32
 #define FMT_U                     FMT_U32
 #define FMT_X                     FMT_X32
-#define INTTYPE_DECIMAL_SIZE      11
-#define DECIMAL_DIGITS_IN_INTTYPE 9
+#define INTTYPE_DECIMAL_SIZE      INT32TYPE_DECIMAL_SIZE
+#define DECIMAL_DIGITS_IN_INTTYPE DECIMAL_DIGITS_IN_INT32TYPE
 #define uintMostSignificantBit    uint32MostSignificantBit
 #define uintLeastSignificantBit   uint32LeastSignificantBit
 #elif INTTYPE_SIZE == 64
@@ -192,8 +204,8 @@ typedef uint128Type               doubleUintType;
 #define FMT_D                     FMT_D64
 #define FMT_U                     FMT_U64
 #define FMT_X                     FMT_X64
-#define INTTYPE_DECIMAL_SIZE      20
-#define DECIMAL_DIGITS_IN_INTTYPE 18
+#define INTTYPE_DECIMAL_SIZE      INT64TYPE_DECIMAL_SIZE
+#define DECIMAL_DIGITS_IN_INTTYPE DECIMAL_DIGITS_IN_INT64TYPE
 #define uintMostSignificantBit    uint64MostSignificantBit
 #define uintLeastSignificantBit   uint64LeastSignificantBit
 #endif
@@ -333,6 +345,7 @@ typedef uint32Type         memSizeType;
 #define FMT_D_MEM          FMT_D32
 #define FMT_U_MEM          FMT_U32
 #define FMT_X_MEM          FMT_X32
+#define MEMSIZETYPE_DECIMAL_SIZE  UINT32TYPE_DECIMAL_SIZE
 #elif POINTER_SIZE == 64
 typedef uint64Type         memSizeType;
 #define MAX_MEMSIZETYPE    0xFFFFFFFFFFFFFFFF
@@ -344,6 +357,7 @@ typedef uint64Type         memSizeType;
 #define FMT_D_MEM          FMT_D64
 #define FMT_U_MEM          FMT_U64
 #define FMT_X_MEM          FMT_X64
+#define MEMSIZETYPE_DECIMAL_SIZE  UINT64TYPE_DECIMAL_SIZE
 #endif
 
 #if OS_OFF_T_SIZE == 32
@@ -610,6 +624,9 @@ typedef mpz_srcptr  const_bigIntType;
 #else
 #define logError(logStatements)
 #endif
+
+#define ANY_LOG_ACTIVE (LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || \
+                        VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE)
 
 /* Allow to activate selected logging functions by adding X. */
 

@@ -1,3 +1,21 @@
+20151029:
+- The explanation in the FAQ, how Seed7 programs can be debugged
+  with Eclipse, has been improved.
+- The function commandPath in process.s7i has been improved to
+  return always "", when the executable is not found.
+- The functions processOptions and printOptions in s7.c have been
+  improved to use a parameter instead of a global variable.
+- Calls of logFunction have been added to hsh_rtl.c, listutl.c,
+  match.c and rfl_data.c.
+- In striAsUnquotedCStri and bstriAsUnquotedCStri (file striutl.c)
+  the size of the static char buffer is computed at compile-time
+  instead of estimated.
+- Several numeric literals have been replaced by defined constants.
+- The makefile mk_freebsd.mk has been changed to use numutl.c
+  instead of sql_util.c.
+- To improve the readability the maximum line length in several C
+  source files has been reduced.
+
 20151012:
 - The program setpaths.c has been changed to work correctly when
   the binary release (for Windows) is used.

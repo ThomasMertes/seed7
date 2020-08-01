@@ -73,23 +73,29 @@ static void set_win_path (int add_to_path)
     cwd_len = wcslen(cwd_buffer);
     /* printf("cwd_buffer: %ls\n", cwd_buffer);
        printf("cwd_len: %lu\n", cwd_len); */
-    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, ENVIRONMENT, 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &key) != ERROR_SUCCESS) {
-      if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, ENVIRONMENT, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, ENVIRONMENT, 0,
+                      KEY_QUERY_VALUE | KEY_SET_VALUE, &key) != ERROR_SUCCESS) {
+      if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, ENVIRONMENT, 0,
+                        KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
         key_open = 0;
-        printf(" *** You need administrator rights to change the search path (PATH variable).\n");
+        printf(" *** You need administrator rights to change the search path "
+               "(PATH variable).\n");
       } else {
         read_only = 1;
       } /* if */
     } /* if */
     if (key_open) {
-      if (RegQueryValueExW(key, L"Path", NULL, NULL, NULL, &size_of_value) != ERROR_SUCCESS) {
+      if (RegQueryValueExW(key, L"Path", NULL, NULL, NULL,
+                           &size_of_value) != ERROR_SUCCESS) {
         printf(" *** Unable to get the size of the registry value.\n");
       } else {
         /* printf("size_of_value: %lu\n", size_of_value); */
-        if ((value_data = (wchar_t *) malloc(size_of_value + (1 + cwd_len) * sizeof(wchar_t))) == NULL) {
+        if ((value_data = (wchar_t *)
+             malloc(size_of_value + (1 + cwd_len) * sizeof(wchar_t))) == NULL) {
           printf(" *** Unable to request memory for the regestry value.\n");
         } else {
-          if (RegQueryValueExW(key, L"Path", NULL, &value_type, (LPBYTE) value_data, &size_of_value) != ERROR_SUCCESS) {
+          if (RegQueryValueExW(key, L"Path", NULL, &value_type, (LPBYTE) value_data,
+                               &size_of_value) != ERROR_SUCCESS) {
             printf(" *** Unable to query the registry value.\n");
           } else {
             value_len = wcslen(value_data);
@@ -105,10 +111,12 @@ static void set_win_path (int add_to_path)
               } else {
                 if (position != value_data && position[-1] == ';') {
                   memmove(&position[-1], &position[cwd_len],
-                          (&value_data[value_len + 1] - &position[cwd_len]) * sizeof(wchar_t));
+                          (&value_data[value_len + 1] - &position[cwd_len]) *
+                          sizeof(wchar_t));
                 } else {
                   memmove(position, &position[cwd_len],
-                          (&value_data[value_len + 1] - &position[cwd_len]) * sizeof(wchar_t));
+                          (&value_data[value_len + 1] - &position[cwd_len]) *
+                          sizeof(wchar_t));
                 } /* if */
                 size_of_value -= (1 + cwd_len) * sizeof(wchar_t);
                 save_value = 1;
@@ -116,7 +124,8 @@ static void set_win_path (int add_to_path)
             } else {
               if (add_to_path) {
                 value_data[value_len] = ';';  /* delimiter */
-                memcpy(&value_data[value_len + 1], cwd_buffer, (cwd_len + 1) * sizeof(wchar_t));
+                memcpy(&value_data[value_len + 1], cwd_buffer,
+                       (cwd_len + 1) * sizeof(wchar_t));
                 size_of_value += (1 + cwd_len) * sizeof(wchar_t);
                 save_value = 1;
               } else {
@@ -129,16 +138,19 @@ static void set_win_path (int add_to_path)
                  printf("strlen(value_data): %lu\n", wcslen(value_data));
                  printf("value_data:\n%ls\n", value_data); */
               if (read_only) {
-                printf(" *** You need administrator rights to change the search path (PATH variable).\n");
+                printf(" *** You need administrator rights to change the search path "
+                       "(PATH variable).\n");
               } else {
-                if (RegSetValueExW(key, DESTINATION, 0, value_type, (BYTE *) value_data, size_of_value) != ERROR_SUCCESS) {
+                if (RegSetValueExW(key, DESTINATION, 0, value_type, (BYTE *) value_data,
+                                   size_of_value) != ERROR_SUCCESS) {
                   printf(" *** Unable to set registry value.\n");
                 } else {
                   printf("The directory  %ls\n", cwd_buffer);
                   printf("has been %s the search path (PATH variable).\n",
                          add_to_path ? "added to" : "removed from");
                   notifySettingChange();
-                  printf("You need to start a new console to see the effect of this change.\n");
+                  printf("You need to start a new console "
+                         "to see the effect of this change.\n");
                 } /* if */
               } /* if */
             } /* if */

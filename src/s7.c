@@ -126,7 +126,56 @@ static void writeHelp (void)
 
 
 
-static void processOptions (rtlArrayType arg_v)
+#if ANY_LOG_ACTIVE
+static void printArray (const const_rtlArrayType array)
+
+  {
+    memSizeType position;
+
+  /* printArray */
+    if (array == NULL) {
+      printf("NULL");
+    } else if (arraySize(array) != 0) {
+      if (array->arr[0].value.striValue == NULL) {
+        printf("NULL");
+      } else {
+        printf("\"%s\"", striAsUnquotedCStri(array->arr[0].value.striValue));
+      } /* if */
+      for (position = 1; position < arraySize(array); position++) {
+        if (array->arr[position].value.striValue == NULL) {
+          printf(", NULL");
+        } else {
+          printf(", \"%s\"", striAsUnquotedCStri(array->arr[position].value.striValue));
+        } /* if */
+      } /* for */
+    } /* if */
+    printf("\n");
+  } /* printArray */
+
+
+
+static void printOptions (const optionType option)
+
+  { /* printOptions */
+    printf("source_file_argument: \"%s\"\n",
+           striAsUnquotedCStri(option->source_file_argument));
+    printf("prot_file_name:       \"%s\"\n", striAsUnquotedCStri(option->prot_file_name));
+    printf("write_help:           %s\n", option->write_help ? "TRUE" : "FALSE");
+    printf("analyze_only:         %s\n", option->analyze_only ? "TRUE" : "FALSE");
+    printf("execute_always:       %s\n", option->execute_always ? "TRUE" : "FALSE");
+    printf("parser_options:       " FMT_U "\n", option->parser_options);
+    printf("handle_signals:       " FMT_U "\n", option->handle_signals);
+    printf("seed7_libraries:      ");
+    printArray(option->seed7_libraries);
+    printf("argv:                 ");
+    printArray(option->argv);
+    printf("argv_start:           " FMT_U_MEM "\n", option->argv_start);
+  } /* printOptions */
+#endif
+
+
+
+static void processOptions (rtlArrayType arg_v, const optionType option)
 
   {
     int position;
@@ -139,43 +188,43 @@ static void processOptions (rtlArrayType arg_v)
 
   /* processOptions */
     logFunction(printf("processOptions\n"););
-    option.source_file_argument = NULL;
-    option.analyze_only = FALSE;
+    option->source_file_argument = NULL;
+    option->analyze_only = FALSE;
     if (ALLOC_RTL_ARRAY(seed7_libraries, 0)) {
       seed7_libraries->min_position = 1;
       seed7_libraries->max_position = 0;
     } /* if */
     for (position = 0; position < arg_v->max_position; position++) {
-      if (option.source_file_argument == NULL) {
+      if (option->source_file_argument == NULL) {
         opt = arg_v->arr[position].value.striValue;
-        /* prot_stri(opt);
-           printf("\n"); */
+        /* printf("opt=\"%s\"\n", striAsUnquotedCStri(opt)); */
         if (opt->size == 2 && opt->mem[0] == '-') {
           switch (opt->mem[1]) {
             case 'a':
-              option.analyze_only = TRUE;
+              option->analyze_only = TRUE;
               break;
             case 'd':
               if (ALLOC_STRI_SIZE_OK(trace_level, 1)) {
                 trace_level->mem[0] = 'a';
                 trace_level->size = 1;
-                mapTraceFlags(trace_level, &option.parser_options);
+                mapTraceFlags(trace_level, &option->parser_options);
                 FREE_STRI(trace_level, 1);
               } /* if */
               break;
             case 'h':
             case '?':
-              option.write_help = TRUE;
+              option->write_help = TRUE;
               break;
             case 'i':
-              option.parser_options |= SHOW_IDENT_TABLE;
+              option->parser_options |= SHOW_IDENT_TABLE;
               break;
             case 'p':
               if (position < arg_v->max_position - 1) {
                 arg_v->arr[position].value.striValue = NULL;
                 FREE_STRI(opt, opt->size);
                 position++;
-                option.prot_file_name = stri_to_standard_path(arg_v->arr[position].value.striValue);
+                opt = arg_v->arr[position].value.striValue;
+                option->prot_file_name = stri_to_standard_path(opt);
                 arg_v->arr[position].value.striValue = NULL;
                 opt = NULL;
               } /* if */
@@ -184,13 +233,13 @@ static void processOptions (rtlArrayType arg_v)
               verbosity_level = 0;
               break;
             case 's':
-              option.handle_signals = FALSE;
+              option->handle_signals = FALSE;
               break;
             case 't':
               if (ALLOC_STRI_SIZE_OK(trace_level, 1)) {
                 trace_level->mem[0] = 'a';
                 trace_level->size = 1;
-                mapTraceFlags(trace_level, &option.exec_options);
+                mapTraceFlags(trace_level, &option->exec_options);
                 FREE_STRI(trace_level, 1);
               } /* if */
               break;
@@ -198,14 +247,15 @@ static void processOptions (rtlArrayType arg_v)
               verbosity_level = 2;
               break;
             case 'x':
-              option.execute_always = TRUE;
+              option->execute_always = TRUE;
               break;
             case 'l':
               if (position < arg_v->max_position - 1) {
                 arg_v->arr[position].value.striValue = NULL;
                 FREE_STRI(opt, opt->size);
                 position++;
-                path_obj.value.striValue = stri_to_standard_path(arg_v->arr[position].value.striValue);
+                opt = arg_v->arr[position].value.striValue;
+                path_obj.value.striValue = stri_to_standard_path(opt);
                 if (seed7_libraries != NULL) {
                   arrPush(&seed7_libraries, path_obj.value.genericValue);
                 } /* if */
@@ -230,7 +280,7 @@ static void processOptions (rtlArrayType arg_v)
                 memcpy(trace_level->mem, &opt->mem[2],
                        (opt->size - 2) * sizeof(strElemType));
                 trace_level->size = opt->size - 2;
-                mapTraceFlags(trace_level, &option.parser_options);
+                mapTraceFlags(trace_level, &option->parser_options);
                 FREE_STRI(trace_level, 1);
               } /* if */
               break;
@@ -239,7 +289,7 @@ static void processOptions (rtlArrayType arg_v)
                 memcpy(trace_level->mem, &opt->mem[2],
                        (opt->size - 2) * sizeof(strElemType));
                 trace_level->size = opt->size - 2;
-                mapTraceFlags(trace_level, &option.exec_options);
+                mapTraceFlags(trace_level, &option->exec_options);
                 FREE_STRI(trace_level, 1);
               } /* if */
               break;
@@ -261,7 +311,7 @@ static void processOptions (rtlArrayType arg_v)
               break;
           } /* switch */
         } else {
-          option.source_file_argument = stri_to_standard_path(opt);
+          option->source_file_argument = stri_to_standard_path(opt);
           arg_v->arr[position].value.striValue = NULL;
           opt = NULL;
         } /* if */
@@ -270,51 +320,33 @@ static void processOptions (rtlArrayType arg_v)
           FREE_STRI(opt, opt->size);
         } /* if */
       } else {
-        if (option.argv == NULL) {
-          option.argv = arg_v;
-          option.argv_start = (memSizeType) position;
+        if (option->argv == NULL) {
+          option->argv = arg_v;
+          option->argv_start = (memSizeType) position;
           /* printf("argv_start = %d\n", position); */
         } /* if */
       } /* if */
     } /* for */
-    option.seed7_libraries = seed7_libraries;
+    option->seed7_libraries = seed7_libraries;
     if (verbosity_level >= 1) {
       if (verbosity_level >= 2) {
-        option.parser_options |= WRITE_LIBRARY_NAMES;
-        option.parser_options |= SHOW_STATISTICS;
+        option->parser_options |= WRITE_LIBRARY_NAMES;
+        option->parser_options |= SHOW_STATISTICS;
         if (verbosity_level >= 3) {
-          option.parser_options |= WRITE_LINE_NUMBERS;
+          option->parser_options |= WRITE_LINE_NUMBERS;
         } /* if */
       } /* if */
       if (!error) {
         printf(VERSION_INFO, LEVEL);
       } /* if */
     } /* if */
-    if (option.handle_signals) {
-      option.parser_options |= HANDLE_SIGNALS;
-      option.exec_options   |= HANDLE_SIGNALS;
+    if (option->handle_signals) {
+      option->parser_options |= HANDLE_SIGNALS;
+      option->exec_options   |= HANDLE_SIGNALS;
     } /* if */
-    logFunction(printf("processOptions -->\n"););
+    logFunction(printf("processOptions -->\n");
+                printOptions(option););
   } /* processOptions */
-
-
-
-#ifdef OUT_OF_ORDER
-static void printOptions (void)
-
-  { /* printOptions */
-    printf("source_file_argument: "); prot_stri( option.source_file_argument);    printf("\n");
-    printf("prot_file_name:       "); prot_stri( option.prot_file_name);          printf("\n");
-    printf("write_help:           "); prot_int(  option.write_help);              printf("\n");
-    printf("analyze_only:         "); prot_int(  option.analyze_only);            printf("\n");
-    printf("execute_always:       "); prot_int(  option.execute_always);          printf("\n");
-    printf("parser_options:       "); prot_int(  option.parser_options);          printf("\n");
-    printf("handle_signals:       "); prot_int(  option.handle_signals);          printf("\n");
-    printf("seed7_libraries:      "); prot_int((intType) option.seed7_libraries); printf("\n");
-    printf("argv:                 "); prot_int((intType) option.argv);            printf("\n");
-    printf("argv_start:           "); prot_int( option.argv_start);               printf("\n");
-  } /* printOptions */
-#endif
 
 
 
@@ -329,6 +361,19 @@ int main (int argc, char **argv)
   {
     rtlArrayType arg_v;
     progType currentProg;
+    optionRecord option = {
+        NULL,  /* source_file_name  */
+        NULL,  /* prot_file_name    */
+        FALSE, /* write_help        */
+        FALSE, /* analyze_only      */
+        FALSE, /* execute_always    */
+        0,     /* parser_options    */
+        0,     /* exec_options      */
+        TRUE,  /* handle_signals    */
+        NULL,  /* seed7_libraries   */
+        NULL,  /* argv              */
+        0,     /* argv_start        */
+      };
 
   /* main */
     logFunction(printf("main\n"););
@@ -347,8 +392,7 @@ int main (int argc, char **argv)
       printf(VERSION_INFO, LEVEL);
       printf("\n*** No more memory. Program terminated.\n");
     } else {
-      processOptions(arg_v);
-      /* printOptions(); */
+      processOptions(arg_v, &option);
       setup_signal_handlers((option.parser_options & HANDLE_SIGNALS) != 0,
                             (option.parser_options & TRACE_SIGNALS) != 0);
       if (fail_flag) {

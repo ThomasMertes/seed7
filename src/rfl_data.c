@@ -219,8 +219,9 @@ void rflDestrGeneric (const genericType old_value)
 boolType rflElem (const const_objectType searched_object, const_listType list_element)
 
   { /* rflElem */
-    /* printf("rflElem(%lx, %lx)\n",
-        (unsigned long) searched_object, (unsigned long) list_element); */
+    logFunction(printf("rflElem(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) searched_object,
+                       (memSizeType) list_element););
     while (list_element != NULL && list_element->obj != searched_object) {
       list_element = list_element->next;
     } /* while */
@@ -236,6 +237,8 @@ boolType rflElem (const const_objectType searched_object, const_listType list_el
 void rflElemcpy (listType list, intType position, objectType elem)
 
   { /* rflElemcpy */
+    logFunction(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM")\n",
+                       (memSizeType) list, position, (memSizeType) elem););
     if (unlikely(position <= 0)) {
       logError(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM"): "
                       "Index <= 0.\n",
@@ -288,6 +291,8 @@ listType rflHead (const listType list, intType stop)
     listType result;
 
   /* rflHead */
+    logFunction(printf("rflHead(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) list, stop););
     if (stop >= 1) {
       number = 1;
       stop_element = list;
@@ -321,6 +326,8 @@ objectType rflIdx (const_listType list, intType position)
     objectType result;
 
   /* rflIdx */
+    logFunction(printf("rflIdx(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) list, position););
     if (unlikely(position <= 0)) {
       logError(printf("rflIdx(" FMT_U_MEM ", " FMT_D "): Index <= 0.\n",
                       (memSizeType) list, position););
@@ -448,6 +455,8 @@ listType rflRange (const listType list, intType start, intType stop)
     listType result;
 
   /* rflRange */
+    logFunction(printf("rflRange(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) list, start, stop););
     number = 1;
     start_element = list;
     while (number < start && start_element != NULL) {
@@ -487,6 +496,8 @@ listType rflTail (const_listType list, intType start)
     listType result;
 
   /* rflTail */
+    logFunction(printf("rflTail(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) list, start););
     if (start >= 2 && list != NULL) {
       start -= 2;
       list = list->next;

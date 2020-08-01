@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -51,9 +54,6 @@
 #include "match.h"
 
 
-#undef TRACE_MATCH
-
-
 
 static objectType match_subexpr (objectType, const_nodeType, listType,
      boolType, boolType);
@@ -67,9 +67,7 @@ static int variable_obj (objectType object)
     int result;
 
   /* variable_obj */
-#ifdef TRACE_MATCH
-    printf("BEGIN variable_obj\n");
-#endif
+    logFunction(printf("variable_obj\n"););
     if (CATEGORY_OF_OBJ(object) == CALLOBJECT ||
         CATEGORY_OF_OBJ(object) == MATCHOBJECT) {
       result = (object->type_of != NULL &&
@@ -80,9 +78,7 @@ static int variable_obj (objectType object)
     /* printf("variable_obj %d ", result);
     trace1(object);
     printf("\n"); */
-#ifdef TRACE_MATCH
-    printf("END variable_obj\n");
-#endif
+    logFunction(printf("variable_obj -->\n"););
     return result;
   } /* variable_obj */
 
@@ -114,9 +110,7 @@ static void check_access_rights (const_objectType object)
     listType expr_list;
 
   /* check_access_rights */
-#ifdef TRACE_MATCH
-    printf("BEGIN check_access_rights\n");
-#endif
+    logFunction(printf("check_access_rights\n"););
 /*    printf("check_access_rights ");
     trace1(object);
     printf("\n"); */
@@ -161,9 +155,7 @@ static void check_access_rights (const_objectType object)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_MATCH
-    printf("END check_access_rights\n");
-#endif
+    logFunction(printf("check_access_rights -->\n"););
   } /* check_access_rights */
 
 
@@ -179,9 +171,7 @@ void substitute_params (const_objectType expr_object)
     /* listType substituted_objects; */
 
   /* substitute_params */
-#ifdef TRACE_MATCH
-    printf("BEGIN substitute_params\n");
-#endif
+    logFunction(printf("substitute_params\n"););
     /* substituted_objects = NULL; */
     expr_list = expr_object->value.listValue;
     while (expr_list != NULL) {
@@ -244,9 +234,7 @@ void substitute_params (const_objectType expr_object)
       } /* if */
       expr_list = expr_list->next;
     } /* while */
-#ifdef TRACE_MATCH
-    printf("END substitute_params\n");
-#endif
+    logFunction(printf("substitute_params -->\n"););
     /* return substituted_objects; */
   } /* substitute_params */
 
@@ -259,9 +247,7 @@ void update_owner (const_objectType expr_object)
     objectType current_element;
 
   /* update_owner */
-#ifdef TRACE_MATCH
-    printf("BEGIN update_owner\n");
-#endif
+    logFunction(printf("update_owner\n"););
     expr_list = expr_object->value.listValue;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
@@ -275,9 +261,7 @@ void update_owner (const_objectType expr_object)
       } /* if */
       expr_list = expr_list->next;
     } /* while */
-#ifdef TRACE_MATCH
-    printf("END update_owner\n");
-#endif
+    logFunction(printf("update_owner -->\n"););
   } /* update_owner */
 
 
@@ -315,9 +299,7 @@ objectType match_object (objectType object)
     objectType result;
 
   /* match_object */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_object\n");
-#endif
+    logFunction(printf("match_object\n"););
     if (trace.match) {
       printf("\nbegin match_object ");
       trace1(object);
@@ -379,9 +361,7 @@ objectType match_object (objectType object)
       trace1(result);
       printf("\n");
     } /* if */
-#ifdef TRACE_MATCH
-    printf("END match_object\n");
-#endif
+    logFunction(printf("match_object -->\n"););
     return result;
   } /* match_object */
 
@@ -394,9 +374,7 @@ static objectType match_object2 (objectType object, const_objectType expr_object
     objectType result;
 
   /* match_object2 */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_object2\n");
-#endif
+    logFunction(printf("match_object2\n"););
     if (trace.match) {
       printf("\nbegin match_object2 ");
       trace1(object);
@@ -461,9 +439,7 @@ static objectType match_object2 (objectType object, const_objectType expr_object
       trace1(result);
       printf("\n");
     } /* if */
-#ifdef TRACE_MATCH
-    printf("END match_object2\n");
-#endif
+    logFunction(printf("match_object2 -->\n"););
     return result;
   } /* match_object2 */
 
@@ -562,9 +538,7 @@ static objectType match_subexpr_type (objectType expr_object,
     objectType matched_object;
 
   /* match_subexpr_type */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_subexpr_type\n");
-#endif
+    logFunction(printf("match_subexpr_type\n"););
     if (trace.match) {
       printf("//MST// ");
       printf("is_variable_obj=%s, ",     is_variable_obj     ? "TRUE" : "FALSE");
@@ -657,9 +631,7 @@ static objectType match_subexpr_type (objectType expr_object,
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_MATCH
-    printf("END match_subexpr_type\n");
-#endif
+    logFunction(printf("match_subexpr_type -->\n"););
     return matched_object;
   } /* match_subexpr_type */
 
@@ -675,9 +647,7 @@ static objectType match_subexpr_attr (objectType expr_object,
     objectType matched_object;
 
   /* match_subexpr_attr */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_subexpr_attr\n");
-#endif
+    logFunction(printf("match_subexpr_attr\n"););
     matched_object = NULL;
     do {
       if (trace.match) {
@@ -693,9 +663,7 @@ static objectType match_subexpr_attr (objectType expr_object,
       } /* if */
       object_type = object_type->meta;
     } while (object_type != NULL && matched_object == NULL);
-#ifdef TRACE_MATCH
-    printf("END match_subexpr_attr\n");
-#endif
+    logFunction(printf("match_subexpr_attr -->\n"););
     return matched_object;
   } /* match_subexpr_attr */
 
@@ -711,9 +679,7 @@ static objectType match_subexpr_param_attr (objectType expr_object,
     objectType matched_object;
 
   /* match_subexpr_param_attr */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_subexpr_param_attr\n");
-#endif
+    logFunction(printf("match_subexpr_param_attr\n"););
     /* printf("inout_f_param_prototype = %lX\n", f_param_type->inout_f_param_prototype);
        trace1(f_param_type->inout_f_param_prototype);
        printf("\n");
@@ -744,9 +710,7 @@ static objectType match_subexpr_param_attr (objectType expr_object,
       } /* if */
       f_param_type = f_param_type->meta;
     } while (f_param_type != NULL && matched_object == NULL);
-#ifdef TRACE_MATCH
-    printf("END match_subexpr_param_attr\n");
-#endif
+    logFunction(printf("match_subexpr_param_attr -->\n"););
     return matched_object;
   } /* match_subexpr_param_attr */
 
@@ -767,9 +731,7 @@ static objectType match_subexpr (objectType expr_object,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* match_subexpr */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_subexpr\n");
-#endif
+    logFunction(printf("match_subexpr\n"););
     if (trace.match) {
       printf("\nbegin sub match ");
       printf("check_access_right=%s, ",  check_access_right  ? "TRUE" : "FALSE");
@@ -987,9 +949,7 @@ static objectType match_subexpr (objectType expr_object,
       printf("\n");
       fflush(stdout);
     } /* if */
-#ifdef TRACE_MATCH
-    printf("END match_subexpr\n");
-#endif
+    logFunction(printf("match_subexpr -->\n"););
     return matched_object;
   } /* match_subexpr */
 
@@ -1002,9 +962,7 @@ objectType match_expression (objectType expr_object)
     objectType matched_object;
 
   /* match_expression */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_expression\n");
-#endif
+    logFunction(printf("match_expression\n"););
     expr_list = expr_object->value.listValue;
     if (trace.match) {
       printf("begin match ");
@@ -1041,9 +999,7 @@ objectType match_expression (objectType expr_object)
       printf(" @\n");
       fflush(stdout);
     } /* if */
-#ifdef TRACE_MATCH
-    printf("END match_expression\n");
-#endif
+    logFunction(printf("match_expression\n"););
     return matched_object;
   } /* match_expression */
 
@@ -1057,9 +1013,7 @@ objectType match_prog_expression (const_nodeType start_node,
     objectType matched_object;
 
   /* match_prog_expression */
-#ifdef TRACE_MATCH
-    printf("BEGIN match_expression\n");
-#endif
+    logFunction(printf("match_expression\n"););
     expr_list = expr_object->value.listValue;
     if (trace.match) {
       printf("begin match ");
@@ -1084,8 +1038,6 @@ objectType match_prog_expression (const_nodeType start_node,
       printf(" @\n");
       fflush(stdout);
     } /* if */
-#ifdef TRACE_MATCH
-    printf("END match_expression\n");
-#endif
+    logFunction(printf("match_expression -->\n"););
     return matched_object;
   } /* match_prog_expression */

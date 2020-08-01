@@ -259,7 +259,7 @@ static const uint64Type nonspacing_table_data[] = {
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
 };
 
-static const signed char nonspacing_table_ind[128] = {
+static const signed char nonspacing_table_ind[] = {
    0,  1,  2,  3,  4,  5,  6,  7, /* 0x0000-0x0fff */
    8, -1, -1,  9, 10, -1, -1, -1, /* 0x1000-0x1fff */
   11, -1, -1, -1, -1, -1, -1, -1, /* 0x2000-0x2fff */

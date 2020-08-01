@@ -59,7 +59,8 @@
 
 
 #if HAS_WMEMCMP && WCHAR_T_SIZE == 32
-#define strelem_memcmp(mem1, mem2, number) wmemcmp((const wchar_t *) mem1, (const wchar_t *) mem2, number)
+#define strelem_memcmp(mem1, mem2, number) \
+    wmemcmp((const wchar_t *) mem1, (const wchar_t *) mem2, number)
 #else
 
 
@@ -81,7 +82,8 @@ static inline int strelem_memcmp (const strElemType *mem1,
 
 
 #if HAS_WMEMCHR && WCHAR_T_SIZE == 32
-#define search_strelem(mem, ch, beyond) (const strElemType *) wmemchr((const wchar_t *) mem, (wchar_t) ch, (size_t) (beyond - mem))
+#define search_strelem(mem, ch, beyond) \
+    (const strElemType *) wmemchr((const wchar_t *) mem, (wchar_t) ch, (size_t) (beyond - mem))
 #else
 
 
@@ -679,7 +681,8 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
           new_stri = NULL;
         } else {
           work_array = resized_work_array;
-          COUNT3_RTL_ARRAY((uintType) work_array->max_position, (uintType) work_array->max_position + 256);
+          COUNT3_RTL_ARRAY((uintType) work_array->max_position,
+                           (uintType) work_array->max_position + 256);
           work_array->max_position += 256;
         } /* if */
       } /* if */
@@ -690,7 +693,7 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
     } else {
       for (position = 0; position < (uintType) *used_max_position; position++) {
         FREE_STRI(work_array->arr[position].value.striValue,
-            work_array->arr[position].value.striValue->size);
+                  work_array->arr[position].value.striValue->size);
       } /* for */
       FREE_RTL_ARRAY(work_array, (uintType) work_array->max_position);
       work_array = NULL;
@@ -844,7 +847,7 @@ void strAppend (striType *const destination, const_striType extension)
       } /* if */
       COUNT3_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], extension_mem,
-          extension_size * sizeof(strElemType));
+             extension_size * sizeof(strElemType));
       stri_dest->size = new_size;
 #else
       if (SLICE_OVERLAPPING(extension, stri_dest)) {
@@ -870,7 +873,7 @@ void strAppend (striType *const destination, const_striType extension)
         } /* if */
         COUNT3_STRI(new_stri->size, new_size);
         memcpy(&new_stri->mem[new_stri->size], extension_mem,
-            extension_size * sizeof(strElemType));
+               extension_size * sizeof(strElemType));
         new_stri->size = new_size;
         *destination = new_stri;
       } /* if */
@@ -924,7 +927,7 @@ void strAppend (striType *const destination, const_striType extension)
       } /* if */
       COUNT3_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-          extension->size * sizeof(strElemType));
+             extension->size * sizeof(strElemType));
       stri_dest->size = new_size;
 #else
       GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
@@ -939,7 +942,7 @@ void strAppend (striType *const destination, const_striType extension)
         } /* if */
         COUNT3_STRI(new_stri->size, new_size);
         memcpy(&new_stri->mem[new_stri->size], extension->mem,
-            extension->size * sizeof(strElemType));
+               extension->size * sizeof(strElemType));
         new_stri->size = new_size;
         *destination = new_stri;
       } /* if */
@@ -979,16 +982,16 @@ void strAppendTemp (striType *const destination, const striType extension)
       if (new_size <= stri_dest->capacity) {
         COUNT3_STRI(stri_dest->size, new_size);
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-            extension->size * sizeof(strElemType));
+               extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
         FREE_STRI(extension, extension->size);
       } else if (new_size <= extension->capacity) {
         if (stri_dest->size != 0) {
           COUNT3_STRI(extension->size, new_size);
           memmove(&extension->mem[stri_dest->size], extension->mem,
-              extension->size * sizeof(strElemType));
+                  extension->size * sizeof(strElemType));
           memcpy(extension->mem, stri_dest->mem,
-              stri_dest->size * sizeof(strElemType));
+                 stri_dest->size * sizeof(strElemType));
           extension->size = new_size;
         } /* if */
         *destination = extension;
@@ -1002,7 +1005,7 @@ void strAppendTemp (striType *const destination, const striType extension)
           *destination = stri_dest;
           COUNT3_STRI(stri_dest->size, new_size);
           memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-              extension->size * sizeof(strElemType));
+                 extension->size * sizeof(strElemType));
           stri_dest->size = new_size;
           FREE_STRI(extension, extension->size);
         } /* if */
@@ -1016,7 +1019,7 @@ void strAppendTemp (striType *const destination, const striType extension)
         *destination = stri_dest;
         COUNT3_STRI(stri_dest->size, new_size);
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-            extension->size * sizeof(strElemType));
+               extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
         FREE_STRI(extension, extension->size);
       } /* if */
@@ -1085,7 +1088,7 @@ rtlArrayType strChEscSplit (const const_striType mainStri, const charType delimi
           if (resized_result_array == NULL) {
             for (pos = 0; pos < (uintType) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.striValue,
-                  result_array->arr[pos].value.striValue->size);
+                        result_array->arr[pos].value.striValue->size);
             } /* for */
             FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
             result_array = NULL;
@@ -1244,7 +1247,7 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
           if (resized_result_array == NULL) {
             for (pos = 0; pos < (uintType) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.striValue,
-                  result_array->arr[pos].value.striValue->size);
+                        result_array->arr[pos].value.striValue->size);
             } /* for */
             FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
             result_array = NULL;
@@ -1423,9 +1426,9 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
       } else {
         result->size = result_size;
         memcpy(result->mem, stri1->mem,
-            stri1->size * sizeof(strElemType));
+               stri1->size * sizeof(strElemType));
         memcpy(&result->mem[stri1->size], stri2->mem,
-            stri2->size * sizeof(strElemType));
+               stri2->size * sizeof(strElemType));
       } /* if */
     } /* if */
     logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
@@ -1519,7 +1522,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
       } /* if */
       COUNT3_STRI(stri1->size, result_size);
       memcpy(&stri1->mem[stri1->size], stri2->mem,
-          stri2->size * sizeof(strElemType));
+             stri2->size * sizeof(strElemType));
       stri1->size = result_size;
 #else
       GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
@@ -1531,7 +1534,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
         stri1 = resized_stri1;
         COUNT3_STRI(stri1->size, result_size);
         memcpy(&stri1->mem[stri1->size], stri2->mem,
-            stri2->size * sizeof(strElemType));
+               stri2->size * sizeof(strElemType));
         stri1->size = result_size;
       } /* if */
 #endif
@@ -1608,7 +1611,7 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
       } else {
         stri_dest->size = new_size;
         memcpy(stri_dest->mem, stri_from->mem,
-            new_size * sizeof(strElemType));
+               new_size * sizeof(strElemType));
         FREE_STRI(*stri_to, (*stri_to)->size);
         *stri_to = stri_dest;
       } /* if */
@@ -2276,7 +2279,7 @@ striType strLpad (const const_striType stri, const intType pad_size)
         }
 #endif
         memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
-            striSize * sizeof(strElemType));
+               striSize * sizeof(strElemType));
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
@@ -2325,7 +2328,7 @@ striType strLpadTemp (const striType stri, const intType pad_size)
         }
 #endif
         memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
-            striSize * sizeof(strElemType));
+               striSize * sizeof(strElemType));
         FREE_STRI(stri, striSize);
       } /* if */
     } else {
@@ -2797,7 +2800,7 @@ striType strRange (const const_striType stri, intType start, intType stop)
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strElemType));
+             result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
@@ -2936,10 +2939,11 @@ static memSizeType strRepl2 (const const_striType mainStri, const const_striType
         if (memcmp(search_start - searched_size + 1, searched_mem,
             (searched_size - 1) * sizeof(strElemType)) == 0) {
           memcpy(result_end, copy_start,
-              (memSizeType) (search_start - searched_size + 1 - copy_start) * sizeof(strElemType));
+                 (memSizeType) (search_start - searched_size + 1 - copy_start) *
+                 sizeof(strElemType));
           result_end += search_start - searched_size + 1 - copy_start;
           memcpy(result_end, replacement->mem,
-              replacement->size * sizeof(strElemType));
+                 replacement->size * sizeof(strElemType));
           result_end += replacement->size;
           copy_start = search_start + 1;
           search_start += searched_size;
@@ -2949,7 +2953,7 @@ static memSizeType strRepl2 (const const_striType mainStri, const const_striType
       } /* if */
     } /* while */
     memcpy(result_end, copy_start,
-        (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
+           (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
     result_end += &mainStri->mem[main_size] - copy_start;
     result_size = (memSizeType) (result_end - result->mem);
     return result_size;
@@ -2983,8 +2987,9 @@ striType strRepl (const const_striType mainStri,
   /* strRepl */
     main_size = mainStri->size;
     searched_size = searched->size;
-    /* printf("main_size=" FMT_U_MEM ", searched_size=" FMT_U_MEM ", replacement->size=" FMT_U_MEM "\n",
-       main_size, searched_size, replacement->size); */
+    /* printf("main_size=" FMT_U_MEM ", searched_size=" FMT_U_MEM
+        ", replacement->size=" FMT_U_MEM "\n",
+        main_size, searched_size, replacement->size); */
     if (searched_size != 0 && replacement->size > searched_size) {
       if (unlikely(main_size / searched_size + 1 > MAX_STRI_LEN / replacement->size)) {
         raise_error(MEMORY_ERROR);
@@ -3014,10 +3019,10 @@ striType strRepl (const const_striType mainStri,
             if (memcmp(search_start, searched_mem,
                 searched_size * sizeof(strElemType)) == 0) {
               memcpy(result_end, copy_start,
-                  (memSizeType) (search_start - copy_start) * sizeof(strElemType));
+                     (memSizeType) (search_start - copy_start) * sizeof(strElemType));
               result_end += search_start - copy_start;
               memcpy(result_end, replacement->mem,
-                  replacement->size * sizeof(strElemType));
+                     replacement->size * sizeof(strElemType));
               result_end += replacement->size;
               search_start += searched_size;
               copy_start = search_start;
@@ -3027,7 +3032,7 @@ striType strRepl (const const_striType mainStri,
           } /* if */
         } /* if */
         memcpy(result_end, copy_start,
-            (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
+               (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
         result_end += &mainStri->mem[main_size] - copy_start;
         result_size = (memSizeType) (result_end - result->mem);
       } /* if */
@@ -3520,7 +3525,7 @@ rtlArrayType strSplit (const const_striType mainStri,
           if (resized_result_array == NULL) {
             for (pos = 0; pos < (uintType) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.striValue,
-                  result_array->arr[pos].value.striValue->size);
+                        result_array->arr[pos].value.striValue->size);
             } /* for */
             FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
             result_array = NULL;
@@ -3618,7 +3623,7 @@ striType strSubstr (const const_striType stri, intType start, intType length)
         return NULL;
       } /* if */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strElemType));
+             result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
@@ -3699,7 +3704,7 @@ striType strTail (const const_striType stri, intType start)
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strElemType));
+             result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {

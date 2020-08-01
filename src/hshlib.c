@@ -158,12 +158,14 @@ static hashElemType create_helem (hashElemType source_helem,
     if (!ALLOC_RECORD(dest_helem, hashElemRecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      memcpy(&dest_helem->key.descriptor, &source_helem->key.descriptor, sizeof(descriptorUnion));
+      memcpy(&dest_helem->key.descriptor, &source_helem->key.descriptor,
+             sizeof(descriptorUnion));
       INIT_CATEGORY_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
       SET_ANY_FLAG(&dest_helem->key, HAS_POSINFO(&source_helem->key));
       dest_helem->key.type_of = source_helem->key.type_of;
       param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
-      memcpy(&dest_helem->data.descriptor, &source_helem->data.descriptor, sizeof(descriptorUnion));
+      memcpy(&dest_helem->data.descriptor, &source_helem->data.descriptor,
+             sizeof(descriptorUnion));
       INIT_CATEGORY_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
       SET_ANY_FLAG(&dest_helem->data, HAS_POSINFO(&source_helem->data));
       dest_helem->data.type_of = source_helem->data.type_of;
@@ -210,7 +212,8 @@ static hashType create_hash (hashType source_hash,
       dest_helem = &dest_hash->table[0];
       while (number > 0 && *err_info == OKAY_NO_ERROR) {
         if (*source_helem != NULL) {
-          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func, err_info);
+          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func,
+                                     err_info);
         } else {
           *dest_helem = NULL;
         } /* if */
@@ -1064,7 +1067,8 @@ objectType hsh_idx2 (listType arguments)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("hsh_idx2(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ") --> \n",
+    logFunction(printf("hsh_idx2(" FMT_X_MEM ", " FMT_X_MEM ", "
+                       FMT_U ", " FMT_X_MEM ") --> \n",
                        (memSizeType) aHashMap, (memSizeType) aKey, hashcode, cmp_func);
                 trace1(result);
                 printf("\n"););

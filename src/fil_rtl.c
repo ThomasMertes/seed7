@@ -603,7 +603,8 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
     if (chars_missing > result_size &&
         bytes_in_buffer == LIST_BUFFER_SIZE &&
         *err_info == OKAY_NO_ERROR) {
-      bytes_in_buffer = (memSizeType) fread(currBuffer->buffer, 1, chars_missing - result_size, inFile);
+      bytes_in_buffer = (memSizeType) fread(currBuffer->buffer, 1,
+                                            chars_missing - result_size, inFile);
       /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == 0 && result_size == 0 && ferror(inFile))) {
         logError(printf("read_and_alloc_stri: "
@@ -630,7 +631,8 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
           currBuffer = currBuffer->next;
           result_pos += LIST_BUFFER_SIZE;
         } /* while */
-        memcpy_to_strelem(&result->mem[result_pos], currBuffer->buffer, result_size - result_pos);
+        memcpy_to_strelem(&result->mem[result_pos], currBuffer->buffer,
+                          result_size - result_pos);
         *num_of_chars_read = result_size;
       } /* if */
     } /* if */

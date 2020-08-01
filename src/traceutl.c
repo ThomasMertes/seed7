@@ -416,7 +416,7 @@ static char *obj_ptr (objectType anyobject)
     logFunction(printf("obj_ptr\n"););
     sprintf(out_buf, FMT_X_MEM, (memSizeType) anyobject);
     logFunction(printf("obj_ptr -->\n"););
-  return out_buf;
+    return out_buf;
   } /* obj_ptr */
 
 

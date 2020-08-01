@@ -335,7 +335,8 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = NULL;
     } else {
-      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt(
+          sqlStatement, column);
     } /* if */
     logFunction(printf("sqlColumnBigInt --> %s\n", bigHexCStri(columnValue)););
     return columnValue;
@@ -384,7 +385,8 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = FALSE;
     } else {
-      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool(
+          sqlStatement, column);
     } /* if */
     logFunction(printf("sqlColumnBool --> %s\n", columnValue ? "TRUE" : "FALSE"););
     return columnValue;
@@ -409,9 +411,11 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = NULL;
     } else {
-      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri(
+          sqlStatement, column);
     } /* if */
-    logFunction(printf("sqlColumnBStri --> \"%s\"\n", bstriAsUnquotedCStri(columnValue)););
+    logFunction(printf("sqlColumnBStri --> \"%s\"\n",
+                       bstriAsUnquotedCStri(columnValue)););
     return columnValue;
   } /* sqlColumnBStri */
 
@@ -463,7 +467,8 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = 0.0;
     } else {
-      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat(
+          sqlStatement, column);
     } /* if */
     logFunction(printf("sqlColumnFloat --> " FMT_E "\n", columnValue););
     return columnValue;
@@ -488,7 +493,8 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = 0;
     } else {
-      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt(sqlStatement,
+          column);
     } /* if */
     logFunction(printf("sqlColumnInt --> " FMT_D "\n", columnValue););
     return columnValue;
@@ -513,7 +519,8 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       columnValue = NULL;
     } else {
-      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri(
+          sqlStatement, column);
     } /* if */
     logFunction(printf("sqlColumnStri --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
     return columnValue;
@@ -751,7 +758,8 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       isNull = FALSE;
     } else {
-      isNull = ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull(sqlStatement, column);
+      isNull = ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull(sqlStatement,
+          column);
     } /* if */
     logFunction(printf("sqlIsNull --> %s\n", isNull ? "TRUE" : "FALSE"););
     return isNull;
@@ -847,7 +855,8 @@ intType sqlStmtColumnCount (sqlStmtType sqlStatement)
       raise_error(RANGE_ERROR);
       columnCount = 0;
     } else {
-      columnCount = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount(sqlStatement);
+      columnCount = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount(
+          sqlStatement);
     } /* if */
     logFunction(printf("sqlStmtColumnCount --> " FMT_D "\n", columnCount););
     return columnCount;
@@ -869,7 +878,8 @@ striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
       raise_error(RANGE_ERROR);
       name = NULL;
     } else {
-      name = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName(sqlStatement, column);
+      name = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName(sqlStatement,
+          column);
     } /* if */
     logFunction(printf("sqlStmtColumnName --> \"%s\"\n",
                        striAsUnquotedCStri(name)););

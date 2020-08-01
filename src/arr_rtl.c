@@ -83,7 +83,8 @@ static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
           less_elem++;
           cmp = cmp_func(less_elem->value.genericValue, compare_elem);
         } while (cmp < 0);
-        memmove(&less_elem[1], less_elem, (memSizeType) (middle_elem - less_elem) * sizeof(rtlObjectType));
+        memmove(&less_elem[1], less_elem, (memSizeType)
+                (middle_elem - less_elem) * sizeof(rtlObjectType));
         less_elem->value.genericValue = compare_elem;
       } /* for */
     } else {
@@ -150,7 +151,7 @@ static striType getProgramName (const const_striType arg_0)
     if (ALLOC_STRI_SIZE_OK(program_name, name_len)) {
       program_name->size = name_len;
       memcpy(program_name->mem, &arg_0->mem[lastSlashPos],
-          name_len * sizeof(strElemType));
+             name_len * sizeof(strElemType));
     } /* if */
     logFunction(printf(" --> \"%s\"\n",
                        striAsUnquotedCStri(program_name)););
@@ -489,7 +490,7 @@ void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType extension)
           *arr_variable = arr_to;
           arr_to->max_position = arrayMaxPos(arr_to->min_position, new_size);
           memcpy(&arr_to->arr[arr_to_size], extension->arr,
-              (size_t) (extension_size * sizeof(rtlObjectType)));
+                 (size_t) (extension_size * sizeof(rtlObjectType)));
           FREE_RTL_ARRAY(extension, extension_size);
         } /* if */
       } /* if */
@@ -689,7 +690,7 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
         result->min_position = arr1->min_position;
         result->max_position = stop;
         memcpy(result->arr, arr1->arr,
-            (size_t) (result_size * sizeof(rtlObjectType)));
+               (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrHead(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
@@ -742,7 +743,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
           new_arr1->min_position = stop + 1;
           new_arr1->max_position = arr1->max_position;
           memcpy(new_arr1->arr, &arr1->arr[result_size],
-              (size_t) ((length - result_size) * sizeof(rtlObjectType)));
+                 (size_t) ((length - result_size) * sizeof(rtlObjectType)));
           result = REALLOC_RTL_ARRAY(arr1, length, result_size);
           if (unlikely(result == NULL)) {
             FREE_RTL_ARRAY(new_arr1, length - result_size);
@@ -916,7 +917,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjectType)));
+               (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrRange(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
@@ -979,19 +980,20 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
           start_idx = arrayIndex(arr1, start);
           stop_idx = arrayIndex(arr1, stop);
           memcpy(result->arr, &arr1->arr[start_idx],
-              (size_t) (result_size * sizeof(rtlObjectType)));
+                 (size_t) (result_size * sizeof(rtlObjectType)));
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
+                  (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
           if (unlikely(resized_arr1 == NULL)) {
             memcpy(&arr1->arr[length - result_size], result->arr,
-                (size_t) (result_size * sizeof(rtlObjectType)));
+                   (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
             COUNT3_RTL_ARRAY(length, length - result_size);
-            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, length - result_size);
+            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position,
+                                                     length - result_size);
             *arr_temp = resized_arr1;
           } /* if */
         } /* if */
@@ -1133,7 +1135,7 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjectType)));
+               (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrSubarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
@@ -1198,19 +1200,20 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
           start_idx = arrayIndex(arr1, start);
           stop_idx = arrayIndex(arr1, start + len - 1);
           memcpy(result->arr, &arr1->arr[start_idx],
-              (size_t) (result_size * sizeof(rtlObjectType)));
+                 (size_t) (result_size * sizeof(rtlObjectType)));
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
+                  (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
           if (unlikely(resized_arr1 == NULL)) {
             memcpy(&arr1->arr[length - result_size], result->arr,
-                (size_t) (result_size * sizeof(rtlObjectType)));
+                   (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
             COUNT3_RTL_ARRAY(length, length - result_size);
-            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, length - result_size);
+            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position,
+                                                     length - result_size);
             *arr_temp = resized_arr1;
           } /* if */
         } /* if */
@@ -1261,7 +1264,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjectType)));
+               (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
@@ -1315,7 +1318,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
           result->max_position = arrayMaxPos(arr1->min_position, result_size);
           start_idx = arrayIndex(arr1, start);
           memcpy(result->arr, &arr1->arr[start_idx],
-              (size_t) (result_size * sizeof(rtlObjectType)));
+                 (size_t) (result_size * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
           if (unlikely(resized_arr1 == NULL)) {
             FREE_RTL_ARRAY(result, result_size);

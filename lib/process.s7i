@@ -217,10 +217,21 @@ const func string: commandPath (in string: command) is func
           cmdPath := filePath;
         end if;
       end for;
-    elsif startsWith(command, "/") then
-      cmdPath := command & ccConf.EXECUTABLE_FILE_EXTENSION;
     else
-      cmdPath := getcwd & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+      if startsWith(command, "/") then
+        cmdPath := command & ccConf.EXECUTABLE_FILE_EXTENSION;
+      else
+        cmdPath := getcwd;
+        if cmdPath = "/" then
+          cmdPath &:= command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        else
+          cmdPath &:= "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        end if;
+      end if;
+      if fileType(cmdPath) <> FILE_REGULAR or
+          fileMode(cmdPath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} = fileMode.value then
+        cmdPath := "";
+      end if;
     end if;
   end func;
 

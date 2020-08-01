@@ -316,7 +316,8 @@ void free_entity (const_progType currentProg, entityType old_entity)
     logFunction(printf("free_entity\n"););
     if (old_entity != NULL) {
       if (old_entity->syobject != NULL) {
-        if (HAS_PROPERTY(old_entity->syobject) && old_entity->syobject->descriptor.property != currentProg->property.literal) {
+        if (HAS_PROPERTY(old_entity->syobject) &&
+            old_entity->syobject->descriptor.property != currentProg->property.literal) {
           /* trace1(old_entity->syobject);
              printf("\n"); */
           FREE_RECORD(old_entity->syobject->descriptor.property, propertyRecord, count.property);

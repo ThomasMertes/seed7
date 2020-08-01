@@ -52,7 +52,8 @@
 void drwCpy (winType *const win_to, const winType win_from)
 
   { /* drwCpy */
-    logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
+    logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), "
+	                   FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) *win_to,
                        *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
                        (memSizeType) win_from,
@@ -67,7 +68,8 @@ void drwCpy (winType *const win_to, const winType win_from)
       } /* if */
     } /* if */
     *win_to = win_from;
-    logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+    logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), "
+                       FMT_U_MEM " (usage=" FMT_U ")) -->\n",
                        (memSizeType) *win_to,
                        *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
                        (memSizeType) win_from,
@@ -161,7 +163,8 @@ intType drwGetImagePixel (const_bstriType image, intType width,
     intType pixel;
 
   /* drwGetImagePixel */
-    logFunction(printf("drwGetImagePixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwGetImagePixel(" FMT_U_MEM ", " FMT_D ", "
+                       FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) image, width, height, x, y););
     if (unlikely(width  < 0 || x < 0 || x >= width ||
                  height < 0 || y < 0 || y >= height ||

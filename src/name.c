@@ -481,7 +481,8 @@ void close_stack (progType currentProg)
     /* object data. In case of forward declared objects the      */
     /* category of a freed object would be accessed.             */
     while (list_element != NULL) {
-      if (HAS_PROPERTY(list_element->obj) && list_element->obj->descriptor.property != currentProg->property.literal) {
+      if (HAS_PROPERTY(list_element->obj) &&
+          list_element->obj->descriptor.property != currentProg->property.literal) {
         /* Properties are removed here because itf_destr uses    */
         /* !HAS_PROPERTY to determine if an object can be freed. */
         free_params(list_element->obj->descriptor.property->params);

@@ -215,7 +215,7 @@ objectType set_cpy (listType arguments)
       /* destination areas overlap (or are identical).     */
       /* Therefore memmove() is used instead of memcpy().  */
       memmove(set_dest->bitset, set_source->bitset,
-          (size_t) set_source_size * sizeof(bitSetType));
+              (size_t) set_source_size * sizeof(bitSetType));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* set_cpy */
@@ -250,7 +250,7 @@ objectType set_create (listType arguments)
         new_set->min_position = set_source->min_position;
         new_set->max_position = set_source->max_position;
         memcpy(new_set->bitset, set_source->bitset,
-            (size_t) new_size * sizeof(bitSetType));
+               (size_t) new_size * sizeof(bitSetType));
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -544,7 +544,8 @@ objectType set_incl (listType arguments)
           COUNT3_SET(old_size, new_size);
           set_to->value.setValue = set_dest;
           set_dest->max_position = position;
-          memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitSetType));
+          memset(&set_dest->bitset[old_size], 0,
+                 (new_size - old_size) * sizeof(bitSetType));
         } /* if */
       } /* if */
     } else if (position < set_dest->min_position) {
@@ -561,7 +562,8 @@ objectType set_incl (listType arguments)
           set_dest->min_position = position;
           set_dest->max_position = old_set->max_position;
           memset(set_dest->bitset, 0, (new_size - old_size) * sizeof(bitSetType));
-          memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset, old_size * sizeof(bitSetType));
+          memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset,
+                 old_size * sizeof(bitSetType));
           FREE_SET(old_set, old_size);
         } /* if */
       } /* if */

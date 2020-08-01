@@ -75,7 +75,7 @@ static void qsort_array (objectType begin_sort, objectType end_sort,
           FREE_OBJECT(cmp_obj);
         } while (cmp < 0);
         memmove(&less_elem[1], less_elem,
-            (memSizeType) (middle_elem - less_elem) * sizeof(objectRecord));
+                (memSizeType) (middle_elem - less_elem) * sizeof(objectRecord));
         memcpy(less_elem, &compare_elem, sizeof(objectRecord));
       } /* for */
     } else {
@@ -154,7 +154,7 @@ objectType arr_append (listType arguments)
           arr_variable->value.arrayValue = new_arr;
           if (TEMP_OBJECT(arg_3(arguments))) {
             memcpy(&new_arr->arr[arr_to_size], extension->arr,
-                (size_t) (extension_size * sizeof(objectRecord)));
+                   (size_t) (extension_size * sizeof(objectRecord)));
             new_arr->max_position = arrayMaxPos(new_arr->min_position, new_size);
             FREE_ARRAY(extension, extension_size);
             arg_3(arguments)->value.arrayValue = NULL;
@@ -406,7 +406,7 @@ objectType arr_cat (listType arguments)
       } /* if */
       if (TEMP_OBJECT(arg_3(arguments))) {
         memcpy(&result->arr[arr1_size], arr2->arr,
-            (size_t) (arr2_size * sizeof(objectRecord)));
+               (size_t) (arr2_size * sizeof(objectRecord)));
         FREE_ARRAY(arr2, arr2_size);
         arg_3(arguments)->value.arrayValue = NULL;
       } else {
@@ -816,7 +816,8 @@ objectType arr_idx (listType arguments)
           /* code to avoid destr_array:
           if (position != arr1->max_position) {
             memcpy(&array_pointer[position - arr1->min_position],
-                &array_pointer[arr1->max_position - arr1->min_position], sizeof(objectRecord));
+                   &array_pointer[arr1->max_position - arr1->min_position],
+                   sizeof(objectRecord));
           }
           arr1->max_position--; */
         } /* if */
@@ -994,7 +995,7 @@ objectType arr_range (listType arguments)
       stop_idx = arrayIndex(arr1, stop);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(objectRecord)));
+               (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, start_idx);
         destr_array(&arr1->arr[stop_idx + 1], length - stop_idx - 1);
         FREE_ARRAY(arr1, length);
@@ -1059,8 +1060,8 @@ objectType arr_remove (listType arguments)
       } else {
         memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectRecord));
         memmove(&array_pointer[position - arr1->min_position],
-            &array_pointer[position - arr1->min_position + 1],
-            (arraySize2(position, arr1->max_position) - 1) * sizeof(objectRecord));
+                &array_pointer[position - arr1->min_position + 1],
+                (arraySize2(position, arr1->max_position) - 1) * sizeof(objectRecord));
         arr1_size = arraySize(arr1);
         resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size - 1);
         if (unlikely(resized_arr1 == NULL)) {
@@ -1069,8 +1070,8 @@ objectType arr_remove (listType arguments)
           /* probably zero. The code below restores the old     */
           /* value of arr1.                                     */
           memmove(&array_pointer[position - arr1->min_position + 1],
-              &array_pointer[position - arr1->min_position],
-              (arraySize2(position, arr1->max_position) - 1) * sizeof(objectRecord));
+                  &array_pointer[position - arr1->min_position],
+                  (arraySize2(position, arr1->max_position) - 1) * sizeof(objectRecord));
           memcpy(&array_pointer[position - arr1->min_position], result, sizeof(objectRecord));
           FREE_OBJECT(result);
           result = raise_exception(SYS_MEM_EXCEPTION);
@@ -1173,7 +1174,7 @@ objectType arr_subarr (listType arguments)
       stop_idx = arrayIndex(arr1, start + len - 1);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(objectRecord)));
+               (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, start_idx);
         destr_array(&arr1->arr[stop_idx + 1], length - stop_idx - 1);
         FREE_ARRAY(arr1, length);
@@ -1234,7 +1235,7 @@ objectType arr_tail (listType arguments)
       result->max_position = arrayMaxPos(arr1->min_position, result_size);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start - arr1->min_position],
-            (size_t) (result_size * sizeof(objectRecord)));
+               (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, arraySize2(arr1->min_position, start) - 1);
         FREE_ARRAY(arr1, length);
         arg_1(arguments)->value.arrayValue = NULL;
@@ -1299,22 +1300,6 @@ objectType arr_times (listType arguments)
         result->max_position = factor;
         elem_to = result->arr;
         if (result_size > 0) {
-          /* printf("arr_times: ");
-          trace1(element);
-          printf("\n");
-          trace1(curr_exec_object);
-          printf("\n");
-          trace1(curr_exec_object->value.listValue->obj);
-          printf("\n");
-          printf("%d\n", HAS_ENTITY(curr_exec_object->value.listValue->obj));
-          prot_list(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list);
-          printf("\n");
-          trace1(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list->next->next->obj);
-          printf("\n");
-          trace1(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list->next->next->obj->value.objValue);
-          printf("\n");
-          printType(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list->next->next->obj->value.objValue->type_of);
-          printf("\n"); */
           /* The element type of the result is the type of the 3rd formal parameter */
           result_element_type = curr_exec_object->value.listValue->obj->
                                 descriptor.property->params->next->next->obj->type_of;

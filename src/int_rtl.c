@@ -431,10 +431,10 @@ uintType uintRand (void)
   { /* uintRand */
     logFunction(printf("uintRand\n"););
     /* SEED = SEED * RAND_MULTIPLIER + RAND_INCREMENT */
-    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(RAND_MULTIPLIER),
-        &high_seed);
-    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(RAND_INCREMENT),
-        &high_seed);
+    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0),
+                          (uintType) INT_SUFFIX(RAND_MULTIPLIER), &high_seed);
+    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0),
+                         (uintType) INT_SUFFIX(RAND_INCREMENT), &high_seed);
     logFunction(printf("uintRand --> " F_X(08) "\n", high_seed););
     return high_seed;
   } /* uintRand */

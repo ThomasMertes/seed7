@@ -236,10 +236,12 @@ static void gen_act_ptr_table (void)
           /* Remove double entries */
           if ((memSizeType) act_ptr_table.primitive_ptr[number - 1] >
               (memSizeType) act_ptr_table.primitive_ptr[number]) {
-            memmove(&act_ptr_table.primitive_ptr[number - 1], &act_ptr_table.primitive_ptr[number],
+            memmove(&act_ptr_table.primitive_ptr[number - 1],
+                    &act_ptr_table.primitive_ptr[number],
                     (act_ptr_table.size - number) * sizeof(primActType));
           } else {
-            memmove(&act_ptr_table.primitive_ptr[number], &act_ptr_table.primitive_ptr[number + 1],
+            memmove(&act_ptr_table.primitive_ptr[number],
+                    &act_ptr_table.primitive_ptr[number + 1],
                     (act_ptr_table.size - number - 1) * sizeof(primActType));
           } /* if */
           act_ptr_table.size--;

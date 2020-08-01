@@ -107,7 +107,8 @@ static void handle_signals (int sig_num)
     signal(SIGALRM, SIG_IGN);
 #endif
 #ifdef DIALOG_IN_SIGNAL_HANDLER
-    printf("\n*** SIGNAL %s RAISED\n\n*** (Type RETURN to continue, '*' to terminate or 'c' to stop)\n",
+    printf("\n*** SIGNAL %s RAISED\n\n"
+           "*** (Type RETURN to continue, '*' to terminate or 'c' to stop)\n",
            signal_name(sig_num));
     ch = fgetc(stdin);
     if (ch == '*') {

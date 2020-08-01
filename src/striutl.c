@@ -81,8 +81,22 @@ const os_charType emulated_root[] = {'/', '\0'};
 #endif
 
 #define USE_DUFFS_UNROLLING
-#define STACK_ALLOC_SIZE 1000
+#define STACK_ALLOC_SIZE    1000
 
+/* Strings beyond the AND_SO_ON_LIMIT are truncated. */
+#define AND_SO_ON_LIMIT     128
+#define AND_SO_ON_TEXT      "\\ *AND_SO_ON* SIZE="
+
+/* The maximum width when an UTF-32 character is displayed */
+/* in a literal is 12 characters (e.g.: \1234567890; ).    */
+#define MAXIMUM_UTF32_ESCAPE_WIDTH 12
+
+/* The maximum width when an unsigned char (byte) is      */
+/* displayed in a literal is 5 characters (e.g.: \255; ). */
+#define MAXIMUM_BYTE_ESCAPE_WIDTH 5
+
+/* The AND_SO_ON_LENGTH includes the length of the terminating \0 byte. */
+#define AND_SO_ON_LENGTH    (STRLEN(AND_SO_ON_TEXT) + MEMSIZETYPE_DECIMAL_SIZE + 1)
 
 #ifdef OS_STRI_WCHAR
 
@@ -124,13 +138,14 @@ cstriType striAsUnquotedCStri (const const_striType stri)
     strElemType ch;
     memSizeType idx;
     memSizeType pos = 0;
-    static char buffer[2048];
+    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_UTF32_ESCAPE_WIDTH +
+                       AND_SO_ON_LENGTH];
 
   /* striAsUnquotedCStri */
     if (stri != NULL) {
       size = stri->size;
-      if (size > 128) {
-        size = 128;
+      if (size > AND_SO_ON_LIMIT) {
+        size = AND_SO_ON_LIMIT;
       } /* if */
       for (idx = 0; idx < size; idx++) {
         ch = stri->mem[idx];
@@ -171,8 +186,8 @@ cstriType striAsUnquotedCStri (const const_striType stri)
           pos += (memSizeType) sprintf(&buffer[pos], "\\%lu;", (unsigned long) ch);
         } /* if */
       } /* for */
-      if (stri->size > 128) {
-        pos += (memSizeType) sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, stri->size);
+      if (stri->size > AND_SO_ON_LIMIT) {
+        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, stri->size);
       } /* if */
     } else {
       strcpy(buffer, null_string_marker);
@@ -191,13 +206,14 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
     ucharType ch;
     memSizeType idx;
     memSizeType pos = 0;
-    static char buffer[1024];
+    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_BYTE_ESCAPE_WIDTH +
+                       AND_SO_ON_LENGTH];
 
   /* bstriAsUnquotedCStri */
     if (bstri != NULL) {
       size = bstri->size;
-      if (size > 128) {
-        size = 128;
+      if (size > AND_SO_ON_LIMIT) {
+        size = AND_SO_ON_LIMIT;
       } /* if */
       for (idx = 0; idx < size; idx++) {
         ch = bstri->mem[idx];
@@ -219,8 +235,8 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
           pos += (memSizeType) sprintf(&buffer[pos], "\\%u;", (unsigned int) ch);
         } /* if */
       } /* for */
-      if (bstri->size > 128) {
-        pos += (memSizeType) sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, bstri->size);
+      if (bstri->size > AND_SO_ON_LIMIT) {
+        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, bstri->size);
       } /* if */
     } else {
       strcpy(buffer, null_byte_string_marker);
@@ -2589,7 +2605,7 @@ os_striType cp_to_command (const const_striType commandPath,
                 result_len++;
               } /* if */
               memcpy(&result[result_len], os_parameters,
-                  sizeof(os_charType) * (param_len + 1));
+                     sizeof(os_charType) * (param_len + 1));
 #ifdef QUOTE_WHOLE_SHELL_COMMAND
               if (result[0] == '\"' && result[1] == '\"') {
                 result_len = os_stri_strlen(result);
@@ -2640,7 +2656,7 @@ striType relativeToProgramPath (const const_striType basePath,
         result->size = dir_path_size - 3 + len;
         memcpy(result->mem, basePath->mem, (dir_path_size - 3) * sizeof(strElemType));
         memcpy_to_strelem(&result->mem[dir_path_size - 3],
-            (const_ustriType) dir, len);
+                          (const_ustriType) dir, len);
       } /* if */
     } else if (likely(ALLOC_STRI_SIZE_OK(result, 0))) {
       result-> size = 0;

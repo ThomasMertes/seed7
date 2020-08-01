@@ -71,14 +71,18 @@ void find_include_file (const_striType include_file_name, errInfoType *err_info)
                        striAsUnquotedCStri(include_file_name)););
     if (*err_info == OKAY_NO_ERROR) {
       if (include_file_name->size >= 1 && include_file_name->mem[0] == '/') {
-        open_infile(include_file_name, in_file.write_library_names, in_file.write_line_numbers, err_info);
+        open_infile(include_file_name, in_file.write_library_names,
+                    in_file.write_line_numbers, err_info);
       } else {
         found = FALSE;
         lib_path_size = arraySize(lib_path);
-        for (position = 0; !found && *err_info == OKAY_NO_ERROR && position < lib_path_size; position++) {
+        for (position = 0;
+             !found && *err_info == OKAY_NO_ERROR && position < lib_path_size;
+             position++) {
           curr_path = lib_path->arr[position].value.striValue;
           if (curr_path->size == 0) {
-            open_infile(include_file_name, in_file.write_library_names, in_file.write_line_numbers, err_info);
+            open_infile(include_file_name, in_file.write_library_names,
+                        in_file.write_line_numbers, err_info);
           } else {
             if (curr_path->size > MAX_STRI_LEN - include_file_name->size) {
               *err_info = MEMORY_ERROR;
@@ -92,7 +96,8 @@ void find_include_file (const_striType include_file_name, errInfoType *err_info)
                     (size_t) curr_path->size * sizeof(strElemType));
                 memcpy(&stri->mem[curr_path->size], include_file_name->mem,
                     (size_t) include_file_name->size * sizeof(strElemType));
-                open_infile(stri, in_file.write_library_names, in_file.write_line_numbers, err_info);
+                open_infile(stri, in_file.write_library_names,
+                            in_file.write_line_numbers, err_info);
                 FREE_STRI(stri, length);
               } /* if */
             } /* if */
@@ -235,7 +240,9 @@ void init_lib_path (const_striType source_file_name,
 
       /* Add the libraries from the commandline to the lib_path */
       if (seed7_libraries != NULL) {
-        for (idx = 0; idx <= seed7_libraries->max_position - seed7_libraries->min_position; idx++) {
+        for (idx = 0;
+             idx <= seed7_libraries->max_position - seed7_libraries->min_position;
+             idx++) {
           append_to_lib_path(seed7_libraries->arr[idx].value.striValue, err_info);
         } /* for */
       } /* if */

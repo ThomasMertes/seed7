@@ -160,7 +160,7 @@ static inline void include_file (void)
       } else {
         include_file_name->size = symbol.striValue->size;
         memcpy(include_file_name->mem, symbol.striValue->mem,
-            (size_t) symbol.striValue->size * sizeof(strElemType));
+               (size_t) symbol.striValue->size * sizeof(strElemType));
         scan_symbol();
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
@@ -386,7 +386,7 @@ static striType getProgramName (const const_striType source_file_name)
     if (ALLOC_STRI_SIZE_OK(program_name, name_len)) {
       program_name->size = name_len;
       memcpy(program_name->mem, &source_file_name->mem[lastSlashPos],
-          name_len * sizeof(strElemType));
+             name_len * sizeof(strElemType));
     } /* if */
     logFunction(printf("getProgramName --> \"%s\"\n",
                        striAsUnquotedCStri(program_name)););
@@ -446,7 +446,7 @@ static progType analyze_prog (const const_striType source_file_argument,
       /* printf("analyze_prog: new progRecord: %lx\n", resultProg); */
       source_file_argument_copy->size = source_file_argument->size;
       memcpy(source_file_argument_copy->mem, source_file_argument->mem,
-          source_file_argument->size * sizeof(strElemType));
+             source_file_argument->size * sizeof(strElemType));
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       resultProg->types = NULL;
@@ -588,7 +588,7 @@ progType analyze_file (const const_striType source_file_argument, uintType optio
     } else if (*err_info == OKAY_NO_ERROR) {
       source_name->size = name_len;
       memcpy(source_name->mem, source_file_argument->mem,
-          source_file_argument->size * sizeof(strElemType));
+             source_file_argument->size * sizeof(strElemType));
       if (add_extension) {
         memcpy_to_strelem(&source_name->mem[source_file_argument->size],
                           (const_ustriType) ".sd7", 4);

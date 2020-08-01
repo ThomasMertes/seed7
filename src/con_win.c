@@ -60,6 +60,7 @@ extern wint_t _getwch (void);
 
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
+#define WRITE_STRI_BLOCK_SIZE 256
 
 static boolType keybd_initialized = FALSE;
 static DWORD saved_console_input_mode;
@@ -423,7 +424,7 @@ void conSetCursor (intType line, intType column)
 static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 
   {
-    wcharType wstri_buffer[2 * 256];
+    wcharType wstri_buffer[2 * WRITE_STRI_BLOCK_SIZE];
     wstriType wstri;
     wstriType wstri_part;
     memSizeType wstri_size;
@@ -432,7 +433,7 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 
   /* doWriteConsole */
     /* fprintf(stderr, "doWriteConsole(%lx, ...)", (unsigned long) hConsole); */
-    if (stri->size <= 256) {
+    if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
       wstri_size = stri_to_utf16(wstri_buffer, stri->mem, stri->size, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(RANGE_ERROR);

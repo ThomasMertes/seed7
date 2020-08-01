@@ -217,19 +217,30 @@ const size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
 #endif
 
 
-#define SIZ_RTLBIG(len)  ((sizeof(bigIntRecord) - sizeof(bigDigitType)) + (len) * sizeof(bigDigitType))
-#define MAX_BIG_LEN      ((MAX_MEMSIZETYPE - sizeof(bigIntRecord) + sizeof(bigDigitType)) / sizeof(bigDigitType))
+#define SIZ_RTLBIG(len)  ((sizeof(bigIntRecord) - sizeof(bigDigitType)) + \
+                         (len) * sizeof(bigDigitType))
+#define MAX_BIG_LEN      ((MAX_MEMSIZETYPE - sizeof(bigIntRecord) + \
+                         sizeof(bigDigitType)) / sizeof(bigDigitType))
 
 #if WITH_BIGINT_CAPACITY
-#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, bigIntType, SIZ_RTLBIG(len))?((var)->capacity = len, CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE):FALSE)
-#define HEAP_FREE_BIG(var,len)        (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) FREE_HEAP(var, SIZ_RTLBIG(len)))
-#define HEAP_REALLOC_BIG(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2, bigIntType, SIZ_RTLBIG(l2)))!=NULL)(v1)->capacity=l2;
+#define HEAP_ALLOC_BIG(var,len)  (ALLOC_HEAP(var, bigIntType, SIZ_RTLBIG(len))? \
+                                 ((var)->capacity = len, CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE): \
+                                 FALSE)
+#define HEAP_FREE_BIG(var,len)   (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) \
+                                 FREE_HEAP(var, SIZ_RTLBIG(len)))
+
+#define HEAP_REALLOC_BIG(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2, bigIntType, SIZ_RTLBIG(l2)))!=NULL) \
+                                      (v1)->capacity=l2;
 #else
-#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, bigIntType, SIZ_RTLBIG(len))?CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE:FALSE)
-#define HEAP_FREE_BIG(var,len)        (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) FREE_HEAP(var, SIZ_RTLBIG(len)))
+#define HEAP_ALLOC_BIG(var,len)  (ALLOC_HEAP(var, bigIntType, SIZ_RTLBIG(len))? \
+                                 CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE:FALSE)
+#define HEAP_FREE_BIG(var,len)   (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) \
+                                 FREE_HEAP(var, SIZ_RTLBIG(len)))
+
 #define HEAP_REALLOC_BIG(v1,v2,l1,l2) v1=REALLOC_HEAP(v2, bigIntType, SIZ_RTLBIG(l2));
 #endif
-#define COUNT3_BIG(len1,len2)         CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)), CNT1_BIG(len2, SIZ_RTLBIG(len2)))
+#define COUNT3_BIG(len1,len2)    CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)), \
+                                 CNT1_BIG(len2, SIZ_RTLBIG(len2)))
 
 #if WITH_BIGINT_FREELIST
 #if WITH_BIGINT_CAPACITY
@@ -246,14 +257,21 @@ static unsigned int flist_allowed[BIG_FREELIST_ARRAY_SIZE] = {
     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20};
 
 #define POP_BIG_OK(len)    (len) < BIG_FREELIST_ARRAY_SIZE && flist[len] != NULL
-#define PUSH_BIG_OK(var)   (var)->capacity < BIG_FREELIST_ARRAY_SIZE && flist_allowed[(var)->capacity] > 0
+#define PUSH_BIG_OK(var)   (var)->capacity < BIG_FREELIST_ARRAY_SIZE && \
+                           flist_allowed[(var)->capacity] > 0
 
-#define POP_BIG(var,len)   (var = (bigIntType) flist[len], flist[len] = flist[len]->next, flist_allowed[len]++, TRUE)
-#define PUSH_BIG(var,len)  {((freeListElemType) var)->next = flist[len]; flist[len] = (freeListElemType) var; flist_allowed[len]--; }
+#define POP_BIG(var,len)   (var = (bigIntType) flist[len], flist[len] = flist[len]->next, \
+                           flist_allowed[len]++, TRUE)
+#define PUSH_BIG(var,len)  {((freeListElemType) var)->next = flist[len]; \
+                           flist[len] = (freeListElemType) var; flist_allowed[len]--; }
 
-#define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var, len) : HEAP_ALLOC_BIG(var, len))
-#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var, len) : ((len)<=MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE)))
-#define FREE_BIG(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var, (var)->capacity) else HEAP_FREE_BIG(var, (var)->capacity);
+#define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var, len) : \
+                                      HEAP_ALLOC_BIG(var, len))
+#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var, len) : \
+                                      ((len)<=MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len): \
+                                      (var=NULL, FALSE)))
+#define FREE_BIG(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var, (var)->capacity) else \
+                           HEAP_FREE_BIG(var, (var)->capacity);
 
 #else
 
@@ -264,24 +282,29 @@ static unsigned int flist_allowed = 100;
 #define PUSH_BIG_OK(len)   (len) == 1 && flist_allowed > 0
 
 #define POP_BIG(var)       (var = (bigIntType) flist, flist = flist->next, flist_allowed++, TRUE)
-#define PUSH_BIG(var)      {((freeListElemType) var)->next = flist; flist = (freeListElemType) var; flist_allowed--; }
+#define PUSH_BIG(var)      {((freeListElemType) var)->next = flist; \
+                           flist = (freeListElemType) var; flist_allowed--; }
 
 #define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var) : HEAP_ALLOC_BIG(var, len))
-#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var) : ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE)))
+#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var) : \
+                                      ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len): \
+                                      (var=NULL, FALSE)))
 #define FREE_BIG(var,len)  if (PUSH_BIG_OK(len)) PUSH_BIG(var) else HEAP_FREE_BIG(var, len);
 
 #endif
 #else
 
 #define ALLOC_BIG_SIZE_OK(var,len)    HEAP_ALLOC_BIG(var, len)
-#define ALLOC_BIG_CHECK_SIZE(var,len) ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE))
+#define ALLOC_BIG_CHECK_SIZE(var,len) ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len): \
+                                      (var=NULL, FALSE))
 #define FREE_BIG(var,len)             HEAP_FREE_BIG(var, len)
 
 #endif
 
 #define ALLOC_BIG(var,len)                  ALLOC_BIG_CHECK_SIZE(var, len)
 #define REALLOC_BIG_SIZE_OK(v1,v2,l1,l2)    HEAP_REALLOC_BIG(v1,v2,l1,l2)
-#define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) if((l2) <= MAX_BIG_LEN){HEAP_REALLOC_BIG(v1,v2,l1,l2)}else v1=NULL;
+#define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) if((l2) <= MAX_BIG_LEN) \
+                                            {HEAP_REALLOC_BIG(v1,v2,l1,l2)}else v1=NULL;
 
 
 void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta);
@@ -309,7 +332,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
   /* bigHexCStri */
     if (likely(big1 != NULL && big1->size > 0)) {
       if (unlikely(big1->size > (MAX_CSTRI_LEN - 3) / 2 / (BIGDIGIT_SIZE >> 3) ||
-          !ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) * 2 + 3))) {
+                   !ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) * 2 + 3))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -890,7 +913,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int ba
         } while (position < stri->size && okay);
         if (likely(okay)) {
           memset(&result->bigdigits[result->size], 0,
-              (size_t) (result_size - result->size) * sizeof(bigDigitType));
+                 (size_t) (result_size - result->size) * sizeof(bigDigitType));
           result->size = result_size;
           if (negative) {
             negate_positive_big(result);
@@ -983,7 +1006,8 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
           /* the number of radix digits plus one optional    */
           /* character for the sign.                         */
           result_size = (unsigned_size * BIGDIGIT_SIZE - 1) / shift + (unsigned int) negative + 1;
-          most_significant = (unsigned int) digitMostSignificantBit(unsigned_big->bigdigits[unsigned_size - 1]);
+          most_significant = (unsigned int)
+              digitMostSignificantBit(unsigned_big->bigdigits[unsigned_size - 1]);
           digit_shift = (unsigned int) (BIGDIGIT_SIZE - (unsigned_size * BIGDIGIT_SIZE) % shift);
           if (most_significant < digit_shift) {
             /* Reduce result_size because of leading zero digits. */
@@ -1009,7 +1033,8 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
           do {
             while (digit_shift <= BIGDIGIT_SIZE - shift && pos > (memSizeType) negative) {
               pos--;
-              /* printf("A result->mem[%lu] = %c\n", pos, digits[(unsigned_digit >> digit_shift) & mask]); */
+              /* printf("A result->mem[%lu] = %c\n", pos,
+                  digits[(unsigned_digit >> digit_shift) & mask]); */
               result->mem[pos] = (strElemType) (digits[(unsigned_digit >> digit_shift) & mask]);
               digit_shift += shift;
             } /* while */
@@ -1020,7 +1045,8 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
                 digit_shift = 0;
               } else {
                 unsigned_digit >>= digit_shift;
-                unsigned_digit |= unsigned_big->bigdigits[digit_index] << (BIGDIGIT_SIZE - digit_shift);
+                unsigned_digit |=
+                    unsigned_big->bigdigits[digit_index] << (BIGDIGIT_SIZE - digit_shift);
                 if (pos > (memSizeType) negative) {
                   pos--;
                   /* printf("B result->mem[%lu] = %c\n", pos, digits[unsigned_digit & mask]); */
@@ -1031,7 +1057,8 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
               } /* if */
             } else if (digit_shift != BIGDIGIT_SIZE && pos > (memSizeType) negative) {
               pos--;
-              /* printf("C result->mem[%lu] = %c\n", pos, digits[(unsigned_digit >> digit_shift) & mask]); */
+              /* printf("C result->mem[%lu] = %c\n", pos,
+                  digits[(unsigned_digit >> digit_shift) & mask]); */
               result->mem[pos] = (strElemType) (digits[(unsigned_digit >> digit_shift) & mask]);
             } /* if */
           } while (digit_index < unsigned_size && pos > (memSizeType) negative);
@@ -1109,7 +1136,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
         } else if (likely(ALLOC_BIG_SIZE_OK(unsigned_big, big1->size))) {
           unsigned_big->size = big1->size;
           memcpy(unsigned_big->bigdigits, big1->bigdigits,
-              (size_t) big1->size * sizeof(bigDigitType));
+                 (size_t) big1->size * sizeof(bigDigitType));
         } /* if */
         if (unlikely(unsigned_big == NULL)) {
           FREE_STRI(result, result_size);
@@ -1150,11 +1177,11 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
             final_result_size = result_size - pos + 1;
             result->mem[0] = '-';
             memmove(&result->mem[1], &result->mem[pos],
-                (result_size - pos) * sizeof(strElemType));
+                    (result_size - pos) * sizeof(strElemType));
           } else {
             final_result_size = result_size - pos;
             memmove(&result->mem[0], &result->mem[pos],
-                (result_size - pos) * sizeof(strElemType));
+                    (result_size - pos) * sizeof(strElemType));
           } /* if */
           result->size = final_result_size;
           if (final_result_size < result_size) {
@@ -1833,7 +1860,7 @@ static bigIntType bigRemSizeLess (const const_bigIntType dividend,
       } else {
         remainder->size = dividend->size;
         memcpy(remainder->bigdigits, dividend->bigdigits,
-            (size_t) dividend->size * sizeof(bigDigitType));
+               (size_t) dividend->size * sizeof(bigDigitType));
       } /* if */
     } /* if */
     return remainder;
@@ -1920,7 +1947,7 @@ static bigIntType bigModSizeLess (const const_bigIntType dividend,
         } else {
           modulo->size = divisor->size;
           memcpy(modulo->bigdigits, divisor->bigdigits,
-              (size_t) divisor->size * sizeof(bigDigitType));
+                 (size_t) divisor->size * sizeof(bigDigitType));
           bigAddTo(modulo, dividend);
           modulo = normalize(modulo);
         } /* if */
@@ -1930,7 +1957,7 @@ static bigIntType bigModSizeLess (const const_bigIntType dividend,
         } else {
           modulo->size = dividend->size;
           memcpy(modulo->bigdigits, dividend->bigdigits,
-              (size_t) dividend->size * sizeof(bigDigitType));
+                 (size_t) dividend->size * sizeof(bigDigitType));
         } /* if */
       } /* if */
     } /* if */
@@ -2128,7 +2155,8 @@ static void uBigKaratsubaMult (const bigDigitType *const factor1,
       uBigDigitAdd(factor2, sizeLo, &factor2[sizeLo], sizeHi, &product[size]);
       uBigKaratsubaMult(product, &product[size], sizeLo + 1, temp, &temp[(sizeLo + 1) << 1]);
       uBigKaratsubaMult(factor1, factor2, sizeLo, product, &temp[(sizeLo + 1) << 1]);
-      uBigKaratsubaMult(&factor1[sizeLo], &factor2[sizeLo], sizeHi, &product[sizeLo << 1], &temp[(sizeLo + 1) << 1]);
+      uBigKaratsubaMult(&factor1[sizeLo], &factor2[sizeLo], sizeHi, &product[sizeLo << 1],
+                        &temp[(sizeLo + 1) << 1]);
       uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, product, sizeLo << 1);
       uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, &product[sizeLo << 1], sizeHi << 1);
       uBigDigitAddTo(&product[sizeLo], sizeLo + (sizeHi << 1), temp, (sizeLo + 1) << 1);
@@ -2550,9 +2578,9 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
         } else {
           factor2_help->size = factor1->size - (factor1->size >> 1);
           memcpy(factor2_help->bigdigits, factor2->bigdigits,
-              (size_t) factor2->size * sizeof(bigDigitType));
+                 (size_t) factor2->size * sizeof(bigDigitType));
           memset(&factor2_help->bigdigits[factor2->size], 0,
-              (size_t) (factor2_help->size - factor2->size) * sizeof(bigDigitType));
+                 (size_t) (factor2_help->size - factor2->size) * sizeof(bigDigitType));
           factor2 = factor2_help;
           if (unlikely(!ALLOC_BIG(product, (factor1->size >> 1) + (factor2->size << 1)))) {
             raise_error(MEMORY_ERROR);
@@ -2562,13 +2590,15 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
               raise_error(MEMORY_ERROR);
             } else {
               uBigKaratsubaMult(factor1->bigdigits, factor2->bigdigits,
-                  factor1->size >> 1, product->bigdigits, temp->bigdigits);
+                                factor1->size >> 1, product->bigdigits, temp->bigdigits);
               uBigKaratsubaMult(&factor1->bigdigits[factor1->size >> 1], factor2->bigdigits,
-                  factor2->size, temp->bigdigits, &temp->bigdigits[factor2->size << 1]);
+                                factor2->size, temp->bigdigits,
+                                &temp->bigdigits[factor2->size << 1]);
               memset(&product->bigdigits[(factor1->size >> 1) << 1], 0,
-                  (size_t) (product->size - ((factor1->size >> 1) << 1)) * sizeof(bigDigitType));
-              uBigDigitAddTo(&product->bigdigits[factor1->size >> 1], product->size - (factor1->size >> 1),
-                  temp->bigdigits, factor2->size << 1);
+                     (size_t) (product->size - ((factor1->size >> 1) << 1)) * sizeof(bigDigitType));
+              uBigDigitAddTo(&product->bigdigits[factor1->size >> 1],
+                             product->size - (factor1->size >> 1),
+                             temp->bigdigits, factor2->size << 1);
               if (negative) {
                 negate_positive_big(product);
               } /* if */
@@ -2585,9 +2615,9 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
         } else {
           factor2_help->size = factor1->size;
           memcpy(factor2_help->bigdigits, factor2->bigdigits,
-              (size_t) factor2->size * sizeof(bigDigitType));
+                 (size_t) factor2->size * sizeof(bigDigitType));
           memset(&factor2_help->bigdigits[factor2->size], 0,
-              (size_t) (factor2_help->size - factor2->size) * sizeof(bigDigitType));
+                 (size_t) (factor2_help->size - factor2->size) * sizeof(bigDigitType));
           factor2 = factor2_help;
           if (unlikely(!ALLOC_BIG(product, factor1->size << 1))) {
             raise_error(MEMORY_ERROR);
@@ -2829,7 +2859,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
         if (exponent & 1) {
           power->size = square->size;
           memcpy(power->bigdigits, square->bigdigits,
-              (size_t) square->size * sizeof(bigDigitType));
+                 (size_t) square->size * sizeof(bigDigitType));
         } else {
           power->size = 1;
           power->bigdigits[0] = 1;
@@ -2843,7 +2873,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
           exponent >>= 1;
         } /* while */
         memset(&power->bigdigits[power->size], 0,
-            (size_t) (help_size - power->size) * sizeof(bigDigitType));
+               (size_t) (help_size - power->size) * sizeof(bigDigitType));
         power->size = help_size;
         power = normalize(power);
         FREE_BIG(square, help_size);
@@ -2978,7 +3008,7 @@ bigIntType bigAbs (const const_bigIntType big1)
         } /* if */
       } else {
         memcpy(result->bigdigits, big1->bigdigits,
-            (size_t) big1->size * sizeof(bigDigitType));
+               (size_t) big1->size * sizeof(bigDigitType));
       } /* if */
     } /* if */
     logFunction(printf("bigAbs --> %s\n", bigHexCStri(result)););
@@ -3455,7 +3485,7 @@ void bigCpy (bigIntType *const big_to, const const_bigIntType big_from)
     /* destination areas overlap (or are identical).      */
     /* Therefore memmove() is used instead of memcpy().   */
     memmove(big_dest->bigdigits, big_from->bigdigits,
-        (size_t) new_size * sizeof(bigDigitType));
+            (size_t) new_size * sizeof(bigDigitType));
   } /* bigCpy */
 
 
@@ -3482,7 +3512,7 @@ bigIntType bigCreate (const const_bigIntType big_from)
     } else {
       result->size = new_size;
       memcpy(result->bigdigits, big_from->bigdigits,
-          (size_t) new_size * sizeof(bigDigitType));
+             (size_t) new_size * sizeof(bigDigitType));
     } /* if */
     return result;
   } /* bigCreate */
@@ -3656,7 +3686,7 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
         } else {
           dividend_help->size = dividend->size;
           memcpy(dividend_help->bigdigits, dividend->bigdigits,
-              (size_t) dividend->size * sizeof(bigDigitType));
+                 (size_t) dividend->size * sizeof(bigDigitType));
         } /* if */
         dividend_help->bigdigits[dividend_help->size] = 0;
         dividend_help->size++;
@@ -3672,7 +3702,7 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
         } else {
           divisor_help->size = divisor->size;
           memcpy(divisor_help->bigdigits, divisor->bigdigits,
-              (size_t) divisor->size * sizeof(bigDigitType));
+                 (size_t) divisor->size * sizeof(bigDigitType));
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, dividend_help->size - divisor_help->size + 1))) {
@@ -3680,7 +3710,8 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
       } else {
         quotient->size = dividend_help->size - divisor_help->size + 1;
         quotient->bigdigits[quotient->size - 1] = 0;
-        shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
+        shift = (unsigned int)
+            (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
         if (shift == 0) {
           /* The most significant digit of divisor_help is 0. Just ignore it */
           dividend_help->size--;
@@ -4188,7 +4219,8 @@ intType bigHashCode (const const_bigIntType big1)
     intType hashCode;
 
   /* bigHashCode */
-    hashCode = (intType) (big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1]);
+    hashCode = (intType)
+        (big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1]);
     return hashCode;
   } /* bigHashCode */
 
@@ -4339,12 +4371,12 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
         } else {
           square->size = base->size;
           memcpy(square->bigdigits, base->bigdigits,
-              (size_t) base->size * sizeof(bigDigitType));
+                 (size_t) base->size * sizeof(bigDigitType));
         } /* if */
         if (exponent & 1) {
           power->size = square->size;
           memcpy(power->bigdigits, square->bigdigits,
-              (size_t) square->size * sizeof(bigDigitType));
+                 (size_t) square->size * sizeof(bigDigitType));
         } else {
           negative = FALSE;
           power->size = 1;
@@ -4359,7 +4391,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
           exponent >>= 1;
         } /* while */
         memset(&power->bigdigits[power->size], 0,
-            (size_t) (help_size - power->size) * sizeof(bigDigitType));
+               (size_t) (help_size - power->size) * sizeof(bigDigitType));
         power->size = help_size;
         if (negative) {
           negate_positive_big(power);
@@ -4452,7 +4484,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
       } else {
         unsigned_big->size = big1->size;
         memcpy(unsigned_big->bigdigits, big1->bigdigits,
-            (size_t) big1->size * sizeof(bigDigitType));
+               (size_t) big1->size * sizeof(bigDigitType));
         decimalBlockCount = 0;
         if (unsigned_big->size > 2) {
           if (unsigned_big->size - 1 <= MAX_MEM_INDEX) {
@@ -4663,7 +4695,7 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
           result->bigdigits[idx] = big1->bigdigits[idx] & digit_mask;
         } /* if */
         memcpy(result->bigdigits, big1->bigdigits,
-            (size_t) idx * sizeof(bigDigitType));
+               (size_t) idx * sizeof(bigDigitType));
       } /* if */
     } /* if */
     result = normalize(result);
@@ -4867,9 +4899,9 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
         } else {
           result->size = result_size;
           memcpy(&result->bigdigits[lshift >> BIGDIGIT_LOG2_SIZE], big1->bigdigits,
-              (size_t) big1->size * sizeof(bigDigitType));
+                 (size_t) big1->size * sizeof(bigDigitType));
           memset(result->bigdigits, 0,
-              (memSizeType) ((uintType) lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigDigitType));
+                 (memSizeType) ((uintType) lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigDigitType));
         } /* if */
       } /* if */
     } else if (unlikely(((uintType) lshift >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN - big1->size)) {
@@ -4916,7 +4948,7 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
         *--dest_digits = high_digit;
         if (dest_digits > result->bigdigits) {
           memset(result->bigdigits, 0,
-              (memSizeType) (dest_digits - result->bigdigits) * sizeof(bigDigitType));
+                 (memSizeType) (dest_digits - result->bigdigits) * sizeof(bigDigitType));
         } /* if */
       } /* if */
     } /* if */
@@ -4977,9 +5009,9 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
           } else {
             result->size = result_size;
             memcpy(&result->bigdigits[lshift >> BIGDIGIT_LOG2_SIZE], big1->bigdigits,
-                (size_t) big1->size * sizeof(bigDigitType));
+                   (size_t) big1->size * sizeof(bigDigitType));
             memset(result->bigdigits, 0,
-                (memSizeType) ((uintType) lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigDigitType));
+                   (memSizeType) ((uintType) lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigDigitType));
             *big_variable = result;
             FREE_BIG(big1, big1->size);
           } /* if */
@@ -5032,7 +5064,7 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
           *--dest_digits = high_digit;
           if (dest_digits > result->bigdigits) {
             memset(result->bigdigits, 0,
-                (memSizeType) (dest_digits - result->bigdigits) * sizeof(bigDigitType));
+                   (memSizeType) (dest_digits - result->bigdigits) * sizeof(bigDigitType));
           } /* if */
           if (result != big1) {
             *big_variable = result;
@@ -5180,7 +5212,7 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
         } else {
           dividend_help->size = dividend->size;
           memcpy(dividend_help->bigdigits, dividend->bigdigits,
-              (size_t) dividend->size * sizeof(bigDigitType));
+                 (size_t) dividend->size * sizeof(bigDigitType));
         } /* if */
         dividend_help->bigdigits[dividend_help->size] = 0;
         dividend_help->size++;
@@ -5196,7 +5228,7 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
         } else {
           divisor_help->size = divisor->size;
           memcpy(divisor_help->bigdigits, divisor->bigdigits,
-              (size_t) divisor->size * sizeof(bigDigitType));
+                 (size_t) divisor->size * sizeof(bigDigitType));
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, dividend_help->size - divisor_help->size + 1))) {
@@ -5204,7 +5236,8 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
       } else {
         quotient->size = dividend_help->size - divisor_help->size + 1;
         quotient->bigdigits[quotient->size - 1] = 0;
-        shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
+        shift = (unsigned int)
+            (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
         if (shift == 0) {
           /* The most significant digit of divisor_help is 0. Just ignore it */
           dividend_help->size--;
@@ -5284,7 +5317,7 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
         } else {
           modulo->size = dividend->size;
           memcpy(modulo->bigdigits, dividend->bigdigits,
-              (size_t) dividend->size * sizeof(bigDigitType));
+                 (size_t) dividend->size * sizeof(bigDigitType));
         } /* if */
         modulo->bigdigits[modulo->size] = 0;
         modulo->size++;
@@ -5300,10 +5333,11 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
         } else {
           divisor_help->size = divisor->size;
           memcpy(divisor_help->bigdigits, divisor->bigdigits,
-              (size_t) divisor->size * sizeof(bigDigitType));
+                 (size_t) divisor->size * sizeof(bigDigitType));
         } /* if */
       } /* if */
-      shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
+      shift = (unsigned int)
+          (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
       if (shift == 0) {
         /* The most significant digit of divisor_help is 0. Just ignore it */
         modulo->size--;
@@ -5311,7 +5345,7 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
         if (divisor_help->size == 1) {
           modulo->bigdigits[0] = uBigRem1(modulo, divisor_help->bigdigits[0]);
           memset(&modulo->bigdigits[1], 0,
-              (size_t) (modulo->size - 1) * sizeof(bigDigitType));
+                 (size_t) (modulo->size - 1) * sizeof(bigDigitType));
         } else {
           uBigRem(modulo, divisor_help);
         } /* if */
@@ -5770,7 +5804,7 @@ bigIntType bigParse (const const_striType stri)
         } while (position < stri->size && okay);
         if (likely(okay)) {
           memset(&result->bigdigits[result->size], 0,
-              (size_t) (result_size - result->size) * sizeof(bigDigitType));
+                 (size_t) (result_size - result->size) * sizeof(bigDigitType));
           result->size = result_size;
           if (negative) {
             negate_positive_big(result);
@@ -5875,7 +5909,7 @@ bigIntType bigPred (const const_bigIntType big1)
         result->bigdigits[pos] = big1->bigdigits[pos] - 1;
         pos++;
         memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
-            (big1->size - pos) * sizeof(bigDigitType));
+               (big1->size - pos) * sizeof(bigDigitType));
         pos = big1->size;
         /* while (pos < big1->size) {
           result->bigdigits[pos] = big1->bigdigits[pos];
@@ -6060,7 +6094,7 @@ bigIntType bigRand (const const_bigIntType low,
         result = NULL;
       } else {
         memset(&result->bigdigits[scale_limit->size], 0,
-            (size_t) (result_size - scale_limit->size) * sizeof(bigDigitType));
+               (size_t) (result_size - scale_limit->size) * sizeof(bigDigitType));
         result->size = scale_limit->size;
         usedBits = digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) + 1;
         if (usedBits == 0) {
@@ -6133,7 +6167,7 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
         } else {
           remainder->size = dividend->size;
           memcpy(remainder->bigdigits, dividend->bigdigits,
-              (size_t) dividend->size * sizeof(bigDigitType));
+                 (size_t) dividend->size * sizeof(bigDigitType));
         } /* if */
         remainder->bigdigits[remainder->size] = 0;
         remainder->size++;
@@ -6148,10 +6182,11 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
         } else {
           divisor_help->size = divisor->size;
           memcpy(divisor_help->bigdigits, divisor->bigdigits,
-              (size_t) divisor->size * sizeof(bigDigitType));
+                 (size_t) divisor->size * sizeof(bigDigitType));
         } /* if */
       } /* if */
-      shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
+      shift = (unsigned int)
+          (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
       if (shift == 0) {
         /* The most significant digit of divisor_help is 0. Just ignore it */
         remainder->size--;
@@ -6159,7 +6194,7 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
         if (divisor_help->size == 1) {
           remainder->bigdigits[0] = uBigRem1(remainder, divisor_help->bigdigits[0]);
           memset(&remainder->bigdigits[1], 0,
-              (size_t) (remainder->size - 1) * sizeof(bigDigitType));
+                 (size_t) (remainder->size - 1) * sizeof(bigDigitType));
         } else {
           uBigRem(remainder, divisor_help);
         } /* if */
@@ -6240,7 +6275,7 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
         } else {
           result->size = result_size;
           memcpy(result->bigdigits, &big1->bigdigits[size_reduction],
-              (size_t) result_size * sizeof(bigDigitType));
+                 (size_t) result_size * sizeof(bigDigitType));
         } /* if */
       } else {
         digit_rshift = (unsigned int) ((uintType) rshift & BIGDIGIT_SIZE_MASK);
@@ -6338,7 +6373,7 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
           if (rshift != 0) {
             big1_size = big1->size;
             memmove(big1->bigdigits, &big1->bigdigits[size_reduction],
-                (size_t) (big1_size - size_reduction) * sizeof(bigDigitType));
+                    (size_t) (big1_size - size_reduction) * sizeof(bigDigitType));
             REALLOC_BIG_SIZE_OK(resized_big1, big1, big1_size, big1_size - size_reduction);
             /* Avoid a MEMORY_ERROR in the strange case     */
             /* when a 'realloc' which shrinks memory fails. */
@@ -6707,7 +6742,7 @@ striType bigStr (const const_bigIntType big1)
           } else {
             unsigned_big->size = big1->size;
             memcpy(unsigned_big->bigdigits, big1->bigdigits,
-                (size_t) big1->size * sizeof(bigDigitType));
+                   (size_t) big1->size * sizeof(bigDigitType));
           } /* if */
           pos = result_size - 1;
           do {
@@ -6738,11 +6773,11 @@ striType bigStr (const const_bigIntType big1)
             final_result_size = result_size - pos + 1;
             result->mem[0] = '-';
             memmove(&result->mem[1], &result->mem[pos],
-                (result_size - pos) * sizeof(strElemType));
+                    (result_size - pos) * sizeof(strElemType));
           } else {
             final_result_size = result_size - pos;
             memmove(&result->mem[0], &result->mem[pos],
-                (result_size - pos) * sizeof(strElemType));
+                    (result_size - pos) * sizeof(strElemType));
           } /* if */
           result->size = final_result_size;
           if (final_result_size < result_size) {
@@ -6800,7 +6835,7 @@ bigIntType bigSucc (const const_bigIntType big1)
         result->bigdigits[pos] = big1->bigdigits[pos] + 1;
         pos++;
         memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
-            (big1->size - pos) * sizeof(bigDigitType));
+               (big1->size - pos) * sizeof(bigDigitType));
         pos = big1->size;
         /* while (pos < big1->size) {
           result->bigdigits[pos] = big1->bigdigits[pos];

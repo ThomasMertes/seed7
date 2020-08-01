@@ -60,7 +60,8 @@ intType pcsCmpGeneric (const genericType value1, const genericType value2)
 void pcsCpy (processType *const process_to, const processType process_from)
 
   { /* pcsCpy */
-    logFunction(printf("pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
+    logFunction(printf("pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), "
+                       FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) *process_to,
                        *process_to != NULL ? (*process_to)->usage_count : (uintType) 0,
                        (memSizeType) process_from,
@@ -75,7 +76,8 @@ void pcsCpy (processType *const process_to, const processType process_from)
       } /* if */
     } /* if */
     *process_to = process_from;
-    logFunction(printf("pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+    logFunction(printf("pcsCpy(" FMT_U_MEM " (usage=" FMT_U "), "
+                       FMT_U_MEM " (usage=" FMT_U ")) -->\n",
                        (memSizeType) *process_to,
                        *process_to != NULL ? (*process_to)->usage_count : (uintType) 0,
                        (memSizeType) process_from,

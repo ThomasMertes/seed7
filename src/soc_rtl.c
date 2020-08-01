@@ -91,22 +91,25 @@ typedef socklen_t sockLenType;
 
 #endif
 
-#define BUFFER_SIZE             4096
-#define GETS_DEFAULT_SIZE    1048576
-#define READ_STRI_INIT_SIZE      256
-#define READ_STRI_SIZE_DELTA    2048
-#define MAX_ADDRESS_SIZE        1024
+#define BUFFER_SIZE                4096
+#define GETS_DEFAULT_SIZE       1048576
+#define READ_STRI_INIT_SIZE         256
+#define READ_STRI_SIZE_DELTA       2048
+#define MAX_ADDRESS_SIZE           1024
+#define MAX_HOSTNAME_LENGTH        1024
+#define ERROR_MESSAGE_BUFFER_SIZE  1024
 
 #ifdef USE_WINSOCK
 static boolType initialized = FALSE;
-#define check_initialization(err_result) if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
+#define check_initialization(err_result) \
+    if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
 #else
 #define check_initialization(err_result)
 #endif
 
 
 
-#if LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE
+#if ANY_LOG_ACTIVE
 static const_cstriType socAddressCStri (const const_bstriType address)
 
   {
@@ -146,7 +149,8 @@ static const_cstriType socAddressCStri (const const_bstriType address)
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
             result = " ** Size of address wrong for AF_INET6 ** ";
           } else {
-            const struct sockaddr_in6 *inet6_address = (const struct sockaddr_in6 *) address->mem;
+            const struct sockaddr_in6 *inet6_address =
+                (const struct sockaddr_in6 *) address->mem;
             unsigned int digitGroup[8];
             int pos;
             int port;
@@ -216,13 +220,13 @@ static int init_winsock (void)
 cstriType wsaErrorMessage (void)
 
   {
-    static char buffer[1024];
+    static char buffer[ERROR_MESSAGE_BUFFER_SIZE];
 
   /* wsaErrorMessage */
     if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                        NULL, WSAGetLastError(),
                        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                       buffer, 1024, NULL) == 0) {
+                       buffer, ERROR_MESSAGE_BUFFER_SIZE, NULL) == 0) {
       strcpy(buffer, "Unable to get error message.");
     } /* if */
     return buffer;
@@ -439,7 +443,8 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
           currBuffer = currBuffer->next;
           result_pos += LIST_BUFFER_SIZE;
         } /* while */
-        memcpy_to_strelem(&result->mem[result_pos], currBuffer->buffer, result_size - result_pos);
+        memcpy_to_strelem(&result->mem[result_pos], currBuffer->buffer,
+                          result_size - result_pos);
       } /* if */
     } /* if */
     currBuffer = buffer.next;
@@ -502,7 +507,8 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
       } else {
-        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE,
+                              (memSizeType) addrlen);
         if (unlikely(resized_address == NULL)) {
           (*address)->size = MAX_ADDRESS_SIZE;
           raise_error(MEMORY_ERROR);
@@ -596,7 +602,8 @@ striType socAddrNumeric (const const_bstriType address)
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
-            const struct sockaddr_in6 *inet6_address = (const struct sockaddr_in6 *) address->mem;
+            const struct sockaddr_in6 *inet6_address =
+                (const struct sockaddr_in6 *) address->mem;
             unsigned int digitGroup[8];
             int pos;
 
@@ -894,12 +901,12 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
 striType socGetHostname (void)
 
   {
-    char name[1024];
+    char name[MAX_HOSTNAME_LENGTH];
     striType result;
 
   /* socGetHostname */
     check_initialization(NULL);
-    if (unlikely(gethostname(name, 1024) != 0)) {
+    if (unlikely(gethostname(name, MAX_HOSTNAME_LENGTH) != 0)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -940,7 +947,8 @@ bstriType socGetLocalAddr (socketType sock)
         raise_error(FILE_ERROR);
         address = NULL;
       } else {
-        REALLOC_BSTRI_SIZE_OK(resized_address, address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+        REALLOC_BSTRI_SIZE_OK(resized_address, address, MAX_ADDRESS_SIZE,
+                              (memSizeType) addrlen);
         if (unlikely(resized_address == NULL)) {
           FREE_BSTRI(address, MAX_ADDRESS_SIZE);
           raise_error(MEMORY_ERROR);
@@ -989,7 +997,8 @@ bstriType socGetPeerAddr (socketType sock)
         raise_error(FILE_ERROR);
         address = NULL;
       } else {
-        REALLOC_BSTRI_SIZE_OK(resized_address, address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+        REALLOC_BSTRI_SIZE_OK(resized_address, address, MAX_ADDRESS_SIZE,
+                              (memSizeType) addrlen);
         if (unlikely(resized_address == NULL)) {
           FREE_BSTRI(address, MAX_ADDRESS_SIZE);
           raise_error(MEMORY_ERROR);
@@ -1111,10 +1120,10 @@ bstriType socInetAddr (const const_striType hostName, intType port)
                             gai_strerror(getaddrinfo_result),
                             ERROR_INFORMATION););
             /*
-            printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d  EAI_MEMORY=%d\n",
-                EAI_AGAIN, EAI_BADFLAGS, EAI_FAIL, EAI_FAMILY, EAI_MEMORY);
-            printf("EAI_NONAME=%d  EAI_SERVICE=%d  EAI_SOCKTYPE=%d\n",
-                EAI_NONAME, EAI_SERVICE, EAI_SOCKTYPE);
+            printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d\n",
+                EAI_AGAIN, EAI_BADFLAGS, EAI_FAIL, EAI_FAMILY);
+            printf("EAI_MEMORY=%d  EAI_NONAME=%d  EAI_SERVICE=%d  EAI_SOCKTYPE=%d\n",
+                EAI_MEMORY, EAI_NONAME, EAI_SERVICE, EAI_SOCKTYPE);
             */
             /* printf("EAI_SYSTEM=%d  EAI_OVERFLOW=%d\n",
                 EAI_SYSTEM, EAI_OVERFLOW); */
@@ -1180,8 +1189,9 @@ bstriType socInetAddr (const const_striType hostName, intType port)
               result->size = sizeof(struct sockaddr_in);
               inet_address = (struct sockaddr_in *) result->mem;
               inet_address->sin_family = host_ent->h_addrtype;
-              inet_address->sin_port = htons((uint16Type) port);       /* short, network byte order */
-              memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr, (size_t) host_ent->h_length);
+              inet_address->sin_port = htons((uint16Type) port); /* short, network byte order */
+              memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr,
+                     (size_t) host_ent->h_length);
               memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
               /* {
                 uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
@@ -1368,7 +1378,8 @@ bstriType socInetServAddr (intType port)
         inet6_address->sin6_family = AF_INET6;
         inet6_address->sin6_port = htons((uint16Type) port); /* short, network byte order */
         inet6_address->sin6_flowinfo = 0;
-        memcpy(&inet6_address->sin6_addr, &in6addr_any, sizeof(struct in6_addr)); /* auto-fill with local IP */
+        memcpy(&inet6_address->sin6_addr, &in6addr_any,
+               sizeof(struct in6_addr));                     /* auto-fill with local IP */
         inet6_address->sin6_scope_id = 0;
       } /* if */
 #else
@@ -1586,9 +1597,11 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
                                               cast_buffer_len(bytes_requested), 0);
           /* bytes_received should always be identical to bytes_requested. */
           result_size += BUFFER_DELTA_SIZE;
-          /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n", (unsigned long) result, old_result_size, result_size); */
+          /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n",
+              (unsigned long) result, old_result_size, result_size); */
           REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
-          /* printf("B result=%08lx, resized_result=%08lx\n", (unsigned long) result, (unsigned long) resized_result); */
+          /* printf("B result=%08lx, resized_result=%08lx\n",
+              (unsigned long) result, (unsigned long) resized_result); */
           if (unlikely(resized_result == NULL)) {
             if (result != NULL) {
               FREE_STRI(result, old_result_size);
@@ -1640,9 +1653,11 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
           } /* if */
           old_result_size = result_size;
           result_size = result_pos + bytes_requested;
-          /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n", (unsigned long) result, old_result_size, result_size); */
+          /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n",
+              (unsigned long) result, old_result_size, result_size); */
           REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
-          /* printf("D result=%08lx, resized_result=%08lx\n", (unsigned long) result, (unsigned long) resized_result); */
+          /* printf("D result=%08lx, resized_result=%08lx\n",
+              (unsigned long) result, (unsigned long) resized_result); */
           if (unlikely(resized_result == NULL)) {
             FREE_STRI(result, result_size);
             raise_error(MEMORY_ERROR);
@@ -1794,7 +1809,8 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
                                            cast_send_recv_data((*stri)->mem),
                                            cast_buffer_len(bytes_requested), (int) flags,
                                            (struct sockaddr *) (*address)->mem, &addrlen);
-        if (unlikely(stri_size == (memSizeType) -1 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+        if (unlikely(stri_size == (memSizeType) -1 || addrlen < 0 ||
+                     addrlen > MAX_ADDRESS_SIZE)) {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
@@ -1807,7 +1823,8 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
                           sock, ERROR_INFORMATION););
           raise_error(FILE_ERROR);
         } else {
-          REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+          REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE,
+                                (memSizeType) addrlen);
           if (unlikely(resized_address == NULL)) {
             (*address)->size = MAX_ADDRESS_SIZE;
             raise_error(MEMORY_ERROR);

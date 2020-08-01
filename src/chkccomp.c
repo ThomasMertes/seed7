@@ -871,23 +871,27 @@ void numericSizes (FILE *versionFile)
       int64TypeStri = "long long";
       uint64TypeStri = "unsigned long long";
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                           "{long long n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
+                           "{long long n=12345678LL;printf(\"%d\\n\",sizeof(1LL));\n"
+                           "return 0;}\n") && doTest() == 8) {
         int64TypeSuffix = "LL";
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
-                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);\n"
+                           "return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "ll";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%LdB\", (long long) 1 << 32);\n"
-                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);\n"
+                                  "return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "L";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%I64dB\", (long long) 1 << 32);\n"
-                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);\n"
+                                  "return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "I64";
       } /* if */
     } else if (getSizeof("__int64") == 8) {
@@ -895,23 +899,27 @@ void numericSizes (FILE *versionFile)
       int64TypeStri = "__int64";
       uint64TypeStri = "unsigned __int64";
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                           "{__int64 n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
+                           "{__int64 n=12345678LL;printf(\"%d\\n\",sizeof(1LL));\n"
+                           "return 0;}\n") && doTest() == 8) {
         int64TypeSuffix = "LL";
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{char b[99]; sprintf(b, \"A%lldB\", (__int64) 1 << 32);\n"
-                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);\n"
+                           "return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "ll";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%LdB\", (__int64) 1 << 32);\n"
-                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);\n"
+                                  "return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "L";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%I64dB\", (__int64) 1 << 32);\n"
-                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);\n"
+                                  "return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "I64";
       } /* if */
     } /* if */
@@ -1143,11 +1151,13 @@ void numericProperties (FILE *versionFile)
       fprintf(versionFile, "#define LITTLE_ENDIAN_INTTYPE %d\n", doTest());
     } /* if */
     if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[])"
-                         "{long num=1;printf(\"%d\\n\",((char*)&num)[sizeof(long) - 1]==1);return 0;}\n")) {
+                         "{long num=1;printf(\"%d\\n\",((char*)&num)[sizeof(long) - 1]==1);\n"
+                         "return 0;}\n")) {
       fprintf(versionFile, "#define BIG_ENDIAN_INTTYPE %d\n", doTest());
     } /* if */
     checkIntDivisions(versionFile);
-    if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n#include<signal.h>\n"
+    if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
+                         "#include<signal.h>\n"
                          "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
                          "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
                          "int main(int argc,char *argv[]){\n"
@@ -1239,7 +1249,8 @@ void numericProperties (FILE *versionFile)
 #ifdef TURN_OFF_FP_EXCEPTIONS
                           "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
+                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\n"
+                          "signal(SIGINT,handleSig);\n"
                           "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
       fputs("#define FLOAT_ZERO_DIV_ERROR\n", versionFile);
     } /* if */
@@ -1298,7 +1309,8 @@ void numericProperties (FILE *versionFile)
 #ifdef TURN_OFF_FP_EXCEPTIONS
                           "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
+                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\n"
+                          "signal(SIGINT,handleSig);\n"
                           "printf(\"%d\\n\",1.0/zero==0.0);return 0;}\n") || doTest() == 2) {
       fputs("#define CHECK_FLOAT_DIV_BY_ZERO 1\n", versionFile);
       fputs("#define USE_NEGATIVE_ZERO_BITPATTERN 1\n", versionFile);
@@ -1595,7 +1607,8 @@ void numericProperties (FILE *versionFile)
 #ifdef TURN_OFF_FP_EXCEPTIONS
                          "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                         "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
+                         "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\n"
+                         "signal(SIGINT,handleSig);\n"
                          "printf(\"%d\\n\",(int) 1.0E37);return 0;}\n")) {
       testResult = doTest();
       if ((sizeof(int) == 4 && (long) testResult == 2147483647L) ||
@@ -1627,11 +1640,13 @@ void numericProperties (FILE *versionFile)
                          "power = dblPower((double) FLT_RADIX, FLT_MANT_DIG);\n"
                          "printf(\"#define INT_RANGE_IN_FLOAT_MAX %0.0f\\n\", power);\n"
                          "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", power);\n"
-                         "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", FLT_MANT_DIG * floatRadixFactor);\n"
+                         "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", "
+                                 "FLT_MANT_DIG * floatRadixFactor);\n"
                          "power = dblPower((double) FLT_RADIX, DBL_MANT_DIG);\n"
                          "printf(\"#define INT_RANGE_IN_DOUBLE_MAX %0.0f\\n\", power);\n"
                          "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", power);\n"
-                         "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", DBL_MANT_DIG * floatRadixFactor);\n"
+                         "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", "
+                                 "DBL_MANT_DIG * floatRadixFactor);\n"
                          "return 0;}\n")) {
       testOutputToVersionFile(versionFile);
     } /* if */
@@ -1735,7 +1750,8 @@ void checkForLimitedStringLiteralLength (FILE *versionFile)
     const char *programStart = "#include <stdio.h>\n#include <string.h>\n"
                                "int main(int argc, char *argv[]){\n"
                                "char *stri =\n";
-    const char *line = "\"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\"\n";
+    const char *line = "\"12345678901234567890123456789012345678901234567890"
+                       "12345678901234567890123456789012345678901234567890\"\n";
     const char *programEnd = "; printf(\"%d\\n\", strlen(stri) != 0); return 0;}\n";
     const int repeatCount = 1000; /* Corresponds to a string literal length of 100000. */
     int lineLength;
@@ -2749,7 +2765,8 @@ void detemineOciDefines (FILE *versionFile,
                                           "int main(int argc,char *argv[]){return 0;}\n",
                                           includeOption, "")) {
             ociInclude = "oci.h";
-            fprintf(logFile, "Oracle: %s found in %s%s\n", ociInclude, oracle_home, oci_incl_dir[incl_dir_idx]);
+            fprintf(logFile, "Oracle: %s found in %s%s\n",
+                    ociInclude, oracle_home, oci_incl_dir[incl_dir_idx]);
             appendOption(include_options, includeOption);
           } /* if */
         } /* if */
@@ -2876,17 +2893,24 @@ void writeReadBufferEmptyMacro (FILE *versionFile)
     char buffer[4096];
 
   /* writeReadBufferEmptyMacro */
-    if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
-      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;return 0;}\n")) {
+    if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                         "{FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) "
+                                 "((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;fp->_cnt <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_cnt <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->__cnt <= 0;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;fp->__cnt <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->__cnt <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->level <= 0;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;fp->level <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->level <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;fp->_r <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_r <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->ptr >= (fp)->getend)";
     } else {
       define_read_buffer_empty = NULL;
@@ -3091,7 +3115,8 @@ int main (int argc, char **argv)
                              "{printf(\"%d\\n\", getenv(\"USERPROFILE\") != NULL);\n"
                              "return 0;}\n") && doTest() == 1) {
           /* When USERPROFILE is defined then it is used, even when HOME is defined. */
-          fputs("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', 'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}\n", versionFile);
+          fputs("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', "
+                "'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}\n", versionFile);
         } else if (assertCompAndLnk("#include <stdio.h>\n#include <stdlib.h>\n"
                                     "int main(int argc, char *argv[])\n"
                                     "{printf(\"%d\\n\", getenv(\"HOME\") != NULL);\n"

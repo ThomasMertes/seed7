@@ -180,8 +180,7 @@ void free_expression (objectType object)
     listType list_elem;
 
   /* free_expression */
-    /* prot_cstri(" free_expression");
-    prot_nl(); */
+    logFunction(printf("free_expression\n"););
     if (object != NULL) {
       switch (CATEGORY_OF_OBJ(object)) {
         case CALLOBJECT:

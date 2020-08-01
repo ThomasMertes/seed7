@@ -259,7 +259,9 @@ objectType sct_create (listType arguments)
 printf("create: pointer assignment\n");
 */
       stru_to->value.structValue = take_struct(stru_from);
-      /* printf("sct_create: usage_count=%u %lu\n", stru_to->value.structValue->usage_count, (unsigned long) stru_to->value.structValue); */
+      /* printf("sct_create: usage_count=%u %lu\n",
+          stru_to->value.structValue->usage_count,
+          (unsigned long) stru_to->value.structValue); */
       stru_from->value.structValue = NULL;
     } else {
       new_size = take_struct(stru_from)->size;

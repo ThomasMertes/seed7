@@ -136,7 +136,8 @@ objectType itf_cpy (listType arguments)
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          /* printf("itf_cpy: memcpy %lu %lu %lu ", take_struct(interface_from), new_value, interface_from);
+          /* printf("itf_cpy: memcpy %lu %lu %lu ",
+              take_struct(interface_from), new_value, interface_from);
           trace1(interface_from);
           printf("\n"); */
           memcpy(new_value, interface_from, sizeof(objectRecord));
@@ -156,7 +157,8 @@ objectType itf_cpy (listType arguments)
       if (old_struct == NULL) {
         old_struct = take_struct(old_value);
       } /* if */
-      /* printf("itf_cpy: destroy usage_count=%lu %lu\n", old_struct->usage_count, (unsigned long) old_struct); */
+      /* printf("itf_cpy: destroy usage_count=%lu %lu\n",
+          old_struct->usage_count, (unsigned long) old_struct); */
       if (old_struct->usage_count != 0) {
         old_struct->usage_count--;
         if (old_struct->usage_count == 0) {
@@ -217,7 +219,8 @@ objectType itf_cpy2 (listType arguments)
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          /* printf("itf_cpy2: memcpy %lu %lu %lu ", take_struct(interface_from), new_value, interface_from);
+          /* printf("itf_cpy2: memcpy %lu %lu %lu ",
+              take_struct(interface_from), new_value, interface_from);
           trace1(interface_from);
           printf("\n"); */
           memcpy(new_value, interface_from, sizeof(objectRecord));
@@ -237,7 +240,8 @@ objectType itf_cpy2 (listType arguments)
       if (old_struct == NULL) {
         old_struct = take_struct(old_value);
       } /* if */
-      /* printf("itf_cpy2: destroy usage_count=%lu %lu\n", old_struct->usage_count, (unsigned long) old_struct); */
+      /* printf("itf_cpy2: destroy usage_count=%lu %lu\n",
+          old_struct->usage_count, (unsigned long) old_struct); */
       if (old_struct->usage_count != 0) {
         old_struct->usage_count--;
         if (old_struct->usage_count == 0) {
@@ -282,7 +286,8 @@ objectType itf_create (listType arguments)
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          /* printf("itf_create: memcpy %lu %lu %lu ", take_struct(interface_from), new_value, interface_from);
+          /* printf("itf_create: memcpy %lu %lu %lu ",
+              take_struct(interface_from), new_value, interface_from);
           trace1(interface_from);
           printf("\n"); */
           memcpy(new_value, interface_from, sizeof(objectRecord));
@@ -331,7 +336,8 @@ objectType itf_create2 (listType arguments)
         if (!ALLOC_OBJECT(new_value)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          /* printf("itf_create2: memcpy %lu %lu %lu ", take_struct(interface_from), new_value, interface_from);
+          /* printf("itf_create2: memcpy %lu %lu %lu ",
+              take_struct(interface_from), new_value, interface_from);
           trace1(interface_from);
           printf("\n"); */
           memcpy(new_value, interface_from, sizeof(objectRecord));
@@ -375,7 +381,8 @@ objectType itf_destr (listType arguments)
       isit_struct(old_value);
       old_struct = take_struct(old_value);
       if (old_struct != NULL) {
-        /* printf("itf_destr: usage_count=%lu %lu\n", old_struct->usage_count, (unsigned long) old_struct);
+        /* printf("itf_destr: usage_count=%lu %lu\n",
+            old_struct->usage_count, (unsigned long) old_struct);
         trace1(old_value);
         printf("\n"); */
         if (old_struct->usage_count != 0) {

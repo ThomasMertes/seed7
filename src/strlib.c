@@ -81,8 +81,8 @@ static inline const strElemType *search_strelem (const strElemType *mem,
 
 
 
-static arrayType add_stri_to_array (const strElemType *stri_elems, memSizeType length,
-    arrayType work_array, intType *used_max_position)
+static arrayType add_stri_to_array (const strElemType *stri_elems,
+    memSizeType length, arrayType work_array, intType *used_max_position)
 
   {
     striType new_stri;
@@ -93,20 +93,22 @@ static arrayType add_stri_to_array (const strElemType *stri_elems, memSizeType l
     if (ALLOC_STRI_SIZE_OK(new_stri, length)) {
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems,
-          length * sizeof(strElemType));
+             length * sizeof(strElemType));
       if (*used_max_position >= work_array->max_position) {
         if (work_array->max_position >= MAX_MEM_INDEX - 256) {
           resized_work_array = NULL;
         } else {
           resized_work_array = REALLOC_ARRAY(work_array,
-              (uintType) work_array->max_position, (uintType) work_array->max_position + 256);
+              (uintType) work_array->max_position,
+              (uintType) work_array->max_position + 256);
         } /* if */
         if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
           work_array = resized_work_array;
-          COUNT3_ARRAY((uintType) work_array->max_position, (uintType) work_array->max_position + 256);
+          COUNT3_ARRAY((uintType) work_array->max_position,
+                       (uintType) work_array->max_position + 256);
           work_array->max_position += 256;
         } /* if */
       } /* if */
@@ -130,7 +132,8 @@ static arrayType add_stri_to_array (const strElemType *stri_elems, memSizeType l
 
 
 
-static arrayType strChSplit (const const_striType main_stri, const charType delimiter)
+static arrayType strChSplit (const const_striType main_stri,
+    const charType delimiter)
 
   {
     intType used_max_position;
@@ -162,7 +165,8 @@ static arrayType strChSplit (const const_striType main_stri, const charType deli
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_ARRAY(result_array,
-              (uintType) result_array->max_position, (uintType) used_max_position);
+              (uintType) result_array->max_position,
+              (uintType) used_max_position);
           if (resized_result_array == NULL) {
             for (pos = 0; pos < (uintType) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.striValue,
@@ -172,7 +176,8 @@ static arrayType strChSplit (const const_striType main_stri, const charType deli
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
+            COUNT3_ARRAY((uintType) result_array->max_position,
+                         (uintType) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -231,11 +236,12 @@ static arrayType strSplit (const const_striType main_stri,
       } /* if */
       if (result_array != NULL) {
         result_array = add_stri_to_array(segment_start,
-            (memSizeType) (&main_stri->mem[main_stri->size] - segment_start), result_array,
-            &used_max_position);
+            (memSizeType) (&main_stri->mem[main_stri->size] - segment_start),
+            result_array, &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_ARRAY(result_array,
-              (uintType) result_array->max_position, (uintType) used_max_position);
+              (uintType) result_array->max_position,
+              (uintType) used_max_position);
           if (resized_result_array == NULL) {
             for (pos = 0; pos < (uintType) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.striValue,
@@ -245,7 +251,8 @@ static arrayType strSplit (const const_striType main_stri,
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
+            COUNT3_ARRAY((uintType) result_array->max_position,
+                         (uintType) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -300,7 +307,7 @@ objectType str_append (listType arguments)
           } /* if */
           COUNT3_STRI(str_to_size, new_size);
           memcpy(&new_str->mem[str_to_size], str_from->mem,
-              str_from->size * sizeof(strElemType));
+                 str_from->size * sizeof(strElemType));
           new_str->size = new_size;
           str_variable->value.striValue = new_str;
         } /* if */
@@ -343,7 +350,7 @@ objectType str_cat (listType arguments)
           COUNT3_STRI(stri1_size, result_size);
           result->size = result_size;
           memcpy(&result->mem[stri1_size], stri2->mem,
-              stri2->size * sizeof(strElemType));
+                 stri2->size * sizeof(strElemType));
           arg_1(arguments)->value.striValue = NULL;
           return bld_stri_temp(result);
         } /* if */
@@ -353,9 +360,9 @@ objectType str_cat (listType arguments)
         } else {
           result->size = result_size;
           memcpy(result->mem, stri1->mem,
-              stri1_size * sizeof(strElemType));
+                 stri1_size * sizeof(strElemType));
           memcpy(&result->mem[stri1_size], stri2->mem,
-              stri2->size * sizeof(strElemType));
+                 stri2->size * sizeof(strElemType));
           return bld_stri_temp(result);
         } /* if */
       } /* if */
@@ -485,7 +492,7 @@ objectType str_cpy (listType arguments)
           /* destination areas overlap (or are identical).     */
           /* Therefore a check for this case is necessary.     */
           memcpy(stri_dest->mem, take_stri(str_from)->mem,
-              new_size * sizeof(strElemType));
+                 new_size * sizeof(strElemType));
         } /* if */
       } else {
         if (unlikely(!ALLOC_STRI_SIZE_OK(stri_dest, new_size))) {
@@ -496,7 +503,7 @@ objectType str_cpy (listType arguments)
           stri_dest->size = new_size;
         } /* if */
         memcpy(stri_dest->mem, take_stri(str_from)->mem,
-            new_size * sizeof(strElemType));
+               new_size * sizeof(strElemType));
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -530,7 +537,7 @@ objectType str_create (listType arguments)
       str_to->value.striValue = new_str;
       new_str->size = new_size;
       memcpy(new_str->mem, take_stri(str_from)->mem,
-          new_size * sizeof(strElemType));
+             new_size * sizeof(strElemType));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* str_create */
@@ -746,7 +753,7 @@ objectType str_head (listType arguments)
         } /* if */
         result->size = result_size;
         memcpy(result->mem, stri->mem,
-            result_size * sizeof(strElemType));
+               result_size * sizeof(strElemType));
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
@@ -932,7 +939,7 @@ objectType str_lpad (listType arguments)
           } while (idx-- != 0);
         }
         memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
-            striSize * sizeof(strElemType));
+               striSize * sizeof(strElemType));
       } /* if */
     } else {
       if (TEMP_OBJECT(arg_1(arguments))) {
@@ -944,7 +951,7 @@ objectType str_lpad (listType arguments)
         } /* if */
         result->size = striSize;
         memcpy(result->mem, stri->mem,
-            striSize * sizeof(strElemType));
+               striSize * sizeof(strElemType));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -1002,7 +1009,7 @@ objectType str_lpad0 (listType arguments)
         } /* if */
         result->size = striSize;
         memcpy(result->mem, stri->mem,
-            striSize * sizeof(strElemType));
+               striSize * sizeof(strElemType));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -1074,7 +1081,7 @@ objectType str_ltrim (listType arguments)
     } else {
       result->size = striSize;
       memcpy(result->mem, &stri->mem[start],
-          striSize * sizeof(strElemType));
+             striSize * sizeof(strElemType));
       return bld_stri_temp(result);
     } /* if */
   } /* str_ltrim */
@@ -1270,7 +1277,7 @@ objectType str_range (listType arguments)
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strElemType));
+             result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
@@ -1403,7 +1410,7 @@ objectType str_rpad (listType arguments)
         } /* if */
         result->size = striSize;
         memcpy(result->mem, stri->mem,
-            striSize * sizeof(strElemType));
+               striSize * sizeof(strElemType));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -1464,7 +1471,7 @@ objectType str_rtrim (listType arguments)
       } /* if */
       result->size = result_size;
       memcpy(result->mem, stri->mem,
-          result_size * sizeof(strElemType));
+             result_size * sizeof(strElemType));
     } /* if */
     return bld_stri_temp(result);
   } /* str_rtrim */
@@ -1505,7 +1512,7 @@ objectType str_str (listType arguments)
       } else {
         result->size = stri->size;
         memcpy(result->mem, stri->mem,
-            stri->size * sizeof(strElemType));
+               stri->size * sizeof(strElemType));
         return bld_stri_temp(result);
       } /* if */
     } /* if */
@@ -1555,7 +1562,7 @@ objectType str_substr (listType arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strElemType));
+             result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
@@ -1604,7 +1611,7 @@ objectType str_tail (listType arguments)
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strElemType));
+             result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
@@ -1664,7 +1671,7 @@ objectType str_trim (listType arguments)
     } else {
       result->size = striSize;
       memcpy(result->mem, &stri->mem[start],
-          striSize * sizeof(strElemType));
+             striSize * sizeof(strElemType));
       return bld_stri_temp(result);
     } /* if */
   } /* str_trim */
@@ -1729,7 +1736,7 @@ objectType str_value (listType arguments)
       } else {
         result->size = stri->size;
         memcpy(result->mem, stri->mem,
-            result->size * sizeof(strElemType));
+               result->size * sizeof(strElemType));
         return bld_stri_temp(result);
       } /* if */
     } /* if */
