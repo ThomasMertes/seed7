@@ -1035,6 +1035,7 @@ boolType socHasNext (socketType inSocket)
     boolType result;
 
   /* socHasNext */
+    logFunction(printf("socHasNext(%d)\n", inSocket););
     bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                         cast_send_recv_data(&next_char), 1, MSG_PEEK);
     if (bytes_received != 1) {
@@ -1044,6 +1045,7 @@ boolType socHasNext (socketType inSocket)
       /* printf("socHasNext: next_char=%d\n", next_char); */
       result = TRUE;
     } /* if */
+    logFunction(printf("socHasNext(%d) --> %d\n", inSocket, result););
     return result;
   } /* socHasNext */
 

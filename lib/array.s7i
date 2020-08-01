@@ -376,6 +376,15 @@ const func type: array (in type: baseType) is func
           end if;
         end func;
 
+      const proc: insert (inout arrayType: arr, in integer: index, in arrayType: elements) is func
+        begin
+          if index >= minIdx(arr) and index <= succ(maxIdx(arr)) then
+            arr := arr[.. pred(index)] & elements & arr[index ..];
+          else
+            raise RANGE_ERROR;
+          end if;
+        end func;
+
       if getobj((in baseType: element1) = (in baseType: element2)) <> NIL and
           getobj((in baseType: element1) <> (in baseType: element2)) <> NIL then
 

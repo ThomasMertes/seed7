@@ -3770,7 +3770,7 @@ databaseType sqlOpenOdbc (const const_striType dbName,
                                      (SQLPOINTER) SQL_OV_ODBC3,
                                      SQL_IS_INTEGER) != SQL_SUCCESS) {
               setDbErrorMsg("sqlOpenOdbc", "SQLSetEnvAttr",
-                            SQL_HANDLE_DBC, sql_connection);
+                            SQL_HANDLE_ENV, sql_environment);
               logError(printf("sqlOpenOdbc: SQLSetEnvAttr "
                               "SQL_ATTR_ODBC_VERSION:\n%s\n",
                               dbError.message););

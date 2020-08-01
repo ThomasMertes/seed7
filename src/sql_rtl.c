@@ -124,15 +124,15 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                       (memSizeType) sqlStatement, pos););
       raise_error(RANGE_ERROR);
 #if !ENCODE_INFINITY && !ENCODE_NAN
-    } else if (bigEqSignedDigit(denominator, 0)) {
+    } else if (unlikely(bigEqSignedDigit(denominator, 0))) {
       raise_error(RANGE_ERROR);
 #else
 #if !ENCODE_INFINITY
-    } else if (bigEqSignedDigit(denominator, 0) && !bigEqSignedDigit(numerator, 0)) {
+    } else if (unlikely(bigEqSignedDigit(denominator, 0) && !bigEqSignedDigit(numerator, 0))) {
       raise_error(RANGE_ERROR);
 #endif
 #if !ENCODE_NAN
-    } else if (bigEqSignedDigit(denominator, 0) && bigEqSignedDigit(numerator, 0)) {
+    } else if (unlikely(bigEqSignedDigit(denominator, 0) && bigEqSignedDigit(numerator, 0))) {
       raise_error(RANGE_ERROR);
 #endif
 #endif
@@ -264,11 +264,11 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
                       (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
 #if !ENCODE_INFINITY
-    } else if (value == POSITIVE_INFINITY || value == NEGATIVE_INFINITY) {
+    } else if (unlikely(value == POSITIVE_INFINITY || value == NEGATIVE_INFINITY)) {
       raise_error(RANGE_ERROR);
 #endif
 #if !ENCODE_NAN
-    } else if (os_isnan(value)) {
+    } else if (unlikely(os_isnan(value))) {
       raise_error(RANGE_ERROR);
 #endif
     } else {

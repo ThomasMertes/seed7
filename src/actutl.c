@@ -292,7 +292,7 @@ const_actEntryType getActEntry (actType actionSearched)
     int lower;
     int upper;
     int middle;
-    const_actEntryType result;
+    const_actEntryType entryFound;
 
   /* getActEntry */
     logFunction(printf("getActEntry(" FMT_U_MEM ")\n",
@@ -304,7 +304,7 @@ const_actEntryType getActEntry (actType actionSearched)
       } /* if */
     } /* if */
 
-    result = &actTable.table[0];
+    entryFound = &actTable.table[0];
     if (likely(actionSearched != actTable.table[0].action)) {
       lower = -1;
       upper = (int) actEntryMap.size;
@@ -318,12 +318,12 @@ const_actEntryType getActEntry (actType actionSearched)
           lower = middle;
         } else if (actEntryMap.table[middle]->action == actionSearched) {
           lower = upper - 1;
-          result = actEntryMap.table[middle];
+          entryFound = actEntryMap.table[middle];
         } else {
           upper = middle;
         } /* if */
       } /* while */
     } /* if */
-    logFunction(printf("getActEntry --> %s\n", result->name););
-    return result;
+    logFunction(printf("getActEntry --> %s\n", entryFound->name););
+    return entryFound;
   } /* getActEntry */

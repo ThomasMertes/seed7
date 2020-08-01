@@ -1,0 +1,344 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  db7.sd7       Database inspector with browser interface.        *)
+(*  Copyright (C) 2017  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "cgidialog.s7i";
+  include "cgi.s7i";
+  include "browser.s7i";
+  include "pic32.s7i";
+  include "sql_base.s7i";
+
+
+# SqLite: SELECT name FROM sqlite_master WHERE type='table';
+# MySql:  SHOW TABLES;
+
+
+var submitButton: exit is submitButton(dialogColumn(image(createPixmap(exit_pic, 1, light_gray)) & label("Exit")));
+var submitButton: logout is submitButton(dialogColumn(image(createPixmap(on_off_pic, 1, light_gray)) & label("Logout")));
+
+var webPage: goodbyePage is webPage("DB7 Goodbye",
+    dialogColumn(
+      header(1, "Thank you for using DB7") &
+      script("close();")
+    ));
+
+
+const func string: noCtrlChars (in string: stri) is func
+  result
+    var string: noCtrlChars is "";
+  local
+    const set of char: ctrlChars is {'\0;' .. '\31;'} | {'\127;' .. '\160;'};
+    var char: ch is ' ';
+    var integer: index is 0;
+  begin
+    noCtrlChars := stri;
+    for ch key index range stri do
+      if ch in ctrlChars then
+        noCtrlChars @:= [index] '?';
+      elsif ch = '\173;' then
+        noCtrlChars @:= [index] '-';
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: failed (in proc: statement) is func
+  result
+    var boolean: failed is FALSE;
+  begin
+    block
+      statement;
+    exception
+      catch RANGE_ERROR:
+        failed := TRUE;
+      catch FILE_ERROR:
+        failed := TRUE;
+      catch DATABASE_ERROR:
+        failed := TRUE;
+    end block;
+  end func;
+
+
+const type: tableDataType is array array string;
+
+
+const func tableDataType: fetchLines (in sqlStatement: statement,
+    in integer: numLines) is func
+  result
+    var tableDataType: tableData is 0 times 0 times "";
+  local
+    var integer: columnCount is 0;
+    var integer: line is 1;
+    var integer: column is 0;
+    var string: columnValue is "";
+  begin
+    columnCount := columnCount(statement);
+    tableData := numLines times columnCount times "";
+    for line range 1 to numLines until not fetch(statement) do
+      for column range 1 to columnCount do
+        if failed(columnValue := noCtrlChars(column(statement, column, string))     ) and
+           failed(columnValue := str(        column(statement, column, integer))    ) and
+           failed(columnValue := str(        column(statement, column, bigInteger)) ) and
+           failed(columnValue := str(        column(statement, column, bigRational))) and
+           failed(columnValue := str(        column(statement, column, float))      ) and
+           failed(columnValue := strDateTime(column(statement, column, time))       ) and
+           failed(columnValue := str(        column(statement, column, duration))   ) and
+           failed(columnValue := str(        column(statement, column, boolean))    ) then
+          columnValue := "";
+        end if;
+        tableData[line][column] := columnValue;
+      end for;
+    end for;
+    tableData := tableData[.. pred(line)];
+  end func;
+
+
+const proc: displayMessage (inout browserConnection: browser, in string: header,
+    in string: command, in string: message) is func
+  local
+    var submitButton: returnButton is submitButton(dialogColumn(image(createPixmap(return_pic, 1, light_gray)) & label("Return")));
+    var webPage: resultWebPage is webPage.value;
+  begin
+    resultWebPage := webForm("DB7",
+        dialogColumn(
+          image(readBmp("header3.bmp")) &
+          header(1, "Database Inspector 7") &
+          header(2, header) &
+          dialogRow(label("Statement:") & space(2) & label(command)) &
+          vspace(20) &
+          label(message) &
+          vspace(20) &
+          dialogSequence(returnButton)
+        ));
+    display(browser, resultWebPage);
+  end func;
+
+
+const proc: displayMessage (inout browserConnection: browser, in string: header,
+    in string: message) is func
+  local
+    var submitButton: returnButton is submitButton(dialogColumn(image(createPixmap(return_pic, 1, light_gray)) & label("Return")));
+    var webPage: resultWebPage is webPage.value;
+  begin
+    resultWebPage := webForm("DB7",
+        dialogColumn(
+          image(readBmp("header3.bmp")) &
+          header(1, "Database Inspector 7") &
+          header(2, header) &
+          label(message) &
+          vspace(20) &
+          dialogSequence(returnButton)
+        ));
+    display(browser, resultWebPage);
+  end func;
+
+
+const proc: displayResult (inout browserConnection: browser,
+    in sqlStatement: statement, in string: command, in integer: numLines) is func
+  local
+    var submitButton: returnButton is submitButton(dialogColumn(image(createPixmap(return_pic, 1, light_gray)) & label("Return")));
+    var submitButton: next is submitButton(dialogColumn(image(createPixmap(right_arrow_pic, 1, light_gray)) & label("Next")));
+    var tableDataType: tableData is 0 times 0 times "";
+    var integer: column is 0;
+    var dialogSequenceBase: columnHeaders is dialogSequenceBase.value;
+    var dialogElement: resultTable is dialogElement.value;
+    var webPage: resultWebPage is webPage.value;
+  begin
+    repeat
+      tableData := fetchLines(statement, numLines);
+      if length(tableData) <> 0 then
+        columnHeaders := dialogSequenceBase.value;
+        for key column range tableData[1] do
+          columnHeaders &:= label(columnName(statement, column));
+        end for;
+        resultTable := dialogTable(columnHeaders, tableData);
+        resultWebPage := webForm("DB7",
+            dialogColumn(
+              image(readBmp("header3.bmp")) &
+              header(1, "Database Inspector 7") &
+              header(2, command) &
+              resultTable &
+              vspace(20) &
+              dialogSequence(returnButton & next & logout & exit)
+            ));
+      else
+        resultWebPage := webForm("DB7",
+            dialogColumn(
+              image(readBmp("header3.bmp")) &
+              header(1, "Database Inspector 7") &
+              header(2, command) &
+              label("Nothing found.") &
+              vspace(20) &
+              dialogSequence(returnButton & next & logout & exit)
+            ));
+      end if;
+      display(browser, resultWebPage);
+    until returnButton.activated or logout.activated or exit.activated;
+  end func;
+
+
+const proc: doExecute (inout browserConnection: browser,
+    in database: currDb, in var string: command, in integer: numLines) is func
+  local
+    const integer: width is 20;
+    var sqlStatement: statement is sqlStatement.value;
+    var boolean: failed is FALSE;
+  begin
+    if endsWith(command, ";") then
+      command := command[.. pred(length(command))];
+    end if;
+    block
+      statement := prepare(currDb, command);
+      execute(statement);
+    exception
+      catch DATABASE_ERROR:
+        displayMessage(browser, "Database error", command, errMessage(DATABASE_ERROR));
+        failed := TRUE;
+      otherwise:
+        displayMessage(browser, "Error", "Error occurred");
+        failed := TRUE;
+    end block;
+    if not failed then
+      if columnCount(statement) <> 0 then
+        displayResult(browser, statement, command, numLines);
+      else
+        displayMessage(browser, "Message", "Success.");
+      end if;
+    end if;
+  end func;
+
+
+const proc: doStatements (inout browserConnection: browser, in database: currDb) is func
+  local
+    var textField: select is textField("", 50);
+    var textField: numOfLines is textField("", 10);
+    var integer: numLines is 10;
+    var submitButton: execute  is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
+    var resetButton: reset is resetButton(dialogColumn(image(createPixmap(reset_pic, 1, light_gray)) & label("Reset")));
+    var webPage: selectWebPage is webPage.value;
+  begin
+    selectWebPage := webForm("DB7",
+        dialogColumn(
+          image(readBmp("header3.bmp")) &
+          header(1, "Database Inspector 7") &
+          header(2, "Statement") &
+          select &
+          vspace(20) &
+          dialogSequence(label("Number of rows:") & numOfLines) &
+          vspace(20) &
+          dialogSequence(execute & reset & logout & exit)
+        ));
+    repeat
+      numOfLines.content := str(numLines);
+      display(browser, selectWebPage);
+      block
+        numLines := integer parse (numOfLines.content);
+      exception
+        otherwise:
+          displayMessage(browser, "Error", "Number of rows is not a number.");
+          execute.activated := FALSE;
+      end block;
+      if numLines <= 0 then
+        displayMessage(browser, "Error", "Number of rows is less than or equal 0.");
+      elsif execute.activated then
+        doExecute(browser, currDb, select.content, numLines);
+      end if;
+    until logout.activated or exit.activated;
+  end func;
+
+
+const func database: doLogin (inout browserConnection: browser) is func
+  result
+    var database: currDb is database.value;
+  local
+    var radioButton: driverRadioButton is
+        radioButton([] ("MySQL", "SQLite", "PostgreSQL", "Oracle", "ODBC"));
+    var textField: dbName is textField("", 15);
+    var textField: userName is textField("", 15);
+    var passwordField: password is passwordField("", 15);
+    var submitButton: login is submitButton(dialogColumn(image(createPixmap(key_pic,  1, light_gray)) & label("Login")));
+    var resetButton: reset is resetButton(dialogColumn(image(createPixmap(reset_pic, 1, light_gray)) & label("Reset")));
+    var webPage: loginWebPage is webPage.value;
+    var dbCategory: driver is NO_DB;
+  begin
+    repeat
+      loginWebPage := webForm("DB7",
+          dialogColumn(
+            image(readBmp("header3.bmp")) &
+            header(1, "Database Inspector 7") &
+            header(2, "Login") &
+            driverRadioButton &
+            vspace(20) &
+            dialogRow(dialogColumn(label("Database:") &
+                                   vspace(10) &
+                                   label("User:") &
+                                   vspace(10) &
+                                   label("Password:")) &
+                      space(5) &
+                      dialogColumn(dbName &
+                                   vspace(10) &
+                                   userName &
+                                   vspace(10) &
+                                   password)) &
+            vspace(20) &
+            dialogSequence(login & reset & exit)
+          ));
+      display(browser, loginWebPage);
+      if login.activated then
+        driver := dbCategory parse (driverRadioButton.selected);
+        if driver = NO_DB then
+          displayMessage(browser, "Driver Error",
+                         "No database type selected.");
+        else
+          block
+            currDb := openDatabase(driver, dbName.content,
+                                   userName.content, password.content);
+          exception
+            catch DATABASE_ERROR:
+              displayMessage(browser, "Database error", errMessage(DATABASE_ERROR));
+            otherwise:
+              displayMessage(browser, "Error", "Error occurred");
+          end block;
+        end if;
+      end if;
+    until exit.activated or currDb <> database.value;
+  end func;
+
+
+const proc: main is func
+  local
+    var browserConnection: browser is browserConnection.value;
+    var database: currDb is database.value;
+  begin
+    browser := openBrowser;
+    repeat
+      currDb := doLogin(browser);
+      if currDb <> database.value then
+        doStatements(browser, currDb);
+        close(currDb);
+      end if;
+    until exit.activated;
+    display(browser, goodbyePage);
+    close(browser);
+  end func;

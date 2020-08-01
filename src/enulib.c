@@ -106,17 +106,15 @@ objectType enu_eq (listType arguments)
   {
     objectType obj_arg1;
     objectType obj_arg2;
-    objectType result;
 
   /* enu_eq */
     obj_arg1 = take_enum(arg_1(arguments));
     obj_arg2 = take_enum(arg_3(arguments));
     if (obj_arg1 == obj_arg2) {
-      result = SYS_TRUE_OBJECT;
+      return SYS_TRUE_OBJECT;
     } else {
-      result = SYS_FALSE_OBJECT;
+      return SYS_FALSE_OBJECT;
     } /* if */
-    return result;
   } /* enu_eq */
 
 
@@ -177,17 +175,15 @@ objectType enu_ne (listType arguments)
   {
     objectType obj_arg1;
     objectType obj_arg2;
-    objectType result;
 
   /* enu_ne */
     obj_arg1 = take_enum(arg_1(arguments));
     obj_arg2 = take_enum(arg_3(arguments));
     if (obj_arg1 != obj_arg2) {
-      result = SYS_TRUE_OBJECT;
+      return SYS_TRUE_OBJECT;
     } else {
-      result = SYS_FALSE_OBJECT;
+      return SYS_FALSE_OBJECT;
     } /* if */
-    return result;
   } /* enu_ne */
 
 

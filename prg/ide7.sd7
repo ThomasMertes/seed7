@@ -46,7 +46,6 @@ var submitButton: exit      is submitButton(dialogColumn(image(createPixmap(exit
 var submitButton: cancel    is submitButton(dialogColumn(image(createPixmap(cancel_pic,    1, light_gray)) & label("Cancel")));
 var submitButton: okay      is submitButton(dialogColumn(image(createPixmap(checkmark_pic, 1, light_gray)) & label("Okay")));
 var selection: fileList is selection.value;
-var textField: fileName is textField("", 0);
 
 
 var dialogElement: formElement is
@@ -71,16 +70,6 @@ var dialogElement: message is
 
 var webPage: messagePage is webForm("IDE7 Message", message);
 
-var dialogElement: selectFileName is
-  dialogColumn(
-    header(1, "Enter name of file to be saved") &
-    fileName &
-    vspace(20) &
-    dialogSequence(save & reset & cancel)
-  );
-
-var webPage: fileNameSelectionPage is webForm("IDE7 Save as", selectFileName);
-
 var dialogElement: goodbye is
   dialogColumn(
     header(1, "Thank you for using IDE7") &
@@ -90,13 +79,14 @@ var dialogElement: goodbye is
 var webPage: goodbyePage is webPage("IDE7 Goodbye", goodbye);
 
 
-const func webPage: fileSelection (in string: dirPath, in string: extension) is func
-  result
-    var webPage: selectionPage is webPage.value;
+const proc: loadFile (inout browserConnection: browser, in string: dirPath,
+    in string: extension) is func
   local
+    var submitButton: load is submitButton(dialogColumn(
+        image(createPixmap(load_pic, 1, light_gray)) & label("Load")));
     var string: fileName is "";
     var array string: dirContent is 0 times "";
-    var dialogElement: selection is dialogElement.value;
+    var webPage: selectionPage is webPage.value;
   begin
     if fileType(dirPath) = FILE_DIR then
       for fileName range readDir(dirPath) do
@@ -106,12 +96,47 @@ const func webPage: fileSelection (in string: dirPath, in string: extension) is 
       end for;
     end if;
     fileList := selection(min(10, length(dirContent)), dirContent);
-    selection := dialogColumn(
-        header(1, "Select file to be loaded") &
-        fileList &
-        vspace(20) &
-        dialogSequence(load & reset & cancel));
-    selectionPage := webForm("IDE7 Load", selection);
+    selectionPage := webForm("IDE7 Load",
+	    dialogColumn(
+          header(1, "Select file to be loaded") &
+          fileList &
+          vspace(20) &
+          dialogSequence(load & reset & cancel)
+        ));
+    display(browser, selectionPage);
+    if not cancel.activated then
+      # writeln("fileList.selected: " <& fileList.selected);
+      if fileList.selected <> "" then
+        progName.name := fileList.selected;
+        prog.content := getf(dirPath & "/" & fileList.selected);
+      end if;
+    end if;
+  end func;
+
+
+const proc: saveFileAs (inout browserConnection: browser, in string: dirPath) is func
+  local
+    var submitButton: save is submitButton(dialogColumn(
+        image(createPixmap(save_pic, 1, light_gray)) & label("Save")));
+    var textField: fileName is textField("", 0);
+    var webPage: fileNameSelectionPage is webPage.value;
+  begin
+    fileNameSelectionPage := webForm("IDE7 Save as",
+	    dialogColumn(
+          header(1, "Enter name of file to be saved") &
+          fileName &
+          vspace(20) &
+          dialogSequence(save & reset & cancel)
+        ));
+    fileName.content := "";
+    display(browser, fileNameSelectionPage);
+    if not cancel.activated then
+      # writeln("fileName.content: " <& fileName.content);
+      if fileName.content <> "" then
+        putf(dirPath & "/" & fileName.content, prog.content);
+        progName.name := fileName.content;
+      end if;
+    end if;
   end func;
 
 
@@ -119,14 +144,13 @@ const proc: main is func
   local
     const string: workDir is ".";
     var browserConnection: browser is browserConnection.value;
-    var webPage: loadSelectionPage is webPage.value;
     var file: childStdin is STD_NULL;
     var file: childStdout is STD_NULL;
     var process: currentProgram is process.value;
   begin
     browser := openBrowser;
     repeat
-      display(mainWebPage, browser);
+      display(browser, mainWebPage);
       # writeln("prog:          " <& striToUtf8(prog.content));
       # writeln("load:          " <& load.activated);
       # writeln("save:          " <& save.activated);
@@ -135,36 +159,20 @@ const proc: main is func
       # writeln("cancel:        " <& cancel.activated);
       # writeln("exit:          " <& exit.activated);
       if load.activated then
-        loadSelectionPage := fileSelection(workDir, ".sd7");
-        display(loadSelectionPage, browser);
-        if not cancel.activated then
-          # writeln("fileList.selected: " <& fileList.selected);
-          if fileList.selected <> "" then
-            progName.name := fileList.selected;
-            prog.content := getf(workDir & "/" & fileList.selected);
-          end if;
-        end if;
+        loadFile(browser, workDir, ".sd7");
       elsif save.activated then
         if progName.name <> "" then
           putf(workDir & "/" & progName.name, prog.content);
         end if;
       elsif saveAs.activated then
-        fileName.content := "";
-        display(fileNameSelectionPage, browser);
-        if not cancel.activated then
-          # writeln("fileName.content: " <& fileName.content);
-          if fileName.content <> "" then
-            putf(workDir & "/" & fileName.content, prog.content);
-            progName.name := fileName.content;
-          end if;
-        end if;
+        saveFileAs(browser, workDir);
       elsif clear.activated then
         progName.name := "";
         prog.content := "";
       elsif execute.activated then
         if progName.name <> "" then
           if pos(prog.content, "GRAPH" & "_KEYBOARD") = 0 then
-            display(messagePage, browser);
+            display(browser, messagePage);
           else
             currentProgram := startProcess(commandPath("s7"), [] ("-q", workDir & "/" & progName.name));
           end if;
@@ -176,6 +184,6 @@ const proc: main is func
         end if;
       end if;
     until exit.activated;
-    display(goodbyePage, browser);
+    display(browser, goodbyePage);
     close(browser);
   end func;

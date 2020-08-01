@@ -1146,6 +1146,8 @@ objectType exec_expr (const progType currentProg, objectType object,
           *err_info = RANGE_ERROR;
         } else if (fail_value == SYS_FIL_EXCEPTION) {
           *err_info = FILE_ERROR;
+        } else if (fail_value == SYS_DB_EXCEPTION) {
+          *err_info = DATABASE_ERROR;
         } else if (fail_value == SYS_ACT_ILLEGAL_EXCEPTION) {
           *err_info = ACTION_ERROR;
         } /* if */

@@ -2928,46 +2928,92 @@ bigIntType bigAbs (const const_bigIntType big1)
   {
     memSizeType pos;
     doubleBigDigitType carry = 1;
-    memSizeType result_size;
-    bigIntType resized_result;
-    bigIntType result;
+    memSizeType absoluteValue_size;
+    bigIntType resized_absoluteValue;
+    bigIntType absoluteValue;
 
   /* bigAbs */
     logFunction(printf("bigAbs(%s)\n", bigHexCStri(big1)););
-    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(absoluteValue, big1->size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->size = big1->size;
+      absoluteValue->size = big1->size;
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
         pos = 0;
         do {
           carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
-          result->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          absoluteValue->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
           pos++;
         } while (pos < big1->size);
-        if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
-          result_size = result->size + 1;
-          REALLOC_BIG_CHECK_SIZE(resized_result, result, big1->size, result_size);
-          if (unlikely(resized_result == NULL)) {
-            FREE_BIG(result, big1->size);
+        if (IS_NEGATIVE(absoluteValue->bigdigits[pos - 1])) {
+          absoluteValue_size = absoluteValue->size + 1;
+          REALLOC_BIG_CHECK_SIZE(resized_absoluteValue, absoluteValue,
+                                 big1->size, absoluteValue_size);
+          if (unlikely(resized_absoluteValue == NULL)) {
+            FREE_BIG(absoluteValue, big1->size);
             raise_error(MEMORY_ERROR);
-            result = NULL;
+            absoluteValue = NULL;
           } else {
-            result = resized_result;
-            COUNT3_BIG(big1->size, result->size);
-            result->size = result_size;
-            result->bigdigits[big1->size] = 0;
+            absoluteValue = resized_absoluteValue;
+            COUNT3_BIG(big1->size, absoluteValue->size);
+            absoluteValue->size = absoluteValue_size;
+            absoluteValue->bigdigits[big1->size] = 0;
           } /* if */
         } /* if */
       } else {
-        memcpy(result->bigdigits, big1->bigdigits,
+        memcpy(absoluteValue->bigdigits, big1->bigdigits,
                (size_t) big1->size * sizeof(bigDigitType));
       } /* if */
     } /* if */
-    logFunction(printf("bigAbs --> %s\n", bigHexCStri(result)););
-    return result;
+    logFunction(printf("bigAbs --> %s\n", bigHexCStri(absoluteValue)););
+    return absoluteValue;
   } /* bigAbs */
+
+
+
+/**
+ *  Compute the absolute value of a 'bigInteger' number.
+ *  Big1 is assumed to be a temporary value which is reused.
+ *  @return the absolute value.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
+ */
+bigIntType bigAbsTemp (bigIntType big1)
+
+  {
+    memSizeType pos;
+    doubleBigDigitType carry = 1;
+    boolType negative;
+    bigIntType resized_big1;
+
+  /* bigAbsTemp */
+    logFunction(printf("bigAbsTemp(%s)\n", bigHexCStri(big1)););
+    negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
+    if (negative) {
+      pos = 0;
+      do {
+        carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
+        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+        pos++;
+      } while (pos < big1->size);
+      if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
+        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
+        if (unlikely(resized_big1 == NULL)) {
+          FREE_BIG(big1, pos);
+          raise_error(MEMORY_ERROR);
+          big1 = NULL;
+        } else {
+          big1 = resized_big1;
+          COUNT3_BIG(pos, pos + 1);
+          big1->size++;
+          big1->bigdigits[pos] = 0;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("bigAbsTemp --> %s\n", bigHexCStri(big1)););
+    return big1;
+  } /* bigAbsTemp */
 
 
 
@@ -5621,50 +5667,50 @@ bigIntType bigNegate (const const_bigIntType big1)
   {
     memSizeType pos;
     doubleBigDigitType carry = 1;
-    bigIntType resized_result;
-    bigIntType result;
+    bigIntType resized_negatedValue;
+    bigIntType negatedValue;
 
   /* bigNegate */
     logFunction(printf("bigNegate(%s)\n", bigHexCStri(big1)););
-    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(negatedValue, big1->size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->size = big1->size;
+      negatedValue->size = big1->size;
       pos = 0;
       do {
         carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
-        result->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        negatedValue->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
         carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big1->size);
-      if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
+      if (IS_NEGATIVE(negatedValue->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
-          if (unlikely(resized_result == NULL)) {
-            FREE_BIG(result, pos);
+          REALLOC_BIG_CHECK_SIZE(resized_negatedValue, negatedValue, pos, pos + 1);
+          if (unlikely(resized_negatedValue == NULL)) {
+            FREE_BIG(negatedValue, pos);
             raise_error(MEMORY_ERROR);
-            result = NULL;
+            negatedValue = NULL;
           } else {
-            result = resized_result;
+            negatedValue = resized_negatedValue;
             COUNT3_BIG(pos, pos + 1);
-            result->size++;
-            result->bigdigits[pos] = 0;
+            negatedValue->size++;
+            negatedValue->bigdigits[pos] = 0;
           } /* if */
-        } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
-            pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
+        } else if (negatedValue->bigdigits[pos - 1] == BIGDIGIT_MASK &&
+            pos >= 2 && IS_NEGATIVE(negatedValue->bigdigits[pos - 2])) {
+          REALLOC_BIG_SIZE_OK(resized_negatedValue, negatedValue, pos, pos - 1);
           /* Avoid a MEMORY_ERROR in the strange case     */
           /* when a 'realloc' which shrinks memory fails. */
-          if (likely(resized_result != NULL)) {
-            result = resized_result;
+          if (likely(resized_negatedValue != NULL)) {
+            negatedValue = resized_negatedValue;
           } /* if */
           COUNT3_BIG(pos, pos - 1);
-          result->size--;
+          negatedValue->size--;
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("bigNegate --> %s\n", bigHexCStri(result)););
-    return result;
+    logFunction(printf("bigNegate --> %s\n", bigHexCStri(negatedValue)););
+    return negatedValue;
   } /* bigNegate */
 
 
@@ -5924,67 +5970,67 @@ bigIntType bigPred (const const_bigIntType big1)
 
   {
     memSizeType pos;
-    bigIntType resized_result;
-    bigIntType result;
+    bigIntType resized_predecessor;
+    bigIntType predecessor;
 
   /* bigPred */
     logFunction(printf("bigPred(%s)\n", bigHexCStri(big1)););
-    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(predecessor, big1->size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->size = big1->size;
+      predecessor->size = big1->size;
       pos = 0;
       if (big1->bigdigits[pos] == 0) {
         if (big1->size == 1) {
-          result->bigdigits[pos] = BIGDIGIT_MASK;
+          predecessor->bigdigits[pos] = BIGDIGIT_MASK;
           pos++;
         } else {
           do {
-            result->bigdigits[pos] = BIGDIGIT_MASK;
+            predecessor->bigdigits[pos] = BIGDIGIT_MASK;
             pos++;
           } while (big1->bigdigits[pos] == 0);
-          /* memset(result->bigdigits, 0xFF, pos * sizeof(bigDigitType)); */
+          /* memset(predecessor->bigdigits, 0xFF, pos * sizeof(bigDigitType)); */
         } /* if */
       } /* if */
       if (pos < big1->size) {
-        result->bigdigits[pos] = big1->bigdigits[pos] - 1;
+        predecessor->bigdigits[pos] = big1->bigdigits[pos] - 1;
         pos++;
-        memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
+        memcpy(&predecessor->bigdigits[pos], &big1->bigdigits[pos],
                (big1->size - pos) * sizeof(bigDigitType));
         pos = big1->size;
         /* while (pos < big1->size) {
-          result->bigdigits[pos] = big1->bigdigits[pos];
+          predecessor->bigdigits[pos] = big1->bigdigits[pos];
           pos++;
         } ** while */
       } /* if */
-      if (!IS_NEGATIVE(result->bigdigits[pos - 1])) {
+      if (!IS_NEGATIVE(predecessor->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
-          if (unlikely(resized_result == NULL)) {
-            FREE_BIG(result, pos);
+          REALLOC_BIG_CHECK_SIZE(resized_predecessor, predecessor, pos, pos + 1);
+          if (unlikely(resized_predecessor == NULL)) {
+            FREE_BIG(predecessor, pos);
             raise_error(MEMORY_ERROR);
-            result = NULL;
+            predecessor = NULL;
           } else {
-            result = resized_result;
+            predecessor = resized_predecessor;
             COUNT3_BIG(pos, pos + 1);
-            result->size++;
-            result->bigdigits[pos] = BIGDIGIT_MASK;
+            predecessor->size++;
+            predecessor->bigdigits[pos] = BIGDIGIT_MASK;
           } /* if */
-        } else if (result->bigdigits[pos - 1] == 0 &&
-            pos >= 2 && !IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
+        } else if (predecessor->bigdigits[pos - 1] == 0 &&
+            pos >= 2 && !IS_NEGATIVE(predecessor->bigdigits[pos - 2])) {
+          REALLOC_BIG_SIZE_OK(resized_predecessor, predecessor, pos, pos - 1);
           /* Avoid a MEMORY_ERROR in the strange case     */
           /* when a 'realloc' which shrinks memory fails. */
-          if (likely(resized_result != NULL)) {
-            result = resized_result;
+          if (likely(resized_predecessor != NULL)) {
+            predecessor = resized_predecessor;
           } /* if */
           COUNT3_BIG(pos, pos - 1);
-          result->size--;
+          predecessor->size--;
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("bigPred --> %s\n", bigHexCStri(result)););
-    return result;
+    logFunction(printf("bigPred --> %s\n", bigHexCStri(predecessor)););
+    return predecessor;
   } /* bigPred */
 
 
@@ -6114,8 +6160,8 @@ bigIntType bigRand (const const_bigIntType low,
     bigDigitType mask;
     memSizeType pos;
     doubleBigDigitType random_number = 0;
-    memSizeType result_size;
-    bigIntType result;
+    memSizeType randomNumber_size;
+    bigIntType randomNumber;
 
   /* bigRand */
     logFunction(printf("bigRand(%s, %s)\n", bigHexCStri(low), bigHexCStri(high)););
@@ -6124,21 +6170,21 @@ bigIntType bigRand (const const_bigIntType low,
                       "The range is empty (low > high holds).\n",
                       bigHexCStri(low), bigHexCStri(high)););
       raise_error(RANGE_ERROR);
-      result = NULL;
+      randomNumber = NULL;
     } else {
       scale_limit = bigSbtr(high, low);
       if (low->size > scale_limit->size) {
-        result_size = low->size + 1;
+        randomNumber_size = low->size + 1;
       } else {
-        result_size = scale_limit->size + 1;
+        randomNumber_size = scale_limit->size + 1;
       } /* if */
-      if (unlikely(!ALLOC_BIG(result, result_size))) {
+      if (unlikely(!ALLOC_BIG(randomNumber, randomNumber_size))) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        randomNumber = NULL;
       } else {
-        memset(&result->bigdigits[scale_limit->size], 0,
-               (size_t) (result_size - scale_limit->size) * sizeof(bigDigitType));
-        result->size = scale_limit->size;
+        memset(&randomNumber->bigdigits[scale_limit->size], 0,
+               (size_t) (randomNumber_size - scale_limit->size) * sizeof(bigDigitType));
+        randomNumber->size = scale_limit->size;
         usedBits = digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) + 1;
         if (usedBits == 0) {
           mask = 0;
@@ -6151,20 +6197,20 @@ bigIntType bigRand (const const_bigIntType low,
             if (random_number == 0) {
               random_number = uintRand();
             } /* if */
-            result->bigdigits[pos] = (bigDigitType) (random_number & BIGDIGIT_MASK);
+            randomNumber->bigdigits[pos] = (bigDigitType) (random_number & BIGDIGIT_MASK);
             random_number >>= BIGDIGIT_SIZE;
             pos++;
           } while (pos < scale_limit->size);
-          result->bigdigits[pos - 1] &= mask;
-        } while (bigCmp(result, scale_limit) > 0);
-        result->size = result_size;
-        bigAddTo(result, low);
-        result = normalize(result);
+          randomNumber->bigdigits[pos - 1] &= mask;
+        } while (bigCmp(randomNumber, scale_limit) > 0);
+        randomNumber->size = randomNumber_size;
+        bigAddTo(randomNumber, low);
+        randomNumber = normalize(randomNumber);
         FREE_BIG(scale_limit, scale_limit->size);
       } /* if */
     } /* if */
-    logFunction(printf("bigRand --> %s\n", bigHexCStri(result)););
-    return result;
+    logFunction(printf("bigRand --> %s\n", bigHexCStri(randomNumber)););
+    return randomNumber;
   } /* bigRand */
 
 
@@ -6860,67 +6906,67 @@ bigIntType bigSucc (const const_bigIntType big1)
 
   {
     memSizeType pos;
-    bigIntType resized_result;
-    bigIntType result;
+    bigIntType resized_successor;
+    bigIntType successor;
 
   /* bigSucc */
     logFunction(printf("bigSucc(%s)\n", bigHexCStri(big1)););
-    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(successor, big1->size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->size = big1->size;
+      successor->size = big1->size;
       pos = 0;
       if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
         if (big1->size == 1) {
-          result->bigdigits[pos] = 0;
+          successor->bigdigits[pos] = 0;
           pos++;
         } else {
           do {
-            result->bigdigits[pos] = 0;
+            successor->bigdigits[pos] = 0;
             pos++;
           } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
-          /* memset(result->bigdigits, 0, pos * sizeof(bigDigitType)); */
+          /* memset(successor->bigdigits, 0, pos * sizeof(bigDigitType)); */
         } /* if */
       } /* if */
       if (pos < big1->size) {
-        result->bigdigits[pos] = big1->bigdigits[pos] + 1;
+        successor->bigdigits[pos] = big1->bigdigits[pos] + 1;
         pos++;
-        memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
+        memcpy(&successor->bigdigits[pos], &big1->bigdigits[pos],
                (big1->size - pos) * sizeof(bigDigitType));
         pos = big1->size;
         /* while (pos < big1->size) {
-          result->bigdigits[pos] = big1->bigdigits[pos];
+          successor->bigdigits[pos] = big1->bigdigits[pos];
           pos++;
         } ** while */
       } /* if */
-      if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
+      if (IS_NEGATIVE(successor->bigdigits[pos - 1])) {
         if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
-          if (unlikely(resized_result == NULL)) {
-            FREE_BIG(result, pos);
+          REALLOC_BIG_CHECK_SIZE(resized_successor, successor, pos, pos + 1);
+          if (unlikely(resized_successor == NULL)) {
+            FREE_BIG(successor, pos);
             raise_error(MEMORY_ERROR);
-            result = NULL;
+            successor = NULL;
           } else {
-            result = resized_result;
+            successor = resized_successor;
             COUNT3_BIG(pos, pos + 1);
-            result->size++;
-            result->bigdigits[pos] = 0;
+            successor->size++;
+            successor->bigdigits[pos] = 0;
           } /* if */
-        } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
-            pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
+        } else if (successor->bigdigits[pos - 1] == BIGDIGIT_MASK &&
+            pos >= 2 && IS_NEGATIVE(successor->bigdigits[pos - 2])) {
           /* Avoid a MEMORY_ERROR in the strange case     */
           /* when a 'realloc' which shrinks memory fails. */
-          REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
-          if (likely(resized_result != NULL)) {
-            result = resized_result;
+          REALLOC_BIG_SIZE_OK(resized_successor, successor, pos, pos - 1);
+          if (likely(resized_successor != NULL)) {
+            successor = resized_successor;
           } /* if */
           COUNT3_BIG(pos, pos - 1);
-          result->size--;
+          successor->size--;
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("bigSucc --> %s\n", bigHexCStri(result)););
-    return result;
+    logFunction(printf("bigSucc --> %s\n", bigHexCStri(successor)););
+    return successor;
   } /* bigSucc */
 
 

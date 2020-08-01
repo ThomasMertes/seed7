@@ -694,6 +694,25 @@ const array string: ogre_pic is [](
   " bbrrrr   rrrr  ");
 
 
+const array string: on_off_pic is [](
+  "     BBBBBB     ",
+  "   BBBBBBBBBB   ",
+  "  BBBBBWWBBBBB  ",
+  " BBBWBBWWBBWBBB ",
+  " BBWWWBWWBWWWBB ",
+  "BBBWWBBWWBBWWBBB",
+  "BBWWBBBWWBBBWWBB",
+  "BBWWBBBWWBBBWWBB",
+  "BBWWBBBBBBBBWWBB",
+  "BBWWBBBBBBBBWWBB",
+  "BBBWWBBBBBBWWBBB",
+  " BBWWWBBBBWWWBB ",
+  " BBBWWWWWWWWBBB ",
+  "  BBBBWWWWBBBB  ",
+  "   BBBBBBBBBB   ",
+  "     BBBBBB     ");
+
+
 const array string: reset_pic is [](
   "                ",
   "    XXXXXXXX    ",

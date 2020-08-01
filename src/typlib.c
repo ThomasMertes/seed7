@@ -195,7 +195,6 @@ objectType typ_eq (listType arguments)
   {
     typeType type1;
     typeType type2;
-    objectType result;
 
   /* typ_eq */
     isit_type(arg_1(arguments));
@@ -203,11 +202,10 @@ objectType typ_eq (listType arguments)
     type1 = take_type(arg_1(arguments));
     type2 = take_type(arg_3(arguments));
     if (type1 == type2) {
-      result = SYS_TRUE_OBJECT;
+      return SYS_TRUE_OBJECT;
     } else {
-      result = SYS_FALSE_OBJECT;
+      return SYS_FALSE_OBJECT;
     } /* if */
-    return result;
   } /* typ_eq */
 
 
@@ -453,7 +451,6 @@ objectType typ_ne (listType arguments)
   {
     typeType type1;
     typeType type2;
-    objectType result;
 
   /* typ_ne */
     isit_type(arg_1(arguments));
@@ -461,11 +458,10 @@ objectType typ_ne (listType arguments)
     type1 = take_type(arg_1(arguments));
     type2 = take_type(arg_3(arguments));
     if (type1 != type2) {
-      result = SYS_TRUE_OBJECT;
+      return SYS_TRUE_OBJECT;
     } else {
-      result = SYS_FALSE_OBJECT;
+      return SYS_FALSE_OBJECT;
     } /* if */
-    return result;
   } /* typ_ne */
 
 

@@ -159,9 +159,7 @@ strip:
 	strip ..\bin\s7.exe
 
 chkccomp.h:
-	echo #include "direct.h" > chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define rmdir _rmdir >> chkccomp.h
 	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
 	echo #define SQLITE_DLL "sqlite3.dll" >> chkccomp.h

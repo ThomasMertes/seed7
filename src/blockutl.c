@@ -296,7 +296,7 @@ locListType get_local_var_list (const_listType local_object_list,
 
   /* get_local_var_list */
     logFunction(printf("get_local_var_list(" FMT_X_MEM ")\n",
-                       local_object_list););
+                       (memSizeType) local_object_list););
     local_vars = NULL;
     local_vars_insert_place = &local_vars;
     local_element = local_object_list;
@@ -363,7 +363,7 @@ listType get_local_const_list (const_listType local_object_list,
 
   /* get_local_const_list */
     logFunction(printf("get_local_const_list(" FMT_X_MEM ")\n",
-                       local_object_list););
+                       (memSizeType) local_object_list););
     local_consts = NULL;
     list_insert_place = &local_consts;
     local_element = local_object_list;

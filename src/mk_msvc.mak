@@ -147,8 +147,6 @@ uninstall: setwpath.exe
 dep: depend
 
 chkccomp.h:
-	echo #include "direct.h" > chkccomp.h
-	echo #define rmdir _rmdir >> chkccomp.h
 	echo #define TEST_C_COMPILER "../bin/call_cl" >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h

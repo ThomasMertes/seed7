@@ -166,14 +166,28 @@ cstriType bigHexCStri (const const_bigIntType big1)
 bigIntType bigAbs (const const_bigIntType big1)
 
   {
-    bigIntType result;
+    bigIntType absoluteValue;
 
   /* bigAbs */
-    ALLOC_BIG(result);
-    mpz_init(result);
-    mpz_abs(result, big1);
-    return result;
+    ALLOC_BIG(absoluteValue);
+    mpz_init(absoluteValue);
+    mpz_abs(absoluteValue, big1);
+    return absoluteValue;
   } /* bigAbs */
+
+
+
+/**
+ *  Compute the absolute value of a 'bigInteger' number.
+ *  Big1 is assumed to be a temporary value which is reused.
+ *  @return the absolute value.
+ */
+bigIntType bigAbsTemp (bigIntType big1)
+
+  { /* bigAbsTemp */
+    mpz_abs(big1, big1);
+    return big1;
+  } /* bigAbsTemp */
 
 
 
@@ -730,12 +744,14 @@ bigIntType bigFromUInt64 (uint64Type number)
     bigIntType result;
 
   /* bigFromUInt64 */
+    logFunction(printf("bigFromUInt64(" FMT_U64 ")\n", number););
     ALLOC_BIG(result);
-    mpz_init_set_ui(result, (uint32Type) ((number >> 32) && 0xFFFFFFFF));
+    mpz_init_set_ui(result, (uint32Type) ((number >> 32) & 0xFFFFFFFF));
     mpz_mul_2exp(result, result, 32);
-    mpz_init_set_ui(help, (uint32Type) (number && 0xFFFFFFFF));
+    mpz_init_set_ui(help, (uint32Type) (number & 0xFFFFFFFF));
     mpz_ior(result, result, help);
     mpz_clear(help);
+    logFunction(printf("bigFromUInt64 --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromUInt64 */
 #endif
@@ -975,21 +991,23 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
 uint64Type bigLowerBits64 (const const_bigIntType big1)
 
   {
+    mpz_t mod64;
     uint64Type result;
 
   /* bigLowerBits64 */
     logFunction(printf("bigLowerBits64(%s)\n", bigHexCStri(big1)););
-    mpz_fdiv_r_2exp(big1, big1, 64);
+    mpz_init(mod64);
+    mpz_fdiv_r_2exp(mod64, big1, 64);
 #if LONG_SIZE == 64
-    result = mpz_get_ui(big1);
+    result = mpz_get_ui(mod64);
 #else
     {
       mpz_t help;
 
-      mpz_init_set(help, big1);
+      mpz_init_set(help, mod64);
       mpz_fdiv_q_2exp(help, help, 32);
       result = (uint64Type) (mpz_get_ui(help) & 0xFFFFFFFF) << 32 |
-               (uint64Type) (mpz_get_ui(big1) & 0xFFFFFFFF);
+               (uint64Type) (mpz_get_ui(mod64) & 0xFFFFFFFF);
       mpz_clear(help);
     }
 #endif
@@ -1247,13 +1265,13 @@ bigIntType bigMultSignedDigit (const_bigIntType factor1, intType factor2)
 bigIntType bigNegate (const const_bigIntType big1)
 
   {
-    bigIntType result;
+    bigIntType negatedValue;
 
   /* bigNegate */
-    ALLOC_BIG(result);
-    mpz_init(result);
-    mpz_neg(result, big1);
-    return result;
+    ALLOC_BIG(negatedValue);
+    mpz_init(negatedValue);
+    mpz_neg(negatedValue, big1);
+    return negatedValue;
   } /* bigNegate */
 
 
@@ -1434,13 +1452,13 @@ bigIntType bigParseBased (const const_striType stri, intType base)
 bigIntType bigPred (const const_bigIntType big1)
 
   {
-    bigIntType result;
+    bigIntType predecessor;
 
   /* bigPred */
-    ALLOC_BIG(result);
-    mpz_init(result);
-    mpz_sub_ui(result, big1, 1);
-    return result;
+    ALLOC_BIG(predecessor);
+    mpz_init(predecessor);
+    mpz_sub_ui(predecessor, big1, 1);
+    return predecessor;
   } /* bigPred */
 
 
@@ -1513,7 +1531,7 @@ bigIntType bigRand (const const_bigIntType low,
     static boolType seed_necessary = TRUE;
     static gmp_randstate_t state;
     mpz_t range_limit;
-    bigIntType result;
+    bigIntType randomNumber;
 
   /* bigRand */
     mpz_init(range_limit);
@@ -1523,20 +1541,20 @@ bigIntType bigRand (const const_bigIntType low,
                       "The range is empty (low > high holds).\n",
                       bigHexCStri(low), bigHexCStri(high)););
       raise_error(RANGE_ERROR);
-      result = 0;
+      randomNumber = 0;
     } else {
       mpz_add_ui(range_limit, range_limit, 1);
-      ALLOC_BIG(result);
-      mpz_init(result);
+      ALLOC_BIG(randomNumber);
+      mpz_init(randomNumber);
       if (seed_necessary) {
         gmp_randinit_default(state);
         seed_necessary = FALSE;
       } /* if */
-      mpz_urandomm(result, state, range_limit);
-      mpz_add(result, result, low);
+      mpz_urandomm(randomNumber, state, range_limit);
+      mpz_add(randomNumber, randomNumber, low);
     } /* if */
     mpz_clear(range_limit);
-    return result;
+    return randomNumber;
   } /* bigRand */
 
 
@@ -1716,13 +1734,13 @@ striType bigStr (const const_bigIntType big1)
 bigIntType bigSucc (const const_bigIntType big1)
 
   {
-    bigIntType result;
+    bigIntType successor;
 
   /* bigSucc */
-    ALLOC_BIG(result);
-    mpz_init(result);
-    mpz_add_ui(result, big1, 1);
-    return result;
+    ALLOC_BIG(successor);
+    mpz_init(successor);
+    mpz_add_ui(successor, big1, 1);
+    return successor;
   } /* bigSucc */
 
 
@@ -1956,21 +1974,23 @@ int32Type bigToInt32 (const const_bigIntType big1)
     long int result;
 
   /* bigToInt32 */
+    logFunction(printf("bigToInt32(%s)\n", bigHexCStri(big1)););
     if (unlikely(!mpz_fits_slong_p(big1))) {
       logError(printf("bigToInt32(%s): mpz_fits_slong_p failed.\n",
                       bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
-      return 0;
+      result = 0;
     } else {
       result = mpz_get_si(big1);
 #if LONG_SIZE > 32
       if (unlikely(result < INT32TYPE_MIN || result > INT32TYPE_MAX)) {
         raise_error(RANGE_ERROR);
-        return 0;
+        result = 0;
       } /* if */
 #endif
-      return (int32Type) result;
     } /* if */
+    logFunction(printf("bigToInt32 --> " FMT_D32 "\n", (int32Type) result););
+    return (int32Type) result;
   } /* bigToInt32 */
 
 
@@ -1982,6 +2002,7 @@ int64Type bigToInt64 (const const_bigIntType big1)
     int64Type result;
 
   /* bigToInt64 */
+    logFunction(printf("bigToInt64(%s)\n", bigHexCStri(big1)););
 #if LONG_SIZE == 64
     if (unlikely(!mpz_fits_slong_p(big1))) {
       logError(printf("bigToInt64(%s): mpz_fits_slong_p failed.\n",
@@ -2009,6 +2030,7 @@ int64Type bigToInt64 (const const_bigIntType big1)
       } /* if */
     }
 #endif
+    logFunction(printf("bigToInt64 --> " FMT_D64 "\n", result););
     return result;
   } /* bigToInt64 */
 
@@ -2020,6 +2042,7 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
     uint64Type result;
 
   /* bigToUInt64 */
+    logFunction(printf("bigToUInt64(%s)\n", bigHexCStri(big1)););
 #if LONG_SIZE == 64
     if (unlikely(!mpz_fits_ulong_p(big1))) {
       logError(printf("bigToUInt64(%s): mpz_fits_ulong_p failed.\n",
@@ -2047,6 +2070,8 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
       } /* if */
     }
 #endif
+    logFunction(printf("bigToUInt64(%s) --> " FMT_U64 "\n",
+                       bigHexCStri(big1), result););
     return result;
   } /* bigToUInt64 */
 #endif

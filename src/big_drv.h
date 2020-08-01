@@ -45,6 +45,7 @@
 
 cstriType bigHexCStri (const const_bigIntType big1);
 bigIntType bigAbs (const const_bigIntType big1);
+bigIntType bigAbsTemp (bigIntType big1);
 bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2);
 void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta);
 void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delta);

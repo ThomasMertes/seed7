@@ -1,3 +1,31 @@
+20170530:
+- The example program db7.sd7 has been added. Db7 is a Database
+  inspector with browser interface.
+- In array.s7i the function insert has been improved to insert an
+  array of elements.
+- In browser.s7i the function close has been improved to ignore an
+  error when the browser has already closed the socket.
+- In browser.s7i the new function display (with the browser as first
+  argument) has been introduced. The old function (with the browser
+  as second argument) is deprecated and will be removed in a future
+  version.
+- In cgidialog.s7i the parameters of the function dialogTable have
+  been improved. Now the column headers can be specified and a two
+  dimensional array of strings can be used to specify the content.
+- The compiler has been improved to use the function bigAbsTemp to
+  optimize bigInteger expressions.
+- Checks that test if the function abs works correct have been added
+  to chkbig.sd7.
+- The picture on_off_pic has been added to pic16.s7i and pic32.s7i.
+- Tests for the function abs have been added to chk_all.sd7.
+- The program ide7.sd7 has been improved to use the new version of
+  the function display.
+- The function bigAbsTemp has been added to big_rtl.c and big_gmp.c.
+- In big_gmp.c errors in bigFromUInt64 and bigLowerBits64 have been
+  fixed.
+- The makefiles have been improved to avoid unnecessary includes
+  and defines in chkccomp.h.
+
 20170501:
 - The example program diff7.sd7 has been added. This program compares
   two files line by line.

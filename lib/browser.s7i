@@ -176,11 +176,16 @@ const func browserConnection: openBrowser is func
 
 const proc: close (inout browserConnection: browser) is func
   begin
-    close(browser.sock);
+    block
+      close(browser.sock);
+    exception
+      catch FILE_ERROR:
+        noop;  # Ignore error (the browser has already closed the socket).
+    end block;
   end func;
 
 
-const proc: display (inout webPage: currWebPage, inout browserConnection: browser) is func
+const proc: display (inout browserConnection: browser, inout webPage: currWebPage) is func
   local
     var boolean: hasNext is FALSE;
     var string: filePath is "";
@@ -221,4 +226,10 @@ const proc: display (inout webPage: currWebPage, inout browserConnection: browse
       until filePath = "/";
       update(currWebPage, paramHash);
     end if;
+  end func;
+
+  
+const proc: display (inout webPage: currWebPage, inout browserConnection: browser) is func
+  begin
+    display(browser, currWebPage);
   end func;

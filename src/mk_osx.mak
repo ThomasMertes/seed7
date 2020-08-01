@@ -178,8 +178,6 @@ strip:
 	strip ../bin/s7
 
 chkccomp.h:
-	echo "#include \"sys/stat.h\"" > chkccomp.h
-	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
 	echo "#define MYSQL_DLL \"libmysqlclient.dylib\"" >> chkccomp.h

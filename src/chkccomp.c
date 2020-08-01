@@ -77,9 +77,6 @@
  *  removed after chkccomp was compiled and executed.
  *  In chkccomp.h the following macros might be defined:
  *
- *  rmdir
- *      Name of Posix function rmdir.
- *      E.g.: #define rmdir _rmdir
  *  WRITE_CC_VERSION_INFO
  *      Write the version of the C compiler to the file "cc_vers.txt".
  *      E.g.: #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt");
@@ -200,6 +197,29 @@ static void prepareCompileCommand (void)
 
 
 
+#ifdef STAT_MISSING
+static int fileExists (const char *fileName)
+
+  {
+    FILE *aFile;
+    int exists;
+
+  /* fileExists */
+    aFile = fopen(fileName, "r");
+    exists = aFile != NULL;
+    if (exists) {
+      fclose(aFile);
+    } /* if */
+    return exists;
+  } /* fileExists */
+
+
+#define fileIsRegular fileExists
+#define fileIsDir fileExists
+
+#else
+
+
 static int fileIsRegular (const char *fileName)
 
   {
@@ -219,6 +239,7 @@ static int fileIsDir (const char *fileName)
   /* fileIsDir */
     return stat(fileName, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode);
   } /* fileIsDir */
+#endif
 
 
 
@@ -3405,8 +3426,8 @@ static void determineOciDefines (FILE *versionFile,
 
   {
     char *oracle_home;
-    const char *oci_incl_dir[] = {"/rdbms/public", "/oci/include"};
-    const char *oci_dll_dir[] = {"/lib", "/bin"};
+    const char *oci_incl_dir[] = {"/rdbms/public", "/oci/include", "/sdk/include"};
+    const char *oci_dll_dir[] = {"/lib", "/bin", ""};
 #ifdef OCI_DLL
     const char *dllNameList[] = { OCI_DLL };
 #else

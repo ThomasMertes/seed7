@@ -126,7 +126,6 @@ strip:
 	strip ..\bin\s7.exe
 
 chkccomp.h:
-	echo #include "direct.h" > chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 
 version.h: chkccomp.h

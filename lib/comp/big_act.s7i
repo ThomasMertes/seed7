@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  big_act.s7i   Generate code for actions of the type bigInteger. *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015, 2017  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -81,6 +81,7 @@ const proc: big_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "bigIntType  bigAbs (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigAbsTemp (bigIntType);");
     declareExtern(c_prog, "bigIntType  bigAdd (const_bigIntType, const_bigIntType);");
     declareExtern(c_prog, "void        bigAddAssign (bigIntType *const, const const_bigIntType);");
     declareExtern(c_prog, "void        bigAddAssignSignedDigit (bigIntType *const, const intType);");
@@ -344,11 +345,27 @@ const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
 const proc: process (BIG_ABS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
+    var bigInteger: bigNumber is 0_;
+    var expr_type: c_param1 is expr_type.value;
   begin
-    prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigAbs(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
+    if getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      bigNumber := abs(getValue(evaluatedParam, bigInteger));
+      c_expr.expr &:= bigIntegerLiteral(bigNumber);
+    else
+      prepare_bigint_result(c_expr);
+      prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        c_expr.result_expr := "bigAbsTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+      else
+        c_expr.result_expr := "bigAbs(";
+        c_expr.result_expr &:= c_param1.expr;
+      end if;
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 

@@ -82,11 +82,11 @@ actType actIConv (intType ordinal)
 intType actOrd (actType anAction)
 
   {
-    intType result;
+    intType ordinal;
 
   /* actOrd */
-    result = getActEntry(anAction) - actTable.table;
-    return result;
+    ordinal = getActEntry(anAction) - actTable.table;
+    return ordinal;
   } /* actOrd */
 
 

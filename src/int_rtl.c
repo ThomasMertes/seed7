@@ -274,7 +274,7 @@ void setupRand (void)
  *  The whole product fits into the double uintType number.
  *  The product is returned in product_high and product_low.
  *  A double uintType number consists of a low and a high uintType
- *  number. A double uintType number can also be splitted into
+ *  number. A double uintType number can also be split into
  *  four halve uintType parts. The bits of a double uintType have
  *  the following memory layout:
  *  +---------------------------------------+
@@ -353,7 +353,7 @@ uintType uintRand (void)
  *  number (in product_high and product_low). The higher bits of
  *  the product (the bits higher than product_high) are discarded.
  *  A double uintType number consists of a low and a high uintType
- *  number. A double uintType number can also be splitted into
+ *  number. A double uintType number can also be split into
  *  four halve uintType parts. The bits of a double uintType have
  *  the following memory layout:
  *  +---------------------------------------+

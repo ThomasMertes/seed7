@@ -183,7 +183,7 @@ static void handleTracedSignals (int signalNum)
 #if defined SIGALRM && !HAS_SIGACTION
     signal(SIGALRM, SIG_IGN);
 #endif
-#ifdef DIALOG_IN_SIGNAL_HANDLER
+#if DIALOG_IN_SIGNAL_HANDLER
     (void) signalDecision(signalNum, TRUE);
 #else
     if (suspendInterpreter != NULL) {

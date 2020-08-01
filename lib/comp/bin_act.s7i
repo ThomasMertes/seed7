@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bin_act.s7i   Generate code for bin32 and bin64 actions.        *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2017  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)

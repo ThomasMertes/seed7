@@ -199,6 +199,7 @@ const string: chkbig_output is "\n\
   \Factorial of bigInteger works correct.\n\
   \Binomial coefficient of bigInteger works correct.\n\
   \The bigInteger compare works correct.\n\
+  \The bigInteger abs function works correct.\n\
   \The bigInteger log2 function works correct.\n\
   \The bigInteger log10 function works correct.\n\
   \The bigInteger bitLength function works correct.\n\

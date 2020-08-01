@@ -340,7 +340,7 @@ int snprintf (char *buffer, size_t bufsize, const char *fmt, ...)
       if (result < 0) {
         buffer[bufsize - 1] = '\0';
         result = (int) bufsize;
-      } else if (result == bufsize - 1) {
+      } else if ((unsigned int) result == bufsize - 1) {
         buffer[bufsize - 1] = '\0';
       } /* if */      
       va_end(ap);

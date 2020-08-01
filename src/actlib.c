@@ -105,7 +105,6 @@ objectType act_eq (listType arguments)
   {
     actType action1;
     actType action2;
-    objectType result;
 
   /* act_eq */
     isit_action(arg_1(arguments));
@@ -113,11 +112,10 @@ objectType act_eq (listType arguments)
     action1 = take_action(arg_1(arguments));
     action2 = take_action(arg_3(arguments));
     if (action1 == action2) {
-      result = SYS_TRUE_OBJECT;
+      return SYS_TRUE_OBJECT;
     } else {
-      result = SYS_FALSE_OBJECT;
+      return SYS_FALSE_OBJECT;
     } /* if */
-    return result;
   } /* act_eq */
 
 
@@ -192,7 +190,6 @@ objectType act_ne (listType arguments)
   {
     actType action1;
     actType action2;
-    objectType result;
 
   /* act_ne */
     isit_action(arg_1(arguments));
@@ -200,11 +197,10 @@ objectType act_ne (listType arguments)
     action1 = take_action(arg_1(arguments));
     action2 = take_action(arg_3(arguments));
     if (action1 != action2) {
-      result = SYS_TRUE_OBJECT;
+      return SYS_TRUE_OBJECT;
     } else {
-      result = SYS_FALSE_OBJECT;
+      return SYS_FALSE_OBJECT;
     } /* if */
-    return result;
   } /* act_ne */
 
 

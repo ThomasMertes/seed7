@@ -159,7 +159,7 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
           free_args(prog->arg_v);
         } /* if */
         prog->arg_v = copy_args(argv, argvStart);
-        if (prog->arg_v == NULL) {
+        if (unlikely(prog->arg_v == NULL)) {
           raise_error(MEMORY_ERROR);
         } else {
           /* printf("main defined as: ");
@@ -312,7 +312,7 @@ intType prgErrorCount (const const_progType aProgram)
     intType result;
 
   /* prgErrorCount */
-    if (aProgram->error_count > INTTYPE_MAX) {
+    if (unlikely(aProgram->error_count > INTTYPE_MAX)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -335,7 +335,7 @@ objectType prgEval (progType aProgram, objectType anExpression)
 
   /* prgEval */
     result = exec_expr(aProgram, anExpression, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
       result = NULL;
     } /* if */
@@ -388,7 +388,7 @@ progType prgFilParse (const const_striType fileName, const const_setType options
     int_options = (uintType) setSConv(options);
     /* printf("options: %03x\n", int_options); */
     result = analyzeFile(fileName, int_options, libraryDirs, protFileName, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgFilParse(\"%s\"): analyzeFile() failed:\n"
                       "int_options=" F_X(03) "\nerr_info=%d\n",
                       striAsUnquotedCStri(fileName), int_options, err_info););
@@ -415,7 +415,7 @@ listType prgGlobalObjects (const const_progType aProgram)
   /* prgGlobalObjects */
     if (aProgram->stack_current != NULL) {
       result = copy_list(aProgram->stack_global->local_object_list, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
@@ -472,7 +472,7 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
   /* prgMatchExpr */
     /* prot_list(curr_expr);
     printf("\n"); */
-    if (!ALLOC_OBJECT(result)) {
+    if (unlikely(!ALLOC_OBJECT(result))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -480,7 +480,7 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
       result->value.listValue = copy_list(curr_expr, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -549,7 +549,7 @@ progType prgStrParse (const const_striType stri, const const_setType options,
     logFunction(printf("prgStrParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     int_options = (uintType) setSConv(options);
     result = analyzeString(stri, int_options, libraryDirs, protFileName, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgStrParse(\"%s\"): analyzeString() failed:\n"
                       "int_options=" F_X(03) "\nerr_info=%d\n",
                       striAsUnquotedCStri(stri), int_options, err_info););
@@ -576,7 +576,7 @@ objectType prgSyobject (const progType aProgram, const const_striType syobjectNa
 
   /* prgSyobject */
     name = stri_to_cstri8(syobjectName, &err_info);
-    if (name == NULL) {
+    if (unlikely(name == NULL)) {
       raise_error(err_info);
       result = NULL;
     } else {

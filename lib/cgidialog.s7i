@@ -997,6 +997,7 @@ const func string: toHtml (in dialogRow: aDialogRow) is func
 const type: dialogTableRow is array dialogElement;
 
 const type: dialogTable is new struct
+    var dialogTableRow: headers is dialogTableRow.value;
     var array dialogTableRow: elementTable is 0 times dialogTableRow.value;
   end struct;
 
@@ -1008,7 +1009,7 @@ const type: sequenceArrayType is array dialogSequenceBase;
  *  Create a dialogTable dialogElement from an array dialogSequenceBase.
  *  @return a dialogTable dialogElement.
  *)
-const func dialogElement: dialogTable (in array dialogSequenceBase: sequenceArray) is func
+const func dialogElement: dialogTable (in dialogSequenceBase: headers, in array dialogSequenceBase: sequenceArray) is func
   result
     var dialogElement: newTable is dialogElement.value;
   local
@@ -1016,10 +1017,42 @@ const func dialogElement: dialogTable (in array dialogSequenceBase: sequenceArra
     var integer: row is 0;
     var integer: column is 0;
   begin
+    aDialogTable.headers := 0 times dialogElement.value;
+    for column range minIdx(headers.elementList) to maxIdx(headers.elementList) do
+      aDialogTable.headers &:= [] (headers.elementList[column]);
+    end for;
     aDialogTable.elementTable := length(sequenceArray) times 0 times dialogElement.value;
     for row range minIdx(sequenceArray) to maxIdx(sequenceArray) do
       for column range minIdx(sequenceArray[row].elementList) to maxIdx(sequenceArray[row].elementList) do
-       aDialogTable.elementTable[row] &:= [] (sequenceArray[row].elementList[column]);
+        aDialogTable.elementTable[row] &:= [] (sequenceArray[row].elementList[column]);
+      end for;
+    end for;
+    newTable := toInterface(aDialogTable);
+  end func;
+
+const type: tableDataStringArrayType is array array string;
+
+(**
+ *  Create a dialogTable dialogElement from an two dimensional string array.
+ *  @return a dialogTable dialogElement.
+ *)
+const func dialogElement: dialogTable (in dialogSequenceBase: headers,
+    in tableDataStringArrayType: tableData) is func
+  result
+    var dialogElement: newTable is dialogElement.value;
+  local
+    var dialogTable: aDialogTable is dialogTable.value;
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    aDialogTable.headers := 0 times dialogElement.value;
+    for column range minIdx(headers.elementList) to maxIdx(headers.elementList) do
+      aDialogTable.headers &:= [] (headers.elementList[column]);
+    end for;
+    aDialogTable.elementTable := length(tableData) times 0 times dialogElement.value;
+    for key row range tableData do
+      for key column range tableData[row] do
+        aDialogTable.elementTable[row] &:= [] label(tableData[row][column]);
       end for;
     end for;
     newTable := toInterface(aDialogTable);
@@ -1057,7 +1090,14 @@ const func string: toHtml (in dialogTable: aDialogTable) is func
     var integer: column is 0;
   begin
     # writeln("dialogTable");
-    content := "<table cellspacing=\"0\" cellpadding=\"0\">\n";
+    content := "<table cellspacing=\"0\" cellpadding=\"4\" border=\"2\">\n";
+    content &:= "<tr>\n";
+    for column range 1 to length(aDialogTable.headers) do
+      content &:= "<th>\n";
+      content &:= toHtml(aDialogTable.headers[column]);
+      content &:= "</th>\n";
+    end for;
+    content &:= "</tr>\n";
     for row range 1 to length(aDialogTable.elementTable) do
       content &:= "<tr>\n";
       for column range 1 to length(aDialogTable.elementTable[row]) do
