@@ -684,7 +684,7 @@ winType drwEmpty (void)
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(win_winRecord));
-      result->usage_count = 1;
+      result->usage_count = 0;  /* Will not be freed by reference counting. */
       screenDC = GetDC(NULL);
       result->hdc = CreateCompatibleDC(screenDC);
       result->hBitmap = CreateCompatibleBitmap(screenDC, 0, 0);

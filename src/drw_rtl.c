@@ -62,10 +62,10 @@ void drwCpy (winType *const dest, const winType source)
                        *dest != NULL ? (*dest)->usage_count : (uintType) 0,
                        (memSizeType) source,
                        source != NULL ? source->usage_count : (uintType) 0););
-    if (source != NULL) {
+    if (source != NULL && source->usage_count != 0) {
       source->usage_count++;
     } /* if */
-    if (*dest != NULL) {
+    if (*dest != NULL && (*dest)->usage_count != 0) {
       (*dest)->usage_count--;
       if ((*dest)->usage_count == 0) {
         drwFree(*dest);
@@ -109,7 +109,7 @@ winType drwCreate (const winType source)
     logFunction(printf("drwCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
                        (memSizeType) source,
                        source != NULL ? source->usage_count : (uintType) 0););
-    if (source != NULL) {
+    if (source != NULL && source->usage_count != 0) {
       source->usage_count++;
     } /* if */
     logFunction(printf("drwCreate --> " FMT_U_MEM " (usage=" FMT_U ")\n",
@@ -146,7 +146,7 @@ void drwDestr (const winType old_win)
     logFunction(printf("drwDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
                        (memSizeType) old_win,
                        old_win != NULL ? old_win->usage_count : (uintType) 0););
-    if (old_win != NULL) {
+    if (old_win != NULL && old_win->usage_count != 0) {
       old_win->usage_count--;
       if (old_win->usage_count == 0) {
         drwFree(old_win);

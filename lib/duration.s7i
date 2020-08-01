@@ -533,38 +533,38 @@ const func duration: (in integer: numDays) . DAYS is func
   end func;
 
 
-const func duration: (in integer: HRS) . HOURS is func
+const func duration: (in integer: numHours) . HOURS is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.hour := HRS;
+    dur_val.hour := numHours;
     NORMALIZE(dur_val);
   end func;
 
 
-const func duration: (in integer: MINS) . MINUTES is func
+const func duration: (in integer: numMinutes) . MINUTES is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.minute := MINS;
+    dur_val.minute := numMinutes;
     NORMALIZE(dur_val);
   end func;
 
 
-const func duration: (in integer: SECS) . SECONDS is func
+const func duration: (in integer: numSeconds) . SECONDS is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.second := SECS;
+    dur_val.second := numSeconds;
     NORMALIZE(dur_val);
   end func;
 
 
-const func duration: (in integer: MY_SECS) . MICRO_SECONDS is func
+const func duration: (in integer: numMicroSeconds) . MICRO_SECONDS is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.micro_second := MY_SECS;
+    dur_val.micro_second := numMicroSeconds;
     NORMALIZE(dur_val);
   end func;
 

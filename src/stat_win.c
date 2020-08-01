@@ -158,7 +158,7 @@ static time_t correctAdjustedUnixTime (time_t time)
 static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
 
   {
-    unsigned int mode = 0;
+    unsigned int mode;
 
   /* fileAttr2UnixMode */
     logFunction(printf("fileAttr2UnixMode(" FMT_X32 ", \"%ls\")\n",
@@ -208,45 +208,24 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
   /* wstati64Ext */
     logFunction(printf("wstati64Ext(\"%ls\", *)", path);
                 fflush(stdout););
-#ifdef os_stat_orig
-    /* Os_stat_orig does not work with an extended length path. */
-    if (os_stat_orig(&path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], statBuf) == 0) {
-      /* printf("os_stat_orig(\"%ls\", *) succeeded.\n",
-          &path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN]); */
-      if (likely(GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo) != 0)) {
-        /* For devices os_stat_orig sets all times to 1980-01-01 00:00:00. */
-        /* For daylight saving time os_stat_orig() returns adjusted times. */
-        /* To get correct times the times from os_stat_orig() are replaced */
-        /* by times from GetFileAttributesExW(). */
-        statBuf->st_atime = fileTime2UnixTime(&fileInfo.ftLastAccessTime);
-        statBuf->st_mtime = fileTime2UnixTime(&fileInfo.ftLastWriteTime);
-        statBuf->st_ctime = fileTime2UnixTime(&fileInfo.ftCreationTime);
-      } else {
-        /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, when     */
-        /* the file is currently in use, by some other program. This happens */
-        /* e.g. with c:\swapfile.sys or c:\hiberfil.sys. Interestingly       */
-        /* os_stat_orig() succeeds for these files.                          */
-        logMessage(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
-                          "GetLastError=" FMT_U32 "\n",
-                          path, (uint32Type) GetLastError()););
-        /* Undo the effect of time adjustments done by os_stat_orig(). */
-        statBuf->st_atime = correctAdjustedUnixTime(statBuf->st_atime);
-        statBuf->st_mtime = correctAdjustedUnixTime(statBuf->st_mtime);
-        statBuf->st_ctime = correctAdjustedUnixTime(statBuf->st_ctime);
-      } /* if */
-    } else
-#endif
     if (likely(GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo) != 0)) {
-      /* The function os_stat_orig() above fails with ENOENT, when the path */
-      /* is longer than MAX_PATH. So GetFileAttributesExW(), which works with */
-      /* an extended length path, is used. */
+      /* The function os_stat_orig() fails with ENOENT, when the path is   */
+      /* longer than MAX_PATH. So GetFileAttributesExW(), which works with */
+      /* an extended length path, is used.                                 */
       memset(statBuf, 0, sizeof(os_stat_struct));
       statBuf->st_nlink = 1;
       statBuf->st_mode = fileAttr2UnixMode(fileInfo.dwFileAttributes, path);
+      /* For devices os_stat_orig() sets all times to 1980-01-01 00:00:00. */
+      /* For daylight saving time os_stat_orig() returns adjusted times.   */
+      /* To get correct times the times from GetFileAttributesExW() are    */
+      /* used instead of the times from os_stat_orig().                    */
       statBuf->st_atime = fileTime2UnixTime(&fileInfo.ftLastAccessTime);
       statBuf->st_mtime = fileTime2UnixTime(&fileInfo.ftLastWriteTime);
       statBuf->st_ctime = fileTime2UnixTime(&fileInfo.ftCreationTime);
-      statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) | fileInfo.nFileSizeLow;
+      if (!S_ISDIR(statBuf->st_mode)) {
+        statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) |
+                                        fileInfo.nFileSizeLow;
+      } /* if */
       if (path[PREFIX_LEN] >= 'a' && path[PREFIX_LEN] <= 'z') {
         statBuf->st_dev = path[PREFIX_LEN] - 'a';
       } else if (path[PREFIX_LEN] >= 'A' && path[PREFIX_LEN] <= 'Z') {
@@ -254,11 +233,43 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       } /* if */
       statBuf->st_rdev = statBuf->st_dev;
     } else {
+      /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, when the */
+      /* the file is currently in use, by some other program. This happens */
+      /* e.g. with c:\swapfile.sys or c:\hiberfil.sys. Interestingly       */
+      /* os_stat_orig() succeeds for these files.                          */
+#ifdef os_stat_orig
+      DWORD lastError = GetLastError();
+      logMessage(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        path, (uint32Type) lastError););
+      if (lastError == ERROR_FILE_NOT_FOUND || lastError == ERROR_PATH_NOT_FOUND) {
+        logError(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        path, (uint32Type) GetLastError()););
+        errno = ENOENT;
+        result = -1;
+      } else if (os_stat_orig(&path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], statBuf) == 0) {
+        /* Os_stat_orig does not work with an extended length path. */
+        /* printf("os_stat_orig(\"%ls\", *) succeeded.\n",
+            &path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN]); */
+        /* Undo the effect of time adjustments done by os_stat_orig(). */
+        statBuf->st_atime = correctAdjustedUnixTime(statBuf->st_atime);
+        statBuf->st_mtime = correctAdjustedUnixTime(statBuf->st_mtime);
+        statBuf->st_ctime = correctAdjustedUnixTime(statBuf->st_ctime);
+      } else {
+        logError(printf("wstati64Ext: os_stat_orig(\"%ls\", *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        &path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN],
+                        errno, strerror(errno)););
+        result = -1;
+      } /* if */
+#else
       logError(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
                       "GetLastError=" FMT_U32 "\n",
                       path, (uint32Type) GetLastError()););
       errno = ENOENT;
       result = -1;
+#endif
     } /* if */
     logFunctionResult(printf("%d\n", result););
     return result;

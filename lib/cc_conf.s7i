@@ -75,10 +75,10 @@ const type: ccConfigType is new struct
     var boolean: LITTLE_ENDIAN_INTTYPE      is FALSE;
 
     (**
-     *  TRUE, when a comparison between two NaN values returns FALSE.
+     *  TRUE, when comparisons between NaN and any other value return FALSE.
      *  Comparison refers to comparisons with  ==  <  >  <=  or  >= .
-     *  If it is FALSE fltEq(), fltGe(), fltGt(), fltLe() and fltLt()
-     *  should be used to do comparisons of float values.
+     *  If NAN_COMPARISON_OKAY is FALSE fltEq(), fltLt(), fltGt(), fltLe()
+     *  and fltGe() should be used to do comparisons of float values.
      *)
     var boolean: NAN_COMPARISON_OKAY        is FALSE;
 

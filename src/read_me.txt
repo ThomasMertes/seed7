@@ -848,13 +848,24 @@ PROGRAMS USED BY THE MAKEFILES
   The programs used by the makefiles are licensed under the GPL.
 
 
-THE VERSION.H FILE
+MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
 
     One of the main jobs of the makefile is creating a version.h
   file. This is done with 'make depend' (or 'gmake depend' or
   'nmake depend'). The version.h file contains several #defines
   which contain information over available features and the way
   they are available. Other #defines can be found in config.h.
+
+  PATH_DELIMITER: This is the path delimiter character used by
+                  the command shell of the operating system. It
+                  is defined as '/' for most operating systems,
+                  except for Windows, where it is defined as
+                  '\\'. The PATH_DELIMITER macro is used when
+                  the functions popen() and system() are called.
+                  Seed7 programs are portable and do not need to
+                  distinguish between different path delimiter
+                  characters. Instead Seed7 programs must always
+                  use '/' as path delimiter.
 
   USE_WMAIN: Defined when the main function is named wmain.
              This is a way to support Unicode command line
@@ -865,28 +876,18 @@ THE VERSION.H FILE
 
   USE_WINMAIN: Defined when the main function is named WinMain.
 
-  USE_DIRENT: The header file containing the definitions for
-              opendir(), readdir() and closedir() has the name
-              <dirent.h>. Only one #define of USE_DIRxxx is
-              allowed.
+  SEARCH_PATH_DELIMITER: The paths in the PATH environment
+                         variable are separated with this
+                         character. Linux/Unix/BSD use ':' and
+                         Windows uses ';'.
 
-  USE_DIRECT: The header file containing the definitions for
-              opendir(), readdir() and closedir() has the name
-              <direct.h>. Only one #define of USE_DIRxxx is
-              allowed.
+  NULL_DEVICE: Name of the NULL device.
+               Under Linux/Unix/BSD this is "/dev/null".
+               Under Windows this is "NUL:".
 
-  USE_DIRWIN: The opendir(), readdir() and closedir() functions
-              from dir_win.c are used. This functions are based
-              on FindFirstFileA() and FindNextFileA(). Only one
-              #define of USE_DIRxxx is allowed. Additionally the
-              file dir_win.c contains also definitions of the
-              wopendir(), wreaddir() and wclosedir() based
-              on FindFirstFileW() and FindNextFileW().
-
-  USE_DIRDOS: The opendir(), readdir() and closedir() functions
-              from dir_dos.c are used. This functions are based
-              on _dos_findfirst() and _dos_findnext(). Only one
-              #define of USE_DIRxxx is allowed.
+  USE_MMAP: Defined when the mmap() function should be used,
+            when a Seed7 source file is parsed or when a file
+            is copied.
 
   AWAIT_WITH_POLL: The function timAwait() uses the function
                    poll() to implement waiting for a time.
@@ -909,6 +910,23 @@ THE VERSION.H FILE
                      handler function to catch a SIGALRM signal.
                      Only one #define of AWAIT_WITH_xxx is
                      allowed.
+
+  WITH_SQL: Defined when SQL should be supported.
+
+  USE_TERMINFO: Defined when the console should be used with
+                terminfo. Only one #define of USE_TERMxxx is
+                allowed.
+
+  USE_TERMCAP: Defined when the console should be used with
+               termcap. Only one #define of USE_TERMxxx is
+               allowed.
+
+  SIGNAL_HANDLER_CAN_DO_IO: Defined when I/O in signal handlers
+                            works.
+
+  CONSOLE_WCHAR: Defined when the console uses wide characters.
+
+  CONSOLE_UTF8: Defined when the console uses UTF-8 characters.
 
   OS_STRI_WCHAR: Defined when the system calls (os_...) use
                  wide characters (type wchar_t) for string
@@ -937,190 +955,8 @@ THE VERSION.H FILE
                           types like 'DIR', 'dirent' and
                           'struct stat' must be used.
 
-  os_chdir: Function to be used instead of chdir() under the
-            target operating system. If not defined chdir()
-            is used.
-
-  os_getcwd: Function to be used instead of getcwd() under the
-             target operating system. If not defined getcwd()
-             is used.
-
-  os_mkdir(path,mode): Function to be used instead of mkdir()
-                       under the target operating system.
-                       If not defined mkdir() is used. Under
-                       Windows the mkdir() function usually
-                       has only one parameter while under
-                       Unix/Linux/BSD mkdir() has two
-                       parameters.
-
-  os_rmdir: Function to be used instead of rmdir() under the
-            target operating system. If not defined rmdir()
-            is used.
-
-  os_opendir: Function to be used instead of opendir() under the
-              target operating system. If not defined opendir()
-              is used.
-
-  os_readdir: Function to be used instead of readdir() under the
-              target operating system. If not defined readdir()
-              is used.
-
-  os_closedir: Function to be used instead of closedir() under
-               the target operating system. If not defined
-               closedir() is used.
-
-  os_DIR: Type to be used instead of 'DIR' under the target
-          operating system. If not defined 'DIR' is used.
-
-  os_dirent_struct: Type to be used instead of 'struct dirent'
-                    under the target operating system. If not
-                    defined 'struct dirent' is used.
-
-  os_fstat: Function to be used instead of fstat() under the
-            target operating system. If not defined fstat()
-            is used.
-
-  os_lstat: Function to be used instead of lstat() under the
-            target operating system. If not defined lstat()
-            is used.
-
-  os_stat: Function to be used instead of stat() under the
-           target operating system. If not defined stat()
-           is used.
-
-  os_stat_struct: Type to be used for the output parameter of
-                  os_stat() and os_lstat(). If not defined
-                  'struct stat' is used.
-
-  os_fstat_struct: Type to be used for the output parameter of
-                   os_fstat(). If not defined 'os_stat_struct'
-                   is used.
-
-  os_chown(name,uid,gid): Function to be used instead of chown()
-                          under the target operating system.
-                          If not defined chown() is used. When
-                          chown() is not supported this macro is
-                          defined empty.
-
-  os_chmod: Function to be used instead of chmod() under the
-            target operating system. If not defined chmod() is
-            used.
-
-  os_utime: Function to be used instead of utime() under the
-            target operating system. If not defined utime() is
-            used.
-
-  os_utime_orig: Defined when the function alternate_utime is
-                 used instead of the function defined with
-                 os_utime. In this case os_utime_orig refers to
-                 the original os_utime function and the macro
-                 os_utime is redefined to refer to
-                 alternate_utime.
-
-  os_utimbuf_struct: Type to be used instead of
-                     'struct utimbuf' under the target operating
-                     system. If not defined 'struct utimbuf' is
-                     used.
-
-  os_remove: Function to be used instead of remove() under the
-             target operating system. If not defined remove() is
-             used.
-
-  os_rename: Function to be used instead of rename() under the
-             target operating system. If not defined rename() is
-             used.
-
-  os_fopen: Function to be used instead of fopen() under the
-            target operating system. If not defined fopen() is
-            used.
-
-  os_fseek: Function to be used instead of fseek() under the
-            target operating system. If it is not defined
-            os_fsetpos() or os_lseek() are used.
-
-  os_ftell: Function to be used instead of ftell()  under the
-            target operating system. If it is not defined
-            os_fgetpos() or os_lseek() are used.
-
-  os_off_t: Type used for os_fseek(), os_ftell(), offsetSeek(),
-            offsetTell() and seekFileLength().
-
-  SHORT_SIZE: Size of a short int in bits.
-
-  INT_SIZE: Size of an int in bits.
-
-  LONG_SIZE: Size of a long int in bits.
-
-  INTTYPE_SIZE: Size of an inttype in bits (either 32 or 64).
-
-  FLOAT_SIZE: Size of a float in bits.
-
-  DOUBLE_SIZE: Size of a double in bits.
-
-  FLOATTYPE_SIZE: Size of an inttype in bits (either FLOAT_SIZE or DOUBLE_SIZE).
-
-  POINTER_SIZE: Size of a pointer in bits.
-
-  OS_OFF_T_SIZE: Size of os_off_t in bits.
-
-  TIME_T_SIZE: Size of time_t in bits.
-
-  USE_WINSOCK: Use the winsocket functions instead of the
-               normal Unix socket functions.
-
-  PATH_DELIMITER: This is the path delimiter character used by
-                  the command shell of the operating system. It
-                  is defined as '/' for most operating systems,
-                  except for Windows, where it is defined as
-                  '\\'. The PATH_DELIMITER macro is used when
-                  the functions popen() and system() are called.
-                  Seed7 programs are portable and do not need to
-                  distinguish between different path delimiter
-                  characters. Instead Seed7 programs must always
-                  use '/' as path delimiter.
-
-  OS_PATH_HAS_DRIVE_LETTERS: Defined when the absolute paths of
-                             the operating system use drive
-                             letters. Determined by chkccomp.c.
-
-  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, when
-                                      absolute paths (paths
-                                      starting with '/') must
-                                      be mapped to operating
-                                      system paths with drive
-                                      letter. E.g.: "/c" is
-                                      mapped to the drive letter
-                                      "C:".
-
-  FORBID_DRIVE_LETTERS: Defined in config.h, when a Seed7 path
-                        with drive letters must raise
-                        RANGE_ERROR.
-
-  SEARCH_PATH_DELIMITER: The paths in the PATH environment
-                         variable are separated with this
-                         character. Linux/Unix/BSD use ':' and
-                         Windows uses ';'.
-
-  EMULATE_ROOT_CWD: Defined in config.h, when the operating
-                    system uses drive letters and reading the
-                    directory "/" must return a list of
-                    available drives.
-
-  REDIRECT_FILDES_1: Shell parameter to redirect to the file
-                     descriptor 1. Under Linux/Unix/BSD and
-                     Windows this is ">". The file to which the
-                     standard output should be redirected must
-                     be appended. E.g.: >myFile.
-
-  REDIRECT_FILDES_2: Shell parameter to redirect to the file
-                     descriptor 2. Under Linux/Unix/BSD and
-                     Windows this is "2>". The file to which
-                     the error output should be redirected must
-                     be appended. E.g.: 2>myFile.
-
-  NULL_DEVICE: Name of the NULL device.
-               Under Linux/Unix/BSD this is "/dev/null".
-               Under Windows this is "NUL:".
+  USE_GETADDRINFO: Defined when the function getaddrinfo()
+                   should be used.
 
   ESCAPE_SHELL_COMMANDS: Depending on the shell/os the C
                          functions system() and popen() need
@@ -1144,35 +980,428 @@ THE VERSION.H FILE
                              final command string starts with
                              two double quotes).
 
+  USE_WINSOCK: Use the winsocket functions instead of the
+               normal Unix socket functions.
+
   USE_BIG_RTL_LIBRARY: Defined when the big_rtl library is used
                        to implement the bigInteger functions.
                        Not defined (undef) when the big_gmp
                        library is used to implement the
                        bigInteger functions.
 
-  UNISTD_H_PRESENT: Defined when the include file <unistd.h> is
+  USE_BIG_GMP_LIBRARY: Defined when the big_gmp library is used
+                       to implement the bigInteger functions.
+                       Not defined (undef) when the big_rtl
+                       library is used to implement the
+                       bigInteger functions.
+
+  OBJECT_FILE_EXTENSION: The extension used by the C compiler for
+                         object files (Several object files and
+                         libraries are linked together to an
+                         executable). Under Linux/Unix/BSD this
+                         is usually ".o" Under Windows this is
+                         ".o" for MinGW and Cygwin, but ".obj"
+                         for MSVC and bcc32.
+
+  LIBRARY_FILE_EXTENSION: The extension used by the linker for
+                          static libraries. Several object files
+                          can be grouped to a library. Under
+                          Linux/Unix/BSD this is usually ".a".
+                          Under Windows this is ".a" for MinGW
+                          and Cygwin, but ".lib" for other linkers.
+
+  EXECUTABLE_FILE_EXTENSION: The extension which is used by the
+                             operating system for executables.
+                             Since executable extensions are not
+                             used under Linux/Unix/BSD it is ""
+                             for them. Under Windows the value
+                             ".exe" is used.
+
+  C_COMPILER: Contains the command to call the stand-alone C
+              compiler and linker (Most IDEs provide also a
+              stand-alone compiler/linker). When the C compiler is
+              called via a script C_COMPILER_SCRIPT is defined and
+              C_COMPILER is not defined by a makefile. In that
+              case C_COMPILER is defined by setpaths.c together
+              with the flag CALL_C_COMPILER_FROM_SHELL.
+
+  CPLUSPLUS_COMPILER: Contains the command to call the stand-alone
+                      C++ compiler and linker.
+
+  C_COMPILER_SCRIPT: Relative path of a script that calls the
+                     stand-alone C compiler and linker.
+
+  CALL_C_COMPILER_FROM_SHELL: Flag that is defined when the
+                              stand-alone C compiler and linker is
+                              called via a script (defined with
+                              C_COMPILER_SCRIPT).
+
+  GET_CC_VERSION_INFO: Contains a shell command that causes the
+                       C compiler to write its version information
+                       into a given file. In Seed7 it is used with
+                       cmd_sh(GET_CC_VERSION_INFO & fileName);
+                       Afterwards the file fileName contains the
+                       version information of the C compiler.
+                       Reading the first line of the file should
+                       give the same string as C_COMPILER_VERSION.
+
+  GET_CC_VERSION_INFO_OPTIONS: C compiler option to get the version
+                               information of the compiler. The
+                               destination file name must be
+                               appended to the command.
+
+  CC_SOURCE_UTF8: Defined when the C compiler accepts UTF-8 encoded
+                  file names in #line directives. The file names
+                  from #line directives are used by the debugger to
+                  allow source code debugging.
+
+  CC_OPT_DEBUG_INFO: Contains the C compiler option to add source
+                     level debugging information to the object file.
+
+  CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
+                      all warnings.
+
+  CC_FLAGS: Contains C compiler flags, which should be used when
+            C programs are compiled.
+
+  CC_ERROR_FILDES: File descriptor to which the C compiler writes
+                   errors. The MSVC stand-alone C compiler (CL)
+                   writes the error messages to standard output
+                   (file descriptor 1). The C compliers of
+                   Linux/Unix/BSD and the compilers from MinGW and
+                   Cygwin write the error messages to the error
+                   output (file descriptor 2).
+
+  LINKER: Defined when C_COMPILER does just invoke the stand-alone
+          C compiler. In that case LINKER contains the command to
+          call the stand-alone linker.
+
+  LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
+                         level debugging information to the
+                         executable file. Many compiler/linker
+                         combinations don't need this option
+                         to do source level debugging.
+
+  LINKER_OPT_NO_DEBUG_INFO: Linker option to be used without
+                            source level debugging. This option
+                            can strip debug information (e.g.:
+                            "-Wl,--strip-debug").
+
+  LINKER_OPT_OUTPUT_FILE: Contains the linker option to provide the
+                          output filename (e.g.: "-o "). When no
+                          such option exists the definition of
+                          LINKER_OPT_OUTPUT_FILE should be omitted.
+
+  LINKER_FLAGS: Contains options for the stand-alone linker to link
+                a compiled Seed7 program.
+
+  SYSTEM_LIBS: Contains system libraries for the stand-alone linker
+               to link a compiled Seed7 program.
+
+  SYSTEM_CONSOLE_LIBS: Contains system console libraries for the
+                       stand-alone linker to link a compiled Seed7
+                       program, when it needs to write to the
+                       console.
+
+  SYSTEM_DRAW_LIBS: Contains system drawing / graphic libraries for
+                    the stand-alone linker to link a compiled Seed7
+                    program, when it needs to draw.
+
+
+MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
+
+    The program chkccomp.c is compiled and executed by the
+  makefile. Chkccomp checks properties of C compiler, include
+  files, linker, run-time library and operating systems. The result
+  is written to version.h
+
+  UNISTD_H_PRESENT: TRUE, when the include file <unistd.h> is
                     present.
 
-  FTELL_WRONG_FOR_PIPE: The ftell() function should return -1
-                        when it is called with a pipe (since a
-                        pipe is not seekable). This macro is
-                        defined when ftell() does not return
-                        -1 for pipes. In this case the function
-                        improved_ftell is used which returns -1
-                        when the check with fstat() does not
-                        verify that the parameter is a regular
-                        file.
+  HAS_SIGNAL: TRUE, when the function signal() is present.
 
-  FWRITE_WRONG_FOR_READ_ONLY_FILES: Defined when fwrite() to a
+  HAS_SIGACTION: TRUE, when the function sigaction() is present.
+
+  SIGNAL_RESETS_HANDLER: TRUE, when a signal resets the hander
+                         that was set by signal().
+
+  restrict: Defined when the C compiler does not support the
+            restrict keyword.
+
+  likely: Macro that expands to a __builtin_expect expression,
+          when __builtin_expect is supported by the C compiler.
+          Without support of __builtin_expect the macro expands
+          to its argument.
+
+  unlikely: Macro that expands to a __builtin_expect expression,
+            when __builtin_expect is supported by the C compiler.
+            Without support of __builtin_expect the macro expands
+            to its argument.
+
+  NORETURN: Macro that expands to __attribute__ ((noreturn)),
+            when the C compiler supports this attribute. Without
+            support for this attribute the macro expands to analyze
+            empty expression.
+
+  MACRO_DEFS: String with macro definitions for likely, unlikely
+              and NORETURN.
+
+  USE_DIRENT: The header file containing the definitions for
+              opendir(), readdir() and closedir() has the name
+              <dirent.h>. Only one #define of USE_DIRxxx is
+              allowed.
+
+  USE_DIRECT: The header file containing the definitions for
+              opendir(), readdir() and closedir() has the name
+              <direct.h>. Only one #define of USE_DIRxxx is
+              allowed.
+
+  USE_DIRWIN: The opendir(), readdir() and closedir() functions
+              from dir_win.c are used. This functions are based
+              on FindFirstFileA() and FindNextFileA(). Only one
+              #define of USE_DIRxxx is allowed. Additionally the
+              file dir_win.c contains also definitions of the
+              wopendir(), wreaddir() and wclosedir() based
+              on FindFirstFileW() and FindNextFileW().
+
+  USE_DIRDOS: The opendir(), readdir() and closedir() functions
+              from dir_dos.c are used. This functions are based
+              on _dos_findfirst() and _dos_findnext(). Only one
+              #define of USE_DIRxxx is allowed.
+
+  os_DIR: Type to be used instead of 'DIR' under the target
+          operating system. If not defined 'DIR' is used.
+
+  os_dirent_struct: Type to be used instead of 'struct dirent'
+                    under the target operating system. If not
+                    defined 'struct dirent' is used.
+
+  os_opendir: Function to be used instead of opendir() under the
+              target operating system. If not defined opendir()
+              is used.
+
+  os_readdir: Function to be used instead of readdir() under the
+              target operating system. If not defined readdir()
+              is used.
+
+  os_closedir: Function to be used instead of closedir() under
+               the target operating system. If not defined
+               closedir() is used.
+
+  os_chdir: Function to be used instead of chdir() under the
+            target operating system. If not defined chdir()
+            is used.
+
+  OS_GETCWD_MAX_BUFFER_SIZE: Defined when there is a maximum
+                             buffer size supported by
+                             os_getcwd().
+
+  os_getcwd: Function to be used instead of getcwd() under the
+             target operating system. If not defined getcwd()
+             is used.
+
+  os_mkdir(path,mode): Function to be used instead of mkdir()
+                       under the target operating system.
+                       If not defined mkdir() is used. Under
+                       Windows the mkdir() function usually
+                       has only one parameter while under
+                       Unix/Linux/BSD mkdir() has two
+                       parameters.
+
+  os_rmdir: Function to be used instead of rmdir() under the
+            target operating system. If not defined rmdir()
+            is used.
+
+  os_chmod: Function to be used instead of chmod() under the
+            target operating system. If not defined chmod() is
+            used.
+
+  os_chown(name,uid,gid): Function to be used instead of chown()
+                          under the target operating system.
+                          If not defined chown() is used. When
+                          chown() is not supported this macro is
+                          defined empty.
+
+  os_utimbuf_struct: Type to be used instead of
+                     'struct utimbuf' under the target operating
+                     system. If not defined 'struct utimbuf' is
+                     used.
+
+  USE_ALTERNATE_UTIME: Defined when alternate_utime should be
+                       used instead of os_utime_orig.
+
+  os_utime_orig: Defined when the function alternate_utime is
+                 used instead of the function defined with
+                 os_utime. In this case os_utime_orig refers to
+                 the original os_utime function and the macro
+                 os_utime is redefined to refer to
+                 alternate_utime.
+
+  os_utime: Function to be used instead of utime() under the
+            target operating system. If not defined utime() is
+            used.
+
+  os_remove: Function to be used instead of remove() under the
+             target operating system. If not defined remove() is
+             used.
+
+  os_rename: Function to be used instead of rename() under the
+             target operating system. If not defined rename() is
+             used.
+
+  os_system: Function to be used instead of system() under the
+             target operating system. If not defined system() is
+             used.
+
+  os_fopen: Function to be used instead of fopen() under the
+            target operating system. If not defined fopen() is
+            used.
+
+  os_popen: Function to be used instead of popen() under the
+            target operating system. If not defined popen() is
+            used.
+
+  os_pclose: Function to be used instead of pclose() under the
+            target operating system. If not defined pclose() is
+            used.
+
+  DEFINE_WGETENV: Defined when an own implementation of wgetenv
+                  should be used.
+
+  os_getenv: Function to be used instead of getenv() under the
+            target operating system. If not defined getenv() is
+            used.
+
+  FILENO_WORKS_FOR_NULL: TRUE, when the fileno() function works
+                         for NULL and returns -1.
+
+  FOPEN_SUPPORTS_CLOEXEC_MODE: TRUE, when fopen() supports a
+                               mode of "e".
+
+  HAS_FCNTL_SETFD_CLOEXEC: TRUE, when fcntl() supports
+                           F_SETFD,FD_CLOEXEC.
+
+  HAS_PIPE2: TRUE, when the function pipe2() is available.
+
+  HAS_SNPRINTF: TRUE, when the function snprintf() is available.
+
+  HAS_VSNPRINTF: TRUE, when the function vsnprintf() is available.
+
+  HAS_POPEN: TRUE, when the function popen() is available.
+
+  os_fstat: Function to be used instead of fstat() under the
+            target operating system. If not defined fstat()
+            is used.
+
+  os_lstat: Function to be used instead of lstat() under the
+            target operating system. If not defined lstat()
+            is used.
+
+  os_stat: Function to be used instead of stat() under the
+           target operating system. If not defined stat()
+           is used.
+
+  os_stat_struct: Type to be used for the output parameter of
+                  os_stat() and os_lstat(). If not defined
+                  'struct stat' is used.
+
+  os_fstat_struct: Type to be used for the output parameter of
+                   os_fstat(). If not defined 'os_stat_struct'
+                   is used.
+
+  os_fseek: Function to be used instead of fseek() under the
+            target operating system. If it is not defined
+            os_fsetpos() or os_lseek() are used.
+
+  os_ftell: Function to be used instead of ftell()  under the
+            target operating system. If it is not defined
+            os_fgetpos() or os_lseek() are used.
+
+  os_off_t: Type used for os_fseek(), os_ftell(), offsetSeek(),
+            offsetTell() and seekFileLength().
+
+  CHAR_SIZE: Size of a char in bits.
+
+  SHORT_SIZE: Size of a short int in bits.
+
+  INT_SIZE: Size of an int in bits.
+
+  LONG_SIZE: Size of a long int in bits.
+
+  INTTYPE_SIZE: Size of an inttype in bits (either 32 or 64).
+
+  FLOAT_SIZE: Size of a float in bits.
+
+  DOUBLE_SIZE: Size of a double in bits.
+
+  FLOATTYPE_SIZE: Size of an inttype in bits (either FLOAT_SIZE or DOUBLE_SIZE).
+
+  POINTER_SIZE: Size of a pointer in bits.
+
+  OS_OFF_T_SIZE: Size of os_off_t in bits.
+
+  TIME_T_SIZE: Size of time_t in bits.
+
+  OS_PATH_HAS_DRIVE_LETTERS: TRUE, when the absolute paths of
+                             the operating system use drive
+                             letters. Determined by chkccomp.c.
+
+  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, when
+                                      absolute paths (paths
+                                      starting with '/') must
+                                      be mapped to operating
+                                      system paths with drive
+                                      letter. E.g.: "/c" is
+                                      mapped to the drive letter
+                                      "C:".
+
+  FORBID_DRIVE_LETTERS: Defined in config.h, when a Seed7 path
+                        with drive letters must raise
+                        RANGE_ERROR.
+
+  EMULATE_ROOT_CWD: Defined in config.h, when the operating
+                    system uses drive letters and reading the
+                    directory "/" must return a list of
+                    available drives.
+
+  REDIRECT_FILDES_1: Shell parameter to redirect to the file
+                     descriptor 1. Under Linux/Unix/BSD and
+                     Windows this is ">". The file to which the
+                     standard output should be redirected must
+                     be appended. E.g.: >myFile.
+
+  REDIRECT_FILDES_2: Shell parameter to redirect to the file
+                     descriptor 2. Under Linux/Unix/BSD and
+                     Windows this is "2>". The file to which
+                     the error output should be redirected must
+                     be appended. E.g.: 2>myFile.
+
+  FTELL_SUCCEEDS_FOR_PIPE: The ftell() function should return -1
+                           when it is called with a pipe (since a
+                           pipe is not seekable). This macro is
+                           TRUE when ftell() succeeds for pipes
+                           (it does not return -1). In this case
+                           the function improved_ftell is used
+                           which returns -1 when the check with
+                           fstat() does not verify that the
+                           parameter is a regular file.
+
+  FSEEK_SUCCEEDS_FOR_STDIN: TRUE, when fseek(stdin, 0,  SEEK_SET)
+                            succeeds (stdin is not redirected).
+
+  FOPEN_OPENS_DIRECTORIES: TRUE, when fopen() is able to open
+                           directories (it does not return NULL).
+
+  FWRITE_WRONG_FOR_READ_ONLY_FILES: TRUE, when fwrite() to a
                                     read only file succeeds (it
                                     does not return 0).
 
-  REMOVE_FAILS_FOR_EMPTY_DIRS: Defined when remove() cannot
-                               remove an empty directory (it does
-                               not return 0).
+  REMOVE_FAILS_FOR_EMPTY_DIRS: TRUE, when remove() cannot remove
+                               an empty directory (it does not
+                               return 0).
 
-  FOPEN_OPENS_DIRECTORIES: Defined when fopen() is able to open
-                           directories (it does not return NULL).
+  HOME_DIR_ENV_VAR: Name of the environment variable that contains
+                    the path of the home directory.
 
   INCLUDE_SYS_UTIME: Defined when utime() respectively _wutime()
                      is defined in <sys/utime.h>.
@@ -1185,27 +1414,27 @@ THE VERSION.H FILE
   RSHIFT_DOES_SIGN_EXTEND: The C standard specifies that the
                            right shift of signed integers is
                            implementation defined, when the
-                           shifted values are negative. This
-                           macro is set when the sign of negative
+                           shifted values are negative. The macro
+                           is TRUE when the sign of negative
                            signed integers is preserved with a
                            right shift ( -1 >> 1 == -1 ).
 
-  TWOS_COMPLEMENT_INTTYPE: Defined when signed integers are
+  TWOS_COMPLEMENT_INTTYPE: TRUE, when signed integers are
                            represented as twos complement
                            numbers. This allows some simplified
                            range checks in compiled programs.
                            This macro is defined when
                            ~(-1) == 0 holds.
 
-  ONES_COMPLEMENT_INTTYPE: Defined when signed integers are
+  ONES_COMPLEMENT_INTTYPE: TRUE, when signed integers are
                            represented as ones complement
                            numbers. This macro is currently
                            not used.
 
-  LITTLE_ENDIAN_INTTYPE: Defined when the byte ordering of
+  LITTLE_ENDIAN_INTTYPE: TRUE, when the byte ordering of
                          integers is little endian.
 
-  BIG_ENDIAN_INTTYPE: Defined when the byte ordering of integers
+  BIG_ENDIAN_INTTYPE: TRUE, when the byte ordering of integers
                       is big endian.
 
   MALLOC_ALIGNMENT: Contains the number of zero bits (counting
@@ -1303,13 +1532,28 @@ THE VERSION.H FILE
                            NaN this function must be defined and
                            it must return 1.
 
-  NAN_COMPARISON_WRONG: Defined when a comparison between two NaN
-                        values (with  ==  <  >  <=  or  >= )
-                        returns TRUE.
+  NAN_COMPARISON_OKAY: TRUE, when comparisons between NaN and any
+                       other value return FALSE. Comparison refers
+                       to comparisons with  ==  <  >  <=  or  >= .
 
-  POWER_OF_ZERO_WRONG: Defined when the pow() function does not
-                       work correctly, when the base is zero and
-                       and the exponent is negative.
+  POW_OF_NAN_OKAY: TRUE, when pow(NaN, 0.0) returns 1.0 and
+                   pow(NaN, anyOtherExponent) returns NaN.
+
+  POW_OF_ZERO_OKAY: TRUE, when the pow() function works correct
+                    for a base of zero (0.0 or -0.0) and a negative
+                    exponent.
+
+  POW_OF_ONE_OKAY: TRUE, when the pow() function always returns
+                   1.0 when the base is 1.0 (Even for an exponent
+                   of NaN).
+
+  POW_EXP_NAN_OKAY: TRUE, when the pow() function always returns
+                    NaN when the exponent is NaN and the base is
+                    not 1.0 (pow(1.0, NaN) should return 1.0).
+
+  POW_EXP_MINUS_INFINITY_OKAY: TRUE, when the pow() function works
+                               correct foa an exponent of minus
+                               infinity.
 
   FLOAT_ZERO_DIV_ERROR: Defined when the C compiler classifies a
                         floating point division by zero as fatal
@@ -1353,47 +1597,8 @@ THE VERSION.H FILE
                          _wenviron is NULL unless getenv() is
                          called.
 
-  HOME_DIR_ENV_VAR: Name of the environment variable that contains
-                    the path of the home directory.
-
   LIMITED_CSTRI_LITERAL_LEN: Defined when the C compiler limits
                              the length of string literals.
-
-  CC_SOURCE_UTF8: Defined when the C compiler accepts UTF-8 encoded
-                  file names in #line directives. The file names
-                  from #line directives are used by the debugger to
-                  allow source code debugging.
-
-  OBJECT_FILE_EXTENSION: The extension used by the C compiler for
-                         object files (Several object files and
-                         libraries are linked together to an
-                         executable). Under Linux/Unix/BSD this
-                         is usually ".o" Under Windows this is
-                         ".o" for MinGW and Cygwin, but ".obj"
-                         for MSVC and bcc32.
-
-  EXECUTABLE_FILE_EXTENSION: The extension which is used by the
-                             operating system for executables.
-                             Since executable extensions are not
-                             used under Linux/Unix/BSD it is ""
-                             for them. Under Windows the value
-                             ".exe" is used.
-
-  C_COMPILER: Contains the command to call the stand-alone C
-              compiler and linker (Most IDEs provide also a
-              stand-alone compiler/linker). When the C compiler is
-              called via a script C_COMPILER_SCRIPT is defined and
-              C_COMPILER is not defined by a makefile. In that
-              case C_COMPILER is defined by setpaths.c together
-              with the flag CALL_C_COMPILER_FROM_SHELL.
-
-  C_COMPILER_SCRIPT: Relative path of a script that calls the
-                     stand-alone C compiler and linker.
-
-  CALL_C_COMPILER_FROM_SHELL: Flag that is defined when the
-                              stand-alone C compiler and linker is
-                              called via a script (defined with
-                              C_COMPILER_SCRIPT).
 
   C_COMPILER_VERSION: Contains a string describing the version of
                       the C compiler which compiled the Seed7
@@ -1403,60 +1608,9 @@ THE VERSION.H FILE
                       runtime libraries with the actual version of
                       the C compiler.
 
-  GET_CC_VERSION_INFO: Contains a shell command that causes the
-                       C compiler to write its version information
-                       into a given file. In Seed7 it is used with
-                       cmd_sh(GET_CC_VERSION_INFO & fileName);
-                       Afterwards the file fileName contains the
-                       version information of the C compiler.
-                       Reading the first line of the file should
-                       give the same string as C_COMPILER_VERSION.
-
-  CC_OPT_DEBUG_INFO: Contains the C compiler option to add source
-                     level debugging information to the object file.
-
-  CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
-                      all warnings.
-
   CC_NO_OPT_OUTPUT_FILE: Defined, when compiling and linking with
                          one command does not work, with the option
                          LINKER_OPT_OUTPUT_FILE.
-
-  CC_FLAGS: Contains C compiler flags, which should be used when
-            C programs are compiled.
-
-  CC_ERROR_FILDES: File descriptor to which the C compiler writes
-                   errors. The MSVC stand-alone C compiler (CL)
-                   writes the error messages to standard output
-                   (file descriptor 1). The C compliers of
-                   Linux/Unix/BSD and the compilers from MinGW and
-                   Cygwin write the error messages to the error
-                   output (file descriptor 2).
-
-  LINKER: Defined when C_COMPILER does just invoke the stand-alone
-          C compiler. In that case LINKER contains the command to
-          call the stand-alone linker.
-
-  LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
-                         level debugging information to the
-                         executable file. Many compiler/linker
-                         combinations don't need this option
-                         to do source level debugging.
-
-  LINKER_OPT_OUTPUT_FILE: Contains the linker option to provide the
-                          output filename (e.g.: "-o "). When no
-                          such option exists the definition of
-                          LINKER_OPT_OUTPUT_FILE should be omitted.
-
-  LINKER_FLAGS: Contains options for the stand-alone linker to link
-                a compiled Seed7 program.
-
-  SYSTEM_LIBS: Contains system libraries for the stand-alone linker
-               to link a compiled Seed7 program.
-
-  SYSTEM_DRAW_LIBS: Contains system drawing / graphic libraries for
-                    the stand-alone linker to link a compiled Seed7
-                    program, when it needs to draw.
 
   SEED7_LIB: Contains the name of the Seed7 runtime library.
 

@@ -127,18 +127,23 @@ const func boolean: equalFileContent (in string: sourcePath, in string: destPath
 const proc: syncFile (in string: sourcePath, in string: destPath,
     in syncFlags: flags) is func
   local
+    var fileType: sourceType is FILE_ABSENT;
+    var fileType: destType is FILE_ABSENT;
+    var time: sourceTime is time.value;
     var array string: dirContent is 0 times "";
     var string: fileName is "";
   begin
-    if fileTypeSL(sourcePath) = FILE_ABSENT then
-      if fileTypeSL(destPath) <> FILE_ABSENT then
+    sourceType := fileTypeSL(sourcePath);
+    destType := fileTypeSL(destPath);
+    if sourceType = FILE_ABSENT then
+      if destType <> FILE_ABSENT then
         if flags.removeFilesAtDest then
           writeln("remove file " <& literal(destPath));
           removeTree(destPath);
         end if;
       end if;
-    elsif fileTypeSL(sourcePath) = FILE_SYMLINK then
-      if fileTypeSL(destPath) = FILE_ABSENT then
+    elsif sourceType = FILE_SYMLINK then
+      if destType = FILE_ABSENT then
         block
           cloneFile(sourcePath, destPath);
           writeln("copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
@@ -146,7 +151,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
           catch FILE_ERROR:
             writeln(" *** Cannot copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
         end block;
-      elsif fileTypeSL(destPath) = FILE_SYMLINK then
+      elsif destType = FILE_SYMLINK then
         if readlink(sourcePath) <> readlink(destPath) then
           writeln("Source link " <& literal(sourcePath) <&
                   " and destination link " <& literal(destPath) <&
@@ -155,19 +160,19 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
       else
         writeln(" *** Destination " <& literal(destPath) <& " is not a symbolic link");
       end if;
-    elsif fileTypeSL(sourcePath) = FILE_DIR then
-      if fileTypeSL(destPath) = FILE_ABSENT then
+    elsif sourceType = FILE_DIR then
+      if destType = FILE_ABSENT then
         writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
         mkdir(destPath);
         syncDir(sourcePath, destPath, flags);
         setMTime(destPath, getMTime(sourcePath));
-      elsif fileTypeSL(destPath) = FILE_DIR then
+      elsif destType = FILE_DIR then
         syncDir(sourcePath, destPath, flags);
       else
         writeln(" *** Destination " <& literal(destPath) <& " is not a directory");
       end if;
-    elsif fileTypeSL(sourcePath) = FILE_REGULAR then
-      if fileTypeSL(destPath) = FILE_ABSENT then
+    elsif sourceType = FILE_REGULAR then
+      if destType = FILE_ABSENT then
         block
           cloneFile(sourcePath, destPath);
           writeln("copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
@@ -175,29 +180,30 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
           catch FILE_ERROR:
             writeln(" *** Cannot copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
         end block;
-      elsif fileTypeSL(destPath) = FILE_REGULAR then
-        # writeln(getMTime(sourcePath));
+      elsif destType = FILE_REGULAR then
+        sourceTime := getMTime(sourcePath);
+        # writeln(sourceTime);
         # writeln(getMTime(destPath));
-        if getMTime(sourcePath) > getMTime(destPath) + 1 . SECONDS then
+        if sourceTime > getMTime(destPath) + 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
             writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
-            setMTime(destPath, getMTime(sourcePath));
+            setMTime(destPath, sourceTime);
           else
             writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
             removeFile(destPath);
             cloneFile(sourcePath, destPath);
           end if;
-        elsif getMTime(sourcePath) < getMTime(destPath) - 1 . SECONDS then
+        elsif sourceTime < getMTime(destPath) - 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
             writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
-            setMTime(destPath, getMTime(sourcePath));
+            setMTime(destPath, sourceTime);
           elsif flags.overwriteNewerDestFiles then
             writeln("replace newer dest file " <& literal(sourcePath) <& " to " <& literal(destPath));
             removeFile(destPath);
             cloneFile(sourcePath, destPath);
           else
             writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
-            # writeln(getMTime(sourcePath) <& "   " <& getMTime(destPath) <& "   " <& getMTime(destPath) - 1 . SECONDS);
+            # writeln(sourceTime <& "   " <& getMTime(destPath) <& "   " <& getMTime(destPath) - 1 . SECONDS);
           end if;
         elsif fileSize(sourcePath) <> fileSize(destPath) then
           writeln("Correct file " <& literal(sourcePath) <& " to " <& literal(destPath));
@@ -208,7 +214,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
         writeln(" *** Destination " <& literal(destPath) <& " is not a regular file");
       end if;
     else
-      writeln(" *** Source " <& literal(sourcePath) <& " has file type " <& fileTypeSL(sourcePath));
+      writeln(" *** Source " <& literal(sourcePath) <& " has file type " <& sourceType);
     end if;
   end func;
 

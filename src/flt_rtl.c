@@ -310,7 +310,7 @@ intType fltCmp (floatType number1, floatType number2)
 #else
     if (unlikely(os_isnan(number1))) {
       /* The expression isnan(NaN) can return any value except 0. */
-      signumValue = os_isnan(number2) != 0;
+      signumValue = os_isnan(number2) == 0;
     } else if (unlikely(os_isnan(number2))) {
       signumValue = -1;
     } else if (number1 < number2) {

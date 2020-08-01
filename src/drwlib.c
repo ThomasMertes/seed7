@@ -382,12 +382,12 @@ objectType drw_cpy (listType arguments)
     if (TEMP_OBJECT(source)) {
       source->value.winValue = NULL;
     } else {
-      if (win_source != NULL) {
+      if (win_source != NULL && win_source->usage_count != 0) {
         win_source->usage_count++;
       } /* if */
     } /* if */
     old_window = take_win(dest);
-    if (old_window != NULL) {
+    if (old_window != NULL && old_window->usage_count != 0) {
       old_window->usage_count--;
       if (old_window->usage_count == 0) {
         drwFree(old_window);
@@ -420,7 +420,7 @@ objectType drw_create (listType arguments)
     if (TEMP_OBJECT(source)) {
       source->value.winValue = NULL;
     } else {
-      if (win_value != NULL) {
+      if (win_value != NULL && win_value->usage_count != 0) {
         win_value->usage_count++;
       } /* if */
     } /* if */
@@ -437,7 +437,7 @@ objectType drw_destr (listType arguments)
   /* drw_destr */
     isit_win(arg_1(arguments));
     old_win = take_win(arg_1(arguments));
-    if (old_win != NULL) {
+    if (old_win != NULL && old_win->usage_count != 0) {
       old_win->usage_count--;
       if (old_win->usage_count == 0) {
         drwFree(old_win);
@@ -1402,7 +1402,7 @@ objectType drw_value (listType arguments)
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       win_value = take_win(obj_arg);
-      if (win_value != NULL) {
+      if (win_value != NULL && win_value->usage_count != 0) {
         win_value->usage_count++;
       } /* if */
       return bld_win_temp(win_value);

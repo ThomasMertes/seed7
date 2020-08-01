@@ -876,7 +876,7 @@ winType drwEmpty (void)
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(x11_winRecord));
-      result->usage_count = 1;
+      result->usage_count = 0;  /* Will not be freed by reference counting. */
       result->window = 0;
       result->backup = 0;
       result->clip_mask = 0;

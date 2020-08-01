@@ -1,3 +1,29 @@
+20170915:
+- The example program klondike.sd7 has been added. Klondike is a
+  solitaire game.
+- The example program sydir7.sd7 has been improved to use fewer calls
+  of fileTypeSL.
+- In flt_rtl.c the function fltCmp has been improved to work correct,
+  when NAN_COMPARISON_OKAY is FALSE.
+- Checks in chkbig.sd7 for div, rem, divRem, mdiv and mod have been
+  structured into more areas.
+- The reference counting of window objects in drwlib.c and drw_rtl.c
+  has been improved. When the usage_count has been initialized with
+  zero the window will not be freed by reference counting. This is
+  used by the empty window.
+- In drw_win.c and drw_x11.c the function drwEmpty has been changed
+  to create an empty window that is not freed by reference counting.
+- The compiler s7c.sd7 has been improved to use drwCreate, when a new
+  window value is created.
+- In read_me.txt the description of macros defined in version.h has
+  been improved.
+- In stat_win.c the function wstati64Ext has been improved, to use
+  fewer calls of GetFileAttributesExW() and _wstati64().
+- In cc_conf.s7i the description of the configuration value
+  NAN_COMPARISON_OKAY has been improved.
+- In duration.s7i several parameter names have been changed.
+- The test for NAN_COMPARISON_OKAY in chkccomp.c has been improved.
+
 20170807:
 - Experimental support to compute quotient and remainder of a
   bigInteger with the operator divRem has been added to the library
@@ -5,7 +31,7 @@
 - The function str in bigrat.s7i has been improved to use the new
   operator divRem.
 - The program ide7.sd7 has been improved to ignore an attempt to kill
-  a nonexisting process.
+  a non-existing process.
 - Support for a for-loop that loops over all values of an enumeration
   has been added to forloop.s7i.
 - Support for a for-loop which loops a given number of times has been

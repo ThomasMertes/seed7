@@ -56,6 +56,7 @@ hd.sd7       Write a hexdump of a given file.
 hello.sd7    Hello world
 ide7.sd7     Cgi dialog demo program.
 kbd.sd7      Keyboard test program
+klondike.sd7 Klondike solitaire game
 lander.sd7   Lunar lander
 mahjong.sd7  Mahjong solitaire game
 make7.sd7    Make utility to manage the compilation process

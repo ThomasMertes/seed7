@@ -12137,9 +12137,12 @@ const proc: chkDivision is func
                   9223372036854775808_ div       140741783322623_ <>            65534_ or
                   1152921504606846976_ div        17596481011711_ <>            65520_ or
                   9223231303661387776_ div       140739636002821_ <>            65533_ or
-        39614081257132168796771975168_ div   9223372036854775809_ <>       4294967295_ or
+        39614081257132168796771975168_ div   9223372036854775809_ <>       4294967295_ then
+      writeln("Division of bigInteger does not work correct. (1)");
+      okay := FALSE;
+    end if;
 
-                                32766_ div                    -1_ <>           -32766_ or
+    if                          32766_ div                    -1_ <>           -32766_ or
                                 32767_ div                    -1_ <>           -32767_ or
                                 32768_ div                    -1_ <>           -32768_ or
                                 32769_ div                    -1_ <>           -32769_ or
@@ -12222,9 +12225,12 @@ const proc: chkDivision is func
                   9223372036854775808_ div      -140741783322623_ <>           -65534_ or
                   1152921504606846976_ div       -17596481011711_ <>           -65520_ or
                   9223231303661387776_ div      -140739636002821_ <>           -65533_ or
-        39614081257132168796771975168_ div  -9223372036854775809_ <>      -4294967295_ or
+        39614081257132168796771975168_ div  -9223372036854775809_ <>      -4294967295_ then
+      writeln("Division of bigInteger does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ div                     1_ <>           -32766_ or
+    if                         -32766_ div                     1_ <>           -32766_ or
                                -32767_ div                     1_ <>           -32767_ or
                                -32768_ div                     1_ <>           -32768_ or
                                -32769_ div                     1_ <>           -32769_ or
@@ -12307,9 +12313,12 @@ const proc: chkDivision is func
                  -9223372036854775808_ div       140741783322623_ <>           -65534_ or
                  -1152921504606846976_ div        17596481011711_ <>           -65520_ or
                  -9223231303661387776_ div       140739636002821_ <>           -65533_ or
-       -39614081257132168796771975168_ div   9223372036854775809_ <>      -4294967295_ or
+       -39614081257132168796771975168_ div   9223372036854775809_ <>      -4294967295_ then
+      writeln("Division of bigInteger does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ div                    -1_ <>            32766_ or
+    if                         -32766_ div                    -1_ <>            32766_ or
                                -32767_ div                    -1_ <>            32767_ or
                                -32768_ div                    -1_ <>            32768_ or
                                -32769_ div                    -1_ <>            32769_ or
@@ -12393,7 +12402,7 @@ const proc: chkDivision is func
                  -1152921504606846976_ div       -17596481011711_ <>            65520_ or
                  -9223231303661387776_ div      -140739636002821_ <>            65533_ or
        -39614081257132168796771975168_ div  -9223372036854775809_ <>       4294967295_ then
-      writeln("Division of bigInteger does not work correct.");
+      writeln("Division of bigInteger does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -12735,9 +12744,12 @@ const proc: chkRemainder is func
                   9223372036854775808_ rem       140741783322623_ <>            8590000126_ or
                   1152921504606846976_ rem        17596481011711_ <>           68719542256_ or
                   9223231303661387776_ rem       140739636002821_ <>       140737488519183_ or
-        39614081257132168796771975168_ rem   9223372036854775809_ <>   9223372032559808513_ or
+        39614081257132168796771975168_ rem   9223372036854775809_ <>   9223372032559808513_ then
+      writeln("Remainder of bigInteger division does not work correct. (1)");
+      okay := FALSE;
+    end if;
 
-                                32766_ rem                    -1_ <>                     0_ or
+    if                          32766_ rem                    -1_ <>                     0_ or
                                 32767_ rem                    -1_ <>                     0_ or
                                 32768_ rem                    -1_ <>                     0_ or
                                 32769_ rem                    -1_ <>                     0_ or
@@ -12820,9 +12832,12 @@ const proc: chkRemainder is func
                   9223372036854775808_ rem      -140741783322623_ <>            8590000126_ or
                   1152921504606846976_ rem       -17596481011711_ <>           68719542256_ or
                   9223231303661387776_ rem      -140739636002821_ <>       140737488519183_ or
-        39614081257132168796771975168_ rem  -9223372036854775809_ <>   9223372032559808513_ or
+        39614081257132168796771975168_ rem  -9223372036854775809_ <>   9223372032559808513_ then
+      writeln("Remainder of bigInteger division does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ rem                     1_ <>                     0_ or
+    if                         -32766_ rem                     1_ <>                     0_ or
                                -32767_ rem                     1_ <>                     0_ or
                                -32768_ rem                     1_ <>                     0_ or
                                -32769_ rem                     1_ <>                     0_ or
@@ -12905,9 +12920,12 @@ const proc: chkRemainder is func
                  -9223372036854775808_ rem       140741783322623_ <>           -8590000126_ or
                  -1152921504606846976_ rem        17596481011711_ <>          -68719542256_ or
                  -9223231303661387776_ rem       140739636002821_ <>      -140737488519183_ or
-       -39614081257132168796771975168_ rem   9223372036854775809_ <>  -9223372032559808513_ or
+       -39614081257132168796771975168_ rem   9223372036854775809_ <>  -9223372032559808513_ then
+      writeln("Remainder of bigInteger division does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ rem                    -1_ <>                     0_ or
+    if                         -32766_ rem                    -1_ <>                     0_ or
                                -32767_ rem                    -1_ <>                     0_ or
                                -32768_ rem                    -1_ <>                     0_ or
                                -32769_ rem                    -1_ <>                     0_ or
@@ -12991,7 +13009,7 @@ const proc: chkRemainder is func
                  -1152921504606846976_ rem       -17596481011711_ <>          -68719542256_ or
                  -9223231303661387776_ rem      -140739636002821_ <>      -140737488519183_ or
        -39614081257132168796771975168_ rem  -9223372036854775809_ <>  -9223372032559808513_ then
-      writeln("Remainder of bigInteger division does not work correct.");
+      writeln("Remainder of bigInteger division does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -13314,9 +13332,12 @@ const proc: chkDivRem is func
                   9223372036854775808_ divRem       140741783322623_ <> quotRem(           65534_,            8590000126_) or
                   1152921504606846976_ divRem        17596481011711_ <> quotRem(           65520_,           68719542256_) or
                   9223231303661387776_ divRem       140739636002821_ <> quotRem(           65533_,       140737488519183_) or
-        39614081257132168796771975168_ divRem   9223372036854775809_ <> quotRem(      4294967295_,   9223372032559808513_) or
+        39614081257132168796771975168_ divRem   9223372036854775809_ <> quotRem(      4294967295_,   9223372032559808513_) then
+      writeln("Division of bigInteger with divRem does not work correct. (1)");
+      okay := FALSE;
+    end if;
 
-                                32766_ divRem                    -1_ <> quotRem(          -32766_,                     0_) or
+    if                          32766_ divRem                    -1_ <> quotRem(          -32766_,                     0_) or
                                 32767_ divRem                    -1_ <> quotRem(          -32767_,                     0_) or
                                 32768_ divRem                    -1_ <> quotRem(          -32768_,                     0_) or
                                 32769_ divRem                    -1_ <> quotRem(          -32769_,                     0_) or
@@ -13399,9 +13420,12 @@ const proc: chkDivRem is func
                   9223372036854775808_ divRem      -140741783322623_ <> quotRem(          -65534_,            8590000126_) or
                   1152921504606846976_ divRem       -17596481011711_ <> quotRem(          -65520_,           68719542256_) or
                   9223231303661387776_ divRem      -140739636002821_ <> quotRem(          -65533_,       140737488519183_) or
-        39614081257132168796771975168_ divRem  -9223372036854775809_ <> quotRem(     -4294967295_,   9223372032559808513_) or
+        39614081257132168796771975168_ divRem  -9223372036854775809_ <> quotRem(     -4294967295_,   9223372032559808513_) then
+      writeln("Division of bigInteger with divRem does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ divRem                     1_ <> quotRem(          -32766_,                     0_) or
+    if                         -32766_ divRem                     1_ <> quotRem(          -32766_,                     0_) or
                                -32767_ divRem                     1_ <> quotRem(          -32767_,                     0_) or
                                -32768_ divRem                     1_ <> quotRem(          -32768_,                     0_) or
                                -32769_ divRem                     1_ <> quotRem(          -32769_,                     0_) or
@@ -13484,9 +13508,12 @@ const proc: chkDivRem is func
                  -9223372036854775808_ divRem       140741783322623_ <> quotRem(          -65534_,           -8590000126_) or
                  -1152921504606846976_ divRem        17596481011711_ <> quotRem(          -65520_,          -68719542256_) or
                  -9223231303661387776_ divRem       140739636002821_ <> quotRem(          -65533_,      -140737488519183_) or
-       -39614081257132168796771975168_ divRem   9223372036854775809_ <> quotRem(     -4294967295_,  -9223372032559808513_) or
+       -39614081257132168796771975168_ divRem   9223372036854775809_ <> quotRem(     -4294967295_,  -9223372032559808513_) then
+      writeln("Division of bigInteger with divRem does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ divRem                    -1_ <> quotRem(           32766_,                     0_) or
+    if                         -32766_ divRem                    -1_ <> quotRem(           32766_,                     0_) or
                                -32767_ divRem                    -1_ <> quotRem(           32767_,                     0_) or
                                -32768_ divRem                    -1_ <> quotRem(           32768_,                     0_) or
                                -32769_ divRem                    -1_ <> quotRem(           32769_,                     0_) or
@@ -13570,7 +13597,7 @@ const proc: chkDivRem is func
                  -1152921504606846976_ divRem       -17596481011711_ <> quotRem(           65520_,          -68719542256_) or
                  -9223231303661387776_ divRem      -140739636002821_ <> quotRem(           65533_,      -140737488519183_) or
        -39614081257132168796771975168_ divRem  -9223372036854775809_ <> quotRem(      4294967295_,  -9223372032559808513_) then
-      writeln("Division of bigInteger with divRem does not work correct.");
+      writeln("Division of bigInteger with divRem does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -13671,9 +13698,12 @@ const proc: chkModDivision is func
                   9223372036854775808_ mdiv       140741783322623_ <>            65534_ or
                   1152921504606846976_ mdiv        17596481011711_ <>            65520_ or
                   9223231303661387776_ mdiv       140739636002821_ <>            65533_ or
-        39614081257132168796771975168_ mdiv   9223372036854775809_ <>       4294967295_ or
+        39614081257132168796771975168_ mdiv   9223372036854775809_ <>       4294967295_ then
+      writeln("Modulo division of bigInteger does not work correct. (1)");
+      okay := FALSE;
+    end if;
 
-                                32766_ mdiv                    -1_ <>           -32766_ or
+    if                          32766_ mdiv                    -1_ <>           -32766_ or
                                 32767_ mdiv                    -1_ <>           -32767_ or
                                 32768_ mdiv                    -1_ <>           -32768_ or
                                 32769_ mdiv                    -1_ <>           -32769_ or
@@ -13756,9 +13786,12 @@ const proc: chkModDivision is func
                   9223372036854775808_ mdiv      -140741783322623_ <>           -65535_ or
                   1152921504606846976_ mdiv       -17596481011711_ <>           -65521_ or
                   9223231303661387776_ mdiv      -140739636002821_ <>           -65534_ or
-        39614081257132168796771975168_ mdiv  -9223372036854775809_ <>      -4294967296_ or
+        39614081257132168796771975168_ mdiv  -9223372036854775809_ <>      -4294967296_ then
+      writeln("Modulo division of bigInteger does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ mdiv                     1_ <>           -32766_ or
+    if                         -32766_ mdiv                     1_ <>           -32766_ or
                                -32767_ mdiv                     1_ <>           -32767_ or
                                -32768_ mdiv                     1_ <>           -32768_ or
                                -32769_ mdiv                     1_ <>           -32769_ or
@@ -13841,9 +13874,12 @@ const proc: chkModDivision is func
                  -9223372036854775808_ mdiv       140741783322623_ <>           -65535_ or
                  -1152921504606846976_ mdiv        17596481011711_ <>           -65521_ or
                  -9223231303661387776_ mdiv       140739636002821_ <>           -65534_ or
-       -39614081257132168796771975168_ mdiv   9223372036854775809_ <>      -4294967296_ or
+       -39614081257132168796771975168_ mdiv   9223372036854775809_ <>      -4294967296_ then
+      writeln("Modulo division of bigInteger does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ mdiv                    -1_ <>            32766_ or
+    if                         -32766_ mdiv                    -1_ <>            32766_ or
                                -32767_ mdiv                    -1_ <>            32767_ or
                                -32768_ mdiv                    -1_ <>            32768_ or
                                -32769_ mdiv                    -1_ <>            32769_ or
@@ -13927,7 +13963,7 @@ const proc: chkModDivision is func
                  -1152921504606846976_ mdiv       -17596481011711_ <>            65520_ or
                  -9223231303661387776_ mdiv      -140739636002821_ <>            65533_ or
        -39614081257132168796771975168_ mdiv  -9223372036854775809_ <>       4294967295_ then
-      writeln("Modulo division of bigInteger does not work correct.");
+      writeln("Modulo division of bigInteger does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -14269,9 +14305,12 @@ const proc: chkModulo is func
                   9223372036854775808_ mod       140741783322623_ <>            8590000126_ or
                   1152921504606846976_ mod        17596481011711_ <>           68719542256_ or
                   9223231303661387776_ mod       140739636002821_ <>       140737488519183_ or
-        39614081257132168796771975168_ mod   9223372036854775809_ <>   9223372032559808513_ or
+        39614081257132168796771975168_ mod   9223372036854775809_ <>   9223372032559808513_ then
+      writeln("Modulo of bigInteger division does not work correct. (1)");
+      okay := FALSE;
+    end if;
 
-                                32766_ mod                    -1_ <>                     0_ or
+    if                          32766_ mod                    -1_ <>                     0_ or
                                 32767_ mod                    -1_ <>                     0_ or
                                 32768_ mod                    -1_ <>                     0_ or
                                 32769_ mod                    -1_ <>                     0_ or
@@ -14354,9 +14393,12 @@ const proc: chkModulo is func
                   9223372036854775808_ mod      -140741783322623_ <>      -140733193322497_ or
                   1152921504606846976_ mod       -17596481011711_ <>       -17527761469455_ or
                   9223231303661387776_ mod      -140739636002821_ <>           -2147483638_ or
-        39614081257132168796771975168_ mod  -9223372036854775809_ <>           -4294967296_ or
+        39614081257132168796771975168_ mod  -9223372036854775809_ <>           -4294967296_ then
+      writeln("Modulo of bigInteger division does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ mod                     1_ <>                     0_ or
+    if                         -32766_ mod                     1_ <>                     0_ or
                                -32767_ mod                     1_ <>                     0_ or
                                -32768_ mod                     1_ <>                     0_ or
                                -32769_ mod                     1_ <>                     0_ or
@@ -14439,9 +14481,12 @@ const proc: chkModulo is func
                  -9223372036854775808_ mod       140741783322623_ <>       140733193322497_ or
                  -1152921504606846976_ mod        17596481011711_ <>        17527761469455_ or
                  -9223231303661387776_ mod       140739636002821_ <>            2147483638_ or
-       -39614081257132168796771975168_ mod   9223372036854775809_ <>            4294967296_ or
+       -39614081257132168796771975168_ mod   9223372036854775809_ <>            4294967296_ then
+      writeln("Modulo of bigInteger division does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-                               -32766_ mod                    -1_ <>                     0_ or
+    if                         -32766_ mod                    -1_ <>                     0_ or
                                -32767_ mod                    -1_ <>                     0_ or
                                -32768_ mod                    -1_ <>                     0_ or
                                -32769_ mod                    -1_ <>                     0_ or
@@ -14525,7 +14570,7 @@ const proc: chkModulo is func
                  -1152921504606846976_ mod       -17596481011711_ <>          -68719542256_ or
                  -9223231303661387776_ mod      -140739636002821_ <>      -140737488519183_ or
        -39614081257132168796771975168_ mod  -9223372036854775809_ <>  -9223372032559808513_ then
-      writeln("Modulo of bigInteger division does not work correct.");
+      writeln("Modulo of bigInteger division does not work correct. (4)");
       okay := FALSE;
     end if;
 

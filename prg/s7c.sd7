@@ -694,16 +694,12 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, param_name);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
     elsif valueCategory = WINOBJECT then
-      if getValue(object_value, PRIMITIVE_WINDOW) = PRIMITIVE_WINDOW.value then
-        c_declaration.temp_decls &:= "=NULL";
-      else
-        c_declaration.temp_assigns &:= diagnosticLine(current_object);
-        c_declaration.temp_assigns &:= "o_";
-        create_name(current_object, c_declaration.temp_assigns);
-        c_declaration.temp_assigns &:= "=drwCreate(";
-        c_declaration.temp_assigns &:= windowLiteral(getValue(object_value, PRIMITIVE_WINDOW));
-        c_declaration.temp_assigns &:= ");\n";
-      end if;
+      c_declaration.temp_assigns &:= diagnosticLine(current_object);
+      c_declaration.temp_assigns &:= "o_";
+      create_name(current_object, c_declaration.temp_assigns);
+      c_declaration.temp_assigns &:= "=drwCreate(";
+      c_declaration.temp_assigns &:= windowLiteral(getValue(object_value, PRIMITIVE_WINDOW));
+      c_declaration.temp_assigns &:= ");\n";
       c_declaration.temp_frees &:= "drwDestr(o_";
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
@@ -5635,8 +5631,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= ".value.pollValue=";
       process_pollData_literal(getValue(current_object, pollData), c_expr);
     elsif objectCategory = WINOBJECT then
-      c_expr.expr &:= ".value.winValue=";
+      c_expr.expr &:= ".value.winValue=drwCreate(";
       c_expr.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
+      c_expr.expr &:= ")";
     elsif objectCategory = PROCESSOBJECT then
       c_expr.expr &:= ".value.processValue=";
       c_expr.expr &:= "NULL";

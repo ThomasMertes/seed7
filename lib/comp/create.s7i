@@ -128,11 +128,11 @@ const func string: process_sct_alloc (in type: object_type, in string: variableN
     allocExpr &:= str(numElements);
     allocExpr &:= " * sizeof(rtlObjectType))),\n";
     allocExpr &:= diagnosticLine;
-    allocExpr &:= "unlikely(";
+    allocExpr &:= "(unlikely(";
     allocExpr &:= variableName;
     allocExpr &:= " == NULL) ? ";
     allocExpr &:= "intRaiseError(MEMORY_ERROR) ";
-    allocExpr &:= ": 0";
+    allocExpr &:= ": 0)";
     if structFreelist then
       allocExpr &:= ",\n";
       allocExpr &:= diagnosticLine;
