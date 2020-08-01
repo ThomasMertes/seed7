@@ -5265,9 +5265,9 @@ const proc: process_chr_cmp (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "chrCmp(";
-    getAnyParamToExpr(params[1], c_expr);
+    process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -7124,9 +7124,9 @@ const proc: process_flt_cmp (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "fltCmp(";
-    getAnyParamToExpr(params[1], c_expr);
+    process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -8277,9 +8277,9 @@ const proc: process_int_cmp (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "intCmp(";
-    getAnyParamToExpr(params[1], c_expr);
+    process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -9616,6 +9616,17 @@ const proc: process_int_value (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_itf_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "refCmpGeneric(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_itf_conv2 (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -9702,6 +9713,15 @@ const proc: process_itf_eq (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= ") == (";
     getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_itf_hashcode (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(inttype)(((memsizetype)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")) >> 6)";
   end func;
 
 
@@ -10067,6 +10087,17 @@ const proc: process_ref_cat_str (in ref_list: params, inout expr_type: c_expr) i
     c_expr.result_expr := "refCatStr(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_ref_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "refCmpGeneric(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -14233,7 +14264,9 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "ITF" then
-      if action_name = "ITF_CONV2" then
+      if action_name = "ITF_CMP" then
+        process_itf_cmp(params, c_expr);
+      elsif action_name = "ITF_CONV2" then
         process_itf_conv2(params, c_expr);
       elsif action_name = "ITF_CPY" then
         process_itf_cpy(params, c_expr);
@@ -14241,6 +14274,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_itf_cpy2(params, c_expr);
       elsif action_name = "ITF_EQ" then
         process_itf_eq(params, c_expr);
+      elsif action_name = "ITF_HASHCODE" then
+        process_itf_hashcode(params, c_expr);
       elsif action_name = "ITF_NE" then
         process_itf_ne(params, c_expr);
       else
@@ -14353,6 +14388,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_ref_cat_parse(params, c_expr);
       elsif action_name = "REF_CAT_STR" then
         process_ref_cat_str(params, c_expr);
+      elsif action_name = "REF_CMP" then
+        process_ref_cmp(params, c_expr);
       elsif action_name = "REF_CONV" then
         process_ref_conv(params, c_expr);
       elsif action_name = "REF_CPY" then
@@ -16824,6 +16861,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&intCpy";
     elsif action_name = "INT_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
+    elsif action_name = "ITF_CMP" then
+      c_expr.expr &:= "&refCmpGeneric";
     elsif action_name = "ITF_CPY" then
       c_expr.expr &:= "&intCpy";
     elsif action_name = "ITF_CREATE" then
@@ -16834,16 +16873,16 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       else
         c_expr.expr &:= "&prcNoop";
       end if;
-    elsif action_name = "REF_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
-    elsif action_name = "REF_CPY" then
-      c_expr.expr &:= "&refCpy";
     elsif action_name = "REF_CMP" then
       c_expr.expr &:= "&refCmpGeneric";
-    elsif action_name = "RFL_CREATE" then
-      c_expr.expr &:= "&rflCreateGeneric";
+    elsif action_name = "REF_CPY" then
+      c_expr.expr &:= "&refCpy";
+    elsif action_name = "REF_CREATE" then
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "RFL_CPY" then
       c_expr.expr &:= "&rflCpy";
+    elsif action_name = "RFL_CREATE" then
+      c_expr.expr &:= "&rflCreateGeneric";
     elsif action_name = "RFL_DESTR" then
       c_expr.expr &:= "&rflDestr";
     elsif action_name = "SCT_CREATE" then
@@ -19226,6 +19265,9 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "    char *sig_name;");
     writeln(c_prog, "    char buffer[20];");
     writeln(c_prog);
+    writeln(c_prog, "#ifdef SIGALRM");
+    writeln(c_prog, "    signal(SIGALRM, SIG_IGN);");
+    writeln(c_prog, "#endif");
     writeln(c_prog, "    if (sig_num == SIGABRT) {");
     writeln(c_prog, "      sig_name = \"ABORT\";");
     writeln(c_prog, "    } else if (sig_num == SIGFPE) {");

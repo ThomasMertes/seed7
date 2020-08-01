@@ -35,57 +35,83 @@ chartype gkbGetc (void);
 booltype gkbKeyPressed (void);
 chartype gkbRawGetc (void);
 wintype gkbWindow (void);
-booltype gkbButtonPressed (chartype);
+booltype gkbButtonPressed (chartype button);
 inttype gkbButtonXpos (void);
 inttype gkbButtonYpos (void);
-inttype drwPointerXpos (const_wintype);
-inttype drwPointerYpos (const_wintype);
-void drwArc (const_wintype, inttype, inttype, inttype, floattype, floattype);
-void drwPArc (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);
-void drwFArcChord (const_wintype, inttype, inttype, inttype, floattype, floattype);
-void drwPFArcChord (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);
-void drwFArcPieSlice (const_wintype, inttype, inttype, inttype, floattype, floattype);
-void drwPFArcPieSlice (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);
-void drwArc2 (const_wintype, inttype, inttype, inttype, inttype, inttype);
-void drwCircle (const_wintype, inttype, inttype, inttype);
-void drwPCircle (const_wintype, inttype, inttype, inttype, inttype);
-void drwClear (const_wintype, inttype);
-void drwCopyArea (const_wintype, const_wintype, inttype, inttype, inttype, inttype,
-                  inttype, inttype);
-void drwFCircle (const_wintype, inttype, inttype, inttype);
-void drwPFCircle (const_wintype, inttype, inttype, inttype, inttype);
-void drwFEllipse (const_wintype, inttype, inttype, inttype, inttype);
-void drwPFEllipse (const_wintype, inttype, inttype, inttype, inttype, inttype);
+inttype drwPointerXpos (const_wintype actual_window);
+inttype drwPointerYpos (const_wintype actual_window);
+void drwArc (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype startAngle, floattype sweepAngle);
+void drwPArc (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col);
+void drwFArcChord (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype startAngle, floattype sweepAngle);
+void drwPFArcChord (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col);
+void drwFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype startAngle, floattype sweepAngle);
+void drwPFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col);
+void drwArc2 (const_wintype actual_window,
+    inttype x1, inttype y1, inttype x2, inttype y2, inttype radius);
+void drwCircle (const_wintype actual_window,
+    inttype x, inttype y, inttype radius);
+void drwPCircle (const_wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col);
+void drwClear (const_wintype actual_window, inttype col);
+void drwCopyArea (const_wintype src_window, const_wintype dest_window,
+    inttype src_x, inttype src_y, inttype width, inttype height,
+    inttype dest_x, inttype dest_y);
+void drwFCircle (const_wintype actual_window,
+    inttype x, inttype y, inttype radius);
+void drwPFCircle (const_wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col);
+void drwFEllipse (const_wintype actual_window,
+    inttype x, inttype y, inttype width, inttype height);
+void drwPFEllipse (const_wintype actual_window,
+    inttype x, inttype y, inttype width, inttype height, inttype col);
 void drwFlush (void);
-void drwFree (wintype);
-wintype drwGet (const_wintype, inttype, inttype, inttype, inttype);
-inttype drwHeight (const_wintype);
-wintype drwImage (const_wintype, inttype *, inttype, inttype);
-void drwLine (const_wintype, inttype, inttype, inttype, inttype);
-void drwPLine (const_wintype, inttype, inttype, inttype, inttype, inttype);
-wintype drwNewPixmap (const_wintype, inttype, inttype);
-wintype drwNewBitmap (const_wintype, inttype, inttype);
-wintype drwOpen (inttype, inttype, inttype, inttype, stritype);
-wintype drwOpenSubWindow (const_wintype, inttype, inttype, inttype, inttype);
-void drwPoint (const_wintype, inttype, inttype);
-void drwPPoint (const_wintype, inttype, inttype, inttype);
-void drwConvPointList (bstritype, inttype *);
+void drwFree (wintype old_window);
+wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
+    inttype width, inttype height);
+inttype drwHeight (const_wintype actual_window);
+wintype drwImage (const_wintype actual_window, inttype *image_data,
+    inttype width, inttype height);
+void drwLine (const_wintype actual_window,
+    inttype x1, inttype y1, inttype x2, inttype y2);
+void drwPLine (const_wintype actual_window,
+    inttype x1, inttype y1, inttype x2, inttype y2, inttype col);
+wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height);
+wintype drwNewBitmap (const_wintype actual_window, inttype width, inttype height);
+wintype drwOpen (inttype xPos, inttype yPos,
+    inttype width, inttype height, stritype window_name);
+wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
+    inttype width, inttype height);
+void drwPoint (const_wintype actual_window, inttype x, inttype y);
+void drwPPoint (const_wintype actual_window, inttype x, inttype y, inttype col);
+void drwConvPointList (bstritype pointList, inttype *xy);
 bstritype drwGenPointList (const const_rtlArraytype xyArray);
-inttype drwLngPointList (bstritype);
-void drwPolyLine (const_wintype, inttype, inttype, bstritype, inttype);
-void drwFPolyLine (const_wintype, inttype, inttype, bstritype, inttype);
-void drwPut (const_wintype, const_wintype, inttype, inttype);
-void drwRect (const_wintype, inttype, inttype, inttype, inttype);
-void drwPRect (const_wintype, inttype, inttype, inttype, inttype, inttype);
-inttype drwRgbColor (inttype, inttype, inttype);
-void drwBackground (inttype);
-void drwColor (inttype);
-void drwSetPos (const_wintype, inttype, inttype);
-void drwSetTransparentColor (wintype, inttype);
-void drwText (const_wintype, inttype, inttype, stritype, inttype, inttype);
-inttype drwWidth (const_wintype);
-inttype drwXPos (const_wintype);
-inttype drwYPos (const_wintype);
+inttype drwLngPointList (bstritype point_list);
+void drwPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, bstritype point_list, inttype col);
+void drwFPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, bstritype point_list, inttype col);
+void drwPut (const_wintype actual_window, const_wintype pixmap,
+    inttype x, inttype y);
+void drwRect (const_wintype actual_window,
+    inttype x, inttype y, inttype length_x, inttype length_y);
+void drwPRect (const_wintype actual_window,
+    inttype x, inttype y, inttype length_x, inttype length_y, inttype col);
+inttype drwRgbColor (inttype red_val, inttype green_val, inttype blue_val);
+void drwBackground (inttype col);
+void drwColor (inttype col);
+void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos);
+void drwSetTransparentColor (wintype pixmap, inttype col);
+void drwText (const_wintype actual_window, inttype x, inttype y,
+    stritype stri, inttype col, inttype bkcol);
+inttype drwWidth (const_wintype actual_window);
+inttype drwXPos (const_wintype actual_window);
+inttype drwYPos (const_wintype actual_window);
 
 #else
 

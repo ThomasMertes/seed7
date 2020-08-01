@@ -2577,18 +2577,37 @@
       [ A ]     Access one character
                   ( Type of argument A: <font color=red>integer</font>,
                     Type of result: <font color=red>char</font>,
-                    A[1] => First character,
-                    A[length(A)] => Last character,
-                    A[0] => EXCEPTION RANGE_ERROR,
-                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
+                    <font color=maroon>"abcde"</font>[1] => <font color=maroon>'a'</font>,
+                    <font color=maroon>"abcde"</font>[5] => <font color=maroon>'e'</font>,
+                    <font color=maroon>"abcde"</font>[0] => EXCEPTION RANGE_ERROR,
+                    <font color=maroon>"abcde"</font>[6] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a substring from position A to B
-                  ( Type of arguments A and B: <font color=red>integer</font> )
+                  ( Type of arguments A and B: <font color=red>integer</font>,
+                    <font color=maroon>"abcde"</font>[2 .. 4] => <font color=maroon>"bcd"</font>,
+                    <font color=maroon>"abcde"</font>[2 .. 7] => <font color=maroon>"bcde"</font>,
+                    <font color=maroon>"abcde"</font>[4 .. 2] => <font color=maroon>""</font>,
+                    <font color=maroon>"abcde"</font>[6 .. 8] => <font color=maroon>""</font>,
+                    <font color=maroon>"abcde"</font>[-3 .. 4] => <font color=maroon>"abcd"</font>,
+                    <font color=maroon>"abcde"</font>[-3 .. 7] => <font color=maroon>"abcde"</font>,
+                    <font color=maroon>"abcde"</font>[-3 .. 0] => <font color=maroon>""</font> )
       [ A <font color=blue>len</font> B ] Access a substring from position A with length B
-                  ( Type of arguments A and B: <font color=red>integer</font> )
+                  ( Type of arguments A and B: <font color=red>integer</font>,
+                    <font color=maroon>"abcde"</font>[2 <font color=blue>len</font> 3] => <font color=maroon>"bcd"</font>,
+                    <font color=maroon>"abcde"</font>[2 <font color=blue>len</font> 5] => <font color=maroon>"bcde"</font>,
+                    <font color=maroon>"abcde"</font>[-3 <font color=blue>len</font> 8] => <font color=maroon>"abcd"</font>,
+                    <font color=maroon>"abcde"</font>[-1 <font color=blue>len</font> 9] => <font color=maroon>"abcde"</font> )
       [ A .. ]  Access a substring beginning at position A
-                  ( Type of argument A: <font color=red>integer</font> )
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=maroon>"abcde"</font>[3 ..] => <font color=maroon>"cde"</font>,
+                    <font color=maroon>"abcde"</font>[6 ..] => <font color=maroon>""</font>,
+                    <font color=maroon>"abcde"</font>[-3 ..] => <font color=maroon>"abcde"</font>,
+                    <font color=maroon>""</font>[1 ..] => <font color=maroon>""</font> )
       [ .. A ]  Access a substring ending at position A
-                  ( Type of argument A: <font color=red>integer</font> )
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=maroon>"abcde"</font>[.. 4] => <font color=maroon>"abcd"</font>,
+                    <font color=maroon>"abcde"</font>[.. 6] => <font color=maroon>"abcde"</font>,
+                    <font color=maroon>"abcde"</font>[.. -3] => <font color=maroon>""</font>,
+                    <font color=maroon>""</font>[.. 5] => <font color=maroon>""</font> )
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:

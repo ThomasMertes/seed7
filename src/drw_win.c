@@ -181,10 +181,10 @@ inttype col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPRect pen with color %lx is NULL\n", col);
+      printf("drawRectangle pen with color %lx is NULL\n", col);
     } /* if */
     if (current_brush == NULL) {
-      printf("drwPRect brush with color %lx is NULL\n", col);
+      printf("drawRectangle brush with color %lx is NULL\n", col);
     } /* if */
     old_pen = (HPEN) SelectObject(actual_window->hdc, current_pen);
     old_brush = (HBRUSH) SelectObject(actual_window->hdc, current_brush);
@@ -959,22 +959,22 @@ wintype actual_window;
 #ifdef ANSI_C
 
 void drwArc (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+    inttype radius, floattype startAngle, floattype sweepAngle)
 #else
 
-void drwArc (actual_window, x, y, radius, ang1, ang2)
+void drwArc (actual_window, x, y, radius, startAngle, sweepAngle)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 #endif
 
   {
-    float angle1, angle2;
+    float startAng, sweepAng;
 
   /* drwArc */
-    angle1 = (ang1 * (360.0 / (2 * PI)));
-    angle2 = (ang2 * (360.0 / (2 * PI)));
-    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
+    startAng = (startAngle * (360.0 / (2 * PI)));
+    sweepAng = (sweepAngle * (360.0 / (2 * PI)));
+    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, startAng, sweepAng);
   } /* drwArc */
 
 
@@ -982,36 +982,36 @@ floattype ang1, ang2;
 #ifdef ANSI_C
 
 void drwPArc (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2, inttype col)
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
 #else
 
-void drwPArc (actual_window, x, y, radius, ang1, ang2, col)
+void drwPArc (actual_window, x, y, radius, startAngle, sweepAngle, col)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 inttype col;
 #endif
 
   {
-    float angle1, angle2;
+    float startAng, sweepAng;
     HPEN old_pen;
     HPEN current_pen;
 
   /* drwPArc */
-    angle1 = (ang1 * (360.0 / (2 * PI)));
-    angle2 = (ang2 * (360.0 / (2 * PI)));
+    startAng = (startAngle * (360.0 / (2 * PI)));
+    sweepAng = (sweepAngle * (360.0 / (2 * PI)));
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPFCircle pen with color %lx is NULL\n", col);
+      printf("drwPArc pen with color %lx is NULL\n", col);
     } /* if */
     old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
     /* MoveToEx(to_hdc(actual_window), x + radius, y, NULL); */
-    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
+    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, startAng, sweepAng);
     SelectObject(to_hdc(actual_window), old_pen);
     if (to_backup_hdc(actual_window) != 0) {
       old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
       /* MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL); */
-      AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
+      AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, startAng, sweepAng);
       SelectObject(to_backup_hdc(actual_window), old_pen);
     } /* if */
     DeleteObject(current_pen);
@@ -1022,13 +1022,13 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFArcChord (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+    inttype radius, floattype startAngle, floattype sweepAngle)
 #else
 
-void drwFArcChord (actual_window, x, y, radius, ang1, ang2)
+void drwFArcChord (actual_window, x, y, radius, startAngle, sweepAngle)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 #endif
 
   { /* drwFArcChord */
@@ -1039,13 +1039,13 @@ floattype ang1, ang2;
 #ifdef ANSI_C
 
 void drwPFArcChord (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2, inttype col)
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
 #else
 
-void drwPFArcChord (actual_window, x, y, radius, ang1, ang2, col)
+void drwPFArcChord (actual_window, x, y, radius, startAngle, sweepAngle, col)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 inttype col;
 #endif
 
@@ -1057,13 +1057,13 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+    inttype radius, floattype startAngle, floattype sweepAngle)
 #else
 
-void drwFArcPieSlice (actual_window, x, y, radius, ang1, ang2)
+void drwFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 #endif
 
   { /* drwFArcPieSlice */
@@ -1074,17 +1074,54 @@ floattype ang1, ang2;
 #ifdef ANSI_C
 
 void drwPFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2, inttype col)
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
 #else
 
-void drwPFArcPieSlice (actual_window, x, y, radius, ang1, ang2, col)
+void drwPFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle, col)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 inttype col;
 #endif
 
-  { /* drwPFArcPieSlice */
+  {
+    float startAng, sweepAng;
+    HPEN old_pen;
+    HPEN current_pen;
+    HBRUSH old_brush;
+    HBRUSH current_brush;
+
+  /* drwPFArcPieSlice */
+    if (sweepAngle != 0.0) {
+      startAng = (startAngle * (360.0 / (2 * PI)));
+      sweepAng = (sweepAngle * (360.0 / (2 * PI)));
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      current_brush = CreateSolidBrush((COLORREF) col);
+      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+      old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
+      BeginPath(to_hdc(actual_window)); 
+      MoveToEx(to_hdc(actual_window), x, y, (LPPOINT) NULL);
+      AngleArc(to_hdc(actual_window), x, y, radius, startAng, sweepAng); 
+      LineTo(to_hdc(actual_window), x, y); 
+      EndPath(to_hdc(actual_window)); 
+      StrokeAndFillPath(to_hdc(actual_window)); 
+      SelectObject(to_hdc(actual_window), old_pen);
+      SelectObject(to_hdc(actual_window), old_brush);
+      if (to_backup_hdc(actual_window) != 0) {
+        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+        old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+        BeginPath(to_backup_hdc(actual_window)); 
+        MoveToEx(to_backup_hdc(actual_window), x, y, (LPPOINT) NULL);
+        AngleArc(to_backup_hdc(actual_window), x, y, radius, startAng, sweepAng); 
+        LineTo(to_backup_hdc(actual_window), x, y); 
+        EndPath(to_backup_hdc(actual_window)); 
+        StrokeAndFillPath(to_backup_hdc(actual_window)); 
+        SelectObject(to_backup_hdc(actual_window), old_pen);
+        SelectObject(to_backup_hdc(actual_window), old_brush);
+      } /* if */
+      DeleteObject(current_pen);
+      DeleteObject(current_brush);
+    } /* if */
   } /* drwPFArcPieSlice */
 
 
@@ -1291,14 +1328,14 @@ inttype col;
     old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
     old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
     Ellipse(to_hdc(actual_window), x - radius, y - radius,
-        x + radius, y + radius);
+        x + radius + 1, y + radius + 1);
     SelectObject(to_hdc(actual_window), old_pen);
     SelectObject(to_hdc(actual_window), old_brush);
     if (to_backup_hdc(actual_window) != 0) {
       old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
       Ellipse(to_backup_hdc(actual_window), x - radius, y - radius,
-          x + radius, y + radius);
+          x + radius + 1, y + radius + 1);
       SelectObject(to_backup_hdc(actual_window), old_pen);
       SelectObject(to_backup_hdc(actual_window), old_brush);
     } /* if */
@@ -2001,7 +2038,7 @@ inttype col;
     if (npoints >= 2) {
       current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
       if (current_pen == NULL) {
-        printf("drwPLine pen with color %lx is NULL\n", col);
+        printf("drwPolyLine pen with color %lx is NULL\n", col);
       } /* if */
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       MoveToEx(to_hdc(actual_window), x1 + points[0].x, y1 + points[0].y, NULL);
@@ -2057,10 +2094,10 @@ inttype col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPFCircle pen with color %lx is NULL\n", col);
+      printf("drwFPolyLine pen with color %lx is NULL\n", col);
     } /* if */
     if (current_brush == NULL) {
-      printf("drwPFCircle brush with color %lx is NULL\n", col);
+      printf("drwFPolyLine brush with color %lx is NULL\n", col);
     } /* if */
     old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
     old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
@@ -2086,13 +2123,72 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwPRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype length_x, inttype length_y, inttype col)
+void drwPut (const_wintype actual_window, const_wintype pixmap,
+    inttype x, inttype y)
 #else
 
-void drwPRect (actual_window, x1, y1, length_x, length_y, col)
+void drwPut (actual_window, pixmap, x, y)
 wintype actual_window;
-inttype x1, y1, length_x, length_y;
+wintype pixmap;
+inttype x;
+inttype y;
+#endif
+
+  { /* drwPut */
+    if (pixmap != NULL) {
+#ifdef USE_TRANSPARENTBLT
+      if (to_hasTransparentPixel(pixmap)) {
+        TransparentBlt(to_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
+            to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
+        if (to_backup_hdc(actual_window) != 0) {
+          TransparentBlt(to_backup_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
+              to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
+        } /* if */
+      } else {
+#endif
+        BitBlt(to_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
+            to_hdc(pixmap), 0, 0, SRCCOPY);
+        if (to_backup_hdc(actual_window) != 0) {
+          BitBlt(to_backup_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
+              to_hdc(pixmap), 0, 0, SRCCOPY);
+        } /* if */
+#ifdef USE_TRANSPARENTBLT
+      } /* if */
+#endif
+    } /* if */
+  } /* drwPut */
+
+
+
+#ifdef ANSI_C
+
+void drwRect (const_wintype actual_window,
+    inttype x, inttype y, inttype length_x, inttype length_y)
+#else
+
+void drwRect (actual_window, x, y, length_x, length_y)
+wintype actual_window;
+inttype x, y, length_x, length_y;
+#endif
+
+  { /* drwRect */
+    Rectangle(to_hdc(actual_window), x, y, x + length_x, y + length_y);
+    if (to_backup_hdc(actual_window) != 0) {
+      Rectangle(to_backup_hdc(actual_window), x, y, x + length_x, y + length_y);
+    } /* if */
+  } /* drwRect */
+
+
+
+#ifdef ANSI_C
+
+void drwPRect (const_wintype actual_window,
+    inttype x, inttype y, inttype length_x, inttype length_y, inttype col)
+#else
+
+void drwPRect (actual_window, x, y, length_x, length_y, col)
+wintype actual_window;
+inttype x, y, length_x, length_y;
 inttype col;
 #endif
 
@@ -2104,7 +2200,7 @@ inttype col;
 
   /* drwPRect */
 #ifdef TRACE_WIN
-    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x1, y1, length_x, length_y, col);
+    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x, y, length_x, length_y, col);
 #endif
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
 #ifdef OUT_OF_ORDER
@@ -2127,17 +2223,17 @@ inttype col;
     old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
     if (length_x == 1) {
       if (length_y == 1) {
-        SetPixel(to_hdc(actual_window), x1, y1, (COLORREF) col);
+        SetPixel(to_hdc(actual_window), x, y, (COLORREF) col);
       } else {
-        MoveToEx(to_hdc(actual_window), x1, y1, NULL);
-        LineTo(to_hdc(actual_window), x1, y1 + length_y);
+        MoveToEx(to_hdc(actual_window), x, y, NULL);
+        LineTo(to_hdc(actual_window), x, y + length_y);
       } /* if */
     } else {
       if (length_y == 1) {
-        MoveToEx(to_hdc(actual_window), x1, y1, NULL);
-        LineTo(to_hdc(actual_window), x1 + length_x, y1);
+        MoveToEx(to_hdc(actual_window), x, y, NULL);
+        LineTo(to_hdc(actual_window), x + length_x, y);
       } else {
-        Rectangle(to_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
+        Rectangle(to_hdc(actual_window), x, y, x + length_x, y + length_y);
       } /* if */
     } /* if */
     SelectObject(to_hdc(actual_window), old_pen);
@@ -2147,17 +2243,17 @@ inttype col;
       old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
       if (length_x == 1) {
         if (length_y == 1) {
-          SetPixel(to_backup_hdc(actual_window), x1, y1, (COLORREF) col);
+          SetPixel(to_backup_hdc(actual_window), x, y, (COLORREF) col);
         } else {
-          MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
-          LineTo(to_backup_hdc(actual_window), x1, y1 + length_y);
+          MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
+          LineTo(to_backup_hdc(actual_window), x, y + length_y);
         } /* if */
       } else {
         if (length_y == 1) {
-          MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
-          LineTo(to_backup_hdc(actual_window), x1 + length_x, y1);
+          MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
+          LineTo(to_backup_hdc(actual_window), x + length_x, y);
         } else {
-          Rectangle(to_backup_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
+          Rectangle(to_backup_hdc(actual_window), x, y, x + length_x, y + length_y);
         } /* if */
       } /* if */
       SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -2166,65 +2262,6 @@ inttype col;
     DeleteObject(current_pen);
     DeleteObject(current_brush);
   } /* drwPRect */
-
-
-
-#ifdef ANSI_C
-
-void drwPut (const_wintype actual_window, const_wintype pixmap,
-    inttype x1, inttype y1)
-#else
-
-void drwPut (actual_window, pixmap, x1, y1)
-wintype actual_window;
-wintype pixmap;
-inttype x1;
-inttype y1;
-#endif
-
-  { /* drwPut */
-    if (pixmap != NULL) {
-#ifdef USE_TRANSPARENTBLT
-      if (to_hasTransparentPixel(pixmap)) {
-        TransparentBlt(to_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
-            to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
-        if (to_backup_hdc(actual_window) != 0) {
-          TransparentBlt(to_backup_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
-              to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
-        } /* if */
-      } else {
-#endif
-        BitBlt(to_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
-            to_hdc(pixmap), 0, 0, SRCCOPY);
-        if (to_backup_hdc(actual_window) != 0) {
-          BitBlt(to_backup_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
-              to_hdc(pixmap), 0, 0, SRCCOPY);
-        } /* if */
-#ifdef USE_TRANSPARENTBLT
-      } /* if */
-#endif
-    } /* if */
-  } /* drwPut */
-
-
-
-#ifdef ANSI_C
-
-void drwRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype length_x, inttype length_y)
-#else
-
-void drwRect (actual_window, x1, y1, length_x, length_y)
-wintype actual_window;
-inttype x1, y1, length_x, length_y;
-#endif
-
-  { /* drwRect */
-    Rectangle(to_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
-    if (to_backup_hdc(actual_window) != 0) {
-      Rectangle(to_backup_hdc(actual_window), x1, y1, x1 + length_x, y1 + length_y);
-    } /* if */
-  } /* drwRect */
 
 
 
@@ -2286,7 +2323,7 @@ void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
 
 void drwSetPos (actual_window, xPos, yPos)
 wintype actual_window;
-inttype x1, y1;
+inttype xPos, yPos;
 #endif
 
   { /* drwSetPos */

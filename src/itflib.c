@@ -53,6 +53,37 @@
 
 #ifdef ANSI_C
 
+objecttype itf_cmp (listtype arguments)
+#else
+
+objecttype itf_cmp (arguments)
+listtype arguments;
+#endif
+
+  {
+    memsizetype interface1;
+    memsizetype interface2;
+    inttype result;
+
+  /* itf_cmp */
+    isit_interface(arg_1(arguments));
+    isit_interface(arg_2(arguments));
+    interface1 = (memsizetype) take_interface(arg_1(arguments));
+    interface2 = (memsizetype) take_interface(arg_2(arguments));
+    if (interface1 < interface2) {
+      result = -1;
+    } else if (interface1 > interface2) {
+      result = 1;
+    } else {
+      result = 0;
+    } /* if */
+    return bld_int_temp(result);
+  } /* itf_cmp */
+
+
+
+#ifdef ANSI_C
+
 objecttype itf_conv2 (listtype arguments)
 #else
 
@@ -201,6 +232,23 @@ listtype arguments;
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* itf_eq */
+
+
+
+#ifdef ANSI_C
+
+objecttype itf_hashcode (listtype arguments)
+#else
+
+objecttype itf_hashcode (arguments)
+listtype arguments;
+#endif
+
+  { /* itf_hashcode */
+    isit_interface(arg_1(arguments));
+    return bld_int_temp((inttype)
+        (((memsizetype) take_interface(arg_1(arguments))) >> 6));
+  } /* itf_hashcode */
 
 
 

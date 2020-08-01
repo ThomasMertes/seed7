@@ -42,58 +42,59 @@ $ const type: ACTION is                            $ newtype;
 $ const type: f_param is                           $ newtype;
 *)
 
-$ const $ func type: $ func (ref type param) is    $ action "TYP_FUNC";
+$ const $ func type: $ func (ref type param)    is $ action "TYP_FUNC";
 $ const $ func type: $ varfunc (ref type param) is $ action "TYP_VARFUNC";
 
-$ const func ACTION: $ action (ref string param)  is       $ action "ACT_GEN";
+$ const func ACTION: $ action (ref string param)        is $ action "ACT_GEN";
 $ const proc: $ (ref proc param) ::= (ref ACTION param) is $ action "ACT_CREATE";
-$ const proc: $ destroy (ref string param) is                action "STR_DESTR";
+$ const proc: $ destroy (ref string param)              is   action "STR_DESTR";
 
 $ const proc: $ (ref func f_param param) ::= (ref ACTION param) is action "ACT_CREATE";
-$ const func f_param: $ ref (ref type param) param is              action "DCL_REF1";
+$ const func f_param: $ ref (ref type param) param              is action "DCL_REF1";
 
 $ const proc: const (ref type param) : (ref expr param) is (ref expr param) is action "DCL_CONST";
 
-const proc: const (ref type param) : (ref expr param) is forward is            action "DCL_FWD";
-const proc: var   (ref type param) : (ref expr param) is (ref expr param) is   action "DCL_VAR";
+const proc: const (ref type param) : (ref expr param) is forward            is action "DCL_FWD";
+const proc: var   (ref type param) : (ref expr param) is (ref expr param)   is action "DCL_VAR";
 
-const func f_param: ref (ref type param) : (ref expr param) is     action "DCL_REF2";
-const func f_param: val (ref type param) param is                  action "DCL_VAL1";
-const func f_param: val (ref type param) : (ref expr param) is     action "DCL_VAL2";
-const func f_param: in var (ref type param) param is               action "DCL_IN1VAR";
-const func f_param: in var (ref type param) : (ref expr param) is  action "DCL_IN2VAR";
-const func f_param: inout (ref type param) param is                action "DCL_INOUT1";
-const func f_param: inout (ref type param) : (ref expr param) is   action "DCL_INOUT2";
-const func f_param: in (ref type param) param is                   action "DCL_REF1";
-const func f_param: attr (ref type param) is                       action "DCL_ATTR";
-const func f_param: attr (ref f_param param) is                    action "DCL_PARAM_ATTR";
+const func f_param: ref (ref type param) : (ref expr param)     is action "DCL_REF2";
+const func f_param: val (ref type param) param                  is action "DCL_VAL1";
+const func f_param: val (ref type param) : (ref expr param)     is action "DCL_VAL2";
+const func f_param: in var (ref type param) param               is action "DCL_IN1VAR";
+const func f_param: in var (ref type param) : (ref expr param)  is action "DCL_IN2VAR";
+const func f_param: inout (ref type param) param                is action "DCL_INOUT1";
+const func f_param: inout (ref type param) : (ref expr param)   is action "DCL_INOUT2";
+const func f_param: in (ref type param) param                   is action "DCL_REF1";
+const func f_param: attr (ref type param)                       is action "DCL_ATTR";
+const func f_param: attr (ref f_param param)                    is action "DCL_PARAM_ATTR";
 
-const proc: (ref type param) ::= (ref type param) is            action "TYP_CREATE";
-const proc: destroy (ref type param) is                         action "TYP_DESTR";
+const proc: (ref type param) ::= (ref type param)            is action "TYP_CREATE";
+const proc: destroy (ref type param)                         is action "TYP_DESTR";
 
-const proc: (inout type param) := (ref type param) is           action "TYP_CPY";
-const proc: (ref func proc param) ::= (ref ACTION param) is     action "ACT_CREATE";
-const proc: (ref varfunc proc param) ::= (ref ACTION param) is  action "ACT_CREATE";
-const func proc: func begin (ref expr param) end func is        action "PRC_BEGIN";
-const func proc: func local (ref proc param) begin (ref expr param) end func is action "PRC_LOCAL";
-const proc: (ref proc param) ::= (ref proc param) is            action "PRC_CREATE";
-const proc: (inout proc param) := (ref proc param) is           action "PRC_CPY";
-const proc: destroy (ref proc param) is                         action "PRC_NOOP";
-const proc: noop is                                             action "PRC_NOOP";
-const proc: (ref void param) ; (ref void param) is noop;
+const proc: (inout type param) := (ref type param)           is action "TYP_CPY";
+const proc: (ref func proc param) ::= (ref ACTION param)     is action "ACT_CREATE";
+const proc: (ref varfunc proc param) ::= (ref ACTION param)  is action "ACT_CREATE";
+const func proc: func begin (ref expr param) end func        is action "PRC_BEGIN";
+const func proc: func local (ref proc param)
+                 begin (ref expr param) end func             is action "PRC_LOCAL";
+const proc: (ref proc param) ::= (ref proc param)            is action "PRC_CREATE";
+const proc: (inout proc param) := (ref proc param)           is action "PRC_CPY";
+const proc: destroy (ref proc param)                         is action "PRC_NOOP";
+const proc: noop                                             is action "PRC_NOOP";
+const proc: (ref void param) ; (ref void param)              is noop;
 
-const proc: PRINT (ref string param) is                         action "FIL_PRINT";
+const proc: PRINT (ref string param)                         is action "FIL_PRINT";
 
 const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
   begin
-    const func f_param: in (attr aType) param is                action "DCL_VAL1";
-    const func f_param: in (attr aType) : (ref expr param) is   action "DCL_VAL2";
+    const func f_param: in (attr aType) param                is action "DCL_VAL1";
+    const func f_param: in (attr aType) : (ref expr param)   is action "DCL_VAL2";
   end func;
 
 const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
   begin
-    const func f_param: in (attr aType) param is                action "DCL_REF1";
-    const func f_param: in (attr aType) : (ref expr param) is   action "DCL_REF2";
+    const func f_param: in (attr aType) param                is action "DCL_REF1";
+    const func f_param: in (attr aType) : (ref expr param)   is action "DCL_REF2";
   end func;
 
 IN_PARAM_IS_REFERENCE(type);
@@ -172,10 +173,10 @@ const proc: var (ref type: aType) : (ref expr: name) is default is func
     var aType: name is aType.value;
   end func;
 
-const func string: str (in type param) is                     action "TYP_STR";
-const func string: (in string param) & (in string param) is   action "STR_CAT";
-const func type: gentype is                                   action "TYP_GENTYPE";
-const func type: gensub (in type param) is                    action "TYP_GENSUB";
+const func string: str (in type param)                     is action "TYP_STR";
+const func string: (in string param) & (in string param)   is action "STR_CAT";
+const func type: gentype                                   is action "TYP_GENTYPE";
+const func type: gensub (in type param)                    is action "TYP_GENSUB";
 
 const func type: newtype is func
   result
@@ -299,10 +300,10 @@ const func type: func (in type: baseType) is func
     var type: aType is void;
   begin
     aType := gentype;
-    const func type: func baseType is                        aType;
-    const proc: TRACE (ref aType param) is                   action "REF_TRACE";
-    const proc: (ref aType param) ::= (ref ACTION param) is  action "ACT_CREATE";
-    const proc: (ref aType param) ::= (ref aType param) is   action "PRC_CREATE";
+    const func type: func baseType                        is aType;
+    const proc: TRACE (ref aType param)                   is action "REF_TRACE";
+    const proc: (ref aType param) ::= (ref ACTION param)  is action "ACT_CREATE";
+    const proc: (ref aType param) ::= (ref aType param)   is action "PRC_CREATE";
   end func;
 *)
 
@@ -377,9 +378,9 @@ const proc: DECLS                           is action "PRC_DECLS";
 const type: boolean is subtype ENUMERATION;
 IN_PARAM_IS_VALUE(boolean);
 
-const proc: (ref boolean param) ::= (in boolean param) is     action "BLN_CREATE";
-const proc: destroy (ref boolean param) is                    noop;
-const proc: (inout boolean param) := (in boolean param) is    action "BLN_CPY";
+const proc: (ref boolean param) ::= (in boolean param)   is action "BLN_CREATE";
+const proc: destroy (ref boolean param)                  is noop;
+const proc: (inout boolean param) := (in boolean param)  is action "BLN_CPY";
 
 const boolean: FALSE is enumlit;
 const boolean: TRUE is enumlit;
@@ -389,7 +390,7 @@ $ system "false" is FALSE;
 
 const boolean: (attr boolean) . value is FALSE;
 const boolean: (attr boolean) . first is FALSE;
-const boolean: (attr boolean) . last is  TRUE;
+const boolean: (attr boolean) . last  is TRUE;
 
 const func boolean: not (in boolean param) is action "BLN_NOT";
 
@@ -475,16 +476,16 @@ const string: str (attr TRUE) is         "TRUE";
 *)
 
 const type: (attr type) . value is void;
-const func boolean: (in type param) = (in type param) is      action "TYP_EQ";
-const func boolean: (in type param) <> (in type param) is     action "TYP_NE";
+const func boolean: (in type param) = (in type param)      is action "TYP_EQ";
+const func boolean: (in type param) <> (in type param)     is action "TYP_NE";
 const func integer: compare (in type param, in type param) is action "TYP_CMP";
-const func integer: hashCode (in type param) is               action "TYP_HASHCODE";
-const func boolean: is_func (in type param) is                action "TYP_ISFUNC";
-const func boolean: is_varfunc (in type param) is             action "TYP_ISVARFUNC";
-const func type: result_type (in type param) is               action "TYP_RESULT";
-const func boolean: is_derived (in type param) is             action "TYP_ISDERIVED";
-const func type: meta (in type param) is                      action "TYP_META";
-const proc: addInterface (in type param, in type param) is    action "TYP_ADDINTERFACE";
+const func integer: hashCode (in type param)               is action "TYP_HASHCODE";
+const func boolean: is_func (in type param)                is action "TYP_ISFUNC";
+const func boolean: is_varfunc (in type param)             is action "TYP_ISVARFUNC";
+const func type: result_type (in type param)               is action "TYP_RESULT";
+const func boolean: is_derived (in type param)             is action "TYP_ISDERIVED";
+const func type: meta (in type param)                      is action "TYP_META";
+const proc: addInterface (in type param, in type param)    is action "TYP_ADDINTERFACE";
 
 
 (* IF *)
@@ -2002,39 +2003,39 @@ PRINT(str(TEST_HASH2["gold"]));
 const type: bitset is subtype object;
 IN_PARAM_IS_REFERENCE(bitset);
 
-const proc: (ref bitset param) ::= (in bitset param) is            action "SET_CREATE";
-const proc: destroy (ref bitset param) is                          action "SET_DESTR";
-const proc: (inout bitset param) := (in bitset param) is           action "SET_CPY";
-const func bitset: (in bitset param) | (in bitset param) is        action "SET_UNION";
-const func bitset: (in bitset param) >< (in bitset param) is       action "SET_SYMDIFF";
-const func bitset: (in bitset param) & (in bitset param) is        action "SET_INTERSECT";
-const func bitset: (in bitset param) - (in bitset param) is        action "SET_DIFF";
-const func boolean: (in bitset param) = (in bitset param) is       action "SET_EQ";
-const func boolean: (in bitset param) < (in bitset param) is       action "SET_LT";
-const func boolean: (in bitset param) > (in bitset param) is       action "SET_GT";
-const func boolean: (in bitset param) <= (in bitset param) is      action "SET_LE";
-const func boolean: (in bitset param) >= (in bitset param) is      action "SET_GE";
-const func boolean: (in bitset param) <> (in bitset param) is      action "SET_NE";
-const func integer: compare (in bitset param, in bitset param) is  action "SET_CMP";
-const func integer: hashCode (in bitset param) is                  action "SET_HASHCODE";
-const func boolean: (in integer param) in (in bitset param) is     action "SET_ELEM";
+const proc: (ref bitset param) ::= (in bitset param)            is action "SET_CREATE";
+const proc: destroy (ref bitset param)                          is action "SET_DESTR";
+const proc: (inout bitset param) := (in bitset param)           is action "SET_CPY";
+const func bitset: (in bitset param) | (in bitset param)        is action "SET_UNION";
+const func bitset: (in bitset param) >< (in bitset param)       is action "SET_SYMDIFF";
+const func bitset: (in bitset param) & (in bitset param)        is action "SET_INTERSECT";
+const func bitset: (in bitset param) - (in bitset param)        is action "SET_DIFF";
+const func boolean: (in bitset param) = (in bitset param)       is action "SET_EQ";
+const func boolean: (in bitset param) < (in bitset param)       is action "SET_LT";
+const func boolean: (in bitset param) > (in bitset param)       is action "SET_GT";
+const func boolean: (in bitset param) <= (in bitset param)      is action "SET_LE";
+const func boolean: (in bitset param) >= (in bitset param)      is action "SET_GE";
+const func boolean: (in bitset param) <> (in bitset param)      is action "SET_NE";
+const func integer: compare (in bitset param, in bitset param)  is action "SET_CMP";
+const func integer: hashCode (in bitset param)                  is action "SET_HASHCODE";
+const func boolean: (in integer param) in (in bitset param)     is action "SET_ELEM";
 const func boolean: (in integer param) not in (in bitset param) is action "SET_NOT_ELEM";
-const proc: incl (inout bitset param, in integer param) is         action "SET_INCL";
-const proc: excl (inout bitset param, in integer param) is         action "SET_EXCL";
-const func integer: card (in bitset param) is                      action "SET_CARD";
-const func integer: rand (in bitset param) is                      action "SET_RAND";
-const func integer: min (in bitset param) is                       action "SET_MIN";
-const func integer: max (in bitset param) is                       action "SET_MAX";
-const func bitset: { (in integer param) } is                       action "SET_BASELIT";
-const func bitset: { (in tuple integer param) } is                 action "SET_ARRLIT";
-const func integer: (attr integer) conv (in bitset param)  is      action "SET_SCONV";
-const func bitset: (attr bitset) conv (in integer param) is        action "SET_ICONV";
+const proc: incl (inout bitset param, in integer param)         is action "SET_INCL";
+const proc: excl (inout bitset param, in integer param)         is action "SET_EXCL";
+const func integer: card (in bitset param)                      is action "SET_CARD";
+const func integer: rand (in bitset param)                      is action "SET_RAND";
+const func integer: min (in bitset param)                       is action "SET_MIN";
+const func integer: max (in bitset param)                       is action "SET_MAX";
+const func bitset: { (in integer param) }                       is action "SET_BASELIT";
+const func bitset: { (in tuple integer param) }                 is action "SET_ARRLIT";
+const func integer: (attr integer) conv (in bitset param)       is action "SET_SCONV";
+const func bitset: (attr bitset) conv (in integer param)        is action "SET_ICONV";
 
 
-const func bitset: _GENERATE_EMPTY_SET is                          action "SET_EMPTY";
-const bitset: EMPTY_SET is                                         _GENERATE_EMPTY_SET;
-const bitset: (attr bitset) . EMPTY_SET is                         EMPTY_SET;
-const bitset: (attr bitset) . value is                             EMPTY_SET;
+const func bitset: _GENERATE_EMPTY_SET                          is action "SET_EMPTY";
+const bitset: EMPTY_SET                                         is _GENERATE_EMPTY_SET;
+const bitset: (attr bitset) . EMPTY_SET                         is EMPTY_SET;
+const bitset: (attr bitset) . value                             is EMPTY_SET;
 
 (*
 const func bitset: { (in tuple integer: value) } is func
@@ -2126,29 +2127,29 @@ const func type: BITSET_OF (in type: baseType) is func
       global
       setType := newtype;
       IN_PARAM_IS_REFERENCE(setType);
-      const type: BITSET_OF (attr baseType) is                              setType;
-      const type: base_type (attr setType) is                               baseType;
-      const proc: (ref setType param) ::= (in setType param) is             action "SET_CREATE";
-      const proc: destroy (ref setType param) is                            action "SET_DESTR";
-      const proc: (inout setType param) := (in setType param) is            action "SET_CPY";
-      const func setType: (in setType param) | (in setType param) is        action "SET_UNION";
-      const func setType: (in setType param) >< (in setType param) is       action "SET_SYMDIFF";
-      const func setType: (in setType param) & (in setType param) is        action "SET_INTERSECT";
-      const func setType: (in setType param) - (in setType param) is        action "SET_DIFF";
-      const func boolean: (in setType param) = (in setType param) is        action "SET_EQ";
-      const func boolean: (in setType param) < (in setType param) is        action "SET_LT";
-      const func boolean: (in setType param) > (in setType param) is        action "SET_GT";
-      const func boolean: (in setType param) <= (in setType param) is       action "SET_LE";
-      const func boolean: (in setType param) >= (in setType param) is       action "SET_GE";
-      const func boolean: (in setType param) <> (in setType param) is       action "SET_NE";
-      const func integer: compare (in setType param, in setType param) is   action "SET_CMP";
-      const func integer: hashCode (in setType param) is                    action "SET_HASHCODE";
-      const func integer: card (in setType param) is                        action "SET_CARD";
-      const func bitset: (attr bitset) conv (in setType param) is           action "SET_CONV";
-      const varfunc bitset: (attr bitset) varConv (inout setType param) is  action "TYP_VARCONV";
-      const func setType: (attr setType) conv (in bitset param) is          action "SET_CONV";
-      const setType: (attr setType) . EMPTY_SET is                          setType conv EMPTY_SET;
-      const setType: (attr setType) . value is                              setType conv EMPTY_SET;
+      const type: BITSET_OF (attr baseType)                              is setType;
+      const type: base_type (attr setType)                               is baseType;
+      const proc: (ref setType param) ::= (in setType param)             is action "SET_CREATE";
+      const proc: destroy (ref setType param)                            is action "SET_DESTR";
+      const proc: (inout setType param) := (in setType param)            is action "SET_CPY";
+      const func setType: (in setType param) | (in setType param)        is action "SET_UNION";
+      const func setType: (in setType param) >< (in setType param)       is action "SET_SYMDIFF";
+      const func setType: (in setType param) & (in setType param)        is action "SET_INTERSECT";
+      const func setType: (in setType param) - (in setType param)        is action "SET_DIFF";
+      const func boolean: (in setType param) = (in setType param)        is action "SET_EQ";
+      const func boolean: (in setType param) < (in setType param)        is action "SET_LT";
+      const func boolean: (in setType param) > (in setType param)        is action "SET_GT";
+      const func boolean: (in setType param) <= (in setType param)       is action "SET_LE";
+      const func boolean: (in setType param) >= (in setType param)       is action "SET_GE";
+      const func boolean: (in setType param) <> (in setType param)       is action "SET_NE";
+      const func integer: compare (in setType param, in setType param)   is action "SET_CMP";
+      const func integer: hashCode (in setType param)                    is action "SET_HASHCODE";
+      const func integer: card (in setType param)                        is action "SET_CARD";
+      const func bitset: (attr bitset) conv (in setType param)           is action "SET_CONV";
+      const varfunc bitset: (attr bitset) varConv (inout setType param)  is action "TYP_VARCONV";
+      const func setType: (attr setType) conv (in bitset param)          is action "SET_CONV";
+      const setType: (attr setType) . EMPTY_SET                          is setType conv EMPTY_SET;
+      const setType: (attr setType) . value                              is setType conv EMPTY_SET;
 
       const func boolean: (in baseType: aValue) in (in setType: aSet) is
         return ord(aValue) in bitset conv aSet;

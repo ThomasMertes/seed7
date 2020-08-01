@@ -470,12 +470,14 @@ static primactrecord prim_act_table[] = {
     { "INT_SUCC",            int_succ,            },
     { "INT_VALUE",           int_value,           },
 
+    { "ITF_CMP",             itf_cmp,             },
     { "ITF_CONV2",           itf_conv2,           },
     { "ITF_CPY",             itf_cpy,             },
     { "ITF_CPY2",            itf_cpy2,            },
     { "ITF_CREATE",          itf_create,          },
     { "ITF_CREATE2",         itf_create2,         },
     { "ITF_EQ",              itf_eq,              },
+    { "ITF_HASHCODE",        itf_hashcode,        },
     { "ITF_NE",              itf_ne,              },
     { "ITF_SELECT",          itf_select,          },
 

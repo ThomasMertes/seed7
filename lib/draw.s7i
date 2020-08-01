@@ -416,39 +416,39 @@ const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color:
 (**
  *  Draws an arc with the color 'col' to the window 'win'.
  *  The arc has the given 'radius' and it's center is at (x, y).
- *  The arc begins at 'beginAngle' and ends at 'endAngle'.
+ *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
  *)
 const proc: arc (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius,
-    in float: beginAngle, in float: endAngle, in color: col) is func
+    in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    DRAW_ARC(win, x, y, radius, beginAngle, endAngle, colorPixel(col));
+    DRAW_ARC(win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
   end func;
 
 
 (**
  *  Draws an arc with the color 'col' to the current window 'curr_win'.
  *  The arc has the given 'radius' and it's center is at (x, y).
- *  The arc begins at 'beginAngle' and ends at 'endAngle'.
+ *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
  *)
 const proc: arc (in integer: x, in integer: y, in integer: radius,
-    in float: beginAngle, in float: endAngle, in color: col) is func
+    in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    DRAW_ARC(curr_win, x, y, radius, beginAngle, endAngle, colorPixel(col));
+    DRAW_ARC(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
   end func;
 
 
 const proc: chord (in integer: x, in integer: y, in integer: radius,
-    in float: cstart, in float: cend, in color: col) is func
+    in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    FILL_ARCCHORD(curr_win, x, y, radius, cstart, cend, colorPixel(col));
+    FILL_ARCCHORD(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
   end func;
 
 
 const proc: pieslice (in integer: x, in integer: y, in integer: r,
-    in float: cstart, in float: cend, in color: col) is func
+    in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    FILL_ARCPIESLICE(curr_win, x, y, r, cstart, cend, colorPixel(col));
+    FILL_ARCPIESLICE(curr_win, x, y, r, startAngle, sweepAngle, colorPixel(col));
   end func;
 
 

@@ -1102,38 +1102,34 @@ wintype actual_window;
 #ifdef ANSI_C
 
 void drwArc (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+    inttype radius, floattype startAngle, floattype sweepAngle)
 #else
 
-void drwArc (actual_window, x, y, radius, ang1, ang2)
+void drwArc (actual_window, x, y, radius, startAngle, sweepAngle)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 #endif
 
   {
-    int angle1, angle2;
+    int startAng, sweepAng;
 
   /* drwArc */
 #ifdef TRACE_X11
-    printf("arc(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
-        actual_window, x, y, radius, ang1, ang2);
+    printf("drwArc(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
-    angle1 = (int) (ang1 * (23040.0 / (2 * PI)));
-    angle2 = (int) (ang2 * (23040.0 / (2 * PI)));
-/*  printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
-        x - radius, y - radius,
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2); */
+    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2);
+        startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
-          angle1, angle2);
+          startAng, sweepAng);
     } /* if */
   } /* drwArc */
 
@@ -1142,40 +1138,36 @@ floattype ang1, ang2;
 #ifdef ANSI_C
 
 void drwPArc (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2, inttype col)
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
 #else
 
-void drwPArc (actual_window, x, y, radius, ang1, ang2, col)
+void drwPArc (actual_window, x, y, radius, startAngle, sweepAngle, col)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 inttype col;
 #endif
 
   {
-    int angle1, angle2;
+    int startAng, sweepAng;
 
   /* drwPArc */
 #ifdef TRACE_X11
-    printf("arc(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
-        actual_window, x, y, radius, ang1, ang2);
+    printf("drwPArc(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
-    angle1 = (int) (ang1 * (23040.0 / (2 * PI)));
-    angle2 = (int) (ang2 * (23040.0 / (2 * PI)));
-/*  printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
-        x - radius, y - radius,
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2); */
+    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2);
+        startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
-          angle1, angle2);
+          startAng, sweepAng);
     } /* if */
   } /* drwPArc */
 
@@ -1184,39 +1176,35 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFArcChord (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+    inttype radius, floattype startAngle, floattype sweepAngle)
 #else
 
-void drwFArcChord (actual_window, x, y, radius, ang1, ang2)
+void drwFArcChord (actual_window, x, y, radius, startAngle, sweepAngle)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 #endif
 
   {
-    int angle1, angle2;
+    int startAng, sweepAng;
 
   /* drwFArcChord */
 #ifdef TRACE_X11
-    printf("arcchord(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
-        actual_window, x, y, radius, ang1, ang2);
+    printf("drwFArcChord(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
-    angle1 = (int) (ang1 * (23040.0 / (2 * PI)));
-    angle2 = (int) (ang2 * (23040.0 / (2 * PI)));
-/*  printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
-        x - radius, y - radius,
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2); */
     XSetArcMode(mydisplay, mygc, ArcChord);
+    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2);
+        startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
-          angle1, angle2);
+          startAng, sweepAng);
     } /* if */
   } /* drwFArcChord */
 
@@ -1225,41 +1213,37 @@ floattype ang1, ang2;
 #ifdef ANSI_C
 
 void drwPFArcChord (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2, inttype col)
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
 #else
 
-void drwPFArcChord (actual_window, x, y, radius, ang1, ang2, col)
+void drwPFArcChord (actual_window, x, y, radius, startAngle, sweepAngle, col)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 inttype col;
 #endif
 
   {
-    int angle1, angle2;
+    int startAng, sweepAng;
 
   /* drwPFArcChord */
 #ifdef TRACE_X11
-    printf("arcchord(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
-        actual_window, x, y, radius, ang1, ang2);
+    printf("drwPFArcChord(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
-    angle1 = (int) (ang1 * (23040.0 / (2 * PI)));
-    angle2 = (int) (ang2 * (23040.0 / (2 * PI)));
-/*  printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
-        x - radius, y - radius,
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2); */
     XSetArcMode(mydisplay, mygc, ArcChord);
+    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
-        angle1, angle2);
+        startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
-          angle1, angle2);
+          startAng, sweepAng);
     } /* if */
   } /* drwPFArcChord */
 
@@ -1268,27 +1252,36 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+    inttype radius, floattype startAngle, floattype sweepAngle)
 #else
 
-void drwFArcPieSlice (actual_window, x, y, radius, ang1, ang2)
+void drwFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 #endif
 
-  { /* drwFArcPieSlice */
-/*  printf("arc(%d, %d, %d, %.4f, %.4f)\n", x, y, radius, ang1, ang2);
-    printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
-        x - radius, y - radius,
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        (int) (ang1 * (23040.0 / (2 * PI))), (int) (ang2 * (23040.0 / (2 * PI)))); */
+  {
+    int startAng, sweepAng;
+
+  /* drwFArcPieSlice */
+#ifdef TRACE_X11
+    printf("drwFArcPieSlice(%d, %d, %d, %.4f, %.4f)\n",
+        x, y, radius, startAngle, sweepAngle);
+#endif
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
+    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
-        (int) (ang1 * (23040.0 / (2 * PI))), (int) (ang2 * (23040.0 / (2 * PI))));
-    /* XDrawLine(mydisplay, to_window(actual_window), mygc, x, y, x, y); */
+        startAng, sweepAng);
+    if (to_backup(actual_window) != 0) {
+      XFillArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          startAng, sweepAng);
+    } /* if */
   } /* drwFArcPieSlice */
 
 
@@ -1296,29 +1289,38 @@ floattype ang1, ang2;
 #ifdef ANSI_C
 
 void drwPFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2, inttype col)
+    inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
 #else
 
-void drwPFArcPieSlice (actual_window, x, y, radius, ang1, ang2, col)
+void drwPFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle, col)
 wintype actual_window;
 inttype x, y, radius;
-floattype ang1, ang2;
+floattype startAngle, sweepAngle;
 inttype col;
 #endif
 
-  { /* drwPFArcPieSlice */
-/*  printf("arc(%d, %d, %d, %.4f, %.4f)\n", x, y, radius, ang1, ang2);
-    printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
-        x - radius, y - radius,
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        (int) (ang1 * (23040.0 / (2 * PI))), (int) (ang2 * (23040.0 / (2 * PI)))); */
+  {
+    int startAng, sweepAng;
+
+  /* drwPFArcPieSlice */
+#ifdef TRACE_X11
+    printf("drwPFArcPieSlice(%d, %d, %d, %.4f, %.4f)\n",
+        x, y, radius, startAngle, sweepAngle); */
+#endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
+    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
-        (int) (ang1 * (23040.0 / (2 * PI))), (int) (ang2 * (23040.0 / (2 * PI))));
-    /* XDrawLine(mydisplay, to_window(actual_window), mygc, x, y, x, y); */
+        startAng, sweepAng);
+    if (to_backup(actual_window) != 0) {
+      XFillArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          startAng, sweepAng);
+    } /* if */
   } /* drwPFArcPieSlice */
 
 
@@ -1335,7 +1337,7 @@ inttype x1, y1, x2, y2, radius;
 #endif
 
   { /* drwArc2 */
-/*  printf("arc2(%d, %d, %d, %d)\n", x1, y1, radius); */
+/*  printf("drwArc2(%d, %d, %d, %d)\n", x1, y1, radius); */
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         x1 - radius, y1 - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
@@ -1357,7 +1359,7 @@ inttype x, y, radius;
 
   { /* drwCircle */
 #ifdef TRACE_X11
-    printf("circle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
+    printf("drwCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
 #endif
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
@@ -1385,7 +1387,7 @@ inttype col;
 
   { /* drwPCircle */
 #ifdef TRACE_X11
-    printf("fcircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
+    printf("drwPCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawArc(mydisplay, to_window(actual_window), mygc,
@@ -1446,7 +1448,7 @@ inttype dest_y;
 
   { /* drwCopyArea */
 #ifdef TRACE_X11
-    printf("XCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
+    printf("drwCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
         src_window, dest_window, src_x, src_y, width, height, dest_x, dest_y);
 #endif
     if (width < 1 || height < 1) {
@@ -1487,12 +1489,18 @@ inttype x, y, radius;
 
   { /* drwFCircle */
 #ifdef TRACE_X11
-    printf("fcircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
+    printf("drwFCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
 #endif
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
@@ -1515,13 +1523,19 @@ inttype col;
 
   { /* drwPFCircle */
 #ifdef TRACE_X11
-    printf("fcircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
+    printf("drwPFCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
@@ -1543,7 +1557,7 @@ inttype x, y, width, height;
 
   { /* drwFEllipse */
 #ifdef TRACE_X11
-    printf("fellipse(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
+    printf("drwFEllipse(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
 #endif
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
@@ -1573,7 +1587,7 @@ inttype col;
 
   { /* drwPFEllipse */
 #ifdef TRACE_X11
-    printf("fellipse(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
+    printf("drwPFEllipse(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
 #endif
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
@@ -1599,7 +1613,7 @@ void drwFlush ()
 #endif
 
   { /* drwFlush */
-/*  printf("Xflush(%d, %d, %d, %d)\n", x, y, radius); */
+/*  printf("drwFlush()\n"); */
     gkbKeyPressed();
 #ifdef OUT_OF_ORDER
     if (XEventsQueued(mydisplay, QueuedAfterReading) > 0) {
@@ -1762,7 +1776,7 @@ inttype height;
 
   /* drwImage */
 #ifdef TRACE_X11
-    printf("image(%ld, %ld)\n", width, height);
+    printf("drwImage(%ld, %ld)\n", width, height);
 #endif
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
@@ -1810,7 +1824,7 @@ inttype x1, y1, x2, y2;
 
   { /* drwLine */
 #ifdef TRACE_X11
-    printf("line(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x1, y1, x2, y2);
+    printf("drwLine(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x1, y1, x2, y2);
 #endif
     XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
     if (to_backup(actual_window) != 0) {
@@ -2254,7 +2268,7 @@ inttype x, y;
 
   { /* drwPoint */
 #ifdef TRACE_X11
-    printf("point(%lu, %ld, %ld)\n", actual_window, x, y); 
+    printf("drwPoint(%lu, %ld, %ld)\n", actual_window, x, y); 
 #endif
     XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
     if (to_backup(actual_window) != 0) {
@@ -2455,19 +2469,19 @@ inttype col;
 #ifdef ANSI_C
 
 void drwPut (const_wintype actual_window, const_wintype pixmap,
-    inttype x1, inttype y1)
+    inttype x, inttype y)
 #else
 
-void drwPut (actual_window, pixmap, x1, y1)
+void drwPut (actual_window, pixmap, x, y)
 wintype actual_window;
 wintype pixmap;
-inttype x1;
-inttype y1;
+inttype x;
+inttype y;
 #endif
 
   { /* drwPut */
 #ifdef TRACE_X11
-    printf("put(%lu, %lu, %ld, %ld)\n", actual_window, pixmap, x1, y1);
+    printf("drwPut(%lu, %lu, %ld, %ld)\n", actual_window, pixmap, x, y);
     printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
         pixmap != NULL ? to_window(pixmap) : NULL);
 #endif
@@ -2476,13 +2490,13 @@ inttype y1;
     if (pixmap != NULL) {
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, to_clip_mask(pixmap));
-        XSetClipOrigin(mydisplay, mygc, x1, y1);
+        XSetClipOrigin(mydisplay, mygc, x, y);
       } /* if */
       XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
-          mygc, 0, 0, to_width(pixmap), to_height(pixmap), x1, y1);
+          mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
-            mygc, 0, 0, to_width(pixmap), to_height(pixmap), x1, y1);
+            mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
       } /* if */
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, None);
@@ -2495,20 +2509,20 @@ inttype y1;
 #ifdef ANSI_C
 
 void dra_put_clip (wintype actual_window, wintype pixmap, wintype bitmap,
-    inttype x1, inttype y1)
+    inttype x, inttype y)
 #else
 
-void dra_put_clip (actual_window, pixmap, bitmap, x1, y1)
+void dra_put_clip (actual_window, pixmap, bitmap, x, y)
 wintype actual_window;
 wintype pixmap;
 wintype bitmap;
-inttype x1;
-inttype y1;
+inttype x;
+inttype y;
 #endif
 
   { /* dra_put_clip */
 #ifdef TRACE_X11
-    printf("put(%lu, %lu, %ld, %ld)\n", actual_window, pixmap, x1, y1);
+    printf("put(%lu, %lu, %ld, %ld)\n", actual_window, pixmap, x, y);
     printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window), to_window(pixmap));
 #endif
     /* A pixmap value of NULL is used to describe an empty pixmap. */
@@ -2516,10 +2530,10 @@ inttype y1;
     if (pixmap != NULL) {
       XSetClipMask(mydisplay, mygc, to_window(bitmap));
       XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
-          mygc, 0, 0, to_width(pixmap), to_height(pixmap), x1, y1);
+          mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
-            mygc, 0, 0, to_width(pixmap), to_height(pixmap), x1, y1);
+            mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
       } /* if */
       XSetClipMask(mydisplay, mygc, None);
     } /* if */
@@ -2530,22 +2544,22 @@ inttype y1;
 #ifdef ANSI_C
 
 void drwRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype length_x, inttype length_y)
+    inttype x, inttype y, inttype length_x, inttype length_y)
 #else
 
-void drwRect (actual_window, x1, y1, length_x, length_y)
+void drwRect (actual_window, x, y, length_x, length_y)
 wintype actual_window;
-inttype x1, y1, length_x, length_y;
+inttype x, y, length_x, length_y;
 #endif
 
   { /* drwRect */
 #ifdef TRACE_X11
-    printf("rect(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x1, y1, length_x, length_y);
+    printf("drwRect(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, length_x, length_y);
 #endif
-    XFillRectangle(mydisplay, to_window(actual_window), mygc, x1, y1,
+    XFillRectangle(mydisplay, to_window(actual_window), mygc, x, y,
         (unsigned) length_x, (unsigned) length_y);
     if (to_backup(actual_window) != 0) {
-      XFillRectangle(mydisplay, to_backup(actual_window), mygc, x1, y1,
+      XFillRectangle(mydisplay, to_backup(actual_window), mygc, x, y,
           (unsigned) length_x, (unsigned) length_y);
     } /* if */
   } /* drwRect */
@@ -2555,24 +2569,24 @@ inttype x1, y1, length_x, length_y;
 #ifdef ANSI_C
 
 void drwPRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype length_x, inttype length_y, inttype col)
+    inttype x, inttype y, inttype length_x, inttype length_y, inttype col)
 #else
 
-void drwPRect (actual_window, x1, y1, length_x, length_y, col)
+void drwPRect (actual_window, x, y, length_x, length_y, col)
 wintype actual_window;
-inttype x1, y1, length_x, length_y;
+inttype x, y, length_x, length_y;
 inttype col;
 #endif
 
   { /* drwPRect */
 #ifdef TRACE_X11
-    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x1, y1, length_x, length_y, col);
+    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x, y, length_x, length_y, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
-    XFillRectangle(mydisplay, to_window(actual_window), mygc, x1, y1,
+    XFillRectangle(mydisplay, to_window(actual_window), mygc, x, y,
         (unsigned) length_x, (unsigned) length_y);
     if (to_backup(actual_window) != 0) {
-      XFillRectangle(mydisplay, to_backup(actual_window), mygc, x1, y1,
+      XFillRectangle(mydisplay, to_backup(actual_window), mygc, x, y,
           (unsigned) length_x, (unsigned) length_y);
     } /* if */
   } /* drwPRect */
@@ -2884,7 +2898,7 @@ void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
 
 void drwSetPos (actual_window, xPos, yPos)
 wintype actual_window;
-inttype x1, y1;
+inttype xPos, yPos;
 #endif
 
   { /* drwSetPos */
@@ -2981,7 +2995,7 @@ inttype bkcol;
 
   { /* drwText */
 #ifdef TRACE_X11
-    printf("text(%lu, %ld, %ld, ...)\n", actual_window, x, y); 
+    printf("drwText(%lu, %ld, %ld, ...)\n", actual_window, x, y); 
 #endif
 #ifdef UTF32_STRINGS
     {

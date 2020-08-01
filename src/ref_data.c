@@ -255,7 +255,7 @@ inttype aCategory;
 
 #ifdef ANSI_C
 
-inttype refCmpGeneric (rtlGenerictype ref1, rtlGenerictype ref2)
+inttype refCmpGeneric (const rtlGenerictype ref1, const rtlGenerictype ref2)
 #else
 
 inttype refCmpGeneric (ref1, ref2)

@@ -2577,18 +2577,37 @@ CONTENTS
       [ A ]     Access one character
                   ( Type of argument A: integer,
                     Type of result: char,
-                    A[1] => First character,
-                    A[length(A)] => Last character,
-                    A[0] => EXCEPTION RANGE_ERROR,
-                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
+                    "abcde"[1] => 'a',
+                    "abcde"[5] => 'e',
+                    "abcde"[0] => EXCEPTION RANGE_ERROR,
+                    "abcde"[6] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a substring from position A to B
-                  ( Type of arguments A and B: integer )
+                  ( Type of arguments A and B: integer,
+                    "abcde"[2 .. 4] => "bcd",
+                    "abcde"[2 .. 7] => "bcde",
+                    "abcde"[4 .. 2] => "",
+                    "abcde"[6 .. 8] => "",
+                    "abcde"[-3 .. 4] => "abcd",
+                    "abcde"[-3 .. 7] => "abcde",
+                    "abcde"[-3 .. 0] => "" )
       [ A len B ] Access a substring from position A with length B
-                  ( Type of arguments A and B: integer )
+                  ( Type of arguments A and B: integer,
+                    "abcde"[2 len 3] => "bcd",
+                    "abcde"[2 len 5] => "bcde",
+                    "abcde"[-3 len 8] => "abcd",
+                    "abcde"[-1 len 9] => "abcde" )
       [ A .. ]  Access a substring beginning at position A
-                  ( Type of argument A: integer )
+                  ( Type of argument A: integer,
+                    "abcde"[3 ..] => "cde",
+                    "abcde"[6 ..] => "",
+                    "abcde"[-3 ..] => "abcde",
+                    ""[1 ..] => "" )
       [ .. A ]  Access a substring ending at position A
-                  ( Type of argument A: integer )
+                  ( Type of argument A: integer,
+                    "abcde"[.. 4] => "abcd",
+                    "abcde"[.. 6] => "abcde",
+                    "abcde"[.. -3] => "",
+                    ""[.. 5] => "" )
     Relations:
       =, <>, <, <=, >, >=
     Functions:

@@ -1,8 +1,21 @@
+20100919:
+- The chapter explaining string indexing in the manual was improved.
+- The compiler (comp.sd7) and the hi interpreter were improved to support the
+  actions "ITF_CMP" and "ITF_HASHCODE".
+- The parameter names of the functions arc, chord and pieslice in the
+  "draw.s7i" library were changed to startAngle and sweepAngle.
+- The compiler was improved such that compiled programs which use SIGALARM
+  (the functions 'wait' and 'await' from the "time.s7i" library may use
+  SIGALARM) can be terminated with ctrl-c followed by * and enter.
+- Parameter names were added to the prototypes in the file "drw_drv.h".
+- The function drwPFArcPieSlice in "drw_win.c" was implemented.
+- The functions drwFCircle and drwPFCircle in "drw_x11.c were improved.
+
 20100905:
 - The chapter explaining the type 'time' in the manual was improved.
 - The support for source level debugging in the compiler (comp.sd7) was
   improved. Now the option -g generates better #line directives and the 'main'
-  function was arranged such that the current line shown by a debugger is
+  function is arranged such that the current line shown by a debugger is
   correct when the program is started.
 - In the "seed7_05.s7i" library the function "rpos" was overloaded to do a
   reverse search for a character in a string starting from a given position.
