@@ -25,19 +25,8 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void free_tokens (tokentype token);
 tokentype get_sy_token (tokentype *tokens, identtype identifier);
 tokentype get_expr_token (tokentype *tokens, prioritytype priority,
     typetype type_of);
 tokentype get_syntax_description (tokentype *tokens);
-
-#else
-
-void free_tokens ();
-tokentype get_sy_token ();
-tokentype get_expr_token ();
-tokentype get_syntax_description ();
-
-#endif

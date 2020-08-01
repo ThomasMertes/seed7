@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 progtype analyze_file (const const_stritype source_file_argument, uinttype options,
     const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
     errinfotype *err_info);
@@ -35,11 +33,3 @@ progtype analyze (const const_stritype source_file_argument, uinttype options,
 progtype analyze_string (const const_stritype input_string, uinttype options,
     const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
     errinfotype *err_info);
-
-#else
-
-progtype analyze_file ();
-progtype analyze ();
-progtype analyze_string ();
-
-#endif

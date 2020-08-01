@@ -25,14 +25,5 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype read_atom (void);
 objecttype read_name (void);
-
-#else
-
-objecttype read_atom ();
-objecttype read_name ();
-
-#endif

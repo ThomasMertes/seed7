@@ -147,8 +147,6 @@
 #endif
 
 
-#ifdef ANSI_C
-
 #ifdef WITH_TYPE_CHECK
 /* void isit_action (objecttype); */
 /* void isit_array (objecttype); */
@@ -205,62 +203,3 @@ objecttype bld_win_temp (wintype temp_win);
 void dump_temp_value (objecttype object);
 void dump_any_temp (objecttype object);
 void dump_list (listtype list);
-
-#else
-
-#ifdef WITH_TYPE_CHECK
-/* void isit_action (); */
-/* void isit_array (); */
-/* void isit_block (); */
-void isit_bool ();
-/* void isit_bstri (); */
-/* void isit_call (); */
-/* void isit_char (); */
-/* void isit_interface (); */
-void isit_enum ();
-/* void isit_file (); */
-#ifdef WITH_FLOAT
-/* void isit_float (); */
-#endif
-/* void isit_hash (); */
-/* void isit_int (); */
-void isit_list ();
-/* void isit_proc (); */
-/* void isit_prog (); */
-/* void isit_reference (); */
-/* void isit_reflist (); */
-/* void isit_set (); */
-/* void isit_socket (); */
-/* void isit_stri (); */
-/* void isit_struct (); */
-/* void isit_type (); */
-/* void isit_win (); */
-#endif
-objecttype bld_action_temp ();
-objecttype bld_array_temp ();
-objecttype bld_bigint_temp ();
-objecttype bld_block_temp ();
-objecttype bld_bstri_temp ();
-objecttype bld_char_temp ();
-objecttype bld_interface_temp ();
-objecttype bld_file_temp ();
-objecttype bld_float_temp ();
-objecttype bld_hash_temp ();
-objecttype bld_int_temp ();
-objecttype bld_list_temp ();
-objecttype bld_param_temp ();
-objecttype bld_poll_temp ();
-objecttype bld_prog_temp ();
-objecttype bld_reference_temp ();
-objecttype bld_reflist_temp ();
-objecttype bld_set_temp ();
-objecttype bld_socket_temp ();
-objecttype bld_stri_temp ();
-objecttype bld_struct_temp ();
-objecttype bld_type_temp ();
-objecttype bld_win_temp ();
-void dump_temp_value ();
-void dump_any_temp ();
-void dump_list ();
-
-#endif

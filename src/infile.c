@@ -62,13 +62,7 @@ static filenumtype file_counter = 0;
 
 
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
-#ifdef ANSI_C
-
 int fill_buf (void)
-#else
-
-int fill_buf ()
-#endif
 
   {
 #ifndef USE_MMAP
@@ -102,13 +96,7 @@ int fill_buf ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE booltype speedup (void)
-#else
-
-static INLINE booltype speedup ()
-#endif
 
   {
     booltype okay;
@@ -196,18 +184,8 @@ static INLINE booltype speedup ()
 
 
 
-#ifdef ANSI_C
-
 void open_infile (const_stritype source_file_name, booltype write_library_names,
     booltype write_line_numbers, errinfotype *err_info)
-#else
-
-void open_infile (source_file_name, write_library_names, write_line_numbers, err_info)
-stritype source_file_name;
-booltype write_library_names;
-booltype write_line_numbers;
-errinfotype *err_info;
-#endif
 
   {
     os_stritype os_path;
@@ -295,13 +273,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void close_infile (void)
-#else
-
-void close_infile ()
-#endif
 
   { /* close_infile */
 #ifdef TRACE_INFILE
@@ -359,18 +331,8 @@ void close_infile ()
 
 
 
-#ifdef ANSI_C
-
 void open_string (bstritype input_string, booltype write_library_names,
     booltype write_line_numbers, errinfotype *err_info)
-#else
-
-void open_string (input_string, write_library_names, write_line_numbers, err_info)
-bstritype input_string;
-booltype write_library_names;
-booltype write_line_numbers;
-errinfotype *err_info;
-#endif
 
   {
     const_cstritype source_file_name = "STRING";
@@ -432,14 +394,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void free_file (infiltype old_file)
-#else
-
-static void free_file (old_file)
-infiltype old_file;
-#endif
 
   {
     memsizetype name_length;
@@ -459,14 +414,7 @@ infiltype old_file;
 
 
 
-#ifdef ANSI_C
-
 void remove_prog_files (progtype currentProg)
-#else
-
-void remove_prog_files (currentProg)
-progtype currentProg;
-#endif
 
   {
     infiltype aFile;
@@ -498,13 +446,7 @@ progtype currentProg;
 
 
 
-#ifdef ANSI_C
-
 void next_file (void)
-#else
-
-void next_file ()
-#endif
 
   { /* next_file */
 #ifdef TRACE_INFILE
@@ -524,13 +466,7 @@ void next_file ()
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 int next_line (void)
-#else
-
-int next_line ()
-#endif
 
   {
     register int character;
@@ -550,14 +486,7 @@ int next_line ()
 
 
 
-#ifdef ANSI_C
-
 stritype get_file_name (filenumtype file_num)
-#else
-
-stritype get_file_name (file_num)
-filenumtype file_num;
-#endif
 
   {
     static stritype question_mark = NULL;
@@ -590,14 +519,7 @@ filenumtype file_num;
 
 
 
-#ifdef ANSI_C
-
 const_ustritype get_file_name_ustri (filenumtype file_num)
-#else
-
-ustritype get_file_name_ustri (file_num)
-filenumtype file_num;
-#endif
 
   {
     infiltype help_file;

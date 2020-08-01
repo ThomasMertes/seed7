@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype sct_alloc  (listtype arguments);
 objecttype sct_cat    (listtype arguments);
 objecttype sct_conv   (listtype arguments);
@@ -39,20 +37,3 @@ objecttype sct_incl   (listtype arguments);
 objecttype sct_lng    (listtype arguments);
 objecttype sct_refidx (listtype arguments);
 objecttype sct_select (listtype arguments);
-
-#else
-
-objecttype sct_alloc ();
-objecttype sct_cat ();
-objecttype sct_conv ();
-objecttype sct_cpy ();
-objecttype sct_create ();
-objecttype sct_destr ();
-objecttype sct_elem ();
-objecttype sct_empty ();
-objecttype sct_incl ();
-objecttype sct_lng ();
-objecttype sct_refidx ();
-objecttype sct_select ();
-
-#endif

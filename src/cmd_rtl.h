@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 #ifdef HAS_SYMLINKS
 stritype followLink (stritype path);
 #endif
@@ -80,44 +78,3 @@ inttype cmdShell (const const_stritype command, const const_stritype parameters)
 stritype cmdShellEscape (const const_stritype stri);
 void cmdSymlink (const const_stritype source_name, const const_stritype dest_name);
 stritype cmdToOsPath (const const_stritype standardPath);
-
-#else
-
-#ifdef HAS_SYMLINKS
-stritype followLink ();
-#endif
-#ifdef EMULATE_ROOT_CWD
-void initEmulatedCwd ();
-#endif
-biginttype cmdBigFileSize ();
-void cmdChdir ();
-void cmdCloneFile ();
-stritype cmdConfigValue ();
-void cmdCopyFile ();
-rtlArraytype cmdEnvironment ();
-settype cmdFileMode ();
-inttype cmdFileSize ();
-inttype cmdFileType ();
-inttype cmdFileTypeSL ();
-stritype cmdGetcwd ();
-stritype cmdGetenv ();
-void cmdGetATime ();
-void cmdGetCTime ();
-void cmdGetMTime ();
-rtlArraytype cmdGetSearchPath ();
-stritype cmdHomeDir ();
-void cmdMkdir ();
-void cmdMove ();
-stritype cmdReadlink ();
-void cmdRemove ();
-void cmdRemoveAnyFile ();
-void cmdSetenv ();
-void cmdSetATime ();
-void cmdSetFileMode ();
-void cmdSetMTime ();
-inttype cmdShell ();
-stritype cmdShellEscape ();
-void cmdSymlink ();
-stritype cmdToOsPath ();
-
-#endif

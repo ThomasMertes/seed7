@@ -69,14 +69,7 @@
 
 
 
-#ifdef ANSI_C
-
 static void free_nodes (nodetype node)
-#else
-
-static void free_nodes (node)
-nodetype node;
-#endif
 
   { /* free_nodes */
 #ifdef TRACE_ENTITY
@@ -101,14 +94,7 @@ nodetype node;
 
 
 
-#ifdef ANSI_C
-
 static nodetype new_node (objecttype obj)
-#else
-
-static nodetype new_node (obj)
-objecttype obj;
-#endif
 
   {
     nodetype created_node;
@@ -138,16 +124,8 @@ objecttype obj;
 
 
 
-#ifdef ANSI_C
-
 static nodetype get_node (nodetype *node_tree,
     register objecttype object_searched)
-#else
-
-static nodetype get_node (node_tree, object_searched)
-nodetype *node_tree;
-register objecttype object_searched;
-#endif
 
   /* Searches for a node matching the object object_searched in the */
   /* specified node_tree. If a node is found it is returned. If no  */
@@ -209,16 +187,8 @@ register objecttype object_searched;
 
 
 
-#ifdef ANSI_C
-
 nodetype find_node (register nodetype node_tree,
     register objecttype object_searched)
-#else
-
-nodetype find_node (node_tree, object_searched)
-register nodetype node_tree;
-register objecttype object_searched;
-#endif
 
   /* Searches for a node matching the object object_searched in the */
   /* specified node_tree. If a node is found it is returned. If no  */
@@ -265,16 +235,8 @@ register objecttype object_searched;
 
 
 
-#ifdef ANSI_C
-
 static nodetype pop_node (register nodetype node_tree,
     register objecttype object_searched)
-#else
-
-static nodetype pop_node (node_tree, object_searched)
-register nodetype node_tree;
-register objecttype object_searched;
-#endif
 
   /* Searches for a node matching the object object_searched in the */
   /* specified node_tree. If a node is found it is returned. If no  */
@@ -334,15 +296,7 @@ register objecttype object_searched;
 
 
 
-#ifdef ANSI_C
-
 void init_declaration_root (progtype currentProg, errinfotype *err_info)
-#else
-
-void init_declaration_root (currentProg, err_info)
-progtype currentProg;
-errinfotype *err_info;
-#endif
 
   { /* init_declaration_root */
 #ifdef TRACE_ENTITY
@@ -356,14 +310,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void close_declaration_root (progtype currentProg)
-#else
-
-void close_declaration_root (currentProg)
-progtype currentProg;
-#endif
 
   { /* close_declaration_root */
 #ifdef TRACE_ENTITY
@@ -378,15 +325,7 @@ progtype currentProg;
 
 
 
-#ifdef ANSI_C
-
 void free_entity (const_progtype currentProg, entitytype old_entity)
-#else
-
-void free_entity (old_entity)
-progtype currentProg;
-entitytype old_entity;
-#endif
 
   {
     listtype name_elem;
@@ -429,14 +368,7 @@ entitytype old_entity;
 
 
 
-#ifdef ANSI_C
-
 static entitytype new_entity (identtype id)
-#else
-
-static entitytype new_entity (id)
-identtype id;
-#endif
 
   {
     entitytype created_entity;
@@ -461,14 +393,7 @@ identtype id;
 
 
 
-#ifdef ANSI_C
-
 static listtype copy_params (listtype name_list)
-#else
-
-static listtype copy_params (name_list)
-listtype name_list;
-#endif
 
   {
     listtype name_elem;
@@ -505,15 +430,7 @@ listtype name_list;
 
 
 
-#ifdef ANSI_C
-
 entitytype get_entity (nodetype declaration_base, listtype name_list)
-#else
-
-entitytype get_entity (declaration_base, name_list)
-nodetype declaration_base;
-listtype name_list;
-#endif
 
   {
     listtype name_elem;
@@ -594,15 +511,7 @@ printf("\n"); */
 
 
 
-#ifdef ANSI_C
-
 entitytype find_entity (nodetype declaration_base, listtype name_list)
-#else
-
-entitytype find_entity (declaration_base, name_list)
-nodetype declaration_base;
-listtype name_list;
-#endif
 
   {
     listtype name_elem;
@@ -671,15 +580,7 @@ printf("\n"); */
 
 
 
-#ifdef ANSI_C
-
 entitytype search_entity (const_nodetype start_node, const_listtype name_list)
-#else
-
-entitytype search_entity (start_node, name_list)
-nodetype start_node;
-listtype name_list;
-#endif
 
   {
     objecttype param_obj;
@@ -771,15 +672,7 @@ printf("\n"); */
 
 
 
-#ifdef ANSI_C
-
 void pop_entity (nodetype declaration_base, const_entitytype entity)
-#else
-
-void pop_entity (declaration_base, entity)
-nodetype declaration_base;
-entitytype entity;
-#endif
 
   {
     listtype name_elem;
@@ -818,14 +711,7 @@ entitytype entity;
 
 
 
-#ifdef ANSI_C
-
 void close_entity (progtype currentProg)
-#else
-
-void close_entity (currentProg)
-progtype currentProg;
-#endif
 
   {
     entitytype entity;
@@ -843,14 +729,7 @@ progtype currentProg;
 
 
 
-#ifdef ANSI_C
-
 void init_entity (errinfotype *err_info)
-#else
-
-void init_entity (err_info)
-errinfotype *err_info;
-#endif
 
   { /* init_entity */
 #ifdef TRACE_ENTITY

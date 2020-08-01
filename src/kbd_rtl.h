@@ -29,16 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 stritype kbdGets (inttype length);
 stritype kbdLineRead (chartype *terminationChar);
 stritype kbdWordRead (chartype *terminationChar);
-
-#else
-
-stritype kbdGets ();
-stritype kbdLineRead ();
-stritype kbdWordRead ();
-
-#endif

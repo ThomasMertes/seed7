@@ -183,6 +183,7 @@ stdfont16.s7i Standard bitmap font with capHeight 16.
 stdfont18.s7i Standard bitmap font with capHeight 18.
 stdfont20.s7i Standard bitmap font with capHeight 20.
 stdfont24.s7i Standard bitmap font with capHeight 24.
+stdfont8.s7i Standard bitmap font with capHeight 8.
 stdfont9.s7i Standard bitmap font with capHeight 9.
 stdio.s7i    Standard input and output via files
 strifile.s7i Implementation type for files stored in a string

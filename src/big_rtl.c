@@ -182,8 +182,6 @@ static unsigned int flist_len = 0;
 #define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) if((l2) <= MAX_BIG_LEN){HEAP_REALLOC_BIG(v1,v2,l1,l2)}else v1=NULL;
 
 
-#ifdef ANSI_C
-
 void bigGrow (biginttype *const big_variable, const const_biginttype big2);
 inttype bigLowestSetBit (const const_biginttype big1);
 biginttype bigLShift (const const_biginttype big1, const inttype lshift);
@@ -194,30 +192,9 @@ void bigRShiftAssign (biginttype *const big_variable, inttype rshift);
 biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend);
 void bigShrink (biginttype *const big_variable, const const_biginttype big2);
 
-#else
 
-void bigGrow ();
-inttype bigLowestSetBit ();
-biginttype bigLShift ();
-void bigLShiftAssign ();
-biginttype bigMinus ();
-biginttype bigRem ();
-void bigRShiftAssign ();
-biginttype bigSbtr ();
-void bigShrink ();
-
-#endif
-
-
-
-#ifdef ANSI_C
 
 cstritype bigHexCStri (const const_biginttype big1)
-#else
-
-cstritype bigHexCStri (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -303,14 +280,7 @@ biginttype big1;
  *  Remove leading zero (or BIGDIGIT_MASK) digits from a
  *  signed big integer.
  */
-#ifdef ANSI_C
-
 static biginttype normalize (biginttype big1)
-#else
-
-static biginttype normalize (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -361,14 +331,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 static void negate_positive_big (const biginttype big1)
-#else
-
-static void negate_positive_big (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -386,16 +349,8 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 static void positive_copy_of_negative_big (const biginttype dest,
     const const_biginttype big1)
-#else
-
-static void positive_copy_of_negative_big (dest, big1)
-biginttype dest;
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -418,14 +373,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 static biginttype alloc_positive_copy_of_negative_big (const const_biginttype big1)
-#else
-
-static biginttype alloc_positive_copy_of_negative_big (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -453,15 +401,7 @@ biginttype big1;
  *  the result. This function works for unsigned big integers.
  *  It is assumed that big1 contains enough memory.
  */
-#ifdef ANSI_C
-
 static INLINE void uBigMultByPowerOf10AndAdd (const biginttype big1, doublebigdigittype carry)
-#else
-
-static INLINE void uBigMultByPowerOf10AndAdd (big1, carry)
-biginttype big1;
-doublebigdigittype carry;
-#endif
 
   {
     memsizetype pos;
@@ -487,17 +427,8 @@ doublebigdigittype carry;
  *  the result. This function works for unsigned big integers.
  *  It is assumed that big1 contains enough memory.
  */
-#ifdef ANSI_C
-
 static INLINE void uBigMultiplyAndAdd (const biginttype big1, bigdigittype factor,
     doublebigdigittype carry)
-#else
-
-static INLINE void uBigMultiplyAndAdd (big1, factor, carry)
-biginttype big1;
-bigdigittype factor;
-doublebigdigittype carry;
-#endif
 
   {
     memsizetype pos;
@@ -522,14 +453,7 @@ doublebigdigittype carry;
  *  Divides the unsigned big integer big1 by POWER_OF_10_IN_BIGDIGIT
  *  and returns the remainder.
  */
-#ifdef ANSI_C
-
 static INLINE bigdigittype uBigDivideByPowerOf10 (const biginttype big1)
-#else
-
-static INLINE bigdigittype uBigDivideByPowerOf10 (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -573,15 +497,7 @@ biginttype big1;
  *  At the right of big1 zero bits are shifted in. The function
  *  is called for 0 < lshift < BIGDIGIT_SIZE.
  */
-#ifdef ANSI_C
-
 static void uBigLShift (const biginttype big1, const unsigned int lshift)
-#else
-
-static void uBigLShift (big1, lshift)
-biginttype big1;
-unsigned int lshift;
-#endif
 
   {
     doublebigdigittype carry = 0;
@@ -606,15 +522,7 @@ unsigned int lshift;
  *  At the right of big1 zero bits are shifted in. The function
  *  is called for 0 < lshift < BIGDIGIT_SIZE.
  */
-#ifdef ANSI_C
-
 static void uBigLShift (const biginttype big1, const unsigned int lshift)
-#else
-
-static void uBigLShift (big1, lshift)
-biginttype big1;
-unsigned int lshift;
-#endif
 
   {
     unsigned int rshift = BIGDIGIT_SIZE - lshift;
@@ -643,15 +551,7 @@ unsigned int lshift;
  *  At the left of big1 zero bits are shifted in. The function
  *  is called for 0 < rshift < BIGDIGIT_SIZE.
  */
-#ifdef ANSI_C
-
 static void uBigRShift (const biginttype big1, const unsigned int rshift)
-#else
-
-static void uBigRShift (big1, rshift)
-biginttype big1;
-unsigned int rshift;
-#endif
 
   {
     unsigned int lshift = BIGDIGIT_SIZE - rshift;
@@ -677,15 +577,7 @@ unsigned int rshift;
  *  At the left of big1 zero bits are shifted in. The function
  *  is called for 0 < rshift < BIGDIGIT_SIZE.
  */
-#ifdef ANSI_C
-
 static void uBigRShift (const biginttype big1, const unsigned int rshift)
-#else
-
-static void uBigRShift (big1, rshift)
-biginttype big1;
-unsigned int rshift;
-#endif
 
   {
     unsigned int lshift = BIGDIGIT_SIZE - rshift;
@@ -712,14 +604,7 @@ unsigned int rshift;
  *  Increments an unsigned big integer by 1. This function does
  *  overflow silently when big1 contains not enough digits.
  */
-#ifdef ANSI_C
-
 static void uBigIncr (const biginttype big1)
-#else
-
-static void uBigIncr (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -750,14 +635,7 @@ biginttype big1;
  *  overflow silently when big1 contains not enough digits. The
  *  function works correctly when there are leading zereo digits.
  */
-#ifdef ANSI_C
-
 static void uBigDecr (const biginttype big1)
-#else
-
-static void uBigDecr (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -781,17 +659,8 @@ biginttype big1;
  *  Computes an integer division of dividend by one divisor_digit for
  *  nonnegative big integers. The divisor_digit must not be zero.
  */
-#ifdef ANSI_C
-
 static void uBigDiv1 (const const_biginttype dividend,
     const bigdigittype divisor_digit, const biginttype result)
-#else
-
-static void uBigDiv1 (dividend, divisor_digit, result)
-biginttype dividend;
-bigdigittype divisor_digit;
-biginttype result;
-#endif
 
   {
     memsizetype pos;
@@ -816,15 +685,7 @@ biginttype result;
  *  and the normalized result is returned. This function handles
  *  also the special case of a division by zero.
  */
-#ifdef ANSI_C
-
 static biginttype bigDiv1 (const_biginttype dividend, bigdigittype divisor_digit)
-#else
-
-static biginttype bigDiv1 (dividend, divisor_digit)
-biginttype dividend;
-bigdigittype divisor_digit;
-#endif
 
   {
     booltype negative = FALSE;
@@ -884,16 +745,8 @@ bigdigittype divisor_digit;
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
  *  result is -1. In all other cases the result is 0.
  */
-#ifdef ANSI_C
-
 static biginttype bigDivSizeLess (const const_biginttype dividend,
     const const_biginttype divisor)
-#else
-
-static biginttype bigDivSizeLess (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     memsizetype pos;
@@ -934,18 +787,8 @@ biginttype divisor;
  *  The algorithm tries to save computations. Therefore
  *  there are checks for mult_carry != 0 and sbtr_carry == 0.
  */
-#ifdef ANSI_C
-
 static bigdigittype uBigMultSub (const biginttype big1, const const_biginttype big2,
     const bigdigittype multiplier, const memsizetype pos1)
-#else
-
-static bigdigittype uBigMultSub (big1, big2, multiplier, pos1)
-biginttype big1;
-biginttype big2;
-bigdigittype multiplier;
-memsizetype pos1;
-#endif
 
   {
     memsizetype pos;
@@ -983,17 +826,8 @@ memsizetype pos1;
  *  are nonnegative big integer values. The size of big1 must be
  *  greater or equal the size of big2. The final carry is ignored.
  */
-#ifdef ANSI_C
-
 static void uBigAddTo (const biginttype big1, const const_biginttype big2,
     const memsizetype pos1)
-#else
-
-static void uBigAddTo (big1, big2, pos1)
-biginttype big1;
-biginttype big2;
-memsizetype pos1;
-#endif
 
   {
     memsizetype pos;
@@ -1030,17 +864,8 @@ memsizetype pos1;
  *  algorithm from D.E. Knuth described in "The art of computer programming"
  *  volume 2 (Seminumerical algorithms).
  */
-#ifdef ANSI_C
-
 static void uBigDiv (const biginttype dividend, const const_biginttype divisor,
     const biginttype result)
-#else
-
-static void uBigDiv (dividend, divisor, result)
-biginttype dividend;
-biginttype divisor;
-biginttype result;
-#endif
 
   {
     memsizetype pos1;
@@ -1083,15 +908,7 @@ biginttype result;
  *  one divisor_digit for nonnegative big integers. The divisor_digit must
  *  not be zero.
  */
-#ifdef ANSI_C
-
 static bigdigittype uBigRem1 (const const_biginttype dividend, const bigdigittype divisor_digit)
-#else
-
-static bigdigittype uBigRem1 (dividend, divisor_digit)
-biginttype dividend;
-bigdigittype divisor_digit;
-#endif
 
   {
     memsizetype pos;
@@ -1117,15 +934,7 @@ bigdigittype divisor_digit;
  *  returned. This function handles also the special case of a
  *  division by zero.
  */
-#ifdef ANSI_C
-
 static biginttype bigRem1 (const_biginttype dividend, bigdigittype divisor_digit)
-#else
-
-static biginttype bigRem1 (dividend, divisor_digit)
-biginttype dividend;
-bigdigittype divisor_digit;
-#endif
 
   {
     booltype negative = FALSE;
@@ -1176,17 +985,8 @@ bigdigittype divisor_digit;
  *  nonnegative big integers. The divisor_digit must not be zero.
  *  The remainder of the division is returned.
  */
-#ifdef ANSI_C
-
 static bigdigittype uBigMDiv1 (const const_biginttype dividend,
     const bigdigittype divisor_digit, const biginttype result)
-#else
-
-static bigdigittype uBigMDiv1 (dividend, divisor_digit, result)
-biginttype dividend;
-bigdigittype divisor_digit;
-biginttype result;
-#endif
 
   {
     memsizetype pos;
@@ -1213,15 +1013,7 @@ biginttype result;
  *  This function handles also the special case of a division by
  *  zero.
  */
-#ifdef ANSI_C
-
 static biginttype bigMDiv1 (const_biginttype dividend, bigdigittype divisor_digit)
-#else
-
-static biginttype bigMDiv1 (dividend, divisor_digit)
-biginttype dividend;
-bigdigittype divisor_digit;
-#endif
 
   {
     booltype negative = FALSE;
@@ -1287,16 +1079,8 @@ bigdigittype divisor_digit;
  *  following check is done: When dividend and divisor have different signs
  *  the result is -1 otherwise the result is 0.
  */
-#ifdef ANSI_C
-
 static biginttype bigMDivSizeLess (const const_biginttype dividend,
     const const_biginttype divisor)
-#else
-
-static biginttype bigMDivSizeLess (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     memsizetype pos;
@@ -1341,15 +1125,7 @@ biginttype divisor;
  *  requested and the normalized modulo is returned. This function
  *  handles also the special case of a division by zero.
  */
-#ifdef ANSI_C
-
 static biginttype bigMod1 (const const_biginttype dividend, const bigdigittype digit)
-#else
-
-static biginttype bigMod1 (dividend, digit)
-biginttype dividend;
-bigdigittype digit;
-#endif
 
   {
     biginttype modulo;
@@ -1376,16 +1152,8 @@ bigdigittype digit;
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
  *  remainder is 0. In all other cases the remainder is dividend.
  */
-#ifdef ANSI_C
-
 static biginttype bigRemSizeLess (const const_biginttype dividend,
     const const_biginttype divisor)
-#else
-
-static biginttype bigRemSizeLess (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     memsizetype pos;
@@ -1432,15 +1200,7 @@ biginttype divisor;
  *  are signed big integer values. The size of big1 must be
  *  greater or equal the size of big2.
  */
-#ifdef ANSI_C
-
 static void bigAddTo (const biginttype big1, const const_biginttype big2)
-#else
-
-static void bigAddTo (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     memsizetype pos;
@@ -1477,16 +1237,8 @@ biginttype big2;
  *  modulo is 0. In all other cases the modulo is dividend or dividend +
  *  divisor when dividend and divisor have different signs.
  */
-#ifdef ANSI_C
-
 static biginttype bigModSizeLess (const const_biginttype dividend,
     const const_biginttype divisor)
-#else
-
-static biginttype bigModSizeLess (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     memsizetype pos;
@@ -1556,15 +1308,7 @@ biginttype divisor;
  *  from D.E. Knuth described in "The art of computer programming"
  *  volume 2 (Seminumerical algorithms).
  */
-#ifdef ANSI_C
-
 static void uBigRem (const biginttype dividend, const const_biginttype divisor)
-#else
-
-static void uBigRem (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     memsizetype pos1;
@@ -1600,19 +1344,8 @@ biginttype divisor;
 
 
 
-#ifdef ANSI_C
-
 static void uBigDigitAdd (const bigdigittype *const big1, const memsizetype size1,
     const bigdigittype *const big2, const memsizetype size2, bigdigittype *const result)
-#else
-
-static void uBigDigitAdd (big1, size1, big2, size2, result)
-bigdigittype *big1;
-memsizetype size1;
-bigdigittype *big2;
-memsizetype size2;
-bigdigittype *result;
-#endif
 
   {
     memsizetype pos;
@@ -1636,18 +1369,8 @@ bigdigittype *result;
 
 
 
-#ifdef ANSI_C
-
 static void uBigDigitSbtrFrom (bigdigittype *const big1, const memsizetype size1,
     const bigdigittype *const big2, const memsizetype size2)
-#else
-
-static void uBigDigitSbtrFrom (big1, size1, big2, size2)
-bigdigittype *big1;
-memsizetype size1;
-bigdigittype *big2;
-memsizetype size2;
-#endif
 
   {
     memsizetype pos;
@@ -1671,18 +1394,8 @@ memsizetype size2;
 
 
 
-#ifdef ANSI_C
-
 static void uBigDigitAddTo (bigdigittype *const big1,  const memsizetype size1,
     const bigdigittype *const big2, const memsizetype size2)
-#else
-
-static void uBigDigitAddTo (big1, size1, big2, size2)
-bigdigittype *big1;
-memsizetype size1;
-bigdigittype *big2;
-memsizetype size2;
-#endif
 
   {
     memsizetype pos;
@@ -1705,19 +1418,9 @@ memsizetype size2;
 
 
 
-#ifdef ANSI_C
-
 static void uBigDigitMult (const bigdigittype *const big1,
     const bigdigittype *const big2, const memsizetype size,
     bigdigittype *const result)
-#else
-
-static void uBigDigitMult (big1, big2, size, result)
-bigdigittype *big1;
-bigdigittype *big2;
-memsizetype size;
-bigdigittype *result;
-#endif
 
   {
     memsizetype pos1;
@@ -1761,20 +1464,9 @@ bigdigittype *result;
 
 
 
-#ifdef ANSI_C
-
 static void uBigKaratsubaMult (const bigdigittype *const big1,
     const bigdigittype *const big2, const memsizetype size,
     bigdigittype *const result, bigdigittype *const temp)
-#else
-
-static void uBigKaratsubaMult (big1, big2, size, result, temp)
-bigdigittype *big1;
-bigdigittype *big2;
-memsizetype size;
-bigdigittype *result;
-bigdigittype *temp;
-#endif
 
   {
     memsizetype sizeLo;
@@ -1799,17 +1491,8 @@ bigdigittype *temp;
 
 
 
-#ifdef ANSI_C
-
 static void uBigDigitSquare (const bigdigittype *const big1,
     const memsizetype size, bigdigittype *const result)
-#else
-
-static void uBigDigitSquare (big1, size, result)
-bigdigittype *big1;
-memsizetype size;
-bigdigittype *result;
-#endif
 
   {
     memsizetype pos1;
@@ -1860,18 +1543,8 @@ bigdigittype *result;
 
 
 
-#ifdef ANSI_C
-
 static void uBigKaratsubaSquare (const bigdigittype *const big1,
     const memsizetype size, bigdigittype *const result, bigdigittype *const temp)
-#else
-
-static void uBigKaratsubaSquare (big1, size, result, temp)
-bigdigittype *big1;
-memsizetype size;
-bigdigittype *result;
-bigdigittype *temp;
-#endif
 
   {
     memsizetype sizeLo;
@@ -1895,17 +1568,8 @@ bigdigittype *temp;
   } /* uBigKaratsubaSquare */
 
 
-#ifdef ANSI_C
-
 static void uBigMultPositiveWithDigit (const const_biginttype big1, bigdigittype bigDigit,
     const biginttype result)
-#else
-
-static void uBigMultPositiveWithDigit (big1, bigDigit, result)
-biginttype big1;
-bigdigittype bigDigit;
-biginttype result;
-#endif
 
   {
     memsizetype pos;
@@ -1925,17 +1589,8 @@ biginttype result;
 
 
 
-#ifdef ANSI_C
-
 static void uBigMultNegativeWithDigit (const const_biginttype big1, bigdigittype bigDigit,
     const biginttype result)
-#else
-
-static void uBigMultNegativeWithDigit (big1, bigDigit, result)
-biginttype big1;
-bigdigittype bigDigit;
-biginttype result;
-#endif
 
   {
     memsizetype pos;
@@ -1966,17 +1621,8 @@ biginttype result;
 
 
 
-#ifdef ANSI_C
-
 static void uBigMultPositiveWithNegatedDigit (const const_biginttype big1, bigdigittype bigDigit,
     const biginttype result)
-#else
-
-static void uBigMultPositiveWithNegatedDigit (big1, bigDigit, result)
-biginttype big1;
-bigdigittype bigDigit;
-biginttype result;
-#endif
 
   {
     memsizetype pos;
@@ -2002,17 +1648,8 @@ biginttype result;
 
 
 
-#ifdef ANSI_C
-
 static void uBigMultNegativeWithNegatedDigit (const const_biginttype big1, bigdigittype bigDigit,
     const biginttype result)
-#else
-
-static void uBigMultNegativeWithNegatedDigit (big1, bigDigit, result)
-biginttype big1;
-bigdigittype bigDigit;
-biginttype result;
-#endif
 
   {
     memsizetype pos;
@@ -2037,17 +1674,8 @@ biginttype result;
 
 
 
-#ifdef ANSI_C
-
 static void uBigMult (const_biginttype big1, const_biginttype big2,
     const biginttype result)
-#else
-
-static void uBigMult (big1, big2, result)
-biginttype big1;
-biginttype big2;
-biginttype result;
-#endif
 
   {
     const_biginttype help_big;
@@ -2119,17 +1747,8 @@ biginttype result;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void uBigMult (const const_biginttype big1, const const_biginttype big2,
     const biginttype result)
-#else
-
-static void uBigMult (big1, big2, result)
-biginttype big1;
-biginttype big2;
-biginttype result;
-#endif
 
   {
     memsizetype pos1;
@@ -2177,17 +1796,8 @@ biginttype result;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void uBigMult (const const_biginttype big1, const const_biginttype big2,
     const biginttype result)
-#else
-
-static void uBigMult (big1, big2, result)
-biginttype big1;
-biginttype big2;
-biginttype result;
-#endif
 
   {
     memsizetype pos1;
@@ -2220,17 +1830,8 @@ biginttype result;
 
 
 
-#ifdef ANSI_C
-
 static biginttype uBigMultK (const_biginttype big1, const_biginttype big2,
     const booltype negative)
-#else
-
-static biginttype uBigMultK (big1, big2, negative)
-biginttype big1;
-biginttype big2;
-booltype negative;
-#endif
 
   {
     const_biginttype help_big;
@@ -2327,14 +1928,7 @@ booltype negative;
 
 
 
-#ifdef ANSI_C
-
 static biginttype uBigSquareK (const_biginttype big1)
-#else
-
-static biginttype uBigSquareK (big1)
-biginttype big1;
-#endif
 
   {
     biginttype temp;
@@ -2378,17 +1972,8 @@ biginttype big1;
  *  Note that the old number is in the scratch variable big_help
  *  afterwards.
  */
-#ifdef ANSI_C
-
 static biginttype uBigMultIntoHelp (const biginttype big1,
     const const_biginttype big2, biginttype *const big_help)
-#else
-
-static biginttype uBigMultIntoHelp (big1, big2, big_help)
-biginttype big1;
-biginttype big2;
-biginttype *big_help;
-#endif
 
   {
     memsizetype pos1;
@@ -2437,15 +2022,7 @@ biginttype *big_help;
  *  needed to store the shifted product. Therefore extra effort is
  *  necessary to avoid an overflow.
  */
-#ifdef ANSI_C
-
 static biginttype uBigSquare (const biginttype big1, biginttype *big_help)
-#else
-
-static biginttype uBigSquare (big1, big_help)
-biginttype big1;
-biginttype *big_help;
-#endif
 
   {
     memsizetype pos1;
@@ -2519,16 +2096,7 @@ biginttype *big_help;
  *  with the result variable. This reduces the number of square
  *  operations to ld(exponent).
  */
-#ifdef ANSI_C
-
 static biginttype bigIPowN (const bigdigittype base, inttype exponent, unsigned int bit_size)
-#else
-
-static biginttype bigIPowN (base, exponent, bit_size)
-bigdigittype base;
-inttype exponent;
-unsigned int bit_size;
-#endif
 
   {
     memsizetype help_size;
@@ -2597,15 +2165,7 @@ unsigned int bit_size;
  *  of a power of two. In this case the function bigLShiftOne is
  *  used.
  */
-#ifdef ANSI_C
-
 static biginttype bigIPow1 (bigdigittype base, inttype exponent)
-#else
-
-static biginttype bigIPow1 (base, exponent)
-bigdigittype base;
-inttype exponent;
-#endif
 
   {
     booltype negative;
@@ -2652,14 +2212,7 @@ inttype exponent;
 
 
 
-#ifdef ANSI_C
-
 static int uBigIsNot0 (const const_biginttype big)
-#else
-
-static int uBigIsNot0 (big)
-biginttype big;
-#endif
 
   {
     memsizetype pos;
@@ -2680,14 +2233,7 @@ biginttype big;
 /**
  *  Returns the absolute value of a signed big integer.
  */
-#ifdef ANSI_C
-
 biginttype bigAbs (const const_biginttype big1)
-#else
-
-biginttype bigAbs (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -2740,15 +2286,7 @@ biginttype big1;
  *  loop up to the shorter size and a second loop up to the longer
  *  size.
  */
-#ifdef ANSI_C
-
 biginttype bigAdd (const_biginttype summand1, const_biginttype summand2)
-#else
-
-biginttype bigAdd (summand1, summand2)
-biginttype summand1;
-biginttype summand2;
-#endif
 
   {
     const_biginttype help_big;
@@ -2796,15 +2334,7 @@ biginttype summand2;
  *  Returns the sum of two signed big integers.
  *  Big1 is assumed to be a temporary value which is reused.
  */
-#ifdef ANSI_C
-
 biginttype bigAddTemp (biginttype big1, const const_biginttype big2)
-#else
-
-biginttype bigAddTemp (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   { /* bigAddTemp */
     bigGrow(&big1, big2);
@@ -2813,15 +2343,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigAnd (const_biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigAnd (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     const_biginttype help_big;
@@ -2857,15 +2379,7 @@ biginttype big2;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 biginttype bigBinom (biginttype n_number, biginttype k_number)
-#else
-
-biginttype bigBinom (n_number, k_number)
-biginttype n_number;
-biginttype k_number;
-#endif
 
   {
     biginttype number;
@@ -2899,14 +2413,7 @@ biginttype k_number;
  *  @return the number of bits.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  */
-#ifdef ANSI_C
-
 inttype bigBitLength (const const_biginttype big1)
-#else
-
-inttype bigBitLength (big1)
-biginttype big1;
-#endif
 
   {
     inttype result;
@@ -2928,14 +2435,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 stritype bigCLit (const const_biginttype big1)
-#else
-
-stritype bigCLit (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -3033,15 +2533,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
-#else
-
-inttype bigCmp (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     bigdigittype big1_negative;
@@ -3075,15 +2567,7 @@ biginttype big2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(biginttype).
  */
-#ifdef ANSI_C
-
 inttype bigCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype bigCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* bigCmpGeneric */
     return bigCmp((const_biginttype) (memsizetype) value1,
@@ -3092,15 +2576,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 inttype bigCmpSignedDigit (const const_biginttype big1, inttype number)
-#else
-
-inttype bigCmpSignedDigit (big1, number)
-biginttype big1;
-inttype number;
-#endif
 
   {
     inttype result;
@@ -3140,15 +2616,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 void bigCpy (biginttype *const big_to, const const_biginttype big_from)
-#else
-
-void bigCpy (big_to, big_from)
-biginttype *big_to;
-biginttype big_from;
-#endif
 
   {
     memsizetype new_size;
@@ -3177,14 +2645,7 @@ biginttype big_from;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigCreate (const const_biginttype big_from)
-#else
-
-biginttype bigCreate (big_from)
-biginttype big_from;
-#endif
 
   {
     memsizetype new_size;
@@ -3210,14 +2671,7 @@ biginttype big_from;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(biginttype).
  */
-#ifdef ANSI_C
-
 rtlGenerictype bigCreateGeneric (const rtlGenerictype from_value)
-#else
-
-rtlGenerictype bigCreateGeneric (from_value)
-rtlGenerictype from_value;
-#endif
 
   { /* bigCreateGeneric */
     return (rtlGenerictype) (memsizetype)
@@ -3233,14 +2687,7 @@ rtlGenerictype from_value;
  *  is restored and the exception MEMORY_ERROR is raised.
  *  This ensures that bigDecr works as a transaction.
  */
-#ifdef ANSI_C
-
 void bigDecr (biginttype *const big_variable)
-#else
-
-void bigDecr (big_variable)
-biginttype *big_variable;
-#endif
 
   {
     biginttype big1;
@@ -3310,14 +2757,7 @@ biginttype *big_variable;
 
 
 
-#ifdef ANSI_C
-
 void bigDestr (const const_biginttype old_bigint)
-#else
-
-void bigDestr (old_bigint)
-biginttype old_bigint;
-#endif
 
   { /* bigDestr */
     if (old_bigint != NULL) {
@@ -3340,15 +2780,7 @@ biginttype old_bigint;
  *  preconditions for calling uBigDiv() which does the main
  *  work of the division.
  */
-#ifdef ANSI_C
-
 biginttype bigDiv (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigDiv (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     booltype negative = FALSE;
@@ -3428,15 +2860,7 @@ biginttype divisor;
 
 
 
-#ifdef ANSI_C
-
 booltype bigEq (const const_biginttype big1, const const_biginttype big2)
-#else
-
-booltype bigEq (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   { /* bigEq */
     if (big1->size == big2->size &&
@@ -3450,15 +2874,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
-#else
-
-booltype bigEqSignedDigit (big1, number)
-biginttype big1;
-inttype number;
-#endif
 
   { /* bigEqSignedDigit */
     return big1->size == 1 && big1->bigdigits[0] == (bigdigittype) number;
@@ -3466,14 +2882,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigFromInt32 (int32type number)
-#else
-
-biginttype bigFromInt32 (number)
-int32type number;
-#endif
 
   {
     memsizetype result_size;
@@ -3518,14 +2927,7 @@ int32type number;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 biginttype bigFromInt64 (int64type number)
-#else
-
-biginttype bigFromInt64 (number)
-int64type number;
-#endif
 
   {
     memsizetype pos;
@@ -3551,14 +2953,7 @@ int64type number;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigFromUInt32 (uint32type number)
-#else
-
-biginttype bigFromUInt32 (number)
-uint32type number;
-#endif
 
   {
     memsizetype result_size;
@@ -3594,14 +2989,7 @@ uint32type number;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 biginttype bigFromUInt64 (uint64type number)
-#else
-
-biginttype bigFromUInt64 (number)
-uint64type number;
-#endif
 
   {
     memsizetype pos;
@@ -3628,16 +3016,8 @@ uint64type number;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigGcd (const const_biginttype big1,
     const const_biginttype big2)
-#else
-
-biginttype bigGcd (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     biginttype big1_help;
@@ -3713,15 +3093,7 @@ biginttype big2;
  *  In case the resizing fails the content of *big_variable
  *  is freed and *big_variable is set to NULL.
  */
-#ifdef ANSI_C
-
 void bigGrow (biginttype *const big_variable, const const_biginttype big2)
-#else
-
-void bigGrow (big_variable, big2)
-biginttype *big_variable;
-biginttype big2;
-#endif
 
   {
     biginttype big1;
@@ -3813,14 +3185,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 inttype bigHashCode (const const_biginttype big1)
-#else
-
-inttype bigHashCode (big1)
-biginttype big1;
-#endif
 
   {
     inttype result;
@@ -3832,14 +3197,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigImport (const const_ustritype buffer)
-#else
-
-biginttype bigImport (buffer)
-ustritype buffer;
-#endif
 
   {
     memsizetype byteDigitCount;
@@ -3908,14 +3266,7 @@ ustritype buffer;
  *  is restored and the exception MEMORY_ERROR is raised.
  *  This ensures that bigIncr works as a transaction.
  */
-#ifdef ANSI_C
-
 void bigIncr (biginttype *const big_variable)
-#else
-
-void bigIncr (big_variable)
-biginttype *big_variable;
-#endif
 
   {
     biginttype big1;
@@ -3994,15 +3345,7 @@ biginttype *big_variable;
  *  with the result variable. This reduces the number of square
  *  operations to ld(exponent).
  */
-#ifdef ANSI_C
-
 biginttype bigIPow (const const_biginttype base, inttype exponent)
-#else
-
-biginttype bigIPow (base, exponent)
-biginttype base;
-inttype exponent;
-#endif
 
   {
     booltype negative = FALSE;
@@ -4091,14 +3434,7 @@ inttype exponent;
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */
-#ifdef ANSI_C
-
 biginttype bigLog2 (const const_biginttype big1)
-#else
-
-biginttype bigLog2 (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype result_size;
@@ -4152,14 +3488,7 @@ biginttype big1;
  *  For A <> 0 this is equal to the number of lowest-order zero bits.
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  */
-#ifdef ANSI_C
-
 inttype bigLowestSetBit (const const_biginttype big1)
-#else
-
-inttype bigLowestSetBit (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype big1_size;
@@ -4188,15 +3517,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigLShift (const const_biginttype big1, const inttype lshift)
-#else
-
-biginttype bigLShift (big1, lshift)
-biginttype big1;
-inttype lshift;
-#endif
 
   {
     unsigned int digit_rshift;
@@ -4290,15 +3611,7 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
 void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
-#else
-
-void bigLShiftAssign (big_variable, lshift)
-biginttype *const big_variable;
-inttype lshift;
-#endif
 
   {
     biginttype big1;
@@ -4406,14 +3719,7 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigLShiftOne (const inttype lshift)
-#else
-
-biginttype bigLShiftOne (lshift)
-inttype lshift;
-#endif
 
   {
     memsizetype result_size;
@@ -4453,15 +3759,7 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
-#else
-
-biginttype bigLog2BaseLShift (log2base, lshift)
-inttype log2base;
-inttype lshift;
-#endif
 
   {
     uinttype high_shift;
@@ -4503,15 +3801,7 @@ inttype lshift;
  *  of divisor is set. This fulfills the preconditions for calling
  *  uBigDiv() which does the main work of the division.
  */
-#ifdef ANSI_C
-
 biginttype bigMDiv (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigMDiv (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     booltype negative = FALSE;
@@ -4596,14 +3886,7 @@ biginttype divisor;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigMinus (const const_biginttype big1)
-#else
-
-biginttype bigMinus (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -4672,15 +3955,7 @@ biginttype big1;
  *  is also zero. If the signs of dividend and divisor are different the
  *  modulo is computed from the remainder by adding dividend.
  */
-#ifdef ANSI_C
-
 biginttype bigMod (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigMod (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     booltype negative1 = FALSE;
@@ -4776,15 +4051,7 @@ biginttype divisor;
 /**
  *  Returns the product of two signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigMult (const_biginttype factor1, const_biginttype factor2)
-#else
-
-biginttype bigMult (factor1, factor2)
-biginttype factor1;
-biginttype factor2;
-#endif
 
   {
     booltype negative = FALSE;
@@ -4840,15 +4107,7 @@ biginttype factor2;
 
 
 
-#ifdef ANSI_C
-
 void bigMultAssign (biginttype *const big_variable, const_biginttype big2)
-#else
-
-void bigMultAssign (big_variable, big2)
-biginttype *big_variable;
-biginttype big2;
-#endif
 
   {
     biginttype big1;
@@ -4924,15 +4183,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
-#else
-
-biginttype bigMultSignedDigit (big1, number)
-biginttype big1;
-inttype number;
-#endif
 
   {
     biginttype result;
@@ -4963,14 +4214,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 booltype bigOdd (const const_biginttype big1)
-#else
-
-booltype bigOdd (big1)
-biginttype big1;
-#endif
 
   { /* bigOdd */
     return (booltype) (big1->bigdigits[0] & 1);
@@ -4978,15 +4222,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigOr (const_biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigOr (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     const_biginttype help_big;
@@ -5021,14 +4257,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigParse (const const_stritype stri)
-#else
-
-biginttype bigParse (stri)
-stritype stri;
-#endif
 
   {
     memsizetype result_size;
@@ -5102,15 +4331,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigParseBased (const const_stritype stri, inttype base)
-#else
-
-biginttype bigParseBased (stri, base)
-stritype stri;
-inttype base;
-#endif
 
   {
     memsizetype result_size;
@@ -5214,14 +4435,7 @@ inttype base;
 /**
  *  Returns a signed big integer decremented by 1.
  */
-#ifdef ANSI_C
-
 biginttype bigPred (const const_biginttype big1)
-#else
-
-biginttype bigPred (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -5293,14 +4507,7 @@ biginttype big1;
  *  Returns a signed big integer decremented by 1.
  *  Big1 is assumed to be a temporary value which is reused.
  */
-#ifdef ANSI_C
-
 biginttype bigPredTemp (biginttype big1)
-#else
-
-biginttype bigPredTemp (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -5362,16 +4569,8 @@ biginttype big1;
  *  and the normalized result is returned. The random numbers are
  *  uniform distributed over the whole range.
  */
-#ifdef ANSI_C
-
 biginttype bigRand (const const_biginttype lower_limit,
     const const_biginttype upper_limit)
-#else
-
-biginttype bigRand (lower_limit, upper_limit)
-biginttype lower_limit;
-biginttype upper_limit;
-#endif
 
   {
     biginttype scale_limit;
@@ -5438,15 +4637,7 @@ biginttype upper_limit;
  *  uBigRem() which does the main work of the division. Afterwards
  *  the result must be shifted to the right to get the remainder.
  */
-#ifdef ANSI_C
-
 biginttype bigRem (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigRem (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     booltype negative = FALSE;
@@ -5524,15 +4715,7 @@ biginttype divisor;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigRShift (const const_biginttype big1, const inttype rshift)
-#else
-
-biginttype bigRShift (big1, rshift)
-biginttype big1;
-inttype rshift;
-#endif
 
   {
     memsizetype size_reduction;
@@ -5618,15 +4801,7 @@ inttype rshift;
 
 
 
-#ifdef ANSI_C
-
 void bigRShiftAssign (biginttype *const big_variable, inttype rshift)
-#else
-
-void bigRShiftAssign (big_variable, rshift)
-biginttype *const big_variable;
-inttype rshift;
-#endif
 
   {
     biginttype big1;
@@ -5754,15 +4929,7 @@ inttype rshift;
 /**
  *  Returns the difference of two signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend)
-#else
-
-biginttype bigSbtr (minuend, subtrahend)
-biginttype minuend;
-biginttype subtrahend;
-#endif
 
   {
     memsizetype pos;
@@ -5836,15 +5003,7 @@ biginttype subtrahend;
  *  Returns the difference of two signed big integers.
  *  Big1 is assumed to be a temporary value which is reused.
  */
-#ifdef ANSI_C
-
 biginttype bigSbtrTemp (biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigSbtrTemp (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   { /* bigSbtrTemp */
     bigShrink(&big1, big2);
@@ -5862,15 +5021,7 @@ biginttype big2;
  *  In case the resizing fails the content of *big_variable
  *  is freed and *big_variable is set to NULL.
  */
-#ifdef ANSI_C
-
 void bigShrink (biginttype *const big_variable, const const_biginttype big2)
-#else
-
-void bigShrink (big_variable, big2)
-biginttype *big_variable;
-biginttype big2;
-#endif
 
   {
     biginttype big1;
@@ -5967,14 +5118,7 @@ biginttype big2;
 /**
  *  Returns the square of a signed big integer.
  */
-#ifdef ANSI_C
-
 biginttype bigSquare (const_biginttype big1)
-#else
-
-biginttype bigSquare (big1)
-biginttype big1;
-#endif
 
   {
     biginttype big1_help = NULL;
@@ -5999,14 +5143,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 stritype bigStr (const const_biginttype big1)
-#else
-
-stritype bigStr (big1)
-biginttype big1;
-#endif
 
   {
     biginttype help_big;
@@ -6101,14 +5238,7 @@ biginttype big1;
 /**
  *  Returns a signed big integer incremented by 1.
  */
-#ifdef ANSI_C
-
 biginttype bigSucc (const const_biginttype big1)
-#else
-
-biginttype bigSucc (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -6180,14 +5310,7 @@ biginttype big1;
  *  Returns a signed big integer incremented by 1.
  *  Big1 is assumed to be a temporary value which is reused.
  */
-#ifdef ANSI_C
-
 biginttype bigSuccTemp (biginttype big1)
-#else
-
-biginttype bigSuccTemp (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -6244,14 +5367,7 @@ biginttype big1;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 bstritype bigToBStri (const_biginttype big1)
-#else
-
-bstritype bigToBStri (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -6309,14 +5425,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 int32type bigToInt32 (const const_biginttype big1)
-#else
-
-int32type bigToInt32 (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -6343,14 +5452,7 @@ biginttype big1;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 int64type bigToInt64 (const const_biginttype big1)
-#else
-
-int64type bigToInt64 (big1)
-biginttype big1;
-#endif
 
   {
     memsizetype pos;
@@ -6377,15 +5479,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigXor (const_biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigXor (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     const_biginttype help_big;
@@ -6420,13 +5514,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigZero (void)
-#else
-
-biginttype bigZero ()
-#endif
 
   {
     biginttype result;

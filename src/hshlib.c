@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2009  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/hshlib.c                                        */
-/*  Changes: 2005  Thomas Mertes                                    */
+/*  Changes: 2005, 2013  Thomas Mertes                              */
 /*  Content: All primitive actions for hash types.                  */
 /*                                                                  */
 /********************************************************************/
@@ -55,17 +55,8 @@
 
 
 
-#ifdef ANSI_C
-
 static void free_helem (helemtype old_helem, objecttype key_destr_func,
     objecttype data_destr_func)
-#else
-
-static void free_helem (old_helem, key_destr_func, data_destr_func)
-helemtype old_helem;
-objecttype key_destr_func;
-objecttype data_destr_func;
-#endif
 
   { /* free_helem */
     param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
@@ -86,17 +77,8 @@ objecttype data_destr_func;
 
 
 
-#ifdef ANSI_C
-
 static void free_hash (hashtype old_hash, objecttype key_destr_func,
     objecttype data_destr_func)
-#else
-
-static void free_hash (old_hash, key_destr_func, data_destr_func)
-hashtype old_hash;
-objecttype key_destr_func;
-objecttype data_destr_func;
-#endif
 
   {
     unsigned int number;
@@ -119,19 +101,8 @@ objecttype data_destr_func;
 
 
 
-#ifdef ANSI_C
-
 static helemtype new_helem (objecttype key, objecttype data,
     objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
-#else
-
-static helemtype new_helem (key, data, key_create_func, data_create_func, err_info)
-objecttype key;
-objecttype data;
-objecttype key_create_func;
-objecttype data_create_func;
-errinfotype *err_info;
-#endif
 
   {
     helemtype helem;
@@ -156,14 +127,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static hashtype new_hash (unsigned int bits)
-#else
-
-static hashtype new_hash (bits)
-unsigned int bits;
-#endif
 
   {
     hashtype hash;
@@ -181,18 +145,8 @@ unsigned int bits;
 
 
 
-#ifdef ANSI_C
-
 static helemtype create_helem (helemtype source_helem,
     objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
-#else
-
-static helemtype create_helem (source_helem, key_create_func, data_create_func, err_info)
-helemtype source_helem;
-objecttype key_create_func;
-objecttype data_create_func;
-errinfotype *err_info;
-#endif
 
   {
     helemtype dest_helem;
@@ -229,18 +183,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static hashtype create_hash (hashtype source_hash,
     objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
-#else
-
-static hashtype create_hash (source_hash, key_create_func, data_create_func, err_info)
-hashtype source_hash;
-objecttype key_create_func;
-objecttype data_create_func;
-errinfotype *err_info;
-#endif
 
   {
     unsigned int new_size;
@@ -277,19 +221,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void keys_helem (arraytype *key_array, memsizetype *arr_pos,
     helemtype curr_helem, objecttype key_create_func, errinfotype *err_info)
-#else
-
-static void keys_helem (key_array, arr_pos, curr_helem, key_create_func, err_info)
-arraytype *key_array;
-memsizetype *arr_pos;
-helemtype curr_helem;
-objecttype key_create_func;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype array_size;
@@ -297,9 +230,10 @@ errinfotype *err_info;
     objecttype dest_obj;
 
   /* keys_helem */
-    array_size = (uinttype) ((*key_array)->max_position - (*key_array)->min_position);
-    if (*arr_pos >= array_size) {
-      if (array_size >= MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
+    array_size = arraySize(*key_array);
+    if (*arr_pos + 1 >= array_size) {
+      if (array_size > MAX_ARR_LEN - ARRAY_SIZE_INCREMENT ||
+          (*key_array)->max_position > MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
         resized_key_array = NULL;
       } else {
         resized_key_array = REALLOC_ARRAY(*key_array,
@@ -331,19 +265,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static arraytype keys_hash (hashtype curr_hash, objecttype key_create_func,
     objecttype key_destr_func, errinfotype *err_info)
-#else
-
-static arraytype keys_hash (curr_hash, key_create_func, key_destr_func,
-    err_info)
-hashtype curr_hash;
-objecttype key_create_func;
-objecttype key_destr_func;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype arr_pos;
@@ -369,7 +292,7 @@ errinfotype *err_info;
         number--;
         curr_helem++;
       } /* while */
-      array_size = (uinttype) (key_array->max_position - key_array->min_position);
+      array_size = arraySize(key_array);
       if (*err_info == OKAY_NO_ERROR) {
         resized_key_array = REALLOC_ARRAY(key_array, array_size, arr_pos);
         if (resized_key_array == NULL) {
@@ -393,19 +316,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void values_helem (arraytype *value_array, memsizetype *arr_pos,
     helemtype curr_helem, objecttype value_create_func, errinfotype *err_info)
-#else
-
-static void values_helem (value_array, arr_pos, curr_helem, value_create_func, err_info)
-arraytype *value_array;
-memsizetype *arr_pos;
-helemtype curr_helem;
-objecttype value_create_func;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype array_size;
@@ -413,9 +325,10 @@ errinfotype *err_info;
     objecttype dest_obj;
 
   /* values_helem */
-    array_size = (uinttype) ((*value_array)->max_position - (*value_array)->min_position);
-    if (*arr_pos >= array_size) {
-      if (array_size >= MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
+    array_size = arraySize(*value_array);
+    if (*arr_pos + 1 >= array_size) {
+      if (array_size > MAX_ARR_LEN - ARRAY_SIZE_INCREMENT ||
+          (*value_array)->max_position > MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
         resized_value_array = NULL;
       } else {
         resized_value_array = REALLOC_ARRAY(*value_array,
@@ -447,19 +360,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static arraytype values_hash (hashtype curr_hash, objecttype value_create_func,
     objecttype value_destr_func, errinfotype *err_info)
-#else
-
-static arraytype values_hash (curr_hash, value_create_func, value_destr_func,
-    err_info)
-hashtype curr_hash;
-objecttype value_create_func;
-objecttype value_destr_func;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype arr_pos;
@@ -485,7 +387,7 @@ errinfotype *err_info;
         number--;
         curr_helem++;
       } /* while */
-      array_size = (uinttype) (value_array->max_position - value_array->min_position);
+      array_size = arraySize(value_array);
       if (*err_info == OKAY_NO_ERROR) {
         resized_value_array = REALLOC_ARRAY(value_array, array_size, arr_pos);
         if (resized_value_array == NULL) {
@@ -509,18 +411,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void for_helem (objecttype for_variable, helemtype curr_helem,
     objecttype statement, objecttype data_copy_func)
-#else
-
-static void for_helem (for_variable, curr_helem, statement, data_copy_func)
-objecttype for_variable;
-helemtype curr_helem;
-objecttype statement;
-objecttype data_copy_func;
-#endif
 
   { /* for_helem */
     if (curr_helem != NULL) {
@@ -533,18 +425,8 @@ objecttype data_copy_func;
 
 
 
-#ifdef ANSI_C
-
 static void for_hash (objecttype for_variable, hashtype curr_hash,
     objecttype statement, objecttype data_copy_func)
-#else
-
-static void for_hash (for_variable, curr_hash, statement, data_copy_func)
-objecttype for_variable;
-hashtype curr_hash;
-objecttype statement;
-objecttype data_copy_func;
-#endif
 
   {
     unsigned int number;
@@ -562,18 +444,8 @@ objecttype data_copy_func;
 
 
 
-#ifdef ANSI_C
-
 static void for_key_helem (objecttype key_variable, helemtype curr_helem,
     objecttype statement, objecttype key_copy_func)
-#else
-
-static void for_key_helem (key_variable, curr_helem, statement, key_copy_func)
-objecttype key_variable;
-helemtype curr_helem;
-objecttype statement;
-objecttype key_copy_func;
-#endif
 
   { /* for_key_helem */
     if (curr_helem != NULL) {
@@ -586,19 +458,8 @@ objecttype key_copy_func;
 
 
 
-#ifdef ANSI_C
-
 static void for_key_hash (objecttype key_variable, hashtype curr_hash,
     objecttype statement, objecttype key_copy_func)
-#else
-
-static void for_key_hash (key_variable, curr_hash, statement,
-    key_copy_func)
-objecttype key_variable;
-hashtype curr_hash;
-objecttype statement;
-objecttype key_copy_func;
-#endif
 
   {
     unsigned int number;
@@ -616,22 +477,9 @@ objecttype key_copy_func;
 
 
 
-#ifdef ANSI_C
-
 static void for_data_key_helem (objecttype for_variable, objecttype key_variable,
     helemtype curr_helem, objecttype statement, objecttype data_copy_func,
     objecttype key_copy_func)
-#else
-
-static void for_data_key_helem (for_variable, key_variable, curr_helem, statement,
-    data_copy_func, key_copy_func)
-objecttype for_variable;
-objecttype key_variable;
-helemtype curr_helem;
-objecttype statement;
-objecttype data_copy_func;
-objecttype key_copy_func;
-#endif
 
   { /* for_data_key_helem */
     if (curr_helem != NULL) {
@@ -647,22 +495,9 @@ objecttype key_copy_func;
 
 
 
-#ifdef ANSI_C
-
 static void for_data_key_hash (objecttype for_variable, objecttype key_variable,
     hashtype curr_hash, objecttype statement, objecttype data_copy_func,
     objecttype key_copy_func)
-#else
-
-static void for_data_key_hash (for_variable, key_variable, curr_hash, statement,
-    data_copy_func, key_copy_func)
-objecttype for_variable;
-objecttype key_variable;
-hashtype curr_hash;
-objecttype statement;
-objecttype data_copy_func;
-objecttype key_copy_func;
-#endif
 
   {
     unsigned int number;
@@ -681,14 +516,7 @@ objecttype key_copy_func;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_contains (listtype arguments)
-#else
-
-objecttype hsh_contains (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;
@@ -730,14 +558,7 @@ listtype arguments;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 objecttype hsh_conv (listtype arguments)
-#else
-
-objecttype hsh_conv (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype hsh_arg;
@@ -773,14 +594,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_cpy (listtype arguments)
-#else
-
-objecttype hsh_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype hsh_to;
@@ -824,14 +638,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_create (listtype arguments)
-#else
-
-objecttype hsh_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype hsh_to;
@@ -874,14 +681,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_destr (listtype arguments)
-#else
-
-objecttype hsh_destr (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype old_hash;
@@ -901,14 +701,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_empty (listtype arguments)
-#else
-
-objecttype hsh_empty (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype result;
@@ -924,14 +717,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_excl (listtype arguments)
-#else
-
-objecttype hsh_excl (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;
@@ -997,14 +783,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_for (listtype arguments)
-#else
-
-objecttype hsh_for (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype for_variable;
@@ -1024,14 +803,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_for_data_key (listtype arguments)
-#else
-
-objecttype hsh_for_data_key (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype key_variable;
@@ -1056,14 +828,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_for_key (listtype arguments)
-#else
-
-objecttype hsh_for_key (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype key_variable;
@@ -1083,14 +848,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_idx (listtype arguments)
-#else
-
-objecttype hsh_idx (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;
@@ -1158,14 +916,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_idx2 (listtype arguments)
-#else
-
-objecttype hsh_idx2 (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;
@@ -1242,14 +993,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_incl (listtype arguments)
-#else
-
-objecttype hsh_incl (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;
@@ -1322,14 +1066,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_keys (listtype arguments)
-#else
-
-objecttype hsh_keys (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;
@@ -1350,14 +1087,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_lng (listtype arguments)
-#else
-
-objecttype hsh_lng (arguments)
-listtype arguments;
-#endif
 
   { /* hsh_lng */
     isit_hash(arg_1(arguments));
@@ -1367,14 +1097,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_refidx (listtype arguments)
-#else
-
-objecttype hsh_refidx (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;
@@ -1427,14 +1150,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype hsh_values (listtype arguments)
-#else
-
-objecttype hsh_values (arguments)
-listtype arguments;
-#endif
 
   {
     hashtype hash1;

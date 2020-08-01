@@ -26,8 +26,8 @@ $ include "seed7_05.s7i";
   include "osfiles.s7i";
   include "ftp.s7i";
   include "keybd.s7i";
-  include "echo.s7i";
-  include "line.s7i";
+  include "console.s7i";
+  include "editline.s7i";
 
 
 const proc: writeHelp is func
@@ -78,7 +78,7 @@ const proc: longFileListing (inout ftpConnection: ftp, in var string: directory)
           line &:= modificationTime.year lpad 6;
         end if;
         line &:= " ";
-        line &:= striToUtf8(fileName);
+        line &:= fileName;
         writeln(line);
       end if;
     end for;
@@ -102,7 +102,7 @@ const proc: fileListing (inout ftpConnection: ftp, in string: directory) is func
         continue := FALSE;
       end if;
       if continue then
-        writeln(striToUtf8(name));
+        writeln(name);
       end if;
     end for;
   end func;
@@ -125,7 +125,7 @@ const proc: directoryListing (inout ftpConnection: ftp, in string: directory) is
         continue := FALSE;
       end if;
       if continue then
-        writeln(striToUtf8(line));
+        writeln(line);
       end if;
     end for;
   end func;
@@ -215,8 +215,8 @@ const proc: main is func
       writeHelp;
     else
       writeHelp;
-      IN := open_echo(KEYBOARD, OUT);
-      IN := open_line(IN);
+      OUT := STD_CONSOLE;
+      IN := openEditLine(KEYBOARD, OUT);
       if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
         block
           ftpControlPort := integer parse (argv(PROGRAM)[2]);

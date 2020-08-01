@@ -51,14 +51,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_alloc (listtype arguments)
-#else
-
-objecttype sct_alloc (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype stru_from;
@@ -105,14 +98,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_cat (listtype arguments)
-#else
-
-objecttype sct_cat (arguments)
-listtype arguments;
-#endif
 
   {
     structtype stru1;
@@ -168,14 +154,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_conv (listtype arguments)
-#else
-
-objecttype sct_conv (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype stru_arg;
@@ -209,14 +188,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_cpy (listtype arguments)
-#else
-
-objecttype sct_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype stru_to;
@@ -269,14 +241,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_create (listtype arguments)
-#else
-
-objecttype sct_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype stru_to;
@@ -319,14 +284,7 @@ printf("create: pointer assignment\n");
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_destr (listtype arguments)
-#else
-
-objecttype sct_destr (arguments)
-listtype arguments;
-#endif
 
   {
     structtype old_struct;
@@ -355,14 +313,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_elem (listtype arguments)
-#else
-
-objecttype sct_elem (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -451,14 +402,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_empty (listtype arguments)
-#else
-
-objecttype sct_empty (arguments)
-listtype arguments;
-#endif
 
   {
     structtype result;
@@ -474,14 +418,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_incl (listtype arguments)
-#else
-
-objecttype sct_incl (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype stru_variable;
@@ -510,14 +447,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_lng (listtype arguments)
-#else
-
-objecttype sct_lng (arguments)
-listtype arguments;
-#endif
 
   { /* sct_lng */
     isit_struct(arg_1(arguments));
@@ -526,14 +456,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_refidx (listtype arguments)
-#else
-
-objecttype sct_refidx (arguments)
-listtype arguments;
-#endif
 
   {
     structtype stru1;
@@ -557,14 +480,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype sct_select (listtype arguments)
-#else
-
-objecttype sct_select (arguments)
-listtype arguments;
-#endif
 
   {
     structtype stru1;

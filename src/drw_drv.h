@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 chartype gkbGetc (void);
 booltype gkbKeyPressed (void);
 chartype gkbRawGetc (void);
@@ -77,7 +75,7 @@ wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y);
 void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val);
 inttype drwHeight (const_wintype actual_window);
-wintype drwImage (inttype *image_data, inttype width, inttype height);
+wintype drwImage (int32type *image_data, inttype width, inttype height);
 void drwLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2);
 void drwPLine (const_wintype actual_window,
@@ -116,67 +114,3 @@ void drwToTop (const_wintype actual_window);
 inttype drwWidth (const_wintype actual_window);
 inttype drwXPos (const_wintype actual_window);
 inttype drwYPos (const_wintype actual_window);
-
-#else
-
-chartype gkbGetc ();
-booltype gkbKeyPressed ();
-chartype gkbRawGetc ();
-wintype gkbWindow ();
-booltype gkbButtonPressed ();
-inttype gkbButtonXpos ();
-inttype gkbButtonYpos ();
-inttype drwPointerXpos ();
-inttype drwPointerYpos ();
-void drwArc ();
-void drwPArc ();
-void drwFArcChord ();
-void drwPFArcChord ();
-void drwFArcPieSlice ();
-void drwPFArcPieSlice ();
-void drwArc2 ();
-void drwCircle ();
-void drwPCircle ();
-void drwClear ();
-void drwCopyArea ();
-void drwFCircle ();
-void drwPFCircle ();
-void drwFEllipse ();
-void drwPFEllipse ();
-void drwFlush ();
-void drwFree ();
-wintype drwGet ();
-inttype drwGetPixel ();
-void drwPixelToRgb ();
-inttype drwHeight ();
-wintype drwImage ();
-void drwLine ();
-void drwPLine ();
-wintype drwNewPixmap ();
-wintype drwNewBitmap ();
-wintype drwOpen ();
-wintype drwOpenSubWindow ();
-void drwPoint ();
-void drwPPoint ();
-void drwConvPointList ();
-bstritype drwGenPointList ();
-inttype drwLngPointList ();
-void drwPolyLine ();
-void drwFPolyLine ();
-void drwPut ();
-void drwRect ();
-void drwPRect ();
-inttype drwRgbColor ();
-void drwBackground ();
-void drwColor ();
-void drwSetContent ();
-void drwSetPos ();
-void drwSetTransparentColor ();
-void drwText ();
-void drwToBottom ();
-void drwToTop ();
-inttype drwWidth ();
-inttype drwXPos ();
-inttype drwYPos ();
-
-#endif

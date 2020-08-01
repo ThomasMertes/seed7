@@ -50,14 +50,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_a2tan (listtype arguments)
-#else
-
-objecttype flt_a2tan (arguments)
-listtype arguments;
-#endif
 
   { /* flt_a2tan */
     isit_float(arg_1(arguments));
@@ -68,14 +61,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_abs (listtype arguments)
-#else
-
-objecttype flt_abs (arguments)
-listtype arguments;
-#endif
 
   {
     double number;
@@ -91,14 +77,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_acos (listtype arguments)
-#else
-
-objecttype flt_acos (arguments)
-listtype arguments;
-#endif
 
   { /* flt_acos */
     isit_float(arg_1(arguments));
@@ -108,14 +87,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_add (listtype arguments)
-#else
-
-objecttype flt_add (arguments)
-listtype arguments;
-#endif
 
   { /* flt_add */
     isit_float(arg_1(arguments));
@@ -127,14 +99,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_asin (listtype arguments)
-#else
-
-objecttype flt_asin (arguments)
-listtype arguments;
-#endif
 
   { /* flt_asin */
     isit_float(arg_1(arguments));
@@ -144,14 +109,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_atan (listtype arguments)
-#else
-
-objecttype flt_atan (arguments)
-listtype arguments;
-#endif
 
   { /* flt_atan */
     isit_float(arg_1(arguments));
@@ -161,14 +119,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_cast (listtype arguments)
-#else
-
-objecttype flt_cast (arguments)
-listtype arguments;
-#endif
 
   { /* flt_cast */
     isit_float(arg_3(arguments));
@@ -178,14 +129,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_ceil (listtype arguments)
-#else
-
-objecttype flt_ceil (arguments)
-listtype arguments;
-#endif
 
   { /* flt_ceil */
     isit_float(arg_1(arguments));
@@ -195,14 +139,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_cmp (listtype arguments)
-#else
-
-objecttype flt_cmp (arguments)
-listtype arguments;
-#endif
 
   { /* flt_cmp */
     isit_float(arg_1(arguments));
@@ -213,14 +150,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_cos (listtype arguments)
-#else
-
-objecttype flt_cos (arguments)
-listtype arguments;
-#endif
 
   { /* flt_cos */
     isit_float(arg_1(arguments));
@@ -230,14 +160,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_cosh (listtype arguments)
-#else
-
-objecttype flt_cosh (arguments)
-listtype arguments;
-#endif
 
   { /* flt_cosh */
     isit_float(arg_1(arguments));
@@ -247,14 +170,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_cpy (listtype arguments)
-#else
-
-objecttype flt_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype flt_variable;
@@ -270,14 +186,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_create (listtype arguments)
-#else
-
-objecttype flt_create (arguments)
-listtype arguments;
-#endif
 
   { /* flt_create */
     isit_float(arg_3(arguments));
@@ -288,14 +197,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_dgts (listtype arguments)
-#else
-
-objecttype flt_dgts (arguments)
-listtype arguments;
-#endif
 
   { /* flt_dgts */
     isit_float(arg_1(arguments));
@@ -306,14 +208,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_div (listtype arguments)
-#else
-
-objecttype flt_div (arguments)
-listtype arguments;
-#endif
 
   {
     floattype dividend;
@@ -340,14 +235,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_div_assign (listtype arguments)
-#else
-
-objecttype flt_div_assign (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype flt_variable;
@@ -383,14 +271,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_eq (listtype arguments)
-#else
-
-objecttype flt_eq (arguments)
-listtype arguments;
-#endif
 
   { /* flt_eq */
     isit_float(arg_1(arguments));
@@ -410,14 +291,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_exp (listtype arguments)
-#else
-
-objecttype flt_exp (arguments)
-listtype arguments;
-#endif
 
   { /* flt_exp */
     isit_float(arg_1(arguments));
@@ -427,14 +301,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_floor (listtype arguments)
-#else
-
-objecttype flt_floor (arguments)
-listtype arguments;
-#endif
 
   { /* flt_floor */
     isit_float(arg_1(arguments));
@@ -444,14 +311,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_ge (listtype arguments)
-#else
-
-objecttype flt_ge (arguments)
-listtype arguments;
-#endif
 
   { /* flt_ge */
     isit_float(arg_1(arguments));
@@ -471,14 +331,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_grow (listtype arguments)
-#else
-
-objecttype flt_grow (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype flt_variable;
@@ -494,14 +347,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_gt (listtype arguments)
-#else
-
-objecttype flt_gt (arguments)
-listtype arguments;
-#endif
 
   { /* flt_gt */
     isit_float(arg_1(arguments));
@@ -521,14 +367,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_hashcode (listtype arguments)
-#else
-
-objecttype flt_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* flt_hashcode */
     isit_float(arg_1(arguments));
@@ -538,14 +377,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_icast (listtype arguments)
-#else
-
-objecttype flt_icast (arguments)
-listtype arguments;
-#endif
 
   { /* flt_icast */
     isit_int(arg_3(arguments));
@@ -555,14 +387,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_iconv (listtype arguments)
-#else
-
-objecttype flt_iconv (arguments)
-listtype arguments;
-#endif
 
   { /* flt_iconv */
     isit_int(arg_3(arguments));
@@ -571,14 +396,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_iflt (listtype arguments)
-#else
-
-objecttype flt_iflt (arguments)
-listtype arguments;
-#endif
 
   { /* flt_iflt */
     isit_int(arg_1(arguments));
@@ -587,14 +405,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_ipow (listtype arguments)
-#else
-
-objecttype flt_ipow (arguments)
-listtype arguments;
-#endif
 
   { /* flt_ipow */
     isit_float(arg_1(arguments));
@@ -605,14 +416,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_isnan (listtype arguments)
-#else
-
-objecttype flt_isnan (arguments)
-listtype arguments;
-#endif
 
   { /* flt_isnan */
     isit_float(arg_1(arguments));
@@ -625,14 +429,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_isnegativezero (listtype arguments)
-#else
-
-objecttype flt_isnegativezero (arguments)
-listtype arguments;
-#endif
 
   { /* flt_isnegativezero */
     isit_float(arg_1(arguments));
@@ -645,14 +442,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_le (listtype arguments)
-#else
-
-objecttype flt_le (arguments)
-listtype arguments;
-#endif
 
   { /* flt_le */
     isit_float(arg_1(arguments));
@@ -672,14 +462,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_log (listtype arguments)
-#else
-
-objecttype flt_log (arguments)
-listtype arguments;
-#endif
 
   { /* flt_log */
     isit_float(arg_1(arguments));
@@ -689,14 +472,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_log10 (listtype arguments)
-#else
-
-objecttype flt_log10 (arguments)
-listtype arguments;
-#endif
 
   { /* flt_log10 */
     isit_float(arg_1(arguments));
@@ -706,14 +482,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_lt (listtype arguments)
-#else
-
-objecttype flt_lt (arguments)
-listtype arguments;
-#endif
 
   { /* flt_lt */
     isit_float(arg_1(arguments));
@@ -733,14 +502,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_minus (listtype arguments)
-#else
-
-objecttype flt_minus (arguments)
-listtype arguments;
-#endif
 
   { /* flt_minus */
     isit_float(arg_2(arguments));
@@ -750,14 +512,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_mult (listtype arguments)
-#else
-
-objecttype flt_mult (arguments)
-listtype arguments;
-#endif
 
   { /* flt_mult */
     isit_float(arg_1(arguments));
@@ -769,14 +524,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_mult_assign (listtype arguments)
-#else
-
-objecttype flt_mult_assign (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype flt_variable;
@@ -792,14 +540,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_ne (listtype arguments)
-#else
-
-objecttype flt_ne (arguments)
-listtype arguments;
-#endif
 
   { /* flt_ne */
     isit_float(arg_1(arguments));
@@ -819,14 +560,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_parse (listtype arguments)
-#else
-
-objecttype flt_parse (arguments)
-listtype arguments;
-#endif
 
   { /* flt_parse */
     isit_stri(arg_3(arguments));
@@ -836,14 +570,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_plus (listtype arguments)
-#else
-
-objecttype flt_plus (arguments)
-listtype arguments;
-#endif
 
   { /* flt_plus */
     isit_float(arg_2(arguments));
@@ -852,14 +579,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_pow (listtype arguments)
-#else
-
-objecttype flt_pow (arguments)
-listtype arguments;
-#endif
 
   { /* flt_pow */
     isit_float(arg_1(arguments));
@@ -875,14 +595,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_rand (listtype arguments)
-#else
-
-objecttype flt_rand (arguments)
-listtype arguments;
-#endif
 
   { /* flt_rand */
     isit_float(arg_1(arguments));
@@ -893,14 +606,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_round (listtype arguments)
-#else
-
-objecttype flt_round (arguments)
-listtype arguments;
-#endif
 
   {
     floattype number;
@@ -917,14 +623,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_sbtr (listtype arguments)
-#else
-
-objecttype flt_sbtr (arguments)
-listtype arguments;
-#endif
 
   { /* flt_sbtr */
     isit_float(arg_1(arguments));
@@ -936,14 +635,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_sci (listtype arguments)
-#else
-
-objecttype flt_sci (arguments)
-listtype arguments;
-#endif
 
   { /* flt_sci */
     isit_float(arg_1(arguments));
@@ -955,14 +647,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_shrink (listtype arguments)
-#else
-
-objecttype flt_shrink (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype flt_variable;
@@ -978,14 +663,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_sin (listtype arguments)
-#else
-
-objecttype flt_sin (arguments)
-listtype arguments;
-#endif
 
   { /* flt_sin */
     isit_float(arg_1(arguments));
@@ -995,14 +673,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_sinh (listtype arguments)
-#else
-
-objecttype flt_sinh (arguments)
-listtype arguments;
-#endif
 
   { /* flt_sinh */
     isit_float(arg_1(arguments));
@@ -1012,14 +683,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_sqrt (listtype arguments)
-#else
-
-objecttype flt_sqrt (arguments)
-listtype arguments;
-#endif
 
   { /* flt_sqrt */
     isit_float(arg_1(arguments));
@@ -1029,14 +693,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_str (listtype arguments)
-#else
-
-objecttype flt_str (arguments)
-listtype arguments;
-#endif
 
   { /* flt_str */
     isit_float(arg_1(arguments));
@@ -1046,14 +703,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_tan (listtype arguments)
-#else
-
-objecttype flt_tan (arguments)
-listtype arguments;
-#endif
 
   { /* flt_tan */
     isit_float(arg_1(arguments));
@@ -1063,14 +713,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_tanh (listtype arguments)
-#else
-
-objecttype flt_tanh (arguments)
-listtype arguments;
-#endif
 
   { /* flt_tanh */
     isit_float(arg_1(arguments));
@@ -1080,14 +723,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_trunc (listtype arguments)
-#else
-
-objecttype flt_trunc (arguments)
-listtype arguments;
-#endif
 
   { /* flt_trunc */
     isit_float(arg_1(arguments));
@@ -1096,14 +732,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype flt_value (listtype arguments)
-#else
-
-objecttype flt_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

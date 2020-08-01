@@ -25,12 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void decl_syntax (void);
-
-#else
-
-void decl_syntax ();
-
-#endif

@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype rfl_append    (listtype arguments);
 objecttype rfl_cat       (listtype arguments);
 objecttype rfl_cpy       (listtype arguments);
@@ -54,35 +52,3 @@ objecttype rfl_setvalue  (listtype arguments);
 objecttype rfl_tail      (listtype arguments);
 objecttype rfl_trace     (listtype arguments);
 objecttype rfl_value     (listtype arguments);
-
-#else
-
-objecttype rfl_append ();
-objecttype rfl_cat ();
-objecttype rfl_cpy ();
-objecttype rfl_create ();
-objecttype rfl_destr ();
-objecttype rfl_elem ();
-objecttype rfl_elemcpy ();
-objecttype rfl_empty ();
-objecttype rfl_eq ();
-objecttype rfl_excl ();
-objecttype rfl_expr ();
-objecttype rfl_for ();
-objecttype rfl_for_until ();
-objecttype rfl_head ();
-objecttype rfl_idx ();
-objecttype rfl_incl ();
-objecttype rfl_ipos ();
-objecttype rfl_lng ();
-objecttype rfl_mklist ();
-objecttype rfl_ne ();
-objecttype rfl_not_elem ();
-objecttype rfl_pos ();
-objecttype rfl_range ();
-objecttype rfl_setvalue ();
-objecttype rfl_tail ();
-objecttype rfl_trace ();
-objecttype rfl_value ();
-
-#endif

@@ -55,18 +55,10 @@
 
 
 
-#ifdef ANSI_C
-
 #ifdef USE_CDECL
 static int _cdecl cmp_mem (char *strg1, char *strg2)
 #else
 static int cmp_mem (void const *strg1, void const *strg2)
-#endif
-#else
-
-static int cmp_mem (strg1, strg2)
-char *strg1;
-char *strg2;
 #endif
 
   { /* cmp_mem */
@@ -77,14 +69,7 @@ char *strg2;
 
 
 
-#ifdef ANSI_C
-
 static arraytype read_dir (dirtype directory)
-#else
-
-static arraytype read_dir (directory)
-dirtype directory;
-#endif
 
   {
     arraytype dir_array;
@@ -153,14 +138,7 @@ dirtype directory;
 
 
 
-#ifdef ANSI_C
-
 static objecttype toArraytype (rtlArraytype anRtlArray)
-#else
-
-static objecttype toArraytype (anRtlArray)
-rtlArraytype anRtlArray;
-#endif
 
   {
     memsizetype arraySize;
@@ -198,14 +176,7 @@ rtlArraytype anRtlArray;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_big_filesize (listtype arguments)
-#else
-
-objecttype cmd_big_filesize (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_big_filesize */
     isit_stri(arg_1(arguments));
@@ -215,14 +186,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_chdir (listtype arguments)
-#else
-
-objecttype cmd_chdir (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_chdir */
     isit_stri(arg_1(arguments));
@@ -232,14 +196,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_clone_file (listtype arguments)
-#else
-
-objecttype cmd_clone_file (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_clone_file */
     isit_stri(arg_1(arguments));
@@ -250,14 +207,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_config_value (listtype arguments)
-#else
-
-objecttype cmd_config_value (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_config_value */
     isit_stri(arg_1(arguments));
@@ -267,14 +217,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_copy_file (listtype arguments)
-#else
-
-objecttype cmd_copy_file (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_copy_file */
     isit_stri(arg_1(arguments));
@@ -285,14 +228,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_environment (listtype arguments)
-#else
-
-objecttype cmd_environment (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_environment */
     return toArraytype(cmdEnvironment());
@@ -300,14 +236,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_filemode (listtype arguments)
-#else
-
-objecttype cmd_filemode (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_filemode */
     isit_stri(arg_1(arguments));
@@ -317,14 +246,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_filesize (listtype arguments)
-#else
-
-objecttype cmd_filesize (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_filesize */
     isit_stri(arg_1(arguments));
@@ -334,14 +256,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_filetype (listtype arguments)
-#else
-
-objecttype cmd_filetype (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_filetype */
     isit_stri(arg_1(arguments));
@@ -351,14 +266,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_filetype_sl (listtype arguments)
-#else
-
-objecttype cmd_filetype_sl (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_filetype_sl */
     isit_stri(arg_1(arguments));
@@ -368,14 +276,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_getcwd (listtype arguments)
-#else
-
-objecttype cmd_getcwd (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_getcwd */
     return bld_stri_temp(cmdGetcwd());
@@ -383,14 +284,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_getenv (listtype arguments)
-#else
-
-objecttype cmd_getenv (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_getenv */
     isit_stri(arg_1(arguments));
@@ -400,14 +294,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_get_atime (listtype arguments)
-#else
-
-objecttype cmd_get_atime (arguments)
-listtype arguments;
-#endif
 
   {
     booltype is_dst;
@@ -443,14 +330,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_get_ctime (listtype arguments)
-#else
-
-objecttype cmd_get_ctime (arguments)
-listtype arguments;
-#endif
 
   {
     booltype is_dst;
@@ -486,14 +366,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_get_mtime (listtype arguments)
-#else
-
-objecttype cmd_get_mtime (arguments)
-listtype arguments;
-#endif
 
   {
     booltype is_dst;
@@ -529,14 +402,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_getSearchPath (listtype arguments)
-#else
-
-objecttype cmd_getSearchPath (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_getSearchPath */
     return toArraytype(cmdGetSearchPath());
@@ -544,14 +410,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_homeDir (listtype arguments)
-#else
-
-objecttype cmd_homeDir (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_homeDir */
     return bld_stri_temp(cmdHomeDir());
@@ -559,14 +418,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_ls (listtype arguments)
-#else
-
-objecttype cmd_ls (arguments)
-listtype arguments;
-#endif
 
   {
     stritype dir_name;
@@ -593,14 +445,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_mkdir (listtype arguments)
-#else
-
-objecttype cmd_mkdir (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_mkdir */
     isit_stri(arg_1(arguments));
@@ -610,14 +455,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_move (listtype arguments)
-#else
-
-objecttype cmd_move (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_move */
     isit_stri(arg_1(arguments));
@@ -628,14 +466,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_pipe2 (listtype arguments)
-#else
-
-objecttype cmd_pipe2 (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype childStdin_variable;
@@ -663,14 +494,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_pty (listtype arguments)
-#else
-
-objecttype cmd_pty (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype childStdin_variable;
@@ -698,14 +522,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_readlink (listtype arguments)
-#else
-
-objecttype cmd_readlink (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_readlink */
     isit_stri(arg_1(arguments));
@@ -715,14 +532,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_remove (listtype arguments)
-#else
-
-objecttype cmd_remove (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_remove */
     isit_stri(arg_1(arguments));
@@ -732,14 +542,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_remove_any_file (listtype arguments)
-#else
-
-objecttype cmd_remove_any_file (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_remove_any_file */
     isit_stri(arg_1(arguments));
@@ -749,14 +552,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_setenv (listtype arguments)
-#else
-
-objecttype cmd_setenv (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_setenv */
     isit_stri(arg_1(arguments));
@@ -767,14 +563,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_set_atime (listtype arguments)
-#else
-
-objecttype cmd_set_atime (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_set_atime */
     isit_stri(arg_1(arguments));
@@ -800,14 +589,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_set_filemode (listtype arguments)
-#else
-
-objecttype cmd_set_filemode (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_set_filemode */
     isit_stri(arg_1(arguments));
@@ -819,14 +601,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_set_mtime (listtype arguments)
-#else
-
-objecttype cmd_set_mtime (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_set_mtime */
     isit_stri(arg_1(arguments));
@@ -852,14 +627,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_shell (listtype arguments)
-#else
-
-objecttype cmd_shell (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_shell */
     isit_stri(arg_1(arguments));
@@ -870,14 +638,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_shell_escape (listtype arguments)
-#else
-
-objecttype cmd_shell_escape (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_shell_escape */
     isit_stri(arg_1(arguments));
@@ -887,14 +648,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_start_process (listtype arguments)
-#else
-
-objecttype cmd_start_process (arguments)
-listtype arguments;
-#endif
 
   {
     rtlArraytype parameters;
@@ -914,14 +668,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_symlink (listtype arguments)
-#else
-
-objecttype cmd_symlink (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_symlink */
     isit_stri(arg_1(arguments));
@@ -932,14 +679,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype cmd_to_os_path (listtype arguments)
-#else
-
-objecttype cmd_to_os_path (arguments)
-listtype arguments;
-#endif
 
   { /* cmd_to_os_path */
     isit_stri(arg_1(arguments));

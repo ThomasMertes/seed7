@@ -73,14 +73,7 @@ typedef struct typestruct {
 
 
 #if 0
-#ifdef ANSI_C
-
 inttype typHashCode (typetype type1)
-#else
-
-inttype typHashCode (big1)
-typetype type1;
-#endif
 
   { /* typHashCode */
     return (inttype) type1;
@@ -88,14 +81,7 @@ typetype type1;
 
 
 
-#ifdef ANSI_C
-
 objecttype typHashcode (listtype arguments)
-#else
-
-objecttype typHashcode (arguments)
-listtype arguments;
-#endif
 
   { /* typHashcode */
     isit_type(arg_1(arguments));
@@ -105,15 +91,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 inttype typCmpGeneric (rtlGenerictype type1, rtlGenerictype type2)
-#else
-
-inttype typCmpGeneric (type1, type2)
-rtlGenerictype type1;
-rtlGenerictype type2;
-#endif
 
   { /* typCmpGeneric */
     if (type1 < type2) {
@@ -127,15 +105,7 @@ rtlGenerictype type2;
 
 
 
-#ifdef ANSI_C
-
 void typCpy (typetype *dest, typetype source)
-#else
-
-void typCpy (dest, source)
-typetype *dest;
-typetype source;
-#endif
 
   { /* typCpy */
     *dest = source;
@@ -143,14 +113,7 @@ typetype source;
 
 
 
-#ifdef ANSI_C
-
 typetype typCreate (typetype type_from)
-#else
-
-typetype typCreate (type_from)
-typetype type_from;
-#endif
 
   { /* typCreate */
     return type_from;
@@ -158,28 +121,14 @@ typetype type_from;
 
 
 
-#ifdef ANSI_C
-
 void typDestr (typetype old_type)
-#else
-
-void typDestr (old_type)
-typetype old_type;
-#endif
 
   { /* typDestr */
   } /* typDestr */
 
 
 
-#ifdef ANSI_C
-
 typetype typFunc (typetype basic_type)
-#else
-
-typetype typFunc (basic_type)
-typetype basic_type;
-#endif
 
   {
     typetype result;
@@ -195,14 +144,7 @@ typetype basic_type;
 
 
 
-#ifdef ANSI_C
-
 booltype typIsDerived (typetype any_type)
-#else
-
-booltype typIsDerived (any_type)
-typetype any_type;
-#endif
 
   { /* typIsDerived */
     return any_type->meta != NULL;
@@ -210,14 +152,7 @@ typetype any_type;
 
 
 
-#ifdef ANSI_C
-
 booltype typIsFunc (typetype any_type)
-#else
-
-booltype typIsFunc (any_type)
-typetype any_type;
-#endif
 
   { /* typIsFunc */
     return any_type->result_type != NULL && !any_type->is_varfunc_type;
@@ -225,14 +160,7 @@ typetype any_type;
 
 
 
-#ifdef ANSI_C
-
 booltype typIsVarfunc (typetype any_type)
-#else
-
-booltype typIsVarfunc (any_type)
-typetype any_type;
-#endif
 
   { /* typIsVarfunc */
     return any_type->result_type != NULL && any_type->is_varfunc_type;
@@ -240,14 +168,7 @@ typetype any_type;
 
 
 
-#ifdef ANSI_C
-
 objecttype typMatchobj (typetype actual_type)
-#else
-
-objecttype typMatchobj (actual_type)
-typetype actual_type;
-#endif
 
   { /* typMatchobj */
     return actual_type->match_obj;
@@ -255,14 +176,7 @@ typetype actual_type;
 
 
 
-#ifdef ANSI_C
-
 typetype typMeta (typetype any_type)
-#else
-
-typetype typMeta (any_type)
-typetype any_type;
-#endif
 
   { /* typMeta */
     if (any_type->meta == NULL) {
@@ -275,14 +189,7 @@ typetype any_type;
 
 
 
-#ifdef ANSI_C
-
 inttype typNum (typetype actual_type)
-#else
-
-inttype typNum (actual_type)
-typetype actual_type;
-#endif
 
   {
     static unsigned int table_size = 0;
@@ -331,14 +238,7 @@ typetype actual_type;
 
 
 
-#ifdef ANSI_C
-
 typetype typResult (typetype any_type)
-#else
-
-typetype typResult (any_type)
-typetype any_type;
-#endif
 
   { /* typResult */
     if (any_type->result_type == NULL) {
@@ -351,14 +251,7 @@ typetype any_type;
 
 
 
-#ifdef ANSI_C
-
 stritype typStr (typetype type_arg)
-#else
-
-stritype typStr (type_arg)
-typetype type_arg;
-#endif
 
   {
     const_cstritype stri;
@@ -382,14 +275,7 @@ typetype type_arg;
 
 
 
-#ifdef ANSI_C
-
 typetype typVarfunc (typetype basic_type)
-#else
-
-typetype typVarfunc (basic_type)
-typetype basic_type;
-#endif
 
   {
     typetype result;

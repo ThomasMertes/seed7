@@ -51,14 +51,7 @@
 
 
 
-#ifdef ANSI_C
-
 stritype gkbGets (inttype length)
-#else
-
-stritype gkbGets (length)
-inttype length;
-#endif
 
   {
     memsizetype bytes_requested;
@@ -90,14 +83,7 @@ inttype length;
 
 
 
-#ifdef ANSI_C
-
 stritype gkbLineRead (chartype *terminationChar)
-#else
-
-stritype gkbLineRead (terminationChar)
-chartype *terminationChar;
-#endif
 
   {
     register chartype ch;
@@ -151,14 +137,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 stritype gkbWordRead (chartype *terminationChar)
-#else
-
-stritype gkbWordRead (terminationChar)
-chartype *terminationChar;
-#endif
 
   {
     register chartype ch;

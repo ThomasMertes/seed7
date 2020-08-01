@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype con_clear  (listtype arguments);
 objecttype con_cursor (listtype arguments);
 objecttype con_flush  (listtype arguments);
@@ -37,18 +35,3 @@ objecttype con_setpos (listtype arguments);
 objecttype con_v_scl  (listtype arguments);
 objecttype con_width  (listtype arguments);
 objecttype con_write  (listtype arguments);
-
-#else
-
-objecttype con_clear ();
-objecttype con_cursor ();
-objecttype con_flush ();
-objecttype con_height ();
-objecttype con_h_scl ();
-objecttype con_open ();
-objecttype con_setpos ();
-objecttype con_v_scl ();
-objecttype con_width ();
-objecttype con_write ();
-
-#endif

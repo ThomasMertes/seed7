@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype flt_a2tan          (listtype arguments);
 objecttype flt_abs            (listtype arguments);
 objecttype flt_acos           (listtype arguments);
@@ -80,61 +78,3 @@ objecttype flt_tan            (listtype arguments);
 objecttype flt_tanh           (listtype arguments);
 objecttype flt_trunc          (listtype arguments);
 objecttype flt_value          (listtype arguments);
-
-#else
-
-objecttype flt_a2tan ();
-objecttype flt_abs ();
-objecttype flt_acos ();
-objecttype flt_add ();
-objecttype flt_asin ();
-objecttype flt_atan ();
-objecttype flt_cast ();
-objecttype flt_ceil ();
-objecttype flt_cmp ();
-objecttype flt_cos ();
-objecttype flt_cosh ();
-objecttype flt_cpy ();
-objecttype flt_create ();
-objecttype flt_dgts ();
-objecttype flt_div ();
-objecttype flt_div_assign ();
-objecttype flt_eq ();
-objecttype flt_exp ();
-objecttype flt_floor ();
-objecttype flt_ge ();
-objecttype flt_grow ();
-objecttype flt_gt ();
-objecttype flt_hashcode ();
-objecttype flt_icast ();
-objecttype flt_iconv ();
-objecttype flt_iflt ();
-objecttype flt_ipow ();
-objecttype flt_isnan ();
-objecttype flt_isnegativezero ();
-objecttype flt_le ();
-objecttype flt_log ();
-objecttype flt_log10 ();
-objecttype flt_lt ();
-objecttype flt_minus ();
-objecttype flt_mult ();
-objecttype flt_mult_assign ();
-objecttype flt_ne ();
-objecttype flt_parse ();
-objecttype flt_plus ();
-objecttype flt_pow ();
-objecttype flt_rand ();
-objecttype flt_round ();
-objecttype flt_sbtr ();
-objecttype flt_sci ();
-objecttype flt_shrink ();
-objecttype flt_sin ();
-objecttype flt_sinh ();
-objecttype flt_sqrt ();
-objecttype flt_str ();
-objecttype flt_tan ();
-objecttype flt_tanh ();
-objecttype flt_trunc ();
-objecttype flt_value ();
-
-#endif

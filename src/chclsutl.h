@@ -45,12 +45,4 @@ EXTERN inttype digit_value[128];
 #define std_comment_char(CHARACTER) ch_std_comment [((int)(CHARACTER)) - EOF]
 
 
-#ifdef ANSI_C
-
 void init_chclass (void);
-
-#else
-
-void init_chclass ();
-
-#endif

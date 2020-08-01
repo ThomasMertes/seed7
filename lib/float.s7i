@@ -426,6 +426,10 @@ const func string: literal (in float: number)                  is action "FLT_ST
 const func float: rand (in float: low, in float: high)         is action "FLT_RAND";
 
 
+(**
+ *  Determine the minimum of two ''float'' numbers.
+ *  @return the minimum of the two numbers.
+ *)
 const func float: min (in float: value1, in float: value2) is func
   result
     var float: minimum is 0.0;
@@ -438,6 +442,10 @@ const func float: min (in float: value1, in float: value2) is func
   end func;
 
 
+(**
+ *  Determine the maximum of two ''float'' numbers.
+ *  @return the maximum of the two numbers.
+ *)
 const func float: max (in float: value1, in float: value2) is func
   result
     var float: maximum is 0.0;

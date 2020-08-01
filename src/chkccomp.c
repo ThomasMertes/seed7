@@ -437,7 +437,7 @@ int main (int argc, char **argv)
     printf("#define DOUBLE_SIZE %lu\n",   (long unsigned) (8 * sizeof(double)));
     printf("#define OS_OFF_T_SIZE %lu\n", (long unsigned) (8 * sizeof(os_off_t)));
     printf("#define TIME_T_SIZE %lu\n",   (long unsigned) (8 * sizeof(time_t)));
-    timestamp = -2147483648;
+    timestamp = -2147483647 - 1;
     local_time = localtime(&timestamp);
     if (local_time != NULL && local_time->tm_year == 1) {
       puts("#define TIME_T_SIGNED");

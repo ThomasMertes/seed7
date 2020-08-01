@@ -84,13 +84,7 @@ progrecord prog;
 
 
 
-#ifdef ANSI_C
-
 static void init_analyze (void)
-#else
-
-static void init_analyze ()
-#endif
 
   { /* init_analyze */
     if (!analyze_initialized) {
@@ -105,13 +99,7 @@ static void init_analyze ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE void system_var (void)
-#else
-
-static INLINE void system_var ()
-#endif
 
   {
     int index_found;
@@ -153,13 +141,7 @@ static INLINE void system_var ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE void include_file (void)
-#else
-
-static INLINE void include_file ()
-#endif
 
   {
     stritype include_file_name;
@@ -216,13 +198,7 @@ static INLINE void include_file ()
 
 
 
-#ifdef ANSI_C
-
 static void process_pragma (void)
-#else
-
-static void process_pragma ()
-#endif
 
   {
     cstritype str1;
@@ -316,14 +292,7 @@ static void process_pragma ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE void decl_any (nodetype objects)
-#else
-
-static INLINE void decl_any (objects)
-nodetype objects;
-#endif
 
   {
     objecttype decl_expression;
@@ -394,14 +363,7 @@ nodetype objects;
 
 
 
-#ifdef ANSI_C
-
 static stritype getProgramName (const const_stritype source_file_name)
-#else
-
-static stritype getProgramName (source_file_name)
-stritype source_file_name;
-#endif
 
   {
     memsizetype name_len;
@@ -429,14 +391,7 @@ stritype source_file_name;
 
 
 
-#ifdef ANSI_C
-
 static stritype getProgramPath (const const_stritype source_file_name)
-#else
-
-static stritype getProgramPath (source_file_name)
-stritype source_file_name;
-#endif
 
   {
     stritype cwd;
@@ -456,22 +411,9 @@ stritype source_file_name;
 
 
 
-#ifdef ANSI_C
-
 static progtype analyze_prog (const const_stritype source_file_argument,
     const const_stritype source_name, uinttype options, const const_rtlArraytype libraryDirs,
     const const_stritype prot_file_name, errinfotype *err_info)
-#else
-
-static progtype analyze_prog (source_file_argument, source_name, options,
-    libraryDirs, prot_file_name, err_info)
-stritype source_file_argument;
-stritype source_name;
-uinttype options;
-rtlArraytype libraryDirs;
-stritype prot_file_name;
-errinfotype *err_info;
-#endif
 
   {
     stritype source_file_argument_copy;
@@ -601,20 +543,9 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 progtype analyze_file (const const_stritype source_file_argument, uinttype options,
     const const_rtlArraytype libraryDirs, const const_stritype prot_file_name,
     errinfotype *err_info)
-#else
-
-progtype analyze_file (source_file_argument, options, libraryDirs, prot_file_name, err_info)
-stritype source_file_argument;
-uinttype options;
-rtlArraytype libraryDirs;
-stritype prot_file_name;
-errinfotype *err_info;
-#endif
 
   {
     stritype source_name;
@@ -678,16 +609,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 progtype analyze (const const_stritype source_file_argument, uinttype options,
     const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
-#else
-
-progtype analyze (source_file_argument)
-stritype source_file_argument;
-const const_stritype prot_file_name;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -712,20 +635,9 @@ const const_stritype prot_file_name;
 
 
 
-#ifdef ANSI_C
-
 progtype analyze_string (const const_stritype input_string, uinttype options,
     const const_rtlArraytype libraryDirs, const const_stritype prot_file_name,
     errinfotype *err_info)
-#else
-
-progtype analyze_string (input_string, options, libraryDirs, prot_file_name, err_info)
-stritype input_string;
-uinttype options;
-rtlArraytype libraryDirs;
-stritype prot_file_name;
-errinfotype *err_info;
-#endif
 
   {
     stritype source_file_argument;

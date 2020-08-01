@@ -53,14 +53,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_cmp (listtype arguments)
-#else
-
-objecttype itf_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     memsizetype interface1;
@@ -84,14 +77,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_conv2 (listtype arguments)
-#else
-
-objecttype itf_conv2 (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype result;
@@ -106,14 +92,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_cpy (listtype arguments)
-#else
-
-objecttype itf_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype interface_to;
@@ -195,14 +174,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_cpy2 (listtype arguments)
-#else
-
-objecttype itf_cpy2 (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype interface_to;
@@ -270,14 +242,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_create (listtype arguments)
-#else
-
-objecttype itf_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype interface_to;
@@ -327,14 +292,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_create2 (listtype arguments)
-#else
-
-objecttype itf_create2 (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype interface_to;
@@ -383,14 +341,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_destr (listtype arguments)
-#else
-
-objecttype itf_destr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype old_value;
@@ -441,14 +392,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_eq (listtype arguments)
-#else
-
-objecttype itf_eq (arguments)
-listtype arguments;
-#endif
 
   { /* itf_eq */
     isit_interface(arg_1(arguments));
@@ -463,14 +407,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_hashcode (listtype arguments)
-#else
-
-objecttype itf_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* itf_hashcode */
     isit_interface(arg_1(arguments));
@@ -480,14 +417,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_ne (listtype arguments)
-#else
-
-objecttype itf_ne (arguments)
-listtype arguments;
-#endif
 
   { /* itf_ne */
     isit_interface(arg_1(arguments));
@@ -502,14 +432,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_new (listtype arguments)
-#else
-
-objecttype itf_new (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype stru_arg;
@@ -543,14 +466,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_select (listtype arguments)
-#else
-
-objecttype itf_select (arguments)
-listtype arguments;
-#endif
 
   {
     structtype stru1;
@@ -598,14 +514,7 @@ printf("\n");
 
 
 
-#ifdef ANSI_C
-
 objecttype itf_to_interface (listtype arguments)
-#else
-
-objecttype itf_to_interface (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype stru_arg;

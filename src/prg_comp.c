@@ -61,15 +61,7 @@
 
 
 
-#ifdef ANSI_C
-
 static objecttype copy_args (const const_rtlArraytype argv, const memsizetype start)
-#else
-
-static objecttype copy_args (argv, start)
-rtlArraytype argv;
-memsizetype start;
-#endif
 
   {
     memsizetype argc;
@@ -119,14 +111,7 @@ memsizetype start;
 
 
 
-#ifdef ANSI_C
-
 static void free_args (objecttype arg_v)
-#else
-
-static void free_args (arg_v)
-objecttype arg_v;
-#endif
 
   {
     arraytype arg_array;
@@ -139,19 +124,8 @@ objecttype arg_v;
 
 
 
-#ifdef ANSI_C
-
 void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
                 memsizetype argv_start, uinttype options, const const_stritype prot_file_name)
-#else
-
-void interpret (currentProg, argv, argv_start, options, prot_file_name)
-progtype currentProg;
-rtlArraytype argv;
-memsizetype argv_start;
-uinttype options;
-stritype prot_file_name;
-#endif
 
   {
     progrecord prog_backup;
@@ -222,15 +196,7 @@ stritype prot_file_name;
 
 
 
-#ifdef ANSI_C
-
 void prgCpy (progtype *const prog_to, const progtype prog_from)
-#else
-
-void prgCpy (prog_to, prog_from)
-progtype *prog_to;
-progtype prog_from;
-#endif
 
   {
     progtype old_prog;
@@ -249,14 +215,7 @@ progtype prog_from;
 
 
 
-#ifdef ANSI_C
-
 progtype prgCreate (const progtype prog_from)
-#else
-
-progtype prgCreate (prog_from)
-progtype prog_from;
-#endif
 
   {
 
@@ -270,14 +229,7 @@ progtype prog_from;
 
 
 
-#ifdef ANSI_C
-
 void prgDestr (progtype old_prog)
-#else
-
-void prgDestr (old_prog)
-progtype old_prog;
-#endif
 
   {
     progrecord prog_backup;
@@ -315,14 +267,7 @@ progtype old_prog;
 
 
 
-#ifdef ANSI_C
-
 inttype prgErrorCount (const const_progtype aProg)
-#else
-
-inttype prgErrorCount (aProg)
-progtype aProg;
-#endif
 
   {
     inttype result;
@@ -339,15 +284,7 @@ progtype aProg;
 
 
 
-#ifdef ANSI_C
-
 objecttype prgEval (progtype currentProg, objecttype object)
-#else
-
-objecttype prgEval (currentProg, object)
-progtype currentProg;
-objecttype object;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -364,18 +301,8 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 void prgExec (const const_progtype currentProg, const const_rtlArraytype argv,
     const const_settype options, const const_stritype prot_file_name)
-#else
-
-void prgExec (currentProg, argv, options, prot_file_name)
-progtype currentProg;
-rtlArraytype argv;
-settype options;
-stritype prot_file_name;
-#endif
 
   {
     uinttype int_options;
@@ -390,18 +317,8 @@ stritype prot_file_name;
 
 
 
-#ifdef ANSI_C
-
 progtype prgFilParse (const const_stritype fileName, const const_settype options,
     const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
-#else
-
-progtype prgFilParse (fileName, options, libraryDirs, prot_file_name)
-stritype fileName;
-settype options;
-rtlArraytype libraryDirs;
-stritype prot_file_name;
-#endif
 
   {
     uinttype int_options;
@@ -423,14 +340,7 @@ stritype prot_file_name;
 
 
 
-#ifdef ANSI_C
-
 listtype prgGlobalObjects (const const_progtype aProg)
-#else
-
-listtype prgGlobalObjects (aProg)
-progtype aProg;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -451,15 +361,7 @@ progtype aProg;
 
 
 
-#ifdef ANSI_C
-
 objecttype prgMatch (const const_progtype aProg, listtype curr_expr)
-#else
-
-objecttype prgMatch (aProg, curr_expr)
-progtype aProg;
-listtype curr_expr;
-#endif
 
   {
     objectrecord expr_object;
@@ -495,15 +397,7 @@ listtype curr_expr;
 
 
 
-#ifdef ANSI_C
-
 objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr)
-#else
-
-objecttype prgMatchExpr (aProg, curr_expr)
-progtype aProg;
-listtype curr_expr;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -539,15 +433,8 @@ listtype curr_expr;
 
 
 
-#ifdef ANSI_C
-
 progtype prgStrParse (const const_stritype stri, const const_settype options,
     const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
-#else
-
-progtype prgStrParse (stri)
-stritype stri;
-#endif
 
   {
     uinttype int_options;
@@ -565,15 +452,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName)
-#else
-
-objecttype prgSyobject (aProg, syobjectName)
-progtype aProg;
-stritype syobjectName;
-#endif
 
   {
     cstritype name;
@@ -604,15 +483,7 @@ stritype syobjectName;
 
 
 
-#ifdef ANSI_C
-
 objecttype prgSysvar (const const_progtype aProg, const const_stritype sysvarName)
-#else
-
-objecttype prgSysvar (aProg, sysvarName)
-progtype aProg;
-stritype sysvarName;
-#endif
 
   {
     int index_found;

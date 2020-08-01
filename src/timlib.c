@@ -45,14 +45,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype tim_await (listtype arguments)
-#else
-
-objecttype tim_await (arguments)
-listtype arguments;
-#endif
 
   { /* tim_await */
     isit_int(arg_1(arguments));
@@ -76,14 +69,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype tim_from_timestamp (listtype arguments)
-#else
-
-objecttype tim_from_timestamp (arguments)
-listtype arguments;
-#endif
 
   {
     booltype is_dst;
@@ -128,14 +114,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype tim_now (listtype arguments)
-#else
-
-objecttype tim_now (arguments)
-listtype arguments;
-#endif
 
   {
     booltype is_dst;
@@ -177,14 +156,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype tim_set_local_tz (listtype arguments)
-#else
-
-objecttype tim_set_local_tz (arguments)
-listtype arguments;
-#endif
 
   {
     booltype is_dst;

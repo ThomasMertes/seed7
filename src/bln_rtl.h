@@ -29,12 +29,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void blnCpy (booltype *dest, booltype source);
-
-#else
-
-void blnCpy ();
-
-#endif

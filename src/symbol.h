@@ -55,18 +55,7 @@ EXTERN symtype symbol;
 #define check_stri_length(LEN) if (LEN == symbol.stri_max) extend_stri_length()
 
 
-#ifdef ANSI_C
-
 void extend_symb_length (void);
 void extend_stri_length (void);
 void init_symbol (errinfotype *err_info);
 void close_symbol (void);
-
-#else
-
-void extend_symb_length ();
-void extend_stri_length ();
-void init_symbol ();
-void close_symbol ();
-
-#endif

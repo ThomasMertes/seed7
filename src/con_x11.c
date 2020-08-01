@@ -106,13 +106,7 @@ static booltype keybd_initialized = FALSE;
 
 
 
-#ifdef ANSI_C
-
 void kbdShut (void)
-#else
-
-void kbdShut ()
-#endif
 
   { /* kbdShut */
     if (keybd_initialized) {
@@ -122,13 +116,7 @@ void kbdShut ()
 
 
 
-#ifdef ANSI_C
-
 static void kbd_init (void)
-#else
-
-static void kbd_init ()
-#endif
 
   { /* kbd_init */
     keybd_initialized = TRUE;
@@ -137,13 +125,7 @@ static void kbd_init ()
 
 
 
-#ifdef ANSI_C
-
 booltype kbdKeyPressed (void)
-#else
-
-booltype kbdKeyPressed ()
-#endif
 
   {
     booltype result;
@@ -168,13 +150,7 @@ booltype kbdKeyPressed ()
 
 
 
-#ifdef ANSI_C
-
 chartype kbdGetc (void)
-#else
-
-chartype kbdGetc ()
-#endif
 
   {
     int count;
@@ -517,13 +493,7 @@ chartype kbdGetc ()
 
 
 
-#ifdef ANSI_C
-
 chartype kbdRawGetc (void)
-#else
-
-chartype kbdRawGetc ()
-#endif
 
   { /* kbdRawGetc */
     return kbdGetc();
@@ -531,15 +501,7 @@ chartype kbdRawGetc ()
 
 
 
-#ifdef ANSI_C
-
 static void x11_setcolour (inttype foreground, inttype background)
-#else
-
-static void x11_setcolour (foreground, background)
-inttype foreground;
-inttype background;
-#endif
 
   { /* x11_setcolour */
 #ifdef TRACE_X11_SETCOLOUR
@@ -557,13 +519,7 @@ inttype background;
 
 
 
-#ifdef ANSI_C
-
 static void x11_standardcolour (void)
-#else
-
-static void x11_standardcolour ()
-#endif
 
   { /* x11_standardcolour */
     normal = TRUE;
@@ -571,13 +527,7 @@ static void x11_standardcolour ()
 
 
 
-#ifdef ANSI_C
-
 static void x11_normalcolour (void)
-#else
-
-static void x11_normalcolour ()
-#endif
 
   { /* x11_normalcolour */
     normal = TRUE;
@@ -585,16 +535,7 @@ static void x11_normalcolour ()
 
 
 
-#ifdef ANSI_C
-
 static postype scale (int font_value, int font_scale, int screen_scale)
-#else
-
-static postype scale (font_value, font_scale, screen_scale)
-int font_value;
-int font_scale;
-int screen_scale;
-#endif
 
   {
     postype result;
@@ -618,15 +559,7 @@ int screen_scale;
 
 
 
-#ifdef ANSI_C
-
 static void writenumber (FILE *scalefile, postype number)
-#else
-
-static void writenumber (scalefile, number)
-FILE *scalefile;
-postype number;
-#endif
 
   {
     int ch;
@@ -648,14 +581,7 @@ postype number;
 
 
 
-#ifdef ANSI_C
-
 static postype readnumber (FILE *fontfile)
-#else
-
-static postype readnumber (fontfile)
-FILE *fontfile;
-#endif
 
   {
     postype number;
@@ -691,14 +617,7 @@ FILE *fontfile;
 
 
 
-#ifdef ANSI_C
-
 static basicFontType readfont (char *fontfilename)
-#else
-
-static basicFontType readfont (fontfilename)
-char *fontfilename;
-#endif
 
   {
     FILE *fontfile;
@@ -866,19 +785,8 @@ char *fontfilename;
 
 
 
-#ifdef ANSI_C
-
 static scaledFontType scalefont (basicFontType font,
     int wanted_scale, int wanted_slant, booltype filled)
-#else
-
-static scaledFontType scalefont (font, wanted_scale,
-    wanted_slant, filled)
-basicFontType font;
-int wanted_scale;
-int wanted_slant;
-booltype filled;
-#endif
 
   {
     int font_scale;
@@ -994,14 +902,7 @@ booltype filled;
 
 
 
-#ifdef ANSI_C
-
 static basicFontType get_font (char *fontname)
-#else
-
-static basicFontType get_font (fontname)
-char *fontname;
-#endif
 
   {
     char *home_path;
@@ -1050,18 +951,8 @@ char *fontname;
 
 
 
-#ifdef ANSI_C
-
 static scaledFontType set_font_size (basicFontType basic_font,
     int wanted_scale, int wanted_slant)
-#else
-
-static scaledFontType set_font_size (basic_font, wanted_scale,
-    int wanted_slant)
-basicFontType basic_font;
-int wanted_scale;
-int wanted_slant;
-#endif
 
   {
     scaledFontType a_font;
@@ -1098,14 +989,7 @@ int wanted_slant;
 
 
 
-#ifdef ANSI_C
-
 static int x11_setfont (char *fontname)
-#else
-
-static int x11_setfont (fontname)
-char *fontname;
-#endif
 
   {
     basicFontType basic_font;
@@ -1138,14 +1022,7 @@ char *fontname;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void x11_setfont (char *fontname)
-#else
-
-static void x11_setfont (fontname)
-char *fontname;
-#endif
 
   {
     char filename[256];
@@ -1359,13 +1236,7 @@ fflush(stdout);
 
 
 
-#ifdef ANSI_C
-
 inttype textheight (void)
-#else
-
-inttype textheight ()
-#endif
 
   { /* textheight */
     return actual_scaledfont->yDiff;
@@ -1373,18 +1244,8 @@ inttype textheight ()
 
 
 
-#ifdef ANSI_C
-
 static inttype txtwidth (unsigned char *stri, inttype length,
     inttype startidx, inttype stopidx)
-#else
-
-static inttype txtwidth (stri, length, startidx, stopidx)
-unsigned char *stri;
-inttype length;
-inttype startidx;
-inttype stopidx;
-#endif
 
   {
     inttype pos;
@@ -1413,17 +1274,8 @@ inttype stopidx;
 
 
 
-#ifdef ANSI_C
-
 inttype textwidth (stritype stri,
     inttype startcol, inttype stopcol)
-#else
-
-inttype textwidth (stri, startcol, stopcol)
-stritype stri;
-inttype startcol;
-inttype stopcol;
-#endif
 
   { /* textwidth */
     return txtwidth(stri->mem, stri->size, startcol - 1, stopcol - 1);
@@ -1431,18 +1283,8 @@ inttype stopcol;
 
 
 
-#ifdef ANSI_C
-
 void textcolumns (stritype stri, inttype striwidth,
     inttype *cols, inttype *rest)
-#else
-
-void textcolumns (stri, striwidth, cols, rest)
-stritype stri;
-inttype striwidth;
-inttype *cols;
-inttype *rest;
-#endif
 
   {
     inttype width;
@@ -1467,13 +1309,7 @@ inttype *rest;
 
 
 
-#ifdef ANSI_C
-
 int conHeight (void)
-#else
-
-int conHeight ()
-#endif
 
   {
     XWindowAttributes attribs;
@@ -1485,13 +1321,7 @@ int conHeight ()
 
 
 
-#ifdef ANSI_C
-
 int conWidth (void)
-#else
-
-int conWidth ()
-#endif
 
   {
     XWindowAttributes attribs;
@@ -1503,13 +1333,7 @@ int conWidth ()
 
 
 
-#ifdef ANSI_C
-
 void conFlush (void)
-#else
-
-void conFlush ()
-#endif
 
   { /* conFlush */
     XFlush(mydisplay);
@@ -1517,32 +1341,15 @@ void conFlush ()
 
 
 
-#ifdef ANSI_C
-
 void conCursor (booltype on)
-#else
-
-void conCursor (on)
-booltype on;
-#endif
 
   { /* conCursor */
   } /* conCursor */
 
 
 
-#ifdef ANSI_C
-
 void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
-#else
-
-void conClear (startlin, startcol, stoplin, stopcol)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-#endif
 
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
@@ -1561,16 +1368,7 @@ inttype stopcol;
 
 
 
-#ifdef ANSI_C
-
 static void screenlineclear (int xpos, int ypos, inttype len)
-#else
-
-static void screenlineclear (xpos, ypos, len)
-int xpos;
-int ypos;
-inttype len;
-#endif
 
   /* In der Position xpos, ypos des Bildschirmes wird ein Bereich    */
   /* der Laenge len und der Hoehe einer Zeile geloescht.             */
@@ -1621,15 +1419,7 @@ inttype len;
 
 
 
-#ifdef ANSI_C
-
 void conSetCursor (inttype lin, inttype col)
-#else
-
-void conSetCursor (lin, col)
-inttype lin;
-inttype col;
-#endif
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -1652,18 +1442,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
-#else
-
-void conText (lin, col, stri, length)
-inttype lin;
-inttype col;
-ustritype stri;
-memsizetype length;
-#endif
 
   /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
@@ -1776,19 +1556,8 @@ memsizetype length;
 
 
 
-#ifdef ANSI_C
-
 void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conUpScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol upward by count lines. The upper count lines of the    */
@@ -1837,19 +1606,8 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conDownScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol downward by count lines. The lower count lines of the  */
@@ -1898,19 +1656,8 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol leftward by count lines. The left count lines of the   */
@@ -1922,19 +1669,8 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conRightScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol rightward by count lines. The right count lines of the */
@@ -1946,13 +1682,7 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 static void x11_beep (void)
-#else
-
-static void x11_beep ()
-#endif
 
   { /* x11_beep */
     XBell(mydisplay, 0);
@@ -1961,13 +1691,7 @@ static void x11_beep ()
 
 
 
-#ifdef ANSI_C
-
 void conShut (void)
-#else
-
-void conShut ()
-#endif
 
   { /* conShut */
     if (screen_initialized) {
@@ -1978,18 +1702,8 @@ void conShut ()
 
 
 
-#ifdef ANSI_C
-
 static int do_x11_init (int upper, int left,
     int high, int wide)
-#else
-
-static int do_x11_init (upper, left, high, wide)
-int upper;
-int left;
-int high;
-int wide;
-#endif
 
   {
     XSizeHints mysizehint;
@@ -2066,13 +1780,7 @@ int wide;
 
 
 
-#ifdef ANSI_C
-
 int conOpen (void)
-#else
-
-int conOpen ()
-#endif
 
   /* Initializes and clears the console.                            */
 

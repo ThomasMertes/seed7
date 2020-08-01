@@ -139,8 +139,6 @@ EXTERN freelisttype flist;
 #endif
 
 
-#ifdef ANSI_C
-
 #ifdef DO_HEAP_STATISTIC
 void heap_statistic (void);
 #endif
@@ -154,23 +152,4 @@ void reuse_free_lists (void);
 #endif
 #ifdef USE_CHUNK_ALLOCS
 void *heap_chunk (size_t);
-#endif
-
-#else
-
-#ifdef DO_HEAP_STATISTIC
-void heap_statistic ();
-#endif
-memsizetype heapsize ();
-#ifdef USE_CHUNK_ALLOCS
-#ifdef USE_FLIST_ALLOC
-void *flist_alloc ();
-#endif
-#else
-void reuse_free_lists ();
-#endif
-#ifdef USE_CHUNK_ALLOCS
-void *heap_chunk ();
-#endif
-
 #endif

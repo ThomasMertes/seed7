@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype typ_addinterface (listtype arguments);
 objecttype typ_cmp          (listtype arguments);
 objecttype typ_cpy          (listtype arguments);
@@ -51,32 +49,3 @@ objecttype typ_str          (listtype arguments);
 objecttype typ_value        (listtype arguments);
 objecttype typ_varconv      (listtype arguments);
 objecttype typ_varfunc      (listtype arguments);
-
-#else
-
-objecttype typ_addinterface ();
-objecttype typ_cmp ();
-objecttype typ_cpy ();
-objecttype typ_create ();
-objecttype typ_destr ();
-objecttype typ_eq ();
-objecttype typ_func ();
-objecttype typ_gensub ();
-objecttype typ_gentype ();
-objecttype typ_hashcode ();
-objecttype typ_isdeclared ();
-objecttype typ_isderived ();
-objecttype typ_isforward ();
-objecttype typ_isfunc ();
-objecttype typ_isvarfunc ();
-objecttype typ_matchobj ();
-objecttype typ_meta ();
-objecttype typ_ne ();
-objecttype typ_num ();
-objecttype typ_result ();
-objecttype typ_str ();
-objecttype typ_value ();
-objecttype typ_varconv ();
-objecttype typ_varfunc ();
-
-#endif

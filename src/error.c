@@ -57,14 +57,7 @@
 
 
 
-#ifdef ANSI_C
-
 static void print_line (linenumtype err_line)
-#else
-
-static void print_line (err_line)
-linenumtype err_line;
-#endif
 
   {
     long current_position;
@@ -142,13 +135,7 @@ linenumtype err_line;
 
 
 
-#ifdef ANSI_C
-
 static void print_error_line (void)
-#else
-
-static void print_error_line ()
-#endif
 
   {
     long current_position;
@@ -212,14 +199,7 @@ static void print_error_line ()
 
 
 
-#ifdef ANSI_C
-
 void place_of_error (errortype err)
-#else
-
-void place_of_error (err)
-errortype err;
-#endif
 
   { /* place_of_error */
 /*  print_error_line(); */
@@ -233,13 +213,7 @@ errortype err;
 
 
 
-#ifdef ANSI_C
-
 static void undef_err (void)
-#else
-
-static void undef_err ()
-#endif
 
   { /* undef_err */
     printf("Undefined error\n");
@@ -247,13 +221,7 @@ static void undef_err ()
 
 
 
-#ifdef ANSI_C
-
 static void write_symbol (void)
-#else
-
-static void write_symbol ()
-#endif
 
   { /* write_symbol */
     if (symbol.sycategory == PARENSYMBOL) {
@@ -283,14 +251,7 @@ static void write_symbol ()
 
 
 
-#ifdef ANSI_C
-
 static void write_type (const_typetype anytype)
-#else
-
-static void write_type (anytype)
-typetype anytype;
-#endif
 
   { /* write_type */
     if (anytype != NULL) {
@@ -309,14 +270,7 @@ typetype anytype;
 
 
 
-#ifdef ANSI_C
-
 static void write_name_list (const_listtype params)
-#else
-
-static void write_name_list (params)
-listtype params;
-#endif
 
   {
     objecttype formal_param;
@@ -397,14 +351,7 @@ listtype params;
 
 
 
-#ifdef ANSI_C
-
 static void write_object (objecttype anyobject)
-#else
-
-static void write_object (anyobject)
-objecttype anyobject;
-#endif
 
   { /* write_object */
     if (anyobject == NULL) {
@@ -484,14 +431,7 @@ objecttype anyobject;
 
 
 
-#ifdef ANSI_C
-
 void err_warning (errortype err)
-#else
-
-void err_warning (err)
-errortype err;
-#endif
 
   { /* err_warning */
     place_of_error(err);
@@ -566,18 +506,8 @@ errortype err;
 
 
 
-#ifdef ANSI_C
-
 void err_num_stri (errortype err, int num_found, int num_expected,
     const_ustritype stri)
-#else
-
-void err_num_stri (err, num_found, num_expected, stri)
-errortype err;
-int num_found;
-int num_expected;
-ustritype stri;
-#endif
 
   { /* err_num_stri */
     place_of_error(err);
@@ -624,15 +554,7 @@ ustritype stri;
 
 
 
-#ifdef ANSI_C
-
 void err_ident (errortype err, const_identtype ident)
-#else
-
-void err_ident (err, ident)
-errortype err;
-identtype ident;
-#endif
 
   { /* err_ident */
     place_of_error(err);
@@ -655,15 +577,7 @@ identtype ident;
 
 
 
-#ifdef ANSI_C
-
 void err_object (errortype err, const_objecttype obj_found)
-#else
-
-void err_object (err, obj_found)
-errortype err;
-objecttype obj_found;
-#endif
 
   { /* err_object */
     /* place_of_error(err); */
@@ -768,15 +682,7 @@ objecttype obj_found;
 
 
 
-#ifdef ANSI_C
-
 void err_type (errortype err, const_typetype type_found)
-#else
-
-void err_type (err, type_found)
-errortype err;
-typetype type_found;
-#endif
 
   { /* err_type */
     place_of_error(err);
@@ -796,17 +702,8 @@ typetype type_found;
 
 
 
-#ifdef ANSI_C
-
 void err_expr_obj (errortype err, const_objecttype expr_object,
     objecttype obj_found)
-#else
-
-void err_expr_obj (err, expr_object, obj_found)
-errortype err;
-objecttype expr_object;
-objecttype obj_found;
-#endif
 
   { /* err_expr_obj */
     /* place_of_error(err); */
@@ -841,14 +738,7 @@ objecttype obj_found;
 
 
 
-#ifdef ANSI_C
-
 static booltype contains_match_err_flag (objecttype curr_obj)
-#else
-
-static booltype contains_match_err_flag (curr_obj)
-objecttype curr_obj;
-#endif
 
   {
     const_listtype list_elem;
@@ -872,15 +762,7 @@ objecttype curr_obj;
 
 
 
-#ifdef ANSI_C
-
 void err_match (errortype err, objecttype obj_found)
-#else
-
-void err_match (err, obj_found)
-errortype err;
-objecttype obj_found;
-#endif
 
   { /* err_match */
     if (!contains_match_err_flag(obj_found)) {
@@ -916,15 +798,7 @@ objecttype obj_found;
 
 
 
-#ifdef ANSI_C
-
 void err_string (errortype err, const_ustritype stri)
-#else
-
-void err_string (err, stri)
-errortype err;
-ustritype stri;
-#endif
 
   { /* err_string */
     place_of_error(err);
@@ -951,15 +825,7 @@ ustritype stri;
 
 
 
-#ifdef ANSI_C
-
 void err_stri (errortype err, const_stritype stri)
-#else
-
-void err_stri (err, stri)
-errortype err;
-stritype stri;
-#endif
 
   { /* err_stri */
     place_of_error(err);
@@ -989,15 +855,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 void err_integer (errortype err, inttype number)
-#else
-
-void err_integer (err, number)
-errortype err;
-inttype number;
-#endif
 
   { /* err_integer */
     place_of_error(err);
@@ -1018,15 +876,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 void err_cchar (errortype err, int character)
-#else
-
-void err_cchar (err, character)
-errortype err;
-int character;
-#endif
 
   { /* err_cchar */
     place_of_error(err);
@@ -1067,15 +917,7 @@ int character;
 
 
 
-#ifdef ANSI_C
-
 void err_char (errortype err, chartype character)
-#else
-
-void err_char (err, character)
-errortype err;
-chartype character;
-#endif
 
   { /* err_char */
     place_of_error(err);
@@ -1098,15 +940,7 @@ chartype character;
 
 
 
-#ifdef ANSI_C
-
 void err_at_line (errortype err, linenumtype line)
-#else
-
-void err_at_line (err, line)
-errortype err;
-linenumtype line;
-#endif
 
   { /* err_at_line */
     prog.error_count++;
@@ -1125,18 +959,8 @@ linenumtype line;
 
 
 
-#ifdef ANSI_C
-
 void err_undeclared (errortype err, filenumtype file_num,
     linenumtype line, const_ustritype stri)
-#else
-
-void err_undeclared (err, file_num, line, stri)
-errortype err;
-filenumtype file_num;
-linenumtype line;
-ustritype stri;
-#endif
 
   { /* err_undeclared */
     prog.error_count++;
@@ -1156,15 +980,7 @@ ustritype stri;
 
 
 
-#ifdef ANSI_C
-
 void err_message (errortype err, const_stritype stri)
-#else
-
-void err_message (err, stri)
-errortype err;
-stritype stri;
-#endif
 
   { /* err_message */
     prog.error_count++;

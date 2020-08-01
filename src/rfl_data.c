@@ -44,15 +44,7 @@
 
 
 
-#ifdef ANSI_C
-
 void rflAppend (listtype *const list_to, const listtype list_from)
-#else
-
-void rflAppend (list_to, list_from)
-listtype *list_to;
-listtype list_from;
-#endif
 
   {
     listtype list1_end;
@@ -71,15 +63,7 @@ listtype list_from;
 
 
 
-#ifdef ANSI_C
-
 listtype rflCat (listtype list1, const listtype list2)
-#else
-
-listtype rflCat (list1, list2)
-listtype list1;
-listtype list2;
-#endif
 
   {
     listtype result;
@@ -99,15 +83,7 @@ listtype list2;
 
 
 
-#ifdef ANSI_C
-
 INLINE inttype rflCmp (const_listtype list1, const_listtype list2)
-#else
-
-INLINE inttype rflCmp (list1, list2)
-listtype list1;
-listtype list2;
-#endif
 
   {
     inttype result;
@@ -140,15 +116,7 @@ listtype list2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(listtype).
  */
-#ifdef ANSI_C
-
 inttype rflCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype rflCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* rflCmpGeneric */
     return rflCmp((const_listtype) (memsizetype) value1,
@@ -157,15 +125,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 void rflCpy (listtype *const list_to, const const_listtype list_from)
-#else
-
-void rflCpy (list_to, list_from)
-listtype *list_to;
-listtype list_from;
-#endif
 
   {
     listtype help_list;
@@ -185,14 +145,7 @@ listtype list_from;
 
 
 
-#ifdef ANSI_C
-
 listtype rflCreate (const const_listtype list_from)
-#else
-
-listtype rflCreate (list_from)
-listtype list_from;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -215,14 +168,7 @@ listtype list_from;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(listtype).
  */
-#ifdef ANSI_C
-
 rtlGenerictype rflCreateGeneric (const rtlGenerictype from_value)
-#else
-
-rtlGenerictype rflCreateGeneric (from_value)
-rtlGenerictype from_value;
-#endif
 
   { /* rflCreateGeneric */
     return (rtlGenerictype) (memsizetype)
@@ -231,14 +177,7 @@ rtlGenerictype from_value;
 
 
 
-#ifdef ANSI_C
-
 void rflDestr (const listtype old_list)
-#else
-
-void rflDestr (old_list)
-listtype old_list;
-#endif
 
   { /* rflDestr */
     free_list(old_list);
@@ -246,15 +185,7 @@ listtype old_list;
 
 
 
-#ifdef ANSI_C
-
 booltype rflElem (const const_objecttype searched_object, const_listtype list_element)
-#else
-
-booltype rflElem (searched_object, list_element)
-objecttype searched_object;
-listtype list_element;
-#endif
 
   { /* rflElem */
     /* printf("rflElem(%lx, %lx)\n",
@@ -271,16 +202,7 @@ listtype list_element;
 
 
 
-#ifdef ANSI_C
-
 void rflElemcpy (listtype list, inttype position, objecttype elem)
-#else
-
-void rflElemcpy (list, position, elem)
-listtype list;
-inttype position;
-objecttype elem;
-#endif
 
   {
     inttype number;
@@ -304,15 +226,7 @@ objecttype elem;
 
 
 
-#ifdef ANSI_C
-
 booltype rflEq (const_listtype list1, const_listtype list2)
-#else
-
-booltype rflEq (list1, list2)
-listtype list1;
-listtype list2;
-#endif
 
   {
     booltype result;
@@ -333,15 +247,7 @@ listtype list2;
 
 
 
-#ifdef ANSI_C
-
 listtype rflHead (const listtype list, inttype stop)
-#else
-
-listtype rflHead (list, stop)
-listtype list;
-inttype stop;
-#endif
 
   {
     inttype number;
@@ -378,15 +284,7 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 objecttype rflIdx (const_listtype list, inttype position)
-#else
-
-objecttype rflIdx (list, position)
-listtype list;
-inttype position;
-#endif
 
   {
     inttype number;
@@ -414,15 +312,7 @@ inttype position;
 
 
 
-#ifdef ANSI_C
-
 void rflIncl (listtype *list, objecttype elem)
-#else
-
-void rflIncl (list, elem)
-listtype *list;
-objecttype elem;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -436,14 +326,7 @@ objecttype elem;
 
 
 
-#ifdef ANSI_C
-
 inttype rflLng (const_listtype list)
-#else
-
-inttype rflLng (list)
-listtype list;
-#endif
 
   {
     inttype result;
@@ -459,14 +342,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 listtype rflMklist (objecttype elem)
-#else
-
-listtype rflMklist (elem)
-objecttype elem;
-#endif
 
   {
     listtype result;
@@ -484,15 +360,7 @@ objecttype elem;
 
 
 
-#ifdef ANSI_C
-
 inttype rflPos (const_listtype list_element, const const_objecttype searched_object)
-#else
-
-inttype rflPos (list_element, searched_object)
-listtype list_element;
-objecttype searched_object;
-#endif
 
   {
     inttype result;
@@ -512,17 +380,8 @@ objecttype searched_object;
 
 
 
-#ifdef ANSI_C
-
 inttype rflIpos (listtype list_element, objecttype searched_object,
     const inttype from_index)
-#else
-
-inttype rflIpos (list_element, searched_object, from_index)
-listtype list_element;
-objecttype searched_object;
-inttype from_index;
-#endif
 
   {
     inttype result;
@@ -546,16 +405,7 @@ inttype from_index;
 
 
 
-#ifdef ANSI_C
-
 listtype rflRange (const listtype list, inttype start, inttype stop)
-#else
-
-listtype rflRange (list, start, stop)
-listtype list;
-inttype start;
-inttype stop;
-#endif
 
   {
     inttype number;
@@ -598,15 +448,7 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 listtype rflTail (const listtype list, inttype start)
-#else
-
-listtype rflTail (list, start)
-listtype list;
-inttype start;
-#endif
 
   {
     inttype number;

@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype chr_chr      (listtype arguments);
 objecttype chr_clit     (listtype arguments);
 objecttype chr_cmp      (listtype arguments);
@@ -50,31 +48,3 @@ objecttype chr_str      (listtype arguments);
 objecttype chr_succ     (listtype arguments);
 objecttype chr_up       (listtype arguments);
 objecttype chr_value    (listtype arguments);
-
-#else
-
-objecttype chr_chr ();
-objecttype chr_clit ();
-objecttype chr_cmp ();
-objecttype chr_conv ();
-objecttype chr_cpy ();
-objecttype chr_create ();
-objecttype chr_decr ();
-objecttype chr_eq ();
-objecttype chr_ge ();
-objecttype chr_gt ();
-objecttype chr_hashcode ();
-objecttype chr_iconv ();
-objecttype chr_incr ();
-objecttype chr_le ();
-objecttype chr_low ();
-objecttype chr_lt ();
-objecttype chr_ne ();
-objecttype chr_ord ();
-objecttype chr_pred ();
-objecttype chr_str ();
-objecttype chr_succ ();
-objecttype chr_up ();
-objecttype chr_value ();
-
-#endif

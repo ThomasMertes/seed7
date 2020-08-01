@@ -60,14 +60,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_big_lng (listtype arguments)
-#else
-
-objecttype fil_big_lng (arguments)
-listtype arguments;
-#endif
 
   { /* fil_big_lng */
     isit_file(arg_1(arguments));
@@ -77,14 +70,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_big_seek (listtype arguments)
-#else
-
-objecttype fil_big_seek (arguments)
-listtype arguments;
-#endif
 
   { /* fil_big_seek */
     isit_file(arg_1(arguments));
@@ -96,14 +82,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_big_tell (listtype arguments)
-#else
-
-objecttype fil_big_tell (arguments)
-listtype arguments;
-#endif
 
   { /* fil_big_tell */
     isit_file(arg_1(arguments));
@@ -113,14 +92,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_close (listtype arguments)
-#else
-
-objecttype fil_close (arguments)
-listtype arguments;
-#endif
 
   { /* fil_close */
     isit_file(arg_1(arguments));
@@ -130,14 +102,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_cpy (listtype arguments)
-#else
-
-objecttype fil_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype file_variable;
@@ -153,14 +118,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_create (listtype arguments)
-#else
-
-objecttype fil_create (arguments)
-listtype arguments;
-#endif
 
   { /* fil_create */
     isit_file(arg_3(arguments));
@@ -171,14 +129,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_empty (listtype arguments)
-#else
-
-objecttype fil_empty (arguments)
-listtype arguments;
-#endif
 
   { /* fil_empty */
     return bld_file_temp(NULL);
@@ -186,14 +137,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_eof (listtype arguments)
-#else
-
-objecttype fil_eof (arguments)
-listtype arguments;
-#endif
 
   { /* fil_eof */
     isit_file(arg_1(arguments));
@@ -206,14 +150,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_eq (listtype arguments)
-#else
-
-objecttype fil_eq (arguments)
-listtype arguments;
-#endif
 
   { /* fil_eq */
     isit_file(arg_1(arguments));
@@ -228,14 +165,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_err (listtype arguments)
-#else
-
-objecttype fil_err (arguments)
-listtype arguments;
-#endif
 
   { /* fil_err */
     return bld_file_temp(stderr);
@@ -243,14 +173,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_flush (listtype arguments)
-#else
-
-objecttype fil_flush (arguments)
-listtype arguments;
-#endif
 
   { /* fil_flush */
     isit_file(arg_1(arguments));
@@ -260,14 +183,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_getc (listtype arguments)
-#else
-
-objecttype fil_getc (arguments)
-listtype arguments;
-#endif
 
   { /* fil_getc */
     isit_file(arg_1(arguments));
@@ -277,14 +193,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_gets (listtype arguments)
-#else
-
-objecttype fil_gets (arguments)
-listtype arguments;
-#endif
 
   { /* fil_gets */
     isit_file(arg_1(arguments));
@@ -295,14 +204,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_has_next (listtype arguments)
-#else
-
-objecttype fil_has_next (arguments)
-listtype arguments;
-#endif
 
   { /* fil_has_next */
     isit_file(arg_1(arguments));
@@ -315,14 +217,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_in (listtype arguments)
-#else
-
-objecttype fil_in (arguments)
-listtype arguments;
-#endif
 
   { /* fil_in */
     return bld_file_temp(stdin);
@@ -330,14 +225,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_input_ready (listtype arguments)
-#else
-
-objecttype fil_input_ready (arguments)
-listtype arguments;
-#endif
 
   { /* fil_input_ready */
     isit_file(arg_1(arguments));
@@ -350,14 +238,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_line_read (listtype arguments)
-#else
-
-objecttype fil_line_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -373,14 +254,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_lit (listtype arguments)
-#else
-
-objecttype fil_lit (arguments)
-listtype arguments;
-#endif
 
   { /* fil_lit */
     isit_file(arg_1(arguments));
@@ -390,14 +264,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_lng (listtype arguments)
-#else
-
-objecttype fil_lng (arguments)
-listtype arguments;
-#endif
 
   { /* fil_lng */
     isit_file(arg_1(arguments));
@@ -407,14 +274,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_ne (listtype arguments)
-#else
-
-objecttype fil_ne (arguments)
-listtype arguments;
-#endif
 
   { /* fil_ne */
     isit_file(arg_1(arguments));
@@ -429,14 +289,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_open (listtype arguments)
-#else
-
-objecttype fil_open (arguments)
-listtype arguments;
-#endif
 
   { /* fil_open */
     isit_stri(arg_1(arguments));
@@ -447,14 +300,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_out (listtype arguments)
-#else
-
-objecttype fil_out (arguments)
-listtype arguments;
-#endif
 
   { /* fil_out */
     return bld_file_temp(stdout);
@@ -462,14 +308,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_pclose (listtype arguments)
-#else
-
-objecttype fil_pclose (arguments)
-listtype arguments;
-#endif
 
   { /* fil_pclose */
     isit_file(arg_1(arguments));
@@ -479,14 +318,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_popen (listtype arguments)
-#else
-
-objecttype fil_popen (arguments)
-listtype arguments;
-#endif
 
   { /* fil_popen */
     isit_stri(arg_1(arguments));
@@ -499,14 +331,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_print (listtype arguments)
-#else
-
-objecttype fil_print (arguments)
-listtype arguments;
-#endif
 
   { /* fil_print */
     isit_stri(arg_1(arguments));
@@ -516,14 +341,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_seek (listtype arguments)
-#else
-
-objecttype fil_seek (arguments)
-listtype arguments;
-#endif
 
   { /* fil_seek */
     isit_file(arg_1(arguments));
@@ -535,14 +353,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_setbuf (listtype arguments)
-#else
-
-objecttype fil_setbuf (arguments)
-listtype arguments;
-#endif
 
   { /* fil_setbuf */
     isit_file(arg_1(arguments));
@@ -555,14 +366,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_tell (listtype arguments)
-#else
-
-objecttype fil_tell (arguments)
-listtype arguments;
-#endif
 
   { /* fil_tell */
     isit_file(arg_1(arguments));
@@ -572,14 +376,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_value (listtype arguments)
-#else
-
-objecttype fil_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;
@@ -596,14 +393,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_word_read (listtype arguments)
-#else
-
-objecttype fil_word_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -619,14 +409,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype fil_write (listtype arguments)
-#else
-
-objecttype fil_write (arguments)
-listtype arguments;
-#endif
 
   { /* fil_write */
     isit_file(arg_1(arguments));

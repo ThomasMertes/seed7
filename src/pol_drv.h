@@ -46,8 +46,6 @@ EXTERN fileObjectOpType fileObjectOps;
 #endif
 
 
-#ifdef ANSI_C
-
 void initPollOperations (const createfunctype incrUsageCount,
                          const destrfunctype decrUsageCount);
 void polAddCheck (const polltype pollData, const sockettype aSocket,
@@ -66,23 +64,3 @@ rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFi
 void polPoll (const polltype pollData);
 void polRemoveCheck (const polltype pollData, const sockettype aSocket,
                      inttype eventsToCheck);
-
-#else
-
-void initPollOperations ();
-void polAddCheck ();
-void polClear ();
-void polCpy ();
-polltype polCreate ();
-void polDestr ();
-polltype polEmpty ();
-inttype polGetCheck ();
-inttype polGetFinding ();
-booltype polHasNext ();
-void polIterChecks ();
-void polIterFindings ();
-rtlObjecttype polNextFile ();
-void polPoll ();
-void polRemoveCheck ();
-
-#endif

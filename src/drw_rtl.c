@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_rtl.c     Generic graphic drawing functions.                */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_rtl.c                                       */
-/*  Changes: 2007  Thomas Mertes                                    */
+/*  Changes: 2007, 2013  Thomas Mertes                              */
 /*  Content: Generic graphic drawing functions.                     */
 /*                                                                  */
 /********************************************************************/
@@ -37,6 +37,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "rtl_err.h"
 #include "drw_drv.h"
 
 #undef EXTERN
@@ -45,15 +46,7 @@
 
 
 
-#ifdef ANSI_C
-
 void drwCpy (wintype *win_to, wintype win_from)
-#else
-
-void drwCpy (win_to, win_from)
-wintype *win_to;
-wintype win_from;
-#endif
 
   { /* drwCpy */
 #ifdef TRACE_DRW
@@ -73,14 +66,7 @@ wintype win_from;
 
 
 
-#ifdef ANSI_C
-
 wintype drwCreate (wintype win_from)
-#else
-
-wintype drwCreate (win_from)
-wintype win_from;
-#endif
 
   { /* drwCreate */
     if (win_from != NULL) {
@@ -97,14 +83,7 @@ wintype win_from;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(wintype).
  */
-#ifdef ANSI_C
-
 rtlGenerictype drwCreateGeneric (const rtlGenerictype from_value)
-#else
-
-rtlGenerictype drwCreateGeneric (from_value)
-rtlGenerictype from_value;
-#endif
 
   { /* drwCreateGeneric */
     return (rtlGenerictype) (memsizetype)
@@ -113,14 +92,7 @@ rtlGenerictype from_value;
 
 
 
-#ifdef ANSI_C
-
 void drwDestr (wintype old_win)
-#else
-
-void drwDestr (old_win)
-wintype old_win;
-#endif
 
   { /* drwDestr */
     if (old_win != NULL) {
@@ -133,53 +105,55 @@ wintype old_win;
 
 
 
-#ifdef ANSI_C
-
 wintype drwRtlImage (const const_rtlArraytype image)
-#else
-
-wintype drwRtlImage (image)
-rtlArraytype image;
-#endif
 
   {
     const_rtlObjecttype *curr_line;
     const_rtlObjecttype *curr_column;
     rtlArraytype arr_line;
-    inttype *pixel_elem;
+    int32type *pixel_elem;
     inttype width;
     inttype height;
     inttype line;
     inttype column;
-    inttype *image_data;
+    int32type *image_data;
     wintype result;
 
   /* drwRtlImage */
     height = image->max_position - image->min_position + 1;
     /* printf("drwRtlImage: height=%d\n", height); */
-    if (height > 0) {
+    if (height <= 0) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
       curr_line = &image->arr[0];
       arr_line = curr_line->value.arrayvalue;
       width = arr_line->max_position - arr_line->min_position + 1;
       /* printf("drwRtlImage: width=%d\n", width); */
-      if (width > 0) {
-        image_data = (inttype *) malloc((uinttype) height * (uinttype) width * sizeof(inttype));
-        pixel_elem = image_data;
-        for (line = height; line > 0; line--, curr_line++) {
-          arr_line = curr_line->value.arrayvalue;
-          curr_column = &arr_line->arr[0];
-          for (column = width; column > 0; column--, curr_column++) {
-            *pixel_elem = curr_column->value.intvalue;
-            pixel_elem++;
-          } /* for */
-        } /* for */
-        result = drwImage(image_data, width, height);
-        free(image_data);
-      } else {
+      if (width <= 0) {
+        raise_error(RANGE_ERROR);
         result = NULL;
+      } else {
+        if (width > MAX_MEMSIZETYPE ||
+            height > MAX_MEMSIZETYPE / sizeof(int32type) / (memsizetype) width ||
+            (image_data = (int32type *) malloc((memsizetype) height * (memsizetype) width *
+                                               sizeof(int32type))) == NULL) {
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          pixel_elem = image_data;
+          for (line = height; line > 0; line--, curr_line++) {
+            arr_line = curr_line->value.arrayvalue;
+            curr_column = &arr_line->arr[0];
+            for (column = width; column > 0; column--, curr_column++) {
+              *pixel_elem = (int32type) curr_column->value.intvalue;
+              pixel_elem++;
+            } /* for */
+          } /* for */
+          result = drwImage(image_data, width, height);
+          free(image_data);
+        } /* if */
       } /* if */
-    } else {
-      result = NULL;
     } /* if */
     return result;
   } /* drwRtlImage */

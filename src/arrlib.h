@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype arr_append   (listtype arguments);
 objecttype arr_arrlit   (listtype arguments);
 objecttype arr_arrlit2  (listtype arguments);
@@ -52,33 +50,3 @@ objecttype arr_sort     (listtype arguments);
 objecttype arr_subarr   (listtype arguments);
 objecttype arr_tail     (listtype arguments);
 objecttype arr_times    (listtype arguments);
-
-#else
-
-objecttype arr_append ();
-objecttype arr_arrlit ();
-objecttype arr_arrlit2 ();
-objecttype arr_baselit ();
-objecttype arr_baselit2 ();
-objecttype arr_cat ();
-objecttype arr_conv ();
-objecttype arr_cpy ();
-objecttype arr_create ();
-objecttype arr_destr ();
-objecttype arr_empty ();
-objecttype arr_extend ();
-objecttype arr_gen ();
-objecttype arr_head ();
-objecttype arr_idx ();
-objecttype arr_lng ();
-objecttype arr_maxidx ();
-objecttype arr_minidx ();
-objecttype arr_push ();
-objecttype arr_range ();
-objecttype arr_remove ();
-objecttype arr_sort ();
-objecttype arr_subarr ();
-objecttype arr_tail ();
-objecttype arr_times ();
-
-#endif

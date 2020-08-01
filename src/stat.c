@@ -46,13 +46,7 @@ static clock_t start_time;
 
 
 
-#ifdef ANSI_C
-
 void show_statistic (void)
-#else
-
-void show_statistic ()
-#endif
 
   {
 #ifdef WITH_COMPILATION_INFO
@@ -98,13 +92,7 @@ void show_statistic ()
 
 
 
-#ifdef ANSI_C
-
 void reset_statistic (void)
-#else
-
-void reset_statistic ()
-#endif
 
   { /* reset_statistic */
 #ifdef WITH_COMPILATION_INFO

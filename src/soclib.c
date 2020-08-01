@@ -40,14 +40,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_accept (listtype arguments)
-#else
-
-objecttype soc_accept (arguments)
-listtype arguments;
-#endif
 
   { /* soc_accept */
     isit_socket(arg_1(arguments));
@@ -60,14 +53,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_addr_family (listtype arguments)
-#else
-
-objecttype soc_addr_family (arguments)
-listtype arguments;
-#endif
 
   { /* soc_addr_family */
     isit_bstri(arg_1(arguments));
@@ -77,14 +63,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_addr_numeric (listtype arguments)
-#else
-
-objecttype soc_addr_numeric (arguments)
-listtype arguments;
-#endif
 
   { /* soc_addr_numeric */
     isit_bstri(arg_1(arguments));
@@ -94,14 +73,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_addr_service (listtype arguments)
-#else
-
-objecttype soc_addr_service (arguments)
-listtype arguments;
-#endif
 
   { /* soc_addr_service */
     isit_bstri(arg_1(arguments));
@@ -111,14 +83,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_bind (listtype arguments)
-#else
-
-objecttype soc_bind (arguments)
-listtype arguments;
-#endif
 
   { /* soc_bind */
     isit_socket(arg_1(arguments));
@@ -129,14 +94,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_close (listtype arguments)
-#else
-
-objecttype soc_close (arguments)
-listtype arguments;
-#endif
 
   { /* soc_close */
     isit_socket(arg_1(arguments));
@@ -146,14 +104,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_connect (listtype arguments)
-#else
-
-objecttype soc_connect (arguments)
-listtype arguments;
-#endif
 
   { /* soc_connect */
     isit_socket(arg_1(arguments));
@@ -164,14 +115,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_cpy (listtype arguments)
-#else
-
-objecttype soc_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype socket_variable;
@@ -187,14 +131,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_create (listtype arguments)
-#else
-
-objecttype soc_create (arguments)
-listtype arguments;
-#endif
 
   { /* soc_create */
     isit_socket(arg_3(arguments));
@@ -205,14 +142,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_empty (listtype arguments)
-#else
-
-objecttype soc_empty (arguments)
-listtype arguments;
-#endif
 
   { /* soc_empty */
     return bld_socket_temp((sockettype) -1);
@@ -220,14 +150,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_eq (listtype arguments)
-#else
-
-objecttype soc_eq (arguments)
-listtype arguments;
-#endif
 
   { /* soc_eq */
     isit_socket(arg_1(arguments));
@@ -242,14 +165,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_getc (listtype arguments)
-#else
-
-objecttype soc_getc (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -266,14 +182,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_gets (listtype arguments)
-#else
-
-objecttype soc_gets (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -292,14 +201,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_get_addr (listtype arguments)
-#else
-
-objecttype soc_get_addr (arguments)
-listtype arguments;
-#endif
 
   { /* soc_get_addr */
     isit_socket(arg_1(arguments));
@@ -309,14 +211,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_get_hostname (listtype arguments)
-#else
-
-objecttype soc_get_hostname (arguments)
-listtype arguments;
-#endif
 
   { /* soc_get_hostname */
     return bld_stri_temp(socGetHostname());
@@ -324,14 +219,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_has_next (listtype arguments)
-#else
-
-objecttype soc_has_next (arguments)
-listtype arguments;
-#endif
 
   { /* soc_has_next */
     isit_socket(arg_1(arguments));
@@ -344,14 +232,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_inet_addr (listtype arguments)
-#else
-
-objecttype soc_inet_addr (arguments)
-listtype arguments;
-#endif
 
   { /* soc_inet_addr */
     isit_stri(arg_1(arguments));
@@ -363,14 +244,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_inet_local_addr (listtype arguments)
-#else
-
-objecttype soc_inet_local_addr (arguments)
-listtype arguments;
-#endif
 
   { /* soc_inet_local_addr */
     isit_int(arg_1(arguments));
@@ -380,14 +254,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_inet_serv_addr (listtype arguments)
-#else
-
-objecttype soc_inet_serv_addr (arguments)
-listtype arguments;
-#endif
 
   { /* soc_inet_serv_addr */
     isit_int(arg_1(arguments));
@@ -397,14 +264,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_input_ready (listtype arguments)
-#else
-
-objecttype soc_input_ready (arguments)
-listtype arguments;
-#endif
 
   { /* soc_input_ready */
     isit_socket(arg_1(arguments));
@@ -421,14 +281,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_line_read (listtype arguments)
-#else
-
-objecttype soc_line_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -444,14 +297,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_listen (listtype arguments)
-#else
-
-objecttype soc_listen (arguments)
-listtype arguments;
-#endif
 
   { /* soc_listen */
     isit_socket(arg_1(arguments));
@@ -462,14 +308,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_ne (listtype arguments)
-#else
-
-objecttype soc_ne (arguments)
-listtype arguments;
-#endif
 
   { /* soc_ne */
     isit_socket(arg_1(arguments));
@@ -484,14 +323,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_recv (listtype arguments)
-#else
-
-objecttype soc_recv (arguments)
-listtype arguments;
-#endif
 
   { /* soc_recv */
     isit_socket(arg_1(arguments));
@@ -508,14 +340,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_recvfrom (listtype arguments)
-#else
-
-objecttype soc_recvfrom (arguments)
-listtype arguments;
-#endif
 
   { /* soc_recvfrom */
     isit_socket(arg_1(arguments));
@@ -536,14 +361,7 @@ listtype arguments;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 objecttype soc_select (listtype arguments)
-#else
-
-objecttype soc_select (arguments)
-listtype arguments;
-#endif
 
   {
     arraytype sockArray;
@@ -597,14 +415,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_send (listtype arguments)
-#else
-
-objecttype soc_send (arguments)
-listtype arguments;
-#endif
 
   { /* soc_send */
     isit_socket(arg_1(arguments));
@@ -618,14 +429,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_sendto (listtype arguments)
-#else
-
-objecttype soc_sendto (arguments)
-listtype arguments;
-#endif
 
   { /* soc_sendto */
     isit_socket(arg_1(arguments));
@@ -641,14 +445,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_socket (listtype arguments)
-#else
-
-objecttype soc_socket (arguments)
-listtype arguments;
-#endif
 
   { /* soc_socket */
     isit_int(arg_1(arguments));
@@ -662,14 +459,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_word_read (listtype arguments)
-#else
-
-objecttype soc_word_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -685,14 +475,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype soc_write (listtype arguments)
-#else
-
-objecttype soc_write (arguments)
-listtype arguments;
-#endif
 
   { /* soc_write */
     isit_socket(arg_1(arguments));

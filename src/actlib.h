@@ -25,22 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype act_cpy     (listtype arguments);
 objecttype act_create  (listtype arguments);
 objecttype act_gen     (listtype arguments);
 objecttype act_illegal (listtype arguments);
 objecttype act_str     (listtype arguments);
 objecttype act_value   (listtype arguments);
-
-#else
-
-objecttype act_cpy ();
-objecttype act_create ();
-objecttype act_gen ();
-objecttype act_illegal ();
-objecttype act_str ();
-objecttype act_value ();
-
-#endif

@@ -46,14 +46,7 @@
 
 
 
-#ifdef ANSI_C
-
 DIR *opendir (char *name)
-#else
-
-DIR *opendir (name)
-char *name;
-#endif
 
   {
     unsigned int name_len;
@@ -97,14 +90,7 @@ char *name;
 
 
 
-#ifdef ANSI_C
-
 struct dirent *readdir (DIR *curr_dir)
-#else
-
-struct dirent *readdir (curr_dir)
-DIR *curr_dir;
-#endif
 
   {
     unsigned int name_len;
@@ -146,14 +132,7 @@ DIR *curr_dir;
 
 
 
-#ifdef ANSI_C
-
 int closedir (DIR *curr_dir)
-#else
-
-int closedir (curr_dir)
-DIR *curr_dir;
-#endif
 
   { /* closedir */
     free(curr_dir);

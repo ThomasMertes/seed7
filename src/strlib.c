@@ -50,17 +50,8 @@
 
 
 
-#ifdef ANSI_C
-
 static INLINE int strelem_memcmp (const strelemtype *mem1,
     const strelemtype *mem2, size_t number)
-#else
-
-static INLINE int strelem_memcmp (mem1, mem2, number)
-strelemtype *mem1;
-strelemtype *mem2;
-size_t number;
-#endif
 
   { /* strelem_memcmp */
     for (; number > 0; mem1++, mem2++, number--) {
@@ -73,17 +64,8 @@ size_t number;
 
 
 
-#ifdef ANSI_C
-
 static INLINE const strelemtype *search_strelem (const strelemtype *mem,
     const strelemtype ch, size_t number)
-#else
-
-static INLINE strelemtype *search_strelem (mem, ch, number)
-strelemtype *mem;
-strelemtype ch;
-size_t number;
-#endif
 
   { /* search_strelem */
     for (; number > 0; mem++, number--) {
@@ -96,19 +78,8 @@ size_t number;
 
 
 
-#ifdef ANSI_C
-
 static arraytype add_stri_to_array (const strelemtype *stri_elems, memsizetype length,
     arraytype work_array, inttype *used_max_position)
-#else
-
-static arraytype add_stri_to_array (stri_elems, length,
-    work_array, used_max_position)
-strelemtype *stri_elems;
-memsizetype length;
-arraytype work_array;
-inttype *used_max_position;
-#endif
 
   {
     stritype new_stri;
@@ -156,15 +127,7 @@ inttype *used_max_position;
 
 
 
-#ifdef ANSI_C
-
 static arraytype strChSplit (const const_stritype main_stri, const chartype delimiter)
-#else
-
-static arraytype strChSplit (main_stri, delimiter)
-stritype main_stri;
-chartype delimiter;
-#endif
 
   {
     inttype used_max_position;
@@ -220,16 +183,8 @@ chartype delimiter;
 
 
 
-#ifdef ANSI_C
-
 static arraytype strSplit (const const_stritype main_stri,
     const const_stritype delimiter)
-#else
-
-static arraytype strSplit (main_stri, delimiter)
-stritype main_stri;
-stritype delimiter;
-#endif
 
   {
     memsizetype delimiter_size;
@@ -302,15 +257,7 @@ stritype delimiter;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 arraytype str1Split (stritype main_stri, stritype delimiter)
-#else
-
-arraytype str1Split (main_stri, delimiter)
-stritype main_stri;
-stritype delimiter;
-#endif
 
   {
     arraytype result;
@@ -327,14 +274,7 @@ stritype delimiter;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_append (listtype arguments)
-#else
-
-objecttype str_append (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype str_variable;
@@ -381,14 +321,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_cat (listtype arguments)
-#else
-
-objecttype str_cat (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -437,14 +370,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_chipos (listtype arguments)
-#else
-
-objecttype str_chipos (arguments)
-listtype arguments;
-#endif
 
   { /* str_chipos */
     isit_stri(arg_1(arguments));
@@ -457,14 +383,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_chpos (listtype arguments)
-#else
-
-objecttype str_chpos (arguments)
-listtype arguments;
-#endif
 
   { /* str_chpos */
     isit_stri(arg_1(arguments));
@@ -475,14 +394,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_chsplit (listtype arguments)
-#else
-
-objecttype str_chsplit (arguments)
-listtype arguments;
-#endif
 
   { /* str_chsplit */
     isit_stri(arg_1(arguments));
@@ -493,14 +405,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_clit (listtype arguments)
-#else
-
-objecttype str_clit (arguments)
-listtype arguments;
-#endif
 
   { /* str_clit */
     isit_stri(arg_1(arguments));
@@ -510,14 +415,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_cmp (listtype arguments)
-#else
-
-objecttype str_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -554,14 +452,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_cpy (listtype arguments)
-#else
-
-objecttype str_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype str_to;
@@ -608,14 +499,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_create (listtype arguments)
-#else
-
-objecttype str_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype str_to;
@@ -648,14 +532,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_destr (listtype arguments)
-#else
-
-objecttype str_destr (arguments)
-listtype arguments;
-#endif
 
   {
     stritype old_string;
@@ -673,14 +550,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_elemcpy (listtype arguments)
-#else
-
-objecttype str_elemcpy (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -703,14 +573,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_eq (listtype arguments)
-#else
-
-objecttype str_eq (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -731,14 +594,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_ge (listtype arguments)
-#else
-
-objecttype str_ge (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -768,14 +624,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_gt (listtype arguments)
-#else
-
-objecttype str_gt (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -805,14 +654,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_hashcode (listtype arguments)
-#else
-
-objecttype str_hashcode (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -831,14 +673,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_head (listtype arguments)
-#else
-
-objecttype str_head (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -886,14 +721,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_idx (listtype arguments)
-#else
-
-objecttype str_idx (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -913,14 +741,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_ipos (listtype arguments)
-#else
-
-objecttype str_ipos (arguments)
-listtype arguments;
-#endif
 
   { /* str_ipos */
     isit_stri(arg_1(arguments));
@@ -933,14 +754,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_le (listtype arguments)
-#else
-
-objecttype str_le (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -970,14 +784,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_lit (listtype arguments)
-#else
-
-objecttype str_lit (arguments)
-listtype arguments;
-#endif
 
   { /* str_lit */
     isit_stri(arg_1(arguments));
@@ -987,14 +794,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_lng (listtype arguments)
-#else
-
-objecttype str_lng (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1015,14 +815,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_low (listtype arguments)
-#else
-
-objecttype str_low (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1051,14 +844,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_lpad (listtype arguments)
-#else
-
-objecttype str_lpad (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1107,14 +893,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_lpad0 (listtype arguments)
-#else
-
-objecttype str_lpad0 (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1168,14 +947,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_lt (listtype arguments)
-#else
-
-objecttype str_lt (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -1205,14 +977,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_ltrim (listtype arguments)
-#else
-
-objecttype str_ltrim (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1243,14 +1008,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_mult (listtype arguments)
-#else
-
-objecttype str_mult (arguments)
-listtype arguments;
-#endif
 
   { /* str_mult */
     isit_stri(arg_1(arguments));
@@ -1261,14 +1019,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_ne (listtype arguments)
-#else
-
-objecttype str_ne (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri1;
@@ -1289,14 +1040,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_pos (listtype arguments)
-#else
-
-objecttype str_pos (arguments)
-listtype arguments;
-#endif
 
   { /* str_pos */
     isit_stri(arg_1(arguments));
@@ -1307,14 +1051,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_poscpy (listtype arguments)
-#else
-
-objecttype str_poscpy (arguments)
-listtype arguments;
-#endif
 
   {
     stritype destStri;
@@ -1346,14 +1083,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_push (listtype arguments)
-#else
-
-objecttype str_push (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype str_variable;
@@ -1383,14 +1113,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_range (listtype arguments)
-#else
-
-objecttype str_range (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1441,14 +1164,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_rchipos (listtype arguments)
-#else
-
-objecttype str_rchipos (arguments)
-listtype arguments;
-#endif
 
   { /* str_rchipos */
     isit_stri(arg_1(arguments));
@@ -1461,14 +1177,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_rchpos (listtype arguments)
-#else
-
-objecttype str_rchpos (arguments)
-listtype arguments;
-#endif
 
   { /* str_rchpos */
     isit_stri(arg_1(arguments));
@@ -1479,14 +1188,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_repl (listtype arguments)
-#else
-
-objecttype str_repl (arguments)
-listtype arguments;
-#endif
 
   { /* str_repl */
     isit_stri(arg_1(arguments));
@@ -1499,14 +1201,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_ripos (listtype arguments)
-#else
-
-objecttype str_ripos (arguments)
-listtype arguments;
-#endif
 
   { /* str_ripos */
     isit_stri(arg_1(arguments));
@@ -1519,14 +1214,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_rpad (listtype arguments)
-#else
-
-objecttype str_rpad (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1574,14 +1262,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_rpos (listtype arguments)
-#else
-
-objecttype str_rpos (arguments)
-listtype arguments;
-#endif
 
   { /* str_rpos */
     isit_stri(arg_1(arguments));
@@ -1592,14 +1273,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_rtrim (listtype arguments)
-#else
-
-objecttype str_rtrim (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1636,14 +1310,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_split (listtype arguments)
-#else
-
-objecttype str_split (arguments)
-listtype arguments;
-#endif
 
   { /* str_split */
     isit_stri(arg_1(arguments));
@@ -1654,14 +1321,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_str (listtype arguments)
-#else
-
-objecttype str_str (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1688,14 +1348,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_substr (listtype arguments)
-#else
-
-objecttype str_substr (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1741,14 +1394,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_tail (listtype arguments)
-#else
-
-objecttype str_tail (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1791,14 +1437,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_toutf8 (listtype arguments)
-#else
-
-objecttype str_toutf8 (arguments)
-listtype arguments;
-#endif
 
   { /* str_toutf8 */
     isit_stri(arg_1(arguments));
@@ -1808,14 +1447,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_trim (listtype arguments)
-#else
-
-objecttype str_trim (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1849,14 +1481,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_up (listtype arguments)
-#else
-
-objecttype str_up (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -1885,14 +1510,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_utf8tostri (listtype arguments)
-#else
-
-objecttype str_utf8tostri (arguments)
-listtype arguments;
-#endif
 
   { /* str_utf8tostri */
     isit_stri(arg_1(arguments));
@@ -1902,14 +1520,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype str_value (listtype arguments)
-#else
-
-objecttype str_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

@@ -29,16 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 stritype gkbGets (inttype length);
 stritype gkbLineRead (chartype *terminationChar);
 stritype gkbWordRead (chartype *terminationChar);
-
-#else
-
-stritype gkbGets ();
-stritype gkbLineRead ();
-stritype gkbWordRead ();
-
-#endif

@@ -2034,6 +2034,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A &lt;= rand(A, B) <span class="op">and</span> rand(A, B) &lt;= B holds.
                     rand(A, A) <b>&rArr;</b> A,
                     rand(1, 0) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">min</span>(A, B) Minimum of two numbers.
+                  ( min(1, 2) <b>&rArr;</b> 1 )
+      <span class="func">max</span>(A, B) Maximum of two numbers.
+                  ( max(1, 2) <b>&rArr;</b> 2 )
       <span class="func">compare</span>(A, B) Compare function
                   ( compare(1, 2) <b>&rArr;</b> -1,
                     compare(5, 5) <b>&rArr;</b> 0,
@@ -2269,6 +2273,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A &lt;= rand(A, B) <span class="op">and</span> rand(A, B) &lt;= B holds.
                     rand(A, A) <b>&rArr;</b> A,
                     rand(1_, 0_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">min</span>(A, B) Minimum of two numbers.
+                  ( min(1_, 2_) <b>&rArr;</b> 1_ )
+      <span class="func">max</span>(A, B) Maximum of two numbers.
+                  ( max(1_, 2_) <b>&rArr;</b> 2_ )
       <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     compare(1_, 2_) <b>&rArr;</b> -1,
@@ -2409,27 +2417,31 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     rat(1) <b>&rArr;</b> 1 / 1 )
       <span class="func">floor</span>(A)  Truncation towards negative infinity
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    floor( 1.8) <b>&rArr;</b>  1, floor( 1.0) <b>&rArr;</b>  1,
-                    floor(-1.0) <b>&rArr;</b> -1, floor(-1.8) <b>&rArr;</b> -2 )
+                    floor(9/5) <b>&rArr;</b>  1, floor(1/1) <b>&rArr;</b>  1,
+                    floor(-1/1) <b>&rArr;</b> -1, floor(-9/5) <b>&rArr;</b> -2 )
       <span class="func">ceil</span>(A)   Rounding up towards positive infinity
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    ceil( 1.2) <b>&rArr;</b>  2, ceil( 1.0) <b>&rArr;</b>  1,
-                    ceil(-1.0) <b>&rArr;</b> -1, ceil(-1.2) <b>&rArr;</b> -1 )
+                    ceil(6/5) <b>&rArr;</b>  2, ceil(1/1) <b>&rArr;</b>  1,
+                    ceil(-1/1) <b>&rArr;</b> -1, ceil(-6/5) <b>&rArr;</b> -1 )
       <span class="func">trunc</span>(A)  Truncation towards zero
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    trunc( 1.8) <b>&rArr;</b>  1, trunc( 1.0) <b>&rArr;</b>  1,
-                    trunc(-1.0) <b>&rArr;</b> -1, trunc(-1.8) <b>&rArr;</b> -1 )
+                    trunc(9/5) <b>&rArr;</b>  1, trunc(1/1) <b>&rArr;</b>  1,
+                    trunc(-1/1) <b>&rArr;</b> -1, trunc(-9/5) <b>&rArr;</b> -1 )
       <span class="func">round</span>(A)  Round towards zero
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    round(0.5) <b>&rArr;</b> 1, round(-0.5) <b>&rArr;</b> -1,
-                    round(0.4) <b>&rArr;</b> 0, round(-0.4) <b>&rArr;</b> 0 )
+                    round(1/2) <b>&rArr;</b> 1, round(-1/2) <b>&rArr;</b> -1,
+                    round(2/5) <b>&rArr;</b> 0, round(-2/5) <b>&rArr;</b> 0 )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">min</span>(A, B) Minimum of two numbers.
+                  ( min(2/5, 1/2) <b>&rArr;</b> 2/5 )
+      <span class="func">max</span>(A, B) Maximum of two numbers.
+                  ( max(2/5, 1/2) <b>&rArr;</b> 1/2 )
       <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    compare(1.9, 2.0) <b>&rArr;</b> -1,
-                    compare(5.2, 5.2) <b>&rArr;</b> 0,
-                    compare(8.0, 7.9) <b>&rArr;</b> 1 )
+                    compare(19/10, 2/1) <b>&rArr;</b> -1,
+                    compare(26/5, 26/5) <b>&rArr;</b> 0,
+                    compare(8/1, 79/10) <b>&rArr;</b> 1 )
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
@@ -2495,27 +2507,31 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     rat(1_) <b>&rArr;</b> 1_ / 1_ )
       <span class="func">floor</span>(A)  Truncation towards negative infinity
                   ( Type of result: <a class="type" href="#types_bigInteger">bigInteger</a>,
-                    floor( 1.8) <b>&rArr;</b>  1, floor( 1.0) <b>&rArr;</b>  1,
-                    floor(-1.0) <b>&rArr;</b> -1, floor(-1.8) <b>&rArr;</b> -2 )
+                    floor(9_/5_) <b>&rArr;</b>  1_, floor(1_/1_) <b>&rArr;</b>  1_,
+                    floor(-1_/1_) <b>&rArr;</b> -1_, floor(-9_/5_) <b>&rArr;</b> -2_ )
       <span class="func">ceil</span>(A)   Rounding up towards positive infinity
                   ( Type of result: <a class="type" href="#types_bigInteger">bigInteger</a>,
-                    ceil( 1.2) <b>&rArr;</b>  2, ceil( 1.0) <b>&rArr;</b>  1,
-                    ceil(-1.0) <b>&rArr;</b> -1, ceil(-1.2) <b>&rArr;</b> -1 )
+                    ceil(6_/5_) <b>&rArr;</b>  2_, ceil(1_/1_) <b>&rArr;</b>  1_,
+                    ceil(-1_/1_) <b>&rArr;</b> -1_, ceil(-6_/5_) <b>&rArr;</b> -1_ )
       <span class="func">trunc</span>(A)  Truncation towards zero
                   ( Type of result: <a class="type" href="#types_bigInteger">bigInteger</a>,
-                    trunc( 1.8) <b>&rArr;</b>  1, trunc( 1.0) <b>&rArr;</b>  1,
-                    trunc(-1.0) <b>&rArr;</b> -1, trunc(-1.8) <b>&rArr;</b> -1 )
+                    trunc(9_/5_) <b>&rArr;</b>  1_, trunc(1_/1_) <b>&rArr;</b>  1_,
+                    trunc(-1_/1_) <b>&rArr;</b> -1_, trunc(-9_/5_) <b>&rArr;</b> -1_ )
       <span class="func">round</span>(A)  Round towards zero
                   ( Type of result: <a class="type" href="#types_bigInteger">bigInteger</a>,
-                    round(0.5) <b>&rArr;</b> 1, round(-0.5) <b>&rArr;</b> -1,
-                    round(0.4) <b>&rArr;</b> 0, round(-0.4) <b>&rArr;</b> 0 )
+                    round(1_/2_) <b>&rArr;</b> 1_, round(-1_/2_) <b>&rArr;</b> -1_,
+                    round(2_/5_) <b>&rArr;</b> 0_, round(-2_/5_) <b>&rArr;</b> 0_ )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">min</span>(A, B) Minimum of two numbers.
+                  ( min(2_/5_, 1_/2_) <b>&rArr;</b> 2_/5_ )
+      <span class="func">max</span>(A, B) Maximum of two numbers.
+                  ( max(2_/5_, 1_/2_) <b>&rArr;</b> 1_/2_ )
       <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    compare(1.9, 2.0) <b>&rArr;</b> -1,
-                    compare(5.2, 5.2) <b>&rArr;</b> 0,
-                    compare(8.0, 7.9) <b>&rArr;</b> 1 )
+                    compare(19_/10_, 2_/1_) <b>&rArr;</b> -1,
+                    compare(26_/5_, 26_/5_) <b>&rArr;</b> 0,
+                    compare(8_/1_, 79_/10_) <b>&rArr;</b> 1 )
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
@@ -2685,6 +2701,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A &lt;= rand(A, B) <span class="op">and</span> rand(A, B) &lt;= B holds.
                     rand(A, A) <b>&rArr;</b> A,
                     rand(1.0, 0.0) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">min</span>(A, B) Minimum of two numbers.
+                  ( min(2.5, 4.5) <b>&rArr;</b> 2.5 )
+      <span class="func">max</span>(A, B) Maximum of two numbers.
+                  ( max(2.5, 4.5) <b>&rArr;</b> 4.5 )
       <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     compare(1.9, 2.1) <b>&rArr;</b> -1,
@@ -9067,14 +9087,7 @@ TYPE_ACTION
   action <tt>'INT_ADD'</tt> is <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>. The function <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>
   is defined in the file <tt><span class="lib">"intlib.c"</span></tt> with:
 </p><pre class="indent">
-#<span class="keywd">ifdef</span> ANSI_C
-
 <a class="type" href="#ffi_objecttype">objecttype</a> <a name="actions_int_add">int_add</a> (<a class="type" href="#ffi_listtype">listtype</a> arguments)
-#<span class="keywd">else</span>
-
-<a class="type" href="#ffi_objecttype">objecttype</a> int_add (arguments)
-<a class="type" href="#ffi_listtype">listtype</a> arguments;
-#<span class="keywd">endif</span>
 
   { <span class="comment">/* int_add */</span>
     <a class="func" href="#ffi_isit_int">isit_int</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments));
@@ -9149,14 +9162,7 @@ TYPE_ACTION
   function is used. The action <tt>'INT_LOG2'</tt> is such an action. The
   definition of the function <tt><span class="func">int_log2</span>()</tt> in the file <tt><span class="lib">"intlib.c"</span></tt> is:
 </p><pre class="indent">
-#<span class="keywd">ifdef</span> ANSI_C
-
 <a class="type" href="#ffi_objecttype">objecttype</a> <a name="actions_int_log2">int_log2</a> (<a class="type" href="#ffi_listtype">listtype</a> arguments)
-#<span class="keywd">else</span>
-
-<a class="type" href="#ffi_objecttype">objecttype</a> int_log2 (arguments)
-<a class="type" href="#ffi_listtype">listtype</a> arguments;
-#<span class="keywd">endif</span>
 
   { <span class="comment">/* int_log2 */</span>
     <a class="func" href="#ffi_isit_int">isit_int</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments));
@@ -9173,14 +9179,7 @@ TYPE_ACTION
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */</span>
-#<span class="keywd">ifdef</span> ANSI_C
-
 <a class="type" href="#ffi_inttype">inttype</a> <a name="actions_intLog2">intLog2</a> (<a class="type" href="#ffi_inttype">inttype</a> number)
-#<span class="keywd">else</span>
-
-<a class="type" href="#ffi_inttype">inttype</a> intLog2 (number)
-<a class="type" href="#ffi_inttype">inttype</a> number;
-#<span class="keywd">endif</span>
 
   {
     int result;

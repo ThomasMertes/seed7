@@ -42,14 +42,7 @@
 
 
 #ifdef WITH_LIST_FREELIST
-#ifdef ANSI_C
-
 void free_list (listtype list)
-#else
-
-void free_list (list)
-listtype list;
-#endif
 
   {
     register listtype list_end;
@@ -69,14 +62,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 void free_list (listtype list)
-#else
-
-void free_list (list)
-listtype list;
-#endif
 
   {
     register listtype list_elem;
@@ -94,17 +80,8 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 listtype *append_element_to_list (listtype *list_insert_place, objecttype object,
     errinfotype *err_info)
-#else
-
-listtype *append_element_to_list (list_insert_place, object, err_info)
-listtype *list_insert_place;
-objecttype object;
-errinfotype *err_info;
-#endif
 
   {
     listtype help_element;
@@ -123,15 +100,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static objecttype copy_expression2 (objecttype object_from, errinfotype *err_info)
-#else
-
-static objecttype copy_expression2 (object_from, err_info)
-objecttype object_from;
-errinfotype *err_info;
-#endif
 
   {
     register listtype list_from_elem;
@@ -183,15 +152,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 objecttype copy_expression (objecttype object_from, errinfotype *err_info)
-#else
-
-objecttype copy_expression (object_from, err_info)
-objecttype object_from;
-errinfotype *err_info;
-#endif
 
   {
     objecttype object_to;
@@ -210,14 +171,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void free_expression (objecttype object)
-#else
-
-void free_expression (object)
-objecttype object;
-#endif
 
   {
     listtype list_elem;
@@ -253,15 +207,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 void concat_lists (listtype *list1, listtype list2)
-#else
-
-void concat_lists (list1, list2)
-listtype *list1;
-listtype list2;
-#endif
 
   {
     listtype help_element;
@@ -291,17 +237,8 @@ listtype list2;
 
 
 
-#ifdef ANSI_C
-
 void incl_list (listtype *list, objecttype element_object,
     errinfotype *err_info)
-#else
-
-void incl_list (list, element_object, err_info)
-listtype *list;
-objecttype element_object;
-errinfotype *err_info;
-#endif
 
   {
     listtype help_element;
@@ -324,15 +261,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void excl_list (listtype *list, const_objecttype elementobject)
-#else
-
-void excl_list (list, elementobject)
-listtype *list;
-objecttype elementobject;
-#endif
 
   {
     listtype listelement, disposeelement;
@@ -370,14 +299,7 @@ objecttype elementobject;
 
 
 
-#ifdef ANSI_C
-
 void pop_list (listtype *list)
-#else
-
-void pop_list (list)
-listtype *list;
-#endif
 
   {
     listtype listelement;
@@ -398,17 +320,8 @@ listtype *list;
 
 
 
-#ifdef ANSI_C
-
 void replace_list_elem (listtype list, const_objecttype elem1,
     objecttype elem2)
-#else
-
-void replace_list_elem (list, elem1, elem2)
-listtype list;
-objecttype elem1;
-objecttype elem2;
-#endif
 
   { /* replace_list_elem */
 #ifdef TRACE_RUNLIST
@@ -429,15 +342,7 @@ objecttype elem2;
 
 
 
-#ifdef ANSI_C
-
 listtype copy_list (const_listtype list_from, errinfotype *err_info)
-#else
-
-listtype copy_list (list_from, err_info)
-listtype list_from;
-errinfotype *err_info;
-#endif
 
   {
     listtype help_element;
@@ -496,15 +401,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 listtype array_to_list (arraytype arr_from, errinfotype *err_info)
-#else
-
-listtype array_to_list (arr_from, err_info)
-arraytype arr_from;
-errinfotype *err_info;
-#endif
 
   {
     listtype help_element;
@@ -564,15 +461,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 listtype struct_to_list (structtype stru_from, errinfotype *err_info)
-#else
-
-listtype struct_to_list (stru_from, err_info)
-structtype stru_from;
-errinfotype *err_info;
-#endif
 
   {
     listtype help_element;
@@ -630,17 +519,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void helem_data_to_list (listtype *list_insert_place,
     helemtype helem, errinfotype *err_info)
-#else
-
-static void helem_data_to_list (list_insert_place, helem, err_info)
-listtype *list_insert_place;
-helemtype helem;
-errinfotype *err_info;
-#endif
 
   { /* helem_data_to_list */
     if (helem != NULL && *err_info == OKAY_NO_ERROR) {
@@ -652,15 +532,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 listtype hash_data_to_list (hashtype hash, errinfotype *err_info)
-#else
-
-listtype hash_data_to_list (hash, err_info)
-hashtype hash;
-errinfotype *err_info;
-#endif
 
   {
     unsigned int number;
@@ -683,17 +555,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void helem_key_to_list (listtype *list_insert_place,
     helemtype helem, errinfotype *err_info)
-#else
-
-static void helem_key_to_list (list_insert_place, helem, err_info)
-listtype *list_insert_place;
-helemtype helem;
-errinfotype *err_info;
-#endif
 
   { /* helem_key_to_list */
     if (helem != NULL && *err_info == OKAY_NO_ERROR) {
@@ -705,15 +568,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 listtype hash_keys_to_list (hashtype hash, errinfotype *err_info)
-#else
-
-listtype hash_keys_to_list (hash, err_info)
-hashtype hash;
-errinfotype *err_info;
-#endif
 
   {
     unsigned int number;

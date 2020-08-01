@@ -132,9 +132,8 @@ chkccomp.h:
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
 
 version.h: chkccomp.h
-	$(ECHO) "#define ANSI_C" > version.h
+	$(ECHO) "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > version.h
 	$(ECHO) "#define USE_DIRENT" >> version.h
-	$(ECHO) "#define PATH_DELIMITER 92 /* backslash (ASCII) */" >> version.h
 	$(ECHO) "#define SEARCH_PATH_DELIMITER ';'" >> version.h
 	$(ECHO) "#define OS_PATH_HAS_DRIVE_LETTERS" >> version.h
 	$(ECHO) "#define CATCH_SIGNALS" >> version.h

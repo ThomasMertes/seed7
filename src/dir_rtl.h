@@ -42,16 +42,6 @@ extern char slash[];
 #endif
 
 
-#ifdef ANSI_C
-
 void dirClose (dirtype directory);
 dirtype dirOpen (const const_stritype file_name);
 stritype dirRead (dirtype directory);
-
-#else
-
-void dirClose ();
-dirtype dirOpen ();
-stritype dirRead ();
-
-#endif

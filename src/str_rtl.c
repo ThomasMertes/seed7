@@ -59,17 +59,8 @@ static const_cstritype stri_escape_sequence[] = {
 
 
 
-#ifdef ANSI_C
-
 static INLINE int strelem_memcmp (const strelemtype *mem1,
     const strelemtype *mem2, size_t number)
-#else
-
-static INLINE int strelem_memcmp (mem1, mem2, number)
-strelemtype *mem1;
-strelemtype *mem2;
-size_t number;
-#endif
 
   { /* strelem_memcmp */
     for (; number > 0; mem1++, mem2++, number--) {
@@ -82,17 +73,8 @@ size_t number;
 
 
 
-#ifdef ANSI_C
-
 static INLINE const strelemtype *search_strelem (const strelemtype *mem,
     const strelemtype ch, const strelemtype *beyond)
-#else
-
-static INLINE strelemtype *search_strelem (mem, ch, beyond)
-strelemtype *mem;
-strelemtype ch;
-strelemtype *beyond;
-#endif
 
   { /* search_strelem */
     for (; mem != beyond; mem++) {
@@ -105,18 +87,8 @@ strelemtype *beyond;
 
 
 
-#ifdef ANSI_C
-
 static INLINE const strelemtype *search_strelem2 (const strelemtype *mem,
     const strelemtype ch, const strelemtype *beyond, const memsizetype charDelta[])
-#else
-
-static INLINE strelemtype *search_strelem2 (mem, ch, beyond, charDelta)
-strelemtype *mem;
-strelemtype ch;
-strelemtype *beyond;
-memsizetype charDelta[];
-#endif
 
   { /* search_strelem2 */
     while (mem < beyond) {
@@ -133,17 +105,8 @@ memsizetype charDelta[];
 
 
 
-#ifdef ANSI_C
-
 static INLINE const strelemtype *rsearch_strelem (const strelemtype *mem,
     const strelemtype ch, size_t number)
-#else
-
-static INLINE strelemtype *rsearch_strelem (mem, ch, number)
-strelemtype *mem;
-strelemtype ch;
-size_t number;
-#endif
 
   { /* rsearch_strelem */
     for (; number > 0; mem--, number--) {
@@ -156,19 +119,8 @@ size_t number;
 
 
 
-#ifdef ANSI_C
-
 static rtlArraytype add_stri_to_array (const strelemtype *const stri_elems,
     const memsizetype length, rtlArraytype work_array, inttype *used_max_position)
-#else
-
-static rtlArraytype add_stri_to_array (stri_elems, length,
-    work_array, used_max_position)
-strelemtype *stri_elems;
-memsizetype length;
-rtlArraytype work_array;
-inttype *used_max_position;
-#endif
 
   {
     stritype new_stri;
@@ -212,16 +164,8 @@ inttype *used_max_position;
 
 
 
-#ifdef ANSI_C
-
 stritype concat_path (const const_stritype absolutePath,
     const const_stritype relativePath)
-#else
-
-stritype concat_path (absolutePath, relativePath)
-stritype absolutePath;
-stritype relativePath;
-#endif
 
   {
     memsizetype abs_path_length;
@@ -312,15 +256,7 @@ stritype relativePath;
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-#ifdef ANSI_C
-
 void strAppend (stritype *const destination, const_stritype extension)
-#else
-
-void strAppend (destination, extension)
-stritype *destination;
-stritype extension;
-#endif
 
   {
     memsizetype new_size;
@@ -407,15 +343,7 @@ stritype extension;
 
 
 
-#ifdef ANSI_C
-
 void strAppend (stritype *const destination, const_stritype extension)
-#else
-
-void strAppend (destination, extension)
-stritype *destination;
-stritype extension;
-#endif
 
   {
     memsizetype new_size;
@@ -475,15 +403,7 @@ stritype extension;
 
 
 
-#ifdef ANSI_C
-
 void strAppendTemp (stritype *const destination, const stritype extension)
-#else
-
-void strAppendTemp (destination, extension)
-stritype *destination;
-stritype extension;
-#endif
 
   {
     memsizetype new_size;
@@ -551,17 +471,8 @@ stritype extension;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 rtlArraytype strChEscSplit (const const_stritype main_stri, const chartype delimiter,
     const chartype escape)
-#else
-
-rtlArraytype strChEscSplit (main_stri, delimiter, escape)
-stritype main_stri;
-chartype delimiter;
-chartype escape;
-#endif
 
   {
     inttype used_max_position;
@@ -638,17 +549,8 @@ chartype escape;
 
 
 
-#ifdef ANSI_C
-
 inttype strChIPos (const const_stritype main_stri, const chartype searched,
     const inttype from_index)
-#else
-
-inttype strChIPos (main_stri, searched, from_index)
-stritype main_stri;
-chartype searched;
-inttype from_index;
-#endif
 
   {
     const strelemtype *main_mem;
@@ -672,15 +574,7 @@ inttype from_index;
 
 
 
-#ifdef ANSI_C
-
 inttype strChPos (const const_stritype main_stri, const chartype searched)
-#else
-
-inttype strChPos (main_stri, searched)
-stritype main_stri;
-chartype searched;
-#endif
 
   {
     const strelemtype *main_mem;
@@ -699,15 +593,7 @@ chartype searched;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype strChSplit (const const_stritype main_stri, const chartype delimiter)
-#else
-
-rtlArraytype strChSplit (main_stri, delimiter)
-stritype main_stri;
-chartype delimiter;
-#endif
 
   {
     inttype used_max_position;
@@ -762,14 +648,7 @@ chartype delimiter;
 
 
 
-#ifdef ANSI_C
-
 stritype strCLit (const const_stritype stri)
-#else
-
-stritype strCLit (stri)
-stritype stri;
-#endif
 
   {
     register strelemtype character;
@@ -834,15 +713,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 inttype strCompare (const const_stritype stri1, const const_stritype stri2)
-#else
-
-inttype strCompare (stri1, stri2)
-stritype stri1;
-stritype stri2;
-#endif
 
   {
     inttype result;
@@ -879,15 +750,7 @@ stritype stri2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(stritype).
  */
-#ifdef ANSI_C
-
 inttype strCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype strCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* strCmpGeneric */
     return strCompare((const_stritype) (memsizetype) value1,
@@ -896,15 +759,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 stritype strConcat (const const_stritype stri1, const const_stritype stri2)
-#else
-
-stritype strConcat (stri1, stri2)
-stritype stri1;
-stritype stri2;
-#endif
 
   {
     memsizetype result_size;
@@ -932,15 +787,7 @@ stritype stri2;
 
 
 
-#ifdef ANSI_C
-
 stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
-#else
-
-stritype strConcatN (striArray, arraySize)
-const const_stritype striArray[];
-memsizetype arraySize;
-#endif
 
   {
     memsizetype pos;
@@ -978,15 +825,7 @@ memsizetype arraySize;
  *  enlarged area of 'stri1'.
  *  @return the parameter 'stri1.
  */
-#ifdef ANSI_C
-
 stritype strConcatTemp (stritype stri1, const const_stritype stri2)
-#else
-
-stritype strConcatTemp (stri1, stri2)
-stritype stri1;
-stritype stri2;
-#endif
 
   {
     memsizetype result_size;
@@ -1036,15 +875,7 @@ stritype stri2;
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-#ifdef ANSI_C
-
 void strCopy (stritype *const stri_to, const const_stritype stri_from)
-#else
-
-void strCopy (stri_to, stri_from)
-stritype *stri_to;
-stritype stri_from;
-#endif
 
   {
     memsizetype new_size;
@@ -1119,15 +950,7 @@ stritype stri_from;
 #else
 
 
-#ifdef ANSI_C
-
 void strCopy (stritype *const stri_to, const const_stritype stri_from)
-#else
-
-void strCopy (stri_to, stri_from)
-stritype *stri_to;
-stritype stri_from;
-#endif
 
   {
     memsizetype new_size;
@@ -1178,14 +1001,7 @@ stritype stri_from;
 
 
 
-#ifdef ANSI_C
-
 stritype strCreate (const const_stritype stri_from)
-#else
-
-stritype strCreate (stri_from)
-stritype stri_from;
-#endif
 
   {
     memsizetype new_size;
@@ -1212,14 +1028,7 @@ stritype stri_from;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(stritype).
  */
-#ifdef ANSI_C
-
 rtlGenerictype strCreateGeneric (const rtlGenerictype from_value)
-#else
-
-rtlGenerictype strCreateGeneric (from_value)
-rtlGenerictype from_value;
-#endif
 
   { /* strCreateGeneric */
     return (rtlGenerictype) (memsizetype)
@@ -1228,14 +1037,7 @@ rtlGenerictype from_value;
 
 
 
-#ifdef ANSI_C
-
 void strDestr (const const_stritype old_string)
-#else
-
-void strDestr (old_string)
-stritype old_string;
-#endif
 
   { /* strDestr */
     /* printf("strDestr(%lX)\n", old_string); */
@@ -1246,13 +1048,7 @@ stritype old_string;
 
 
 
-#ifdef ANSI_C
-
 stritype strEmpty (void)
-#else
-
-stritype strEmpty ()
-#endif
 
   {
     stritype result;
@@ -1268,15 +1064,7 @@ stritype strEmpty ()
 
 
 
-#ifdef ANSI_C
-
 booltype strGe (const const_stritype stri1, const const_stritype stri2)
-#else
-
-booltype strGe (stri1, stri2)
-stritype stri1;
-stritype stri2;
-#endif
 
   { /* strGe */
     if (stri1->size >= stri2->size) {
@@ -1296,15 +1084,7 @@ stritype stri2;
 
 
 
-#ifdef ANSI_C
-
 booltype strGt (const const_stritype stri1, const const_stritype stri2)
-#else
-
-booltype strGt (stri1, stri2)
-stritype stri1;
-stritype stri2;
-#endif
 
   { /* strGt */
     if (stri1->size > stri2->size) {
@@ -1324,14 +1104,7 @@ stritype stri2;
 
 
 
-#ifdef ANSI_C
-
 inttype strHashCode (const const_stritype stri)
-#else
-
-inttype strHashCode (stri)
-stritype stri;
-#endif
 
   {
     inttype result;
@@ -1348,16 +1121,7 @@ stritype stri;
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-#ifdef ANSI_C
-
 stritype strHeadSlice (const const_stritype stri, const inttype stop, stritype slice)
-#else
-
-stritype strHeadSlice (stri, stop, slice)
-stritype stri;
-inttype stop;
-stritype slice;
-#endif
 
   {
     memsizetype length;
@@ -1384,15 +1148,7 @@ stritype slice;
 
 
 
-#ifdef ANSI_C
-
 stritype strHead (const const_stritype stri, const inttype stop)
-#else
-
-stritype strHead (stri, stop)
-stritype stri;
-inttype stop;
-#endif
 
   {
     memsizetype length;
@@ -1427,15 +1183,7 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 stritype strHeadTemp (const stritype stri, const inttype stop)
-#else
-
-stritype strHeadTemp (stri, stop)
-stritype stri;
-inttype stop;
-#endif
 
   {
     memsizetype length;
@@ -1483,17 +1231,8 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 static inttype strIPos2 (const const_stritype main_stri, const const_stritype searched,
     const inttype from_index)
-#else
-
-static inttype strIPos2 (main_stri, searched, from_index)
-stritype main_stri;
-stritype searched;
-inttype from_index;
-#endif
 
   {
     memsizetype main_size;
@@ -1551,17 +1290,8 @@ inttype from_index;
 
 
 
-#ifdef ANSI_C
-
 inttype strIPos (const const_stritype main_stri, const const_stritype searched,
     const inttype from_index)
-#else
-
-inttype strIPos (main_stri, searched, from_index)
-stritype main_stri;
-stritype searched;
-inttype from_index;
-#endif
 
   {
     memsizetype main_size;
@@ -1618,15 +1348,7 @@ inttype from_index;
 
 
 
-#ifdef ANSI_C
-
 booltype strLe (const const_stritype stri1, const const_stritype stri2)
-#else
-
-booltype strLe (stri1, stri2)
-stritype stri1;
-stritype stri2;
-#endif
 
   { /* strLe */
     if (stri1->size <= stri2->size) {
@@ -1646,14 +1368,7 @@ stritype stri2;
 
 
 
-#ifdef ANSI_C
-
 stritype strLit (const const_stritype stri)
-#else
-
-stritype strLit (stri)
-stritype stri;
-#endif
 
   {
     register strelemtype character;
@@ -1713,14 +1428,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strLow (const const_stritype stri)
-#else
-
-stritype strLow (stri)
-stritype stri;
-#endif
 
   {
     memsizetype length;
@@ -1747,14 +1455,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strLowTemp (const stritype stri)
-#else
-
-stritype strLowTemp (stri)
-stritype stri;
-#endif
 
   {
     memsizetype pos;
@@ -1770,15 +1471,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strLpad (const const_stritype stri, const inttype pad_size)
-#else
-
-stritype strLpad (stri, pad_size)
-stritype stri;
-inttype pad_size;
-#endif
 
   {
     memsizetype length;
@@ -1817,15 +1510,7 @@ inttype pad_size;
 
 
 
-#ifdef ANSI_C
-
 stritype strLpadTemp (const stritype stri, const inttype pad_size)
-#else
-
-stritype strLpadTemp (stri, pad_size)
-stritype stri;
-inttype pad_size;
-#endif
 
   {
     memsizetype length;
@@ -1860,15 +1545,7 @@ inttype pad_size;
 
 
 
-#ifdef ANSI_C
-
 stritype strLpad0 (const const_stritype stri, const inttype pad_size)
-#else
-
-stritype strLpad0 (stri, pad_size)
-stritype stri;
-inttype pad_size;
-#endif
 
   {
     memsizetype length;
@@ -1912,15 +1589,7 @@ inttype pad_size;
 
 
 
-#ifdef ANSI_C
-
 stritype strLpad0Temp (const stritype stri, const inttype pad_size)
-#else
-
-stritype strLpad0Temp (stri, pad_size)
-stritype stri;
-inttype pad_size;
-#endif
 
   {
     memsizetype length;
@@ -1960,15 +1629,7 @@ inttype pad_size;
 
 
 
-#ifdef ANSI_C
-
 booltype strLt (const const_stritype stri1, const const_stritype stri2)
-#else
-
-booltype strLt (stri1, stri2)
-stritype stri1;
-stritype stri2;
-#endif
 
   { /* strLt */
     if (stri1->size < stri2->size) {
@@ -1988,14 +1649,7 @@ stritype stri2;
 
 
 
-#ifdef ANSI_C
-
 stritype strLtrim (const const_stritype stri)
-#else
-
-stritype strLtrim (stri)
-stritype stri;
-#endif
 
   {
     memsizetype start;
@@ -2023,15 +1677,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strMult (const const_stritype stri, const inttype factor)
-#else
-
-stritype strMult (stri, factor)
-stritype stri;
-inttype factor;
-#endif
 
   {
     memsizetype len;
@@ -2078,15 +1724,7 @@ inttype factor;
 
 
 
-#ifdef ANSI_C
-
 static inttype strPos2 (const const_stritype main_stri, const const_stritype searched)
-#else
-
-static inttype strPos2 (main_stri, searched)
-stritype main_stri;
-stritype searched;
-#endif
 
   {
     memsizetype main_size;
@@ -2144,15 +1782,7 @@ stritype searched;
 
 
 
-#ifdef ANSI_C
-
 inttype strPos (const const_stritype main_stri, const const_stritype searched)
-#else
-
-inttype strPos (main_stri, searched)
-stritype main_stri;
-stritype searched;
-#endif
 
   {
     memsizetype main_size;
@@ -2203,15 +1833,7 @@ stritype searched;
 
 
 
-#ifdef ANSI_C
-
 void strPush (stritype *const destination, const chartype extension)
-#else
-
-void strPush (destination, extension)
-stritype *destination;
-chartype extension;
-#endif
 
   {
     memsizetype new_size;
@@ -2249,17 +1871,7 @@ chartype extension;
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-#ifdef ANSI_C
-
 stritype strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice)
-#else
-
-stritype strRangeSlice (stri, start, stop, slice)
-stritype stri;
-inttype start;
-inttype stop;
-stritype slice;
-#endif
 
   {
     memsizetype length;
@@ -2290,16 +1902,7 @@ stritype slice;
 
 
 
-#ifdef ANSI_C
-
 stritype strRange (const const_stritype stri, inttype start, inttype stop)
-#else
-
-stritype strRange (stri, start, stop)
-stritype stri;
-inttype start;
-inttype stop;
-#endif
 
   {
     memsizetype length;
@@ -2345,17 +1948,8 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 inttype strRChIPos (const const_stritype main_stri, const chartype searched,
     const inttype from_index)
-#else
-
-inttype strRChIPos (main_stri, searched, from_index)
-stritype main_stri;
-chartype searched;
-inttype from_index;
-#endif
 
   {
     const strelemtype *main_mem;
@@ -2381,15 +1975,7 @@ inttype from_index;
 
 
 
-#ifdef ANSI_C
-
 inttype strRChPos (const const_stritype main_stri, const chartype searched)
-#else
-
-inttype strRChPos (main_stri, searched)
-stritype main_stri;
-chartype searched;
-#endif
 
   {
     const strelemtype *main_mem;
@@ -2409,17 +1995,8 @@ chartype searched;
 
 
 
-#ifdef ANSI_C
-
 stritype strRepl (const const_stritype main_stri,
     const const_stritype searched, const const_stritype replace)
-#else
-
-stritype strRepl (main_stri, searched, replace)
-stritype main_stri;
-stritype searched;
-stritype replace;
-#endif
 
   {
     memsizetype main_size;
@@ -2501,17 +2078,8 @@ stritype replace;
 
 
 
-#ifdef ANSI_C
-
 inttype strRIPos (const const_stritype main_stri, const const_stritype searched,
     const inttype from_index)
-#else
-
-inttype strRIPos (main_stri, searched, from_index)
-stritype main_stri;
-stritype searched;
-inttype from_index;
-#endif
 
   {
     memsizetype main_size;
@@ -2556,15 +2124,7 @@ inttype from_index;
 
 
 
-#ifdef ANSI_C
-
 stritype strRpad (const const_stritype stri, const inttype pad_size)
-#else
-
-stritype strRpad (stri, pad_size)
-stritype stri;
-inttype pad_size;
-#endif
 
   {
     memsizetype length;
@@ -2602,15 +2162,7 @@ inttype pad_size;
 
 
 
-#ifdef ANSI_C
-
 inttype strRPos (const const_stritype main_stri, const const_stritype searched)
-#else
-
-inttype strRPos (main_stri, searched)
-stritype main_stri;
-stritype searched;
-#endif
 
   {
     memsizetype main_size;
@@ -2645,14 +2197,7 @@ stritype searched;
 
 
 
-#ifdef ANSI_C
-
 stritype strRtrim (const const_stritype stri)
-#else
-
-stritype strRtrim (stri)
-stritype stri;
-#endif
 
   {
     memsizetype length;
@@ -2676,15 +2221,7 @@ stritype stri;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 arraytype strSplit (const const_stritype main_stri, chartype delimiter)
-#else
-
-arraytype strSplit (main_stri, delimiter)
-stritype main_stri;
-chartype delimiter;
-#endif
 
   {
     arraytype result_array;
@@ -2727,15 +2264,7 @@ chartype delimiter;
 
 
 
-#ifdef ANSI_C
-
 arraytype strSplit (const const_stritype stri, const const_stritype delimiter)
-#else
-
-arraytype strSplit (stri, delimiter)
-stritype stri;
-stritype delimiter;
-#endif
 
   {
     memsizetype main_size;
@@ -2786,16 +2315,8 @@ stritype delimiter;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype strSplit (const const_stritype main_stri,
     const const_stritype delimiter)
-#else
-
-rtlArraytype strSplit (main_stri, delimiter)
-stritype main_stri;
-stritype delimiter;
-#endif
 
   {
     memsizetype delimiter_size;
@@ -2867,17 +2388,7 @@ stritype delimiter;
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-#ifdef ANSI_C
-
 stritype strSubstrSlice (const const_stritype stri, inttype start, inttype len, stritype slice)
-#else
-
-stritype strSubstrSlice (stri, start, len, slice)
-stritype stri;
-inttype start;
-inttype len;
-stritype slice;
-#endif
 
   {
     memsizetype length;
@@ -2909,16 +2420,7 @@ stritype slice;
 
 
 
-#ifdef ANSI_C
-
 stritype strSubstr (const const_stritype stri, inttype start, inttype len)
-#else
-
-stritype strSubstr (stri, start, len)
-stritype stri;
-inttype start;
-inttype len;
-#endif
 
   {
     memsizetype length;
@@ -2960,16 +2462,7 @@ inttype len;
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-#ifdef ANSI_C
-
 stritype strTailSlice (const const_stritype stri, inttype start, stritype slice)
-#else
-
-stritype strTailSlice (stri, start, slice)
-stritype stri;
-inttype start;
-stritype slice;
-#endif
 
   {
     memsizetype length;
@@ -2995,15 +2488,7 @@ stritype slice;
 
 
 
-#ifdef ANSI_C
-
 stritype strTail (const const_stritype stri, inttype start)
-#else
-
-stritype strTail (stri, start)
-stritype stri;
-inttype start;
-#endif
 
   {
     memsizetype length;
@@ -3044,14 +2529,7 @@ inttype start;
 
 
 
-#ifdef ANSI_C
-
 stritype strToUtf8 (const const_stritype stri)
-#else
-
-stritype strToUtf8 (stri)
-stritype stri;
-#endif
 
   {
     register strelemtype *dest;
@@ -3069,8 +2547,7 @@ stritype stri;
     } else {
       dest = result->mem;
       source = stri->mem;
-      len = stri->size;
-      for (; len > 0; source++, len--) {
+      for (len = stri->size; len > 0; source++, len--) {
         if (*source <= 0x7F) {
           *dest++ = *source;
         } else if (*source <= 0x7FF) {
@@ -3117,14 +2594,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strTrim (const const_stritype stri)
-#else
-
-stritype strTrim (stri)
-stritype stri;
-#endif
 
   {
     memsizetype start;
@@ -3155,14 +2625,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strUp (const const_stritype stri)
-#else
-
-stritype strUp (stri)
-stritype stri;
-#endif
 
   {
     memsizetype length;
@@ -3189,14 +2652,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strUpTemp (const stritype stri)
-#else
-
-stritype strUpTemp (stri)
-stritype stri;
-#endif
 
   {
     memsizetype pos;
@@ -3212,20 +2668,13 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype strUtf8ToStri (const_stritype stri8)
-#else
-
-stritype strUtf8ToStri (stri8)
-stritype stri8;
-#endif
 
   {
     memsizetype length;
     memsizetype pos;
     const strelemtype *stri8ptr;
-    inttype okay = TRUE;
+    booltype okay = TRUE;
     stritype resized_result;
     stritype result;
 

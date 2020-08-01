@@ -77,14 +77,7 @@ static unsigned int flist_len = 0;
 
 
 
-#ifdef ANSI_C
-
 cstritype bigHexCStri (const const_biginttype big1)
-#else
-
-cstritype bigHexCStri (big1)
-biginttype big1;
-#endif
 
   {
     size_t count;
@@ -167,14 +160,7 @@ biginttype big1;
 /**
  *  Returns the absolute value of a signed big integer.
  */
-#ifdef ANSI_C
-
 biginttype bigAbs (const const_biginttype big1)
-#else
-
-biginttype bigAbs (big1)
-biginttype big1;
-#endif
 
   {
     biginttype result;
@@ -191,15 +177,7 @@ biginttype big1;
 /**
  *  Returns the sum of two signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigAdd (const_biginttype summand1, const_biginttype summand2)
-#else
-
-biginttype bigAdd (summand1, summand2)
-biginttype summand1;
-biginttype summand2;
-#endif
 
   {
     biginttype result;
@@ -217,15 +195,7 @@ biginttype summand2;
  *  Returns the sum of two signed big integers.
  *  Big1 is assumed to be a temporary value which is reused.
  */
-#ifdef ANSI_C
-
 biginttype bigAddTemp (biginttype big1, const const_biginttype big2)
-#else
-
-biginttype bigAddTemp (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   { /* bigAddTemp */
     mpz_add(big1, big1, big2);
@@ -234,15 +204,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigAnd (const_biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigAnd (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     biginttype result;
@@ -256,14 +218,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 inttype bigBitLength (const const_biginttype big1)
-#else
-
-inttype bigBitLength (big1)
-biginttype big1;
-#endif
 
   {
     int sign;
@@ -290,14 +245,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 stritype bigCLit (const const_biginttype big1)
-#else
-
-stritype bigCLit (big1)
-biginttype big1;
-#endif
 
   {
     size_t count;
@@ -377,15 +325,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
-#else
-
-inttype bigCmp (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     inttype result;
@@ -408,15 +348,7 @@ biginttype big2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(biginttype).
  */
-#ifdef ANSI_C
-
 inttype bigCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype bigCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* bigCmpGeneric */
     return bigCmp((const_biginttype) value1, (const_biginttype) value2);
@@ -424,15 +356,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 inttype bigCmpSignedDigit (const const_biginttype big1, inttype number)
-#else
-
-inttype bigCmpSignedDigit (big1, number)
-biginttype big1;
-inttype number;
-#endif
 
   {
     inttype result;
@@ -449,15 +373,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 void bigCpy (biginttype *const big_to, const const_biginttype big_from)
-#else
-
-void bigCpy (big_to, big_from)
-biginttype *big_to;
-biginttype big_from;
-#endif
 
   { /* bigCpy */
     mpz_set(*big_to, big_from);
@@ -465,14 +381,7 @@ biginttype big_from;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigCreate (const const_biginttype big_from)
-#else
-
-biginttype bigCreate (big_from)
-biginttype big_from;
-#endif
 
   {
     biginttype result;
@@ -491,14 +400,7 @@ biginttype big_from;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(biginttype).
  */
-#ifdef ANSI_C
-
 rtlGenerictype bigCreateGeneric (const rtlGenerictype from_value)
-#else
-
-rtlGenerictype bigCreateGeneric (from_value)
-rtlGenerictype from_value;
-#endif
 
   { /* bigCreateGeneric */
     return (rtlGenerictype) bigCreate((const_biginttype) from_value);
@@ -506,14 +408,7 @@ rtlGenerictype from_value;
 
 
 
-#ifdef ANSI_C
-
 void bigDecr (biginttype *const big_variable)
-#else
-
-void bigDecr (big_variable)
-biginttype *big_variable;
-#endif
 
   { /* bigDecr */
     mpz_sub_ui(*big_variable, *big_variable, 1);
@@ -521,14 +416,7 @@ biginttype *big_variable;
 
 
 
-#ifdef ANSI_C
-
 void bigDestr (const const_biginttype old_bigint)
-#else
-
-void bigDestr (old_bigint)
-biginttype old_bigint;
-#endif
 
   { /* bigDestr */
     if (old_bigint != NULL) {
@@ -543,15 +431,7 @@ biginttype old_bigint;
  *  Computes an integer division of dividend by divisor for signed big
  *  integers.
  */
-#ifdef ANSI_C
-
 biginttype bigDiv (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigDiv (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     biginttype result;
@@ -570,15 +450,7 @@ biginttype divisor;
 
 
 
-#ifdef ANSI_C
-
 booltype bigEq (const const_biginttype big1, const const_biginttype big2)
-#else
-
-booltype bigEq (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   { /* bigEq */
     return mpz_cmp(big1, big2) == 0;
@@ -586,15 +458,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
-#else
-
-booltype bigEqSignedDigit (big1, number)
-biginttype big1;
-inttype number;
-#endif
 
   { /* bigEqSignedDigit */
     return mpz_cmp_si(big1, number) == 0;
@@ -602,14 +466,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigFromInt32 (int32type number)
-#else
-
-biginttype bigFromInt32 (number)
-int32type number;
-#endif
 
   {
     biginttype result;
@@ -623,14 +480,7 @@ int32type number;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 biginttype bigFromInt64 (int64type number)
-#else
-
-biginttype bigFromInt64 (number)
-int64type number;
-#endif
 
   {
     mpz_t help;
@@ -648,14 +498,7 @@ int64type number;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigFromUInt32 (uint32type number)
-#else
-
-biginttype bigFromUInt32 (number)
-uint32type number;
-#endif
 
   {
     biginttype result;
@@ -669,14 +512,7 @@ uint32type number;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 biginttype bigFromUInt64 (uint64type number)
-#else
-
-biginttype bigFromUInt64 (number)
-uint64type number;
-#endif
 
   {
     mpz_t help;
@@ -694,16 +530,8 @@ uint64type number;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigGcd (const const_biginttype big1,
     const const_biginttype big2)
-#else
-
-biginttype bigGcd (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     biginttype result;
@@ -720,15 +548,7 @@ biginttype big2;
 /**
  *  Adds big2 to *big_variable.
  */
-#ifdef ANSI_C
-
 void bigGrow (biginttype *const big_variable, const const_biginttype big2)
-#else
-
-void bigGrow (big_variable, big2)
-biginttype *big_variable;
-biginttype big2;
-#endif
 
   { /* bigGrow */
     mpz_add(*big_variable, *big_variable, big2);
@@ -736,14 +556,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 inttype bigHashCode (const const_biginttype big1)
-#else
-
-inttype bigHashCode (big1)
-biginttype big1;
-#endif
 
   {
     size_t count;
@@ -760,14 +573,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigImport (const const_ustritype buffer)
-#else
-
-biginttype bigImport (buffer)
-ustritype buffer;
-#endif
 
   {
     size_t count;
@@ -804,14 +610,7 @@ ustritype buffer;
 
 
 
-#ifdef ANSI_C
-
 void bigIncr (biginttype *const big_variable)
-#else
-
-void bigIncr (big_variable)
-biginttype *big_variable;
-#endif
 
   { /* bigIncr */
     mpz_add_ui(*big_variable, *big_variable, 1);
@@ -822,15 +621,7 @@ biginttype *big_variable;
 /**
  *  Computes base to the power of exponent for signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigIPow (const const_biginttype base, inttype exponent)
-#else
-
-biginttype bigIPow (base, exponent)
-biginttype base;
-inttype exponent;
-#endif
 
   {
     biginttype result;
@@ -849,14 +640,7 @@ inttype exponent;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigLog2 (const const_biginttype big1)
-#else
-
-biginttype bigLog2 (big1)
-biginttype big1;
-#endif
 
   {
     int sign;
@@ -879,14 +663,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 inttype bigLowestSetBit (const const_biginttype big1)
-#else
-
-inttype bigLowestSetBit (big1)
-biginttype big1;
-#endif
 
   { /* bigLowestSetBit */
     return (inttype) mpz_scan1(big1, 0);
@@ -894,15 +671,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigLShift (const const_biginttype big1, const inttype lshift)
-#else
-
-biginttype bigLShift (big1, lshift)
-biginttype big1;
-inttype lshift;
-#endif
 
   {
     biginttype result;
@@ -920,15 +689,7 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
 void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
-#else
-
-void bigLShiftAssign (big_variable, lshift)
-biginttype *const big_variable;
-inttype lshift;
-#endif
 
   { /* bigLShiftAssign */
     if (lshift < 0) {
@@ -940,14 +701,7 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigLShiftOne (const inttype lshift)
-#else
-
-biginttype bigLShiftOne (lshift)
-inttype lshift;
-#endif
 
   {
     mpz_t one;
@@ -967,15 +721,7 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
-#else
-
-biginttype bigLog2BaseLShift (log2base, lshift)
-inttype log2base;
-inttype lshift;
-#endif
 
   {
     uinttype high_shift;
@@ -1009,15 +755,7 @@ inttype lshift;
  *  Computes an integer modulo division of dividend by divisor for signed
  *  big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigMDiv (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigMDiv (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     biginttype result;
@@ -1036,14 +774,7 @@ biginttype divisor;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigMinus (const const_biginttype big1)
-#else
-
-biginttype bigMinus (big1)
-biginttype big1;
-#endif
 
   {
     biginttype result;
@@ -1061,15 +792,7 @@ biginttype big1;
  *  Computes the modulo of an integer division of dividend by divisor
  *  for signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigMod (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigMod (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     biginttype result;
@@ -1091,15 +814,7 @@ biginttype divisor;
 /**
  *  Returns the product of two signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigMult (const const_biginttype factor1, const const_biginttype factor2)
-#else
-
-biginttype bigMult (factor1, factor2)
-biginttype factor1;
-biginttype factor2;
-#endif
 
   {
     biginttype result;
@@ -1113,15 +828,7 @@ biginttype factor2;
 
 
 
-#ifdef ANSI_C
-
 void bigMultAssign (biginttype *const big_variable, const_biginttype big2)
-#else
-
-void bigMultAssign (big_variable, big2)
-biginttype *big_variable;
-biginttype big2;
-#endif
 
   { /* bigMultAssign */
     mpz_mul(*big_variable, *big_variable, big2);
@@ -1129,15 +836,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
-#else
-
-biginttype bigMultSignedDigit (big1, number)
-biginttype big1;
-inttype number;
-#endif
 
   {
     biginttype result;
@@ -1151,14 +850,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 booltype bigOdd (const const_biginttype big1)
-#else
-
-booltype bigOdd (big1)
-biginttype big1;
-#endif
 
   { /* bigOdd */
     return mpz_odd_p(big1);
@@ -1166,15 +858,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigOr (const_biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigOr (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     biginttype result;
@@ -1188,14 +872,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigParse (const const_stritype stri)
-#else
-
-biginttype bigParse (stri)
-stritype stri;
-#endif
 
   {
     cstritype cstri;
@@ -1229,15 +906,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigParseBased (const const_stritype stri, inttype base)
-#else
-
-biginttype bigParseBased (stri, base)
-stritype stri;
-inttype base;
-#endif
 
   {
     cstritype cstri;
@@ -1271,14 +940,7 @@ inttype base;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigPred (const const_biginttype big1)
-#else
-
-biginttype bigPred (big1)
-biginttype big1;
-#endif
 
   {
     biginttype result;
@@ -1292,14 +954,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigPredTemp (biginttype big1)
-#else
-
-biginttype bigPredTemp (big1)
-biginttype big1;
-#endif
 
   { /* bigPredTemp */
     mpz_sub_ui(big1, big1, 1);
@@ -1311,14 +966,7 @@ biginttype big1;
 /**
  *  Returns the square of a signed big integer.
  */
-#ifdef ANSI_C
-
 biginttype bigSquare (const_biginttype big1)
-#else
-
-biginttype bigSquare (big1)
-biginttype big1;
-#endif
 
   {
     biginttype result;
@@ -1336,16 +984,8 @@ biginttype big1;
  *  Computes a random number between lower_limit and upper_limit
  *  for signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigRand (const const_biginttype lower_limit,
     const const_biginttype upper_limit)
-#else
-
-biginttype bigRand (lower_limit, upper_limit)
-biginttype lower_limit;
-biginttype upper_limit;
-#endif
 
   {
     static booltype seed_necessary = TRUE;
@@ -1379,15 +1019,7 @@ biginttype upper_limit;
  *  Computes the remainder of an integer division of dividend by divisor
  *  for signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigRem (const const_biginttype dividend, const const_biginttype divisor)
-#else
-
-biginttype bigRem (dividend, divisor)
-biginttype dividend;
-biginttype divisor;
-#endif
 
   {
     biginttype result;
@@ -1406,15 +1038,7 @@ biginttype divisor;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigRShift (const const_biginttype big1, const inttype rshift)
-#else
-
-biginttype bigRShift (big1, rshift)
-biginttype big1;
-inttype rshift;
-#endif
 
   {
     biginttype result;
@@ -1432,15 +1056,7 @@ inttype rshift;
 
 
 
-#ifdef ANSI_C
-
 void bigRShiftAssign (biginttype *const big_variable, inttype rshift)
-#else
-
-void bigRShiftAssign (big_variable, rshift)
-biginttype *const big_variable;
-inttype rshift;
-#endif
 
   { /* bigRShiftAssign */
     if (rshift < 0) {
@@ -1455,15 +1071,7 @@ inttype rshift;
 /**
  *  Returns the difference of two signed big integers.
  */
-#ifdef ANSI_C
-
 biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend)
-#else
-
-biginttype bigSbtr (minuend, subtrahend)
-biginttype minuend;
-biginttype subtrahend;
-#endif
 
   {
     biginttype result;
@@ -1481,15 +1089,7 @@ biginttype subtrahend;
  *  Returns the difference of two signed big integers.
  *  Big1 is assumed to be a temporary value which is reused.
  */
-#ifdef ANSI_C
-
 biginttype bigSbtrTemp (biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigSbtrTemp (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   { /* bigSbtrTemp */
     mpz_sub(big1, big1, big2);
@@ -1501,15 +1101,7 @@ biginttype big2;
 /**
  *  Subtracts big2 from *big_variable.
  */
-#ifdef ANSI_C
-
 void bigShrink (biginttype *const big_variable, const const_biginttype big2)
-#else
-
-void bigShrink (big_variable, big2)
-biginttype *big_variable;
-biginttype big2;
-#endif
 
   { /* bigShrink */
     mpz_sub(*big_variable, *big_variable, big2);
@@ -1517,14 +1109,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 stritype bigStr (const const_biginttype big1)
-#else
-
-stritype bigStr (big1)
-biginttype big1;
-#endif
 
   {
     char *cstri;
@@ -1542,14 +1127,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigSucc (const const_biginttype big1)
-#else
-
-biginttype bigSucc (big1)
-biginttype big1;
-#endif
 
   {
     biginttype result;
@@ -1563,14 +1141,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigSuccTemp (biginttype big1)
-#else
-
-biginttype bigSuccTemp (big1)
-biginttype big1;
-#endif
 
   { /* bigSuccTemp */
     mpz_add_ui(big1, big1, 1);
@@ -1580,14 +1151,7 @@ biginttype big1;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 bstritype bigToBStri (const_biginttype big1)
-#else
-
-bstritype bigToBStri (big1)
-biginttype big1;
-#endif
 
   {
     size_t count;
@@ -1657,14 +1221,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 int32type bigToInt32 (const const_biginttype big1)
-#else
-
-int32type bigToInt32 (big1)
-biginttype big1;
-#endif
 
   {
     long int result;
@@ -1688,14 +1245,7 @@ biginttype big1;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 int64type bigToInt64 (const const_biginttype big1)
-#else
-
-int64type bigToInt64 (big1)
-biginttype big1;
-#endif
 
   { /* bigToInt64 */
     if (!mpz_fits_slong_p(big1)) {
@@ -1709,15 +1259,7 @@ biginttype big1;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigXor (const_biginttype big1, const_biginttype big2)
-#else
-
-biginttype bigXor (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
 
   {
     biginttype result;
@@ -1731,13 +1273,7 @@ biginttype big2;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigZero (void)
-#else
-
-biginttype bigZero ()
-#endif
 
   {
     biginttype result;

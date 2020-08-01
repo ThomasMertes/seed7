@@ -69,15 +69,7 @@ typedef int64type intptr_type;
 
 #if defined OS_STRI_WCHAR && !defined USE_WMAIN
 #ifdef DEFINE_COMMAND_LINE_TO_ARGV_W
-#ifdef ANSI_C
-
 static void processBackslash (const_os_stritype *sourcePos, os_stritype *destPos)
-#else
-
-static void processBackslash (sourcePos, destPos)
-os_stritype *sourcePos;
-os_stritype *destPos;
-#endif
 
   {
     memsizetype backslashCount;
@@ -117,15 +109,7 @@ os_stritype *destPos;
 
 
 
-#ifdef ANSI_C
-
 static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_argc)
-#else
-
-static os_stritype *CommandLineToArgvW (commandLine, w_argc)
-os_stritype commandLine;
-int *w_argc;
-#endif
 
   {
     size_t command_line_size;
@@ -239,14 +223,7 @@ int *w_argc;
 
 
 
-#ifdef ANSI_C
-
 void freeUtf16Argv (os_stritype *w_argv)
-#else
-
-void freeUtf16Argv (w_argv)
-os_stritype *w_argv;
-#endif
 
   { /* freeUtf16Argv */
     if (w_argv != NULL) {
@@ -259,14 +236,7 @@ os_stritype *w_argv;
 
 
 
-#ifdef ANSI_C
-
 void freeUtf16Argv (os_stritype *w_argv)
-#else
-
-void freeUtf16Argv (w_argv)
-os_stritype *w_argv;
-#endif
 
   { /* freeUtf16Argv */
     LocalFree(w_argv);
@@ -275,14 +245,7 @@ os_stritype *w_argv;
 
 
 
-#ifdef ANSI_C
-
 os_stritype *getUtf16Argv (int *w_argc)
-#else
-
-os_stritype *getUtf16Argv (w_argc)
-int *w_argc;
-#endif
 
   {
     os_stritype commandLine;
@@ -297,14 +260,7 @@ int *w_argc;
 
 
 
-#ifdef ANSI_C
-
 stritype getExecutablePath (const const_stritype arg_0)
-#else
-
-stritype getExecutablePath (arg_0)
-stritype arg_0;
-#endif
 
   {
     os_chartype buffer[PATH_MAX];
@@ -327,14 +283,7 @@ stritype arg_0;
 
 
 #ifdef DEFINE_WGETENV
-#ifdef ANSI_C
-
 os_stritype wgetenv (const const_os_stritype name)
-#else
-
-os_stritype wgetenv (name)
-os_stritype name;
-#endif
 
   {
     memsizetype result_size;
@@ -359,17 +308,8 @@ os_stritype name;
 
 
 #ifdef DEFINE_WSETENV
-#ifdef ANSI_C
-
 int wsetenv (const const_os_stritype name, const const_os_stritype value,
     int overwrite)
-#else
-
-int wsetenv (name, value, overwrite)
-os_stritype name;
-os_stritype value;
-int overwrite;
-#endif
 
   {
     int result;
@@ -384,13 +324,7 @@ int overwrite;
 
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#ifdef ANSI_C
-
 volumeListType *openVolumeList (void)
-#else
-
-volumeListType *openVolumeList ()
-#endif
 
   {
     volumeListType *result;
@@ -509,18 +443,8 @@ static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
 
 
 
-#ifdef ANSI_C
-
 void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
     filetype *childStdin, filetype *childStdout)
-#else
-
-void cmdPipe2 (command, parameters, childStdin, childStdout)
-stritype command;
-rtlArraytype parameters;
-filetype *childStdin;
-filetype *childStdout;
-#endif
 
   {
     os_stritype os_command_stri;
@@ -607,18 +531,8 @@ filetype *childStdout;
 
 
 
-#ifdef ANSI_C
-
 void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
     filetype *childStdin, filetype *childStdout)
-#else
-
-void cmdPty (command, parameters, childStdin, childStdout)
-stritype command;
-rtlArraytype parameters;
-filetype *childStdin;
-filetype *childStdout;
-#endif
 
   { /* cmdPty */
     cmdPipe2(command, parameters, childStdin, childStdout);
@@ -626,15 +540,7 @@ filetype *childStdout;
 
 
 
-#ifdef ANSI_C
-
 void cmdStartProcess (const const_stritype command, const const_rtlArraytype parameters)
-#else
-
-void cmdStartProcess (command, parameters)
-stritype command;
-rtlArraytype parameters;
-#endif
 
   {
     os_stritype os_command_stri;

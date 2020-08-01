@@ -29,12 +29,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 rtlInterfacetype itfCreate (const rtlInterfacetype interface_from);
-
-#else
-
-rtlInterfacetype itfCreate ();
-
-#endif

@@ -95,8 +95,6 @@ EXTERN infilrecord in_file;
 #endif
 
 
-#ifdef ANSI_C
-
 int fill_buf (void);
 void open_infile (const_stritype source_file_name, booltype write_library_names,
     booltype write_line_numbers, errinfotype *err_info);
@@ -108,17 +106,3 @@ void next_file (void);
 int next_line (void);
 stritype get_file_name (filenumtype file_num);
 const_ustritype get_file_name_ustri (filenumtype file_num);
-
-#else
-
-int fill_buf ();
-void open_infile ();
-void close_infile ();
-void open_string ();
-void remove_prog_files ();
-void next_file ();
-int next_line ();
-stritype get_file_name ();
-ustritype get_file_name_ustri ();
-
-#endif

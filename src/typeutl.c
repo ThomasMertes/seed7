@@ -44,16 +44,7 @@
 
 
 
-#ifdef ANSI_C
-
 typetype new_type (progtype owningProg, typetype meta_type, typetype result_type)
-#else
-
-typetype new_type (owningProg, meta_type, result_type)
-progtype owningProg;
-typetype meta_type;
-typetype result_type;
-#endif
 
   {
     objecttype match_obj;
@@ -110,14 +101,7 @@ typetype result_type;
 
 
 
-#ifdef ANSI_C
-
 static void free_type (typetype old_type)
-#else
-
-static void free_type (old_type)
-typetype old_type;
-#endif
 
   {
     typelisttype typelist_elem;
@@ -142,14 +126,7 @@ typetype old_type;
 
 
 
-#ifdef ANSI_C
-
 void close_type (progtype currentProg)
-#else
-
-void close_type (currentProg)
-progtype currentProg;
-#endif
 
   {
     listtype type_elem;
@@ -167,15 +144,7 @@ progtype currentProg;
 
 
 
-#ifdef ANSI_C
-
 typetype get_func_type (typetype meta_type, typetype basic_type)
-#else
-
-typetype get_func_type (meta_type, basic_type)
-typetype meta_type;
-typetype basic_type;
-#endif
 
   {
     typetype func_type;
@@ -192,15 +161,7 @@ typetype basic_type;
 
 
 
-#ifdef ANSI_C
-
 typetype get_varfunc_type (typetype meta_type, typetype basic_type)
-#else
-
-typetype get_varfunc_type (meta_type, basic_type)
-typetype meta_type;
-typetype basic_type;
-#endif
 
   {
     typetype varfunc_type;
@@ -218,15 +179,7 @@ typetype basic_type;
 
 
 
-#ifdef ANSI_C
-
 void add_interface (typetype basic_type, typetype interface_type)
-#else
-
-void add_interface (basic_type, interface_type)
-typetype basic_type;
-typetype interface_type;
-#endif
 
   {
     typelisttype typelist_elem;
@@ -251,14 +204,7 @@ typetype interface_type;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 void get_interfaces (typetype basic_type)
-#else
-
-void get_interfaces (basic_type)
-typetype basic_type;
-#endif
 
   {
     typelisttype typelist_elem;

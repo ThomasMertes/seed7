@@ -41,8 +41,6 @@
 #define localtime_r alternate_localtime_r
 #endif
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
 inttype timMicroSec (void);
@@ -54,18 +52,4 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result);
 #endif
 #ifdef USE_ALTERNATE_UTIME
 int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf);
-#endif
-
-#else
-
-void timAwait ();
-inttype timMicroSec ();
-void timNow ();
-#ifdef USE_ALTERNATE_LOCALTIME_R
-struct tm *alternate_localtime_r ();
-#endif
-#ifdef USE_ALTERNATE_UTIME
-int alternate_utime ();
-#endif
-
 #endif

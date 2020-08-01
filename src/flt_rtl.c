@@ -84,13 +84,7 @@ static char *form[] = {"%1.0f", "%1.1f", "%1.2f", "%1.3f", "%1.4f",
 
 
 
-#ifdef ANSI_C
-
 void setupFloat (void)
-#else
-
-void setupFloat ()
-#endif
 
   {
 #ifndef USE_NEGATIVE_ZERO_BITPATTERN
@@ -113,14 +107,7 @@ void setupFloat ()
 
 
 #ifdef DEFINE_MATHERR_FUNCTION
-#ifdef ANSI_C
-
 int _matherr (struct _exception *a)
-#else
-
-int _matherr (a)
-struct _exception *a;
-#endif
 
   { /* _matherr */
     a->retval = a->retval;
@@ -130,15 +117,7 @@ struct _exception *a;
 
 
 
-#ifdef ANSI_C
-
 inttype fltCmp (floattype number1, floattype number2)
-#else
-
-inttype fltCmp (number1, number2)
-floattype number1;
-floattype number2;
-#endif
 
   { /* fltCmp */
 #ifdef NAN_COMPARISON_WRONG
@@ -184,15 +163,7 @@ floattype number2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(floattype).
  */
-#ifdef ANSI_C
-
 inttype fltCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype fltCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* fltCmpGeneric */
     return fltCmp(((const_rtlObjecttype *) &value1)->value.floatvalue,
@@ -201,15 +172,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 void fltCpy (floattype *dest, floattype source)
-#else
-
-void fltCpy (dest, source)
-floattype *dest;
-floattype source;
-#endif
 
   { /* fltCpy */
     *dest = source;
@@ -217,15 +180,7 @@ floattype source;
 
 
 
-#ifdef ANSI_C
-
 stritype fltDgts (floattype number, inttype digits_precision)
-#else
-
-stritype fltDgts (number, digits_precision)
-floattype number;
-inttype digits_precision;
-#endif
 
   {
     char buffer[2001];
@@ -286,15 +241,7 @@ inttype digits_precision;
 
 
 #ifdef NAN_COMPARISON_WRONG
-#ifdef ANSI_C
-
 booltype fltEq (floattype number1, floattype number2)
-#else
-
-booltype fltEq (number1, number2)
-floattype number1;
-floattype number2;
-#endif
 
   { /* fltEq */
     if (isnan(number1) || isnan(number2)) {
@@ -308,15 +255,7 @@ floattype number2;
 
 
 #ifdef NAN_COMPARISON_WRONG
-#ifdef ANSI_C
-
 booltype fltGe (floattype number1, floattype number2)
-#else
-
-booltype fltGe (number1, number2)
-floattype number1;
-floattype number2;
-#endif
 
   { /* fltGe */
     if (isnan(number1) || isnan(number2)) {
@@ -330,15 +269,7 @@ floattype number2;
 
 
 #ifdef NAN_COMPARISON_WRONG
-#ifdef ANSI_C
-
 booltype fltGt (floattype number1, floattype number2)
-#else
-
-booltype fltGt (number1, number2)
-floattype number1;
-floattype number2;
-#endif
 
   { /* fltGt */
     if (isnan(number1) || isnan(number2)) {
@@ -351,15 +282,7 @@ floattype number2;
 
 
 
-#ifdef ANSI_C
-
 floattype fltIPow (floattype base, inttype exponent)
-#else
-
-floattype fltIPow (base, exponent)
-floattype base;
-inttype exponent;
-#endif
 
   {
     booltype neg_exp = FALSE;
@@ -430,14 +353,7 @@ inttype exponent;
 
 
 
-#ifdef ANSI_C
-
 booltype fltIsNegativeZero (floattype number)
-#else
-
-booltype fltIsNegativeZero (number)
-floattype number;
-#endif
 
   { /* fltIsNegativeZero */
     /* printf("fltIsNegativeZero %f %08x %08x\n",
@@ -448,15 +364,7 @@ floattype number;
 
 
 #ifdef NAN_COMPARISON_WRONG
-#ifdef ANSI_C
-
 booltype fltLe (floattype number1, floattype number2)
-#else
-
-booltype fltLe (number1, number2)
-floattype number1;
-floattype number2;
-#endif
 
   { /* fltLe */
     if (isnan(number1) || isnan(number2)) {
@@ -470,15 +378,7 @@ floattype number2;
 
 
 #ifdef NAN_COMPARISON_WRONG
-#ifdef ANSI_C
-
 booltype fltLt (floattype number1, floattype number2)
-#else
-
-booltype fltLt (number1, number2)
-floattype number1;
-floattype number2;
-#endif
 
   { /* fltLt */
     if (isnan(number1) || isnan(number2)) {
@@ -491,14 +391,7 @@ floattype number2;
 
 
 
-#ifdef ANSI_C
-
 floattype fltParse (const const_stritype stri)
-#else
-
-floattype fltParse (stri)
-stritype stri;
-#endif
 
   {
     booltype okay;
@@ -565,15 +458,7 @@ stritype stri;
 
 
 #ifdef POWER_OF_ZERO_WRONG
-#ifdef ANSI_C
-
 floattype fltPow (floattype base, floattype exponent)
-#else
-
-floattype fltPow (base, exponent)
-floattype base;
-floattype exponent;
-#endif
 
   { /* fltPow */
     if (base == 0.0 && exponent < 0.0) {
@@ -600,15 +485,7 @@ floattype exponent;
 
 
 
-#ifdef ANSI_C
-
 floattype fltRand (floattype lower_limit, floattype upper_limit)
-#else
-
-floattype fltRand (lower_limit, upper_limit)
-floattype lower_limit;
-floattype upper_limit;
-#endif
 
   {
     double factor;
@@ -637,15 +514,7 @@ floattype upper_limit;
 
 
 
-#ifdef ANSI_C
-
 stritype fltSci (floattype number, inttype digits_precision)
-#else
-
-stritype fltSci (number, digits_precision)
-floattype number;
-inttype digits_precision;
-#endif
 
   {
     char buffer[2001];
@@ -738,14 +607,7 @@ inttype digits_precision;
 
 
 
-#ifdef ANSI_C
-
 stritype fltStr (floattype number)
-#else
-
-stritype fltStr (number)
-floattype number;
-#endif
 
   {
     char buffer[1001];

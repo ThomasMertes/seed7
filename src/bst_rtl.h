@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void bstAppend (bstritype *const bstri_to, const_bstritype bstri_from);
 bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2);
 inttype bstCmp (const const_bstritype bstri1, const const_bstritype bstri2);
@@ -41,18 +39,3 @@ inttype bstHashCode (const const_bstritype bstri);
 bstritype bstParse (const const_stritype stri);
 stritype bstStr (const const_bstritype bstri);
 bstritype bstTail (const const_bstritype stri, inttype start);
-
-#else
-
-void bstAppend ();
-bstritype bstCat ();
-inttype bstCmp ();
-void bstCpy ();
-bstritype bstCreate ();
-void bstDestr ();
-inttype bstHashCode ();
-bstritype bstParse ();
-stritype bstStr ();
-bstritype bstTail ();
-
-#endif

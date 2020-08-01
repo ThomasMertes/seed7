@@ -67,16 +67,7 @@
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 void *memmove (char *to, char *from, size_t num)
-#else
-
-void *memmove (to, from, num)
-char *to;
-char *from;
-size_t num;
-#endif
 
   {
     size_t i;
@@ -103,7 +94,6 @@ size_t num;
 
 
 #ifdef USE_TERMCAP
-#ifdef ANSI_C
 #ifdef C_PLUS_PLUS
 
 extern "C" int tgetent (char *, char *);
@@ -121,16 +111,6 @@ int tgetflag (char *);
 char *tgetstr(char *, char **);
 char *tgoto (char *, int, int);
 void tputs (char *, int, int (*) (char ch));
-
-#endif
-#else
-
-int tgetent ();
-int tgetnum ();
-int tgetflag ();
-char *tgetstr();
-char *tgoto ();
-int tputs ();
 
 #endif
 #endif
@@ -251,15 +231,7 @@ static unsigned char *space;
 
 
 
-#ifdef ANSI_C
-
 static void downleft (int col, int lin)
-#else
-
-static void downleft (col, lin)
-int col;
-int lin;
-#endif
 
   { /* downleft */
     if (col == 0 && carriage_return != NULL && cursor_down != NULL) {
@@ -272,13 +244,7 @@ int lin;
 
 
 
-#ifdef ANSI_C
-
 static void inf_beep (void)
-#else
-
-static void inf_beep ()
-#endif
 
   { /* inf_beep */
     fputc('\007', stderr);
@@ -287,14 +253,7 @@ static void inf_beep ()
 
 
 
-#ifdef ANSI_C
-
 static void setattr (unsigned char attribute)
-#else
-
-static void setattr (attribute)
-unsigned char attribute;
-#endif
 
   { /* setattr */
     if (attribute == TEXT_NORMAL) {
@@ -310,15 +269,7 @@ unsigned char attribute;
 
 
 
-#ifdef ANSI_C
-
 static void inf_setcolor (inttype foreground, inttype background)
-#else
-
-static void inf_setcolor (foreground, background)
-inttype foreground;
-inttype background;
-#endif
 
   { /* inf_setcolor */
     if (foreground == black || background == white) {
@@ -330,13 +281,7 @@ inttype background;
 
 
 
-#ifdef ANSI_C
-
 static void inf_standardcolour (void)
-#else
-
-static void inf_standardcolour ()
-#endif
 
   { /* inf_standardcolour */
     inf_setcolor(lightgray,black);
@@ -345,13 +290,7 @@ static void inf_standardcolour ()
 
 
 
-#ifdef ANSI_C
-
 void inf_normalcolour (void)
-#else
-
-void inf_normalcolour ()
-#endif
 
   { /* inf_normalcolour */
     inf_setcolor(lightgray,black);
@@ -360,14 +299,7 @@ void inf_normalcolour ()
 
 
 
-#ifdef ANSI_C
-
 static int inf_setfont (char *fontname)
-#else
-
-static int inf_setfont (fontname)
-char *fontname;
-#endif
 
   { /* inf_setfont */
     return 1;
@@ -375,13 +307,7 @@ char *fontname;
 
 
 
-#ifdef ANSI_C
-
 inttype inf_textheight (void)
-#else
-
-inttype inf_textheight ()
-#endif
 
   { /* inf_textheight */
     return 1;
@@ -389,17 +315,8 @@ inttype inf_textheight ()
 
 
 
-#ifdef ANSI_C
-
 inttype textwidth (stritype stri,
     inttype startcol, inttype stopcol)
-#else
-
-inttype textwidth (stri, startcol, stopcol)
-stritype stri;
-inttype startcol;
-inttype stopcol;
-#endif
 
   { /* textwidth */
     return stopcol + 1 - startcol;
@@ -407,18 +324,8 @@ inttype stopcol;
 
 
 
-#ifdef ANSI_C
-
 void textcolumns (stritype stri, inttype striwidth,
     inttype * cols, inttype *rest)
-#else
-
-void textcolumns (stri, striwidth, cols, rest)
-stritype stri;
-inttype striwidth;
-inttype *cols;
-inttype *rest;
-#endif
 
   { /* textcolumns */
     *cols = striwidth;
@@ -427,13 +334,7 @@ inttype *rest;
 
 
 
-#ifdef ANSI_C
-
 int conHeight (void)
-#else
-
-int conHeight ()
-#endif
 
   { /* conHeight */
     return lines;
@@ -441,13 +342,7 @@ int conHeight ()
 
 
 
-#ifdef ANSI_C
-
 int conWidth (void)
-#else
-
-int conWidth ()
-#endif
 
   { /* conWidth */
     return columns;
@@ -455,13 +350,7 @@ int conWidth ()
 
 
 
-#ifdef ANSI_C
-
 void conFlush (void)
-#else
-
-void conFlush ()
-#endif
 
   { /* conFlush */
     /* fprintf(stderr, "conFlush\n"); */
@@ -486,14 +375,7 @@ void conFlush ()
 
 
 
-#ifdef ANSI_C
-
 void conCursor (booltype on)
-#else
-
-void conCursor (on)
-booltype on;
-#endif
 
   { /* conCursor */
     /* fprintf(stderr, "scrCursor(%d)\n", on); */
@@ -508,15 +390,7 @@ booltype on;
 
 
 
-#ifdef ANSI_C
-
 void conSetCursor (inttype lin, inttype col)
-#else
-
-void conSetCursor (lin, col)
-inttype lin;
-inttype col;
-#endif
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -535,18 +409,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void conText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
-#else
-
-void conText (lin, col, stri, length)
-inttype lin;
-inttype col;
-ustritype stri;
-memsizetype length;
-#endif
 
   /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
@@ -660,18 +524,8 @@ memsizetype length;
 
 
 
-#ifdef ANSI_C
-
 void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
-#else
-
-void conClear (startlin, startcol, stoplin, stopcol)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-#endif
 
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
@@ -746,19 +600,8 @@ inttype stopcol;
 
 
 
-#ifdef ANSI_C
-
 void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conUpScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol upward by count lines. The upper count lines of the    */
@@ -877,19 +720,8 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conDownScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol downward by count lines. The lower count lines of the  */
@@ -1005,19 +837,8 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conLeftScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol leftward by count lines. The left count lines of the   */
@@ -1126,19 +947,8 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conRightScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol rightward by count lines. The right count lines of the */
@@ -1251,13 +1061,7 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conShut (void)
-#else
-
-void conShut ()
-#endif
 
   { /* conShut */
     if (console_initialized) {
@@ -1271,13 +1075,7 @@ void conShut ()
 
 
 
-#ifdef ANSI_C
-
 int conOpen (void)
-#else
-
-int conOpen ()
-#endif
 
   /* Initializes and clears the console.                            */
 

@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype cmd_big_filesize    (listtype arguments);
 objecttype cmd_chdir           (listtype arguments);
 objecttype cmd_clone_file      (listtype arguments);
@@ -61,42 +59,3 @@ objecttype cmd_shell_escape    (listtype arguments);
 objecttype cmd_start_process   (listtype arguments);
 objecttype cmd_symlink         (listtype arguments);
 objecttype cmd_to_os_path      (listtype arguments);
-
-#else
-
-objecttype cmd_big_filesize ();
-objecttype cmd_chdir ();
-objecttype cmd_clone_file ();
-objecttype cmd_config_value ();
-objecttype cmd_copy_file ();
-objecttype cmd_environment ();
-objecttype cmd_filemode ();
-objecttype cmd_filesize ();
-objecttype cmd_filetype ();
-objecttype cmd_filetype_sl ();
-objecttype cmd_getcwd ();
-objecttype cmd_getenv ();
-objecttype cmd_get_atime ();
-objecttype cmd_get_ctime ();
-objecttype cmd_get_mtime ();
-objecttype cmd_getSearchPath ();
-objecttype cmd_homeDir();
-objecttype cmd_ls ();
-objecttype cmd_mkdir ();
-objecttype cmd_move ();
-objecttype cmd_pipe2 ();
-objecttype cmd_pty ();
-objecttype cmd_readlink ();
-objecttype cmd_remove ();
-objecttype cmd_remove_any_file ();
-objecttype cmd_setenv ();
-objecttype cmd_set_atime ();
-objecttype cmd_set_filemode ();
-objecttype cmd_set_mtime ();
-objecttype cmd_shell ();
-objecttype cmd_shell_escape ();
-objecttype cmd_start_process ();
-objecttype cmd_symlink ();
-objecttype cmd_to_os_path ();
-
-#endif

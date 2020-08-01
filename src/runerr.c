@@ -50,13 +50,7 @@
 
 
 
-#ifdef ANSI_C
-
 void continue_question (void)
-#else
-
-void continue_question ()
-#endif
 
   {
     int ch;
@@ -91,14 +85,7 @@ void continue_question ()
 
 
 
-#ifdef ANSI_C
-
 static void write_call_stack_element (const_listtype stack_elem)
-#else
-
-static void write_call_stack_element (stack_elem)
-listtype stack_elem;
-#endif
 
   {
     const_listtype position_stack_elem;
@@ -155,14 +142,7 @@ listtype stack_elem;
 
 
 
-#ifdef ANSI_C
-
 void write_call_stack (const_listtype stack_elem)
-#else
-
-void write_call_stack (stack_elem)
-listtype stack_elem;
-#endif
 
   { /* write_call_stack */
     if (stack_elem != NULL) {
@@ -173,15 +153,7 @@ listtype stack_elem;
 
 
 
-#ifdef ANSI_C
-
 objecttype raise_with_arguments (objecttype exception, listtype list)
-#else
-
-objecttype raise_with_arguments (exception, list)
-objecttype exception;
-listtype list;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -262,14 +234,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 objecttype raise_exception (objecttype exception)
-#else
-
-objecttype raise_exception (exception)
-objecttype exception;
-#endif
 
   { /* raise_exception */
     return raise_with_arguments(exception, curr_argument_list);
@@ -277,16 +242,7 @@ objecttype exception;
 
 
 
-#ifdef ANSI_C
-
 void raise_error3 (int exception_num, const_cstritype filename, int line)
-#else
-
-void raise_error3 (exception_num, filename, line)
-int exception_num;
-char *filename;
-int line;
-#endif
 
   { /* raise_error3 */
     (void) raise_exception(prog.sys_var[exception_num]);
@@ -294,15 +250,7 @@ int line;
 
 
 
-#ifdef ANSI_C
-
 void run_error (objectcategory required, objecttype argument)
-#else
-
-void run_error (required, argument)
-objectcategory required;
-objecttype argument;
-#endif
 
   { /* run_error */
     if (curr_exec_object != NULL) {
@@ -338,14 +286,7 @@ objecttype argument;
 
 
 
-#ifdef ANSI_C
-
 void empty_value (objecttype argument)
-#else
-
-void empty_value (argument)
-objecttype argument;
-#endif
 
   { /* empty_value */
     if (curr_exec_object != NULL) {
@@ -367,14 +308,7 @@ objecttype argument;
 
 
 
-#ifdef ANSI_C
-
 void var_required (objecttype argument)
-#else
-
-void var_required (argument)
-objecttype argument;
-#endif
 
   { /* var_required */
     if (curr_exec_object != NULL) {

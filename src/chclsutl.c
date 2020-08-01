@@ -50,13 +50,7 @@
 
 
 
-#ifdef ANSI_C
-
 void init_chclass (void)
-#else
-
-void init_chclass ()
-#endif
 
   {
     int character;

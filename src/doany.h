@@ -25,22 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype exec1 (listtype list);
 booltype do_flush (objecttype outfile);
 booltype do_wrnl (objecttype outfile);
 booltype do_wrstri (objecttype outfile, stritype stri);
 booltype do_wrcstri (objecttype outfile, const_cstritype stri);
 void init_do_any (void);
-
-#else
-
-objecttype exec1 ();
-booltype do_flush ();
-booltype do_wrnl ();
-booltype do_wrstri ();
-booltype do_wrcstri ();
-void init_do_any ();
-
-#endif

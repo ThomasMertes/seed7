@@ -32,12 +32,4 @@
 #define raise_error(num) raise_error2(num, __FILE__, __LINE__)
 
 
-#ifdef ANSI_C
-
 void raise_error2 (int exception_num, const_cstritype filename, int line);
-
-#else
-
-void raise_error2 ();
-
-#endif

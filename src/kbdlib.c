@@ -49,14 +49,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype kbd_busy_getc (listtype arguments)
-#else
-
-objecttype kbd_busy_getc (arguments)
-listtype arguments;
-#endif
 
   { /* kbd_busy_getc */
     if (kbdKeyPressed()) {
@@ -68,14 +61,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype kbd_getc (listtype arguments)
-#else
-
-objecttype kbd_getc (arguments)
-listtype arguments;
-#endif
 
   { /* kbd_getc */
     return bld_char_temp(kbdGetc());
@@ -83,14 +69,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype kbd_gets (listtype arguments)
-#else
-
-objecttype kbd_gets (arguments)
-listtype arguments;
-#endif
 
   { /* kbd_gets */
     isit_int(arg_2(arguments));
@@ -100,14 +79,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype kbd_keypressed (listtype arguments)
-#else
-
-objecttype kbd_keypressed (arguments)
-listtype arguments;
-#endif
 
   { /* kbd_keypressed */
     if (kbdKeyPressed()) {
@@ -119,14 +91,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype kbd_line_read (listtype arguments)
-#else
-
-objecttype kbd_line_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -141,14 +106,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype kbd_raw_getc (listtype arguments)
-#else
-
-objecttype kbd_raw_getc (arguments)
-listtype arguments;
-#endif
 
   { /* kbd_raw_read */
     return bld_char_temp(kbdRawGetc());
@@ -156,14 +114,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype kbd_word_read (listtype arguments)
-#else
-
-objecttype kbd_word_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;

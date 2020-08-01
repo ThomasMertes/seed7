@@ -25,18 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void shut_drivers (void);
 #ifdef CATCH_SIGNALS
 void activate_signal_handlers (void);
-#endif
-
-#else
-
-void shut_drivers ();
-#ifdef CATCH_SIGNALS
-void activate_signal_handlers ();
-#endif
-
 #endif

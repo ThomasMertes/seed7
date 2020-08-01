@@ -44,8 +44,6 @@ typedef ustritype console_stritype;
 #endif
 
 
-#ifdef ANSI_C
-
 int conHeight (void);
 int conWidth (void);
 void conFlush (void);
@@ -65,21 +63,3 @@ void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count);
 void conShut (void);
 int conOpen (void);
-
-#else
-
-int conHeight ();
-int conWidth ();
-void conFlush ();
-void conCursor ();
-void conSetCursor ();
-void conText ();
-void conClear ();
-void conUpScroll ();
-void conDownScroll ();
-void conLeftScroll ();
-void conRightScroll ();
-void conShut ();
-int conOpen ();
-
-#endif

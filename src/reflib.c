@@ -62,15 +62,7 @@
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void qsort_list (listtype *begin_sorted, listtype *end_sorted)
-#else
-
-static void qsort_list (begin_sorted, end_sorted)
-listtype *begin_sorted;
-listtype *end_sorted;
-#endif
 
   {
     listtype input_list, key_element;
@@ -129,14 +121,7 @@ listtype *end_sorted;
 
 
 
-#ifdef ANSI_C
-
 static void sort_list (listtype *any_list)
-#else
-
-static void sort_list (any_list)
-listtype *any_list;
-#endif
 
   {
     listtype list_end;
@@ -151,14 +136,7 @@ listtype *any_list;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_addr (listtype arguments)
-#else
-
-objecttype ref_addr (arguments)
-listtype arguments;
-#endif
 
   { /* ref_addr */
     return bld_reference_temp(arg_2(arguments));
@@ -166,14 +144,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_alloc (listtype arguments)
-#else
-
-objecttype ref_alloc (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj1;
@@ -197,14 +168,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_arrmaxidx (listtype arguments)
-#else
-
-objecttype ref_arrmaxidx (arguments)
-listtype arguments;
-#endif
 
   { /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
@@ -214,14 +178,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_arrminidx (listtype arguments)
-#else
-
-objecttype ref_arrminidx (arguments)
-listtype arguments;
-#endif
 
   { /* ref_arrminidx */
     isit_reference(arg_1(arguments));
@@ -231,14 +188,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_arrtolist (listtype arguments)
-#else
-
-objecttype ref_arrtolist (arguments)
-listtype arguments;
-#endif
 
   { /* ref_arrtolist */
     isit_reference(arg_1(arguments));
@@ -248,14 +198,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_body (listtype arguments)
-#else
-
-objecttype ref_body (arguments)
-listtype arguments;
-#endif
 
   { /* ref_body */
     isit_reference(arg_1(arguments));
@@ -265,14 +208,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_cast (listtype arguments)
-#else
-
-objecttype ref_cast (arguments)
-listtype arguments;
-#endif
 
   { /* ref_cast */
     /* The reference value is taken as int on purpose */
@@ -281,14 +217,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_category (listtype arguments)
-#else
-
-objecttype ref_category (arguments)
-listtype arguments;
-#endif
 
   { /* ref_category */
     isit_reference(arg_1(arguments));
@@ -298,14 +227,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_cat_parse (listtype arguments)
-#else
-
-objecttype ref_cat_parse (arguments)
-listtype arguments;
-#endif
 
   { /* ref_cat_parse */
     isit_stri(arg_3(arguments));
@@ -315,14 +237,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_cat_str (listtype arguments)
-#else
-
-objecttype ref_cat_str (arguments)
-listtype arguments;
-#endif
 
   { /* ref_cat_str */
     isit_int(arg_1(arguments));
@@ -332,14 +247,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_cmp (listtype arguments)
-#else
-
-objecttype ref_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     memsizetype ref1;
@@ -363,14 +271,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_content (listtype arguments)
-#else
-
-objecttype ref_content (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg1;
@@ -385,14 +286,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_conv (listtype arguments)
-#else
-
-objecttype ref_conv (arguments)
-listtype arguments;
-#endif
 
   { /* ref_conv */
     isit_reference(arg_3(arguments));
@@ -401,14 +295,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_cpy (listtype arguments)
-#else
-
-objecttype ref_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ref_variable;
@@ -424,14 +311,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_create (listtype arguments)
-#else
-
-objecttype ref_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype refe_to;
@@ -448,14 +328,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_deref (listtype arguments)
-#else
-
-objecttype ref_deref (arguments)
-listtype arguments;
-#endif
 
   { /* ref_deref */
     isit_reference(arg_1(arguments));
@@ -464,14 +337,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_eq (listtype arguments)
-#else
-
-objecttype ref_eq (arguments)
-listtype arguments;
-#endif
 
   { /* ref_eq */
     isit_reference(arg_1(arguments));
@@ -486,14 +352,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_file (listtype arguments)
-#else
-
-objecttype ref_file (arguments)
-listtype arguments;
-#endif
 
   {
     const_stritype name;
@@ -512,14 +371,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_find (listtype arguments)
-#else
-
-objecttype ref_find (arguments)
-listtype arguments;
-#endif
 
   {
     /* objecttype module_object; */
@@ -549,14 +401,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_getref (listtype arguments)
-#else
-
-objecttype ref_getref (arguments)
-listtype arguments;
-#endif
 
   { /* ref_getref */
     return bld_reference_temp(arg_1(arguments));
@@ -564,14 +409,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_hashcode (listtype arguments)
-#else
-
-objecttype ref_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* ref_hashcode */
     isit_reference(arg_1(arguments));
@@ -581,14 +419,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_hshdatatolist (listtype arguments)
-#else
-
-objecttype ref_hshdatatolist (arguments)
-listtype arguments;
-#endif
 
   { /* ref_hshdatatolist */
     isit_reference(arg_1(arguments));
@@ -598,14 +429,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_hshkeystolist (listtype arguments)
-#else
-
-objecttype ref_hshkeystolist (arguments)
-listtype arguments;
-#endif
 
   { /* ref_hshkeystolist */
     isit_reference(arg_1(arguments));
@@ -615,14 +439,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_issymb (listtype arguments)
-#else
-
-objecttype ref_issymb (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype symb_object;
@@ -643,14 +460,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_isvar (listtype arguments)
-#else
-
-objecttype ref_isvar (arguments)
-listtype arguments;
-#endif
 
   { /* ref_isvar */
     isit_reference(arg_1(arguments));
@@ -663,14 +473,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_itftosct (listtype arguments)
-#else
-
-objecttype ref_itftosct (arguments)
-listtype arguments;
-#endif
 
   { /* ref_itftosct */
     isit_reference(arg_1(arguments));
@@ -680,14 +483,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_line (listtype arguments)
-#else
-
-objecttype ref_line (arguments)
-listtype arguments;
-#endif
 
   { /* ref_line */
     isit_reference(arg_1(arguments));
@@ -697,14 +493,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_local_consts (listtype arguments)
-#else
-
-objecttype ref_local_consts (arguments)
-listtype arguments;
-#endif
 
   { /* ref_local_consts */
     isit_reference(arg_1(arguments));
@@ -714,14 +503,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_local_vars (listtype arguments)
-#else
-
-objecttype ref_local_vars (arguments)
-listtype arguments;
-#endif
 
   { /* ref_local_vars */
     isit_reference(arg_1(arguments));
@@ -731,14 +513,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_mkref (listtype arguments)
-#else
-
-objecttype ref_mkref (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype refe_to;
@@ -762,14 +537,7 @@ trace2(refe_to);
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_ne (listtype arguments)
-#else
-
-objecttype ref_ne (arguments)
-listtype arguments;
-#endif
 
   { /* ref_ne */
     isit_reference(arg_1(arguments));
@@ -784,14 +552,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_nil (listtype arguments)
-#else
-
-objecttype ref_nil (arguments)
-listtype arguments;
-#endif
 
   { /* ref_nil */
     return bld_reference_temp(NULL);
@@ -799,14 +560,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_num (listtype arguments)
-#else
-
-objecttype ref_num (arguments)
-listtype arguments;
-#endif
 
   { /* ref_num */
     isit_reference(arg_1(arguments));
@@ -816,14 +570,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_params (listtype arguments)
-#else
-
-objecttype ref_params (arguments)
-listtype arguments;
-#endif
 
   {
     listtype params;
@@ -843,14 +590,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_prog (listtype arguments)
-#else
-
-objecttype ref_prog (arguments)
-listtype arguments;
-#endif
 
   { /* ref_prog */
     return bld_reference_temp(NULL);
@@ -858,14 +598,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_resini (listtype arguments)
-#else
-
-objecttype ref_resini (arguments)
-listtype arguments;
-#endif
 
   { /* ref_resini */
     isit_reference(arg_1(arguments));
@@ -875,14 +608,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_result (listtype arguments)
-#else
-
-objecttype ref_result (arguments)
-listtype arguments;
-#endif
 
   { /* ref_result */
     isit_reference(arg_1(arguments));
@@ -892,14 +618,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_scan (listtype arguments)
-#else
-
-objecttype ref_scan (arguments)
-listtype arguments;
-#endif
 
   {
     stritype str1;
@@ -938,14 +657,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_scttolist (listtype arguments)
-#else
-
-objecttype ref_scttolist (arguments)
-listtype arguments;
-#endif
 
   { /* ref_scttolist */
     isit_reference(arg_1(arguments));
@@ -955,14 +667,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_select (listtype arguments)
-#else
-
-objecttype ref_select (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype refer;
@@ -1039,14 +744,7 @@ printf("\n");
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_setcategory (listtype arguments)
-#else
-
-objecttype ref_setcategory (arguments)
-listtype arguments;
-#endif
 
   { /* ref_setcategory */
     isit_reference(arg_1(arguments));
@@ -1058,14 +756,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_setparams (listtype arguments)
-#else
-
-objecttype ref_setparams (arguments)
-listtype arguments;
-#endif
 
   { /* ref_setparams */
     isit_reference(arg_1(arguments));
@@ -1076,14 +767,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_settype (listtype arguments)
-#else
-
-objecttype ref_settype (arguments)
-listtype arguments;
-#endif
 
   { /* ref_settype */
     isit_reference(arg_1(arguments));
@@ -1095,14 +779,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_setvar (listtype arguments)
-#else
-
-objecttype ref_setvar (arguments)
-listtype arguments;
-#endif
 
   { /* ref_setvar */
     isit_reference(arg_1(arguments));
@@ -1117,14 +794,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_str (listtype arguments)
-#else
-
-objecttype ref_str (arguments)
-listtype arguments;
-#endif
 
   { /* ref_str */
     isit_reference(arg_1(arguments));
@@ -1134,14 +804,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_symb (listtype arguments)
-#else
-
-objecttype ref_symb (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype symb_object;
@@ -1168,14 +831,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_trace (listtype arguments)
-#else
-
-objecttype ref_trace (arguments)
-listtype arguments;
-#endif
 
   { /* ref_trace */
     trace1(arg_1(arguments));
@@ -1184,14 +840,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_type (listtype arguments)
-#else
-
-objecttype ref_type (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;
@@ -1210,14 +859,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ref_value (listtype arguments)
-#else
-
-objecttype ref_value (arguments)
-listtype arguments;
-#endif
 
   { /* ref_value */
     isit_reference(arg_1(arguments));

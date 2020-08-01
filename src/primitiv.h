@@ -25,12 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void init_primitiv (void);
-
-#else
-
-void init_primitiv ();
-
-#endif

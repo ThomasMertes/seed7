@@ -35,14 +35,5 @@ EXTERN unsigned int comment_count;
 #endif
 
 
-#ifdef ANSI_C
-
 void show_statistic (void);
 void reset_statistic (void);
-
-#else
-
-void show_statistic ();
-void reset_statistic ();
-
-#endif

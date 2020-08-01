@@ -47,14 +47,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype con_clear (listtype arguments)
-#else
-
-objecttype con_clear (arguments)
-listtype arguments;
-#endif
 
   { /* con_clear */
     isit_int(arg_2(arguments));
@@ -70,14 +63,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_cursor (listtype arguments)
-#else
-
-objecttype con_cursor (arguments)
-listtype arguments;
-#endif
 
   { /* con_cursor */
     isit_bool(arg_2(arguments));
@@ -93,14 +79,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_flush (listtype arguments)
-#else
-
-objecttype con_flush (arguments)
-listtype arguments;
-#endif
 
   { /* con_flush */
     conFlush();
@@ -109,14 +88,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_height (listtype arguments)
-#else
-
-objecttype con_height (arguments)
-listtype arguments;
-#endif
 
   { /* con_height */
     return bld_int_temp(conHeight());
@@ -124,14 +96,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_h_scl (listtype arguments)
-#else
-
-objecttype con_h_scl (arguments)
-listtype arguments;
-#endif
 
   {
     inttype scroll_amount;
@@ -161,14 +126,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_open (listtype arguments)
-#else
-
-objecttype con_open (arguments)
-listtype arguments;
-#endif
 
   { /* con_open */
     conOpen();
@@ -177,14 +135,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_setpos (listtype arguments)
-#else
-
-objecttype con_setpos (arguments)
-listtype arguments;
-#endif
 
   { /* con_setpos */
     isit_int(arg_2(arguments));
@@ -195,14 +146,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_v_scl (listtype arguments)
-#else
-
-objecttype con_v_scl (arguments)
-listtype arguments;
-#endif
 
   {
     inttype scroll_amount;
@@ -232,14 +176,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_width (listtype arguments)
-#else
-
-objecttype con_width (arguments)
-listtype arguments;
-#endif
 
   { /* con_width */
     return bld_int_temp(conWidth());
@@ -247,14 +184,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype con_write (listtype arguments)
-#else
-
-objecttype con_write (arguments)
-listtype arguments;
-#endif
 
   { /* con_write */
     isit_stri(arg_2(arguments));

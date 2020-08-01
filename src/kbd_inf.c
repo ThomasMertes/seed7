@@ -126,14 +126,7 @@ static chartype key_code[SIZE_KEY_TABLE] = {
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void show_term_descr (struct termios *curr_term_descr)
-#else
-
-static void show_term_descr (curr_term_descr)
-struct termios *curr_term_descr;
-#endif
 
   {
     int pos;
@@ -168,15 +161,7 @@ struct termios *curr_term_descr;
 
 
 
-#ifdef ANSI_C
-
 static booltype term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
-#else
-
-static booltype term_descr_equal (term_descr1, term_descr2)
-struct termios *term_descr1;
-struct termios *term_descr2;
-#endif
 
   {
     int pos;
@@ -201,15 +186,7 @@ struct termios *term_descr2;
 
 
 
-#ifdef ANSI_C
-
 static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
-#else
-
-static booltype tcset_term_descr (file_no, new_term_descr)
-int file_no;
-struct termios *new_term_descr;
-#endif
 
   {
     struct termios term_descr_check;
@@ -238,16 +215,7 @@ struct termios *new_term_descr;
 
 
 
-#ifdef ANSI_C
-
 static booltype tcset_vmin_vtime (int file_no, int vmin, int vtime)
-#else
-
-static booltype tcset_vmin_vtime (file_no, vmin, vtime)
-int file_no;
-int vmin;
-int vtime;
-#endif
 
   {
     struct termios term_descr_check;
@@ -276,14 +244,7 @@ int vtime;
 
 
 
-#ifdef ANSI_C
-
 static booltype read_char_if_present (uchartype *ch)
-#else
-
-static booltype read_char_if_present (ch)
-uchartype *ch;
-#endif
 
   {
     int file_no;
@@ -299,13 +260,7 @@ uchartype *ch;
 
 
 
-#ifdef ANSI_C
-
 static void consume_chars_present (void)
-#else
-
-static void consume_chars_present ()
-#endif
 
   {
     int file_no;
@@ -322,15 +277,7 @@ static void consume_chars_present ()
 
 
 
-#ifdef ANSI_C
-
 static chartype read_utf8_key (ustritype ustri, size_t ustri_len)
-#else
-
-static chartype read_utf8_key (ustri, ustri_len)
-ustritype ustri;
-size_t ustri_len;
-#endif
 
   {
     size_t len;
@@ -404,14 +351,7 @@ size_t ustri_len;
 
 
 
-#ifdef ANSI_C
-
 static chartype read_f_key (chartype actual_char)
-#else
-
-static chartype read_f_key (actual_char)
-chartype actual_char;
-#endif
 
   {
     char in_buffer[101];
@@ -565,13 +505,7 @@ chartype actual_char;
 
 
 
-#ifdef ANSI_C
-
 static void utf8_init (void)
-#else
-
-static void utf8_init ()
-#endif
 
   {
     char *s;
@@ -588,13 +522,7 @@ static void utf8_init ()
 
 
 
-#ifdef ANSI_C
-
 static void key_table_init (void)
-#else
-
-static void key_table_init ()
-#endif
 
   {
     int number;
@@ -789,13 +717,7 @@ static void key_table_init ()
 
 
 
-#ifdef ANSI_C
-
 void kbdShut (void)
-#else
-
-void kbdShut ()
-#endif
 
   { /* kbdShut */
     if (keybd_initialized) {
@@ -810,13 +732,7 @@ void kbdShut ()
 
 
 
-#ifdef ANSI_C
-
 static void kbd_init (void)
-#else
-
-static void kbd_init ()
-#endif
 
   {
     int file_no;
@@ -869,13 +785,7 @@ static void kbd_init ()
 
 
 
-#ifdef ANSI_C
-
 booltype kbdKeyPressed (void)
-#else
-
-booltype kbdKeyPressed ()
-#endif
 
   {
     int file_no;
@@ -920,13 +830,7 @@ booltype kbdKeyPressed ()
 
 
 
-#ifdef ANSI_C
-
 chartype kbdGetc (void)
-#else
-
-chartype kbdGetc ()
-#endif
 
   {
     uchartype ch;
@@ -956,13 +860,7 @@ chartype kbdGetc ()
 
 
 
-#ifdef ANSI_C
-
 chartype kbdRawGetc (void)
-#else
-
-chartype kbdRawGetc ()
-#endif
 
   {
     uchartype ch;

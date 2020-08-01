@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype hsh_contains     (listtype arguments);
 objecttype hsh_conv         (listtype arguments);
 objecttype hsh_cpy          (listtype arguments);
@@ -44,25 +42,3 @@ objecttype hsh_keys         (listtype arguments);
 objecttype hsh_lng          (listtype arguments);
 objecttype hsh_refidx       (listtype arguments);
 objecttype hsh_values       (listtype arguments);
-
-#else
-
-objecttype hsh_contains ();
-objecttype hsh_conv ();
-objecttype hsh_cpy ();
-objecttype hsh_create ();
-objecttype hsh_destr ();
-objecttype hsh_empty ();
-objecttype hsh_excl ();
-objecttype hsh_for ();
-objecttype hsh_for_data_key ();
-objecttype hsh_for_key ();
-objecttype hsh_idx ();
-objecttype hsh_idx2 ();
-objecttype hsh_incl ();
-objecttype hsh_keys ();
-objecttype hsh_lng ();
-objecttype hsh_refidx ();
-objecttype hsh_values ();
-
-#endif

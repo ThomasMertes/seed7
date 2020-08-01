@@ -40,8 +40,6 @@
 #endif
 
 
-#ifdef ANSI_C
-
 settype setBaselit (const inttype number);
 inttype setCard (const const_settype set1);
 inttype setCmp (const const_settype set1, const const_settype set2);
@@ -69,34 +67,3 @@ inttype setSConv (const const_settype set1);
 settype setSymdiff (const const_settype set1, const const_settype set2);
 inttype setToInt (const const_settype set1, const inttype lowestBitNum);
 settype setUnion (const const_settype set1, const const_settype set2);
-
-#else
-
-settype setBaselit ();
-inttype setCard ();
-inttype setCmp ();
-void setCpy ();
-settype setCreate ();
-void setDestr ();
-settype setDiff ();
-booltype setElem ();
-settype setEmpty ();
-booltype setEq ();
-void setExcl ();
-inttype setHashCode ();
-settype setIConv ();
-void setIncl ();
-settype setIntersect ();
-booltype setIsEmpty ();
-booltype setIsProperSubset ();
-booltype setIsSubset ();
-inttype setMax ();
-inttype setMin ();
-inttype setNext ();
-inttype setRand ();
-settype setRangelit ();
-inttype setSConv ();
-settype setSymdiff ();
-settype setUnion ();
-
-#endif

@@ -46,14 +46,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_chr (listtype arguments)
-#else
-
-objecttype chr_chr (arguments)
-listtype arguments;
-#endif
 
   {
     inttype number;
@@ -74,14 +67,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_clit (listtype arguments)
-#else
-
-objecttype chr_clit (arguments)
-listtype arguments;
-#endif
 
   { /* chr_clit */
     isit_char(arg_1(arguments));
@@ -91,14 +77,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_cmp (listtype arguments)
-#else
-
-objecttype chr_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     chartype char1;
@@ -122,14 +101,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_conv (listtype arguments)
-#else
-
-objecttype chr_conv (arguments)
-listtype arguments;
-#endif
 
   { /* chr_conv */
     isit_char(arg_3(arguments));
@@ -138,14 +110,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_cpy (listtype arguments)
-#else
-
-objecttype chr_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -161,14 +126,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_create (listtype arguments)
-#else
-
-objecttype chr_create (arguments)
-listtype arguments;
-#endif
 
   { /* chr_create */
     isit_char(arg_3(arguments));
@@ -179,14 +137,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_decr (listtype arguments)
-#else
-
-objecttype chr_decr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -202,14 +153,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_eq (listtype arguments)
-#else
-
-objecttype chr_eq (arguments)
-listtype arguments;
-#endif
 
   { /* chr_eq */
     isit_char(arg_1(arguments));
@@ -224,14 +168,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_ge (listtype arguments)
-#else
-
-objecttype chr_ge (arguments)
-listtype arguments;
-#endif
 
   { /* chr_ge */
     isit_char(arg_1(arguments));
@@ -246,14 +183,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_gt (listtype arguments)
-#else
-
-objecttype chr_gt (arguments)
-listtype arguments;
-#endif
 
   { /* chr_gt */
     isit_char(arg_1(arguments));
@@ -268,14 +198,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_hashcode (listtype arguments)
-#else
-
-objecttype chr_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* chr_hashcode */
     isit_char(arg_1(arguments));
@@ -285,14 +208,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_iconv (listtype arguments)
-#else
-
-objecttype chr_iconv (arguments)
-listtype arguments;
-#endif
 
   { /* chr_iconv */
     isit_int(arg_3(arguments));
@@ -301,14 +217,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_incr (listtype arguments)
-#else
-
-objecttype chr_incr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -324,14 +233,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_le (listtype arguments)
-#else
-
-objecttype chr_le (arguments)
-listtype arguments;
-#endif
 
   { /* chr_le */
     isit_char(arg_1(arguments));
@@ -346,14 +248,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_low (listtype arguments)
-#else
-
-objecttype chr_low (arguments)
-listtype arguments;
-#endif
 
   {
     chartype ch;
@@ -370,14 +265,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_lt (listtype arguments)
-#else
-
-objecttype chr_lt (arguments)
-listtype arguments;
-#endif
 
   { /* chr_lt */
     isit_char(arg_1(arguments));
@@ -392,14 +280,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_ne (listtype arguments)
-#else
-
-objecttype chr_ne (arguments)
-listtype arguments;
-#endif
 
   { /* chr_ne */
     isit_char(arg_1(arguments));
@@ -414,14 +295,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_ord (listtype arguments)
-#else
-
-objecttype chr_ord (arguments)
-listtype arguments;
-#endif
 
   { /* chr_ord */
     isit_char(arg_1(arguments));
@@ -431,14 +305,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_pred (listtype arguments)
-#else
-
-objecttype chr_pred (arguments)
-listtype arguments;
-#endif
 
   { /* chr_pred */
     isit_char(arg_1(arguments));
@@ -448,14 +315,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_str (listtype arguments)
-#else
-
-objecttype chr_str (arguments)
-listtype arguments;
-#endif
 
   {
     stritype result;
@@ -473,14 +333,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_succ (listtype arguments)
-#else
-
-objecttype chr_succ (arguments)
-listtype arguments;
-#endif
 
   { /* chr_succ */
     isit_char(arg_1(arguments));
@@ -490,14 +343,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_up (listtype arguments)
-#else
-
-objecttype chr_up (arguments)
-listtype arguments;
-#endif
 
   {
     chartype ch;
@@ -514,14 +360,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype chr_value (listtype arguments)
-#else
-
-objecttype chr_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

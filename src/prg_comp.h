@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
                 memsizetype argv_start, uinttype options, const const_stritype prot_file_name);
 void prgCpy (progtype *const prog_to, const progtype prog_from);
@@ -45,22 +43,3 @@ progtype prgStrParse (const const_stritype stri, const const_settype options,
                       const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
 objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName);
 objecttype prgSysvar (const const_progtype aProg, const const_stritype sysvarName);
-
-#else
-
-void interpret ();
-void prgCpy ();
-progtype prgCreate ();
-void prgDestr ();
-inttype prgErrorCount ();
-objecttype prgEval ();
-void prgExec ();
-progtype prgFilParse ();
-listtype prgGlobalObjects ();
-objecttype prgMatch ();
-objecttype prgMatchExpr ();
-progtype prgStrParse ();
-objecttype prgSyobject ();
-objecttype prgSysvar ();
-
-#endif

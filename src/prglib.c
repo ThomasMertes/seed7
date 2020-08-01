@@ -62,14 +62,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_cpy (listtype arguments)
-#else
-
-objecttype prg_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype prog_to;
@@ -102,14 +95,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_create (listtype arguments)
-#else
-
-objecttype prg_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype prog_from;
@@ -133,14 +119,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_destr (listtype arguments)
-#else
-
-objecttype prg_destr (arguments)
-listtype arguments;
-#endif
 
   { /* prg_destr */
     isit_prog(arg_1(arguments));
@@ -151,14 +130,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_empty (listtype arguments)
-#else
-
-objecttype prg_empty (arguments)
-listtype arguments;
-#endif
 
   { /* prg_empty */
     return bld_prog_temp(NULL);
@@ -166,14 +138,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_eq (listtype arguments)
-#else
-
-objecttype prg_eq (arguments)
-listtype arguments;
-#endif
 
   { /* prg_eq */
     isit_prog(arg_1(arguments));
@@ -187,14 +152,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_error_count (listtype arguments)
-#else
-
-objecttype prg_error_count (arguments)
-listtype arguments;
-#endif
 
   { /* prg_error_count */
     isit_prog(arg_1(arguments));
@@ -204,14 +162,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_eval (listtype arguments)
-#else
-
-objecttype prg_eval (arguments)
-listtype arguments;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -232,14 +183,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_exec (listtype arguments)
-#else
-
-objecttype prg_exec (arguments)
-listtype arguments;
-#endif
 
   {
     rtlArraytype parameters;
@@ -264,14 +208,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_fil_parse (listtype arguments)
-#else
-
-objecttype prg_fil_parse (arguments)
-listtype arguments;
-#endif
 
   {
     rtlArraytype libraryDirs;
@@ -297,14 +234,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_find (listtype arguments)
-#else
-
-objecttype prg_find (arguments)
-listtype arguments;
-#endif
 
   {
     /* objecttype module_object; */
@@ -334,14 +264,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_global_objects (listtype arguments)
-#else
-
-objecttype prg_global_objects (arguments)
-listtype arguments;
-#endif
 
   { /* prg_global_objects */
     isit_prog(arg_1(arguments));
@@ -351,14 +274,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_match (listtype arguments)
-#else
-
-objecttype prg_match (arguments)
-listtype arguments;
-#endif
 
   { /* prg_match */
     isit_prog(arg_1(arguments));
@@ -369,14 +285,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_match_expr (listtype arguments)
-#else
-
-objecttype prg_match_expr (arguments)
-listtype arguments;
-#endif
 
   { /* prg_match_expr */
     isit_prog(arg_1(arguments));
@@ -387,14 +296,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_name (listtype arguments)
-#else
-
-objecttype prg_name (arguments)
-listtype arguments;
-#endif
 
   { /* prg_name */
     return bld_stri_temp(strCreate(prog.program_name));
@@ -402,14 +304,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_ne (listtype arguments)
-#else
-
-objecttype prg_ne (arguments)
-listtype arguments;
-#endif
 
   { /* prg_ne */
     isit_prog(arg_1(arguments));
@@ -423,14 +318,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_path (listtype arguments)
-#else
-
-objecttype prg_path (arguments)
-listtype arguments;
-#endif
 
   { /* prg_path */
     return bld_stri_temp(strCreate(prog.program_path));
@@ -438,14 +326,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_prog (listtype arguments)
-#else
-
-objecttype prg_prog (arguments)
-listtype arguments;
-#endif
 
   { /* prg_prog */
     return bld_prog_temp(NULL);
@@ -453,14 +334,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_str_parse (listtype arguments)
-#else
-
-objecttype prg_str_parse (arguments)
-listtype arguments;
-#endif
 
   {
     rtlArraytype libraryDirs;
@@ -486,14 +360,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_syobject (listtype arguments)
-#else
-
-objecttype prg_syobject (arguments)
-listtype arguments;
-#endif
 
   { /* prg_syobject */
     isit_prog(arg_1(arguments));
@@ -504,14 +371,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_sysvar (listtype arguments)
-#else
-
-objecttype prg_sysvar (arguments)
-listtype arguments;
-#endif
 
   { /* prg_sysvar */
     isit_prog(arg_1(arguments));
@@ -522,14 +382,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prg_value (listtype arguments)
-#else
-
-objecttype prg_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

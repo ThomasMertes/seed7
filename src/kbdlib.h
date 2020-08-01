@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype kbd_busy_getc  (listtype arguments);
 objecttype kbd_getc       (listtype arguments);
 objecttype kbd_gets       (listtype arguments);
@@ -34,15 +32,3 @@ objecttype kbd_keypressed (listtype arguments);
 objecttype kbd_line_read  (listtype arguments);
 objecttype kbd_raw_getc   (listtype arguments);
 objecttype kbd_word_read  (listtype arguments);
-
-#else
-
-objecttype kbd_busy_getc ();
-objecttype kbd_getc ();
-objecttype kbd_gets ();
-objecttype kbd_keypressed ();
-objecttype kbd_line_read ();
-objecttype kbd_raw_getc ();
-objecttype kbd_word_read ();
-
-#endif

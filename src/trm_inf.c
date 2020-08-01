@@ -58,7 +58,6 @@
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
 #ifdef C_PLUS_PLUS
 
 extern "C" int tgetent (char *, char *);
@@ -78,30 +77,11 @@ char *tgoto (char *, int, int);
 void tputs (char *, int, int (*) (char ch));
 
 #endif
-#else
-
-int tgetent ();
-int tgetnum ();
-int tgetflag ();
-char *tgetstr();
-char *tgoto ();
-int tputs ();
-
-#endif
 #endif
 
 
-
-#ifdef ANSI_C
 
 static void read_cap_name (FILE *fix_file, char *cap_name, int *term_char)
-#else
-
-static void read_cap_name (fix_file, cap_name, term_char)
-FILE *fix_file;
-char *cap_name;
-int *term_char;
-#endif
 
   {
     int ch;
@@ -121,16 +101,7 @@ int *term_char;
 
 
 
-#ifdef ANSI_C
-
 static void read_int_cap (FILE *fix_file, char **cap_value, int *term_char)
-#else
-
-static void read_int_cap (fix_file, cap_value, term_char)
-FILE *fix_file;
-char **cap_value;
-int *term_char;
-#endif
 
   {
     int from;
@@ -145,16 +116,7 @@ int *term_char;
 
 
 
-#ifdef ANSI_C
-
 static void read_stri_cap (FILE *fix_file, char **cap_value, int *term_char)
-#else
-
-static void read_stri_cap (fix_file, cap_value, term_char)
-FILE *fix_file;
-char **cap_value;
-int *term_char;
-#endif
 
   {
     int from;
@@ -221,20 +183,8 @@ int *term_char;
 
 
 
-#ifdef ANSI_C
-
 static int assign_cap (char *cap_name, const_cstritype terminfo_name,
     const_cstritype termcap_name, char **cap_pointer, char *cap_value)
-#else
-
-static int assign_cap (cap_name, terminfo_name,
-    termcap_name, cap_pointer, cap_value)
-char *cap_name;
-char *terminfo_name;
-char *termcap_name;
-char **cap_pointer;
-char *cap_value;
-#endif
 
   { /* assign_cap */
     if (cap_name != NULL &&
@@ -252,13 +202,7 @@ char *cap_value;
 
 
 
-#ifdef ANSI_C
-
 static void fix_capability (void)
-#else
-
-static void fix_capability ()
-#endif
 
   {
     char *home_dir_path;
@@ -405,13 +349,7 @@ static void fix_capability ()
 
 
 
-#ifdef ANSI_C
-
 int getcaps (void)
-#else
-
-int getcaps ()
-#endif
 
   {
     char *terminal_name;
@@ -451,14 +389,7 @@ int getcaps ()
 
 
 
-#ifdef ANSI_C
-
 int outch (int ch)
-#else
-
-int outch (ch)
-char ch;
-#endif
 
   { /* outch */
     return putchar(ch);
@@ -466,14 +397,7 @@ char ch;
 
 
 
-#ifdef ANSI_C
-
 void putcontrol (char *control)
-#else
-
-void putcontrol (control)
-char *control;
-#endif
 
   { /* putcontrol */
     if (control != NULL) {

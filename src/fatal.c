@@ -48,15 +48,7 @@
 
 
 
-#ifdef ANSI_C
-
 void no_memory (const_cstritype source_file, int source_line)
-#else
-
-void no_memory (source_file, source_line)
-char *source_file;
-int source_line;
-#endif
 
   { /* no_memory */
 #ifdef TRACE_HEAPUTIL
@@ -84,15 +76,7 @@ int source_line;
 
 
 
-#ifdef ANSI_C
-
 void fatal_memory_error (const_cstritype source_file, int source_line)
-#else
-
-void fatal_memory_error (source_file, source_line)
-char *source_file;
-int source_line;
-#endif
 
   { /* fatal_memory_error */
     place_of_error(OUT_OF_HEAP_SPACE);

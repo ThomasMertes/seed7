@@ -39,15 +39,7 @@
 
 
 
-#ifdef ANSI_C
-
 sockettype socAccept (sockettype sock, bstritype *address)
-#else
-
-sockettype socAccept (sock, address)
-sockettype sock;
-bstritype *address;
-#endif
 
   { /* socAccept */
     return 0;
@@ -55,14 +47,7 @@ bstritype *address;
 
 
 
-#ifdef ANSI_C
-
 inttype socAddrFamily (const const_bstritype address)
-#else
-
-inttype socAddrFamily (address)
-bstritype address;
-#endif
 
   { /* socAddrFamily */
     return 0;
@@ -70,14 +55,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 stritype socAddrNumeric (const const_bstritype address)
-#else
-
-stritype socAddrNumeric (address)
-bstritype address;
-#endif
 
   { /* socAddrNumeric */
     return NULL;
@@ -85,14 +63,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 stritype socAddrService (const const_bstritype address)
-#else
-
-stritype socAddrService (address)
-bstritype address;
-#endif
 
   { /* socAddrService */
     return NULL;
@@ -100,58 +71,28 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 void socBind (sockettype sock, const_bstritype address)
-#else
-
-void socBind (sock, address)
-sockettype sock;
-bstritype address;
-#endif
 
   { /* socBind */
   } /* socBind */
 
 
 
-#ifdef ANSI_C
-
 void socClose (sockettype sock)
-#else
-
-void socClose (sock)
-sockettype sock;
-#endif
 
   { /* socClose */
   } /* socClose */
 
 
 
-#ifdef ANSI_C
-
 void socConnect (sockettype sock, const_bstritype address)
-#else
-
-void socConnect (sock, address)
-sockettype sock;
-bstritype address;
-#endif
 
   { /* socConnect */
   } /* socConnect */
 
 
 
-#ifdef ANSI_C
-
 chartype socGetc (sockettype sock)
-#else
-
-chartype socGetc (sock)
-sockettype sock;
-#endif
 
   { /* socGetc */
     return (chartype) EOF;
@@ -159,15 +100,7 @@ sockettype sock;
 
 
 
-#ifdef ANSI_C
-
 stritype socGets (sockettype sock, inttype length)
-#else
-
-stritype socGets (sock, length)
-sockettype sock;
-inttype length;
-#endif
 
   { /* socGets */
     return NULL;
@@ -175,14 +108,7 @@ inttype length;
 
 
 
-#ifdef ANSI_C
-
 bstritype socGetAddr (sockettype sock)
-#else
-
-bstritype socGetAddr (sock)
-sockettype sock;
-#endif
 
   { /* socGetAddr */
     raise_error(FILE_ERROR);
@@ -191,13 +117,7 @@ sockettype sock;
 
 
 
-#ifdef ANSI_C
-
 stritype socGetHostname (void)
-#else
-
-stritype socGetHostname ()
-#endif
 
   { /* socGetHostname */
     return NULL;
@@ -205,14 +125,7 @@ stritype socGetHostname ()
 
 
 
-#ifdef ANSI_C
-
 booltype socHasNext (sockettype sock)
-#else
-
-booltype socHasNext (sock)
-sockettype sock;
-#endif
 
   { /* socHasNext */
     return TRUE;
@@ -220,15 +133,7 @@ sockettype sock;
 
 
 
-#ifdef ANSI_C
-
 bstritype socInetAddr (const const_stritype host_name, inttype port)
-#else
-
-bstritype socInetAddr (host_name, port)
-stritype host_name;
-inttype port;
-#endif
 
   { /* socInetAddr */
     raise_error(FILE_ERROR);
@@ -237,14 +142,7 @@ inttype port;
 
 
 
-#ifdef ANSI_C
-
 bstritype socInetLocalAddr (inttype port)
-#else
-
-bstritype socInetLocalAddr (port)
-inttype port;
-#endif
 
   { /* socInetLocalAddr */
     raise_error(FILE_ERROR);
@@ -253,14 +151,7 @@ inttype port;
 
 
 
-#ifdef ANSI_C
-
 bstritype socInetServAddr (inttype port)
-#else
-
-bstritype socInetServAddr (port)
-inttype port;
-#endif
 
   { /* socInetServAddr */
     raise_error(FILE_ERROR);
@@ -269,16 +160,7 @@ inttype port;
 
 
 
-#ifdef ANSI_C
-
 booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
-#else
-
-booltype socInputReady (sock, seconds, micro_seconds)
-sockettype sock;
-inttype seconds;
-inttype micro_seconds;
-#endif
 
   { /* socInputReady */
     return FALSE;
@@ -286,15 +168,7 @@ inttype micro_seconds;
 
 
 
-#ifdef ANSI_C
-
 stritype socLineRead (sockettype sock, chartype *terminationChar)
-#else
-
-stritype socLineRead (sock, terminationChar)
-sockettype sock;
-chartype *terminationChar;
-#endif
 
   { /* socLineRead */
     return NULL;
@@ -302,32 +176,14 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 void socListen (sockettype sock, inttype backlog)
-#else
-
-void socListen (sock, backlog)
-sockettype sock;
-inttype backlog;
-#endif
 
   { /* socListen */
   } /* socListen */
 
 
 
-#ifdef ANSI_C
-
 inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
-#else
-
-inttype socRecv (sock, stri, length, flags)
-sockettype sock;
-stritype *stri;
-inttype length;
-inttype flags;
-#endif
 
   { /* socRecv */
     return 0;
@@ -335,19 +191,8 @@ inttype flags;
 
 
 
-#ifdef ANSI_C
-
 inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype flags,
     bstritype *address)
-#else
-
-inttype socRecvfrom (sock, stri, length, flags, address)
-sockettype sock;
-stritype *stri;
-inttype length;
-inttype flags;
-bstritype *address;
-#endif
 
   { /* socRecvfrom */
     return 0;
@@ -355,16 +200,7 @@ bstritype *address;
 
 
 
-#ifdef ANSI_C
-
 inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
-#else
-
-inttype socSend (sock, stri, flags)
-sockettype sock;
-stritype stri;
-inttype flags;
-#endif
 
   { /* socSend */
     return 0;
@@ -372,18 +208,8 @@ inttype flags;
 
 
 
-#ifdef ANSI_C
-
 inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
     const_bstritype address)
-#else
-
-inttype socSendto (sock, stri, flags, address)
-sockettype sock;
-stritype stri;
-inttype flags;
-bstritype address;
-#endif
 
   { /* socSendto */
     return 0;
@@ -391,16 +217,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 sockettype socSocket (inttype domain, inttype type, inttype protocol)
-#else
-
-sockettype socSocket (domain, type, protocol)
-inttype domain;
-inttype type;
-inttype protocol;
-#endif
 
   { /* socSocket */
     return 0;
@@ -408,15 +225,7 @@ inttype protocol;
 
 
 
-#ifdef ANSI_C
-
 stritype socWordRead (sockettype sock, chartype *terminationChar)
-#else
-
-stritype socWordRead (sock, terminationChar)
-sockettype sock;
-chartype *terminationChar;
-#endif
 
   { /* socWordRead */
     return NULL;
@@ -424,15 +233,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 void socWrite (sockettype sock, const const_stritype stri)
-#else
-
-void socWrite (sock, stri)
-sockettype sock;
-stritype stri;
-#endif
 
   { /* socWrite */
   } /* socWrite */

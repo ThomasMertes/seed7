@@ -56,14 +56,7 @@ typedef enum {XFX, XFY, YFX, YFY} assoctype;
 
 
 #ifdef WITH_PRINT_TOKENS
-#ifdef ANSI_C
-
 static void print_tokens (tokentype tokens)
-#else
-
-static void print_tokens (tokens)
-tokentype tokens;
-#endif
 
   { /* print_tokens */
 #ifdef TRACE_SYNTAX
@@ -93,22 +86,9 @@ tokentype tokens;
 
 
 
-#ifdef ANSI_C
-
 static tokentype def_single_token (const_objecttype statement_token,
     prioritytype token_priority, tokentype *formal_tokens,
     booltype *after_expr_token, ustritype *name_of_last_sy_token)
-#else
-
-static tokentype def_single_token (statement_token,
-    token_priority, formal_tokens, after_expr_token,
-    name_of_last_sy_token)
-objecttype statement_token;
-prioritytype token_priority;
-tokentype *formal_tokens;
-booltype *after_expr_token;
-ustritype *name_of_last_sy_token;
-#endif
 
   {
     tokentype new_token;
@@ -176,14 +156,7 @@ ustritype *name_of_last_sy_token;
 
 
 
-#ifdef ANSI_C
-
 static INLINE int count_inner_tokens (const_listtype statement_tokens)
-#else
-
-static INLINE int count_inner_tokens (statement_tokens)
-listtype statement_tokens;
-#endif
 
   {
     int number_of_inner_tokens;
@@ -210,21 +183,9 @@ listtype statement_tokens;
 
 
 
-#ifdef ANSI_C
-
 static tokentype def_token_list (const_listtype statement_tokens,
     prioritytype right_token_priority, tokentype *formal_tokens,
     ustritype name_of_last_sy_token)
-#else
-
-static tokentype def_token_list (statement_tokens,
-    right_token_priority, formal_tokens,
-    name_of_last_sy_token)
-listtype statement_tokens;
-prioritytype right_token_priority;
-tokentype *formal_tokens;
-ustritype name_of_last_sy_token;
-#endif
 
   {
     int number_of_inner_tokens;
@@ -309,18 +270,8 @@ ustritype name_of_last_sy_token;
 
 
 
-#ifdef ANSI_C
-
 static INLINE tokentype def_infix_syntax (const_listtype statement_syntax,
     prioritytype statement_priority, assoctype statement_associativity)
-#else
-
-static INLINE tokentype def_infix_syntax (statement_syntax,
-    statement_priority, statement_associativity)
-listtype statement_syntax;
-prioritytype statement_priority;
-assoctype statement_associativity;
-#endif
 
   {
     identtype identifier;
@@ -372,18 +323,8 @@ assoctype statement_associativity;
 
 
 
-#ifdef ANSI_C
-
 static INLINE tokentype def_prefix_syntax (const_listtype statement_syntax,
     prioritytype statement_priority, assoctype statement_associativity)
-#else
-
-static INLINE tokentype def_prefix_syntax (statement_syntax,
-    statement_priority, statement_associativity)
-listtype statement_syntax;
-prioritytype statement_priority;
-assoctype statement_associativity;
-#endif
 
   {
     identtype identifier;
@@ -423,18 +364,8 @@ assoctype statement_associativity;
 
 
 
-#ifdef ANSI_C
-
 static INLINE tokentype def_statement_syntax (objecttype syntax_expression,
     prioritytype statement_priority, assoctype statement_associativity)
-#else
-
-static INLINE tokentype def_statement_syntax (syntax_expression,
-    statement_priority, statement_associativity)
-objecttype syntax_expression;
-prioritytype statement_priority;
-assoctype statement_associativity;
-#endif
 
   {
     listtype statement_syntax;
@@ -498,13 +429,7 @@ assoctype statement_associativity;
 
 
 
-#ifdef ANSI_C
-
 void decl_syntax (void)
-#else
-
-void decl_syntax ()
-#endif
 
   {
     objecttype type_object;

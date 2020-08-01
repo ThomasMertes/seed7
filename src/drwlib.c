@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/drwlib.c                                        */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2013  Thomas Mertes                  */
 /*  Content: All primitive actions to do graphic output.            */
 /*                                                                  */
 /********************************************************************/
@@ -49,14 +49,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_busy_getc (listtype arguments)
-#else
-
-objecttype gkb_busy_getc (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_busy_getc */
     if (gkbKeyPressed()) {
@@ -68,14 +61,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_button_pressed (listtype arguments)
-#else
-
-objecttype gkb_button_pressed (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_button_pressed */
     isit_char(arg_2(arguments));
@@ -88,14 +74,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_button_xpos (listtype arguments)
-#else
-
-objecttype gkb_button_xpos (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_button_xpos */
     return bld_int_temp(gkbButtonXpos());
@@ -103,14 +82,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_button_ypos (listtype arguments)
-#else
-
-objecttype gkb_button_ypos (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_button_ypos */
     return bld_int_temp(gkbButtonYpos());
@@ -118,14 +90,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_getc (listtype arguments)
-#else
-
-objecttype gkb_getc (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_getc */
     return bld_char_temp(gkbGetc());
@@ -133,14 +98,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_gets (listtype arguments)
-#else
-
-objecttype gkb_gets (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_gets */
     isit_int(arg_2(arguments));
@@ -150,14 +108,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_keypressed (listtype arguments)
-#else
-
-objecttype gkb_keypressed (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_keypressed */
     if (gkbKeyPressed()) {
@@ -169,14 +120,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_line_read (listtype arguments)
-#else
-
-objecttype gkb_line_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -191,14 +135,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_raw_getc (listtype arguments)
-#else
-
-objecttype gkb_raw_getc (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_raw_getc */
     return bld_char_temp(gkbRawGetc());
@@ -206,14 +143,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_window (listtype arguments)
-#else
-
-objecttype gkb_window (arguments)
-listtype arguments;
-#endif
 
   { /* gkb_window */
     return bld_win_temp(gkbWindow());
@@ -221,14 +151,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype gkb_word_read (listtype arguments)
-#else
-
-objecttype gkb_word_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -243,14 +166,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_arc (listtype arguments)
-#else
-
-objecttype drw_arc (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -276,14 +192,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_arc2 (listtype arguments)
-#else
-
-objecttype drw_arc2 (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -308,14 +217,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_background (listtype arguments)
-#else
-
-objecttype drw_background (arguments)
-listtype arguments;
-#endif
 
   { /* drw_background */
     isit_int(arg_1(arguments));
@@ -325,14 +227,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_circle (listtype arguments)
-#else
-
-objecttype drw_circle (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -353,14 +248,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_clear (listtype arguments)
-#else
-
-objecttype drw_clear (arguments)
-listtype arguments;
-#endif
 
   { /* drw_clear */
     isit_win(arg_1(arguments));
@@ -371,14 +259,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_cmp (listtype arguments)
-#else
-
-objecttype drw_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     memsizetype ref1;
@@ -402,14 +283,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_color (listtype arguments)
-#else
-
-objecttype drw_color (arguments)
-listtype arguments;
-#endif
 
   { /* drw_color */
     isit_int(arg_1(arguments));
@@ -419,14 +293,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_copyarea (listtype arguments)
-#else
-
-objecttype drw_copyarea (arguments)
-listtype arguments;
-#endif
 
   { /* drw_copyarea */
     isit_win(arg_1(arguments));
@@ -446,14 +313,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_cpy (listtype arguments)
-#else
-
-objecttype drw_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype win_to;
@@ -488,14 +348,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_create (listtype arguments)
-#else
-
-objecttype drw_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype win_from;
@@ -519,14 +372,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_destr (listtype arguments)
-#else
-
-objecttype drw_destr (arguments)
-listtype arguments;
-#endif
 
   {
     wintype old_win;
@@ -547,14 +393,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_empty (listtype arguments)
-#else
-
-objecttype drw_empty (arguments)
-listtype arguments;
-#endif
 
   { /* drw_empty */
     return bld_win_temp(NULL);
@@ -562,14 +401,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_eq (listtype arguments)
-#else
-
-objecttype drw_eq (arguments)
-listtype arguments;
-#endif
 
   { /* drw_eq */
     isit_win(arg_1(arguments));
@@ -584,14 +416,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_farcchord (listtype arguments)
-#else
-
-objecttype drw_farcchord (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -617,14 +442,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_farcpieslice (listtype arguments)
-#else
-
-objecttype drw_farcpieslice (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -650,14 +468,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_fcircle (listtype arguments)
-#else
-
-objecttype drw_fcircle (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -678,14 +489,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_fellipse (listtype arguments)
-#else
-
-objecttype drw_fellipse (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -709,14 +513,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_flush (listtype arguments)
-#else
-
-objecttype drw_flush (arguments)
-listtype arguments;
-#endif
 
   { /* drw_flush */
     drwFlush();
@@ -725,14 +522,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_fpolyLine (listtype arguments)
-#else
-
-objecttype drw_fpolyLine (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -756,14 +546,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_genPointList (listtype arguments)
-#else
-
-objecttype drw_genPointList (arguments)
-listtype arguments;
-#endif
 
   {
     arraytype points_array;
@@ -800,14 +583,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_get (listtype arguments)
-#else
-
-objecttype drw_get (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -833,14 +609,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_getPixel (listtype arguments)
-#else
-
-objecttype drw_getPixel (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -860,14 +629,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_hashcode (listtype arguments)
-#else
-
-objecttype drw_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* drw_hashcode */
     isit_win(arg_1(arguments));
@@ -877,14 +639,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_height (listtype arguments)
-#else
-
-objecttype drw_height (arguments)
-listtype arguments;
-#endif
 
   { /* drw_height */
     isit_win(arg_1(arguments));
@@ -894,71 +649,63 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_image (listtype arguments)
-#else
-
-objecttype drw_image (arguments)
-listtype arguments;
-#endif
 
   {
     arraytype arr_image;
     objecttype curr_line;
     arraytype arr_line;
     objecttype curr_column;
-    inttype *pixel_elem;
+    int32type *pixel_elem;
     inttype width;
     inttype height;
     inttype line;
     inttype column;
-    inttype *image_data;
+    int32type *image_data;
     wintype result;
 
   /* drw_image */
     isit_array(arg_1(arguments));
     arr_image = take_array(arg_1(arguments));
     height = arr_image->max_position - arr_image->min_position + 1;
-    if (height > 0) {
+    if (height <= 0) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       curr_line = &arr_image->arr[0];
       isit_array(curr_line);
       arr_line = take_array(curr_line);
       width = arr_line->max_position - arr_line->min_position + 1;
-      if (width > 0) {
+      if (width <= 0) {
+        return raise_exception(SYS_RNG_EXCEPTION);
+      } else {
         curr_column = &arr_line->arr[0];
         isit_int(curr_column);
-        image_data = (inttype *) malloc((uinttype) height * (uinttype) width * sizeof(inttype));
-        pixel_elem = image_data;
-        for (line = height; line > 0; line--, curr_line++) {
-          arr_line = take_array(curr_line);
-          curr_column = &arr_line->arr[0];
-          for (column = width; column > 0; column--, curr_column++) {
-            *pixel_elem = take_int(curr_column);
-            pixel_elem++;
+        if (width > MAX_MEMSIZETYPE ||
+            height > MAX_MEMSIZETYPE / sizeof(int32type) / (memsizetype) width ||
+            (image_data = (int32type *) malloc((memsizetype) height * (memsizetype) width *
+                                               sizeof(int32type))) == NULL) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          pixel_elem = image_data;
+          for (line = height; line > 0; line--, curr_line++) {
+            arr_line = take_array(curr_line);
+            curr_column = &arr_line->arr[0];
+            for (column = width; column > 0; column--, curr_column++) {
+              *pixel_elem = (int32type) take_int(curr_column);
+              pixel_elem++;
+            } /* for */
           } /* for */
-        } /* for */
-        result = drwImage(image_data, width, height);
-        free(image_data);
-      } else {
-        result = NULL;
+          result = drwImage(image_data, width, height);
+          free(image_data);
+        } /* if */
       } /* if */
-    } else {
-      result = NULL;
     } /* if */
     return bld_win_temp(result);
   } /* drw_image */
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_line (listtype arguments)
-#else
-
-objecttype drw_line (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -981,14 +728,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_ne (listtype arguments)
-#else
-
-objecttype drw_ne (arguments)
-listtype arguments;
-#endif
 
   { /* drw_ne */
     isit_win(arg_1(arguments));
@@ -1003,14 +743,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_new_pixmap (listtype arguments)
-#else
-
-objecttype drw_new_pixmap (arguments)
-listtype arguments;
-#endif
 
   {
     inttype width;
@@ -1027,14 +760,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_open (listtype arguments)
-#else
-
-objecttype drw_open (arguments)
-listtype arguments;
-#endif
 
   {
     inttype xPos, yPos, width, height;
@@ -1057,14 +783,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_open_sub_window (listtype arguments)
-#else
-
-objecttype drw_open_sub_window (arguments)
-listtype arguments;
-#endif
 
   {
     wintype parent_window;
@@ -1087,14 +806,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_parc (listtype arguments)
-#else
-
-objecttype drw_parc (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1123,14 +835,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pcircle (listtype arguments)
-#else
-
-objecttype drw_pcircle (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1153,14 +858,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pfarcchord (listtype arguments)
-#else
-
-objecttype drw_pfarcchord (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1189,14 +887,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pfarcpieslice (listtype arguments)
-#else
-
-objecttype drw_pfarcpieslice (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1225,14 +916,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pfcircle (listtype arguments)
-#else
-
-objecttype drw_pfcircle (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1255,14 +939,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pfellipse (listtype arguments)
-#else
-
-objecttype drw_pfellipse (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1288,14 +965,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pixelToRgb (listtype arguments)
-#else
-
-objecttype drw_pixelToRgb (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype red_variable;
@@ -1322,14 +992,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pline (listtype arguments)
-#else
-
-objecttype drw_pline (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1354,14 +1017,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_point (listtype arguments)
-#else
-
-objecttype drw_point (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1380,14 +1036,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pointer_xpos (listtype arguments)
-#else
-
-objecttype drw_pointer_xpos (arguments)
-listtype arguments;
-#endif
 
   { /* drw_pointer_xpos */
     isit_win(arg_1(arguments));
@@ -1397,14 +1046,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_pointer_ypos (listtype arguments)
-#else
-
-objecttype drw_pointer_ypos (arguments)
-listtype arguments;
-#endif
 
   { /* drw_pointer_ypos */
     isit_win(arg_1(arguments));
@@ -1414,14 +1056,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_polyLine (listtype arguments)
-#else
-
-objecttype drw_polyLine (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1445,14 +1080,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_ppoint (listtype arguments)
-#else
-
-objecttype drw_ppoint (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1473,14 +1101,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_prect (listtype arguments)
-#else
-
-objecttype drw_prect (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1505,14 +1126,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_put (listtype arguments)
-#else
-
-objecttype drw_put (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1536,14 +1150,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_rect (listtype arguments)
-#else
-
-objecttype drw_rect (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1566,14 +1173,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_rgbcol (listtype arguments)
-#else
-
-objecttype drw_rgbcol (arguments)
-listtype arguments;
-#endif
 
   { /* drw_rgbcol */
     return bld_int_temp(
@@ -1583,14 +1183,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_rot (listtype arguments)
-#else
-
-objecttype drw_rot (arguments)
-listtype arguments;
-#endif
 
   { /* drw_rot */
     return SYS_EMPTY_OBJECT;
@@ -1598,14 +1191,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_scale (listtype arguments)
-#else
-
-objecttype drw_scale (arguments)
-listtype arguments;
-#endif
 
   { /* drw_scale */
     return SYS_EMPTY_OBJECT;
@@ -1613,14 +1199,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_setContent (listtype arguments)
-#else
-
-objecttype drw_setContent (arguments)
-listtype arguments;
-#endif
 
   { /* drw_setContent */
     isit_win(arg_1(arguments));
@@ -1631,14 +1210,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_setPos (listtype arguments)
-#else
-
-objecttype drw_setPos (arguments)
-listtype arguments;
-#endif
 
   { /* drw_setPos */
     isit_win(arg_1(arguments));
@@ -1651,14 +1223,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_setTransparentColor (listtype arguments)
-#else
-
-objecttype drw_setTransparentColor (arguments)
-listtype arguments;
-#endif
 
   { /* drw_setTransparentColor */
     isit_win(arg_1(arguments));
@@ -1670,14 +1235,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_text (listtype arguments)
-#else
-
-objecttype drw_text (arguments)
-listtype arguments;
-#endif
 
   {
     wintype actual_window;
@@ -1704,14 +1262,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_toBottom (listtype arguments)
-#else
-
-objecttype drw_toBottom (arguments)
-listtype arguments;
-#endif
 
   { /* drw_toBottom */
     isit_win(arg_1(arguments));
@@ -1721,14 +1272,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_toTop (listtype arguments)
-#else
-
-objecttype drw_toTop (arguments)
-listtype arguments;
-#endif
 
   { /* drw_toTop */
     isit_win(arg_1(arguments));
@@ -1738,14 +1282,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_value (listtype arguments)
-#else
-
-objecttype drw_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;
@@ -1767,14 +1304,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_width (listtype arguments)
-#else
-
-objecttype drw_width (arguments)
-listtype arguments;
-#endif
 
   { /* drw_width */
     isit_win(arg_1(arguments));
@@ -1784,14 +1314,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_xpos (listtype arguments)
-#else
-
-objecttype drw_xpos (arguments)
-listtype arguments;
-#endif
 
   { /* drw_xpos */
     isit_win(arg_1(arguments));
@@ -1801,14 +1324,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype drw_ypos (listtype arguments)
-#else
-
-objecttype drw_ypos (arguments)
-listtype arguments;
-#endif
 
   { /* drw_ypos */
     isit_win(arg_1(arguments));

@@ -63,14 +63,7 @@ static listrecord wrstri_expr[3];
 
 
 
-#ifdef ANSI_C
-
 objecttype exec1 (listtype list)
-#else
-
-objecttype exec1 (list)
-listtype list;
-#endif
 
   {
     objectrecord expr_object;
@@ -138,14 +131,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 booltype do_flush (objecttype outfile)
-#else
-
-booltype do_flush (outfile)
-objecttype outfile;
-#endif
 
   {
     booltype result;
@@ -166,14 +152,7 @@ objecttype outfile;
 
 
 
-#ifdef ANSI_C
-
 booltype do_wrnl (objecttype outfile)
-#else
-
-booltype do_wrnl (outfile)
-objecttype outfile;
-#endif
 
   {
     booltype result;
@@ -194,15 +173,7 @@ objecttype outfile;
 
 
 
-#ifdef ANSI_C
-
 booltype do_wrstri (objecttype outfile, stritype stri)
-#else
-
-booltype do_wrstri (outfile, stri)
-objecttype outfile;
-stritype stri;
-#endif
 
   {
     objecttype out_stri;
@@ -230,15 +201,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 booltype do_wrcstri (objecttype outfile, const_cstritype stri)
-#else
-
-booltype do_wrcstri (outfile, stri)
-objecttype outfile;
-cstritype stri;
-#endif
 
   {
     stritype out_stri;
@@ -262,13 +225,7 @@ cstritype stri;
 
 
 
-#ifdef ANSI_C
-
 void init_do_any (void)
-#else
-
-void init_do_any ()
-#endif
 
   { /* init_do_any */
 #ifdef TRACE_DOANY

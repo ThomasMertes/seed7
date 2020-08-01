@@ -25,21 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void substitute_params (const_objecttype expr_object);
 void update_owner (const_objecttype expr_object);
 objecttype match_object (objecttype object);
 objecttype match_expression (objecttype expr_object);
 objecttype match_prog_expression (const_nodetype start_node,
     objecttype expr_object);
-
-#else
-
-void substitute_params ();
-void update_owner ();
-objecttype match_object ();
-objecttype match_expression ();
-objecttype match_prog_expression ();
-
-#endif

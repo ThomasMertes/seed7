@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype bst_append   (listtype arguments);
 objecttype bst_cat      (listtype arguments);
 objecttype bst_cmp      (listtype arguments);
@@ -42,23 +40,3 @@ objecttype bst_ne       (listtype arguments);
 objecttype bst_parse    (listtype arguments);
 objecttype bst_str      (listtype arguments);
 objecttype bst_value    (listtype arguments);
-
-#else
-
-objecttype bst_append ();
-objecttype bst_cat ();
-objecttype bst_cmp ();
-objecttype bst_cpy ();
-objecttype bst_create ();
-objecttype bst_destr ();
-objecttype bst_empty ();
-objecttype bst_eq ();
-objecttype bst_hashcode ();
-objecttype bst_idx ();
-objecttype bst_lng ();
-objecttype bst_ne ();
-objecttype bst_parse ();
-objecttype bst_str ();
-objecttype bst_value ();
-
-#endif

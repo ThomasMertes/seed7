@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 inttype typCmpGeneric (rtlGenerictype type1, rtlGenerictype type2);
 void typCpy (typetype *dest, typetype source);
 typetype typCreate (typetype type_from);
@@ -41,22 +39,3 @@ inttype typNum (typetype actual_type);
 typetype typResult (typetype any_type);
 stritype typStr (typetype type_arg);
 typetype typVarfunc (typetype basic_type);
-
-#else
-
-inttype typCmpGeneric ();
-void typCpy ();
-typetype typCreate ();
-void typDestr ();
-typetype typFunc ();
-booltype typIsDerived ();
-booltype typIsFunc ();
-booltype typIsVarfunc ();
-objecttype typMatchobj ();
-typetype typMeta ();
-inttype typNum ();
-typetype typResult ();
-stritype typStr ();
-typetype typVarfunc ();
-
-#endif

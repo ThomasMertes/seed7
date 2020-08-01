@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype itf_cmp          (listtype arguments);
 objecttype itf_conv2        (listtype arguments);
 objecttype itf_cpy          (listtype arguments);
@@ -39,20 +37,3 @@ objecttype itf_hashcode     (listtype arguments);
 objecttype itf_ne           (listtype arguments);
 objecttype itf_select       (listtype arguments);
 objecttype itf_to_interface (listtype arguments);
-
-#else
-
-objecttype itf_cmp ();
-objecttype itf_conv2 ();
-objecttype itf_cpy ();
-objecttype itf_cpy2 ();
-objecttype itf_create ();
-objecttype itf_create2 ();
-objecttype itf_destr ();
-objecttype itf_eq ();
-objecttype itf_hashcode ();
-objecttype itf_ne ();
-objecttype itf_select ();
-objecttype itf_to_interface ();
-
-#endif

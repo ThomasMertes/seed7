@@ -155,6 +155,7 @@ const func rational: (in rational: summand1) + (in rational: summand2) is func
     sum.numerator := (summand1.numerator * summand2.denominator +
         summand2.numerator * summand1.denominator) div gcd_denominator;
     sum.denominator := summand1.denominator div gcd_denominator * summand2.denominator;
+    reduce(sum);
   end func;
 
 
@@ -172,6 +173,7 @@ const func rational: (in rational: minuend) - (in rational: subtrahend) is func
     difference.numerator := (minuend.numerator * subtrahend.denominator -
         subtrahend.numerator * minuend.denominator) div gcd_denominator;
     difference.denominator := minuend.denominator div gcd_denominator * subtrahend.denominator;
+    reduce(difference);
   end func;
 
 
@@ -201,11 +203,15 @@ const func rational: (in rational: factor1) * (in rational: factor2) is func
 const func rational: (in rational: dividend) / (in rational: divisor) is func
   result
     var rational: quotient is rational.value;
+  local
+    var integer: gcd1 is 0;
+    var integer: gcd2 is 0;
   begin
-    quotient.numerator := dividend.numerator * divisor.denominator;
-    quotient.denominator := dividend.denominator * divisor.numerator;
+    gcd1 := gcd2(dividend.numerator, divisor.numerator);
+    gcd2 := gcd2(divisor.denominator, dividend.denominator);
+    quotient.numerator := (dividend.numerator div gcd1) * (divisor.denominator div gcd2);
+    quotient.denominator := (dividend.denominator div gcd2) * (divisor.numerator div gcd1);
     normalize(quotient);
-    reduce(quotient);
   end func;
 
 
@@ -220,6 +226,7 @@ const proc: (inout rational: number) +:= (in rational: delta) is func
     number.numerator := (number.numerator * delta.denominator +
         delta.numerator * number.denominator) div gcd_denominator;
     number.denominator *:= delta.denominator div gcd_denominator;
+    reduce(number);
   end func;
 
 
@@ -234,6 +241,7 @@ const proc: (inout rational: number) -:= (in rational: delta) is func
     number.numerator := (number.numerator * delta.denominator -
         delta.numerator * number.denominator) div gcd_denominator;
     number.denominator *:= delta.denominator div gcd_denominator;
+    reduce(number);
   end func;
 
 
@@ -489,5 +497,37 @@ const func integer: round (in rational: number) is func
       int_val := (2 * number.numerator + number.denominator) div (2 * number.denominator);
     else
       int_val := (2 * number.numerator - number.denominator) div (2 * number.denominator);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the minimum of two ''rational'' numbers.
+ *  @return the minimum of the two numbers.
+ *)
+const func rational: min (in rational: value1, in rational: value2) is func
+  result
+    var rational: minimum is rational.value;
+  begin
+    if value1 < value2 then
+      minimum := value1;
+    else
+      minimum := value2;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the maximum of two ''rational'' numbers.
+ *  @return the maximum of the two numbers.
+ *)
+const func rational: max (in rational: value1, in rational: value2) is func
+  result
+    var rational: maximum is rational.value;
+  begin
+    if value1 > value2 then
+      maximum := value1;
+    else
+      maximum := value2;
     end if;
   end func;

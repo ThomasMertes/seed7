@@ -41,13 +41,7 @@
 
 
 
-#ifdef ANSI_C
-
 void shut_drivers (void)
-#else
-
-void shut_drivers ()
-#endif
 
   { /* shut_drivers */
     kbdShut();
@@ -58,14 +52,7 @@ void shut_drivers ()
 
 
 #ifdef CATCH_SIGNALS
-#ifdef ANSI_C
-
 static void handle_signals (int sig_num)
-#else
-
-static void handle_signals (sig_num)
-int sig_num;
-#endif
 
   {
     int ch;
@@ -114,14 +101,7 @@ int sig_num;
 
 
 
-#ifdef ANSI_C
-
 static void handle_term_signal (int sig_num)
-#else
-
-static void handle_term_signal (sig_num)
-int sig_num;
-#endif
 
   { /* handle_term_signal */
     shut_drivers();
@@ -132,13 +112,7 @@ int sig_num;
 
 
 
-#ifdef ANSI_C
-
 void activate_signal_handlers (void)
-#else
-
-void activate_signal_handlers ()
-#endif
 
   { /* activate_signal_handlers */
     signal(SIGABRT, handle_signals);

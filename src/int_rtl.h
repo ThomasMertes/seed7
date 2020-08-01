@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void uint2_mult (uinttype a_high, uinttype a_low,
                  uinttype b_high, uinttype b_low,
                  uinttype *c_high, uinttype *c_low);
@@ -61,36 +59,3 @@ stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase);
 inttype intRand (inttype lower_limit, inttype upper_limit);
 inttype intSqrt (inttype number);
 stritype intStr (inttype number);
-
-#else
-
-void uint2_mult ();
-uinttype uint_rand ();
-int uint8MostSignificantBit ();
-int uint16MostSignificantBit ();
-int uint32MostSignificantBit ();
-#ifdef INT64TYPE
-int uint64MostSignificantBit ();
-#endif
-int uint8LeastSignificantBit ();
-int uint16LeastSignificantBit ();
-int uint32LeastSignificantBit ();
-#ifdef INT64TYPE
-int uint64LeastSignificantBit ();
-#endif
-inttype intBinom ();
-inttype intBitLength ();
-inttype intCmp ();
-void intCpy ();
-inttype intLog2 ();
-inttype intLowestSetBit ();
-stritype intLpad0 ();
-inttype intParse ();
-inttype intPow ();
-stritype intRadix ();
-stritype intRadixPow2 ();
-inttype intRand ();
-inttype intSqrt ();
-stritype intStr ();
-
-#endif

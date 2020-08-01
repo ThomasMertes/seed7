@@ -64,13 +64,7 @@ booltype internal_protocol = FALSE;
 
 
 
-#ifdef ANSI_C
-
 void prot_flush (void)
-#else
-
-void prot_flush ()
-#endif
 
   {
     tracerecord trace_backup;
@@ -90,13 +84,7 @@ void prot_flush ()
 
 
 
-#ifdef ANSI_C
-
 void prot_nl (void)
-#else
-
-void prot_nl ()
-#endif
 
   {
     tracerecord trace_backup;
@@ -116,14 +104,7 @@ void prot_nl ()
 
 
 
-#ifdef ANSI_C
-
 void prot_cstri (const_cstritype stri)
-#else
-
-void prot_cstri (stri)
-cstritype stri;
-#endif
 
   {
     tracerecord trace_backup;
@@ -145,14 +126,7 @@ cstritype stri;
 
 
 
-#ifdef ANSI_C
-
 void prot_writeln (const_cstritype stri)
-#else
-
-void prot_writeln (stri)
-cstritype stri;
-#endif
 
   { /* prot_writeln */
     prot_cstri(stri);
@@ -161,14 +135,7 @@ cstritype stri;
 
 
 
-#ifdef ANSI_C
-
 void prot_int (inttype ivalue)
-#else
-
-void prot_int (ivalue)
-inttype ivalue;
-#endif
 
   {
     char buffer[51];
@@ -180,14 +147,7 @@ inttype ivalue;
 
 
 
-#ifdef ANSI_C
-
 void prot_bigint (const const_biginttype bintvalue)
-#else
-
-void prot_bigint (bintvalue)
-biginttype bintvalue;
-#endif
 
   {
     cstritype cstri;
@@ -201,14 +161,7 @@ biginttype bintvalue;
 
 
 #ifdef WITH_FLOAT
-#ifdef ANSI_C
-
 void prot_float (floattype floatvalue)
-#else
-
-void prot_float (ivalue)
-floattype floatvalue;
-#endif
 
   {
     char buffer[51];
@@ -221,14 +174,7 @@ floattype floatvalue;
 
 
 
-#ifdef ANSI_C
-
 static void prot_char (chartype cvalue)
-#else
-
-static void prot_char (cvalue)
-chartype cvalue;
-#endif
 
   {
     char buffer[51];
@@ -248,14 +194,7 @@ chartype cvalue;
 
 
 
-#ifdef ANSI_C
-
 void prot_os_stri (const const_os_stritype os_stri)
-#else
-
-void prot_os_stri (os_stri)
-const const_os_stritype os_stri;
-#endif
 
   {
     const_os_stritype stri;
@@ -301,14 +240,7 @@ const const_os_stritype os_stri;
 
 
 
-#ifdef ANSI_C
-
 void prot_stri_unquoted (const const_stritype stri)
-#else
-
-void prot_stri_unquoted (stri)
-stritype stri;
-#endif
 
   {
     memsizetype size;
@@ -352,14 +284,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 void prot_stri (const const_stritype stri)
-#else
-
-void prot_stri (stri)
-stritype stri;
-#endif
 
   { /* prot_stri */
     if (stri != NULL) {
@@ -373,14 +298,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 void prot_bstri (bstritype bstri)
-#else
-
-void prot_bstri (bstri)
-bstritype bstri;
-#endif
 
   {
     memsizetype size;
@@ -425,14 +343,7 @@ bstritype bstri;
 
 
 
-#ifdef ANSI_C
-
 void prot_set (const_settype setValue)
-#else
-
-void prot_set (setValue)
-settype setValue;
-#endif
 
   {
     inttype position;
@@ -471,14 +382,7 @@ settype setValue;
 
 
 
-#ifdef ANSI_C
-
 void prot_block (const_blocktype blockValue)
-#else
-
-void prot_block (blockValue)
-blocktype blockValue;
-#endif
 
   { /* prot_block */
     if (blockValue == NULL) {
@@ -491,13 +395,7 @@ blocktype blockValue;
 
 
 
-#ifdef ANSI_C
-
 void prot_heapsize (void)
-#else
-
-void prot_heapsize ()
-#endif
 
   {
     char buffer[51];
@@ -509,14 +407,7 @@ void prot_heapsize ()
 
 
 
-#ifdef ANSI_C
-
 void printcategory (objectcategory category)
-#else
-
-void printcategory (category)
-objectcategory category;
-#endif
 
   { /* printcategory */
 #ifdef TRACE_TRACE
@@ -534,14 +425,7 @@ objectcategory category;
 
 
 
-#ifdef ANSI_C
-
 static char *obj_ptr (objecttype anyobject)
-#else
-
-static char *obj_ptr (anyobject)
-objecttype anyobject;
-#endif
 
   {
     static char out_buf[50];
@@ -559,14 +443,7 @@ objecttype anyobject;
 
 
 
-#ifdef ANSI_C
-
 void printtype (const_typetype anytype)
-#else
-
-void printtype (anytype)
-typetype anytype;
-#endif
 
   { /* printtype */
 #ifdef TRACE_TRACE
@@ -598,14 +475,7 @@ typetype anytype;
 
 
 
-#ifdef ANSI_C
-
 static void print_real_value (const_objecttype anyobject)
-#else
-
-static void print_real_value (anyobject)
-objecttype anyobject;
-#endif
 
   {
     structtype structvalue;
@@ -764,14 +634,7 @@ objecttype anyobject;
 
 
 
-#ifdef ANSI_C
-
 void printvalue (const_objecttype anyobject)
-#else
-
-void printvalue (anyobject)
-objecttype anyobject;
-#endif
 
   { /* printvalue */
 #ifdef TRACE_TRACE
@@ -791,14 +654,7 @@ objecttype anyobject;
 
 
 
-#ifdef ANSI_C
-
 void printobject (const_objecttype anyobject)
-#else
-
-void printobject (anyobject)
-objecttype anyobject;
-#endif
 
   { /* printobject */
 #ifdef TRACE_TRACE
@@ -911,14 +767,7 @@ objecttype anyobject;
 
 
 
-#ifdef ANSI_C
-
 static void printformparam (const_objecttype aParam)
-#else
-
-static void printformparam (aParam)
-objecttype aParam;
-#endif
 
   { /* printformparam */
 #ifdef TRACE_TRACE
@@ -973,14 +822,7 @@ objecttype aParam;
 
 
 
-#ifdef ANSI_C
-
 static void printparam (const_objecttype aParam)
-#else
-
-static void printparam (aParam)
-objecttype aParam;
-#endif
 
   { /* printparam */
 #ifdef TRACE_TRACE
@@ -996,14 +838,7 @@ objecttype aParam;
 
 
 
-#ifdef ANSI_C
-
 void prot_list (const_listtype list)
-#else
-
-void prot_list (list)
-listtype list;
-#endif
 
   {
     int number;
@@ -1151,14 +986,7 @@ listtype list;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 void prot_list (listtype list)
-#else
-
-void prot_list (list)
-listtype list;
-#endif
 
   { /* prot_list */
 #ifdef TRACE_TRACE
@@ -1179,14 +1007,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 void prot_params (const_listtype list)
-#else
-
-void prot_params (list)
-listtype list;
-#endif
 
   {
     const_listtype list_end;
@@ -1253,14 +1074,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 void prot_name (const_listtype list)
-#else
-
-void prot_name (list)
-listtype list;
-#endif
 
   {
     const_listtype list_end;
@@ -1306,14 +1120,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 static void prot_owner (const_ownertype owner)
-#else
-
-static void prot_owner (owner)
-ownertype owner;
-#endif
 
   { /* prot_owner */
 #ifdef TRACE_TRACE
@@ -1333,14 +1140,7 @@ ownertype owner;
 
 
 
-#ifdef ANSI_C
-
 static void list_ident_names (const_identtype anyident)
-#else
-
-static void list_ident_names (anyident)
-identtype anyident;
-#endif
 
   { /* list_ident_names */
 #ifdef TRACE_TRACE
@@ -1365,14 +1165,7 @@ identtype anyident;
 
 
 
-#ifdef ANSI_C
-
 void trace_node (const_nodetype anynode)
-#else
-
-void trace_node (anynode)
-nodetype anynode;
-#endif
 
   { /* trace_node */
 #ifdef TRACE_TRACE
@@ -1409,15 +1202,7 @@ nodetype anynode;
 
 
 
-#ifdef ANSI_C
-
 static void list_match_object (const_objecttype anyobject, char *buffer)
-#else
-
-static void list_match_object (anyobject, buffer)
-objecttype anyobject;
-char *buffer;
-#endif
 
   { /* list_match_object */
 #ifdef TRACE_TRACE
@@ -1439,15 +1224,7 @@ char *buffer;
 
 
 
-#ifdef ANSI_C
-
 static void list_node_names (const_nodetype anynode, char *buffer)
-#else
-
-static void list_node_names (anynode, buffer)
-nodetype anynode;
-char *buffer;
-#endif
 
   {
     size_t buf_len;
@@ -1533,13 +1310,7 @@ char *buffer;
 
 
 
-#ifdef ANSI_C
-
 void trace_nodes (void)
-#else
-
-void trace_nodes ()
-#endif
 
   {
     int position;
@@ -1594,14 +1365,7 @@ void trace_nodes ()
 
 
 
-#ifdef ANSI_C
-
 void printnodes (const_nodetype anynode)
-#else
-
-void printnodes (anynode)
-nodetype anynode;
-#endif
 
   { /* printnodes */
 #ifdef TRACE_TRACE
@@ -1637,14 +1401,7 @@ nodetype anynode;
 
 
 
-#ifdef ANSI_C
-
 void trace1 (const_objecttype traceobject)
-#else
-
-void trace1 (traceobject)
-objecttype traceobject;
-#endif
 
   { /* trace1 */
 #ifdef TRACE_TRACE
@@ -1807,14 +1564,7 @@ objecttype traceobject;
 
 
 
-#ifdef ANSI_C
-
 void trace_entity (const_entitytype anyentity)
-#else
-
-void trace_entity (anyentity)
-entitytype anyentity;
-#endif
 
   { /* trace_entity */
     if (anyentity != NULL) {
@@ -1837,14 +1587,7 @@ entitytype anyentity;
 
 
 
-#ifdef ANSI_C
-
 void trace_list (const_listtype list)
-#else
-
-void trace_list (list)
-listtype list;
-#endif
 
   { /* trace_list */
     while (list != NULL) {
@@ -1856,14 +1599,7 @@ listtype list;
 
 
 
-#ifdef ANSI_C
-
 void set_protfile_name (const const_stritype protfile_name)
-#else
-
-void set_protfile_name (protfile_name)
-stritype protfile_name;
-#endif
 
   {
     os_stritype os_protfile_name;
@@ -1897,14 +1633,7 @@ stritype protfile_name;
 
 
 
-#ifdef ANSI_C
-
 void set_trace (uinttype options)
-#else
-
-void set_trace (options)
-uinttype options;
-#endif
 
   { /* set_trace */
 #ifdef TRACE_TRACE
@@ -1928,15 +1657,7 @@ uinttype options;
 
 
 
-#ifdef ANSI_C
-
 void mapTraceFlags (const_stritype trace_level, uinttype *options)
-#else
-
-void mapTraceFlags (trace_level, options)
-stritype trace_level;
-uinttype *options;
-#endif
 
   {
     memsizetype position;
@@ -1972,15 +1693,7 @@ uinttype *options;
 
 
 
-#ifdef ANSI_C
-
 void mapTraceFlags2 (const_cstritype ctrace_level, uinttype *options)
-#else
-
-void mapTraceFlags2 (ctrace_level, options)
-cstritype ctrace_level;
-uinttype *options;
-#endif
 
   {
     stritype trace_level;

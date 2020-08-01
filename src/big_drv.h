@@ -43,8 +43,6 @@
 #endif
 
 
-#ifdef ANSI_C
-
 cstritype bigHexCStri (const const_biginttype big1);
 biginttype bigAbs (const const_biginttype big1);
 biginttype bigAdd (const_biginttype summand1, const_biginttype summand2);
@@ -109,72 +107,3 @@ int32type bigToInt32 (const const_biginttype big1);
 #endif
 biginttype bigXor (const_biginttype big1, const_biginttype big2);
 biginttype bigZero (void);
-
-#else
-
-cstritype bigHexCStri ();
-biginttype bigAbs ();
-biginttype bigAdd ();
-biginttype bigAddTemp ();
-biginttype bigAnd ();
-inttype bigBitLength ();
-stritype bigCLit ();
-inttype bigCmp ();
-inttype bigCmpSignedDigit ();
-void bigCpy ();
-biginttype bigCreate ();
-void bigDecr ();
-void bigDestr ();
-biginttype bigDiv ();
-booltype bigEq ();
-booltype bigEqSignedDigit ();
-biginttype bigFromInt32 ();
-#ifdef INT64TYPE
-  biginttype bigFromInt64 ();
-#endif
-biginttype bigFromUInt32 ();
-#ifdef INT64TYPE
-  biginttype bigFromUInt64 ();
-#endif
-biginttype bigGcd ();
-void bigGrow ();
-inttype bigHashCode ();
-biginttype bigImport ();
-void bigIncr ();
-biginttype bigIPow ();
-biginttype bigLog2 ();
-inttype bigLowestSetBit ();
-biginttype bigLShift ();
-void bigLShiftAssign ();
-biginttype bigLShiftOne ();
-biginttype bigMDiv ();
-biginttype bigMinus ();
-biginttype bigMod ();
-biginttype bigMult ();
-void bigMultAssign ();
-biginttype bigMultSignedDigit ();
-booltype bigOdd ();
-biginttype bigOr ();
-biginttype bigParse ();
-biginttype bigParseBased ();
-biginttype bigPred ();
-biginttype bigPredTemp ();
-biginttype bigSquare ();
-biginttype bigRand ();
-biginttype bigRem ();
-biginttype bigRShift ();
-void bigRShiftAssign ();
-biginttype bigSbtr ();
-biginttype bigSbtrTemp ();
-void bigShrink ();
-stritype bigStr ();
-biginttype bigSucc ();
-biginttype bigSuccTemp ();
-int32type bigToInt32 ();
-#ifdef INT64TYPE
-  int64type bigToInt64 ();
-#endif
-biginttype bigXor ();
-biginttype bigZero ();
-
-#endif

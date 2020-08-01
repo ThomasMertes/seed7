@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype prc_args       (listtype arguments);
 objecttype prc_begin      (listtype arguments);
 objecttype prc_block      (listtype arguments);
@@ -58,39 +56,3 @@ objecttype prc_trace      (listtype arguments);
 objecttype prc_varfunc    (listtype arguments);
 objecttype prc_varfunc2   (listtype arguments);
 objecttype prc_while      (listtype arguments);
-
-#else
-
-objecttype prc_args ();
-objecttype prc_begin ();
-objecttype prc_block ();
-objecttype prc_block_def ();
-objecttype prc_case ();
-objecttype prc_case_def ();
-objecttype prc_cpy ();
-objecttype prc_create ();
-objecttype prc_decls ();
-objecttype prc_dynamic ();
-objecttype prc_exit ();
-objecttype prc_for_downto ();
-objecttype prc_for_to ();
-objecttype prc_heapstat ();
-objecttype prc_hsize ();
-objecttype prc_if ();
-objecttype prc_if_elsif ();
-objecttype prc_include ();
-objecttype prc_local ();
-objecttype prc_noop ();
-objecttype prc_raise ();
-objecttype prc_repeat ();
-objecttype prc_res_begin ();
-objecttype prc_res_local ();
-objecttype prc_return ();
-objecttype prc_return2 ();
-objecttype prc_settrace ();
-objecttype prc_trace ();
-objecttype prc_varfunc ();
-objecttype prc_varfunc2 ();
-objecttype prc_while ();
-
-#endif

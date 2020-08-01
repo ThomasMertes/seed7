@@ -45,14 +45,7 @@
 
 
 
-#ifdef ANSI_C
-
 rtlInterfacetype itfCreate (const rtlInterfacetype interface_from)
-#else
-
-rtlInterfacetype itfCreate (interface_from)
-rtlInterfacetype interface_from;
-#endif
 
   { /* itfCreate */
     if (interface_from->usage_count != 0) {
@@ -64,14 +57,7 @@ rtlInterfacetype interface_from;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 objecttype itfToHeap (listtype arguments)
-#else
-
-objecttype itfToHeap (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype modu_from;
@@ -110,14 +96,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 rtlInterfacetype itfToInterface (rtlStructtype *stru_arg)
-#else
-
-rtlInterfacetype itfToInterface (stru_arg)
-rtlStructtype *stru_arg;
-#endif
 
   {
     rtlInterfacetype result;

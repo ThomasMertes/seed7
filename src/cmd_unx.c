@@ -60,14 +60,7 @@
 
 
 
-#ifdef ANSI_C
-
 stritype getExecutablePath (const const_stritype arg_0)
-#else
-
-stritype getExecutablePath (arg_0)
-stritype arg_0;
-#endif
 
   {
 #ifdef HAS_SYMLINKS
@@ -126,13 +119,7 @@ stritype arg_0;
 
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#ifdef ANSI_C
-
 volumeListType *openVolumeList (void)
-#else
-
-volumeListType *openVolumeList ()
-#endif
 
   {
     volumeListType *result;
@@ -149,18 +136,8 @@ volumeListType *openVolumeList ()
 
 
 
-#ifdef ANSI_C
-
 void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
     filetype *childStdin, filetype *childStdout)
-#else
-
-void cmdPipe2 (command, parameters, childStdin, childStdout)
-stritype command;
-rtlArraytype parameters;
-filetype *childStdin;
-filetype *childStdout;
-#endif
 
   {
     os_stritype os_command_stri;
@@ -230,18 +207,8 @@ filetype *childStdout;
 
 
 #ifdef IMPLEMENT_PTY_WITH_PIPE2
-#ifdef ANSI_C
-
 void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
     filetype *childStdin, filetype *childStdout)
-#else
-
-void cmdPty (command, parameters, childStdin, childStdout)
-stritype command;
-rtlArraytype parameters;
-filetype *childStdin;
-filetype *childStdout;
-#endif
 
   { /* cmdPty */
     cmdPipe2(command, parameters, childStdin, childStdout);
@@ -251,18 +218,8 @@ filetype *childStdout;
 
 
 
-#ifdef ANSI_C
-
 void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
     filetype *childStdin, filetype *childStdout)
-#else
-
-void cmdPty (command, parameters, childStdin, childStdout)
-stritype command;
-rtlArraytype parameters;
-filetype *childStdin;
-filetype *childStdout;
-#endif
 
   {
     os_stritype os_command_stri;
@@ -342,15 +299,7 @@ filetype *childStdout;
 
 
 
-#ifdef ANSI_C
-
 void cmdStartProcess (const const_stritype command, const const_rtlArraytype parameters)
-#else
-
-void cmdStartProcess (command, parameters)
-stritype command;
-rtlArraytype parameters;
-#endif
 
   {
     os_stritype os_command_stri;

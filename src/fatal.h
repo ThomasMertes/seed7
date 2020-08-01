@@ -25,12 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void fatal_memory_error (const_cstritype source_file, int source_line);
-
-#else
-
-void fatal_memory_error ();
-
-#endif

@@ -1,3 +1,45 @@
+20130519:
+- The support for K&R C has been removed. Now an ANSI C compiler is
+  required to compile Seed7. For many years all officially supported
+  C compilers have been ANSI C compilers.
+- The manual chapters describing rational, bigRational and the
+  functions min and max have been improved.
+- The functions min and max have been added to bigint.s7i, bigrat.s7i
+  and rational.s7i.
+- Addition and subtraction operators in rational.s7i and bigrat.s7i
+  have been improved to reduce the result.
+- The parse operator in bigrat.s7i has been improved to process
+  negative rational literals correctly.
+- The function round in bigrat.s7i has been fixed.
+- Documentation comments in boolean.s7i, float.s7i and integer.s7i
+  have been improved.
+- A standard bitmap font, with capital height of 8, has been defined
+  in the new library stdfont8.s7i.
+- Definitions of min and max have been removed from dnafight.sd7 and
+  dna_base.s7i.
+- The example program ftp7.sd7 has been improved to allow linewise
+  editing with history.
+- The code generation for the actions HSH_CPY and HSH_IDX in the
+  compiler has been improved.
+- In arrlib.c, hshlib.c, arr_rtl.c and hsh_rtl.c several functions,
+  which enlarge an array, have been improved to avoid overflows. This
+  overflows could happen when the array size or the new maximum index
+  are computed.
+- Definitions of the macros inLongRange, castToLong, inTimeTRange,
+  arrayIndex, bitsetSize, bitsetSize2 and bitsetIndex have been added
+  to common.h.
+- Functions in setlib.c and set_rtl.c have been improved to use the
+  macros bitsetSize, bitsetSize2 and bitsetIndex.
+- Functions in drw_x11.c and drw_win.c have been improved to check
+  for range violations and to cast parameters.
+- The functions to draw an image (drwImage, drw_image, drwRtlImage)
+  in drw_dos.c, drw_win.c, drw_x11.c, drw_rtl.c and drwlib.c have
+  been improved to use image data with int32type elements.
+- The function socInputReady in soc_rtl.c has been improved to take
+  the seconds and microsecond parameter into account.
+- In tim_rtl.c the functions timFromTimestamp, timFromIntTimestamp,
+  timToTimestamp and timSetLocalTZ have been improved.
+
 20130505:
 - Functions to compare arrays (compare, <, >, <=, >=) have been added
   to the library array.s7i.

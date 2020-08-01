@@ -49,14 +49,7 @@
 
 
 
-#ifdef ANSI_C
-
 booltype filInputReady (filetype aFile)
-#else
-
-booltype filInputReady (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;

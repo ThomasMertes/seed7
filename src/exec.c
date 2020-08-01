@@ -58,14 +58,7 @@ extern booltype in_analyze;
 
 
 
-#ifdef ANSI_C
-
 objecttype exec_object (register objecttype object)
-#else
-
-objecttype exec_object (object)
-register objecttype object;
-#endif
 
   {
     register objecttype result;
@@ -167,20 +160,9 @@ register objecttype object;
  *  When a TEMP2 parameter is used for a deeper function call
  *  The TEMP2 flag is cleared to avoid unwanted effects.
  */
-#ifdef ANSI_C
-
 static INLINE void par_init (loclisttype form_param_list,
     listtype *backup_form_params, listtype act_param_list,
     listtype *evaluated_act_params)
-#else
-
-static INLINE void par_init (form_param_list, backup_form_params,
-    act_param_list, evaluated_act_params)
-loclisttype form_param_list;
-listtype *backup_form_params;
-listtype act_param_list;
-listtype *evaluated_act_params;
-#endif
 
   {
     loclisttype form_param;
@@ -276,18 +258,8 @@ listtype *evaluated_act_params;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void par_restore (const_loclisttype form_param,
     const_listtype backup_form_params, const_listtype evaluated_act_params)
-#else
-
-static INLINE void par_restore (form_param, backup_form_params,
-    evaluated_act_params)
-loclisttype form_param;
-listtype backup_form_params;
-listtype evaluated_act_params;
-#endif
 
   {
     booltype save_fail_flag;
@@ -342,17 +314,8 @@ listtype evaluated_act_params;
 
 
 
-#ifdef ANSI_C
-
 static void loc_init (const_loclisttype loc_var, listtype *backup_loc_var,
     listtype act_param_list)
-#else
-
-static void loc_init (loc_var, backup_loc_var, act_param_list)
-loclisttype loc_var;
-listtype *backup_loc_var;
-listtype act_param_list;
-#endif
 
   {
     listtype *list_insert_place;
@@ -377,15 +340,7 @@ listtype act_param_list;
 
 
 
-#ifdef ANSI_C
-
 static void loc_restore (const_loclisttype loc_var, const_listtype backup_loc_var)
-#else
-
-static void loc_restore (loc_var, backup_loc_var)
-loclisttype loc_var;
-listtype backup_loc_var;
-#endif
 
   {
     booltype save_fail_flag;
@@ -418,16 +373,8 @@ listtype backup_loc_var;
 
 
 
-#ifdef ANSI_C
-
 static INLINE booltype res_init (const_locobjtype block_result,
     objecttype *backup_block_result)
-#else
-
-static INLINE booltype res_init (block_result, backup_block_result)
-locobjtype block_result;
-objecttype *backup_block_result;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -455,17 +402,8 @@ objecttype *backup_block_result;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void res_restore (const_locobjtype block_result,
     objecttype backup_block_result, objecttype *result)
-#else
-
-static INLINE void res_restore (block_result, backup_block_result, result)
-locobjtype block_result;
-objecttype backup_block_result;
-objecttype *result;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -502,14 +440,7 @@ objecttype *result;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void show_arg_list (listtype act_param_list)
-#else
-
-static void show_arg_list (act_param_list)
-listtype act_param_list;
-#endif
 
   { /* show_arg_list */
     while (act_param_list != NULL) {
@@ -540,17 +471,8 @@ listtype act_param_list;
 
 
 
-#ifdef ANSI_C
-
 static objecttype exec_lambda (const_blocktype block,
     listtype actual_parameters, objecttype object)
-#else
-
-static objecttype exec_lambda (block, actual_parameters, object)
-blocktype block;
-listtype actual_parameters;
-objecttype object;
-#endif
 
   {
     objecttype result;
@@ -621,14 +543,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 static listtype eval_arg_list (register listtype act_param_list)
-#else
-
-static listtype eval_arg_list (act_param_list)
-register listtype act_param_list;
-#endif
 
   {
     listtype evaluated_act_params;
@@ -646,14 +561,7 @@ register listtype act_param_list;
 
 
 
-#ifdef ANSI_C
-
 static void dump_arg_list (listtype evaluated_act_params)
-#else
-
-static void dump_arg_list (evaluated_act_params)
-listtype evaluated_act_params;
-#endif
 
   {
     register listtype list_end;
@@ -676,17 +584,8 @@ listtype evaluated_act_params;
 
 
 
-#ifdef ANSI_C
-
 static objecttype exec_action (const_objecttype act_object,
     listtype act_param_list, objecttype object)
-#else
-
-static objecttype exec_action (act_object, act_param_list, object)
-objecttype act_object;
-listtype act_param_list;
-objecttype object;
-#endif
 
   {
     listtype evaluated_act_params;
@@ -780,21 +679,14 @@ objecttype object;
       dump_arg_list(evaluated_act_params);
     } /* if */
 #ifdef TRACE_EXEC
-    printf("END exec_action\n");
+    printf("END exec_action fail_flag=%d\n", fail_flag);
 #endif
     return result;
   } /* exec_action */
 
 
 
-#ifdef ANSI_C
-
 static void exec_all_parameters (const_listtype act_param_list)
-#else
-
-static void exec_all_parameters (act_param_list)
-listtype act_param_list;
-#endif
 
   { /* exec_all_parameters */
 #ifdef TRACE_EXEC
@@ -811,14 +703,7 @@ listtype act_param_list;
 
 
 
-#ifdef ANSI_C
-
 objecttype exec_call (objecttype object)
-#else
-
-objecttype exec_call (object)
-objecttype object;
-#endif
 
   {
     objecttype subroutine_object;
@@ -949,14 +834,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 objecttype evaluate (objecttype object)
-#else
-
-objecttype evaluate (object)
-objecttype object;
-#endif
 
   {
     objecttype result;
@@ -1019,14 +897,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 objecttype eval_expression (objecttype object)
-#else
-
-objecttype eval_expression (object)
-objecttype object;
-#endif
 
   {
     objecttype result;
@@ -1071,14 +942,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 objecttype exec_dynamic (listtype expr_list)
-#else
-
-objecttype exec_dynamic (expr_list)
-listtype expr_list;
-#endif
 
   {
     objecttype dynamic_call_obj;
@@ -1204,17 +1068,8 @@ printf("\n"); */
 
 
 
-#ifdef ANSI_C
-
 objecttype exec_expr (const_progtype currentProg, objecttype object,
     errinfotype *err_info)
-#else
-
-objecttype exec_expr (currentProg, object, err_info)
-progtype currentProg;
-objecttype object;
-errinfotype *err_info;
-#endif
 
   {
     progrecord prog_backup;

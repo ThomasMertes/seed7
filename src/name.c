@@ -61,17 +61,8 @@ static int depth = 0;
 
 
 
-#ifdef ANSI_C
-
 static void push_owner (ownertype *owner, objecttype obj_to_push,
     errinfotype *err_info)
-#else
-
-static void push_owner (owner, obj_to_push, err_info)
-ownertype *owner;
-objecttype obj_to_push;
-errinfotype *err_info;
-#endif
 
   {
     ownertype created_owner;
@@ -101,14 +92,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void free_params (listtype params)
-#else
-
-static void free_params (params)
-listtype params;
-#endif
 
   {
     listtype param_elem;
@@ -135,19 +119,8 @@ listtype params;
 
 
 
-#ifdef ANSI_C
-
 static objecttype get_object (entitytype entity, listtype params,
     filenumtype file_number, linenumtype line, errinfotype *err_info)
-#else
-
-static objecttype get_object (entity, params, file_number, line, err_info)
-entitytype entity;
-listtype params;
-filenumtype file_number;
-linenumtype line;
-errinfotype *err_info;
-#endif
 
   {
     objecttype defined_object;
@@ -219,15 +192,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 listtype create_parameter_list (listtype name_list, errinfotype *err_info)
-#else
-
-listtype create_parameter_list (name_list, err_info)
-listtype name_list;
-errinfotype *err_info;
-#endif
 
   {
     listtype name_elem;
@@ -287,15 +252,7 @@ printf(" %lu\n", (long unsigned) name_elem->obj); */
 
 
 
-#ifdef ANSI_C
-
 static void free_name_list (listtype name_list, booltype freeActualParams)
-#else
-
-static void free_name_list (name_list, freeActualParams)
-listtype name_list;
-booltype freeActualParams;
-#endif
 
   {
     listtype name_elem;
@@ -333,21 +290,9 @@ booltype freeActualParams;
 
 
 
-#ifdef ANSI_C
-
 static objecttype push_name (nodetype declaration_base,
     listtype name_list, filenumtype file_number, linenumtype line,
     errinfotype *err_info)
-#else
-
-static objecttype push_name (declaration_base, name_list,
-    file_number, line, err_info)
-nodetype declaration_base;
-listtype name_list;
-filenumtype file_number;
-linenumtype line;
-errinfotype *err_info;
-#endif
 
   {
     entitytype entity;
@@ -384,15 +329,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void pop_object (progtype currentProg, const_objecttype obj_to_pop)
-#else
-
-static void pop_object (obj_to_pop, freeUnusedEntity)
-progtype currentProg;
-objecttype obj_to_pop;
-#endif
 
   {
     entitytype entity;
@@ -425,14 +362,7 @@ objecttype obj_to_pop;
 
 
 
-#ifdef ANSI_C
-
 static void disconnect_entity (const objecttype anObject)
-#else
-
-static void disconnect_entity (anObject)
-objecttype anObject;
-#endif
 
   {
     entitytype entity;
@@ -472,14 +402,7 @@ objecttype anObject;
 
 
 
-#ifdef ANSI_C
-
 void disconnect_param_entities (const const_objecttype objWithParams)
-#else
-
-void disconnect_param_entities (objWithParams)
-objecttype objWithParams;
-#endif
 
   {
     listtype param_elem;
@@ -506,15 +429,7 @@ objecttype objWithParams;
 
 
 
-#ifdef ANSI_C
-
 void init_stack (progtype currentProg, errinfotype *err_info)
-#else
-
-void init_stack (currentProg, err_info)
-progtype currentProg;
-errinfotype *err_info;
-#endif
 
   {
     stacktype created_stack_element;
@@ -544,14 +459,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void close_stack (progtype currentProg)
-#else
-
-void close_stack (currentProg)
-progtype currentProg;
-#endif
 
   {
     listtype reversed_list = NULL;
@@ -610,14 +518,7 @@ progtype currentProg;
 
 
 
-#ifdef ANSI_C
-
 void grow_stack (errinfotype *err_info)
-#else
-
-void grow_stack (err_info)
-errinfotype *err_info;
-#endif
 
   {
     stacktype created_stack_element;
@@ -646,13 +547,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void shrink_stack (void)
-#else
-
-void shrink_stack ()
-#endif
 
   {
     listtype list_element;
@@ -681,13 +576,7 @@ void shrink_stack ()
 
 
 
-#ifdef ANSI_C
-
 void push_stack (void)
-#else
-
-void push_stack ()
-#endif
 
   { /* push_stack */
 #ifdef TRACE_NAME
@@ -707,13 +596,7 @@ void push_stack ()
 
 
 
-#ifdef ANSI_C
-
 void pop_stack (void)
-#else
-
-void pop_stack ()
-#endif
 
   {
     listtype list_element;
@@ -745,13 +628,7 @@ void pop_stack ()
 
 
 
-#ifdef ANSI_C
-
 static void down_stack (void)
-#else
-
-static void down_stack ()
-#endif
 
   { /* down_stack */
 #ifdef TRACE_NAME
@@ -771,13 +648,7 @@ static void down_stack ()
 
 
 
-#ifdef ANSI_C
-
 listtype *get_local_object_insert_place (void)
-#else
-
-listtype *get_local_object_insert_place ()
-#endif
 
   { /* get_local_object_insert_place */
     return prog.stack_current->object_list_insert_place;
@@ -785,14 +656,7 @@ listtype *get_local_object_insert_place ()
 
 
 
-#ifdef ANSI_C
-
 static void match_name_list (listtype raw_name_list)
-#else
-
-static void match_name_list (raw_name_list)
-listtype raw_name_list;
-#endif
 
   {
     listtype name_elem;
@@ -817,15 +681,7 @@ listtype raw_name_list;
 
 
 
-#ifdef ANSI_C
-
 static listtype eval_name_list (listtype raw_name_list, errinfotype *err_info)
-#else
-
-static listtype eval_name_list (raw_name_list, err_info)
-listtype raw_name_list;
-errinfotype *err_info;
-#endif
 
   {
     listtype name_elem;
@@ -870,17 +726,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static objecttype inst_list (nodetype declaration_base, const_objecttype object_name,
     errinfotype *err_info)
-#else
-
-static objecttype inst_list (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
 
   {
     listtype name_list;
@@ -908,19 +755,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static objecttype inst_object (const_nodetype declaration_base, objecttype name_object,
     filenumtype file_number, linenumtype line, errinfotype *err_info)
-#else
-
-static objecttype inst_object (declaration_base, name_object, file_number, line, err_info)
-nodetype declaration_base;
-objecttype name_object;
-filenumtype file_number;
-linenumtype line;
-errinfotype *err_info;
-#endif
 
   {
     objecttype defined_object;
@@ -946,17 +782,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static objecttype inst_object_expr (const_nodetype declaration_base,
     objecttype object_name, errinfotype *err_info)
-#else
-
-static objecttype inst_object_expr (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
 
   {
     listtype name_list;
@@ -1008,17 +835,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 objecttype entername (nodetype declaration_base, objecttype object_name,
     errinfotype *err_info)
-#else
-
-objecttype entername (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
 
   {
     objecttype defined_object;
@@ -1062,17 +880,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 objecttype find_name (nodetype declaration_base, const_objecttype object_name,
     errinfotype *err_info)
-#else
-
-objecttype find_name (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
 
   {
     listtype name_list;
@@ -1142,17 +951,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 objecttype search_name (const_nodetype declaration_base,
     const_objecttype object_name, errinfotype *err_info)
-#else
-
-objecttype search_name (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
 
   {
     listtype name_list;
@@ -1224,14 +1024,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static objecttype dollar_parameter (objecttype param_object)
-#else
-
-static objecttype dollar_parameter (param_object)
-objecttype param_object;
-#endif
 
   {
     listtype param_descr;
@@ -1276,17 +1069,8 @@ objecttype param_object;
 
 
 
-#ifdef ANSI_C
-
 static objecttype dollar_inst_list (nodetype declaration_base,
     const_objecttype object_name, errinfotype *err_info)
-#else
-
-static objecttype dollar_inst_list (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
 
   {
     listtype name_elem;
@@ -1316,17 +1100,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 objecttype dollar_entername (nodetype declaration_base, objecttype object_name,
     errinfotype *err_info)
-#else
-
-objecttype dollar_entername (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
 
   {
     objecttype defined_object;

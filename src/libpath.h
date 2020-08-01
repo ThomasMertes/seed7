@@ -25,19 +25,8 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void find_include_file (const_stritype include_file_name, errinfotype *err_info);
 void append_to_lib_path (const_stritype path, errinfotype *err_info);
 void init_lib_path (const_stritype source_file_name,
     const const_rtlArraytype seed7_libraries, errinfotype *err_info);
 void free_lib_path (void);
-
-#else
-
-void find_include_file ();
-void append_to_lib_path ();
-void init_lib_path ();
-void free_lib_path ();
-
-#endif

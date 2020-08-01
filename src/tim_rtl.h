@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 time_t mkutc (struct tm *timeptr);
 time_t unchecked_mkutc (struct tm *timeptr);
 void timFromTimestamp (time_t st_time,
@@ -45,14 +43,3 @@ time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
 void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype *time_zone, booltype *is_dst);
-
-#else
-
-time_t mkutc ();
-time_t unchecked_mkutc ();
-void timFromTimestamp ();
-void timFromIntTimestamp ();
-time_t timToTimestamp ();
-void timSetLocalTZ ();
-
-#endif

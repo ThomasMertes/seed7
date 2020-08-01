@@ -49,14 +49,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_append (listtype arguments)
-#else
-
-objecttype bst_append (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype bstr_variable;
@@ -103,14 +96,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_cat (listtype arguments)
-#else
-
-objecttype bst_cat (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype bstri1;
@@ -159,14 +145,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_cmp (listtype arguments)
-#else
-
-objecttype bst_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype bstri1;
@@ -203,14 +182,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_cpy (listtype arguments)
-#else
-
-objecttype bst_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype bstri_to;
@@ -257,14 +229,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_create (listtype arguments)
-#else
-
-objecttype bst_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype bstri_to;
@@ -297,14 +262,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_destr (listtype arguments)
-#else
-
-objecttype bst_destr (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype old_bstring;
@@ -322,14 +280,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_empty (listtype arguments)
-#else
-
-objecttype bst_empty (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype result;
@@ -345,14 +296,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_eq (listtype arguments)
-#else
-
-objecttype bst_eq (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype bstri1;
@@ -373,14 +317,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_hashcode (listtype arguments)
-#else
-
-objecttype bst_hashcode (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype bstri1;
@@ -400,14 +337,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_idx (listtype arguments)
-#else
-
-objecttype bst_idx (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype bstri;
@@ -427,14 +357,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_lng (listtype arguments)
-#else
-
-objecttype bst_lng (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype bstri;
@@ -455,14 +378,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_ne (listtype arguments)
-#else
-
-objecttype bst_ne (arguments)
-listtype arguments;
-#endif
 
   {
     bstritype bstri1;
@@ -483,14 +399,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_parse (listtype arguments)
-#else
-
-objecttype bst_parse (arguments)
-listtype arguments;
-#endif
 
   { /* bst_parse */
     isit_stri(arg_3(arguments));
@@ -500,14 +409,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_str (listtype arguments)
-#else
-
-objecttype bst_str (arguments)
-listtype arguments;
-#endif
 
   { /* bst_str */
     isit_bstri(arg_1(arguments));
@@ -517,14 +419,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bst_value (listtype arguments)
-#else
-
-objecttype bst_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

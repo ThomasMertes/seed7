@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void rflAppend (listtype *const list_to, const listtype list_from);
 listtype rflCat (listtype list1, const listtype list2);
 inttype rflCmp (const_listtype list1, const_listtype list2);
@@ -46,26 +44,3 @@ listtype rflMklist (objecttype elem);
 inttype rflPos (const_listtype list_element, const const_objecttype searched_object);
 listtype rflRange (const listtype list, inttype start, inttype stop);
 listtype rflTail (const listtype list, inttype start);
-
-#else
-
-void rflAppend ();
-listtype rflCat ();
-inttype rflCmp ();
-void rflCpy ();
-listtype rflCreate ();
-void rflDestr ();
-booltype rflElem ();
-void rflElemcpy ();
-booltype rflEq ();
-listtype rflHead ();
-objecttype rflIdx ();
-void rflIncl ();
-inttype rflIpos ();
-inttype rflLng ();
-listtype rflMklist ();
-inttype rflPos ();
-listtype rflRange ();
-listtype rflTail ();
-
-#endif

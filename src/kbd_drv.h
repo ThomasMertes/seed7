@@ -193,18 +193,7 @@
 */
 
 
-#ifdef ANSI_C
-
 chartype kbdGetc (void);
 booltype kbdKeyPressed (void);
 chartype kbdRawGetc (void);
 void kbdShut (void);
-
-#else
-
-chartype kbdGetc ();
-booltype kbdKeyPressed ();
-chartype kbdRawGetc ();
-void kbdShut ();
-
-#endif

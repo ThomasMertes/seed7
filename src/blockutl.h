@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void free_block (blocktype block);
 blocktype new_block (loclisttype block_params, const_locobjtype block_result,
     loclisttype block_local_vars, listtype block_local_consts,
@@ -41,15 +39,3 @@ loclisttype get_local_var_list (const_listtype local_object_list,
     errinfotype *err_info);
 listtype get_local_const_list (const_listtype local_object_list,
     errinfotype *err_info);
-
-#else
-
-void free_block ();
-blocktype new_block ();
-void get_result_var ();
-void get_return_var ();
-loclisttype get_param_list ();
-loclisttype get_local_var_list ();
-listtype get_local_const_list ();
-
-#endif

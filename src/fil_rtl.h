@@ -147,8 +147,6 @@
 #endif
 
 
-#ifdef ANSI_C
-
 int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin);
 memsizetype remainingBytesInFile (filetype aFile);
 inttype getFileLengthUsingSeek (filetype aFile);
@@ -172,30 +170,3 @@ void filSetbuf (filetype aFile, inttype mode, inttype size);
 inttype filTell (filetype aFile);
 stritype filWordRead (filetype inFile, chartype *terminationChar);
 void filWrite (filetype outFile, const const_stritype stri);
-
-#else
-
-int offsetSeek ();
-memsizetype remainingBytesInFile ();
-inttype getFileLengthUsingSeek ();
-biginttype getBigFileLengthUsingSeek ();
-biginttype filBigLng ();
-void filBigSeek ();
-biginttype filBigTell ();
-void filClose ();
-stritype filGets ();
-booltype filHasNext ();
-stritype filLineRead ();
-stritype filLit ();
-inttype filLng ();
-filetype filOpen ();
-void filPclose ();
-filetype filPopen ();
-void filPrint ();
-void filSeek ();
-void filSetbuf ();
-inttype filTell ();
-stritype filWordRead ();
-void filWrite ();
-
-#endif

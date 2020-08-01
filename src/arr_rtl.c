@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  arr_rtl.c     Primitive actions for the array type.             */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/arr_rtl.c                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005, 2006  Thomas Mertes      */
+/*  Changes: 1991 - 1994, 2005, 2006, 2013  Thomas Mertes           */
 /*  Content: Primitive actions for the array type.                  */
 /*                                                                  */
 /*  The functions from this file should only be used in compiled    */
@@ -60,17 +60,8 @@
 
 
 
-#ifdef ANSI_C
-
 static void rtl_qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
     inttype cmp_func (rtlGenerictype, rtlGenerictype))
-#else
-
-static void rtl_qsort_array (begin_sort, end_sort, cmp_func)
-rtlObjecttype *begin_sort;
-rtlObjecttype *end_sort;
-inttype cmp_func (rtlGenerictype, rtlGenerictype);
-#endif
 
   {
     rtlGenerictype compare_elem;
@@ -122,14 +113,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
 
 
-#ifdef ANSI_C
-
 static stritype getProgramName (const const_stritype arg_0)
-#else
-
-static stritype getProgramName (arg_0)
-stritype arg_0;
-#endif
 
   {
     memsizetype name_len;
@@ -162,15 +146,7 @@ stritype arg_0;
 
 
 
-#ifdef ANSI_C
-
 static rtlArraytype copyArgv (const int argc, const os_stritype *const argv)
-#else
-
-static rtlArraytype copyArgv (argc, argv)
-int argc;
-os_stritype *argv;
-#endif
 
   {
     memsizetype arg_c;
@@ -214,19 +190,8 @@ os_stritype *argv;
 
 
 #ifdef USE_WMAIN
-#ifdef ANSI_C
-
 rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
     stritype *programName, stritype *exePath)
-#else
-
-rtlArraytype getArgv (argc, argv, arg_0, programName, exePath)
-int argc;
-os_stritype *argv;
-stritype *arg_0;
-stritype *programName;
-stritype *exePath;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -277,19 +242,8 @@ stritype *exePath;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
     stritype *programName, stritype *exePath)
-#else
-
-rtlArraytype getArgv (argc, argv, arg_0, programName, exePath)
-int argc;
-char **argv;
-stritype *arg_0;
-stritype *programName;
-stritype *exePath;
-#endif
 
   {
 #ifdef OS_STRI_WCHAR
@@ -381,14 +335,7 @@ stritype *exePath;
 
 
 #ifndef OS_STRI_WCHAR
-#ifdef ANSI_C
-
 stritype examineSearchPath (const const_stritype fileName)
-#else
-
-stritype examineSearchPath (fileName)
-stritype fileName;
-#endif
 
   {
     rtlArraytype searchPath;
@@ -430,15 +377,7 @@ stritype fileName;
 
 
 
-#ifdef ANSI_C
-
 void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype arr_from)
-#else
-
-void arrAppend (arr_variable, arr_from)
-rtlArraytype *arr_variable;
-rtlArraytype arr_from;
-#endif
 
   {
     rtlArraytype arr_to;
@@ -451,7 +390,8 @@ rtlArraytype arr_from;
     if (arr_from_size != 0) {
       arr_to = *arr_variable;
       arr_to_size = arraySize(arr_to);
-      if (arr_to->max_position > (inttype) (MAX_MEM_INDEX - arr_from_size)) {
+      if (arr_to_size > MAX_RTL_ARR_LEN - arr_from_size ||
+          arr_to->max_position > (inttype) (MAX_MEM_INDEX - arr_from_size)) {
         raise_error(MEMORY_ERROR);
       } else {
         new_size = arr_to_size + arr_from_size;
@@ -472,15 +412,7 @@ rtlArraytype arr_from;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1)
-#else
-
-rtlArraytype arrArrlit2 (start_position, arr1)
-inttype start_position;
-rtlArraytype arr1;
-#endif
 
   {
     memsizetype result_size;
@@ -500,14 +432,7 @@ rtlArraytype arr1;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrBaselit (const rtlGenerictype element)
-#else
-
-rtlArraytype arrBaselit (element)
-rtlGenerictype element;
-#endif
 
   {
     memsizetype result_size;
@@ -527,15 +452,7 @@ rtlGenerictype element;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrBaselit2 (inttype start_position, const rtlGenerictype element)
-#else
-
-rtlArraytype arrBaselit2 (start_position, element)
-inttype start_position;
-rtlGenerictype element;
-#endif
 
   {
     memsizetype result_size;
@@ -555,15 +472,7 @@ rtlGenerictype element;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
-#else
-
-rtlArraytype arrCat (arr1, arr2)
-rtlArraytype arr1;
-rtlArraytype arr2;
-#endif
 
   {
     memsizetype arr1_size;
@@ -574,7 +483,8 @@ rtlArraytype arr2;
   /* arrCat */
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
-    if (arr1->max_position > (inttype) (MAX_MEM_INDEX - arr2_size)) {
+    if (arr1_size > MAX_RTL_ARR_LEN - arr2_size ||
+        arr1->max_position > (inttype) (MAX_MEM_INDEX - arr2_size)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -594,15 +504,7 @@ rtlArraytype arr2;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrExtend (rtlArraytype arr1, const rtlGenerictype element)
-#else
-
-rtlArraytype arrExtend (arr1, element)
-rtlArraytype arr1;
-rtlGenerictype element;
-#endif
 
   {
     memsizetype arr1_size;
@@ -611,7 +513,8 @@ rtlGenerictype element;
 
   /* arrExtend */
     arr1_size = arraySize(arr1);
-    if (arr1->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
+    if (arr1_size > MAX_RTL_ARR_LEN - 1 ||
+        arr1->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -630,14 +533,7 @@ rtlGenerictype element;
 
 
 
-#ifdef ANSI_C
-
 void arrFree (rtlArraytype oldArray)
-#else
-
-void arrFree (oldArray)
-rtlArraytype oldArray;
-#endif
 
   {
     memsizetype size;
@@ -649,15 +545,7 @@ rtlArraytype oldArray;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element2)
-#else
-
-rtlArraytype arrGen (element1, element2)
-rtlGenerictype element1;
-rtlGenerictype element2;
-#endif
 
   {
     memsizetype result_size;
@@ -678,15 +566,7 @@ rtlGenerictype element2;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
-#else
-
-rtlArraytype arrHead (arr1, stop)
-rtlArraytype arr1;
-inttype stop;
-#endif
 
   {
     memsizetype length;
@@ -721,15 +601,7 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
-#else
-
-rtlArraytype arrHeadTemp (arr_temp, stop)
-rtlArraytype *arr_temp;
-inttype stop;
-#endif
 
   {
     rtlArraytype arr1;
@@ -781,15 +653,7 @@ inttype stop;
  *  Index access when the array is destroyed after indexing.
  *  To avoid problems the indexed element is removed from the array.
  */
-#ifdef ANSI_C
-
 rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos)
-#else
-
-rtlGenerictype arrIdxTemp (arr_temp, pos)
-rtlArraytype *arr_temp;
-inttype pos;
-#endif
 
   {
     rtlArraytype arr1;
@@ -823,44 +687,35 @@ inttype pos;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrMalloc (inttype min_position, inttype max_position)
-#else
-
-rtlArraytype arrMalloc (min_position, max_position)
-inttype min_position;
-inttype max_position;
-#endif
 
   {
-    uinttype size;
+    memsizetype size;
     rtlArraytype result;
 
   /* arrMalloc */
-    size = arraySize2(min_position, max_position);
-    if (size > MAX_RTL_ARR_LEN ||
-        !ALLOC_RTL_ARRAY(result, (memsizetype) size)) {
+    if (min_position < MIN_MEM_INDEX || max_position > MAX_MEM_INDEX ||
+        (min_position == MIN_MEM_INDEX && max_position == MAX_MEM_INDEX) ||
+	(min_position > MIN_MEM_INDEX && min_position - 1 > max_position)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      result->min_position = min_position;
-      result->max_position = max_position;
+      size = arraySize2(min_position, max_position);
+      if (size > MAX_RTL_ARR_LEN ||
+          !ALLOC_RTL_ARRAY(result, (memsizetype) size)) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result->min_position = min_position;
+        result->max_position = max_position;
+      } /* if */
     } /* if */
     return result;
   } /* arrMalloc */
 
 
 
-#ifdef ANSI_C
-
 void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element)
-#else
-
-void arrPush (arr_variable, element)
-rtlArraytype *arr_variable;
-rtlGenerictype element;
-#endif
 
   {
     rtlArraytype arr_to;
@@ -870,7 +725,8 @@ rtlGenerictype element;
   /* arrPush */
     arr_to = *arr_variable;
     arr_to_size = arraySize(arr_to);
-    if (arr_to->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
+    if (arr_to_size > MAX_RTL_ARR_LEN - 1 ||
+        arr_to->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
       raise_error(MEMORY_ERROR);
     } else {
       new_size = arr_to_size + 1;
@@ -888,16 +744,7 @@ rtlGenerictype element;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop)
-#else
-
-rtlArraytype arrRange (arr1, start, stop)
-rtlArraytype arr1;
-inttype start;
-inttype stop;
-#endif
 
   {
     memsizetype length;
@@ -921,7 +768,7 @@ inttype stop;
       } else {
         result->min_position = arr1->min_position;
         result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = (uinttype) (start - arr1->min_position);
+        start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
@@ -938,16 +785,7 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop)
-#else
-
-rtlArraytype arrRangeTemp (arr_temp, start, stop)
-rtlArraytype *arr_temp;
-inttype start;
-inttype stop;
-#endif
 
   {
     rtlArraytype arr1;
@@ -975,8 +813,8 @@ inttype stop;
       } else {
         result->min_position = arr1->min_position;
         result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = (uinttype) (start - arr1->min_position);
-        stop_idx = (uinttype) (stop - arr1->min_position);
+        start_idx = arrayIndex(arr1, start);
+        stop_idx = arrayIndex(arr1, stop);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
         memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
@@ -1007,15 +845,7 @@ inttype stop;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newSize)
-#else
-
-rtlArraytype arrRealloc (oldSize, newSize)
-memsizetype oldSize;
-memsizetype newSize;
-#endif
 
   {
     rtlArraytype resized_arr;
@@ -1035,15 +865,7 @@ memsizetype newSize;
 
 
 
-#ifdef ANSI_C
-
 rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position)
-#else
-
-rtlGenerictype arrRemove (arr_to, position)
-rtlArraytype *arr_to;
-inttype position;
-#endif
 
   {
     rtlArraytype arr1;
@@ -1059,7 +881,7 @@ inttype position;
       result = array_pointer[position - arr1->min_position].value.genericvalue;
       memmove(&array_pointer[position - arr1->min_position],
           &array_pointer[position - arr1->min_position + 1],
-          (uinttype) (arr1->max_position - position) * sizeof(rtlObjecttype));
+          (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjecttype));
       arr1_size = arraySize(arr1);
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - 1);
       if (unlikely(resized_arr1 == NULL)) {
@@ -1069,7 +891,7 @@ inttype position;
         /* value of arr1.                                     */
         memmove(&array_pointer[position - arr1->min_position + 1],
             &array_pointer[position - arr1->min_position],
-            (uinttype) (arr1->max_position - position) * sizeof(rtlObjecttype));
+            (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjecttype));
         array_pointer[position - arr1->min_position].value.genericvalue = result;
         raise_error(MEMORY_ERROR);
         result = 0;
@@ -1088,15 +910,7 @@ inttype position;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype))
-#else
-
-rtlArraytype arrSort (arr1, cmp_func)
-rtlArraytype arr1;
-inttype cmp_func (rtlGenerictype, rtlGenerictype);
-#endif
 
   { /* arrSort */
     /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
@@ -1106,16 +920,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype len)
-#else
-
-rtlArraytype arrSubarr (arr1, start, len)
-rtlArraytype arr1;
-inttype start;
-inttype len;
-#endif
 
   {
     memsizetype length;
@@ -1135,13 +940,13 @@ inttype len;
       if (len - 1 > arr1->max_position - start) {
         len = arr1->max_position - start + 1;
       } /* if */
-      result_size = (uinttype) (len);
+      result_size = (memsizetype) (uinttype) (len);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
         result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = (uinttype) (start - arr1->min_position);
+        start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
@@ -1158,16 +963,7 @@ inttype len;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
-#else
-
-rtlArraytype arrSubarrTemp (arr_temp, start, len)
-rtlArraytype *arr_temp;
-inttype start;
-inttype len;
-#endif
 
   {
     rtlArraytype arr1;
@@ -1191,14 +987,14 @@ inttype len;
       if (len - 1 > arr1->max_position - start) {
         len = arr1->max_position - start + 1;
       } /* if */
-      result_size = (uinttype) (len);
+      result_size = (memsizetype) (uinttype) (len);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
         result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = (uinttype) (start - arr1->min_position);
-        stop_idx = (uinttype) (start + len - 1 - arr1->min_position);
+        start_idx = arrayIndex(arr1, start);
+        stop_idx = arrayIndex(arr1, start + len - 1);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
         memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
@@ -1229,15 +1025,7 @@ inttype len;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
-#else
-
-rtlArraytype arrTail (arr1, start)
-rtlArraytype arr1;
-inttype start;
-#endif
 
   {
     memsizetype length;
@@ -1257,7 +1045,7 @@ inttype start;
       } else {
         result->min_position = arr1->min_position;
         result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = (uinttype) (start - arr1->min_position);
+        start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
@@ -1274,15 +1062,7 @@ inttype start;
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start)
-#else
-
-rtlArraytype arrTailTemp (arr_temp, start)
-rtlArraytype *arr_temp;
-inttype start;
-#endif
 
   {
     rtlArraytype arr1;
@@ -1305,7 +1085,7 @@ inttype start;
       } else {
         result->min_position = arr1->min_position;
         result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = (uinttype) (start - arr1->min_position);
+        start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
         resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);

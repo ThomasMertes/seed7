@@ -9866,6 +9866,10 @@ const proc: process_hsh_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     var expr_type: c_param2 is expr_type.value;
     var expr_type: c_param3_6 is expr_type.value;
   begin
+    declare_func_pointer_if_necessary(params[3], global_c_expr);
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
     param_type := getExprResultType(params[2]);
     process_expr(params[1], c_param1);
     c_param2.temp_num := c_param1.temp_num;
@@ -10190,6 +10194,7 @@ const proc: process_hsh_idx (in reference: function, in ref_list: params,
     var type: proc_type is void;
     var type: result_type is void;
   begin
+    declare_func_pointer_if_necessary(params[4], global_c_expr);
     proc_type := getType(function);
     result_type := resultType(proc_type);
     if isVarfunc(proc_type) then

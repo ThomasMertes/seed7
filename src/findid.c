@@ -53,15 +53,7 @@
 
 
 
-#ifdef ANSI_C
-
 static INLINE identtype id_generation (ustritype name, sysizetype length)
-#else
-
-static INLINE identtype id_generation (name, length)
-ustritype name;
-sysizetype length;
-#endif
 
   {
     register identtype created_ident;
@@ -81,14 +73,7 @@ sysizetype length;
 
 
 
-#ifdef ANSI_C
-
 void find_normal_ident (sysizetype length)
-#else
-
-void find_normal_ident (length)
-sysizetype length;
-#endif
 
   {                                                             /*  0.62% */
     register identtype search_ident;
@@ -149,15 +134,7 @@ sysizetype length;
 
 
 
-#ifdef ANSI_C
-
 static identtype put_ident (const_cstritype stri, errinfotype *err_info)
-#else
-
-static identtype put_ident (stri, err_info)
-cstritype stri;
-errinfotype *err_info;
-#endif
 
   {
     register identtype ident_found;
@@ -177,14 +154,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void check_list_of_syntax_elements (const_listtype elem_list)
-#else
-
-void check_list_of_syntax_elements (elem_list)
-listtype elem_list;
-#endif
 
   { /* check_list_of_syntax_elements */
 #ifdef TRACE_FINDID
@@ -212,14 +182,7 @@ listtype elem_list;
 
 
 
-#ifdef ANSI_C
-
 static void clean_ident_tree (identtype actual_ident)
-#else
-
-static void clean_ident_tree (actual_ident)
-identtype actual_ident;
-#endif
 
   { /* clean_ident_tree */
 #ifdef TRACE_FINDID
@@ -240,13 +203,7 @@ identtype actual_ident;
 
 
 
-#ifdef ANSI_C
-
 void clean_idents (void)
-#else
-
-void clean_idents ()
-#endif
 
   {
     int position;
@@ -278,14 +235,7 @@ void clean_idents ()
 
 
 
-#ifdef ANSI_C
-
 static void wri_binary_ident_tree (const_identtype actual_ident)
-#else
-
-static void wri_binary_ident_tree (actual_ident)
-identtype actual_ident;
-#endif
 
   { /* wri_binary_ident_tree */
 #ifdef TRACE_FINDID
@@ -310,13 +260,7 @@ identtype actual_ident;
 
 
 
-#ifdef ANSI_C
-
 void write_idents (void)
-#else
-
-void write_idents ()
-#endif
 
   {
     int position;
@@ -351,14 +295,7 @@ void write_idents ()
 
 
 
-#ifdef ANSI_C
-
 void init_findid (errinfotype *err_info)
-#else
-
-void init_findid (err_info)
-errinfotype *err_info;
-#endif
 
   { /* init_findid */
 #ifdef TRACE_FINDID

@@ -55,7 +55,6 @@
 
 
 
-#ifdef ANSI_C
 #ifdef C_PLUS_PLUS
 
 extern "C" int tgetent (char *, char *);
@@ -75,16 +74,6 @@ char *tgoto (char *, int, int);
 int tputs (char *, int, int (*) (char ch));
 
 #endif
-#else
-
-int tgetent ();
-int tgetnum ();
-int tgetflag ();
-char *tgetstr();
-char *tgoto ();
-int tputs ();
-
-#endif
 
 
 
@@ -98,15 +87,7 @@ char capabilities[2049];
 
 
 
-#ifdef ANSI_C
-
 int my_tgetent (char *capbuf, char *terminal_name)
-#else
-
-int my_tgetent (capbuf, terminal_name)
-char *capbuf;
-char *terminal_name;
-#endif
 
   {
     FILE *term_descr_file;
@@ -129,14 +110,7 @@ char *terminal_name;
 
 
 
-#ifdef ANSI_C
-
 int my_tgetnum (char *code)
-#else
-
-int my_tgetnum (code)
-char *code;
-#endif
 
   {
     char buffer[33];
@@ -159,14 +133,7 @@ char *code;
 
 
 
-#ifdef ANSI_C
-
 int my_tgetflag (char *code)
-#else
-
-int my_tgetflag (code)
-char *code;
-#endif
 
   {
     char buffer[33];
@@ -189,15 +156,7 @@ char *code;
 
 
 
-#ifdef ANSI_C
-
 char *my_tgetstr(char *code, char **area)
-#else
-
-char *my_tgetstr(code, area)
-char *code;
-char **area;
-#endif
 
   {
     char buffer[33];
@@ -271,13 +230,7 @@ char **area;
 
 
 
-#ifdef ANSI_C
-
 int getcaps (void)
-#else
-
-int getcaps ()
-#endif
 
   {
     static char capbuf[2048];
@@ -460,14 +413,7 @@ printf("\"%s\"\n", capbuf);
 
 
 
-#ifdef ANSI_C
-
 int outch (char ch)
-#else
-
-int outch (ch)
-char ch;
-#endif
 
   { /* outch */
     return putchar(ch);
@@ -475,14 +421,7 @@ char ch;
 
 
 
-#ifdef ANSI_C
-
 void putcontrol (char *control)
-#else
-
-void putcontrol (control)
-char *control;
-#endif
 
   { /* putcontrol */
     if (control != NULL) {

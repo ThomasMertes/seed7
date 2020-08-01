@@ -43,13 +43,7 @@
 
 
 #ifdef WITH_COMPILATION_INFO
-#ifdef ANSI_C
-
 void display_compilation_info (void)
-#else
-
-void display_compilation_info ()
-#endif
 
   { /* display_compilation_info */
 #ifdef TRACE_INFILE
@@ -68,13 +62,7 @@ void display_compilation_info ()
 
 
 #ifdef WITH_COMPILATION_INFO
-#ifdef ANSI_C
-
 void line_compilation_info (void)
-#else
-
-void line_compilation_info ()
-#endif
 
   { /* line_compilation_info */
 #ifdef TRACE_INFILE
@@ -94,15 +82,7 @@ void line_compilation_info ()
 
 
 #ifdef WITH_COMPILATION_INFO
-#ifdef ANSI_C
-
 void open_compilation_info (booltype write_library_names, booltype write_line_numbers)
-#else
-
-void open_compilation_info (write_library_names, write_line_numbers)
-booltype write_library_names;
-booltype write_line_numbers;
-#endif
 
   {
     memsizetype new_name_length;

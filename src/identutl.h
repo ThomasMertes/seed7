@@ -31,18 +31,7 @@
 #define IDENT_TABLE(STRI, LEN) prog.ident.table[((STRI[0] << 4) ^ (STRI[LEN - 1] << 2) ^ (int) LEN) & (ID_TABLE_SIZE - 1)]
 
 
-#ifdef ANSI_C
-
 identtype new_ident (const_ustritype name, sysizetype length);
 identtype get_ident (const_ustritype name);
 void close_idents (const_progtype currentProg);
 void init_idents (progtype currentProg, errinfotype *err_info);
-
-#else
-
-identtype new_ident ();
-identtype get_ident ();
-void close_idents ();
-void init_idents ();
-
-#endif

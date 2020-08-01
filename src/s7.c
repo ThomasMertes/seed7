@@ -68,16 +68,7 @@ stritype programPath;
 
 
 
-#ifdef ANSI_C
-
 void raise_error2 (int exception_num, const_cstritype filename, int line)
-#else
-
-void raise_error2 (exception_num, filename, line)
-int exception_num;
-char *filename;
-int line;
-#endif
 
   { /* raise_error2 */
     (void) raise_exception(prog.sys_var[exception_num]);
@@ -85,13 +76,7 @@ int line;
 
 
 
-#ifdef ANSI_C
-
 static void writeHelp (void)
-#else
-
-static void writeHelp ()
-#endif
 
   { /* writeHelp */
     printf("usage: s7 [options] sourcefile [parameters]\n\n");
@@ -127,14 +112,7 @@ static void writeHelp ()
 
 
 
-#ifdef ANSI_C
-
 static void processOptions (rtlArraytype arg_v)
-#else
-
-static void processOptions (arg_v)
-rtlArraytype arg_v;
-#endif
 
   {
     int position;
@@ -303,13 +281,7 @@ rtlArraytype arg_v;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void printOptions (void)
-#else
-
-static void printOptions ()
-#endif
 
   { /* printOptions */
     printf("source_file_argument: "); prot_stri( option.source_file_argument);    printf("\n");
@@ -327,32 +299,12 @@ static void printOptions ()
 
 
 
-#ifdef ANSI_C
-
 #ifdef USE_WMAIN
 int wmain (int argc, wchar_t **argv)
 #elif defined USE_WINMAIN
 int WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)
 #else
 int main (int argc, char **argv)
-#endif
-#else
-
-#ifdef USE_WMAIN
-int wmain (argc, argv)
-int argc;
-wchar_t **argv;
-#elif defined USE_WINMAIN
-int WinMain (hInstance, hPrevInstance, lpCmdLine, nShowCmd)
-HINSTANCE hInstance;
-HINSTANCE hPrevInstance;
-char *lpCmdLine;
-int nShowCmd;
-#else
-int main (argc, argv)
-int argc;
-char **argv;
-#endif
 #endif
 
   {
@@ -380,44 +332,48 @@ char **argv;
         activate_signal_handlers();
       } /* if */
 #endif
-      if (arg_v->max_position < arg_v->min_position) {
-        printf("This is free software; see the source for copying conditions.  There is NO\n");
-        printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
-        printf("Homepage: http://seed7.sourceforge.net\n\n");
-        printf("usage: s7 [options] sourcefile [parameters]\n\n");
-        printf("Use  s7 -?  to get more information about s7.\n\n");
-      } else if (option.write_help) {
-        writeHelp();
+      if (fail_flag) {
+        printf("\n*** Processing the options failed. Program terminated.\n");
       } else {
-        setupFloat();
-        /* printf("source_file_argument: \"");
-           prot_stri(option.source_file_argument);
-           printf("\"\n");
-           printf("prot_file_name: \"%s\"\n", option.prot_file_name); */
-        if (option.source_file_argument == NULL) {
-          printf("*** Sourcefile missing\n");
+        if (arg_v->max_position < arg_v->min_position) {
+          printf("This is free software; see the source for copying conditions.  There is NO\n");
+          printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+          printf("Homepage: http://seed7.sourceforge.net\n\n");
+          printf("usage: s7 [options] sourcefile [parameters]\n\n");
+          printf("Use  s7 -?  to get more information about s7.\n\n");
+        } else if (option.write_help) {
+          writeHelp();
         } else {
-          currentProg = analyze(option.source_file_argument, option.parser_options,
-                                option.seed7_libraries, option.prot_file_name);
-          if (!option.analyze_only && currentProg != NULL &&
-              (currentProg->error_count == 0 || option.execute_always)) {
-            /* PRIME_OBJECTS(); */
-            /* printf("%d%d\n",
-               trace.actions,
-               trace.check_actions); */
-            interpret(currentProg, option.argv, option.argv_start,
-                      option.exec_options, option.prot_file_name);
+          setupFloat();
+          /* printf("source_file_argument: \"");
+             prot_stri(option.source_file_argument);
+             printf("\"\n");
+             printf("prot_file_name: \"%s\"\n", option.prot_file_name); */
+          if (option.source_file_argument == NULL) {
+            printf("*** Sourcefile missing\n");
+          } else {
+            currentProg = analyze(option.source_file_argument, option.parser_options,
+                                  option.seed7_libraries, option.prot_file_name);
+            if (!option.analyze_only && currentProg != NULL &&
+                (currentProg->error_count == 0 || option.execute_always)) {
+              /* PRIME_OBJECTS(); */
+              /* printf("%d%d\n",
+                 trace.actions,
+                 trace.check_actions); */
+              interpret(currentProg, option.argv, option.argv_start,
+                        option.exec_options, option.prot_file_name);
+            } /* if */
           } /* if */
         } /* if */
-      } /* if */
-      shut_drivers();
-      if (fail_flag) {
-        printf("\n*** Uncaught EXCEPTION ");
-        printobject(fail_value);
-        printf(" raised with\n");
-        prot_list(fail_expression);
-        printf("\n\nStack:\n");
-        write_call_stack(fail_stack);
+        shut_drivers();
+        if (fail_flag) {
+          printf("\n*** Uncaught EXCEPTION ");
+          printobject(fail_value);
+          printf(" raised with\n");
+          prot_list(fail_expression);
+          printf("\n\nStack:\n");
+          write_call_stack(fail_stack);
+        } /* if */
       } /* if */
     } /* if */
     /* getchar(); */

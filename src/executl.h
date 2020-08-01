@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype get_create_call_obj (objecttype obj, errinfotype *err_info);
 objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info);
 void do_create (objecttype destination, objecttype source,
@@ -56,27 +54,3 @@ booltype crea_array (objecttype elem_to, objecttype elem_from,
     memsizetype new_size);
 void cpy_array (objecttype elem_to, objecttype elem_from,
     memsizetype new_size);
-
-#else
-
-objecttype get_create_call_obj ();
-objecttype get_destroy_call_obj ();
-void do_create ();
-void do_destroy ();
-inttype do_ord ();
-booltype do_in ();
-objecttype param1_call ();
-objecttype param2_call ();
-objecttype param3_call ();
-objecttype create_return_object ();
-void create_local_object ();
-void destroy_local_object ();
-void destroy_local_init_value ();
-void destr_struct ();
-booltype crea_struct ();
-booltype arr_elem_initialisation ();
-void destr_array ();
-booltype crea_array ();
-void cpy_array ();
-
-#endif

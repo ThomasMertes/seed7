@@ -55,18 +55,10 @@ static primacttype *action_ptr_table = NULL;
 
 
 #ifdef USE_BSEARCH
-#ifdef ANSI_C
-
 #ifdef USE_CDECL
 static int _cdecl act_strcmp (char *strg1, char *strg2)
 #else
 static int act_strcmp (void const *strg1, void const *strg2)
-#endif
-#else
-
-static int act_strcmp (strg1, strg2)
-char *strg1;
-char *strg2;
 #endif
 
   { /* act_strcmp */
@@ -83,18 +75,10 @@ char *strg2;
 
 
 
-#ifdef ANSI_C
-
 #ifdef USE_CDECL
 static int _cdecl action_ptr_compare (char *act_ptr1, char *act_ptr2)
 #else
 static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
-#endif
-#else
-
-static int action_ptr_compare (act_ptr1, act_ptr2)
-char *act_ptr1;
-char *act_ptr2;
 #endif
 
   { /* action_ptr_compare */
@@ -117,15 +101,7 @@ char *act_ptr2;
 
 
 
-#ifdef ANSI_C
-
 static booltype search_action (ustritype stri, acttype *action_found)
-#else
-
-static booltype search_action (stri, action_found)
-ustritype stri;
-acttype *action_found;
-#endif
 
   {
 #ifdef USE_BSEARCH
@@ -185,15 +161,7 @@ acttype *action_found;
 
 
 
-#ifdef ANSI_C
-
 booltype find_action (const const_stritype action_name, acttype *action_found)
-#else
-
-booltype find_action (action_name, action_found)
-stritype action_name;
-acttype *action_found;
-#endif
 
   {
     uchartype act_name[250];
@@ -222,14 +190,7 @@ acttype *action_found;
 
 
 
-#ifdef ANSI_C
-
 primacttype get_primact (acttype action_searched)
-#else
-
-primacttype get_primact (action_searched)
-register acttype action_searched;
-#endif
 
   {
     unsigned int number;
@@ -292,14 +253,7 @@ register acttype action_searched;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 cstritype act_string (register acttype action_searched)
-#else
-
-cstritype act_string (action_searched)
-register acttype action_searched;
-#endif
 
   {
     register acttype *actual_action;
@@ -321,14 +275,7 @@ register acttype action_searched;
 
 
 
-#ifdef ANSI_C
-
 cstritype act_string (acttype action_searched)
-#else
-
-cstritype act_string (action_searched)
-acttype action_searched;
-#endif
 
   {
     register int action_number;
@@ -352,14 +299,7 @@ acttype action_searched;
 
 
 #ifdef WITH_ACTION_CHECK
-#ifdef ANSI_C
-
 booltype act_okay (acttype action_searched)
-#else
-
-booltype act_okay (action_searched)
-acttype action_searched;
-#endif
 
   {
     register acttype *actual_action;
@@ -383,14 +323,7 @@ acttype action_searched;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 booltype act_okay (acttype action_searched)
-#else
-
-booltype act_okay (action_searched)
-acttype action_searched;
-#endif
 
   {
     register int action_number;

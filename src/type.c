@@ -55,15 +55,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype decl_type (int *is_dollar_type, errinfotype *err_info)
-#else
-
-objecttype decl_type (is_dollar_type, err_info)
-int *is_dollar_type;
-errinfotype *err_info;
-#endif
 
   {
     objecttype basic_type;

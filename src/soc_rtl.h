@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 sockettype socAccept (sockettype sock, bstritype *address);
 inttype socAddrFamily (const const_bstritype address);
 stritype socAddrNumeric (const const_bstritype address);
@@ -58,33 +56,3 @@ inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
 sockettype socSocket (inttype domain, inttype type, inttype protocol);
 stritype socWordRead (sockettype sock, chartype *const terminationChar);
 void socWrite (sockettype sock, const const_stritype stri);
-
-#else
-
-sockettype socAccept ();
-inttype socAddrFamily ();
-stritype socAddrNumeric ();
-stritype socAddrService ();
-void socBind ();
-void socClose ();
-void socConnect ();
-chartype socGetc ();
-stritype socGets ();
-bstritype socGetAddr ();
-stritype socGetHostname ();
-booltype socHasNext ();
-bstritype socInetAddr ();
-bstritype socInetLocalAddr ();
-bstritype socInetServAddr ();
-booltype socInputReady ();
-stritype socLineRead ();
-void socListen ();
-inttype socRecv ();
-inttype socRecvfrom ();
-inttype socSend ();
-inttype socSendto ();
-sockettype socSocket ();
-stritype socWordRead ();
-void socWrite ();
-
-#endif

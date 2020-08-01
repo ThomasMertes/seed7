@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype exec_object (register objecttype object);
 objecttype exec_call (objecttype object);
 objecttype evaluate (objecttype object);
@@ -34,14 +32,3 @@ objecttype eval_expression (objecttype object);
 objecttype exec_dynamic (listtype expr_list);
 objecttype exec_expr (const_progtype currentProg, objecttype object,
                       errinfotype *err_info);
-
-#else
-
-objecttype exec_object ();
-objecttype exec_call ();
-objecttype evaluate ();
-objecttype exec_dynamic ();
-objecttype eval_expression ();
-objecttype exec_expr ();
-
-#endif

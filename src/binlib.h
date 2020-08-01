@@ -25,16 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype bin_and (listtype arguments);
 objecttype bin_or (listtype arguments);
 objecttype bin_xor (listtype arguments);
-
-#else
-
-objecttype bin_and ();
-objecttype bin_or ();
-objecttype bin_xor ();
-
-#endif

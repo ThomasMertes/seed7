@@ -25,12 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype decl_type (int *is_dollar_type, errinfotype *err_info);
-
-#else
-
-objecttype decl_type ();
-
-#endif

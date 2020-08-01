@@ -53,14 +53,5 @@
 #define SYS_MAIN_OBJECT               prog.sys_var[25]
 
 
-#ifdef ANSI_C
-
 int find_sysvar (const_stritype stri);
 void init_sysvar (void);
-
-#else
-
-int find_sysvar ();
-void init_sysvar ();
-
-#endif

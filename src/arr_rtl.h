@@ -29,11 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 #ifdef USE_WMAIN
 rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
-    stritype *exePath);
+    stritype *programName, stritype *exePath);
 #else
 rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
     stritype *programName, stritype *exePath);
@@ -61,36 +59,3 @@ rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype le
 rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len);
 rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start);
 rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start);
-
-#else
-
-#ifdef USE_WMAIN
-rtlArraytype getArgv ();
-#else
-rtlArraytype getArgv ();
-#endif
-stritype examineSearchPath ();
-void arrAppend ();
-rtlArraytype arrArrlit2 ();
-rtlArraytype arrBaselit ();
-rtlArraytype arrBaselit2 ();
-rtlArraytype arrCat ();
-rtlArraytype arrExtend ();
-void arrFree ();
-rtlArraytype arrGen ();
-rtlArraytype arrHead ();
-rtlArraytype arrHeadTemp ();
-rtlGenerictype arrIdxTemp ();
-rtlArraytype arrMalloc ();
-void arrPush ();
-rtlArraytype arrRange ();
-rtlArraytype arrRangeTemp ();
-rtlArraytype arrRealloc ();
-rtlGenerictype arrRemove ();
-rtlArraytype arrSort ();
-rtlArraytype arrSubarr ();
-rtlArraytype arrSubarrTemp ();
-rtlArraytype arrTail ();
-rtlArraytype arrTailTemp ();
-
-#endif

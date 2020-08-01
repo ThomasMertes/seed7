@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_unx.c     Time functions which call the Unix API.           */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_unx.c                                       */
-/*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
+/*  Changes: 1992, 1993, 1994, 2009, 2013  Thomas Mertes            */
 /*  Content: Time functions which call the Unix API.                */
 /*                                                                  */
 /********************************************************************/
@@ -57,7 +57,6 @@
 #undef TRACE_TIM_UNX
 
 
-#ifdef ANSI_C
 #ifdef C_PLUS_PLUS
 
 extern "C" int pause (void);
@@ -65,11 +64,6 @@ extern "C" int pause (void);
 #else
 
 int pause (void);
-
-#endif
-#else
-
-int pause ();
 
 #endif
 
@@ -86,22 +80,8 @@ jmp_buf wait_finished;
 
 
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     struct tm tm_time;
@@ -156,22 +136,8 @@ inttype time_zone;
 
 
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     struct tm tm_time;
@@ -232,22 +198,8 @@ inttype time_zone;
 
 
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     struct tm tm_time;
@@ -308,14 +260,7 @@ inttype time_zone;
 
 
 
-#ifdef ANSI_C
-
 static void alarm_signal_handler (int sig_num)
-#else
-
-static void alarm_signal_handler (sig_num)
-int sig_num;
-#endif
 
   { /* alarm_signal_handler */
 #ifdef TRACE_TIM_UNX
@@ -329,22 +274,8 @@ int sig_num;
 
 
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     struct tm tm_time;
@@ -417,14 +348,7 @@ inttype time_zone;
 
 
 
-#ifdef ANSI_C
-
 static void alarm_signal_handler (int sig_num)
-#else
-
-static void alarm_signal_handler (sig_num)
-int sig_num;
-#endif
 
   { /* alarm_signal_handler */
 #ifdef TRACE_TIM_UNX
@@ -438,22 +362,8 @@ int sig_num;
 
 
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     struct tm tm_time;
@@ -527,13 +437,7 @@ inttype time_zone;
  *  This function is only used to initialize the random number
  *  generator, so overflows can be ignored.
  */
-#ifdef ANSI_C
-
 inttype timMicroSec (void)
-#else
-
-inttype timMicroSec ()
-#endif
 
   {
     struct timeval time_val;
@@ -541,31 +445,16 @@ inttype timMicroSec ()
 
   /* timMicroSec */
     gettimeofday(&time_val, NULL);
-    micro_sec = time_val.tv_usec;
+    micro_sec = (inttype) time_val.tv_usec;
     /* printf("timMicroSec() ==> %lu\n", micro_sec); */
     return micro_sec;
   } /* timMicroSec */
 
 
 
-#ifdef ANSI_C
-
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
-#else
-
-void timNow (year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
-inttype *year;
-inttype *month;
-inttype *day;
-inttype *hour;
-inttype *min;
-inttype *sec;
-inttype *micro_sec;
-inttype *time_zone;
-booltype *is_dst;
-#endif
 
   {
     struct timeval time_val;
@@ -599,8 +488,8 @@ booltype *is_dst;
       *hour      = local_time->tm_hour;
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
-      *micro_sec = time_val.tv_usec;
-      *time_zone = (unchecked_mkutc(local_time) - time_val.tv_sec) / 60;
+      *micro_sec = (inttype) time_val.tv_usec;
+      *time_zone = (inttype) (unchecked_mkutc(local_time) - time_val.tv_sec) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
 #ifdef TRACE_TIM_UNX

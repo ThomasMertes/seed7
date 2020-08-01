@@ -55,13 +55,7 @@
 
 
 
-#ifdef ANSI_C
-
 static INLINE void scan_comment (void)
-#else
-
-static INLINE void scan_comment ()
-#endif
 
   {
     register int character;
@@ -111,13 +105,7 @@ static INLINE void scan_comment ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE void scan_line_comment (void)
-#else
-
-static INLINE void scan_line_comment ()
-#endif
 
   {
     register int character;
@@ -138,13 +126,7 @@ static INLINE void scan_line_comment ()
 
 
 
-#ifdef ANSI_C
-
 void scan_byte_order_mark (void)
-#else
-
-void scan_byte_order_mark ()
-#endif
 
   {
     chartype unicode_char;
@@ -170,13 +152,7 @@ void scan_byte_order_mark ()
 
 
 
-#ifdef ANSI_C
-
 static void scan_illegal (void)
-#else
-
-static void scan_illegal ()
-#endif
 
   {
     chartype unicode_char;
@@ -204,13 +180,7 @@ static void scan_illegal ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE void scan_eof (void)
-#else
-
-static INLINE void scan_eof ()
-#endif
 
   { /* scan_eof */
 #ifdef TRACE_SCANNER
@@ -237,13 +207,7 @@ static INLINE void scan_eof ()
 
 
 
-#ifdef ANSI_C
-
 void scan_symbol (void)
-#else
-
-void scan_symbol ()
-#endif
 
   {                                                             /*  1.89%  1.94% */
     register int character;

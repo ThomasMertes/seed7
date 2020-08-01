@@ -50,14 +50,7 @@
 
 
 
-#ifdef ANSI_C
-
 static void readDecimal (register sysizetype position)
-#else
-
-static void readDecimal (position)
-register sysizetype position;
-#endif
 
   {
     register int character;
@@ -81,14 +74,7 @@ register sysizetype position;
 
 
 
-#ifdef ANSI_C
-
 static inttype decimalValue (ustritype digits)
-#else
-
-static inttype decimalValue (digits)
-ustritype digits;
-#endif
 
   {
     inttype intvalue;
@@ -120,15 +106,7 @@ ustritype digits;
 
 
 
-#ifdef ANSI_C
-
 static INLINE inttype basedValue (inttype base, ustritype digits)
-#else
-
-static INLINE inttype basedValue (base, digits)
-inttype base;
-ustritype digits;
-#endif
 
   {
     inttype intvalue;
@@ -174,13 +152,7 @@ ustritype digits;
 
 
 
-#ifdef ANSI_C
-
 static INLINE booltype readBased (void)
-#else
-
-static INLINE booltype readBased ()
-#endif
 
   {
     register sysizetype position;
@@ -210,14 +182,7 @@ static INLINE booltype readBased ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE biginttype readBigBased (inttype base)
-#else
-
-static INLINE biginttype readBigBased (base)
-inttype base;
-#endif
 
   {
     memsizetype pos;
@@ -255,14 +220,7 @@ inttype base;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void basedInteger (inttype intvalue)
-#else
-
-static INLINE void basedInteger (intvalue)
-inttype intvalue;
-#endif
 
   { /* basedInteger */
     if (intvalue < 2 || intvalue > 36) {
@@ -285,14 +243,7 @@ inttype intvalue;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void intExponent (inttype *ivalue)
-#else
-
-static INLINE void intExponent (ivalue)
-inttype *ivalue;
-#endif
 
   {
     inttype intvalue;
@@ -335,13 +286,7 @@ inttype *ivalue;
 
 
 
-#ifdef ANSI_C
-
 static INLINE biginttype readBigInteger (void)
-#else
-
-static INLINE biginttype readBigInteger ()
-#endif
 
   {
     memsizetype pos;
@@ -365,13 +310,7 @@ static INLINE biginttype readBigInteger ()
 
 
 
-#ifdef ANSI_C
-
 static INLINE floattype readFloat (void)
-#else
-
-static INLINE floattype readFloat ()
-#endif
 
   {
     register sysizetype position;
@@ -449,13 +388,7 @@ static INLINE floattype readFloat ()
 
 
 
-#ifdef ANSI_C
-
 void lit_number (void)
-#else
-
-void lit_number ()
-#endif
 
   {
     inttype number;

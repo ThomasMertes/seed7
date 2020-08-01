@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype lst_cat    (listtype arguments);
 objecttype lst_cpy    (listtype arguments);
 objecttype lst_create (listtype arguments);
@@ -40,21 +38,3 @@ objecttype lst_incl   (listtype arguments);
 objecttype lst_lng    (listtype arguments);
 objecttype lst_range  (listtype arguments);
 objecttype lst_tail   (listtype arguments);
-
-#else
-
-objecttype lst_cat ();
-objecttype lst_cpy ();
-objecttype lst_create ();
-objecttype lst_destr ();
-objecttype lst_elem ();
-objecttype lst_empty ();
-objecttype lst_excl ();
-objecttype lst_head ();
-objecttype lst_idx ();
-objecttype lst_incl ();
-objecttype lst_lng ();
-objecttype lst_range ();
-objecttype lst_tail ();
-
-#endif

@@ -48,14 +48,7 @@
 
 
 
-#ifdef ANSI_C
-
 static void free_locobj (const_locobjtype locobj)
-#else
-
-static void free_locobj (locobj)
-locobjtype locobj;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -110,14 +103,7 @@ locobjtype locobj;
 
 
 
-#ifdef ANSI_C
-
 static void free_loclist (loclisttype loclist)
-#else
-
-static void free_loclist (loclist)
-loclisttype loclist;
-#endif
 
   {
     loclisttype old_loclist;
@@ -136,14 +122,7 @@ loclisttype loclist;
 
 
 
-#ifdef ANSI_C
-
 void free_block (blocktype block)
-#else
-
-void free_block (block)
-blocktype block;
-#endif
 
   { /* free_block */
     /* prot_heapsize();
@@ -159,21 +138,9 @@ blocktype block;
 
 
 
-#ifdef ANSI_C
-
 blocktype new_block (loclisttype block_params, const_locobjtype block_result,
     loclisttype block_local_vars, listtype block_local_consts,
     objecttype block_body)
-#else
-
-blocktype new_block (block_params, block_result,
-    block_local_vars,  block_local_consts, block_body)
-loclisttype block_params;
-locobjtype block_result;
-loclisttype block_local_vars;
-listtype block_local_consts;
-objecttype block_body;
-#endif
 
   {
     register blocktype created_block;
@@ -207,22 +174,9 @@ objecttype block_body;
 
 
 
-#ifdef ANSI_C
-
 static void append_to_loclist (loclisttype **list_insert_place, objecttype object,
     objecttype init_value, objecttype create_call_obj,
     objecttype destroy_call_obj, errinfotype *err_info)
-#else
-
-static void append_to_loclist (list_insert_place, object,
-    init_value, create_call_obj, destroy_call_obj, err_info)
-loclisttype **list_insert_place;
-objecttype object;
-objecttype init_value;
-objecttype create_call_obj;
-objecttype destroy_call_obj;
-errinfotype *err_info;
-#endif
 
   {
     register loclisttype help_element;
@@ -243,18 +197,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void get_result_var (locobjtype result_var, typetype result_type,
     objecttype result_init, errinfotype *err_info)
-#else
-
-void get_result_var (result_var, result_type, result_init, err_info)
-locobjtype result_var;
-typetype result_type;
-objecttype result_init;
-errinfotype *err_info;
-#endif
 
   { /* get_result_var */
 #ifdef TRACE_BLOCK
@@ -277,17 +221,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void get_return_var (locobjtype return_var, typetype return_type,
     errinfotype *err_info)
-#else
-
-void get_return_var (return_var, return_type, err_info)
-locobjtype return_var;
-typetype return_type;
-errinfotype *err_info;
-#endif
 
   {
       objectrecord return_object;
@@ -311,16 +246,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 loclisttype get_param_list (const_listtype param_object_list,
     errinfotype *err_info)
-#else
-
-loclisttype get_param_list (param_object_list, err_info)
-listtype param_object_list;
-errinfotype *err_info;
-#endif
 
   {
     loclisttype *params_insert_place;
@@ -367,16 +294,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 loclisttype get_local_var_list (const_listtype local_object_list,
     errinfotype *err_info)
-#else
-
-loclisttype get_local_var_list (local_object_list, err_info)
-listtype local_object_list;
-errinfotype *err_info;
-#endif
 
   {
     loclisttype *local_vars_insert_place;
@@ -422,16 +341,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 listtype get_local_const_list (const_listtype local_object_list,
     errinfotype *err_info)
-#else
-
-listtype get_local_const_list (local_object_list, err_info)
-listtype local_object_list;
-errinfotype *err_info;
-#endif
 
   {
     listtype *list_insert_place;

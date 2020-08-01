@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void disconnect_param_entities (const const_objecttype objWithParams);
 listtype create_parameter_list (listtype name_list, errinfotype *err_info);
 void init_stack (progtype currentProg, errinfotype *err_info);
@@ -44,21 +42,3 @@ objecttype search_name (const_nodetype declaration_base,
     const_objecttype object_name, errinfotype *err_info);
 objecttype dollar_entername (nodetype declaration_base, objecttype object_name,
     errinfotype *err_info);
-
-#else
-
-void disconnect_param_entities ();
-listtype create_parameter_list ();
-void init_stack ();
-void close_stack ();
-void grow_stack ();
-void shrink_stack ();
-void push_stack ();
-void pop_stack ();
-listtype *get_local_object_insert_place ();
-objecttype entername ();
-objecttype find_name ();
-objecttype search_name ();
-objecttype dollar_entername ();
-
-#endif

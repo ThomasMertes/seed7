@@ -25,13 +25,5 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void lit_number (void);
-
-#else
-
-void lit_number ();
-
-#endif
 

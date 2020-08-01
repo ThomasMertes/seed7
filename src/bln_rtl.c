@@ -42,15 +42,7 @@
 
 
 
-#ifdef ANSI_C
-
 void blnCpy (booltype *dest, booltype source)
-#else
-
-void blnCpy (dest, source)
-booltype *dest;
-booltype source;
-#endif
 
   { /* blnCpy */
     *dest = source;

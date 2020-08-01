@@ -114,6 +114,7 @@ const func bigRational: (in bigRational: summand1) + (in bigRational: summand2) 
     sum.numerator := (summand1.numerator * summand2.denominator +
         summand2.numerator * summand1.denominator) div gcd_denominator;
     sum.denominator := summand1.denominator div gcd_denominator * summand2.denominator;
+    reduce(sum);
   end func;
 
 
@@ -131,6 +132,7 @@ const func bigRational: (in bigRational: minuend) - (in bigRational: subtrahend)
     difference.numerator := (minuend.numerator * subtrahend.denominator -
         subtrahend.numerator * minuend.denominator) div gcd_denominator;
     difference.denominator := minuend.denominator div gcd_denominator * subtrahend.denominator;
+    reduce(difference);
   end func;
 
 
@@ -169,7 +171,6 @@ const func bigRational: (in bigRational: dividend) / (in bigRational: divisor) i
     quotient.numerator := (dividend.numerator div gcd1) * (divisor.denominator div gcd2);
     quotient.denominator := (dividend.denominator div gcd2) * (divisor.numerator div gcd1);
     normalize(quotient);
-    # reduce(quotient);
   end func;
 
 
@@ -184,6 +185,7 @@ const proc: (inout bigRational: number) +:= (in bigRational: delta) is func
     number.numerator := (number.numerator * delta.denominator +
         delta.numerator * number.denominator) div gcd_denominator;
     number.denominator *:= delta.denominator div gcd_denominator;
+    reduce(number);
   end func;
 
 
@@ -198,6 +200,7 @@ const proc: (inout bigRational: number) -:= (in bigRational: delta) is func
     number.numerator := (number.numerator * delta.denominator -
         delta.numerator * number.denominator) div gcd_denominator;
     number.denominator *:= delta.denominator div gcd_denominator;
+    reduce(number);
   end func;
 
 
@@ -430,19 +433,18 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
   result
     var bigRational: aRational is bigRational.value;
   local
+    var boolean: negative is FALSE;
     var string: fraction is "";
     var string: period is "";
   begin
     if stri <> "" then
       if stri[1] = '-' then
         stri := stri[2 ..];
-        aRational.numerator := -bigInteger parse getint(stri);
-      else
-        if stri[1] = '+' then
-          stri := stri[2 ..];
-        end if;
-        aRational.numerator := bigInteger parse getint(stri);
+        negative := TRUE;
+      elsif stri[1] = '+' then
+        stri := stri[2 ..];
       end if;
+      aRational.numerator := bigInteger parse getint(stri);
       if stri[1] = '/' then
         stri := stri[2 ..];
         aRational.denominator := bigInteger parse getint(stri);
@@ -475,6 +477,8 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
       end if;
       if stri <> "" then
         raise RANGE_ERROR;
+      elsif negative then
+        aRational.numerator := -aRational.numerator;
       end if;
     else
       raise RANGE_ERROR;
@@ -511,11 +515,43 @@ const func bigInteger: trunc (in bigRational: number) is
  *)
 const func bigInteger: round (in bigRational: number) is func
   result
-    var bigInteger: int_val is 0;
+    var bigInteger: int_val is 0_;
   begin
     if number.numerator >= 0_ then
       int_val := (2_ * number.numerator + number.denominator) div (2_ * number.denominator);
     else
       int_val := (2_ * number.numerator - number.denominator) div (2_ * number.denominator);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the minimum of two ''bigRational'' numbers.
+ *  @return the minimum of the two numbers.
+ *)
+const func bigRational: min (in bigRational: value1, in bigRational: value2) is func
+  result
+    var bigRational: minimum is bigRational.value;
+  begin
+    if value1 < value2 then
+      minimum := value1;
+    else
+      minimum := value2;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the maximum of two ''bigRational'' numbers.
+ *  @return the maximum of the two numbers.
+ *)
+const func bigRational: max (in bigRational: value1, in bigRational: value2) is func
+  result
+    var bigRational: maximum is bigRational.value;
+  begin
+    if value1 > value2 then
+      maximum := value1;
+    else
+      maximum := value2;
     end if;
   end func;

@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype bln_and    (listtype arguments);
 objecttype bln_cpy    (listtype arguments);
 objecttype bln_create (listtype arguments);
@@ -38,19 +36,3 @@ objecttype bln_lt     (listtype arguments);
 objecttype bln_not    (listtype arguments);
 objecttype bln_or     (listtype arguments);
 objecttype bln_ord    (listtype arguments);
-
-#else
-
-objecttype bln_and ();
-objecttype bln_cpy ();
-objecttype bln_create ();
-objecttype bln_ge ();
-objecttype bln_gt ();
-objecttype bln_iconv ();
-objecttype bln_le ();
-objecttype bln_lt ();
-objecttype bln_not ();
-objecttype bln_or ();
-objecttype bln_ord ();
-
-#endif

@@ -44,20 +44,8 @@ EXTERN acttabletype act_table;
 #endif
 
 
-#ifdef ANSI_C
-
 booltype find_action (const const_stritype action_name, acttype *action_found);
 primacttype get_primact (acttype action_searched);
 #ifdef WITH_ACTION_CHECK
 booltype act_okay (acttype action_searched);
-#endif
-
-#else
-
-booltype find_action ();
-primacttype get_primact ();
-#ifdef WITH_ACTION_CHECK
-booltype act_okay ();
-#endif
-
 #endif

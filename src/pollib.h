@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype pol_addCheck     (listtype arguments);
 objecttype pol_clear        (listtype arguments);
 objecttype pol_cpy          (listtype arguments);
@@ -42,23 +40,3 @@ objecttype pol_nextFile     (listtype arguments);
 objecttype pol_poll         (listtype arguments);
 objecttype pol_removeCheck  (listtype arguments);
 objecttype pol_value        (listtype arguments);
-
-#else
-
-objecttype pol_addCheck ();
-objecttype pol_clear ();
-objecttype pol_cpy ();
-objecttype pol_create ();
-objecttype pol_destr ();
-objecttype pol_empty ();
-objecttype pol_getCheck ();
-objecttype pol_getFinding ();
-objecttype pol_hasNext ();
-objecttype pol_iterChecks ();
-objecttype pol_iterFindings ();
-objecttype pol_nextFile ();
-objecttype pol_poll ();
-objecttype pol_removeCheck ();
-objecttype pol_value ();
-
-#endif

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/setlib.c                                        */
-/*  Changes: 2004  Thomas Mertes                                    */
+/*  Changes: 2004, 2013  Thomas Mertes                              */
 /*  Content: All primitive actions for the set type.                */
 /*                                                                  */
 /********************************************************************/
@@ -67,14 +67,7 @@ static int card_byte[] = {
 
 
 
-#ifdef ANSI_C
-
 objecttype set_arrlit (listtype arguments)
-#else
-
-objecttype set_arrlit (arguments)
-listtype arguments;
-#endif
 
   {
     arraytype arr1;
@@ -88,7 +81,7 @@ listtype arguments;
   /* set_arrlit */
     isit_array(arg_2(arguments));
     arr1 = take_array(arg_2(arguments));
-    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
+    length = arraySize(arr1);
     if (!ALLOC_SET(result, 1)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
@@ -117,14 +110,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_baselit (listtype arguments)
-#else
-
-objecttype set_baselit (arguments)
-listtype arguments;
-#endif
 
   {
     inttype number;
@@ -149,14 +135,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_card (listtype arguments)
-#else
-
-objecttype set_card (arguments)
-listtype arguments;
-#endif
 
   {
     settype set1;
@@ -194,14 +173,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_cmp (listtype arguments)
-#else
-
-objecttype set_cmp (arguments)
-listtype arguments;
-#endif
 
   { /* set_cmp */
     isit_set(arg_1(arguments));
@@ -212,14 +184,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_conv (listtype arguments)
-#else
-
-objecttype set_conv (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype set_arg;
@@ -239,14 +204,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_cpy (listtype arguments)
-#else
-
-objecttype set_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype set_to;
@@ -265,15 +223,15 @@ listtype arguments;
     set_dest = take_set(set_to);
     set_source = take_set(set_from);
     if (TEMP_OBJECT(set_from)) {
-      set_dest_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
+      set_dest_size = bitsetSize(set_dest);
       FREE_SET(set_dest, set_dest_size);
       set_to->value.setvalue = set_source;
       set_from->value.setvalue = NULL;
     } else {
-      set_source_size = (uinttype) (set_source->max_position - set_source->min_position + 1);
+      set_source_size = bitsetSize(set_source);
       if (set_dest->min_position != set_source->min_position ||
           set_dest->max_position != set_source->max_position) {
-        set_dest_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
+        set_dest_size = bitsetSize(set_dest);
         if (set_dest_size != set_source_size) {
           if (!ALLOC_SET(set_dest, set_source_size)) {
             return raise_exception(SYS_MEM_EXCEPTION);
@@ -297,14 +255,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_create (listtype arguments)
-#else
-
-objecttype set_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype set_to;
@@ -323,7 +274,7 @@ listtype arguments;
       set_to->value.setvalue = set_source;
       set_from->value.setvalue = NULL;
     } else {
-      new_size = (uinttype) (set_source->max_position - set_source->min_position + 1);
+      new_size = bitsetSize(set_source);
       if (!ALLOC_SET(new_set, new_size)) {
         set_to->value.setvalue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -340,14 +291,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_destr (listtype arguments)
-#else
-
-objecttype set_destr (arguments)
-listtype arguments;
-#endif
 
   {
     settype old_set;
@@ -365,14 +309,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_diff (listtype arguments)
-#else
-
-objecttype set_diff (arguments)
-listtype arguments;
-#endif
 
   { /* set_diff */
     isit_set(arg_1(arguments));
@@ -383,14 +320,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_elem (listtype arguments)
-#else
-
-objecttype set_elem (arguments)
-listtype arguments;
-#endif
 
   {
     settype set1;
@@ -406,7 +336,7 @@ listtype arguments;
     set1 = take_set(arg_3(arguments));
     position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = (uinttype) (position - set1->min_position);
+      bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) number) & bitset_mask;
       if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return SYS_TRUE_OBJECT;
@@ -420,14 +350,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_empty (listtype arguments)
-#else
-
-objecttype set_empty (arguments)
-listtype arguments;
-#endif
 
   {
     settype result;
@@ -445,14 +368,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_eq (listtype arguments)
-#else
-
-objecttype set_eq (arguments)
-listtype arguments;
-#endif
 
   { /* set_eq */
     isit_set(arg_1(arguments));
@@ -466,14 +382,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_excl (listtype arguments)
-#else
-
-objecttype set_excl (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype set_to;
@@ -492,7 +401,7 @@ listtype arguments;
     number = take_int(arg_2(arguments));
     position = bitset_pos(number);
     if (position >= set_dest->min_position && position <= set_dest->max_position) {
-      bitset_index = (uinttype) (position - set_dest->min_position);
+      bitset_index = bitsetIndex(set_dest, position);
       bit_index = ((unsigned int) number) & bitset_mask;
       set_dest->bitset[bitset_index] &= ~(((bitsettype) 1) << bit_index);
 #ifdef OUT_OF_ORDER
@@ -506,14 +415,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_ge (listtype arguments)
-#else
-
-objecttype set_ge (arguments)
-listtype arguments;
-#endif
 
   { /* set_ge */
     isit_set(arg_1(arguments));
@@ -527,14 +429,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_gt (listtype arguments)
-#else
-
-objecttype set_gt (arguments)
-listtype arguments;
-#endif
 
   { /* set_gt */
     isit_set(arg_1(arguments));
@@ -548,14 +443,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_hashcode (listtype arguments)
-#else
-
-objecttype set_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* set_hashcode */
     isit_set(arg_1(arguments));
@@ -565,14 +453,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_iconv (listtype arguments)
-#else
-
-objecttype set_iconv (arguments)
-listtype arguments;
-#endif
 
   { /* set_iconv */
     isit_int(arg_3(arguments));
@@ -582,14 +463,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_idx (listtype arguments)
-#else
-
-objecttype set_idx (arguments)
-listtype arguments;
-#endif
 
   {
     settype set1;
@@ -605,7 +479,7 @@ listtype arguments;
     number = take_int(arg_3(arguments));
     position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = (uinttype) (position - set1->min_position);
+      bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) number) & bitset_mask;
       if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return SYS_TRUE_OBJECT;
@@ -619,14 +493,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_incl (listtype arguments)
-#else
-
-objecttype set_incl (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype set_to;
@@ -648,33 +515,41 @@ listtype arguments;
     number = take_int(arg_2(arguments));
     position = bitset_pos(number);
     if (position > set_dest->max_position) {
-      old_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
-      new_size = (uinttype) (position - set_dest->min_position + 1);
-      set_dest = REALLOC_SET(set_dest, old_size, new_size);
-      if (set_dest == NULL) {
+      old_size = bitsetSize(set_dest);
+      if (unlikely((uinttype) (position - set_dest->min_position + 1) > MAX_SET_LEN)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        COUNT3_SET(old_size, new_size);
-        set_to->value.setvalue = set_dest;
-        set_dest->max_position = position;
-        memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitsettype));
+        new_size = bitsetSize2(set_dest->min_position, position);
+        set_dest = REALLOC_SET(set_dest, old_size, new_size);
+        if (set_dest == NULL) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          COUNT3_SET(old_size, new_size);
+          set_to->value.setvalue = set_dest;
+          set_dest->max_position = position;
+          memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitsettype));
+        } /* if */
       } /* if */
     } else if (position < set_dest->min_position) {
-      old_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
-      new_size = (uinttype) (set_dest->max_position - position + 1);
-      old_set = set_dest;
-      if (!ALLOC_SET(set_dest, new_size)) {
+      old_size = bitsetSize(set_dest);
+      if (unlikely((uinttype) (set_dest->max_position - position + 1) > MAX_SET_LEN)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        set_to->value.setvalue = set_dest;
-        set_dest->min_position = position;
-        set_dest->max_position = old_set->max_position;
-        memset(set_dest->bitset, 0, (new_size - old_size) * sizeof(bitsettype));
-        memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset, old_size * sizeof(bitsettype));
-        FREE_SET(old_set, old_size);
+        new_size = bitsetSize2(position, set_dest->max_position);
+        old_set = set_dest;
+        if (!ALLOC_SET(set_dest, new_size)) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          set_to->value.setvalue = set_dest;
+          set_dest->min_position = position;
+          set_dest->max_position = old_set->max_position;
+          memset(set_dest->bitset, 0, (new_size - old_size) * sizeof(bitsettype));
+          memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset, old_size * sizeof(bitsettype));
+          FREE_SET(old_set, old_size);
+        } /* if */
       } /* if */
     } /* if */
-    bitset_index = (uinttype) (position - set_dest->min_position);
+    bitset_index = bitsetIndex(set_dest, position);
     bit_index = ((unsigned int) number) & bitset_mask;
     set_dest->bitset[bitset_index] |= (((bitsettype) 1) << bit_index);
     return SYS_EMPTY_OBJECT;
@@ -682,14 +557,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_intersect (listtype arguments)
-#else
-
-objecttype set_intersect (arguments)
-listtype arguments;
-#endif
 
   { /* set_intersect */
     isit_set(arg_1(arguments));
@@ -700,14 +568,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_le (listtype arguments)
-#else
-
-objecttype set_le (arguments)
-listtype arguments;
-#endif
 
   { /* set_le */
     isit_set(arg_1(arguments));
@@ -721,14 +582,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_lt (listtype arguments)
-#else
-
-objecttype set_lt (arguments)
-listtype arguments;
-#endif
 
   { /* set_lt */
     isit_set(arg_1(arguments));
@@ -742,14 +596,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_max (listtype arguments)
-#else
-
-objecttype set_max (arguments)
-listtype arguments;
-#endif
 
   { /* set_max */
     isit_set(arg_1(arguments));
@@ -759,14 +606,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_min (listtype arguments)
-#else
-
-objecttype set_min (arguments)
-listtype arguments;
-#endif
 
   { /* set_min */
     isit_set(arg_1(arguments));
@@ -776,14 +616,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_ne (listtype arguments)
-#else
-
-objecttype set_ne (arguments)
-listtype arguments;
-#endif
 
   { /* set_ne */
     isit_set(arg_1(arguments));
@@ -797,14 +630,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_next (listtype arguments)
-#else
-
-objecttype set_next (arguments)
-listtype arguments;
-#endif
 
   { /* set_next */
     isit_set(arg_1(arguments));
@@ -815,14 +641,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_not_elem (listtype arguments)
-#else
-
-objecttype set_not_elem (arguments)
-listtype arguments;
-#endif
 
   {
     settype set1;
@@ -838,7 +657,7 @@ listtype arguments;
     set1 = take_set(arg_4(arguments));
     position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = (uinttype) (position - set1->min_position);
+      bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) number) & bitset_mask;
       if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return SYS_FALSE_OBJECT;
@@ -852,14 +671,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_rand (listtype arguments)
-#else
-
-objecttype set_rand (arguments)
-listtype arguments;
-#endif
 
   { /* set_rand */
     isit_set(arg_1(arguments));
@@ -869,14 +681,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_rangelit (listtype arguments)
-#else
-
-objecttype set_rangelit (arguments)
-listtype arguments;
-#endif
 
   { /* set_rangelit */
     isit_int(arg_2(arguments));
@@ -887,14 +692,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_sconv (listtype arguments)
-#else
-
-objecttype set_sconv (arguments)
-listtype arguments;
-#endif
 
   { /* set_sconv */
     isit_set(arg_3(arguments));
@@ -904,14 +702,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_symdiff (listtype arguments)
-#else
-
-objecttype set_symdiff (arguments)
-listtype arguments;
-#endif
 
   { /* set_symdiff */
     isit_set(arg_1(arguments));
@@ -922,14 +713,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_union (listtype arguments)
-#else
-
-objecttype set_union (arguments)
-listtype arguments;
-#endif
 
   { /* set_union */
     isit_set(arg_1(arguments));
@@ -940,14 +724,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype set_value (listtype arguments)
-#else
-
-objecttype set_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;
@@ -963,7 +740,7 @@ listtype arguments;
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       set1 = take_set(obj_arg);
-      set_size = (uinttype) (set1->max_position - set1->min_position + 1);
+      set_size = bitsetSize(set1);
       if (!ALLOC_SET(result, set_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {

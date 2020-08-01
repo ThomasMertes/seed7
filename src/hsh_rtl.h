@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 booltype hshContains (const const_rtlHashtype hash1,
                       const rtlGenerictype key, inttype hashcode,
                       comparetype cmp_func);
@@ -75,21 +73,3 @@ rtlArraytype hshKeys (const const_rtlHashtype hash1,
 rtlArraytype hshValues (const const_rtlHashtype hash1,
                         const createfunctype value_create_func,
                         const destrfunctype value_destr_func);
-
-#else
-
-booltype hshContains ();
-void hshCpy ();
-rtlHashtype hshCreate ();
-void hshDestr ();
-rtlHashtype hshEmpty ();
-void hshExcl ();
-rtlGenerictype hshIdx ();
-rtlObjecttype *hshIdxAddr ();
-rtlGenerictype hshIdxEnterDefault ();
-rtlGenerictype hshIdxWithDefault ();
-void hshIncl ();
-rtlArraytype hshKeys ();
-rtlArraytype hshValues ();
-
-#endif

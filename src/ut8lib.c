@@ -43,14 +43,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype ut8_getc (listtype arguments)
-#else
-
-objecttype ut8_getc (arguments)
-listtype arguments;
-#endif
 
   { /* ut8_getc */
     isit_file(arg_1(arguments));
@@ -60,14 +53,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ut8_gets (listtype arguments)
-#else
-
-objecttype ut8_gets (arguments)
-listtype arguments;
-#endif
 
   { /* ut8_gets */
     isit_file(arg_1(arguments));
@@ -78,14 +64,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ut8_line_read (listtype arguments)
-#else
-
-objecttype ut8_line_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -101,14 +80,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ut8_seek (listtype arguments)
-#else
-
-objecttype ut8_seek (arguments)
-listtype arguments;
-#endif
 
   { /* ut8_seek */
     isit_file(arg_1(arguments));
@@ -119,14 +91,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ut8_word_read (listtype arguments)
-#else
-
-objecttype ut8_word_read (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype ch_variable;
@@ -142,14 +107,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype ut8_write (listtype arguments)
-#else
-
-objecttype ut8_write (arguments)
-listtype arguments;
-#endif
 
   { /* ut8_write */
     isit_file(arg_1(arguments));

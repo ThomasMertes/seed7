@@ -65,30 +65,13 @@ static Window button_window = 0;
 static rtlHashtype window_hash = NULL;
 
 
-#ifdef ANSI_C
-
 extern void redraw (wintype redraw_window, int xPos, int yPos, int width, int height);
 extern void doFlush (void);
 extern void flushBeforeRead (void);
 
-#else
 
-extern void redraw ();
-extern void doFlush ();
-extern void flushBeforeRead ();
-
-#endif
-
-
-
-#ifdef ANSI_C
 
 wintype find_window (Window curr_window)
-#else
-
-wintype find_window (curr_window)
-Window curr_window;
-#endif
 
   {
     wintype window;
@@ -109,15 +92,7 @@ Window curr_window;
 
 
 
-#ifdef ANSI_C
-
 void enter_window (wintype curr_window, Window xWin)
-#else
-
-void enter_window (curr_window, xWin)
-wintype curr_window;
-Window xWin;
-#endif
 
   { /* enter_window */
     if (window_hash == NULL) {
@@ -133,15 +108,7 @@ Window xWin;
 
 
 
-#ifdef ANSI_C
-
 void remove_window (wintype curr_window, Window xWin)
-#else
-
-void remove_window (curr_window, xWin)
-wintype curr_window;
-Window xWin;
-#endif
 
   { /* remove_window */
     hshExcl(window_hash, (rtlGenerictype) (memsizetype) xWin,
@@ -151,14 +118,7 @@ Window xWin;
 
 
 
-#ifdef ANSI_C
-
 void handleExpose (XExposeEvent *xexpose)
-#else
-
-void handleExpose (xexpose)
-XExposeEvent *xexpose;
-#endif
 
   {
     wintype redraw_window;
@@ -179,13 +139,7 @@ XExposeEvent *xexpose;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 void waitForReparent (void)
-#else
-
-void waitForReparent ()
-#endif
 
   { /* waitForReparent */
     XNextEvent(mydisplay, &currentEvent);
@@ -211,13 +165,7 @@ void waitForReparent ()
 
 
 
-#ifdef ANSI_C
-
 chartype gkbGetc (void)
-#else
-
-chartype gkbGetc ()
-#endif
 
   {
     KeySym currentKey;
@@ -723,13 +671,7 @@ chartype gkbGetc ()
 
 
 
-#ifdef ANSI_C
-
 booltype processEvents (void)
-#else
-
-booltype processEvents ()
-#endif
 
   {
     KeySym currentKey;
@@ -846,13 +788,7 @@ booltype processEvents ()
 
 
 
-#ifdef ANSI_C
-
 booltype gkbKeyPressed (void)
-#else
-
-booltype gkbKeyPressed ()
-#endif
 
   { /* gkbKeyPressed */
 #ifdef TRACE_KBD
@@ -868,14 +804,7 @@ booltype gkbKeyPressed ()
 
 
 
-#ifdef ANSI_C
-
 static booltype mouseButtonPressed (unsigned int button_mask)
-#else
-
-static booltype mouseButtonPressed (button_mask)
-unsigned int button_mask;
-#endif
 
   {
     Window root;
@@ -898,14 +827,7 @@ unsigned int button_mask;
 
 
 
-#ifdef ANSI_C
-
 static booltype keyboardButtonPressed (KeySym sym)
-#else
-
-static booltype keyboardButtonPressed (sym)
-KeySym sym;
-#endif
 
   {
     char key_vector[32];
@@ -937,14 +859,7 @@ KeySym sym;
 
 
 
-#ifdef ANSI_C
-
 booltype gkbButtonPressed (chartype button)
-#else
-
-booltype gkbButtonPressed (button)
-chartype button;
-#endif
 
   {
     unsigned int button_mask = 0;
@@ -1083,13 +998,7 @@ chartype button;
 
 
 
-#ifdef ANSI_C
-
 chartype gkbRawGetc (void)
-#else
-
-chartype gkbRawGetc ()
-#endif
 
   { /* gkbRawGetc */
     return gkbGetc();
@@ -1097,13 +1006,7 @@ chartype gkbRawGetc ()
 
 
 
-#ifdef ANSI_C
-
 inttype gkbButtonXpos (void)
-#else
-
-inttype gkbButtonXpos ()
-#endif
 
   { /* gkbButtonXpos */
 #ifdef TRACE_KBD
@@ -1114,13 +1017,7 @@ inttype gkbButtonXpos ()
 
 
 
-#ifdef ANSI_C
-
 inttype gkbButtonYpos (void)
-#else
-
-inttype gkbButtonYpos ()
-#endif
 
   { /* gkbButtonYpos */
 #ifdef TRACE_KBD
@@ -1131,13 +1028,7 @@ inttype gkbButtonYpos ()
 
 
 
-#ifdef ANSI_C
-
 wintype gkbWindow (void)
-#else
-
-wintype gkbWindow ()
-#endif
 
   {
     wintype result;
@@ -1155,13 +1046,7 @@ wintype gkbWindow ()
 
 
 
-#ifdef ANSI_C
-
 void drwFlush (void)
-#else
-
-void drwFlush ()
-#endif
 
   { /* drwFlush */
 /*  printf("drwFlush()\n"); */

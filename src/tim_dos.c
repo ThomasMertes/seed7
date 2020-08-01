@@ -49,22 +49,8 @@
 
 
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     struct tm tm_time;
@@ -119,13 +105,7 @@ inttype time_zone;
  *  This function is only used to initialize the random number
  *  generator, so overflows can be ignored.
  */
-#ifdef ANSI_C
-
 inttype timMicroSec (void)
-#else
-
-inttype timMicroSec ()
-#endif
 
   {
     inttype micro_sec;
@@ -138,24 +118,9 @@ inttype timMicroSec ()
 
 
 
-#ifdef ANSI_C
-
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
-#else
-
-void timNow (year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
-inttype *year;
-inttype *month;
-inttype *day;
-inttype *hour;
-inttype *min;
-inttype *sec;
-inttype *micro_sec;
-inttype *time_zone;
-booltype *is_dst;
-#endif
 
   {
     struct timeb tstruct;

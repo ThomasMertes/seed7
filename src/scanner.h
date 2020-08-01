@@ -25,15 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void scan_byte_order_mark (void);
 void scan_symbol (void);
-
-#else
-
-void scan_byte_order_mark ();
-void scan_symbol ();
-
-#endif
 

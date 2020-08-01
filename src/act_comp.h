@@ -25,12 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 stritype actStr (acttype anAction);
-
-#else
-
-stritype actStr ();
-
-#endif

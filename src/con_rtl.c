@@ -49,19 +49,8 @@ static inttype cursor_column = 1;
 
 
 
-#ifdef ANSI_C
-
 void conHScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conHScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   { /* conHScroll */
     if (count >= 0) {
@@ -73,15 +62,7 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conSetpos (inttype lin, inttype col)
-#else
-
-void conSetpos (lin, col)
-inttype lin;
-inttype col;
-#endif
 
   { /* conSetpos */
     cursor_line = lin;
@@ -91,19 +72,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void conVScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-#else
-
-void conVScroll (startlin, startcol, stoplin, stopcol, count)
-inttype startlin;
-inttype startcol;
-inttype stoplin;
-inttype stopcol;
-inttype count;
-#endif
 
   { /* conVScroll */
     if (count >= 0) {
@@ -115,14 +85,7 @@ inttype count;
 
 
 
-#ifdef ANSI_C
-
 void conWrite (const_stritype stri)
-#else
-
-void conWrite (stri)
-stritype stri;
-#endif
 
   /* This function writes the string stri to the console at the     */
   /* current position. The current position must be a legal         */

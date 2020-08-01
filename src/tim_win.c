@@ -66,22 +66,8 @@
 
 
 
-#ifdef ANSI_C
-
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     SYSTEMTIME await_time_struct;
@@ -145,13 +131,7 @@ inttype time_zone;
  *  This function is only used to initialize the random number
  *  generator, so overflows can be ignored.
  */
-#ifdef ANSI_C
-
 inttype timMicroSec (void)
-#else
-
-inttype timMicroSec ()
-#endif
 
   {
     union {
@@ -169,24 +149,9 @@ inttype timMicroSec ()
 
 
 
-#ifdef ANSI_C
-
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
-#else
-
-void timNow (year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
-inttype *year;
-inttype *month;
-inttype *day;
-inttype *hour;
-inttype *min;
-inttype *sec;
-inttype *micro_sec;
-inttype *time_zone;
-booltype *is_dst;
-#endif
 
   {
     union {
@@ -243,15 +208,7 @@ booltype *is_dst;
 
 
 
-#ifdef ANSI_C
-
 struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
-#else
-
-struct tm *alternate_localtime_r (utc_seconds, tm_result)
-time_t *utc_seconds;
-struct tm *tm_result;
-#endif
 
   {
     union {
@@ -316,15 +273,7 @@ struct tm *tm_result;
  *  EACCES when it is called for a directory. In this case
  *  alternate_utime uses win32 functions to work for directories.
  */
-#ifdef ANSI_C
-
 int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf)
-#else
-
-int alternate_utime (os_path, utime_buf)
-wchar_t *os_path;
-os_utimbuf_struct *utime_buf;
-#endif
 
   {
     os_stat_struct stat_buf;

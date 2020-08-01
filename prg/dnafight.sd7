@@ -431,32 +431,6 @@ const proc: initDisplay is func
   end func; (* initDisplay *)
 
 
-const func integer: min (in integer: a, in integer: b) is func
-  result
-    var integer: minimum is 0;
-
-  begin (* min *)
-    if a < b then
-      minimum := a;
-    else
-      minimum := b;
-    end if;
-  end func; (* min *)
-
-
-const func integer: max (in integer: a, in integer: b) is func
-  result
-    var integer: maximum is 0;
-
-  begin (* max *)
-    if a > b then
-      maximum := a;
-    else
-      maximum := b;
-    end if;
-  end func; (* max *)
-
-
 const func direction: ranDir (in directSet: dirset) is func
   result
     var direction: dir is HERE;

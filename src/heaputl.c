@@ -53,15 +53,7 @@ STACK_SIZE_DEFINITION;
 
 
 #ifdef WITH_STRI_CAPACITY
-#ifdef ANSI_C
-
 stritype growStri (stritype stri, memsizetype len)
-#else
-
-stritype growStri (stri, len)
-stritype stri;
-memsizetype len;
-#endif
 
   {
     memsizetype new_len;
@@ -103,15 +95,7 @@ memsizetype len;
 
 
 
-#ifdef ANSI_C
-
 stritype shrinkStri (stritype stri, memsizetype len)
-#else
-
-stritype shrinkStri (stri, len)
-stritype stri;
-memsizetype len;
-#endif
 
   {
     memsizetype new_len;
@@ -134,13 +118,7 @@ memsizetype len;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 void freeStriFreelist (void)
-#else
-
-void freeStriFreelist ()
-#endif
 
   {
     flisttype elem;
@@ -177,13 +155,7 @@ void freeStriFreelist ()
 
 
 #ifdef DO_HEAP_STATISTIC
-#ifdef ANSI_C
-
 void rtlHeapStatistic (void)
-#else
-
-void rtlHeapStatistic ()
-#endif
 
   {
     memsizetype bytes_used;

@@ -53,15 +53,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype get_create_call_obj (objecttype obj, errinfotype *err_info)
-#else
-
-objecttype get_create_call_obj (obj, err_info)
-objecttype obj;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord expr_object;
@@ -107,15 +99,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info)
-#else
-
-objecttype get_destroy_call_obj (obj, err_info)
-objecttype obj;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord expr_object;
@@ -159,17 +143,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void type_create_call_obj (objecttype destination,
     objecttype source, errinfotype *err_info)
-#else
-
-static void type_create_call_obj (destination, source, err_info)
-objecttype destination;
-objecttype source;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord expr_object;
@@ -214,17 +189,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void type_copy_call_obj (objecttype destination,
     objecttype source, errinfotype *err_info)
-#else
-
-static void type_copy_call_obj (destination, source, err_info)
-objecttype destination;
-objecttype source;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord expr_object;
@@ -269,16 +235,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void type_ord_call_obj (objecttype any_obj,
     errinfotype *err_info)
-#else
-
-static void type_ord_call_obj (any_obj, err_info)
-objecttype any_obj;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord expr_object;
@@ -318,17 +276,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void type_in_call_obj (objecttype elem_obj,
     objecttype set_obj, errinfotype *err_info)
-#else
-
-static void type_in_call_obj (elem_obj, set_obj, err_info)
-objecttype elem_obj;
-objecttype set_obj;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord expr_object;
@@ -373,17 +322,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void old_do_create (objecttype destination, objecttype source,
     errinfotype *err_info)
-#else
-
-static void old_do_create (destination, source, err_info)
-objecttype destination;
-objecttype source;
-errinfotype *err_info;
-#endif
 
   {
     listrecord crea_expr[3];
@@ -433,17 +373,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void do_create (objecttype destination, objecttype source,
     errinfotype *err_info)
-#else
-
-void do_create (destination, source, err_info)
-objecttype destination;
-objecttype source;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord call_object;
@@ -516,15 +447,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void do_destroy (objecttype old_obj, errinfotype *err_info)
-#else
-
-void do_destroy (old_obj, err_info)
-objecttype old_obj;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord call_object;
@@ -600,17 +523,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void old_do_copy (objecttype destination, objecttype source,
     errinfotype *err_info)
-#else
-
-void old_do_copy (destination, source, err_info)
-objecttype destination;
-objecttype source;
-errinfotype *err_info;
-#endif
 
   {
     listrecord copy_expr[3];
@@ -652,17 +566,8 @@ printf("\n");
 
 
 
-#ifdef ANSI_C
-
 static void do_copy (objecttype destination, objecttype source,
     errinfotype *err_info)
-#else
-
-static void do_copy (destination, source, err_info)
-objecttype destination;
-objecttype source;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord call_object;
@@ -727,15 +632,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 inttype do_ord (objecttype any_obj, errinfotype *err_info)
-#else
-
-inttype do_ord (any_obj, err_info)
-objecttype any_obj;
-errinfotype *err_info;
-#endif
 
   {
     categorytype temp_any_obj;
@@ -819,17 +716,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 booltype do_in (objecttype elem_obj, objecttype set_obj,
     errinfotype *err_info)
-#else
-
-booltype do_in (elem_obj, set_obj, err_info)
-objecttype elem_obj;
-objecttype set_obj;
-errinfotype *err_info;
-#endif
 
   {
     categorytype temp_elem_obj;
@@ -919,15 +807,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 objecttype param1_call (objecttype function_obj, objecttype param1)
-#else
-
-objecttype param1_call (function_obj, param1)
-objecttype function_obj;
-objecttype param1;
-#endif
 
   {
     objectrecord call_object;
@@ -951,17 +831,8 @@ objecttype param1;
 
 
 
-#ifdef ANSI_C
-
 objecttype param2_call (objecttype function_obj, objecttype param1,
     objecttype param2)
-#else
-
-objecttype param2_call (function_obj, param1, param2)
-objecttype function_obj;
-objecttype param1;
-objecttype param2;
-#endif
 
   {
     objectrecord call_object;
@@ -987,18 +858,8 @@ objecttype param2;
 
 
 
-#ifdef ANSI_C
-
 objecttype param3_call (objecttype function_obj, objecttype param1,
     objecttype param2, objecttype param3)
-#else
-
-objecttype param3_call (function_obj, param1, param2, param3)
-objecttype function_obj;
-objecttype param1;
-objecttype param2;
-objecttype param3;
-#endif
 
   {
     objectrecord call_object;
@@ -1026,17 +887,8 @@ objecttype param3;
 
 
 
-#ifdef ANSI_C
-
 objecttype create_return_object (const_locobjtype local, objecttype init_value,
     errinfotype *err_info)
-#else
-
-objecttype create_return_object (local, init_value, err_info)
-locobjtype local;
-objecttype init_value;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord call_object;
@@ -1086,17 +938,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void create_local_object (const_locobjtype local, objecttype init_value,
     errinfotype *err_info)
-#else
-
-void create_local_object (local, init_value, err_info)
-locobjtype local;
-objecttype init_value;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord call_object;
@@ -1147,15 +990,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void destroy_local_object (const_locobjtype local, errinfotype *err_info)
-#else
-
-void destroy_local_object (local, err_info)
-locobjtype local;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord call_object;
@@ -1211,15 +1046,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void destroy_local_init_value (const_locobjtype local, errinfotype *err_info)
-#else
-
-void destroy_local_init_value (local, err_info)
-locobjtype local;
-errinfotype *err_info;
-#endif
 
   {
     objectrecord call_object;
@@ -1274,16 +1101,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static booltype sct_elem_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
-#else
-
-static booltype sct_elem_initialisation (dest_type, obj_to, obj_from)
-typetype dest_type;
-objecttype obj_to;
-objecttype obj_from;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -1299,15 +1117,7 @@ objecttype obj_from;
 
 
 
-#ifdef ANSI_C
-
 void destr_struct (objecttype old_elem, memsizetype old_size)
-#else
-
-void destr_struct (old_elem, old_size)
-objecttype old_elem;
-memsizetype old_size;
-#endif
 
   {
     memsizetype position;
@@ -1336,17 +1146,8 @@ memsizetype old_size;
 
 
 
-#ifdef ANSI_C
-
 booltype crea_struct (objecttype elem_to, objecttype elem_from,
     memsizetype new_size)
-#else
-
-booltype crea_struct (elem_to, elem_from, new_size)
-objecttype elem_to;
-objecttype elem_from;
-memsizetype new_size;
-#endif
 
   {
     memsizetype position;
@@ -1371,16 +1172,7 @@ memsizetype new_size;
 
 
 
-#ifdef ANSI_C
-
 booltype arr_elem_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
-#else
-
-booltype arr_elem_initialisation (dest_type, obj_to, obj_from)
-typetype dest_type;
-objecttype obj_to;
-objecttype obj_from;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -1396,15 +1188,7 @@ objecttype obj_from;
 
 
 
-#ifdef ANSI_C
-
 void destr_array (objecttype old_elem, memsizetype old_size)
-#else
-
-void destr_array (old_elem, old_size)
-objecttype old_elem;
-memsizetype old_size;
-#endif
 
   {
     memsizetype position;
@@ -1419,17 +1203,8 @@ memsizetype old_size;
 
 
 
-#ifdef ANSI_C
-
 booltype crea_array (objecttype elem_to, objecttype elem_from,
     memsizetype new_size)
-#else
-
-booltype crea_array (elem_to, elem_from, new_size)
-objecttype elem_to;
-objecttype elem_from;
-memsizetype new_size;
-#endif
 
   {
     memsizetype position;
@@ -1454,17 +1229,8 @@ memsizetype new_size;
 
 
 
-#ifdef ANSI_C
-
 void cpy_array (objecttype elem_to, objecttype elem_from,
     memsizetype new_size)
-#else
-
-void cpy_array (elem_to, elem_from, new_size)
-objecttype elem_to;
-objecttype elem_from;
-memsizetype new_size;
-#endif
 
   {
     memsizetype position;

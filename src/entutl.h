@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 nodetype find_node (register nodetype node_tree,
     register objecttype object_searched);
 void init_declaration_root (progtype currentProg, errinfotype *err_info);
@@ -38,18 +36,3 @@ entitytype search_entity (const_nodetype start_node, const_listtype name_list);
 void pop_entity (nodetype declaration_base, const_entitytype entity);
 void close_entity (progtype currentProg);
 void init_entity (errinfotype *err_info);
-
-#else
-
-nodetype find_node ();
-void init_declaration_root ();
-void close_declaration_root ();
-void free_entity ();
-entitytype get_entity ();
-entitytype find_entity ();
-entitytype search_entity ();
-void pop_entity ();
-void close_entity ();
-void init_entity ();
-
-#endif

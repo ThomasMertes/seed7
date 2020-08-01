@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype dcl_attr       (listtype arguments);
 objecttype dcl_const      (listtype arguments);
 objecttype dcl_elements   (listtype arguments);
@@ -46,27 +44,3 @@ objecttype dcl_symb       (listtype arguments);
 objecttype dcl_val1       (listtype arguments);
 objecttype dcl_val2       (listtype arguments);
 objecttype dcl_var        (listtype arguments);
-
-#else
-
-objecttype dcl_attr ();
-objecttype dcl_const ();
-objecttype dcl_elements ();
-objecttype dcl_fwd ();
-objecttype dcl_fwdvar ();
-objecttype dcl_getfunc ();
-objecttype dcl_getobj ();
-objecttype dcl_global ();
-objecttype dcl_in1var ();
-objecttype dcl_in2var ();
-objecttype dcl_inout1 ();
-objecttype dcl_inout2 ();
-objecttype dcl_param_attr ();
-objecttype dcl_ref1 ();
-objecttype dcl_ref2 ();
-objecttype dcl_symb ();
-objecttype dcl_val1 ();
-objecttype dcl_val2 ();
-objecttype dcl_var ();
-
-#endif

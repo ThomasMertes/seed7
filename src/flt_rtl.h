@@ -44,8 +44,6 @@ extern const rtlValueunion f_const[];
 #endif
 
 
-#ifdef ANSI_C
-
 void setupFloat (void);
 inttype fltCmp (floattype number1, floattype number2);
 void fltCpy (floattype *dest, floattype source);
@@ -68,30 +66,3 @@ floattype fltPow (floattype base, floattype exponent);
 floattype fltRand (floattype lower_limit, floattype upper_limit);
 stritype fltSci (floattype number, inttype digits_precision);
 stritype fltStr (floattype number);
-
-#else
-
-void setupFloat ();
-inttype fltCmp ();
-void fltCpy ();
-stritype fltDgts ();
-#ifdef NAN_COMPARISON_WRONG
-booltype fltEq ();
-booltype fltGe ();
-booltype fltGt ();
-#endif
-floattype fltIPow ();
-booltype fltIsNegativeZero ();
-#ifdef NAN_COMPARISON_WRONG
-booltype fltLe ();
-booltype fltLt ();
-#endif
-floattype fltParse ();
-#ifdef POWER_OF_ZERO_WRONG
-floattype fltPow ();
-#endif
-floattype fltRand ();
-stritype fltSci ();
-stritype fltStr ();
-
-#endif

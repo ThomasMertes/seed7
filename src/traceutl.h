@@ -42,8 +42,6 @@ EXTERN tracerecord trace;
 #endif
 
 
-#ifdef ANSI_C
-
 void prot_flush (void);
 void prot_nl (void);
 void prot_cstri (const_cstritype stri);
@@ -71,35 +69,3 @@ void set_protfile_name (const const_stritype protfile_name);
 void set_trace (uinttype options);
 void mapTraceFlags (const_stritype trace_level, uinttype *options);
 void mapTraceFlags2 (const_cstritype ctrace_level, uinttype *options);
-
-#else
-
-void prot_flush ();
-void prot_nl ();
-void prot_cstri ();
-void prot_writeln ();
-void prot_int ();
-void prot_bigint ();
-void prot_stri_unquoted ();
-void prot_stri ();
-void prot_set ();
-void prot_heapsize ();
-void printcategory ();
-void printtype ();
-void printvalue ();
-void printobject ();
-void prot_list ();
-void prot_params ();
-void prot_name ();
-void trace_node ();
-void trace_nodes ();
-void printnodes ();
-void trace1 ();
-void trace_entity ();
-void trace_list ();
-void set_protfile_name ();
-void set_trace ();
-void mapTraceFlags ();
-void mapTraceFlags2 ();
-
-#endif

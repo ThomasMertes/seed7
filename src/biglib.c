@@ -44,14 +44,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype big_abs (listtype arguments)
-#else
-
-objecttype big_abs (arguments)
-listtype arguments;
-#endif
 
   { /* big_abs */
     isit_bigint(arg_1(arguments));
@@ -61,14 +54,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_add (listtype arguments)
-#else
-
-objecttype big_add (arguments)
-listtype arguments;
-#endif
 
   { /* big_add */
     isit_bigint(arg_1(arguments));
@@ -79,14 +65,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_bit_length (listtype arguments)
-#else
-
-objecttype big_bit_length (arguments)
-listtype arguments;
-#endif
 
   { /* big_bit_length */
     isit_bigint(arg_1(arguments));
@@ -96,14 +75,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_clit (listtype arguments)
-#else
-
-objecttype big_clit (arguments)
-listtype arguments;
-#endif
 
   { /* big_clit */
     isit_bigint(arg_1(arguments));
@@ -113,14 +85,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_cmp (listtype arguments)
-#else
-
-objecttype big_cmp (arguments)
-listtype arguments;
-#endif
 
   { /* big_cmp */
     isit_bigint(arg_1(arguments));
@@ -131,14 +96,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_cpy (listtype arguments)
-#else
-
-objecttype big_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype big_to;
@@ -162,14 +120,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_create (listtype arguments)
-#else
-
-objecttype big_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype big_to;
@@ -191,14 +142,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_decr (listtype arguments)
-#else
-
-objecttype big_decr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype big_variable;
@@ -213,14 +157,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_destr (listtype arguments)
-#else
-
-objecttype big_destr (arguments)
-listtype arguments;
-#endif
 
   { /* big_destr */
     isit_bigint(arg_1(arguments));
@@ -232,14 +169,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_div (listtype arguments)
-#else
-
-objecttype big_div (arguments)
-listtype arguments;
-#endif
 
   { /* big_div */
     isit_bigint(arg_1(arguments));
@@ -250,14 +180,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_eq (listtype arguments)
-#else
-
-objecttype big_eq (arguments)
-listtype arguments;
-#endif
 
   { /* big_eq */
     isit_bigint(arg_1(arguments));
@@ -272,14 +195,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_gcd (listtype arguments)
-#else
-
-objecttype big_gcd (arguments)
-listtype arguments;
-#endif
 
   { /* big_gcd */
     isit_bigint(arg_1(arguments));
@@ -290,14 +206,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_ge (listtype arguments)
-#else
-
-objecttype big_ge (arguments)
-listtype arguments;
-#endif
 
   { /* big_ge */
     isit_bigint(arg_1(arguments));
@@ -312,14 +221,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_grow (listtype arguments)
-#else
-
-objecttype big_grow (arguments)
-listtype arguments;
-#endif
 
   { /* big_grow */
     isit_bigint(arg_1(arguments));
@@ -331,14 +233,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_gt (listtype arguments)
-#else
-
-objecttype big_gt (arguments)
-listtype arguments;
-#endif
 
   { /* big_gt */
     isit_bigint(arg_1(arguments));
@@ -353,14 +248,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_hashcode (listtype arguments)
-#else
-
-objecttype big_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* big_hashcode */
     isit_bigint(arg_1(arguments));
@@ -370,14 +258,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_iconv (listtype arguments)
-#else
-
-objecttype big_iconv (arguments)
-listtype arguments;
-#endif
 
   { /* big_iconv */
     isit_int(arg_3(arguments));
@@ -387,14 +268,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_incr (listtype arguments)
-#else
-
-objecttype big_incr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype big_variable;
@@ -409,14 +283,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_ipow (listtype arguments)
-#else
-
-objecttype big_ipow (arguments)
-listtype arguments;
-#endif
 
   { /* big_ipow */
     isit_bigint(arg_1(arguments));
@@ -427,14 +294,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_le (listtype arguments)
-#else
-
-objecttype big_le (arguments)
-listtype arguments;
-#endif
 
   { /* big_le */
     isit_bigint(arg_1(arguments));
@@ -449,14 +309,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_log2 (listtype arguments)
-#else
-
-objecttype big_log2 (arguments)
-listtype arguments;
-#endif
 
   { /* big_log2 */
     isit_bigint(arg_1(arguments));
@@ -466,14 +319,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_lowest_set_bit (listtype arguments)
-#else
-
-objecttype big_lowest_set_bit (arguments)
-listtype arguments;
-#endif
 
   { /* big_lowest_set_bit */
     isit_bigint(arg_1(arguments));
@@ -483,14 +329,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_lshift (listtype arguments)
-#else
-
-objecttype big_lshift (arguments)
-listtype arguments;
-#endif
 
   { /* big_lshift */
     isit_bigint(arg_1(arguments));
@@ -501,14 +340,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_lshift_assign (listtype arguments)
-#else
-
-objecttype big_lshift_assign (arguments)
-listtype arguments;
-#endif
 
   { /* big_lshift_assign */
     isit_bigint(arg_1(arguments));
@@ -520,14 +352,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_lt (listtype arguments)
-#else
-
-objecttype big_lt (arguments)
-listtype arguments;
-#endif
 
   { /* big_lt */
     isit_bigint(arg_1(arguments));
@@ -542,14 +367,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_mdiv (listtype arguments)
-#else
-
-objecttype big_mdiv (arguments)
-listtype arguments;
-#endif
 
   { /* big_mdiv */
     isit_bigint(arg_1(arguments));
@@ -560,14 +378,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_minus (listtype arguments)
-#else
-
-objecttype big_minus (arguments)
-listtype arguments;
-#endif
 
   { /* big_minus */
     isit_bigint(arg_2(arguments));
@@ -577,14 +388,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_mod (listtype arguments)
-#else
-
-objecttype big_mod (arguments)
-listtype arguments;
-#endif
 
   { /* big_mod */
     isit_bigint(arg_1(arguments));
@@ -595,14 +399,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_mult (listtype arguments)
-#else
-
-objecttype big_mult (arguments)
-listtype arguments;
-#endif
 
   { /* big_mult */
     isit_bigint(arg_1(arguments));
@@ -613,14 +410,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_mult_assign (listtype arguments)
-#else
-
-objecttype big_mult_assign (arguments)
-listtype arguments;
-#endif
 
   { /* big_mult_assign */
     isit_bigint(arg_1(arguments));
@@ -632,14 +422,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_ne (listtype arguments)
-#else
-
-objecttype big_ne (arguments)
-listtype arguments;
-#endif
 
   { /* big_ne */
     isit_bigint(arg_1(arguments));
@@ -654,14 +437,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_odd (listtype arguments)
-#else
-
-objecttype big_odd (arguments)
-listtype arguments;
-#endif
 
   { /* big_odd */
     isit_bigint(arg_1(arguments));
@@ -674,14 +450,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_ord (listtype arguments)
-#else
-
-objecttype big_ord (arguments)
-listtype arguments;
-#endif
 
   { /* big_ord */
     isit_bigint(arg_1(arguments));
@@ -691,14 +460,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_parse (listtype arguments)
-#else
-
-objecttype big_parse (arguments)
-listtype arguments;
-#endif
 
   { /* big_parse */
     isit_stri(arg_3(arguments));
@@ -708,14 +470,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_parse_based (listtype arguments)
-#else
-
-objecttype big_parse_based (arguments)
-listtype arguments;
-#endif
 
   { /* big_parse_based */
     isit_stri(arg_1(arguments));
@@ -726,14 +481,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_plus (listtype arguments)
-#else
-
-objecttype big_plus (arguments)
-listtype arguments;
-#endif
 
   {
     biginttype result;
@@ -751,14 +499,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_pred (listtype arguments)
-#else
-
-objecttype big_pred (arguments)
-listtype arguments;
-#endif
 
   { /* big_pred */
     isit_bigint(arg_1(arguments));
@@ -768,14 +509,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_rand (listtype arguments)
-#else
-
-objecttype big_rand (arguments)
-listtype arguments;
-#endif
 
   { /* big_rand */
     isit_bigint(arg_1(arguments));
@@ -786,14 +520,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_rem (listtype arguments)
-#else
-
-objecttype big_rem (arguments)
-listtype arguments;
-#endif
 
   { /* big_rem */
     isit_bigint(arg_1(arguments));
@@ -804,14 +531,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_rshift (listtype arguments)
-#else
-
-objecttype big_rshift (arguments)
-listtype arguments;
-#endif
 
   { /* big_rshift */
     isit_bigint(arg_1(arguments));
@@ -822,14 +542,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_rshift_assign (listtype arguments)
-#else
-
-objecttype big_rshift_assign (arguments)
-listtype arguments;
-#endif
 
   { /* big_rshift_assign */
     isit_bigint(arg_1(arguments));
@@ -841,14 +554,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_sbtr (listtype arguments)
-#else
-
-objecttype big_sbtr (arguments)
-listtype arguments;
-#endif
 
   { /* big_sbtr */
     isit_bigint(arg_1(arguments));
@@ -859,14 +565,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_shrink (listtype arguments)
-#else
-
-objecttype big_shrink (arguments)
-listtype arguments;
-#endif
 
   { /* big_shrink */
     isit_bigint(arg_1(arguments));
@@ -878,14 +577,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_str (listtype arguments)
-#else
-
-objecttype big_str (arguments)
-listtype arguments;
-#endif
 
   { /* big_str */
     isit_bigint(arg_1(arguments));
@@ -895,14 +587,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_succ (listtype arguments)
-#else
-
-objecttype big_succ (arguments)
-listtype arguments;
-#endif
 
   { /* big_succ */
     isit_bigint(arg_1(arguments));
@@ -912,14 +597,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype big_value (listtype arguments)
-#else
-
-objecttype big_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

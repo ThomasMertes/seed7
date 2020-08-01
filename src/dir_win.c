@@ -47,14 +47,7 @@
 
 
 
-#ifdef ANSI_C
-
 DIR *opendir (char *name)
-#else
-
-DIR *opendir (name)
-char *name;
-#endif
 
   {
     unsigned int name_len;
@@ -93,14 +86,7 @@ char *name;
 
 
 
-#ifdef ANSI_C
-
 struct dirent *readdir (DIR *curr_dir)
-#else
-
-struct dirent *readdir (curr_dir)
-DIR *curr_dir;
-#endif
 
   {
     struct dirent *result;
@@ -126,14 +112,7 @@ DIR *curr_dir;
 
 
 
-#ifdef ANSI_C
-
 int closedir (DIR *curr_dir)
-#else
-
-int closedir (curr_dir)
-DIR *curr_dir;
-#endif
 
   { /* closedir */
     FindClose(curr_dir->dir_handle);
@@ -143,14 +122,7 @@ DIR *curr_dir;
 
 
 
-#ifdef ANSI_C
-
 WDIR *wopendir (wchar_t *name)
-#else
-
-WDIR *wopendir (name)
-wchar_t *name;
-#endif
 
   {
     unsigned int name_len;
@@ -193,14 +165,7 @@ wchar_t *name;
 
 
 
-#ifdef ANSI_C
-
 struct wdirent *wreaddir (WDIR *curr_dir)
-#else
-
-struct wdirent *wreaddir (curr_dir)
-WDIR *curr_dir;
-#endif
 
   {
     struct wdirent *result;
@@ -226,14 +191,7 @@ WDIR *curr_dir;
 
 
 
-#ifdef ANSI_C
-
 int wclosedir (WDIR *curr_dir)
-#else
-
-int wclosedir (curr_dir)
-WDIR *curr_dir;
-#endif
 
   { /* wclosedir */
     FindClose(curr_dir->dir_handle);

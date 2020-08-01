@@ -41,8 +41,6 @@ EXTERN booltype caps_initialized;
 #endif
 
 
-#ifdef ANSI_C
-
 int getcaps (void);
 #ifdef USE_TERMCAP
 int outch (char ch);
@@ -50,11 +48,3 @@ int outch (char ch);
 int outch (int ch);
 #endif
 void putcontrol (char *);
-
-#else
-
-int getcaps ();
-int outch ();
-void putcontrol ();
-
-#endif

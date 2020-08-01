@@ -54,14 +54,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_addinterface (listtype arguments)
-#else
-
-objecttype typ_addinterface (arguments)
-listtype arguments;
-#endif
 
   {
     typetype typ1;
@@ -78,14 +71,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_cmp (listtype arguments)
-#else
-
-objecttype typ_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     memsizetype typ1;
@@ -109,14 +95,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_cpy (listtype arguments)
-#else
-
-objecttype typ_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype type_variable;
@@ -132,14 +111,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_create (listtype arguments)
-#else
-
-objecttype typ_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype type_to;
@@ -179,14 +151,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_destr (listtype arguments)
-#else
-
-objecttype typ_destr (arguments)
-listtype arguments;
-#endif
 
   {
     /* typetype old_type; */
@@ -207,14 +172,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_eq (listtype arguments)
-#else
-
-objecttype typ_eq (arguments)
-listtype arguments;
-#endif
 
   {
     typetype type1;
@@ -236,14 +194,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_func (listtype arguments)
-#else
-
-objecttype typ_func (arguments)
-listtype arguments;
-#endif
 
   {
     typetype basic_type;
@@ -271,14 +222,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_gensub (listtype arguments)
-#else
-
-objecttype typ_gensub (arguments)
-listtype arguments;
-#endif
 
   {
     typetype meta_type;
@@ -301,14 +245,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_gentype (listtype arguments)
-#else
-
-objecttype typ_gentype (arguments)
-listtype arguments;
-#endif
 
   {
     typetype result;
@@ -329,14 +266,7 @@ listtype arguments;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 objecttype typ_getinterfaces (listtype arguments)
-#else
-
-objecttype typ_getinterfaces (arguments)
-listtype arguments;
-#endif
 
   {
     typetype typ1;
@@ -352,14 +282,7 @@ listtype arguments;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 objecttype typ_getcreate (listtype arguments)
-#else
-
-objecttype typ_getcreate (arguments)
-listtype arguments;
-#endif
 
   {
     typetype result;
@@ -377,14 +300,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_hashcode (listtype arguments)
-#else
-
-objecttype typ_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* typ_hashcode */
     isit_type(arg_1(arguments));
@@ -394,14 +310,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_isdeclared (listtype arguments)
-#else
-
-objecttype typ_isdeclared (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype result;
@@ -417,14 +326,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_isderived (listtype arguments)
-#else
-
-objecttype typ_isderived (arguments)
-listtype arguments;
-#endif
 
   {
     typetype any_type;
@@ -443,14 +345,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_isforward (listtype arguments)
-#else
-
-objecttype typ_isforward (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype result;
@@ -466,14 +361,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_isfunc (listtype arguments)
-#else
-
-objecttype typ_isfunc (arguments)
-listtype arguments;
-#endif
 
   {
     typetype any_type;
@@ -492,14 +380,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_isvarfunc (listtype arguments)
-#else
-
-objecttype typ_isvarfunc (arguments)
-listtype arguments;
-#endif
 
   {
     typetype any_type;
@@ -518,14 +399,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_matchobj (listtype arguments)
-#else
-
-objecttype typ_matchobj (arguments)
-listtype arguments;
-#endif
 
   {
     typetype actual_type;
@@ -540,14 +414,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_meta (listtype arguments)
-#else
-
-objecttype typ_meta (arguments)
-listtype arguments;
-#endif
 
   {
     typetype any_type;
@@ -571,14 +438,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_ne (listtype arguments)
-#else
-
-objecttype typ_ne (arguments)
-listtype arguments;
-#endif
 
   {
     typetype type1;
@@ -600,14 +460,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_num (listtype arguments)
-#else
-
-objecttype typ_num (arguments)
-listtype arguments;
-#endif
 
   {
     static unsigned int table_size = 0;
@@ -658,14 +511,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_result (listtype arguments)
-#else
-
-objecttype typ_result (arguments)
-listtype arguments;
-#endif
 
   {
     typetype any_type;
@@ -691,14 +537,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_str (listtype arguments)
-#else
-
-objecttype typ_str (arguments)
-listtype arguments;
-#endif
 
   {
     typetype type_arg;
@@ -726,14 +565,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_value (listtype arguments)
-#else
-
-objecttype typ_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;
@@ -750,14 +582,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_varconv (listtype arguments)
-#else
-
-objecttype typ_varconv (arguments)
-listtype arguments;
-#endif
 
   { /* typ_varconv */
     is_variable(arg_3(arguments));
@@ -771,14 +596,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype typ_varfunc (listtype arguments)
-#else
-
-objecttype typ_varfunc (arguments)
-listtype arguments;
-#endif
 
   {
     typetype basic_type;

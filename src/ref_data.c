@@ -59,14 +59,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype refAlloc (objecttype obj_arg)
-#else
-
-objecttype refAlloc (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     objecttype created_object;
@@ -87,14 +80,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 inttype refArrMaxIdx (objecttype obj_arg)
-#else
-
-inttype refArrMaxIdx (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* refArrMaxIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
@@ -107,14 +93,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 inttype refArrMinIdx (objecttype obj_arg)
-#else
-
-inttype refArrMinIdx (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* refArrMinIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
@@ -127,14 +106,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype refArrToList (objecttype obj_arg)
-#else
-
-listtype refArrToList (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -156,14 +128,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 objecttype refBody (objecttype obj_arg)
-#else
-
-objecttype refBody (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     objecttype result;
@@ -180,14 +145,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 inttype refCategory (objecttype obj_arg)
-#else
-
-inttype refCategory (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     inttype result;
@@ -204,14 +162,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 inttype refCatParse (stritype category_name)
-#else
-
-inttype refCatParse (category_name)
-stritype category_name;
-#endif
 
   {
     cstritype name;
@@ -234,14 +185,7 @@ stritype category_name;
 
 
 
-#ifdef ANSI_C
-
 stritype refCatStr (inttype aCategory)
-#else
-
-stritype refCatStr (aCategory)
-inttype aCategory;
-#endif
 
   {
     stritype result;
@@ -256,15 +200,7 @@ inttype aCategory;
 
 
 
-#ifdef ANSI_C
-
 void refCpy (objecttype *dest, objecttype source)
-#else
-
-void refCpy (dest, source)
-objecttype *dest;
-objecttype source;
-#endif
 
   { /* refCpy */
     *dest = source;
@@ -272,14 +208,7 @@ objecttype source;
 
 
 
-#ifdef ANSI_C
-
 stritype refFile (objecttype obj_arg)
-#else
-
-stritype refFile (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     filenumtype file_number;
@@ -312,14 +241,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype refHshDataToList (objecttype obj_arg)
-#else
-
-listtype refHshDataToList (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -341,14 +263,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype refHshKeysToList (objecttype obj_arg)
-#else
-
-listtype refHshKeysToList (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -370,14 +285,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 booltype refIsVar (objecttype obj_arg)
-#else
-
-booltype refIsVar (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* refIsVar */
     /* printf("refIsvar(%lu)\n", obj_arg); */
@@ -391,14 +299,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 objecttype refItfToSct (objecttype obj_arg)
-#else
-
-objecttype refItfToSct (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     objecttype result;
@@ -416,14 +317,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 inttype refLine (objecttype obj_arg)
-#else
-
-inttype refLine (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     inttype result;
@@ -451,14 +345,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype refLocalConsts (objecttype obj_arg)
-#else
-
-listtype refLocalConsts (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     listtype local_elem;
@@ -489,14 +376,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype refLocalVars (objecttype obj_arg)
-#else
-
-listtype refLocalVars (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     loclisttype local_elem;
@@ -527,14 +407,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 inttype refNum (objecttype obj_arg)
-#else
-
-inttype refNum (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     static rtlHashtype obj_table = NULL;
@@ -568,14 +441,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype refParams (objecttype obj_arg)
-#else
-
-listtype refParams (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     listtype result;
@@ -594,14 +460,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 objecttype refResini (objecttype obj_arg)
-#else
-
-objecttype refResini (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     objecttype result;
@@ -618,14 +477,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 objecttype refResult (objecttype obj_arg)
-#else
-
-objecttype refResult (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     objecttype result;
@@ -642,14 +494,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype refSctToList (objecttype obj_arg)
-#else
-
-listtype refSctToList (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -671,15 +516,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 void refSetCategory (objecttype obj_arg, inttype aCategory)
-#else
-
-void refSetCategory (obj_arg, aCategory)
-objecttype obj_arg;
-inttype aCategory;
-#endif
 
   { /* refSetCategory */
     if (obj_arg == NULL) {
@@ -691,15 +528,7 @@ inttype aCategory;
 
 
 
-#ifdef ANSI_C
-
 void refSetParams (objecttype obj_arg, const_listtype params)
-#else
-
-void refSetParams (obj_arg, params)
-objecttype obj_arg;
-listtype params;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -724,15 +553,7 @@ listtype params;
 
 
 
-#ifdef ANSI_C
-
 void refSetType (objecttype obj_arg, typetype any_type)
-#else
-
-void refSetType (obj_arg, any_type)
-objecttype obj_arg;
-typetype any_type;
-#endif
 
   { /* refSetType */
     if (obj_arg == NULL) {
@@ -744,15 +565,7 @@ typetype any_type;
 
 
 
-#ifdef ANSI_C
-
 void refSetVar (objecttype obj_arg, booltype var_flag)
-#else
-
-void refSetVar (obj_arg, var_flag)
-objecttype obj_arg;
-booltype var_flag;
-#endif
 
   { /* refSetVar */
     if (obj_arg == NULL) {
@@ -766,14 +579,7 @@ booltype var_flag;
 
 
 
-#ifdef ANSI_C
-
 stritype refStr (objecttype obj_arg)
-#else
-
-stritype refStr (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     const_cstritype stri;
@@ -833,14 +639,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 typetype refType (objecttype obj_arg)
-#else
-
-typetype refType (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     typetype result;
@@ -857,14 +656,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 acttype actValue (objecttype obj_arg)
-#else
-
-acttype actValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* actValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
@@ -877,14 +669,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 biginttype bigValue (objecttype obj_arg)
-#else
-
-biginttype bigValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* bigValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
@@ -897,14 +682,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 bstritype bstValue (objecttype obj_arg)
-#else
-
-bstritype bstValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     bstritype bstri;
@@ -930,14 +708,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 chartype chrValue (objecttype obj_arg)
-#else
-
-chartype chrValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* chrValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
@@ -950,14 +721,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 wintype drwValue (objecttype obj_arg)
-#else
-
-wintype drwValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     wintype win_value;
@@ -977,14 +741,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 filetype filValue (objecttype obj_arg)
-#else
-
-filetype filValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* filValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
@@ -997,14 +754,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 floattype fltValue (objecttype obj_arg)
-#else
-
-floattype fltValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* fltValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
@@ -1017,14 +767,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 inttype intValue (objecttype obj_arg)
-#else
-
-inttype intValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* intValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
@@ -1037,14 +780,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 polltype polValue (objecttype obj_arg)
-#else
-
-polltype polValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* polValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT) {
@@ -1057,14 +793,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 progtype prgValue (objecttype obj_arg)
-#else
-
-progtype prgValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* prgValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
@@ -1077,14 +806,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 objecttype refValue (objecttype obj_arg)
-#else
-
-objecttype refValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* refValue */
     if (obj_arg != NULL &&
@@ -1105,14 +827,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 listtype rflValue (objecttype obj_arg)
-#else
-
-listtype rflValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -1137,15 +852,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 void rflSetvalue (objecttype list_to, listtype list_from)
-#else
-
-void rflSetvalue (list_to, list_from)
-objecttype list_to;
-listtype list_from;
-#endif
 
   {
     listtype help_list;
@@ -1169,14 +876,7 @@ listtype list_from;
 
 
 
-#ifdef ANSI_C
-
 settype setValue (objecttype obj_arg)
-#else
-
-settype setValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     settype set1;
@@ -1190,7 +890,7 @@ objecttype obj_arg;
       result = NULL;
     } else {
       set1 = take_set(obj_arg);
-      set_size = (uinttype) (set1->max_position - set1->min_position + 1);
+      set_size = bitsetSize(set1);
       if (!ALLOC_SET(result, set_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -1204,14 +904,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 stritype strValue (objecttype obj_arg)
-#else
-
-stritype strValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   {
     stritype stri;
@@ -1237,14 +930,7 @@ objecttype obj_arg;
 
 
 
-#ifdef ANSI_C
-
 typetype typValue (objecttype obj_arg)
-#else
-
-typetype typValue (obj_arg)
-objecttype obj_arg;
-#endif
 
   { /* typValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {

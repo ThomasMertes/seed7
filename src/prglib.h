@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype prg_cpy            (listtype arguments);
 objecttype prg_create         (listtype arguments);
 objecttype prg_destr          (listtype arguments);
@@ -48,29 +46,3 @@ objecttype prg_str_parse      (listtype arguments);
 objecttype prg_syobject       (listtype arguments);
 objecttype prg_sysvar         (listtype arguments);
 objecttype prg_value          (listtype arguments);
-
-#else
-
-objecttype prg_cpy ();
-objecttype prg_create ();
-objecttype prg_destr ();
-objecttype prg_empty ();
-objecttype prg_eq ();
-objecttype prg_error_count ();
-objecttype prg_eval ();
-objecttype prg_exec ();
-objecttype prg_fil_parse ();
-objecttype prg_find ();
-objecttype prg_global_objects ();
-objecttype prg_match ();
-objecttype prg_match_expr ();
-objecttype prg_name ();
-objecttype prg_ne ();
-objecttype prg_path ();
-objecttype prg_prog ();
-objecttype prg_str_parse ();
-objecttype prg_syobject ();
-objecttype prg_sysvar ();
-objecttype prg_value ();
-
-#endif

@@ -40,9 +40,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 
-#ifdef ANSI_C
 #include "limits.h"
-#endif
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
@@ -58,13 +56,7 @@
 
 
 
-#ifdef ANSI_C
-
 void extend_symb_length (void)
-#else
-
-void extend_symb_length ()
-#endif
 
   { /* extend_symb_length */
     if (symbol.name_length > MAX_SYMB_LENGTH - INCR_SYMB_LENGTH) {
@@ -82,13 +74,7 @@ void extend_symb_length ()
 
 
 
-#ifdef ANSI_C
-
 void extend_stri_length (void)
-#else
-
-void extend_stri_length ()
-#endif
 
   { /* extend_stri_length */
     if (symbol.stri_max > MAX_STRI_LEN - INCR_SYMB_LENGTH) {
@@ -105,14 +91,7 @@ void extend_stri_length ()
 
 
 
-#ifdef ANSI_C
-
 void init_symbol (errinfotype *err_info)
-#else
-
-void init_symbol (err_info)
-errinfotype *err_info;
-#endif
 
   { /* init_symbol */
     symbol.name_length = INCR_SYMB_LENGTH;
@@ -128,13 +107,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void close_symbol (void)
-#else
-
-void close_symbol ()
-#endif
 
   { /* close_symbol */
     FREE_USTRI(symbol.name, symbol.name_length, count.symb, count.symb_bytes);

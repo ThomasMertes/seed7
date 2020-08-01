@@ -721,16 +721,6 @@ THE VERSION.H FILE
   which contain information over available features and the way
   they are available. Other #defines can be found in config.h.
 
-  ANSI_C: Defined when the ansi C prototypes are used. If
-          it is not defined K&R C function headers are used.
-          It seems to be antiquated to still support K&R C,
-          but I really saw Unix systems where the K&R C
-          compiler was available for free and the ansi C
-          compiler was a chargeable option (and in most
-          situations you don't have the possibility to force
-          your boss to buy a C compiler just to compile some
-          open source program).
-
   USE_WMAIN: Defined when the main function is named wmain.
              This is a way to support Unicode command line
              arguments under Windows. An alternate way to

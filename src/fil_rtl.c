@@ -82,15 +82,7 @@ extern C FILE *_wpopen (const wchar_t *, const wchar_t *);
 
 
 
-#ifdef ANSI_C
-
 static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
-#else
-
-static void get_mode (os_mode, file_mode)
-os_chartype os_mode[4];
-stritype file_mode;
-#endif
 
   { /* get_mode */
     os_mode[0] = '\0';
@@ -145,14 +137,7 @@ stritype file_mode;
 
 
 
-#ifdef ANSI_C
-
 static os_off_t seekFileLength (filetype aFile)
-#else
-
-static os_off_t seekFileLength (aFile)
-filetype aFile;
-#endif
 
   {
     os_off_t file_length;
@@ -235,14 +220,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 static os_off_t offsetTell (filetype aFile)
-#else
-
-static os_off_t offsetTell (aFile)
-filetype aFile;
-#endif
 
   {
     os_off_t current_file_position;
@@ -290,16 +268,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin)
-#else
-
-int offsetSeek (aFile, anOffset, origin)
-filetype aFile;
-os_off_t anOffset;
-int origin;
-#endif
 
   {
     int result;
@@ -389,14 +358,7 @@ int origin;
  *  Returns MAX_MEMSIZETYPE when the result does not fit into
  *  memsizetype.
  */
-#ifdef ANSI_C
-
 memsizetype remainingBytesInFile (filetype aFile)
-#else
-
-memsizetype remainingBytesInFile (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;
@@ -432,14 +394,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 inttype getFileLengthUsingSeek (filetype aFile)
-#else
-
-inttype getFileLengthUsingSeek (aFile)
-filetype aFile;
-#endif
 
   {
     os_off_t file_length;
@@ -465,14 +420,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 biginttype getBigFileLengthUsingSeek (filetype aFile)
-#else
-
-biginttype getBigFileLengthUsingSeek (aFile)
-filetype aFile;
-#endif
 
   {
     os_off_t file_length;
@@ -500,16 +448,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err_info)
-#else
-
-static memsizetype read_string (inFile, stri, err_info)
-filetype inFile;
-stritype stri;
-errinfotype *err_info;
-#endif
 
   {
     uchartype buffer[BUFFER_SIZE];
@@ -564,18 +503,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
     memsizetype *num_of_chars_read, errinfotype *err_info)
-#else
-
-static stritype read_and_alloc_stri (inFile, chars_missing, num_of_chars_read, err_info)
-filetype inFile;
-memsizetype chars_missing;
-memsizetype *num_of_chars_read;
-errinfotype *err_info;
-#endif
 
   {
     uchartype buffer[BUFFER_SIZE];
@@ -665,14 +594,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 biginttype filBigLng (filetype aFile)
-#else
-
-biginttype filBigLng (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;
@@ -707,15 +629,7 @@ filetype aFile;
  *             file position type.
  *  @exception FILE_ERROR The system function returns an error.
  */
-#ifdef ANSI_C
-
 void filBigSeek (filetype aFile, const const_biginttype big_position)
-#else
-
-void filBigSeek (aFile, big_position)
-filetype aFile;
-biginttype big_position;
-#endif
 
   {
     os_off_t file_position;
@@ -746,14 +660,7 @@ biginttype big_position;
  *             an bigInteger value.
  *  @exception FILE_ERROR The system function returns an error.
  */
-#ifdef ANSI_C
-
 biginttype filBigTell (filetype aFile)
-#else
-
-biginttype filBigTell (aFile)
-filetype aFile;
-#endif
 
   {
     os_off_t current_file_position;
@@ -776,14 +683,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 void filClose (filetype aFile)
-#else
-
-void filClose (aFile)
-filetype aFile;
-#endif
 
   { /* filClose */
     if (unlikely(fclose(aFile) != 0)) {
@@ -797,14 +697,7 @@ filetype aFile;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 inttype filFileType (filetype aFile)
-#else
-
-inttype filFileType (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;
@@ -855,15 +748,7 @@ filetype aFile;
  *  block is filled with data, resized and filled in a loop.
  *  @return the string read.
  */
-#ifdef ANSI_C
-
 stritype filGets (filetype inFile, inttype length)
-#else
-
-stritype filGets (inFile, length)
-filetype inFile;
-inttype length;
-#endif
 
   {
     memsizetype chars_requested;
@@ -971,14 +856,7 @@ inttype length;
 
 
 
-#ifdef ANSI_C
-
 booltype filHasNext (filetype inFile)
-#else
-
-booltype filHasNext (inFile)
-filetype inFile;
-#endif
 
   {
     int next_char;
@@ -1006,15 +884,7 @@ filetype inFile;
 
 
 
-#ifdef ANSI_C
-
 stritype filLineRead (filetype inFile, chartype *terminationChar)
-#else
-
-stritype filLineRead (inFile, terminationChar)
-filetype inFile;
-chartype *terminationChar;
-#endif
 
   {
     register int ch;
@@ -1074,14 +944,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 stritype filLit (filetype aFile)
-#else
-
-stritype filLit (aFile)
-filetype aFile;
-#endif
 
   {
     const_cstritype file_name;
@@ -1115,14 +978,7 @@ filetype aFile;
  *  @exception RANGE_ERROR The file length is negative or does not
  *             fit in an integer value.
  */
-#ifdef ANSI_C
-
 inttype filLng (filetype aFile)
-#else
-
-inttype filLng (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;
@@ -1170,15 +1026,7 @@ filetype aFile;
  *             representation or 'path' is not representable in the
  *             system path type.
  */
-#ifdef ANSI_C
-
 filetype filOpen (const const_stritype path, const const_stritype mode)
-#else
-
-filetype filOpen (path, mode)
-stritype path;
-stritype mode;
-#endif
 
   {
     os_stritype os_path;
@@ -1243,14 +1091,7 @@ stritype mode;
 
 
 
-#ifdef ANSI_C
-
 void filPclose (filetype aFile)
-#else
-
-void filPclose (aFile)
-filetype aFile;
-#endif
 
   { /* filPclose */
     if (unlikely(os_pclose(aFile) == -1)) {
@@ -1260,17 +1101,8 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 filetype filPopen (const const_stritype command,
     const const_stritype parameters, const const_stritype mode)
-#else
-
-filetype filPopen (command, parameters, mode)
-stritype command;
-stritype parameters;
-stritype mode;
-#endif
 
   {
     os_stritype os_command;
@@ -1307,14 +1139,7 @@ stritype mode;
 
 
 
-#ifdef ANSI_C
-
 void filPrint (const const_stritype stri)
-#else
-
-void filPrint (stri)
-stritype stri;
-#endif
 
   {
     cstritype str1;
@@ -1339,15 +1164,7 @@ stritype stri;
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR The system function returns an error.
  */
-#ifdef ANSI_C
-
 void filSeek (filetype aFile, inttype file_position)
-#else
-
-void filSeek (aFile, file_position)
-filetype aFile;
-inttype file_position;
-#endif
 
   { /* filSeek */
     /* printf("filSeek(%ld, %ld)\n", aFile, file_position); */
@@ -1360,16 +1177,7 @@ inttype file_position;
 
 
 
-#ifdef ANSI_C
-
 void filSetbuf (filetype aFile, inttype mode, inttype size)
-#else
-
-void filSetbuf (aFile, mode, size)
-filetype aFile;
-inttype mode;
-inttype size;
-#endif
 
   { /* filSetbuf */
     if (unlikely(mode < 0 || mode > 2 || size < 0 || (uinttype) size > MAX_MEMSIZETYPE)) {
@@ -1390,14 +1198,7 @@ inttype size;
  *             fit in an integer value.
  *  @exception FILE_ERROR The system function returns an error.
  */
-#ifdef ANSI_C
-
 inttype filTell (filetype aFile)
-#else
-
-inttype filTell (aFile)
-filetype aFile;
-#endif
 
   {
     os_off_t current_file_position;
@@ -1420,15 +1221,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 stritype filWordRead (filetype inFile, chartype *terminationChar)
-#else
-
-stritype filWordRead (inFile, terminationChar)
-filetype inFile;
-chartype *terminationChar;
-#endif
 
   {
     register int ch;
@@ -1493,15 +1286,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 void filWrite (filetype outFile, const const_stritype stri)
-#else
-
-void filWrite (outFile, stri)
-filetype outFile;
-stritype stri;
-#endif
 
   {
     register strelemtype *str;

@@ -68,14 +68,7 @@ static char esc_tab[] = {
 
 
 
-#ifdef ANSI_C
-
 static unsigned int escape_sequence (unsigned int position)
-#else
-
-static unsigned int escape_sequence (position)
-unsigned int position;
-#endif
 
   {
     register int character;
@@ -161,14 +154,7 @@ unsigned int position;
 
 
 
-#ifdef ANSI_C
-
 chartype utf8_char (register int character)
-#else
-
-chartype utf8_char (character)
-register int character;
-#endif
 
   {
     chartype result;
@@ -356,13 +342,7 @@ register int character;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static char lit_escapechar (void)
-#else
-
-static char lit_escapechar ()
-#endif
 
   {
     char ch;
@@ -392,13 +372,7 @@ static char lit_escapechar ()
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static char lit_escapechar (void)
-#else
-
-static char lit_escapechar ()
-#endif
 
   {
     char ch;
@@ -464,13 +438,7 @@ static char lit_escapechar ()
 
 
 
-#ifdef ANSI_C
-
 void lit_char (void)
-#else
-
-void lit_char ()
-#endif
 
   {
     unsigned int position;
@@ -538,13 +506,7 @@ void lit_char ()
 
 
 
-#ifdef ANSI_C
-
 void lit_string (void)
-#else
-
-void lit_string ()
-#endif
 
   {                                                             /*  0.05% */
     register int character;
@@ -626,13 +588,7 @@ void lit_string ()
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void lit_text (void)
-#else
-
-static void lit_text ()
-#endif
 
   {
     register int character;

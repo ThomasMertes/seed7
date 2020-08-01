@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 #include "windows.h"
 
 #include "common.h"
@@ -116,14 +117,7 @@ static HWND (WINAPI *pGetConsoleWindow)(void) = NULL;
 
 
 
-#ifdef ANSI_C
-
 static win_wintype find_window (HWND curr_window)
-#else
-
-static win_wintype find_window (curr_window)
-HWND curr_window;
-#endif
 
   {
     win_wintype window;
@@ -141,14 +135,7 @@ HWND curr_window;
 
 
 
-#ifdef ANSI_C
-
 static void remove_window (win_wintype curr_window)
-#else
-
-static void remove_window (curr_window)
-win_wintype curr_window;
-#endif
 
   {
     win_wintype *win_addr;
@@ -168,17 +155,8 @@ win_wintype curr_window;
 
 
 
-#ifdef ANSI_C
-
 static void drawRectangle (win_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype col)
-#else
-
-static void drawRectangle (actual_window, x1, y1, x2, y2, col)
-win_wintype actual_window;
-inttype x1, y1, x2, y2;
-inttype col;
-#endif
 
   {
     HPEN old_pen;
@@ -196,17 +174,17 @@ inttype col;
       old_brush = (HBRUSH) SelectObject(actual_window->hdc, current_brush);
       if (x1 == x2) {
         if (y1 == y2) {
-          SetPixel(actual_window->hdc, x1, y1, (COLORREF) col);
+          SetPixel(actual_window->hdc, castToInt(x1), castToInt(y1), (COLORREF) col);
         } else {
-          MoveToEx(actual_window->hdc, x1, y1, NULL);
-          LineTo(actual_window->hdc, x1, y2 + 1);
+          MoveToEx(actual_window->hdc, castToInt(x1), castToInt(y1), NULL);
+          LineTo(actual_window->hdc, castToInt(x1), castToInt(y2 + 1));
         } /* if */
       } else {
         if (y1 == y2) {
-          MoveToEx(actual_window->hdc, x1, y1, NULL);
-          LineTo(actual_window->hdc, x2 + 1, y1);
+          MoveToEx(actual_window->hdc, castToInt(x1), castToInt(y1), NULL);
+          LineTo(actual_window->hdc, castToInt(x2 + 1), castToInt(y1));
         } else {
-          Rectangle(actual_window->hdc, x1, y1, x2 + 1, y2 + 1);
+          Rectangle(actual_window->hdc, castToInt(x1), castToInt(y1), castToInt(x2 + 1), castToInt(y2 + 1));
         } /* if */
       } /* if */
       SelectObject(actual_window->hdc, old_pen);
@@ -325,13 +303,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-#ifdef ANSI_C
-
 chartype gkbGetc (void)
-#else
-
-chartype gkbGetc ()
-#endif
 
   {
     BOOL bRet;
@@ -654,13 +626,7 @@ chartype gkbGetc ()
 
 
 
-#ifdef ANSI_C
-
 booltype gkbKeyPressed (void)
-#else
-
-booltype gkbKeyPressed ()
-#endif
 
   {
     BOOL msg_present;
@@ -756,14 +722,7 @@ booltype gkbKeyPressed ()
 
 
 
-#ifdef ANSI_C
-
 booltype gkbButtonPressed (chartype button)
-#else
-
-booltype gkbButtonPressed (button)
-chartype button;
-#endif
 
   {
     int vkey1;
@@ -866,13 +825,7 @@ chartype button;
 
 
 
-#ifdef ANSI_C
-
 chartype gkbRawGetc (void)
-#else
-
-chartype gkbRawGetc ()
-#endif
 
   { /* gkbRawGetc */
     return gkbGetc();
@@ -880,13 +833,7 @@ chartype gkbRawGetc ()
 
 
 
-#ifdef ANSI_C
-
 wintype gkbWindow (void)
-#else
-
-wintype gkbWindow ()
-#endif
 
   {
     wintype result;
@@ -901,13 +848,7 @@ wintype gkbWindow ()
 
 
 
-#ifdef ANSI_C
-
 inttype gkbButtonXpos (void)
-#else
-
-inttype gkbButtonXpos ()
-#endif
 
   { /* gkbButtonXpos */
     return button_x;
@@ -915,13 +856,7 @@ inttype gkbButtonXpos ()
 
 
 
-#ifdef ANSI_C
-
 inttype gkbButtonYpos (void)
-#else
-
-inttype gkbButtonYpos ()
-#endif
 
   { /* gkbButtonYpos */
     return button_y;
@@ -929,14 +864,34 @@ inttype gkbButtonYpos ()
 
 
 
-#ifdef ANSI_C
+static void dra_init (void)
+
+  {
+    WNDCLASSEX wcex = {0};
+    HMODULE hntdll = 0;
+
+  /* dra_init */
+    wcex.cbSize        = sizeof(WNDCLASSEX);
+    wcex.style         = /* CS_HREDRAW | CS_VREDRAW | */ CS_OWNDC;
+    wcex.lpfnWndProc   = (WNDPROC)WndProc;
+    wcex.hInstance     = NULL;
+    wcex.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
+    wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+    wcex.lpszMenuName  = NULL;
+    wcex.lpszClassName = windowClass;
+    wcex.hIconSm       = NULL;
+    RegisterClassEx(&wcex);
+    hntdll = LoadLibraryA("kernel32.dll");
+    if (hntdll != 0) {
+      pGetConsoleWindow = (void *) GetProcAddress(hntdll, "GetConsoleWindow");
+    } /* if */
+    init_called = 1;
+  } /* dra_init */
+
+
 
 inttype drwPointerXpos (const_wintype actual_window)
-#else
-
-inttype drwPointerXpos (actual_window)
-wintype actual_window;
-#endif
 
   {
     POINT point;
@@ -959,14 +914,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 inttype drwPointerYpos (const_wintype actual_window)
-#else
-
-inttype drwPointerYpos (actual_window)
-wintype actual_window;
-#endif
 
   {
     POINT point;
@@ -989,17 +937,8 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 void drwArc (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle)
-#else
-
-void drwArc (actual_window, x, y, radius, startAngle, sweepAngle)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-#endif
 
   {
     float startAng, sweepAng;
@@ -1007,23 +946,14 @@ floattype startAngle, sweepAngle;
   /* drwArc */
     startAng = (startAngle * (360.0 / (2 * PI)));
     sweepAng = (sweepAngle * (360.0 / (2 * PI)));
-    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, startAng, sweepAng);
+    AngleArc(to_hdc(actual_window), castToInt(x), castToInt(y),
+             (unsigned) radius, startAng, sweepAng);
   } /* drwArc */
 
 
 
-#ifdef ANSI_C
-
 void drwPArc (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
-#else
-
-void drwPArc (actual_window, x, y, radius, startAngle, sweepAngle, col)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-inttype col;
-#endif
 
   {
     float startAng, sweepAng;
@@ -1036,15 +966,17 @@ inttype col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     if (current_pen == NULL) {
       raise_error(MEMORY_ERROR);
+    } else if (!inIntRange(x) || !inIntRange(x)) {
+      raise_error(RANGE_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       /* MoveToEx(to_hdc(actual_window), x + radius, y, NULL); */
-      AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, startAng, sweepAng);
+      AngleArc(to_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
       SelectObject(to_hdc(actual_window), old_pen);
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         /* MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL); */
-        AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, startAng, sweepAng);
+        AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
         SelectObject(to_backup_hdc(actual_window), old_pen);
       } /* if */
       DeleteObject(current_pen);
@@ -1053,70 +985,32 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFArcChord (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle)
-#else
-
-void drwFArcChord (actual_window, x, y, radius, startAngle, sweepAngle)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-#endif
 
   { /* drwFArcChord */
   } /* drwFArcChord */
 
 
 
-#ifdef ANSI_C
-
 void drwPFArcChord (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
-#else
-
-void drwPFArcChord (actual_window, x, y, radius, startAngle, sweepAngle, col)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-inttype col;
-#endif
 
   { /* drwPFArcChord */
   } /* drwPFArcChord */
 
 
 
-#ifdef ANSI_C
-
 void drwFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle)
-#else
-
-void drwFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-#endif
 
   { /* drwFArcPieSlice */
   } /* drwFArcPieSlice */
 
 
 
-#ifdef ANSI_C
-
 void drwPFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
-#else
-
-void drwPFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle, col)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-inttype col;
-#endif
 
   {
     float startAng, sweepAng;
@@ -1133,13 +1027,15 @@ inttype col;
       current_brush = CreateSolidBrush((COLORREF) col);
       if (current_pen == NULL || current_brush == NULL) {
         raise_error(MEMORY_ERROR);
+      } else if (!inIntRange(x) || !inIntRange(x) || !inIntRange(radius) || radius < 0) {
+        raise_error(RANGE_ERROR);
       } else {
         old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
         BeginPath(to_hdc(actual_window));
-        MoveToEx(to_hdc(actual_window), x, y, (LPPOINT) NULL);
-        AngleArc(to_hdc(actual_window), x, y, radius, startAng, sweepAng);
-        LineTo(to_hdc(actual_window), x, y);
+        MoveToEx(to_hdc(actual_window), (int) x, (int) y, (LPPOINT) NULL);
+        AngleArc(to_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+        LineTo(to_hdc(actual_window), (int) x, (int) y);
         EndPath(to_hdc(actual_window));
         StrokeAndFillPath(to_hdc(actual_window));
         SelectObject(to_hdc(actual_window), old_pen);
@@ -1148,9 +1044,9 @@ inttype col;
           old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
           old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
           BeginPath(to_backup_hdc(actual_window));
-          MoveToEx(to_backup_hdc(actual_window), x, y, (LPPOINT) NULL);
-          AngleArc(to_backup_hdc(actual_window), x, y, radius, startAng, sweepAng);
-          LineTo(to_backup_hdc(actual_window), x, y);
+          MoveToEx(to_backup_hdc(actual_window), (int) x, (int) y, (LPPOINT) NULL);
+          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+          LineTo(to_backup_hdc(actual_window), (int) x, (int) y);
           EndPath(to_backup_hdc(actual_window));
           StrokeAndFillPath(to_backup_hdc(actual_window));
           SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -1164,50 +1060,25 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwArc2 (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype radius)
-#else
-
-void drwArc2 (actual_window, x1, y1, x2, y2, radius)
-wintype actual_window;
-inttype x1, y1, x2, y2, radius;
-#endif
 
   { /* drwArc2 */
   } /* drwArc2 */
 
 
 
-#ifdef ANSI_C
-
 void drwCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
-#else
-
-void drwCircle (actual_window, x, y, radius)
-wintype actual_window;
-inttype x, y, radius;
-#endif
 
   { /* drwCircle */
-    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
+    AngleArc(to_hdc(actual_window), castToInt(x), castToInt(y), (unsigned) radius, 0.0, 360.0);
   } /* drwCircle */
 
 
 
-#ifdef ANSI_C
-
 void drwPCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col)
-#else
-
-void drwPCircle (actual_window, x, y, radius, col)
-wintype actual_window;
-inttype x, y, radius;
-inttype col;
-#endif
 
   {
     HPEN old_pen;
@@ -1220,13 +1091,13 @@ inttype col;
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      MoveToEx(to_hdc(actual_window), x + radius, y, NULL);
-      AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
+      MoveToEx(to_hdc(actual_window), inIntRange(x + radius), inIntRange(y), NULL);
+      AngleArc(to_hdc(actual_window), inIntRange(x), inIntRange(y), (unsigned) radius, 0.0, 360.0);
       SelectObject(to_hdc(actual_window), old_pen);
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL);
-        AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
+        MoveToEx(to_backup_hdc(actual_window), inIntRange(x + radius), inIntRange(y), NULL);
+        AngleArc(to_backup_hdc(actual_window), inIntRange(x), inIntRange(y), (unsigned) radius, 0.0, 360.0);
         SelectObject(to_backup_hdc(actual_window), old_pen);
       } /* if */
       DeleteObject(current_pen);
@@ -1235,15 +1106,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwClear (wintype actual_window, inttype col)
-#else
-
-void drwClear (actual_window, col)
-wintype actual_window;
-inttype col;
-#endif
 
   {
     HPEN old_pen;
@@ -1272,7 +1135,7 @@ inttype col;
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
         Rectangle(to_backup_hdc(actual_window), 0, 0,
-            to_width(actual_window), to_height(actual_window));
+            (int) to_width(actual_window), (int) to_height(actual_window));
         SelectObject(to_backup_hdc(actual_window), old_pen);
         SelectObject(to_backup_hdc(actual_window), old_brush);
       } /* if */
@@ -1283,76 +1146,49 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwCopyArea (const_wintype src_window, const_wintype dest_window,
     inttype src_x, inttype src_y, inttype width, inttype height,
     inttype dest_x, inttype dest_y)
-#else
-
-void drwCopyArea (src_window, dest_window, src_x, src_y, width, height,
-    dest_x, dest_y)
-wintype src_window;
-wintype dest_window;
-inttype src_x;
-inttype src_y;
-inttype width;
-inttype height;
-inttype dest_x;
-inttype dest_y;
-#endif
 
   { /* drwCopyArea */
 #ifdef TRACE_WIN
     printf("drwCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
         src_window, dest_window, src_x, src_y, width, height, dest_x, dest_y);
 #endif
-    if (to_backup_hdc(src_window) != 0) {
-      BitBlt(to_hdc(dest_window), dest_x, dest_y, width, height,
-          to_backup_hdc(src_window), src_x, src_y, SRCCOPY);
+    if (!inIntRange(src_x) || !inIntRange(src_y) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        !inIntRange(dest_x) || !inIntRange(dest_y) ||
+        width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else if (to_backup_hdc(src_window) != 0) {
+      BitBlt(to_hdc(dest_window), (int) dest_x, (int) dest_y, (int) width, (int) height,
+          to_backup_hdc(src_window), (int) src_x, (int) src_y, SRCCOPY);
       if (to_backup_hdc(dest_window) != 0) {
-        BitBlt(to_backup_hdc(dest_window), dest_x, dest_y, width, height,
-            to_backup_hdc(src_window), src_x, src_y, SRCCOPY);
+        BitBlt(to_backup_hdc(dest_window), (int) dest_x, (int) dest_y, (int) width, (int) height,
+            to_backup_hdc(src_window), (int) src_x, (int) src_y, SRCCOPY);
       } /* if */
     } else {
-      BitBlt(to_hdc(dest_window), dest_x, dest_y, width, height,
-          to_hdc(src_window), src_x, src_y, SRCCOPY);
+      BitBlt(to_hdc(dest_window), (int) dest_x, (int) dest_y, (int) width, (int) height,
+          to_hdc(src_window), (int) src_x, (int) src_y, SRCCOPY);
       if (to_backup_hdc(dest_window) != 0) {
-        BitBlt(to_backup_hdc(dest_window), dest_x, dest_y, width, height,
-            to_hdc(src_window), src_x, src_y, SRCCOPY);
+        BitBlt(to_backup_hdc(dest_window), (int) dest_x, (int) dest_y, (int) width, (int) height,
+            to_hdc(src_window), (int) src_x, (int) src_y, SRCCOPY);
       } /* if */
     } /* if */
   } /* drwCopyArea */
 
 
 
-#ifdef ANSI_C
-
 void drwFCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
-#else
-
-void drwFCircle (actual_window, x, y, radius)
-wintype actual_window;
-inttype x, y, radius;
-#endif
 
   { /* drwFCircle */
   } /* drwFCircle */
 
 
 
-#ifdef ANSI_C
-
 void drwPFCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col)
-#else
-
-void drwPFCircle (actual_window, x, y, radius, col)
-wintype actual_window;
-inttype x, y, radius;
-inttype col;
-#endif
 
   {
     HPEN old_pen;
@@ -1369,15 +1205,15 @@ inttype col;
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      Ellipse(to_hdc(actual_window), x - radius, y - radius,
-          x + radius + 1, y + radius + 1);
+      Ellipse(to_hdc(actual_window), inIntRange(x - radius), inIntRange(y - radius),
+          inIntRange(x + radius + 1), inIntRange(y + radius + 1));
       SelectObject(to_hdc(actual_window), old_pen);
       SelectObject(to_hdc(actual_window), old_brush);
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
-        Ellipse(to_backup_hdc(actual_window), x - radius, y - radius,
-            x + radius + 1, y + radius + 1);
+        Ellipse(to_backup_hdc(actual_window), inIntRange(x - radius), inIntRange(y - radius),
+            inIntRange(x + radius + 1), inIntRange(y + radius + 1));
         SelectObject(to_backup_hdc(actual_window), old_pen);
         SelectObject(to_backup_hdc(actual_window), old_brush);
       } /* if */
@@ -1388,33 +1224,16 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFEllipse (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height)
-#else
-
-void drwFEllipse (actual_window, x, y, width, height)
-wintype actual_window;
-inttype x, y, width, height;
-#endif
 
   { /* drwFEllipse */
   } /* drwFEllipse */
 
 
 
-#ifdef ANSI_C
-
 void drwPFEllipse (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height, inttype col)
-#else
-
-void drwPFEllipse (actual_window, x, y, width, height, col)
-wintype actual_window;
-inttype x, y, width, height;
-inttype col;
-#endif
 
   {
     HPEN old_pen;
@@ -1430,13 +1249,15 @@ inttype col;
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      Ellipse(to_hdc(actual_window), x, y, x + width, y + height);
+      Ellipse(to_hdc(actual_window), inIntRange(x), inIntRange(y),
+              inIntRange(x + width), inIntRange(y + height));
       SelectObject(to_hdc(actual_window), old_pen);
       SelectObject(to_hdc(actual_window), old_brush);
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
-        Ellipse(to_backup_hdc(actual_window), x, y, x + width, y + height);
+        Ellipse(to_backup_hdc(actual_window), inIntRange(x), inIntRange(y),
+                inIntRange(x + width), inIntRange(y + height));
         SelectObject(to_backup_hdc(actual_window), old_pen);
         SelectObject(to_backup_hdc(actual_window), old_brush);
       } /* if */
@@ -1447,27 +1268,14 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFlush (void)
-#else
-
-void drwFlush ()
-#endif
 
   { /* drwFlush */
   } /* drwFlush */
 
 
 
-#ifdef ANSI_C
-
 void drwFree (wintype old_window)
-#else
-
-void drwFree (old_window)
-wintype old_window;
-#endif
 
   { /* drwFree */
     if (is_pixmap(old_window)) {
@@ -1486,33 +1294,25 @@ wintype old_window;
 
 
 
-#ifdef ANSI_C
-
 wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
     inttype width, inttype height)
-#else
-
-wintype drwGet (actual_window, left, upper, width, height)
-wintype actual_window;
-inttype left;
-inttype upper;
-inttype width;
-inttype height;
-#endif
 
   {
     win_wintype result;
 
   /* drwGet */
-    if (!ALLOC_RECORD(result, win_winrecord, count.win)) {
-      raise_error(MEMORY_ERROR);
-    } else if (width < 1 || height < 1) {
+    if (!inIntRange(left) || !inIntRange(upper) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (!ALLOC_RECORD(result, win_winrecord, count.win)) {
+      raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(struct win_winstruct));
       result->usage_count = 1;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
-      result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
+      result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), (int) width, (int) height);
       if (result->hBitmap == NULL) {
         free(result);
         result = NULL;
@@ -1522,15 +1322,15 @@ inttype height;
         result->hasTransparentPixel = FALSE;
         result->transparentPixel = 0;
         result->is_pixmap = TRUE;
-        result->width = width;
-        result->height = height;
+        result->width = (unsigned int) width;
+        result->height = (unsigned int) height;
         result->next = NULL;
         if (to_backup_hdc(actual_window) != 0) {
-          BitBlt(result->hdc, 0, 0, width, height,
-              to_backup_hdc(actual_window), left, upper, SRCCOPY);
+          BitBlt(result->hdc, 0, 0, (int) width, (int) height,
+              to_backup_hdc(actual_window), (int) left, (int) upper, SRCCOPY);
         } else {
-          BitBlt(result->hdc, 0, 0, width, height,
-              to_hdc(actual_window), left, upper, SRCCOPY);
+          BitBlt(result->hdc, 0, 0, (int) width, (int) height,
+              to_hdc(actual_window), (int) left, (int) upper, SRCCOPY);
         } /* if */
       } /* if */
     } /* if */
@@ -1539,31 +1339,15 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
-#else
-
-inttype drwGetPixel (actual_window, x, y)
-wintype actual_window;
-inttype x;
-inttype y;
-#endif
 
   { /* drwGetPixel */
-    return (inttype) GetPixel(to_hdc(actual_window), x, y);
+    return (inttype) GetPixel(to_hdc(actual_window), castToInt(x), castToInt(y));
   } /* drwGetPixel */
 
 
 
-#ifdef ANSI_C
-
 inttype drwHeight (const_wintype actual_window)
-#else
-
-inttype drwHeight (actual_window)
-wintype actual_window;
-#endif
 
   {
     RECT rect;
@@ -1571,25 +1355,17 @@ wintype actual_window;
 
   /* drwHeight */
     if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
-      result = to_height(actual_window);
+      result = (inttype) to_height(actual_window);
     } else {
-      result = rect.bottom - rect.top - to_brutto_height_delta(actual_window);
+      result = (inttype) ((unsigned int) (rect.bottom - rect.top) -
+                          to_brutto_height_delta(actual_window));
     } /* if */
     return result;
   } /* drwHeight */
 
 
 
-#ifdef ANSI_C
-
-wintype drwImage (inttype *image_data, inttype width, inttype height)
-#else
-
-wintype drwImage (image_data, width, height)
-inttype *image_data;
-inttype width;
-inttype height;
-#endif
+wintype drwImage (int32type *image_data, inttype width, inttype height)
 
   {
     inttype xPos;
@@ -1597,52 +1373,44 @@ inttype height;
     wintype result;
 
   /* drwImage */
-    result = drwNewPixmap(width, height);
-    if (result != NULL) {
-      for (yPos = 0; yPos < height; yPos++) {
-        for (xPos = 0; xPos < width; xPos++) {
-          drwPPoint(result, xPos, yPos, image_data[yPos * width + xPos]);
+    if (!inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      if (init_called == 0) {
+        dra_init();
+      } /* if */
+      result = drwNewPixmap(width, height);
+      if (result != NULL) {
+        for (yPos = 0; yPos < height; yPos++) {
+          for (xPos = 0; xPos < width; xPos++) {
+            drwPPoint(result, xPos, yPos, image_data[yPos * width + xPos]);
+          } /* for */
         } /* for */
-      } /* for */
+      } /* if */
     } /* if */
     return result;
   } /* drwImage */
 
 
 
-#ifdef ANSI_C
-
 void drwLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2)
-#else
-
-void drwLine (actual_window, x1, y1, x2, y2)
-wintype actual_window;
-inttype x1, y1, x2, y2;
-#endif
 
   { /* drwLine */
-    MoveToEx(to_hdc(actual_window), x1, y1, NULL);
-    LineTo(to_hdc(actual_window), x2, y2);
+    MoveToEx(to_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
+    LineTo(to_hdc(actual_window), castToInt(x2), castToInt(y2));
     if (to_backup_hdc(actual_window) != 0) {
-      MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
-      LineTo(to_backup_hdc(actual_window), x2, y2);
+      MoveToEx(to_backup_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
+      LineTo(to_backup_hdc(actual_window), castToInt(x2), castToInt(y2));
     } /* if */
   } /* drwLine */
 
 
 
-#ifdef ANSI_C
-
 void drwPLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype col)
-#else
-
-void drwPLine (actual_window, x1, y1, x2, y2, col)
-wintype actual_window;
-inttype x1, y1, x2, y2;
-inttype col;
-#endif
 
   {
     HPEN old_pen;
@@ -1658,15 +1426,15 @@ inttype col;
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      MoveToEx(to_hdc(actual_window), x1, y1, NULL);
-      LineTo(to_hdc(actual_window), x2, y2);
-      SetPixel(to_hdc(actual_window), x2, y2, (COLORREF) col);
+      MoveToEx(to_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
+      LineTo(to_hdc(actual_window), castToInt(x2), castToInt(y2));
+      SetPixel(to_hdc(actual_window), castToInt(x2), castToInt(y2), (COLORREF) col);
       SelectObject(to_hdc(actual_window), old_pen);
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
-        LineTo(to_backup_hdc(actual_window), x2, y2);
-        SetPixel(to_backup_hdc(actual_window), x2, y2, (COLORREF) col);
+        MoveToEx(to_backup_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
+        LineTo(to_backup_hdc(actual_window), castToInt(x2), castToInt(y2));
+        SetPixel(to_backup_hdc(actual_window), castToInt(x2), castToInt(y2), (COLORREF) col);
         SelectObject(to_backup_hdc(actual_window), old_pen);
       } /* if */
       DeleteObject(current_pen);
@@ -1675,53 +1443,45 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 wintype drwNewPixmap (inttype width, inttype height)
-#else
-
-wintype drwNewPixmap (width, height)
-inttype width;
-inttype height;
-#endif
 
   {
     HDC screenDC;
     win_wintype result;
 
   /* drwNewPixmap */
-    if (!ALLOC_RECORD(result, win_winrecord, count.win)) {
-      raise_error(MEMORY_ERROR);
+    if (!inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-      memset(result, 0, sizeof(struct win_winstruct));
-      result->usage_count = 1;
-      screenDC = GetDC(NULL);
-      result->hdc = CreateCompatibleDC(screenDC);
-      result->hBitmap = CreateCompatibleBitmap(screenDC, width, height);
-      ReleaseDC(NULL, screenDC);
-      result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
-      result->hasTransparentPixel = FALSE;
-      result->transparentPixel = 0;
-      result->is_pixmap = TRUE;
-      result->width = width;
-      result->height = height;
-      result->next = NULL;
+      if (init_called == 0) {
+        dra_init();
+      } /* if */
+      if (!ALLOC_RECORD(result, win_winrecord, count.win)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        memset(result, 0, sizeof(struct win_winstruct));
+        result->usage_count = 1;
+        screenDC = GetDC(NULL);
+        result->hdc = CreateCompatibleDC(screenDC);
+        result->hBitmap = CreateCompatibleBitmap(screenDC, (int) width, (int) height);
+        ReleaseDC(NULL, screenDC);
+        result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
+        result->hasTransparentPixel = FALSE;
+        result->transparentPixel = 0;
+        result->is_pixmap = TRUE;
+        result->width = (unsigned int) width;
+        result->height = (unsigned int) height;
+        result->next = NULL;
+      } /* if */
     } /* if */
     return (wintype) result;
   } /* drwNewPixmap */
 
 
 
-#ifdef ANSI_C
-
 wintype drwNewBitmap (const_wintype actual_window, inttype width, inttype height)
-#else
-
-wintype drwNewBitmap (actual_window, width, height)
-wintype actual_window;
-inttype width;
-inttype height;
-#endif
 
   { /* drwNewBitmap */
     return 0;
@@ -1729,46 +1489,7 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
-static void dra_init (void)
-#else
-
-static void dra_init ()
-#endif
-
-  {
-    WNDCLASSEX wcex = {0};
-    HMODULE hntdll = 0;
-
-  /* dra_init */
-    wcex.cbSize        = sizeof(WNDCLASSEX);
-    wcex.style         = /* CS_HREDRAW | CS_VREDRAW | */ CS_OWNDC;
-    wcex.lpfnWndProc   = (WNDPROC)WndProc;
-    wcex.hInstance     = NULL;
-    wcex.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-    wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName  = NULL;
-    wcex.lpszClassName = windowClass;
-    wcex.hIconSm       = NULL;
-    RegisterClassEx(&wcex);
-    hntdll = LoadLibraryA("kernel32.dll");
-    if (hntdll != 0) {
-      pGetConsoleWindow = (void *) GetProcAddress(hntdll, "GetConsoleWindow");
-    } /* if */
-    init_called = 1;
-  } /* dra_init */
-
-
-
-#ifdef ANSI_C
-
 static booltype private_console (void)
-#else
-
-static booltype private_console ()
-#endif
 
   {
     CONSOLE_SCREEN_BUFFER_INFO conBufInfo;
@@ -1784,19 +1505,8 @@ static booltype private_console ()
 
 
 
-#ifdef ANSI_C
-
 wintype drwOpen (inttype xPos, inttype yPos,
     inttype width, inttype height, const const_stritype window_name)
-#else
-
-wintype drwOpen (xPos, yPos, width, height, window_name)
-inttype xPos;
-inttype yPos;
-inttype width;
-inttype height;
-stritype window_name;
-#endif
 
   {
     char *win_name;
@@ -1809,22 +1519,109 @@ stritype window_name;
         xPos, yPos, width, height);
 #endif
     result = NULL;
-    if (init_called == 0) {
-      dra_init();
-    } /* if */
-    if (init_called != 0) {
-      win_name = cp_to_cstri8(window_name);
-      if (win_name == NULL) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        if (private_console()) {
-          /* printf("private_session\n"); */
-          if (pGetConsoleWindow != NULL) {
-            ShowWindow(pGetConsoleWindow(), SW_HIDE);
-          } else {
-            FreeConsole();
+    if (!inIntRange(xPos) || !inIntRange(yPos) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (init_called == 0) {
+        dra_init();
+      } /* if */
+      if (init_called != 0) {
+        win_name = cp_to_cstri8(window_name);
+        if (win_name == NULL) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          if (private_console()) {
+            /* printf("private_session\n"); */
+            if (pGetConsoleWindow != NULL) {
+              ShowWindow(pGetConsoleWindow(), SW_HIDE);
+            } else {
+              FreeConsole();
+            } /* if */
           } /* if */
+          if (ALLOC_RECORD(result, win_winrecord, count.win)) {
+            memset(result, 0, sizeof(struct win_winstruct));
+            result->usage_count = 1;
+            result->next = window_list;
+            window_list = result;
+#ifdef OUT_OF_ORDER
+            printf("SM_CXBORDER=%d\n",    GetSystemMetrics(SM_CXBORDER));
+            printf("SM_CYBORDER=%d\n",    GetSystemMetrics(SM_CYBORDER));
+            printf("SM_CXSIZE=%d\n",      GetSystemMetrics(SM_CXSIZE));
+            printf("SM_CYSIZE=%d\n",      GetSystemMetrics(SM_CYSIZE));
+            printf("SM_CXSIZEFRAME=%d\n", GetSystemMetrics(SM_CXSIZEFRAME));
+            printf("SM_CYSIZEFRAME=%d\n", GetSystemMetrics(SM_CYSIZEFRAME));
+            printf("SM_CXEDGE=%d\n",      GetSystemMetrics(SM_CXEDGE));
+            printf("SM_CYEDGE=%d\n",      GetSystemMetrics(SM_CYEDGE));
+            printf("width=%d\n",          width + 2 * GetSystemMetrics(SM_CXSIZEFRAME));
+            printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
+                GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
+#endif
+            result->brutto_width_delta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
+            result->brutto_height_delta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
+                GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER);
+            result->hWnd = CreateWindow(windowClass, win_name,
+                WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,
+                width + result->brutto_width_delta,
+                height + result->brutto_height_delta,
+                (HWND) NULL, (HMENU) NULL, NULL, NULL);
+            /* printf("hWnd=%lu\n", result->hWnd); */
+            if (result->hWnd != NULL) {
+              result->hdc = GetDC(result->hWnd);
+              /* printf("hdc=%lu\n", result->hdc); */
+              result->hasTransparentPixel = FALSE;
+              result->transparentPixel = 0;
+              result->is_pixmap = FALSE;
+              result->width = (unsigned int) width;
+              result->height = (unsigned int) height;
+              result->clear_col = (inttype) RGB(0, 0, 0); /* black */
+              result->backup_hdc = CreateCompatibleDC(result->hdc);
+              result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
+              SelectObject(result->backup_hdc, result->backup);
+              std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+                  ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                  DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
+              SelectObject(result->hdc, std_font);
+              SelectObject(result->backup_hdc, std_font);
+              ShowWindow(result->hWnd, SW_SHOWDEFAULT);
+              UpdateWindow(result->hWnd);
+            } /* if */
+          } /* if */
+          free_cstri(win_name, window_name);
         } /* if */
+      } /* if */
+    } /* if */
+#ifdef TRACE_WIN
+    printf("END drwOpen ==> %lu\n", (long unsigned) result);
+#endif
+    return (wintype) result;
+  } /* drwOpen */
+
+
+
+wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
+    inttype width, inttype height)
+
+  {
+    HFONT std_font;
+    win_wintype result;
+
+  /* drwOpenSubWindow */
+#ifdef TRACE_WIN
+    printf("BEGIN drwOpenSubWindow(%ld, %ld, %ld, %ld)\n",
+        xPos, yPos, width, height);
+#endif
+    result = NULL;
+    if (!inIntRange(xPos) || !inIntRange(yPos) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (init_called == 0) {
+        dra_init();
+      } /* if */
+      if (init_called != 0) {
         if (ALLOC_RECORD(result, win_winrecord, count.win)) {
           memset(result, 0, sizeof(struct win_winstruct));
           result->usage_count = 1;
@@ -1842,136 +1639,50 @@ stritype window_name;
           printf("width=%d\n",          width + 2 * GetSystemMetrics(SM_CXSIZEFRAME));
           printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
               GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
+          printf("WS_OVERLAPPEDWINDOW = %lx\n", WS_OVERLAPPEDWINDOW);
+          printf("WS_BORDER           = %lx\n", WS_BORDER);
+          printf("WS_THICKFRAME       = %lx\n", WS_THICKFRAME);
+          printf("WS_DLGFRAME         = %lx\n", WS_DLGFRAME);
+          printf("WS_CAPTION          = %lx\n", WS_CAPTION);
+          printf("WS_CHILD            = %lx\n", WS_CHILD);
 #endif
-          result->brutto_width_delta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
-          result->brutto_height_delta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
-              GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER);
-          result->hWnd = CreateWindow(windowClass, win_name,
-              WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,
-              width + result->brutto_width_delta,
-              height + result->brutto_height_delta,
-              (HWND) NULL, (HMENU) NULL, NULL, NULL);
+
+          result->brutto_width_delta = 0;
+          result->brutto_height_delta = 0;
+          result->hWnd = CreateWindow(windowClass, "",
+              WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+              (int) xPos, (int) yPos, (int) width, (int) height,
+              to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
+#ifdef OUT_OF_ORDER
+          result->hWnd = CreateWindowEx(0, windowClass, "",
+              (WS_VISIBLE | WS_SYSMENU /* | WS_THICKFRAME */),
+              (int) xPos, (int) yPos, (int) width, (int) height,
+              to_hwnd(parent_window), NULL, NULL /* hInstance */, NULL);
+#endif
+
           /* printf("hWnd=%lu\n", result->hWnd); */
           if (result->hWnd != NULL) {
+            SetWindowLong(result->hWnd , GWL_STYLE, GetWindowLong(result->hWnd , GWL_STYLE) &~ WS_CAPTION);
+            SetWindowPos(result->hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
             result->hdc = GetDC(result->hWnd);
             /* printf("hdc=%lu\n", result->hdc); */
             result->hasTransparentPixel = FALSE;
             result->transparentPixel = 0;
             result->is_pixmap = FALSE;
-            result->width = width;
-            result->height = height;
+            result->width = (unsigned int) width;
+            result->height = (unsigned int) height;
             result->clear_col = (inttype) RGB(0, 0, 0); /* black */
             result->backup_hdc = CreateCompatibleDC(result->hdc);
-            result->backup = CreateCompatibleBitmap(result->hdc, width, height);
+            result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
             SelectObject(result->backup_hdc, result->backup);
             std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
                 ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                 DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
             SelectObject(result->hdc, std_font);
             SelectObject(result->backup_hdc, std_font);
-            ShowWindow(result->hWnd, SW_SHOWDEFAULT);
+            ShowWindow(result->hWnd, SW_SHOW /*SW_SHOWDEFAULT*/);
             UpdateWindow(result->hWnd);
           } /* if */
-        } /* if */
-        free_cstri(win_name, window_name);
-      } /* if */
-    } /* if */
-#ifdef TRACE_WIN
-    printf("END drwOpen ==> %lu\n", (long unsigned) result);
-#endif
-    return (wintype) result;
-  } /* drwOpen */
-
-
-
-#ifdef ANSI_C
-
-wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
-    inttype width, inttype height)
-#else
-
-wintype drwOpenSubWindow (parent_window, xPos, yPos, width, height)
-const_wintype parent_window;
-inttype xPos;
-inttype yPos;
-inttype width;
-inttype height;
-#endif
-
-  {
-    HFONT std_font;
-    win_wintype result;
-
-  /* drwOpenSubWindow */
-#ifdef TRACE_WIN
-    printf("BEGIN drwOpenSubWindow(%ld, %ld, %ld, %ld)\n",
-        xPos, yPos, width, height);
-#endif
-    result = NULL;
-    if (init_called == 0) {
-      dra_init();
-    } /* if */
-    if (init_called != 0) {
-      if (ALLOC_RECORD(result, win_winrecord, count.win)) {
-        memset(result, 0, sizeof(struct win_winstruct));
-        result->usage_count = 1;
-        result->next = window_list;
-        window_list = result;
-#ifdef OUT_OF_ORDER
-        printf("SM_CXBORDER=%d\n",    GetSystemMetrics(SM_CXBORDER));
-        printf("SM_CYBORDER=%d\n",    GetSystemMetrics(SM_CYBORDER));
-        printf("SM_CXSIZE=%d\n",      GetSystemMetrics(SM_CXSIZE));
-        printf("SM_CYSIZE=%d\n",      GetSystemMetrics(SM_CYSIZE));
-        printf("SM_CXSIZEFRAME=%d\n", GetSystemMetrics(SM_CXSIZEFRAME));
-        printf("SM_CYSIZEFRAME=%d\n", GetSystemMetrics(SM_CYSIZEFRAME));
-        printf("SM_CXEDGE=%d\n",      GetSystemMetrics(SM_CXEDGE));
-        printf("SM_CYEDGE=%d\n",      GetSystemMetrics(SM_CYEDGE));
-        printf("width=%d\n",          width + 2 * GetSystemMetrics(SM_CXSIZEFRAME));
-        printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
-            GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
-        printf("WS_OVERLAPPEDWINDOW = %lx\n", WS_OVERLAPPEDWINDOW);
-        printf("WS_BORDER           = %lx\n", WS_BORDER);
-        printf("WS_THICKFRAME       = %lx\n", WS_THICKFRAME);
-        printf("WS_DLGFRAME         = %lx\n", WS_DLGFRAME);
-        printf("WS_CAPTION          = %lx\n", WS_CAPTION);
-        printf("WS_CHILD            = %lx\n", WS_CHILD);
-#endif
-
-        result->brutto_width_delta = 0;
-        result->brutto_height_delta = 0;
-        result->hWnd = CreateWindow(windowClass, "",
-            WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-            xPos, yPos, width, height,
-            to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
-#ifdef OUT_OF_ORDER
-        result->hWnd = CreateWindowEx(0, windowClass, "",
-            (WS_VISIBLE | WS_SYSMENU /* | WS_THICKFRAME */),
-            xPos, yPos, width, height,
-            to_hwnd(parent_window), NULL, NULL /* hInstance */, NULL);
-#endif
-
-        /* printf("hWnd=%lu\n", result->hWnd); */
-        if (result->hWnd != NULL) {
-          SetWindowLong(result->hWnd , GWL_STYLE, GetWindowLong(result->hWnd , GWL_STYLE) &~ WS_CAPTION);
-          SetWindowPos(result->hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
-          result->hdc = GetDC(result->hWnd);
-          /* printf("hdc=%lu\n", result->hdc); */
-          result->hasTransparentPixel = FALSE;
-          result->transparentPixel = 0;
-          result->is_pixmap = FALSE;
-          result->width = width;
-          result->height = height;
-          result->clear_col = (inttype) RGB(0, 0, 0); /* black */
-          result->backup_hdc = CreateCompatibleDC(result->hdc);
-          result->backup = CreateCompatibleBitmap(result->hdc, width, height);
-          SelectObject(result->backup_hdc, result->backup);
-          std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-              ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-              DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
-          SelectObject(result->hdc, std_font);
-          SelectObject(result->backup_hdc, std_font);
-          ShowWindow(result->hWnd, SW_SHOW /*SW_SHOWDEFAULT*/);
-          UpdateWindow(result->hWnd);
         } /* if */
       } /* if */
     } /* if */
@@ -1983,59 +1694,34 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
 void drwPoint (const_wintype actual_window, inttype x, inttype y)
-#else
-
-void drwPoint (actual_window, x, y)
-wintype actual_window;
-inttype x, y;
-#endif
 
   { /* drwPoint */
-    MoveToEx(to_hdc(actual_window), x, y, NULL);
-    LineTo(to_hdc(actual_window), x + 1, y + 1);
+    MoveToEx(to_hdc(actual_window), castToInt(x), castToInt(y), NULL);
+    LineTo(to_hdc(actual_window), castToInt(x + 1), castToInt(y + 1));
     if (to_backup_hdc(actual_window) != 0) {
-      MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
-      LineTo(to_backup_hdc(actual_window), x + 1, y + 1);
+      MoveToEx(to_backup_hdc(actual_window), castToInt(x), castToInt(y), NULL);
+      LineTo(to_backup_hdc(actual_window), castToInt(x + 1), castToInt(y + 1));
     } /* if */
   } /* drwPoint */
 
 
 
-#ifdef ANSI_C
-
 void drwPPoint (const_wintype actual_window, inttype x, inttype y, inttype col)
-#else
-
-void drwPPoint (actual_window, x, y, col)
-wintype actual_window;
-inttype x, y;
-inttype col;
-#endif
 
   { /* drwPPoint */
 #ifdef TRACE_WIN
     printf("drwPPoint(%lu, %ld, %ld, %lx)\n", actual_window, x, y, col);
 #endif
-    SetPixel(to_hdc(actual_window), x, y, (COLORREF) col);
+    SetPixel(to_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
     if (to_backup_hdc(actual_window) != 0) {
-      SetPixel(to_backup_hdc(actual_window), x, y, (COLORREF) col);
+      SetPixel(to_backup_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
     } /* if */
   } /* drwPPoint */
 
 
 
-#ifdef ANSI_C
-
 void drwConvPointList (bstritype pointList, inttype *xy)
-#else
-
-void drwConvPointList (pointList, xy)
-     bstritype pointList;
-inttype *xy;
-#endif
 
   {
     memsizetype len;
@@ -2055,17 +1741,10 @@ inttype *xy;
 
 
 
-#ifdef ANSI_C
-
 bstritype drwGenPointList (const const_rtlArraytype xyArray)
-#else
-
-bstritype drwGenPointList (xyArray)
-rtlArraytype xyArray;
-#endif
 
   {
-    uinttype num_elements;
+    memsizetype num_elements;
     memsizetype len;
     POINT *points;
     memsizetype pos;
@@ -2073,25 +1752,27 @@ rtlArraytype xyArray;
 
   /* drwGenPointList */
     /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
-    num_elements = (uinttype) (xyArray->max_position - xyArray->min_position) + 1;
+    num_elements = arraySize(xyArray);
     if (num_elements & 1) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (num_elements >> 1 > MAX_BSTRI_LEN / sizeof(POINT)) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
     } else {
-      len = (memsizetype) num_elements >> 1;
-      if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(POINT))) {
+      len = num_elements >> 1;
+      if (len > MAX_BSTRI_LEN / sizeof(POINT) || len > MAX_MEM_INDEX) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-        result->size = len * sizeof(POINT);
-        if (len > 0) {
-          points = (POINT *) result->mem;
-          for (pos = 0; pos < len; pos ++) {
-            points[pos].x = xyArray->arr[ pos << 1     ].value.intvalue;
-            points[pos].y = xyArray->arr[(pos << 1) + 1].value.intvalue;
-          } /* for */
+        if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(POINT))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = len * sizeof(POINT);
+          if (len > 0) {
+            points = (POINT *) result->mem;
+            for (pos = 0; pos < len; pos ++) {
+              points[pos].x = castToLong(xyArray->arr[ pos << 1     ].value.intvalue);
+              points[pos].y = castToLong(xyArray->arr[(pos << 1) + 1].value.intvalue);
+            } /* for */
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -2100,38 +1781,21 @@ rtlArraytype xyArray;
 
 
 
-#ifdef ANSI_C
-
 inttype drwLngPointList (bstritype point_list)
-#else
-
-inttype drwLngPointList (point_list)
-bstritype point_list;
-#endif
 
   { /* drwLngPointList */
-    return point_list->size / sizeof(POINT);
+    return (inttype) (point_list->size / sizeof(POINT));
   } /* drwLngPointList */
 
 
 
-#ifdef ANSI_C
-
 void drwPolyLine (const_wintype actual_window,
     inttype x, inttype y, bstritype point_list, inttype col)
-#else
-
-void drwPolyLine (actual_window, x, y, point_list, col)
-wintype actual_window;
-inttype x, y;
-const_bstritype point_list;
-inttype col;
-#endif
 
   {
     POINT *points;
-    int npoints;
-    int pos;
+    memsizetype npoints;
+    memsizetype pos;
     HPEN old_pen;
     HPEN current_pen;
 
@@ -2166,23 +1830,13 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFPolyLine (const_wintype actual_window,
     inttype x, inttype y, bstritype point_list, inttype col)
-#else
-
-void drwFPolyLine (actual_window, x, y, point_list, col)
-wintype actual_window;
-inttype x, y;
-const_bstritype point_list;
-inttype col;
-#endif
 
   {
     POINT *points;
-    int npoints;
-    int pos;
+    memsizetype npoints;
+    memsizetype pos;
     HPEN old_pen;
     HPEN current_pen;
     HBRUSH old_brush;
@@ -2192,23 +1846,23 @@ inttype col;
     points = (POINT *) point_list->mem;
     npoints = point_list->size / sizeof(POINT);
     for (pos = 0; pos < npoints; pos ++) {
-      points[pos].x += x;
-      points[pos].y += y;
+      points[pos].x += castToInt(x);
+      points[pos].y += castToInt(y);
     } /* for */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    if (current_pen == NULL || current_brush == NULL) {
+    if (current_pen == NULL || current_brush == NULL || !inIntRange(npoints)) {
       raise_error(MEMORY_ERROR);
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      Polygon(to_hdc(actual_window), points, npoints);
+      Polygon(to_hdc(actual_window), points, (int) npoints);
       SelectObject(to_hdc(actual_window), old_pen);
       SelectObject(to_hdc(actual_window), old_brush);
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
-        Polygon(to_backup_hdc(actual_window), points, npoints);
+        Polygon(to_backup_hdc(actual_window), points, (int) npoints);
         SelectObject(to_backup_hdc(actual_window), old_pen);
         SelectObject(to_backup_hdc(actual_window), old_brush);
       } /* if */
@@ -2216,25 +1870,15 @@ inttype col;
       DeleteObject(current_brush);
     } /* if */
     for (pos = 0; pos < npoints; pos ++) {
-      points[pos].x -= x;
-      points[pos].y -= y;
+      points[pos].x -= castToInt(x);
+      points[pos].y -= castToInt(y);
     } /* for */
   } /* drwFPolyLine */
 
 
 
-#ifdef ANSI_C
-
 void drwPut (const_wintype actual_window, const_wintype pixmap,
     inttype x, inttype y)
-#else
-
-void drwPut (actual_window, pixmap, x, y)
-wintype actual_window;
-wintype pixmap;
-inttype x;
-inttype y;
-#endif
 
   { /* drwPut */
     if (pixmap != NULL) {
@@ -2248,11 +1892,11 @@ inttype y;
         } /* if */
       } else {
 #endif
-        BitBlt(to_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
-            to_hdc(pixmap), 0, 0, SRCCOPY);
+        BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
+            (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
         if (to_backup_hdc(actual_window) != 0) {
-          BitBlt(to_backup_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
-              to_hdc(pixmap), 0, 0, SRCCOPY);
+          BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
+              (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
         } /* if */
 #ifdef USE_TRANSPARENTBLT
       } /* if */
@@ -2262,37 +1906,22 @@ inttype y;
 
 
 
-#ifdef ANSI_C
-
 void drwRect (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height)
-#else
-
-void drwRect (actual_window, x, y, width, height)
-wintype actual_window;
-inttype x, y, width, height;
-#endif
 
   { /* drwRect */
-    Rectangle(to_hdc(actual_window), x, y, x + width, y + height);
+    Rectangle(to_hdc(actual_window), castToInt(x), castToInt(y),
+              castToInt(x + width), castToInt(y + height));
     if (to_backup_hdc(actual_window) != 0) {
-      Rectangle(to_backup_hdc(actual_window), x, y, x + width, y + height);
+      Rectangle(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
+                castToInt(x + width), castToInt(y + height));
     } /* if */
   } /* drwRect */
 
 
 
-#ifdef ANSI_C
-
 void drwPRect (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height, inttype col)
-#else
-
-void drwPRect (actual_window, x, y, width, height, col)
-wintype actual_window;
-inttype x, y, width, height;
-inttype col;
-#endif
 
   {
     HPEN old_pen;
@@ -2322,17 +1951,17 @@ inttype col;
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
       if (width == 1) {
         if (height == 1) {
-          SetPixel(to_hdc(actual_window), x, y, (COLORREF) col);
+          SetPixel(to_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
         } else {
-          MoveToEx(to_hdc(actual_window), x, y, NULL);
-          LineTo(to_hdc(actual_window), x, y + height);
+          MoveToEx(to_hdc(actual_window), castToInt(x), castToInt(y), NULL);
+          LineTo(to_hdc(actual_window), castToInt(x), castToInt(y + height));
         } /* if */
       } else {
         if (height == 1) {
-          MoveToEx(to_hdc(actual_window), x, y, NULL);
-          LineTo(to_hdc(actual_window), x + width, y);
+          MoveToEx(to_hdc(actual_window), castToInt(x), castToInt(y), NULL);
+          LineTo(to_hdc(actual_window), castToInt(x + width), castToInt(y));
         } else {
-          Rectangle(to_hdc(actual_window), x, y, x + width, y + height);
+          Rectangle(to_hdc(actual_window), castToInt(x), castToInt(y), castToInt(x + width), castToInt(y + height));
         } /* if */
       } /* if */
       SelectObject(to_hdc(actual_window), old_pen);
@@ -2342,17 +1971,17 @@ inttype col;
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
         if (width == 1) {
           if (height == 1) {
-            SetPixel(to_backup_hdc(actual_window), x, y, (COLORREF) col);
+            SetPixel(to_backup_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
           } else {
-            MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
-            LineTo(to_backup_hdc(actual_window), x, y + height);
+            MoveToEx(to_backup_hdc(actual_window), castToInt(x), castToInt(y), NULL);
+            LineTo(to_backup_hdc(actual_window), castToInt(x), castToInt(y + height));
           } /* if */
         } else {
           if (height == 1) {
-            MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
-            LineTo(to_backup_hdc(actual_window), x + width, y);
+            MoveToEx(to_backup_hdc(actual_window), castToInt(x), castToInt(y), NULL);
+            LineTo(to_backup_hdc(actual_window), castToInt(x + width), castToInt(y));
           } else {
-            Rectangle(to_backup_hdc(actual_window), x, y, x + width, y + height);
+            Rectangle(to_backup_hdc(actual_window), castToInt(x), castToInt(y), castToInt(x + width), castToInt(y + height));
           } /* if */
         } /* if */
         SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -2365,16 +1994,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 inttype drwRgbColor (inttype red_val, inttype green_val, inttype blue_val)
-#else
-
-inttype drwRgbColor (red_val, green_val, blue_val)
-inttype red_val;
-inttype green_val;
-inttype blue_val;
-#endif
 
   { /* drwRgbColor */
 #ifdef TRACE_WIN
@@ -2387,17 +2007,7 @@ inttype blue_val;
 
 
 
-#ifdef ANSI_C
-
 void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val)
-#else
-
-void drwPixelToRgb (col, red_val, green_val, blue_val)
-inttype col;
-inttype *red_val;
-inttype *green_val;
-inttype *blue_val;
-#endif
 
   { /* drwPixelToRgb */
     *red_val   = GetRValue(col) << 8;
@@ -2407,28 +2017,14 @@ inttype *blue_val;
 
 
 
-#ifdef ANSI_C
-
 void drwBackground (inttype col)
-#else
-
-void drwBackground (col)
-inttype col;
-#endif
 
   { /* drwBackground */
   } /* drwBackground */
 
 
 
-#ifdef ANSI_C
-
 void drwColor (inttype col)
-#else
-
-void drwColor (col)
-inttype col;
-#endif
 
   { /* drwColor */
       /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
@@ -2436,15 +2032,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwSetContent (const_wintype actual_window, const_wintype pixmap)
-#else
-
-void drwSetContent (actual_window, pixmap)
-wintype actual_window;
-wintype pixmap;
-#endif
 
   { /* drwSetContent */
     /* printf("begin drwSetContent(%lu, %lu)\n",
@@ -2463,20 +2051,12 @@ wintype pixmap;
 
 
 
-#ifdef ANSI_C
-
 void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
-#else
-
-void drwSetPos (actual_window, xPos, yPos)
-wintype actual_window;
-inttype xPos, yPos;
-#endif
 
   { /* drwSetPos */
     /* printf("begin drwSetPos(%lu, %ld, %ld)\n",
         to_hwnd(actual_window), xPos, yPos); */
-    SetWindowPos(to_hwnd(actual_window), 0, xPos, yPos, 0, 0,
+    SetWindowPos(to_hwnd(actual_window), 0, castToInt(xPos), castToInt(yPos), 0, 0,
         /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
     gkbKeyPressed();
     /* printf("end drwSetPos(%lu, %ld, %ld)\n",
@@ -2485,15 +2065,7 @@ inttype xPos, yPos;
 
 
 
-#ifdef ANSI_C
-
 void drwSetTransparentColor (wintype pixmap, inttype col)
-#else
-
-void drwSetTransparentColor (pixmap, col)
-wintype pixmap;
-inttype col;
-#endif
 
   { /* drwSetTransparentColor */
     to_hasTransparentPixel(pixmap) = TRUE;
@@ -2502,19 +2074,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwText (const_wintype actual_window, inttype x, inttype y,
     const const_stritype stri, inttype col, inttype bkcol)
-#else
-
-void drwText (actual_window, x, y, stri, col, bkcol)
-wintype actual_window;
-inttype x, y;
-stritype stri;
-inttype col;
-inttype bkcol;
-#endif
 
   {
     wchar_t *stri_buffer;
@@ -2539,12 +2100,12 @@ inttype bkcol;
       SetTextColor(to_hdc(actual_window), (COLORREF) col);
       SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
       SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
-      TextOutW(to_hdc(actual_window), x, y, stri_buffer, stri->size);
+      TextOutW(to_hdc(actual_window), castToInt(x), castToInt(y), stri_buffer, stri->size);
       if (to_backup_hdc(actual_window) != 0) {
         SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
         SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
         SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
-        TextOutW(to_backup_hdc(actual_window), x, y, stri_buffer, stri->size);
+        TextOutW(to_backup_hdc(actual_window), castToInt(x), castToInt(y), stri_buffer, stri->size);
       } /* if */
       free(stri_buffer);
     } /* if */
@@ -2552,14 +2113,7 @@ inttype bkcol;
 
 
 
-#ifdef ANSI_C
-
 void drwToBottom (const_wintype actual_window)
-#else
-
-void drwToBottom (actual_window)
-wintype actual_window;
-#endif
 
   { /* drwToBottom */
     /* printf("begin drwToBottom(%lu)\n", to_window(actual_window)); */
@@ -2570,14 +2124,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 void drwToTop (const_wintype actual_window)
-#else
-
-void drwToTop (actual_window)
-wintype actual_window;
-#endif
 
   { /* drwToTop */
     /* printf("begin drwToTop(%lu)\n", to_window(actual_window)); */
@@ -2588,14 +2135,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 inttype drwWidth (const_wintype actual_window)
-#else
-
-inttype drwWidth (actual_window)
-wintype actual_window;
-#endif
 
   {
     RECT rect;
@@ -2603,23 +2143,17 @@ wintype actual_window;
 
   /* drwWidth */
     if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
-      result = to_width(actual_window);
+      result = (inttype) to_width(actual_window);
     } else {
-      result = rect.right - rect.left - to_brutto_width_delta(actual_window);
+      result = (inttype) ((unsigned int) (rect.right - rect.left) -
+                          to_brutto_width_delta(actual_window));
     } /* if */
     return result;
   } /* drwWidth */
 
 
 
-#ifdef ANSI_C
-
 inttype drwXPos (const_wintype actual_window)
-#else
-
-inttype drwXPos (actual_window)
-wintype actual_window;
-#endif
 
   {
     RECT rect;
@@ -2641,14 +2175,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 inttype drwYPos (const_wintype actual_window)
-#else
-
-inttype drwYPos (actual_window)
-wintype actual_window;
-#endif
 
   {
     RECT rect;

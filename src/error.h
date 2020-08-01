@@ -83,8 +83,6 @@ typedef enum {OUT_OF_HEAP_SPACE,
     EVAL_TYPE_FAILED} errortype;
 
 
-#ifdef ANSI_C
-
 void place_of_error (errortype err);
 void err_warning (errortype err);
 void err_num_stri (errortype err, int num_found, int num_expected,
@@ -104,24 +102,3 @@ void err_at_line (errortype err, linenumtype line);
 void err_undeclared (errortype err, filenumtype file_num,
                      linenumtype line, const_ustritype stri);
 void err_message (errortype err, const_stritype stri);
-
-#else
-
-void place_of_error ();
-void err_warning ();
-void err_num_stri ();
-void err_ident ();
-void err_object ();
-void err_type ();
-void err_expr_obj ();
-void err_match ();
-void err_string ();
-void err_stri ();
-void err_integer ();
-void err_cchar ();
-void err_char ();
-void err_at_line ();
-void err_undeclared ();
-void err_message ();
-
-#endif

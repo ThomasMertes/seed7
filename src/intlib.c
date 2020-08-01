@@ -62,14 +62,7 @@ static inttype fact[] = {
  *  Used for all types that require no special action to
  *  destroy the data.
  */
-#ifdef ANSI_C
-
 objecttype gen_destr (listtype arguments)
-#else
-
-objecttype gen_destr (arguments)
-listtype arguments;
-#endif
 
   { /* gen_destr */
     SET_UNUSED_FLAG(arg_1(arguments));
@@ -78,14 +71,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_abs (listtype arguments)
-#else
-
-objecttype int_abs (arguments)
-listtype arguments;
-#endif
 
   {
     inttype number;
@@ -101,14 +87,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_add (listtype arguments)
-#else
-
-objecttype int_add (arguments)
-listtype arguments;
-#endif
 
   { /* int_add */
     isit_int(arg_1(arguments));
@@ -119,14 +98,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_binom (listtype arguments)
-#else
-
-objecttype int_binom (arguments)
-listtype arguments;
-#endif
 
   { /* int_binom */
     isit_int(arg_1(arguments));
@@ -137,14 +109,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_bit_length (listtype arguments)
-#else
-
-objecttype int_bit_length (arguments)
-listtype arguments;
-#endif
 
   { /* int_bit_length */
     isit_int(arg_1(arguments));
@@ -154,14 +119,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_cmp (listtype arguments)
-#else
-
-objecttype int_cmp (arguments)
-listtype arguments;
-#endif
 
   {
     inttype number1;
@@ -185,14 +143,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_conv (listtype arguments)
-#else
-
-objecttype int_conv (arguments)
-listtype arguments;
-#endif
 
   { /* int_conv */
     isit_int(arg_3(arguments));
@@ -201,14 +152,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_cpy (listtype arguments)
-#else
-
-objecttype int_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -224,14 +168,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_create (listtype arguments)
-#else
-
-objecttype int_create (arguments)
-listtype arguments;
-#endif
 
   { /* int_create */
     isit_int(arg_3(arguments));
@@ -242,14 +179,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_decr (listtype arguments)
-#else
-
-objecttype int_decr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -264,14 +194,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_div (listtype arguments)
-#else
-
-objecttype int_div (arguments)
-listtype arguments;
-#endif
 
   {
     inttype divisor;
@@ -290,14 +213,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_eq (listtype arguments)
-#else
-
-objecttype int_eq (arguments)
-listtype arguments;
-#endif
 
   { /* int_eq */
     isit_int(arg_1(arguments));
@@ -312,14 +228,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_fact (listtype arguments)
-#else
-
-objecttype int_fact (arguments)
-listtype arguments;
-#endif
 
   {
     int number;
@@ -336,14 +245,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_ge (listtype arguments)
-#else
-
-objecttype int_ge (arguments)
-listtype arguments;
-#endif
 
   { /* int_ge */
     isit_int(arg_1(arguments));
@@ -358,14 +260,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_grow (listtype arguments)
-#else
-
-objecttype int_grow (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -381,14 +276,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_gt (listtype arguments)
-#else
-
-objecttype int_gt (arguments)
-listtype arguments;
-#endif
 
   { /* int_gt */
     isit_int(arg_1(arguments));
@@ -403,14 +291,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_hashcode (listtype arguments)
-#else
-
-objecttype int_hashcode (arguments)
-listtype arguments;
-#endif
 
   { /* int_hashcode */
     isit_int(arg_1(arguments));
@@ -419,14 +300,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_incr (listtype arguments)
-#else
-
-objecttype int_incr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -441,14 +315,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_le (listtype arguments)
-#else
-
-objecttype int_le (arguments)
-listtype arguments;
-#endif
 
   { /* int_le */
     isit_int(arg_1(arguments));
@@ -463,14 +330,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_log2 (listtype arguments)
-#else
-
-objecttype int_log2 (arguments)
-listtype arguments;
-#endif
 
   { /* int_log2 */
     isit_int(arg_1(arguments));
@@ -480,14 +340,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_lowest_set_bit (listtype arguments)
-#else
-
-objecttype int_lowest_set_bit (arguments)
-listtype arguments;
-#endif
 
   { /* int_lowest_set_bit */
     isit_int(arg_1(arguments));
@@ -497,14 +350,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_lpad0 (listtype arguments)
-#else
-
-objecttype int_lpad0 (arguments)
-listtype arguments;
-#endif
 
   { /* int_lpad0 */
     isit_int(arg_1(arguments));
@@ -515,14 +361,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_lshift (listtype arguments)
-#else
-
-objecttype int_lshift (arguments)
-listtype arguments;
-#endif
 
   { /* int_lshift */
     isit_int(arg_1(arguments));
@@ -533,14 +372,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_lshift_assign (listtype arguments)
-#else
-
-objecttype int_lshift_assign (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -556,14 +388,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_lt (listtype arguments)
-#else
-
-objecttype int_lt (arguments)
-listtype arguments;
-#endif
 
   { /* int_lt */
     isit_int(arg_1(arguments));
@@ -578,14 +403,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_mdiv (listtype arguments)
-#else
-
-objecttype int_mdiv (arguments)
-listtype arguments;
-#endif
 
   {
     inttype dividend;
@@ -613,14 +431,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_minus (listtype arguments)
-#else
-
-objecttype int_minus (arguments)
-listtype arguments;
-#endif
 
   { /* int_minus */
     isit_int(arg_2(arguments));
@@ -630,14 +441,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_mod (listtype arguments)
-#else
-
-objecttype int_mod (arguments)
-listtype arguments;
-#endif
 
   {
     inttype dividend;
@@ -662,14 +466,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_mult (listtype arguments)
-#else
-
-objecttype int_mult (arguments)
-listtype arguments;
-#endif
 
   { /* int_mult */
     isit_int(arg_1(arguments));
@@ -680,14 +477,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_mult_assign (listtype arguments)
-#else
-
-objecttype int_mult_assign (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -703,14 +493,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_ne (listtype arguments)
-#else
-
-objecttype int_ne (arguments)
-listtype arguments;
-#endif
 
   { /* int_ne */
     isit_int(arg_1(arguments));
@@ -725,14 +508,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_odd (listtype arguments)
-#else
-
-objecttype int_odd (arguments)
-listtype arguments;
-#endif
 
   { /* int_odd */
     isit_int(arg_1(arguments));
@@ -745,14 +521,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_ord (listtype arguments)
-#else
-
-objecttype int_ord (arguments)
-listtype arguments;
-#endif
 
   { /* int_ord */
     isit_int(arg_1(arguments));
@@ -761,14 +530,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_parse (listtype arguments)
-#else
-
-objecttype int_parse (arguments)
-listtype arguments;
-#endif
 
   { /* int_parse */
     isit_stri(arg_3(arguments));
@@ -778,14 +540,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_plus (listtype arguments)
-#else
-
-objecttype int_plus (arguments)
-listtype arguments;
-#endif
 
   { /* int_plus */
     isit_int(arg_2(arguments));
@@ -794,14 +549,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_pow (listtype arguments)
-#else
-
-objecttype int_pow (arguments)
-listtype arguments;
-#endif
 
   { /* int_pow */
     isit_int(arg_1(arguments));
@@ -812,14 +560,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_pred (listtype arguments)
-#else
-
-objecttype int_pred (arguments)
-listtype arguments;
-#endif
 
   { /* int_pred */
     isit_int(arg_1(arguments));
@@ -828,14 +569,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_radix (listtype arguments)
-#else
-
-objecttype int_radix (arguments)
-listtype arguments;
-#endif
 
   { /* int_radix */
     isit_int(arg_1(arguments));
@@ -846,14 +580,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_RADIX (listtype arguments)
-#else
-
-objecttype int_RADIX (arguments)
-listtype arguments;
-#endif
 
   { /* int_RADIX */
     isit_int(arg_1(arguments));
@@ -864,14 +591,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_rand (listtype arguments)
-#else
-
-objecttype int_rand (arguments)
-listtype arguments;
-#endif
 
   { /* int_rand */
     isit_int(arg_1(arguments));
@@ -882,14 +602,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_rem (listtype arguments)
-#else
-
-objecttype int_rem (arguments)
-listtype arguments;
-#endif
 
   {
     inttype divisor;
@@ -908,14 +621,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_rshift (listtype arguments)
-#else
-
-objecttype int_rshift (arguments)
-listtype arguments;
-#endif
 
   { /* int_rshift */
     isit_int(arg_1(arguments));
@@ -939,14 +645,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_rshift_assign (listtype arguments)
-#else
-
-objecttype int_rshift_assign (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -972,14 +671,7 @@ listtype arguments;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 objecttype int_urshift (listtype arguments)
-#else
-
-objecttype int_urshift (arguments)
-listtype arguments;
-#endif
 
   { /* int_urshift */
     isit_int(arg_1(arguments));
@@ -992,14 +684,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_sbtr (listtype arguments)
-#else
-
-objecttype int_sbtr (arguments)
-listtype arguments;
-#endif
 
   { /* int_sbtr */
     isit_int(arg_1(arguments));
@@ -1010,14 +695,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_shrink (listtype arguments)
-#else
-
-objecttype int_shrink (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype int_variable;
@@ -1033,14 +711,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_sqrt (listtype arguments)
-#else
-
-objecttype int_sqrt (arguments)
-listtype arguments;
-#endif
 
   { /* int_sqrt */
     isit_int(arg_1(arguments));
@@ -1050,14 +721,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_str (listtype arguments)
-#else
-
-objecttype int_str (arguments)
-listtype arguments;
-#endif
 
   { /* int_str */
     isit_int(arg_1(arguments));
@@ -1067,14 +731,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_succ (listtype arguments)
-#else
-
-objecttype int_succ (arguments)
-listtype arguments;
-#endif
 
   { /* int_succ */
     isit_int(arg_1(arguments));
@@ -1083,14 +740,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype int_value (listtype arguments)
-#else
-
-objecttype int_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

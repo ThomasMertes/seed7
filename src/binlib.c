@@ -42,14 +42,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype bin_and (listtype arguments)
-#else
-
-objecttype bin_and (arguments)
-listtype arguments;
-#endif
 
   { /* bin_and */
     isit_bigint(arg_1(arguments));
@@ -60,14 +53,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bin_or (listtype arguments)
-#else
-
-objecttype bin_or (arguments)
-listtype arguments;
-#endif
 
   { /* bin_or */
     isit_bigint(arg_1(arguments));
@@ -78,14 +64,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bin_xor (listtype arguments)
-#else
-
-objecttype bin_xor (arguments)
-listtype arguments;
-#endif
 
   { /* bin_xor */
     isit_bigint(arg_1(arguments));

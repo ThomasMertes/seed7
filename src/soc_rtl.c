@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  soc_rtl.c     Primitive actions for the socket type.            */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/soc_rtl.c                                       */
-/*  Changes: 2007, 2011  Thomas Mertes                              */
+/*  Changes: 2007, 2011, 2013  Thomas Mertes                        */
 /*  Content: Primitive actions for the socket type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -104,13 +104,7 @@ static booltype initialized = FALSE;
 
 
 #ifdef USE_WINSOCK
-#ifdef ANSI_C
-
 static int init_winsock (void)
-#else
-
-static int init_winsock ()
-#endif
 
   {
     WORD wVersionRequested;
@@ -142,17 +136,8 @@ static int init_winsock ()
 
 
 #ifdef USE_GETADDRINFO
-#ifdef ANSI_C
-
 static struct addrinfo *select_addrinfo (struct addrinfo *addrinfo_list,
     int addr_family1, int addr_family2)
-#else
-
-static struct addrinfo *select_addrinfo (addrinfo_list, addr_family1, addr_family2)
-struct addrinfo *addrinfo_list;
-int addr_family1;
-int addr_family2;
-#endif
 
   {
     struct addrinfo *current_addrinfo;
@@ -210,14 +195,7 @@ int addr_family2;
 
 
 #ifdef DUMP_ADDRINFO
-#ifdef ANSI_C
-
 static void dump_addrinfo (struct addrinfo *addrinfo_list)
-#else
-
-static void dump_addrinfo (addrinfo_list)
-struct addrinfo *addrinfo_list;
-#endif
 
   {
     struct addrinfo *addr;
@@ -270,15 +248,7 @@ struct addrinfo *addrinfo_list;
 
 
 
-#ifdef ANSI_C
-
 sockettype socAccept (sockettype sock, bstritype *address)
-#else
-
-sockettype socAccept (sock, address)
-sockettype sock;
-bstritype *address;
-#endif
 
   {
     memsizetype old_address_size;
@@ -329,14 +299,7 @@ bstritype *address;
 
 
 
-#ifdef ANSI_C
-
 inttype socAddrFamily (const const_bstritype address)
-#else
-
-inttype socAddrFamily (address)
-bstritype address;
-#endif
 
   {
     const struct sockaddr *addr;
@@ -356,14 +319,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 stritype socAddrNumeric (const const_bstritype address)
-#else
-
-stritype socAddrNumeric (address)
-bstritype address;
-#endif
 
   {
     const struct sockaddr *addr;
@@ -426,14 +382,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 stritype socAddrService (const const_bstritype address)
-#else
-
-stritype socAddrService (address)
-bstritype address;
-#endif
 
   {
     const struct sockaddr *addr;
@@ -483,15 +432,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 void socBind (sockettype sock, const_bstritype address)
-#else
-
-void socBind (sock, address)
-sockettype sock;
-bstritype address;
-#endif
 
   { /* socBind */
     /* printf("socBind(%u, ", sock);
@@ -507,14 +448,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 void socClose (sockettype sock)
-#else
-
-void socClose (sock)
-sockettype sock;
-#endif
 
   { /* socClose */
     shutdown(sock, SHUT_RDWR);
@@ -527,15 +461,7 @@ sockettype sock;
 
 
 
-#ifdef ANSI_C
-
 void socConnect (sockettype sock, const_bstritype address)
-#else
-
-void socConnect (sock, address)
-sockettype sock;
-bstritype address;
-#endif
 
   { /* socConnect */
     /* printf("socConnect(%u, ", sock);
@@ -559,15 +485,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 chartype socGetc (sockettype sock, chartype *const eofIndicator)
-#else
-
-chartype socGetc (sock, eofIndicator)
-sockettype sock;
-chartype *eofIndicator;
-#endif
 
   {
     unsigned char ch;
@@ -585,16 +503,7 @@ chartype *eofIndicator;
 
 
 
-#ifdef ANSI_C
-
 stritype socGets (sockettype sock, inttype length, chartype *const eofIndicator)
-#else
-
-stritype socGets (sock, length, eofIndicator)
-sockettype sock;
-inttype length;
-chartype *eofIndicator;
-#endif
 
   {
     memsizetype bytes_requested;
@@ -683,14 +592,7 @@ chartype *eofIndicator;
 
 
 
-#ifdef ANSI_C
-
 bstritype socGetAddr (sockettype sock)
-#else
-
-bstritype socGetAddr (sock)
-sockettype sock;
-#endif
 
   {
     socklen_type addrlen;
@@ -725,13 +627,7 @@ sockettype sock;
 
 
 
-#ifdef ANSI_C
-
 stritype socGetHostname (void)
-#else
-
-stritype socGetHostname ()
-#endif
 
   {
     char name[1024];
@@ -750,14 +646,7 @@ stritype socGetHostname ()
 
 
 
-#ifdef ANSI_C
-
 booltype socHasNext (sockettype sock)
-#else
-
-booltype socHasNext (sock)
-sockettype sock;
-#endif
 
   {
     unsigned char next_char;
@@ -778,15 +667,7 @@ sockettype sock;
 
 
 
-#ifdef ANSI_C
-
 bstritype socInetAddr (const const_stritype host_name, inttype port)
-#else
-
-bstritype socInetAddr (host_name, port)
-stritype host_name;
-inttype port;
-#endif
 
   {
     cstritype name;
@@ -935,14 +816,7 @@ inttype port;
 
 
 
-#ifdef ANSI_C
-
 bstritype socInetLocalAddr (inttype port)
-#else
-
-bstritype socInetLocalAddr (port)
-inttype port;
-#endif
 
   {
 #ifdef USE_GETADDRINFO
@@ -1004,14 +878,7 @@ inttype port;
 
 
 
-#ifdef ANSI_C
-
 bstritype socInetServAddr (inttype port)
-#else
-
-bstritype socInetServAddr (port)
-inttype port;
-#endif
 
   {
 #ifdef USE_GETADDRINFO
@@ -1093,16 +960,7 @@ inttype port;
 
 
 #ifdef HAS_POLL
-#ifdef ANSI_C
-
 booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
-#else
-
-booltype socInputReady (sock, seconds, micro_seconds)
-sockettype sock;
-inttype seconds;
-inttype micro_seconds;
-#endif
 
   {
     struct pollfd pollFd[1];
@@ -1112,20 +970,25 @@ inttype micro_seconds;
     booltype result;
 
   /* socInputReady */
-    pollFd[0].fd = (int) sock;
-    pollFd[0].events = POLLIN;
-    poll_result = os_poll(pollFd, 1, 0);
-    if (unlikely(poll_result < 0)) {
-      raise_error(FILE_ERROR);
+    if (unlikely(seconds >= INT_MAX / 1000 || micro_seconds < 0 || micro_seconds >= 1000000)) {
+      raise_error(RANGE_ERROR);
       result = FALSE;
     } else {
-      result = poll_result == 1 && (pollFd[0].revents & POLLIN);
-      if (result) {
-        /* Verify that it is really possible to read at least one character */
-        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
-        if (bytes_received != 1) {
-          /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
-          result = FALSE;
+      pollFd[0].fd = (int) sock;
+      pollFd[0].events = POLLIN;
+      poll_result = os_poll(pollFd, 1, seconds * 1000 + micro_seconds / 1000);
+      if (unlikely(poll_result < 0)) {
+        raise_error(FILE_ERROR);
+        result = FALSE;
+      } else {
+        result = poll_result == 1 && (pollFd[0].revents & POLLIN);
+        if (result) {
+          /* Verify that it is really possible to read at least one character */
+          bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
+          if (bytes_received != 1) {
+            /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
+            result = FALSE;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -1136,16 +999,7 @@ inttype micro_seconds;
 
 
 
-#ifdef ANSI_C
-
 booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
-#else
-
-booltype socInputReady (sock, seconds, micro_seconds)
-sockettype sock;
-inttype seconds;
-inttype micro_seconds;
-#endif
 
   {
     int nfds;
@@ -1157,25 +1011,30 @@ inttype micro_seconds;
     booltype result;
 
   /* socInputReady */
-    FD_ZERO(&readfds);
-    FD_SET(sock, &readfds);
-    nfds = (int) sock + 1;
-    timeout.tv_sec = seconds;
-    timeout.tv_usec = micro_seconds;
-    /* printf("select(%d, %d)\n", nfds, sock); */
-    select_result = select(nfds, &readfds, NULL, NULL, &timeout);
-    /* printf("select_result: %d\n", select_result); */
-    if (unlikely(select_result < 0)) {
-      raise_error(FILE_ERROR);
+    if (unlikely(!inLongRange(seconds) || micro_seconds < 0 || micro_seconds >= 1000000)) {
+      raise_error(RANGE_ERROR);
       result = FALSE;
     } else {
-      result = FD_ISSET(sock, &readfds);
-      if (result) {
-        /* Verify that it is really possible to read at least one character */
-        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
-        if (bytes_received != 1) {
-          /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
-          result = FALSE;
+      FD_ZERO(&readfds);
+      FD_SET(sock, &readfds);
+      nfds = (int) sock + 1;
+      timeout.tv_sec = (long int) seconds;
+      timeout.tv_usec = (long int) micro_seconds;
+      /* printf("select(%d, %d)\n", nfds, sock); */
+      select_result = select(nfds, &readfds, NULL, NULL, &timeout);
+      /* printf("select_result: %d\n", select_result); */
+      if (unlikely(select_result < 0)) {
+        raise_error(FILE_ERROR);
+        result = FALSE;
+      } else {
+        result = FD_ISSET(sock, &readfds);
+        if (result) {
+          /* Verify that it is really possible to read at least one character */
+          bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
+          if (bytes_received != 1) {
+            /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
+            result = FALSE;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -1189,15 +1048,7 @@ inttype micro_seconds;
 #define BUFFER_START_SIZE 256
 #define BUFFER_DELTA_SIZE 256
 
-#ifdef ANSI_C
-
 stritype socLineRead (sockettype sock, chartype *const terminationChar)
-#else
-
-stritype socLineRead (sock, terminationChar)
-sockettype sock;
-chartype *terminationChar;
-#endif
 
   {
     memsizetype bytes_received;
@@ -1355,15 +1206,7 @@ chartype *terminationChar;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 stritype socLineRead (sockettype sock, chartype *const terminationChar)
-#else
-
-stritype socLineRead (sock, terminationChar)
-sockettype sock;
-chartype *terminationChar;
-#endif
 
   {
     unsigned char ch;
@@ -1426,15 +1269,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 void socListen (sockettype sock, inttype backlog)
-#else
-
-void socListen (sock, backlog)
-sockettype sock;
-inttype backlog;
-#endif
 
   { /* socListen */
     if (!inIntRange(backlog)) {
@@ -1457,17 +1292,7 @@ inttype backlog;
 
 
 
-#ifdef ANSI_C
-
 inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
-#else
-
-inttype socRecv (sock, stri, length, flags)
-sockettype sock;
-stritype *stri;
-inttype length;
-inttype flags;
-#endif
 
   {
     stritype resized_stri;
@@ -1523,19 +1348,8 @@ inttype flags;
 
 
 
-#ifdef ANSI_C
-
 inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype flags,
     bstritype *address)
-#else
-
-inttype socRecvfrom (sock, stri, length, flags, address)
-sockettype sock;
-stritype *stri;
-inttype length;
-inttype flags;
-bstritype *address;
-#endif
 
   {
     stritype resized_stri;
@@ -1630,16 +1444,7 @@ bstritype *address;
 
 
 
-#ifdef ANSI_C
-
 inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
-#else
-
-inttype socSend (sock, stri, flags)
-sockettype sock;
-stritype stri;
-inttype flags;
-#endif
 
   {
     bstritype buf;
@@ -1672,18 +1477,8 @@ inttype flags;
 
 
 
-#ifdef ANSI_C
-
 inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
     const_bstritype address)
-#else
-
-inttype socSendto (sock, stri, flags, address)
-sockettype sock;
-stritype stri;
-inttype flags;
-bstritype address;
-#endif
 
   {
     bstritype buf;
@@ -1718,16 +1513,7 @@ bstritype address;
 
 
 
-#ifdef ANSI_C
-
 sockettype socSocket (inttype domain, inttype type, inttype protocol)
-#else
-
-sockettype socSocket (domain, type, protocol)
-inttype domain;
-inttype type;
-inttype protocol;
-#endif
 
   {
     sockettype result;
@@ -1735,6 +1521,7 @@ inttype protocol;
   /* socSocket */
     if (!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol)) {
       raise_error(RANGE_ERROR);
+      result = 0;
     } else {
       /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
       check_initialization((sockettype) -1);
@@ -1753,15 +1540,7 @@ inttype protocol;
 
 
 
-#ifdef ANSI_C
-
 stritype socWordRead (sockettype sock, chartype *const terminationChar)
-#else
-
-stritype socWordRead (sock, terminationChar)
-sockettype sock;
-chartype *terminationChar;
-#endif
 
   {
     unsigned char ch;
@@ -1826,15 +1605,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 void socWrite (sockettype sock, const const_stritype stri)
-#else
-
-void socWrite (sock, stri)
-sockettype sock;
-stritype stri;
-#endif
 
   {
     memsizetype bytes_sent;

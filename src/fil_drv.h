@@ -30,12 +30,4 @@
 /********************************************************************/
 
 
-#ifdef ANSI_C
-
 booltype filInputReady (filetype aFile);
-
-#else
-
-booltype filInputReady ();
-
-#endif

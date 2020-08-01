@@ -38,20 +38,8 @@ EXTERN identtype current_ident;
 #define find_eof_ident()     current_ident = prog.ident.end_of_file
 
 
-#ifdef ANSI_C
-
 void find_normal_ident (sysizetype length);
 void check_list_of_syntax_elements (const_listtype elem_list);
 void clean_idents (void);
 void write_idents (void);
 void init_findid (errinfotype *err_info);
-
-#else
-
-void find_normal_ident ();
-void check_list_of_syntax_elements ();
-void clean_idents ();
-void write_idents ();
-void init_findid ();
-
-#endif

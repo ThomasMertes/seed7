@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype gen_destr          (listtype arguments);
 objecttype int_abs            (listtype arguments);
 objecttype int_add            (listtype arguments);
@@ -76,57 +74,3 @@ objecttype int_sqrt           (listtype arguments);
 objecttype int_str            (listtype arguments);
 objecttype int_succ           (listtype arguments);
 objecttype int_value          (listtype arguments);
-
-#else
-
-objecttype gen_destr ();
-objecttype int_abs ();
-objecttype int_add ();
-objecttype int_binom ();
-objecttype int_bit_length ();
-objecttype int_cmp ();
-objecttype int_conv ();
-objecttype int_cpy ();
-objecttype int_create ();
-objecttype int_decr ();
-objecttype int_div ();
-objecttype int_eq ();
-objecttype int_fact ();
-objecttype int_ge ();
-objecttype int_grow ();
-objecttype int_gt ();
-objecttype int_hashcode ();
-objecttype int_incr ();
-objecttype int_le ();
-objecttype int_log2 ();
-objecttype int_lowest_set_bit ();
-objecttype int_lpad0 ();
-objecttype int_lshift ();
-objecttype int_lshift_assign ();
-objecttype int_lt ();
-objecttype int_mdiv ();
-objecttype int_minus ();
-objecttype int_mod ();
-objecttype int_mult ();
-objecttype int_mult_assign ();
-objecttype int_ne ();
-objecttype int_odd ();
-objecttype int_ord ();
-objecttype int_parse ();
-objecttype int_plus ();
-objecttype int_pow ();
-objecttype int_pred ();
-objecttype int_radix ();
-objecttype int_RADIX ();
-objecttype int_rand ();
-objecttype int_rem ();
-objecttype int_rshift ();
-objecttype int_rshift_assign ();
-objecttype int_sbtr ();
-objecttype int_shrink ();
-objecttype int_sqrt ();
-objecttype int_str ();
-objecttype int_succ ();
-objecttype int_value ();
-
-#endif

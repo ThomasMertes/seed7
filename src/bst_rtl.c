@@ -47,15 +47,7 @@
 
 
 
-#ifdef ANSI_C
-
 void bstAppend (bstritype *const bstri_to, const_bstritype bstri_from)
-#else
-
-void bstAppend (bstri_to, bstri_from)
-bstritype *bstri_to;
-bstritype bstri_from;
-#endif
 
   {
     memsizetype new_size;
@@ -90,15 +82,7 @@ bstritype bstri_from;
 
 
 
-#ifdef ANSI_C
-
 bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2)
-#else
-
-bstritype bstCat (bstri1, bstri2)
-bstritype bstri1;
-bstritype bstri2;
-#endif
 
   {
     memsizetype result_size;
@@ -126,15 +110,7 @@ bstritype bstri2;
 
 
 
-#ifdef ANSI_C
-
 inttype bstCmp (const const_bstritype bstri1, const const_bstritype bstri2)
-#else
-
-inttype bstCmp (bstri1, bstri2)
-bstritype bstri1;
-bstritype bstri2;
-#endif
 
   {
     inttype result;
@@ -171,15 +147,7 @@ bstritype bstri2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(bstritype).
  */
-#ifdef ANSI_C
-
 inttype bstCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype bstCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* bstCmpGeneric */
     return bstCmp((const_bstritype) (memsizetype) value1,
@@ -188,15 +156,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 void bstCpy (bstritype *const bstri_to, const const_bstritype bstri_from)
-#else
-
-void bstCpy (bstri_to, bstri_from)
-bstritype *bstri_to;
-bstritype bstri_from;
-#endif
 
   {
     memsizetype new_size;
@@ -225,14 +185,7 @@ bstritype bstri_from;
 
 
 
-#ifdef ANSI_C
-
 bstritype bstCreate (const const_bstritype bstri_from)
-#else
-
-bstritype bstCreate (bstri_from)
-bstritype bstri_from;
-#endif
 
   {
     memsizetype new_size;
@@ -258,14 +211,7 @@ bstritype bstri_from;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(bstritype).
  */
-#ifdef ANSI_C
-
 rtlGenerictype bstCreateGeneric (const rtlGenerictype from_value)
-#else
-
-rtlGenerictype bstCreateGeneric (from_value)
-rtlGenerictype from_value;
-#endif
 
   { /* bstCreateGeneric */
     return (rtlGenerictype) (memsizetype)
@@ -274,14 +220,7 @@ rtlGenerictype from_value;
 
 
 
-#ifdef ANSI_C
-
 void bstDestr (const const_bstritype old_bstring)
-#else
-
-void bstDestr (old_bstring)
-bstritype old_bstring;
-#endif
 
   { /* bstDestr */
     if (old_bstring != NULL) {
@@ -291,14 +230,7 @@ bstritype old_bstring;
 
 
 
-#ifdef ANSI_C
-
 inttype bstHashCode (const const_bstritype bstri)
-#else
-
-inttype bstHashCode (bstri)
-bstritype bstri;
-#endif
 
   {
     inttype result;
@@ -315,14 +247,7 @@ bstritype bstri;
 
 
 
-#ifdef ANSI_C
-
 bstritype bstParse (const const_stritype stri)
-#else
-
-bstritype bstParse (stri)
-stritype stri;
-#endif
 
   {
     memsizetype len;
@@ -353,14 +278,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 stritype bstStr (const const_bstritype bstri)
-#else
-
-stritype bstStr (bstri)
-bstritype bstri;
-#endif
 
   {
     stritype result;
@@ -377,15 +295,7 @@ bstritype bstri;
 
 
 
-#ifdef ANSI_C
-
 bstritype bstTail (const const_bstritype stri, inttype start)
-#else
-
-bstritype bstTail (stri, start)
-bstritype stri;
-inttype start;
-#endif
 
   {
     memsizetype length;

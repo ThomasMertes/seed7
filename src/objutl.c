@@ -59,14 +59,7 @@
 
 
 #ifdef WITH_TYPE_CHECK
-#ifdef ANSI_C
-
 void isit_bool (objecttype argument)
-#else
-
-void isit_bool (argument)
-objecttype argument;
-#endif
 
   {
     objecttype arg;
@@ -91,14 +84,7 @@ objecttype argument;
 
 
 
-#ifdef ANSI_C
-
 void isit_enum (objecttype argument)
-#else
-
-void isit_enum (argument)
-objecttype argument;
-#endif
 
   { /* isit_enum */
     if ((CATEGORY_OF_OBJ(argument) != ENUMLITERALOBJECT &&
@@ -110,14 +96,7 @@ objecttype argument;
 
 
 
-#ifdef ANSI_C
-
 void isit_list (objecttype argument)
-#else
-
-void isit_list (argument)
-objecttype argument;
-#endif
 
   { /* isit_list */
     if (CATEGORY_OF_OBJ(argument) != LISTOBJECT &&
@@ -129,14 +108,7 @@ objecttype argument;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_action_temp (acttype temp_action)
-#else
-
-objecttype bld_action_temp (temp_action)
-acttype temp_action;
-#endif
 
   {
     register objecttype result;
@@ -155,14 +127,7 @@ acttype temp_action;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_array_temp (arraytype temp_array)
-#else
-
-objecttype bld_array_temp (temp_array)
-arraytype temp_array;
-#endif
 
   {
     register objecttype result;
@@ -181,14 +146,7 @@ arraytype temp_array;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_bigint_temp (biginttype temp_bigint)
-#else
-
-objecttype bld_bigint_temp (temp_bigint)
-biginttype temp_bigint;
-#endif
 
   {
     register objecttype result;
@@ -207,14 +165,7 @@ biginttype temp_bigint;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_block_temp (blocktype temp_block)
-#else
-
-objecttype bld_block_temp (temp_block)
-blocktype temp_block;
-#endif
 
   {
     register objecttype result;
@@ -233,14 +184,7 @@ blocktype temp_block;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_bstri_temp (bstritype temp_bstri)
-#else
-
-objecttype bld_bstri_temp (temp_bstri)
-bstritype temp_bstri;
-#endif
 
   {
     register objecttype result;
@@ -259,14 +203,7 @@ bstritype temp_bstri;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_char_temp (chartype temp_char)
-#else
-
-objecttype bld_char_temp (temp_char)
-chartype temp_char;
-#endif
 
   {
     register objecttype result;
@@ -285,14 +222,7 @@ chartype temp_char;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_database_temp (databasetype temp_database)
-#else
-
-objecttype bld_database_temp (temp_database)
-databasetype temp_database;
-#endif
 
   {
     register objecttype result;
@@ -311,14 +241,7 @@ databasetype temp_database;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_interface_temp (objecttype temp_interface)
-#else
-
-objecttype bld_interface_temp (temp_interface)
-objecttype temp_interface;
-#endif
 
   {
     register objecttype result;
@@ -337,14 +260,7 @@ objecttype temp_interface;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_file_temp (filetype temp_file)
-#else
-
-objecttype bld_file_temp (temp_file)
-filetype temp_file;
-#endif
 
   {
     register objecttype result;
@@ -363,14 +279,7 @@ filetype temp_file;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_float_temp (double temp_float)
-#else
-
-objecttype bld_float_temp (temp_float)
-double temp_float;
-#endif
 
   {
     register objecttype result;
@@ -389,14 +298,7 @@ double temp_float;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_hash_temp (hashtype temp_hash)
-#else
-
-objecttype bld_hash_temp (temp_hash)
-hashtype temp_hash;
-#endif
 
   {
     register objecttype result;
@@ -415,14 +317,7 @@ hashtype temp_hash;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_int_temp (inttype temp_int)
-#else
-
-objecttype bld_int_temp (temp_int)
-inttype temp_int;
-#endif
 
   {
     register objecttype result;
@@ -441,14 +336,7 @@ inttype temp_int;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_list_temp (listtype temp_list)
-#else
-
-objecttype bld_list_temp (temp_list)
-listtype temp_list;
-#endif
 
   {
     register objecttype result;
@@ -467,14 +355,7 @@ listtype temp_list;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_param_temp (objecttype temp_param)
-#else
-
-objecttype bld_param_temp (temp_param)
-objecttype temp_param;
-#endif
 
   {
     register objecttype result;
@@ -493,14 +374,7 @@ objecttype temp_param;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_poll_temp (polltype temp_poll)
-#else
-
-objecttype bld_poll_temp (temp_poll)
-polltype temp_poll;
-#endif
 
   {
     register objecttype result;
@@ -519,14 +393,7 @@ polltype temp_poll;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_prog_temp (progtype temp_prog)
-#else
-
-objecttype bld_prog_temp (temp_prog)
-progtype temp_prog;
-#endif
 
   {
     register objecttype result;
@@ -545,14 +412,7 @@ progtype temp_prog;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_reference_temp (objecttype temp_reference)
-#else
-
-objecttype bld_reference_temp (temp_reference)
-objecttype temp_reference;
-#endif
 
   {
     register objecttype result;
@@ -571,14 +431,7 @@ objecttype temp_reference;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_reflist_temp (listtype temp_reflist)
-#else
-
-objecttype bld_reflist_temp (temp_reflist)
-listtype temp_reflist;
-#endif
 
   {
     register objecttype result;
@@ -597,14 +450,7 @@ listtype temp_reflist;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_set_temp (settype temp_set)
-#else
-
-objecttype bld_set_temp (temp_set)
-settype temp_set;
-#endif
 
   {
     register objecttype result;
@@ -623,14 +469,7 @@ settype temp_set;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_socket_temp (sockettype temp_socket)
-#else
-
-objecttype bld_socket_temp (temp_socket)
-sockettype temp_socket;
-#endif
 
   {
     register objecttype result;
@@ -649,14 +488,7 @@ sockettype temp_socket;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_sqlstmt_temp (sqlstmttype temp_sqlstmt)
-#else
-
-objecttype bld_sqlstmt_temp (temp_sqlstmt)
-sqlstmttype temp_sqlstmt;
-#endif
 
   {
     register objecttype result;
@@ -675,14 +507,7 @@ sqlstmttype temp_sqlstmt;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_stri_temp (stritype temp_stri)
-#else
-
-objecttype bld_stri_temp (temp_stri)
-stritype temp_stri;
-#endif
 
   {
     register objecttype result;
@@ -701,14 +526,7 @@ stritype temp_stri;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_struct_temp (structtype temp_struct)
-#else
-
-objecttype bld_struct_temp (temp_struct)
-structtype temp_struct;
-#endif
 
   {
     register objecttype result;
@@ -727,14 +545,7 @@ structtype temp_struct;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_type_temp (typetype temp_type)
-#else
-
-objecttype bld_type_temp (temp_type)
-typetype temp_type;
-#endif
 
   {
     register objecttype result;
@@ -746,14 +557,7 @@ typetype temp_type;
 
 
 
-#ifdef ANSI_C
-
 objecttype bld_win_temp (wintype temp_win)
-#else
-
-objecttype bld_win_temp (temp_win)
-wintype temp_win;
-#endif
 
   {
     register objecttype result;
@@ -772,14 +576,7 @@ wintype temp_win;
 
 
 
-#ifdef ANSI_C
-
 void dump_temp_value (objecttype object)
-#else
-
-void dump_temp_value (object)
-objecttype object;
-#endif
 
   {
     booltype save_fail_flag;
@@ -964,14 +761,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 void dump_any_temp (objecttype object)
-#else
-
-void dump_any_temp (object)
-objecttype object;
-#endif
 
   { /* dump_any_temp */
     dump_temp_value(object);
@@ -986,14 +776,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 void dump_list (listtype list)
-#else
-
-void dump_list (list)
-listtype list;
-#endif
 
   {
     register listtype list_end;

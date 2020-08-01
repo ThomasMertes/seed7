@@ -43,14 +43,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_and (listtype arguments)
-#else
-
-objecttype bln_and (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype result;
@@ -70,14 +63,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_cpy (listtype arguments)
-#else
-
-objecttype bln_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype bool_variable;
@@ -93,14 +79,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_create (listtype arguments)
-#else
-
-objecttype bln_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype bool_to;
@@ -121,14 +100,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_ge (listtype arguments)
-#else
-
-objecttype bln_ge (arguments)
-listtype arguments;
-#endif
 
   { /* bln_ge */
     isit_bool(arg_1(arguments));
@@ -146,14 +118,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_gt (listtype arguments)
-#else
-
-objecttype bln_gt (arguments)
-listtype arguments;
-#endif
 
   { /* bln_gt */
     isit_bool(arg_1(arguments));
@@ -171,14 +136,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_iconv (listtype arguments)
-#else
-
-objecttype bln_iconv (arguments)
-listtype arguments;
-#endif
 
   { /* bln_iconv */
     isit_int(arg_3(arguments));
@@ -191,14 +149,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_le (listtype arguments)
-#else
-
-objecttype bln_le (arguments)
-listtype arguments;
-#endif
 
   { /* bln_le */
     isit_bool(arg_1(arguments));
@@ -212,14 +163,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_lt (listtype arguments)
-#else
-
-objecttype bln_lt (arguments)
-listtype arguments;
-#endif
 
   { /* bln_lt */
     isit_bool(arg_1(arguments));
@@ -233,14 +177,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_not (listtype arguments)
-#else
-
-objecttype bln_not (arguments)
-listtype arguments;
-#endif
 
   { /* bln_not */
     isit_bool(arg_2(arguments));
@@ -253,14 +190,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_or (listtype arguments)
-#else
-
-objecttype bln_or (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype result;
@@ -280,14 +210,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype bln_ord (listtype arguments)
-#else
-
-objecttype bln_ord (arguments)
-listtype arguments;
-#endif
 
   { /* bln_ord */
     isit_bool(arg_1(arguments));

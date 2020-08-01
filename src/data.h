@@ -134,11 +134,7 @@ typedef const struct structstruct   *const_structtype;
 typedef const struct progstruct     *const_progtype;
 typedef const struct infilstruct    *const_infiltype;
 
-#ifdef ANSI_C
 typedef objecttype (*acttype) (listtype);
-#else
-typedef objecttype (*acttype) ();
-#endif
 
 typedef struct identstruct {
     ustritype name;

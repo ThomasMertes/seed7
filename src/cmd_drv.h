@@ -51,8 +51,6 @@ extern C int __cdecl os_stat (const_os_stritype path, os_stat_struct *buffer);
 #endif
 
 
-#ifdef ANSI_C
-
 os_stritype *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_stritype *w_argv);
 stritype getExecutablePath (const const_stritype arg_0);
@@ -72,23 +70,3 @@ void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
     filetype *childStdin, filetype *childStdout);
 void cmdStartProcess (const const_stritype command,
     const const_rtlArraytype parameters);
-
-#else
-
-os_stritype *getUtf16Argv ();
-void freeUtf16Argv ();
-stritype getExecutablePath ();
-#ifdef DEFINE_WGETENV
-os_stritype wgetenv ();
-#endif
-#ifdef DEFINE_WSETENV
-int wsetenv ();
-#endif
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-volumeListType *openVolumeList ();
-#endif
-void cmdPipe2 ();
-void cmdPty ();
-void cmdStartProcess ();
-
-#endif

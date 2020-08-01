@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_rtl.c     Time access using the C capabilities.             */
-/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_rtl.c                                       */
-/*  Changes: 2009  Thomas Mertes                                    */
+/*  Changes: 2009, 2013  Thomas Mertes                              */
 /*  Content: Time access using the C capabilities.                  */
 /*                                                                  */
 /********************************************************************/
@@ -77,14 +77,7 @@ static time_t year_days[2][12] = {
 
 
 
-#ifdef ANSI_C
-
 time_t mkutc (struct tm *timeptr)
-#else
-
-time_t mkutc (timeptr)
-struct tm *timeptr;
-#endif
 
   {
     int real_year;
@@ -124,14 +117,7 @@ struct tm *timeptr;
 
 
 
-#ifdef ANSI_C
-
 time_t unchecked_mkutc (struct tm *timeptr)
-#else
-
-time_t unchecked_mkutc (timeptr)
-struct tm *timeptr;
-#endif
 
   {
     int real_year;
@@ -161,27 +147,10 @@ struct tm *timeptr;
 
 
 
-#ifdef ANSI_C
-
 void timFromTimestamp (time_t timestamp,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
-#else
-
-void timFromTimestamp (timestamp,
-    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
-time_t timestamp;
-inttype *year;
-inttype *month;
-inttype *day;
-inttype *hour;
-inttype *min;
-inttype *sec;
-inttype *micro_sec;
-inttype *time_zone;
-booltype *is_dst;
-#endif
 
   {
 #if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
@@ -214,7 +183,7 @@ booltype *is_dst;
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
       *micro_sec = 0;
-      *time_zone = (unchecked_mkutc(local_time) - timestamp) / 60;
+      *time_zone = (inttype) (unchecked_mkutc(local_time) - timestamp) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
 #ifdef TRACE_TIM_RTL
@@ -226,90 +195,24 @@ booltype *is_dst;
 
 
 
-#ifdef ANSI_C
-
 void timFromIntTimestamp (inttype timestamp,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
-#else
-
-void timFromIntTimestamp (timestamp,
-    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
-inttype timestamp;
-inttype *year;
-inttype *month;
-inttype *day;
-inttype *hour;
-inttype *min;
-inttype *sec;
-inttype *micro_sec;
-inttype *time_zone;
-booltype *is_dst;
-#endif
 
   { /* timFromIntTimestamp */
-#ifdef TIME_T_SIGNED
-#if TIME_T_SIZE < INTTYPE_SIZE
-#if TIME_T_SIZE == 32
-    if (unlikely(timestamp < INT32TYPE_MIN || timestamp > INT32TYPE_MAX)) {
-#elif TIME_T_SIZE == 64
-    if (unlikely(timestamp < INT64TYPE_MIN || timestamp > INT64TYPE_MAX)) {
-#else
-    if (TRUE) {
-#endif
+    if (!inTimeTRange(timestamp)) {
       raise_error(RANGE_ERROR);
     } else {
-#endif
       timFromTimestamp((time_t) timestamp,
           year, month, day, hour, min, sec, micro_sec, time_zone, is_dst);
-#if TIME_T_SIZE < INTTYPE_SIZE
     } /* if */
-#endif
-
-#else
-
-    if (unlikely(timestamp < 0)) {
-      raise_error(RANGE_ERROR);
-    } else {
-#if TIME_T_SIZE < INTTYPE_SIZE
-#if TIME_T_SIZE == 32
-      if (unlikely(timestamp > UINT32TYPE_MAX)) {
-#elif TIME_T_SIZE == 64
-      if (unlikely(timestamp > UINT64TYPE_MAX)) {
-#else
-      if (TRUE) {
-#endif
-        raise_error(RANGE_ERROR);
-      } else {
-#endif
-        timFromTimestamp((time_t) timestamp,
-            year, month, day, hour, min, sec, micro_sec, time_zone, is_dst);
-#if TIME_T_SIZE < INTTYPE_SIZE
-      } /* if */
-#endif
-    } /* if */
-#endif
   } /* timFromIntTimestamp */
 
 
 
-#ifdef ANSI_C
-
 time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-time_t timToTimestamp (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     struct tm tm_time;
@@ -329,7 +232,11 @@ inttype time_zone;
     tm_time.tm_isdst = 0;
     result = mkutc(&tm_time);
     if (likely(result != (time_t) -1)) {
-      result -= time_zone * 60;
+      if (unlikely(time_zone < -1500 || time_zone > 1500)) {
+        result = (time_t) -1;
+      } else {
+        result -= (time_t) time_zone * 60;
+      } /* if */
     } /* if */
 #ifdef TRACE_TIM_RTL
     printf("END timToTimestamp ==> %lu\n", result);
@@ -339,22 +246,8 @@ inttype time_zone;
 
 
 
-#ifdef ANSI_C
-
 void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype *time_zone, booltype *is_dst)
-#else
-
-void timSetLocalTZ (year, month, day, hour, min, sec, time_zone, is_dst)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype *time_zone;
-booltype *is_dst;
-#endif
 
   {
     struct tm tm_time;
@@ -363,7 +256,7 @@ booltype *is_dst;
     struct tm tm_result;
 #endif
     struct tm *local_time;
-    inttype time_zone_reference;
+    time_t time_zone_reference;
 
   /* timSetLocalTZ */
 #ifdef TRACE_TIM_RTL
@@ -412,7 +305,7 @@ booltype *is_dst;
         if (unlikely(local_time == NULL)) {
           raise_error(RANGE_ERROR);
         } else {
-          *time_zone = (unchecked_mkutc(local_time) - timestamp) / 60;
+          *time_zone = (inttype) (unchecked_mkutc(local_time) - timestamp) / 60;
           *is_dst    = local_time->tm_isdst > 0;
         } /* if */
       } /* if */
@@ -425,27 +318,10 @@ booltype *is_dst;
 
 
 
-#ifdef ANSI_C
-
 void timFromBigTimestamp (const const_biginttype timestamp,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
-#else
-
-void timFromBigTimestamp (timestamp,
-    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
-biginttype timestamp;
-inttype *year;
-inttype *month;
-inttype *day;
-inttype *hour;
-inttype *min;
-inttype *sec;
-inttype *micro_sec;
-inttype *time_zone;
-booltype *is_dst;
-#endif
 
   {
     time_t os_timestamp;
@@ -462,22 +338,8 @@ booltype *is_dst;
 
 
 
-#ifdef ANSI_C
-
 biginttype timToBigTimestamp (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
-#else
-
-biginttype timToBigTimestamp (year, month, day, hour, min, sec, micro_sec, time_zone)
-inttype year;
-inttype month;
-inttype day;
-inttype hour;
-inttype min;
-inttype sec;
-inttype micro_sec;
-inttype time_zone;
-#endif
 
   {
     time_t os_timestamp;

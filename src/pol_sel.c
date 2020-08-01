@@ -201,16 +201,8 @@ static void dumpPoll (const const_polltype pollData)
 
 
 
-#ifdef ANSI_C
-
 void initPollOperations (const createfunctype incrUsageCount,
     const destrfunctype decrUsageCount)
-#else
-
-void initPollOperations (incrUsageCount, decrUsageCount)
-createfunctype incrUsageCount;
-destrfunctype decrUsageCount;
-#endif
 
   { /* initPollOperations */
     fileObjectOps.incrUsageCount = incrUsageCount;
@@ -223,16 +215,7 @@ destrfunctype decrUsageCount;
 #define copyFdSet(dest, source, unused) memcpy(dest, source, USED_FD_SET_SIZE(source))
 #else
 
-#ifdef ANSI_C
-
 static void copyFdSet (fd_set *dest, const fd_set *source, testType *test)
-#else
-
-static void copyFdSet (dest, source, test)
-fd_set *dest;
-fd_set *source;
-testType *test;
-#endif
 
   {
     memsizetype pos;
@@ -253,15 +236,7 @@ testType *test;
 #define allocFdSet(test, capacity) TRUE
 #else
 
-#ifdef ANSI_C
-
 static booltype allocFdSet (testType *test, memsizetype capacity)
-#else
-
-static booltype allocFdSet (test, capacity)
-testType *test;
-memsizetype capacity;
-#endif
 
   {
     booltype result = TRUE;
@@ -291,15 +266,7 @@ memsizetype capacity;
 #define freeFdSet(test, capacity) 0
 #else
 
-#ifdef ANSI_C
-
 static void freeFdSet (testType *test, memsizetype capacity)
-#else
-
-static void freeFdSet (test, capacity)
-testType *test;
-memsizetype capacity;
-#endif
 
   { /* freeFdSet */
     if (test->outFdset != NULL) {
@@ -317,15 +284,7 @@ memsizetype capacity;
 #define reallocFdSet(pollData, increment) TRUE
 #else
 
-#ifdef ANSI_C
-
 static booltype reallocFdSet (testType *test, memsizetype increment)
-#else
-
-static booltype reallocFdSet (test, increment)
-testType *test;
-memsizetype increment;
-#endif
 
   {
     fd_set *newFdset;
@@ -360,15 +319,7 @@ memsizetype increment;
 #define replaceFdSet(test, capacity) TRUE
 #else
 
-#ifdef ANSI_C
-
 static booltype replaceFdSet (testType *test, memsizetype capacity)
-#else
-
-static booltype replaceFdSet (test, capacity)
-testType *test;
-memsizetype capacity;
-#endif
 
   {
 #ifdef USE_PREPARED_FD_SET
@@ -405,17 +356,8 @@ memsizetype capacity;
 
 
 
-#ifdef ANSI_C
-
 static void addCheck (testType *test, const sockettype aSocket,
     const rtlGenerictype fileObj)
-#else
-
-static void addCheck (test, aSocket, fileObj)
-testType *test;
-sockettype aSocket;
-rtlGenerictype fileObj;
-#endif
 
   {
     memsizetype pos;
@@ -470,15 +412,7 @@ rtlGenerictype fileObj;
 
 
 
-#ifdef ANSI_C
-
 static void removeCheck (testType *test, const sockettype aSocket)
-#else
-
-static void removeCheck (test, aSocket)
-testType *test;
-sockettype aSocket;
-#endif
 
   {
     memsizetype pos;
@@ -522,15 +456,7 @@ sockettype aSocket;
 
 
 
-#ifdef ANSI_C
-
 static void doPoll (const polltype pollData, struct timeval *timeout)
-#else
-
-static void doPoll (pollData, timeout)
-polltype pollData;
-struct timeval *timeout;
-#endif
 
   {
     int nfds = 0;
@@ -609,15 +535,7 @@ struct timeval *timeout;
 
 
 
-#ifdef ANSI_C
-
 static booltype isChecked (const testType *test, const sockettype aSocket)
-#else
-
-static booltype isChecked (test, aSocket)
-testType *test;
-sockettype aSocket;
-#endif
 
   {
     memsizetype pos;
@@ -635,15 +553,7 @@ sockettype aSocket;
 
 
 
-#ifdef ANSI_C
-
 static booltype isReady (const testType *test, const sockettype aSocket)
-#else
-
-static booltype isReady (test, aSocket)
-testType *test;
-sockettype aSocket;
-#endif
 
   {
     memsizetype pos;
@@ -665,14 +575,7 @@ sockettype aSocket;
 
 
 
-#ifdef ANSI_C
-
 static booltype hasNextCheck (const testType *test)
-#else
-
-static booltype hasNextCheck (test)
-testType *test;
-#endif
 
   { /* hasNextCheck */
     return test->iterPos < test->size;
@@ -680,15 +583,7 @@ testType *test;
 
 
 
-#ifdef ANSI_C
-
 static booltype hasNextFinding (testType *test, memsizetype iterEvents)
-#else
-
-static booltype hasNextFinding (test, iterEvents)
-testType *test;
-memsizetype iterEvents;
-#endif
 
   {
     memsizetype pos;
@@ -714,16 +609,8 @@ memsizetype iterEvents;
 
 
 
-#ifdef ANSI_C
-
 static rtlGenerictype nextCheck (testType *test,
     const rtlGenerictype nullFile)
-#else
-
-static rtlGenerictype nextCheck (test, nullFile)
-testType *test;
-rtlGenerictype nullFile;
-#endif
 
   {
     memsizetype pos;
@@ -745,17 +632,8 @@ rtlGenerictype nullFile;
 
 
 
-#ifdef ANSI_C
-
 static rtlGenerictype nextFinding (testType *test,
     memsizetype *iterEvents, const rtlGenerictype nullFile)
-#else
-
-static rtlGenerictype nextFinding (test, iterEvents, nullFile)
-testType *test;
-memsizetype *iterEvents;
-rtlGenerictype nullFile;
-#endif
 
   {
     memsizetype pos;
@@ -795,18 +673,8 @@ rtlGenerictype nullFile;
  *  The parameter ''fileObj'' determines, which file is returned,
  *  when the iterator returns files in ''pollData''.
  */
-#ifdef ANSI_C
-
 void polAddCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck, const rtlGenerictype fileObj)
-#else
-
-void polAddCheck (pollData, aSocket, eventsToCheck, fileObj)
-polltype pollData;
-sockettype aSocket;
-inttype eventsToCheck;
-rtlGenerictype fileObj;
-#endif
 
   { /* polAddCheck */
     switch (eventsToCheck) {
@@ -828,14 +696,7 @@ rtlGenerictype fileObj;
 
 
 
-#ifdef ANSI_C
-
 void polClear (const polltype pollData)
-#else
-
-void polClear (pollData)
-polltype pollData;
-#endif
 
   {
     memsizetype pos;
@@ -877,15 +738,7 @@ polltype pollData;
 
 
 
-#ifdef ANSI_C
-
 void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
-#else
-
-void polCpy (poll_to, pollDataFrom)
-polltype poll_to;
-polltype pollDataFrom;
-#endif
 
   {
     select_based_polltype pollData;
@@ -1021,14 +874,7 @@ polltype pollDataFrom;
 
 
 
-#ifdef ANSI_C
-
 polltype polCreate (const const_polltype pollDataFrom)
-#else
-
-polltype polCreate (pollDataFrom)
-polltype pollDataFrom;
-#endif
 
   {
     rtlHashtype newReadIndexHash;
@@ -1114,14 +960,7 @@ polltype pollDataFrom;
 
 
 
-#ifdef ANSI_C
-
 void polDestr (const polltype oldPollData)
-#else
-
-void polDestr (oldPollData)
-polltype oldPollData;
-#endif
 
   {
     memsizetype capacity;
@@ -1163,13 +1002,7 @@ polltype oldPollData;
 
 
 
-#ifdef ANSI_C
-
 polltype polEmpty (void)
-#else
-
-polltype polEmpty ()
-#endif
 
   {
     rtlHashtype newReadIndexHash;
@@ -1230,15 +1063,7 @@ polltype polEmpty ()
 
 
 
-#ifdef ANSI_C
-
 inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
-#else
-
-inttype polGetCheck (pollData, aSocket)
-polltype pollData;
-sockettype aSocket;
-#endif
 
   {
     inttype result;
@@ -1260,15 +1085,7 @@ sockettype aSocket;
 
 
 
-#ifdef ANSI_C
-
 inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
-#else
-
-inttype polGetFinding (pollData, aSocket)
-polltype pollData;
-sockettype aSocket;
-#endif
 
   {
     inttype result;
@@ -1290,14 +1107,7 @@ sockettype aSocket;
 
 
 
-#ifdef ANSI_C
-
 booltype polHasNext (const polltype pollData)
-#else
-
-booltype polHasNext (pollData)
-polltype pollData;
-#endif
 
   { /* polHasNext */
     switch (conv(pollData)->iteratorMode) {
@@ -1327,15 +1137,7 @@ polltype pollData;
 
 
 
-#ifdef ANSI_C
-
 void polIterChecks (const polltype pollData, inttype pollMode)
-#else
-
-void polIterChecks (pollData, pollMode)
-polltype pollData;
-inttype pollMode;
-#endif
 
   { /* polIterChecks */
     switch (pollMode) {
@@ -1363,15 +1165,7 @@ inttype pollMode;
 
 
 
-#ifdef ANSI_C
-
 void polIterFindings (const polltype pollData, inttype pollMode)
-#else
-
-void polIterFindings (pollData, pollMode)
-polltype pollData;
-inttype pollMode;
-#endif
 
   { /* polIterFindings */
     switch (pollMode) {
@@ -1400,15 +1194,7 @@ inttype pollMode;
 
 
 
-#ifdef ANSI_C
-
 rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile)
-#else
-
-rtlGenerictype polNextFile (pollData, nullFile)
-polltype pollData;
-rtlGenerictype nullFile;
-#endif
 
   {
     rtlGenerictype nextFile;
@@ -1456,14 +1242,7 @@ rtlGenerictype nullFile;
 
 
 
-#ifdef ANSI_C
-
 void polPoll (const polltype pollData)
-#else
-
-void polPoll (pollData)
-polltype pollData;
-#endif
 
   { /* polPoll */
     doPoll(pollData, NULL);
@@ -1474,17 +1253,8 @@ polltype pollData;
 /**
  *  Remove ''eventsToCheck'' for ''aSocket'' from ''pollData''.
  */
-#ifdef ANSI_C
-
 void polRemoveCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck)
-#else
-
-void polRemoveCheck (pollData, aSocket, eventsToCheck)
-polltype pollData;
-sockettype aSocket;
-inttype eventsToCheck;
-#endif
 
   { /* polRemoveCheck */
     switch (eventsToCheck) {

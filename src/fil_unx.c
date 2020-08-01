@@ -47,14 +47,7 @@
 
 
 #ifdef read_buffer_empty
-#ifdef ANSI_C
-
 booltype filInputReady (filetype aFile)
-#else
-
-booltype filInputReady (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;
@@ -93,14 +86,7 @@ filetype aFile;
 
 
 
-#ifdef ANSI_C
-
 booltype filInputReady (filetype aFile)
-#else
-
-booltype filInputReady (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;
@@ -145,14 +131,7 @@ filetype aFile;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 booltype filInputReady (filetype aFile)
-#else
-
-booltype filInputReady (aFile)
-filetype aFile;
-#endif
 
   {
     int file_no;

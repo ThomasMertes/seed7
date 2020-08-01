@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype soc_accept          (listtype arguments);
 objecttype soc_addr_family     (listtype arguments);
 objecttype soc_addr_numeric    (listtype arguments);
@@ -57,38 +55,3 @@ objecttype soc_sendto          (listtype arguments);
 objecttype soc_socket          (listtype arguments);
 objecttype soc_word_read       (listtype arguments);
 objecttype soc_write           (listtype arguments);
-
-#else
-
-objecttype soc_accept ();
-objecttype soc_addr_family ();
-objecttype soc_addr_numeric ();
-objecttype soc_addr_service ();
-objecttype soc_bind ();
-objecttype soc_close ();
-objecttype soc_connect ();
-objecttype soc_cpy ();
-objecttype soc_create ();
-objecttype soc_empty ();
-objecttype soc_eq ();
-objecttype soc_getc ();
-objecttype soc_gets ();
-objecttype soc_get_addr ();
-objecttype soc_get_hostname ();
-objecttype soc_has_next ();
-objecttype soc_inet_addr ();
-objecttype soc_inet_local_addr ();
-objecttype soc_inet_serv_addr ();
-objecttype soc_input_ready ();
-objecttype soc_line_read ();
-objecttype soc_listen ();
-objecttype soc_ne ();
-objecttype soc_recv ();
-objecttype soc_recvfrom ();
-objecttype soc_send ();
-objecttype soc_sendto ();
-objecttype soc_socket ();
-objecttype soc_word_read ();
-objecttype soc_write ();
-
-#endif

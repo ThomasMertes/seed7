@@ -29,22 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 stritype chrCLit (chartype character);
 inttype chrCmp (chartype char1, chartype char2);
 void chrCpy (chartype *dest, chartype source);
 chartype chrLow (chartype ch);
 stritype chrStr (chartype ch);
 chartype chrUp (chartype ch);
-
-#else
-
-stritype chrCLit ();
-inttype chrCmp ();
-void chrCpy ();
-chartype chrLow ();
-stritype chrStr ();
-chartype chrUp ();
-
-#endif

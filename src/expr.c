@@ -55,17 +55,8 @@
 
 
 
-#ifdef ANSI_C
-
 static objecttype select_element (objecttype expression,
     inttype position)
-#else
-
-static objecttype select_element (expression,
-    position)
-objecttype expression;
-inttype position;
-#endif
 
   {
     listtype list_element;
@@ -101,14 +92,7 @@ inttype position;
 
 
 
-#ifdef ANSI_C
-
 static objecttype read_call_expression (booltype do_match_expr)
-#else
-
-static objecttype read_call_expression (do_match_expr)
-booltype do_match_expr;
-#endif
 
   {
     objecttype expression;
@@ -176,14 +160,7 @@ booltype do_match_expr;
 
 
 
-#ifdef ANSI_C
-
 static objecttype read_dot_subexpression (booltype do_match_expr)
-#else
-
-static objecttype read_dot_subexpression (do_match_expr)
-booltype do_match_expr;
-#endif
 
   {
     objecttype expression;
@@ -230,14 +207,7 @@ booltype do_match_expr;
 
 
 
-#ifdef ANSI_C
-
 static objecttype read_dot_expression (booltype do_match_expr)
-#else
-
-static objecttype read_dot_expression (do_match_expr)
-booltype do_match_expr;
-#endif
 
   {
     objecttype expression;
@@ -285,18 +255,8 @@ booltype do_match_expr;
 
 
 
-#ifdef ANSI_C
-
 static objecttype pars_token (objecttype expression,
     const_tokentype formal_token, listtype actual_parameter)
-#else
-
-static objecttype pars_token (expression,
-    formal_token, actual_parameter)
-objecttype expression;
-tokentype formal_token;
-listtype actual_parameter;
-#endif
 
   {
     booltype okay;
@@ -380,16 +340,8 @@ listtype actual_parameter;
 
 
 
-#ifdef ANSI_C
-
 objecttype pars_infix_expression (prioritytype priority,
     booltype do_match_expr)
-#else
-
-objecttype pars_infix_expression (priority, do_match_expr)
-prioritytype priority;
-booltype do_match_expr;
-#endif
 
 {
     objecttype expression;

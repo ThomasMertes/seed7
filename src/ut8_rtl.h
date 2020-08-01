@@ -29,22 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 chartype ut8Getc (filetype inFile);
 stritype ut8Gets (filetype inFile, inttype length);
 stritype ut8LineRead (filetype inFile, chartype *terminationChar);
 void ut8Seek (filetype aFile, inttype file_position);
 stritype ut8WordRead (filetype inFile, chartype *terminationChar);
 void ut8Write (filetype outFile, const const_stritype stri);
-
-#else
-
-chartype ut8Getc ();
-stritype ut8Gets ();
-stritype ut8LineRead ();
-void ut8Seek ();
-stritype ut8WordRead ();
-void ut8Write ();
-
-#endif

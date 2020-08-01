@@ -25,22 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype ut8_getc      (listtype arguments);
 objecttype ut8_gets      (listtype arguments);
 objecttype ut8_line_read (listtype arguments);
 objecttype ut8_seek      (listtype arguments);
 objecttype ut8_word_read (listtype arguments);
 objecttype ut8_write     (listtype arguments);
-
-#else
-
-objecttype ut8_getc ();
-objecttype ut8_gets ();
-objecttype ut8_line_read ();
-objecttype ut8_seek ();
-objecttype ut8_word_read ();
-objecttype ut8_write ();
-
-#endif

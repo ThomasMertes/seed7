@@ -141,18 +141,6 @@ const func power: nextSize (in power: ownsize, in power: foodmass, in lifeSpan: 
 
 
 (**
- *  Returns the minimum of the two integers.
- *)
-const func integer: min (in integer: a, in integer: b) is forward;
-
-
-(**
- *  Returns the maximum of the two integers.
- *)
-const func integer: max (in integer: a, in integer: b) is forward;
-
-
-(**
  *  Returns a random direction from the given dirset.
  *  When the dirset is empty it returns HERE.
  *)

@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype ref_addr          (listtype arguments);
 objecttype ref_alloc         (listtype arguments);
 objecttype ref_arrmaxidx     (listtype arguments);
@@ -76,57 +74,3 @@ objecttype ref_symb          (listtype arguments);
 objecttype ref_trace         (listtype arguments);
 objecttype ref_type          (listtype arguments);
 objecttype ref_value         (listtype arguments);
-
-#else
-
-objecttype ref_addr ();
-objecttype ref_alloc ();
-objecttype ref_arrmaxidx ();
-objecttype ref_arrminidx ();
-objecttype ref_arrtolist ();
-objecttype ref_body ();
-objecttype ref_cast ();
-objecttype ref_category ();
-objecttype ref_cat_parse ();
-objecttype ref_cat_str ();
-objecttype ref_cmp ();
-objecttype ref_content ();
-objecttype ref_conv ();
-objecttype ref_cpy ();
-objecttype ref_create ();
-objecttype ref_deref ();
-objecttype ref_eq ();
-objecttype ref_file ();
-objecttype ref_find ();
-objecttype ref_getref ();
-objecttype ref_hashcode ();
-objecttype ref_hshdatatolist ();
-objecttype ref_hshkeystolist ();
-objecttype ref_issymb ();
-objecttype ref_isvar ();
-objecttype ref_itftosct ();
-objecttype ref_line ();
-objecttype ref_local_consts ();
-objecttype ref_local_vars ();
-objecttype ref_mkref ();
-objecttype ref_ne ();
-objecttype ref_nil ();
-objecttype ref_num ();
-objecttype ref_params ();
-objecttype ref_prog ();
-objecttype ref_resini ();
-objecttype ref_result ();
-objecttype ref_scan ();
-objecttype ref_scttolist ();
-objecttype ref_select ();
-objecttype ref_setcategory ();
-objecttype ref_setparams ();
-objecttype ref_settype ();
-objecttype ref_setvar ();
-objecttype ref_str ();
-objecttype ref_symb ();
-objecttype ref_trace ();
-objecttype ref_type ();
-objecttype ref_value ();
-
-#endif

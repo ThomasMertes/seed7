@@ -1912,6 +1912,10 @@ CONTENTS
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
                     rand(1, 0) => EXCEPTION RANGE_ERROR )
+      min(A, B) Minimum of two numbers.
+                  ( min(1, 2) => 1 )
+      max(A, B) Maximum of two numbers.
+                  ( max(1, 2) => 2 )
       compare(A, B) Compare function
                   ( compare(1, 2) => -1,
                     compare(5, 5) => 0,
@@ -2147,6 +2151,10 @@ CONTENTS
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
                     rand(1_, 0_) => EXCEPTION RANGE_ERROR )
+      min(A, B) Minimum of two numbers.
+                  ( min(1_, 2_) => 1_ )
+      max(A, B) Maximum of two numbers.
+                  ( max(1_, 2_) => 2_ )
       compare(A, B) Compare function
                   ( Type of result: integer,
                     compare(1_, 2_) => -1,
@@ -2287,27 +2295,31 @@ CONTENTS
                     rat(1) => 1 / 1 )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: integer,
-                    floor( 1.8) =>  1, floor( 1.0) =>  1,
-                    floor(-1.0) => -1, floor(-1.8) => -2 )
+                    floor(9/5) =>  1, floor(1/1) =>  1,
+                    floor(-1/1) => -1, floor(-9/5) => -2 )
       ceil(A)   Rounding up towards positive infinity
                   ( Type of result: integer,
-                    ceil( 1.2) =>  2, ceil( 1.0) =>  1,
-                    ceil(-1.0) => -1, ceil(-1.2) => -1 )
+                    ceil(6/5) =>  2, ceil(1/1) =>  1,
+                    ceil(-1/1) => -1, ceil(-6/5) => -1 )
       trunc(A)  Truncation towards zero
                   ( Type of result: integer,
-                    trunc( 1.8) =>  1, trunc( 1.0) =>  1,
-                    trunc(-1.0) => -1, trunc(-1.8) => -1 )
+                    trunc(9/5) =>  1, trunc(1/1) =>  1,
+                    trunc(-1/1) => -1, trunc(-9/5) => -1 )
       round(A)  Round towards zero
                   ( Type of result: integer,
-                    round(0.5) => 1, round(-0.5) => -1,
-                    round(0.4) => 0, round(-0.4) => 0 )
+                    round(1/2) => 1, round(-1/2) => -1,
+                    round(2/5) => 0, round(-2/5) => 0 )
       str(A)    Conversion to string
                   ( Type of result: string )
+      min(A, B) Minimum of two numbers.
+                  ( min(2/5, 1/2) => 2/5 )
+      max(A, B) Maximum of two numbers.
+                  ( max(2/5, 1/2) => 1/2 )
       compare(A, B) Compare function
                   ( Type of result: integer,
-                    compare(1.9, 2.0) => -1,
-                    compare(5.2, 5.2) => 0,
-                    compare(8.0, 7.9) => 1 )
+                    compare(19/10, 2/1) => -1,
+                    compare(26/5, 26/5) => 0,
+                    compare(8/1, 79/10) => 1 )
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
@@ -2373,27 +2385,31 @@ CONTENTS
                     rat(1_) => 1_ / 1_ )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: bigInteger,
-                    floor( 1.8) =>  1, floor( 1.0) =>  1,
-                    floor(-1.0) => -1, floor(-1.8) => -2 )
+                    floor(9_/5_) =>  1_, floor(1_/1_) =>  1_,
+                    floor(-1_/1_) => -1_, floor(-9_/5_) => -2_ )
       ceil(A)   Rounding up towards positive infinity
                   ( Type of result: bigInteger,
-                    ceil( 1.2) =>  2, ceil( 1.0) =>  1,
-                    ceil(-1.0) => -1, ceil(-1.2) => -1 )
+                    ceil(6_/5_) =>  2_, ceil(1_/1_) =>  1_,
+                    ceil(-1_/1_) => -1_, ceil(-6_/5_) => -1_ )
       trunc(A)  Truncation towards zero
                   ( Type of result: bigInteger,
-                    trunc( 1.8) =>  1, trunc( 1.0) =>  1,
-                    trunc(-1.0) => -1, trunc(-1.8) => -1 )
+                    trunc(9_/5_) =>  1_, trunc(1_/1_) =>  1_,
+                    trunc(-1_/1_) => -1_, trunc(-9_/5_) => -1_ )
       round(A)  Round towards zero
                   ( Type of result: bigInteger,
-                    round(0.5) => 1, round(-0.5) => -1,
-                    round(0.4) => 0, round(-0.4) => 0 )
+                    round(1_/2_) => 1_, round(-1_/2_) => -1_,
+                    round(2_/5_) => 0_, round(-2_/5_) => 0_ )
       str(A)    Conversion to string
                   ( Type of result: string )
+      min(A, B) Minimum of two numbers.
+                  ( min(2_/5_, 1_/2_) => 2_/5_ )
+      max(A, B) Maximum of two numbers.
+                  ( max(2_/5_, 1_/2_) => 1_/2_ )
       compare(A, B) Compare function
                   ( Type of result: integer,
-                    compare(1.9, 2.0) => -1,
-                    compare(5.2, 5.2) => 0,
-                    compare(8.0, 7.9) => 1 )
+                    compare(19_/10_, 2_/1_) => -1,
+                    compare(26_/5_, 26_/5_) => 0,
+                    compare(8_/1_, 79_/10_) => 1 )
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
@@ -2563,6 +2579,10 @@ CONTENTS
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
                     rand(1.0, 0.0) => EXCEPTION RANGE_ERROR )
+      min(A, B) Minimum of two numbers.
+                  ( min(2.5, 4.5) => 2.5 )
+      max(A, B) Maximum of two numbers.
+                  ( max(2.5, 4.5) => 4.5 )
       compare(A, B) Compare function
                   ( Type of result: integer,
                     compare(1.9, 2.1) => -1,
@@ -8945,14 +8965,7 @@ CONTENTS
   action 'INT_ADD' is 'int_add()'. The function 'int_add()'
   is defined in the file "intlib.c" with:
 
-    #ifdef ANSI_C
-
     objecttype int_add (listtype arguments)
-    #else
-
-    objecttype int_add (arguments)
-    listtype arguments;
-    #endif
 
       { /* int_add */
         isit_int(arg_1(arguments));
@@ -9027,14 +9040,7 @@ CONTENTS
   function is used. The action 'INT_LOG2' is such an action. The
   definition of the function 'int_log2()' in the file "intlib.c" is:
 
-    #ifdef ANSI_C
-
     objecttype int_log2 (listtype arguments)
-    #else
-
-    objecttype int_log2 (arguments)
-    listtype arguments;
-    #endif
 
       { /* int_log2 */
         isit_int(arg_1(arguments));
@@ -9051,14 +9057,7 @@ CONTENTS
      *  @return the truncated base 2 logarithm.
      *  @exception NUMERIC_ERROR The number is negative.
      */
-    #ifdef ANSI_C
-
     inttype intLog2 (inttype number)
-    #else
-
-    inttype intLog2 (number)
-    inttype number;
-    #endif
 
       {
         int result;

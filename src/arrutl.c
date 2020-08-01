@@ -41,14 +41,7 @@
 
 
 
-#ifdef ANSI_C
-
 rtlArraytype gen_rtl_array (arraytype anArray)
-#else
-
-rtlArraytype gen_rtl_array (anArray)
-arraytype anArray;
-#endif
 
   {
     memsizetype arraySize;

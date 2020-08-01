@@ -63,14 +63,7 @@ char slash[]  = "/";
 
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#ifdef ANSI_C
-
 static stritype readVolumeName (volumeListType *volumeList)
-#else
-
-static stritype readVolumeName (volumeList)
-volumeListType *volumeList;
-#endif
 
   {
     os_chartype os_path[4];
@@ -114,14 +107,7 @@ volumeListType *volumeList;
 
 
 
-#ifdef ANSI_C
-
 static void closeVolumeList (volumeListType *volumeList)
-#else
-
-static void closeVolumeList (volumeList)
-volumeListType *volumeList;
-#endif
 
   { /* closeVolumeList */
     free(volumeList);
@@ -130,14 +116,7 @@ volumeListType *volumeList;
 
 
 
-#ifdef ANSI_C
-
 void dirClose (dirtype directory)
-#else
-
-void dirClose (directory)
-dirtype directory;
-#endif
 
   { /* dirClose */
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
@@ -153,14 +132,7 @@ dirtype directory;
 
 
 
-#ifdef ANSI_C
-
 dirtype dirOpen (const const_stritype file_name)
-#else
-
-dirtype dirOpen (file_name)
-stritype file_name;
-#endif
 
   {
     os_stritype os_path;
@@ -190,14 +162,7 @@ stritype file_name;
 
 
 
-#ifdef ANSI_C
-
 stritype dirRead (dirtype directory)
-#else
-
-stritype dirRead (directory)
-dirtype directory;
-#endif
 
   {
     os_dirent_struct *current_entry;

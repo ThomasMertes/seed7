@@ -43,14 +43,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_conv (listtype arguments)
-#else
-
-objecttype enu_conv (arguments)
-listtype arguments;
-#endif
 
   { /* enu_conv */
     isit_enum(arg_3(arguments));
@@ -59,14 +52,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_cpy (listtype arguments)
-#else
-
-objecttype enu_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype enum_variable;
@@ -82,14 +68,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_create (listtype arguments)
-#else
-
-objecttype enu_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype enum_to;
@@ -109,14 +88,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_eq (listtype arguments)
-#else
-
-objecttype enu_eq (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg1;
@@ -136,14 +108,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_genlit (listtype arguments)
-#else
-
-objecttype enu_genlit (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype enum_to;
@@ -157,14 +122,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_iconv2 (listtype arguments)
-#else
-
-objecttype enu_iconv2 (arguments)
-listtype arguments;
-#endif
 
   {
     inttype ordinal;
@@ -197,14 +155,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_ne (listtype arguments)
-#else
-
-objecttype enu_ne (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg1;
@@ -224,14 +175,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_ord2 (listtype arguments)
-#else
-
-objecttype enu_ord2 (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype enum_value;
@@ -259,14 +203,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype enu_value (listtype arguments)
-#else
-
-objecttype enu_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

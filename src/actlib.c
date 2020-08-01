@@ -48,14 +48,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype act_cpy (listtype arguments)
-#else
-
-objecttype act_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype act_variable;
@@ -71,14 +64,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype act_create (listtype arguments)
-#else
-
-objecttype act_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype act_to;
@@ -96,14 +82,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype act_gen (listtype arguments)
-#else
-
-objecttype act_gen (arguments)
-listtype arguments;
-#endif
 
   {
     stritype stri;
@@ -121,14 +100,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype act_illegal (listtype arguments)
-#else
-
-objecttype act_illegal (arguments)
-listtype arguments;
-#endif
 
   { /* act_illegal */
     return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
@@ -136,14 +108,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype act_str (listtype arguments)
-#else
-
-objecttype act_str (arguments)
-listtype arguments;
-#endif
 
   {
     stritype result;
@@ -160,14 +125,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype act_value (listtype arguments)
-#else
-
-objecttype act_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

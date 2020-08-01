@@ -63,20 +63,8 @@ typedef struct {
 
 
 
-#ifdef ANSI_C
-
 static INLINE void bytes_to_strelements (ustritype buffer, memsizetype bytes_in_buffer,
     strelemtype *stri_dest, read_state *state, errinfotype *err_info)
-#else
-
-static INLINE void bytes_to_strelements (buffer, bytes_in_buffer, stri_dest,
-    state, err_info)
-ustritype buffer;
-memsizetype bytes_in_buffer;
-strelemtype *stri_dest;
-read_state *state;
-errinfotype *err_info;
-#endif
 
   { /* bytes_to_strelements */
     if (bytes_in_buffer != 0) {
@@ -113,16 +101,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype *err_info)
-#else
-
-static memsizetype read_utf8_string (inFile, stri, err_info)
-filetype inFile;
-stritype stri;
-errinfotype *err_info;
-#endif
 
   {
     uchartype buffer[BUFFER_SIZE + 6];
@@ -168,18 +147,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_missing,
     memsizetype *num_of_chars_read, errinfotype *err_info)
-#else
-
-static stritype read_and_alloc_utf8_stri (inFile, chars_missing, num_of_chars_read, err_info)
-filetype inFile;
-memsizetype chars_missing;
-memsizetype *num_of_chars_read;
-errinfotype *err_info;
-#endif
 
   {
     uchartype buffer[BUFFER_SIZE + 6];
@@ -264,14 +233,7 @@ errinfotype *err_info;
  *  @return the character read, or EOF at the end of the file.
  *  @exception RANGE_ERROR - The file contains an illegal encoding.
  */
-#ifdef ANSI_C
-
 chartype ut8Getc (filetype inFile)
-#else
-
-chartype ut8Getc (inFile)
-filetype inFile;
-#endif
 
   {
     int character;
@@ -455,15 +417,7 @@ filetype inFile;
  *  @exception RANGE_ERROR - The length is negative or the file
  *             contains an illegal encoding.
  */
-#ifdef ANSI_C
-
 stritype ut8Gets (filetype inFile, inttype length)
-#else
-
-stritype ut8Gets (inFile, length)
-filetype inFile;
-inttype length;
-#endif
 
   {
     memsizetype chars_requested;
@@ -549,15 +503,7 @@ inttype length;
 
 
 
-#ifdef ANSI_C
-
 stritype ut8LineRead (filetype inFile, chartype *terminationChar)
-#else
-
-stritype ut8LineRead (inFile, terminationChar)
-filetype inFile;
-chartype *terminationChar;
-#endif
 
   {
     register int ch;
@@ -644,15 +590,7 @@ chartype *terminationChar;
  *  @exception RANGE_ERROR - The file position is negative or zero.
  *  @exception FILE_ERROR - The system function returns an error.
  */
-#ifdef ANSI_C
-
 void ut8Seek (filetype aFile, inttype file_position)
-#else
-
-void ut8Seek (aFile, file_position)
-filetype aFile;
-inttype file_position;
-#endif
 
   {
     int ch;
@@ -675,15 +613,7 @@ inttype file_position;
 
 
 
-#ifdef ANSI_C
-
 stritype ut8WordRead (filetype inFile, chartype *terminationChar)
-#else
-
-stritype ut8WordRead (inFile, terminationChar)
-filetype inFile;
-chartype *terminationChar;
-#endif
 
   {
     register int ch;
@@ -765,15 +695,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 void ut8Write (filetype outFile, const const_stritype stri)
-#else
-
-void ut8Write (outFile, stri)
-filetype outFile;
-stritype stri;
-#endif
 
   {
     strelemtype *str;

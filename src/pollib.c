@@ -49,14 +49,7 @@
 
 
 
-#ifdef ANSI_C
-
 static rtlGenerictype incrUsageCount (const rtlGenerictype pollFile)
-#else
-
-static rtlGenerictype incrUsageCount (pollFile)
-rtlGenerictype pollFile;
-#endif
 
   {
     objecttype fileObject;
@@ -96,14 +89,7 @@ rtlGenerictype pollFile;
 
 
 
-#ifdef ANSI_C
-
 static void decrUsageCount (const rtlGenerictype pollFile)
-#else
-
-static void decrUsageCount (pollFile)
-rtlGenerictype pollFile;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -117,13 +103,7 @@ rtlGenerictype pollFile;
 
 
 
-#ifdef ANSI_C
-
 static void initPollOps (void)
-#else
-
-static void initPollOps ()
-#endif
 
   { /* initPollOps */
     fileObjectOps.incrUsageCount = incrUsageCount;
@@ -132,14 +112,7 @@ static void initPollOps ()
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_addCheck (listtype arguments)
-#else
-
-objecttype pol_addCheck (arguments)
-listtype arguments;
-#endif
 
   { /* pol_addCheck */
     isit_poll(arg_1(arguments));
@@ -156,14 +129,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_clear (listtype arguments)
-#else
-
-objecttype pol_clear (arguments)
-listtype arguments;
-#endif
 
   { /* pol_clear */
     isit_poll(arg_1(arguments));
@@ -173,14 +139,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_cpy (listtype arguments)
-#else
-
-objecttype pol_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype poll_to;
@@ -204,14 +163,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_create (listtype arguments)
-#else
-
-objecttype pol_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype poll_to;
@@ -236,14 +188,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_destr (listtype arguments)
-#else
-
-objecttype pol_destr (arguments)
-listtype arguments;
-#endif
 
   { /* pol_destr */
     isit_poll(arg_1(arguments));
@@ -255,14 +200,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_empty (listtype arguments)
-#else
-
-objecttype pol_empty (arguments)
-listtype arguments;
-#endif
 
   { /* pol_empty */
     return bld_poll_temp(polEmpty());
@@ -270,14 +208,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_getCheck (listtype arguments)
-#else
-
-objecttype pol_getCheck (arguments)
-listtype arguments;
-#endif
 
   {
     inttype result;
@@ -292,14 +223,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_getFinding (listtype arguments)
-#else
-
-objecttype pol_getFinding (arguments)
-listtype arguments;
-#endif
 
   {
     inttype result;
@@ -314,14 +238,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_hasNext (listtype arguments)
-#else
-
-objecttype pol_hasNext (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype result;
@@ -338,14 +255,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_iterChecks (listtype arguments)
-#else
-
-objecttype pol_iterChecks (arguments)
-listtype arguments;
-#endif
 
   { /* pol_iterChecks */
     isit_poll(arg_1(arguments));
@@ -357,14 +267,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_iterFindings (listtype arguments)
-#else
-
-objecttype pol_iterFindings (arguments)
-listtype arguments;
-#endif
 
   { /* pol_iterFindings */
     isit_poll(arg_1(arguments));
@@ -376,14 +279,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_nextFile (listtype arguments)
-#else
-
-objecttype pol_nextFile (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype nextFile;
@@ -410,14 +306,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_poll (listtype arguments)
-#else
-
-objecttype pol_poll (arguments)
-listtype arguments;
-#endif
 
   { /* pol_poll */
     isit_poll(arg_1(arguments));
@@ -427,14 +316,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_removeCheck (listtype arguments)
-#else
-
-objecttype pol_removeCheck (arguments)
-listtype arguments;
-#endif
 
   { /* pol_removeCheck */
     isit_poll(arg_1(arguments));
@@ -448,14 +330,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype pol_value (listtype arguments)
-#else
-
-objecttype pol_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

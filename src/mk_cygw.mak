@@ -148,9 +148,8 @@ chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 
 version.h: chkccomp.h
-	echo "#define ANSI_C" > version.h
+	echo "#define PATH_DELIMITER '/'" > version.h
 	echo "#define USE_DIRENT" >> version.h
-	echo "#define PATH_DELIMITER '/'" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h

@@ -46,8 +46,6 @@
 #endif
 
 
-#ifdef ANSI_C
-
 void free_list (listtype list);
 listtype *append_element_to_list (listtype *list_insert_place, objecttype object,
                                   errinfotype *err_info);
@@ -65,22 +63,3 @@ listtype array_to_list (arraytype arr_from, errinfotype *err_info);
 listtype struct_to_list (structtype stru_from, errinfotype *err_info);
 listtype hash_data_to_list (hashtype hash, errinfotype *err_info);
 listtype hash_keys_to_list (hashtype hash, errinfotype *err_info);
-
-#else
-
-void free_list ();
-listtype *append_element_to_list ();
-objecttype copy_expression ();
-void free_expression ();
-void concat_lists ();
-void incl_list ();
-void excl_list ();
-void pop_list ();
-void replace_list_elem ();
-listtype copy_list ();
-listtype array_to_list ();
-listtype struct_to_list ();
-listtype hash_data_to_list ();
-listtype hash_keys_to_list ();
-
-#endif

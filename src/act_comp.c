@@ -44,14 +44,7 @@
 
 
 
-#ifdef ANSI_C
-
 stritype actStr (acttype anAction)
-#else
-
-stritype actStr (anAction)
-acttype anAction;
-#endif
 
   {
     stritype result;

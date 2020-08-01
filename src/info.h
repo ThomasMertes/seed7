@@ -41,18 +41,8 @@
 
 #ifdef WITH_COMPILATION_INFO
 
-#ifdef ANSI_C
-
 void display_compilation_info (void);
 void line_compilation_info (void);
 void open_compilation_info (booltype write_library_names, booltype write_line_numbers);
-
-#else
-
-void display_compilation_info ();
-void line_compilation_info ();
-void open_compilation_info ();
-
-#endif
 
 #endif

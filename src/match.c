@@ -54,24 +54,13 @@
 
 
 
-#ifdef ANSI_C
 static objecttype match_subexpr (objecttype, const_nodetype, listtype,
      booltype, booltype);
-#else
-static objecttype match_subexpr ();
-#endif
 
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static int variable_obj (objecttype object)
-#else
-
-static int variable_obj (object)
-objecttype object;
-#endif
 
   {
     int result;
@@ -98,15 +87,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 static void check_parameter (objecttype expr_object, objecttype actual_param)
-#else
-
-static void check_parameter (expr_object, actual_param)
-objecttype expr_object;
-objecttype actual_param;
-#endif
 
   { /* check_parameter */
     if (CATEGORY_OF_OBJ(actual_param) == CALLOBJECT) {
@@ -125,14 +106,7 @@ objecttype actual_param;
 
 
 
-#ifdef ANSI_C
-
 static void check_access_rights (const_objecttype object)
-#else
-
-static void check_access_rights (object)
-objecttype object;
-#endif
 
   {
     listtype name_elem;
@@ -193,14 +167,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 void substitute_params (const_objecttype expr_object)
-#else
-
-void substitute_params (expr_object)
-objecttype expr_object;
-#endif
 
   {
     listtype expr_list;
@@ -283,14 +250,7 @@ objecttype expr_object;
 
 
 
-#ifdef ANSI_C
-
 void update_owner (const_objecttype expr_object)
-#else
-
-void update_owner (expr_object)
-objecttype expr_object;
-#endif
 
   {
     listtype expr_list;
@@ -320,14 +280,7 @@ objecttype expr_object;
 
 
 
-#ifdef ANSI_C
-
 objecttype match_object (objecttype object)
-#else
-
-objecttype match_object (object)
-objecttype object;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -403,15 +356,7 @@ objecttype object;
 
 
 
-#ifdef ANSI_C
-
 static objecttype match_object2 (objecttype object, const_objecttype expr_object)
-#else
-
-static objecttype match_object2 (object, expr_object)
-objecttype object;
-objecttype expr_object;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -493,24 +438,10 @@ objecttype expr_object;
 
 
 
-#ifdef ANSI_C
-
 static objecttype match_subexpr_var (objecttype expr_object,
     const_nodetype start_node, typetype object_type,
     listtype rest_of_expression, booltype check_access_right,
     booltype look_for_interfaces)
-#else
-
-static objecttype match_subexpr_var (expr_object, start_node,
-    object_type, rest_of_expression, check_access_right,
-    look_for_interfaces)
-objecttype expr_object;
-nodetype start_node;
-typetype object_type;
-listtype rest_of_expression;
-booltype check_access_right;
-booltype look_for_interfaces;
-#endif
 
   {
     nodetype node_found;
@@ -548,23 +479,9 @@ booltype look_for_interfaces;
 
 
 
-#ifdef ANSI_C
-
 static objecttype match_subexpr_const (objecttype expr_object,
     const_nodetype start_node, typetype object_type, listtype rest_of_expression,
     booltype check_access_right, booltype look_for_interfaces)
-#else
-
-static objecttype match_subexpr_const (expr_object, start_node,
-    object_type, rest_of_expression, check_access_right,
-    look_for_interfaces)
-objecttype expr_object;
-nodetype start_node;
-typetype object_type;
-listtype rest_of_expression;
-booltype check_access_right;
-booltype look_for_interfaces;
-#endif
 
   {
     nodetype node_found;
@@ -602,25 +519,10 @@ booltype look_for_interfaces;
 
 
 
-#ifdef ANSI_C
-
 static objecttype match_subexpr_type (objecttype expr_object,
     const_nodetype start_node, typetype object_type, booltype is_variable_obj,
     listtype rest_of_expression, booltype check_access_right,
     booltype look_for_interfaces)
-#else
-
-static objecttype match_subexpr_type (expr_object, start_node,
-    object_type, is_variable_obj, rest_of_expression,
-    check_access_right, look_for_interfaces)
-objecttype expr_object;
-nodetype start_node;
-typetype object_type;
-booltype is_variable_obj;
-listtype rest_of_expression;
-booltype check_access_right;
-booltype look_for_interfaces;
-#endif
 
   {
     typetype current_object_type;
@@ -732,24 +634,10 @@ booltype look_for_interfaces;
 
 
 
-#ifdef ANSI_C
-
 static objecttype match_subexpr_attr (objecttype expr_object,
     const_nodetype start_node, const_typetype object_type,
     listtype rest_of_expression, booltype check_access_right,
     booltype look_for_interfaces)
-#else
-
-static objecttype match_subexpr_attr (expr_object, start_node,
-    object_type, rest_of_expression, check_access_right,
-    look_for_interfaces)
-objecttype expr_object;
-nodetype start_node;
-typetype object_type;
-listtype rest_of_expression;
-booltype check_access_right;
-booltype look_for_interfaces;
-#endif
 
   {
     nodetype node_found;
@@ -782,25 +670,10 @@ booltype look_for_interfaces;
 
 
 
-#ifdef ANSI_C
-
 static objecttype match_subexpr_param_attr (objecttype expr_object,
     const_nodetype start_node, const_typetype f_param_type,
     booltype is_inout_f_param, listtype rest_of_expression,
     booltype check_access_right, booltype look_for_interfaces)
-#else
-
-static objecttype match_subexpr_param_attr (expr_object, start_node,
-    f_param_type, is_inout_f_param, rest_of_expression, check_access_right,
-    look_for_interfaces)
-objecttype expr_object;
-nodetype start_node;
-const_typetype f_param_type;
-booltype is_inout_f_param;
-listtype rest_of_expression;
-booltype check_access_right;
-booltype look_for_interfaces;
-#endif
 
   {
     nodetype node_found;
@@ -848,21 +721,9 @@ booltype look_for_interfaces;
 
 
 
-#ifdef ANSI_C
-
 static objecttype match_subexpr (objecttype expr_object,
     const_nodetype start_node, listtype match_expr, booltype check_access_right,
     booltype look_for_interfaces)
-#else
-
-static objecttype match_subexpr (expr_object, start_node,
-    match_expr, check_access_right, look_for_interfaces)
-objecttype expr_object;
-nodetype start_node;
-listtype match_expr;
-booltype check_access_right;
-booltype look_for_interfaces;
-#endif
 
   {
     nodetype node_found;
@@ -1103,14 +964,7 @@ booltype look_for_interfaces;
 
 
 
-#ifdef ANSI_C
-
 objecttype match_expression (objecttype expr_object)
-#else
-
-objecttype match_expression (expr_object)
-objecttype expr_object;
-#endif
 
   {
     listtype expr_list;
@@ -1164,16 +1018,8 @@ objecttype expr_object;
 
 
 
-#ifdef ANSI_C
-
 objecttype match_prog_expression (const_nodetype start_node,
     objecttype expr_object)
-#else
-
-objecttype match_prog_expression (start_node, expr_object)
-nodetype start_node;
-objecttype expr_object;
-#endif
 
   {
     listtype expr_list;

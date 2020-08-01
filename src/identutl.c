@@ -44,15 +44,7 @@
 
 
 
-#ifdef ANSI_C
-
 identtype new_ident (const_ustritype name, sysizetype length)
-#else
-
-identtype new_ident (name, length)
-ustritype name;
-sysizetype length;
-#endif
 
   {
     register identtype created_ident;
@@ -87,15 +79,7 @@ sysizetype length;
 
 
 
-#ifdef ANSI_C
-
 static void free_ident (const_progtype currentProg, identtype old_ident)
-#else
-
-static void free_ident (currentProg, old_ident)
-progtype currentProg;
-identtype old_ident;
-#endif
 
   {
     sysizetype length;
@@ -119,14 +103,7 @@ identtype old_ident;
 
 
 
-#ifdef ANSI_C
-
 identtype get_ident (const_ustritype name)
-#else
-
-identtype get_ident (name)
-ustritype name;
-#endif
 
   {
     register identtype ident_found;
@@ -186,14 +163,7 @@ ustritype name;
 
 
 
-#ifdef ANSI_C
-
 void close_idents (const_progtype currentProg)
-#else
-
-void close_idents (currentProg)
-progtype currentProg;
-#endif
 
   {
     int position;
@@ -222,15 +192,7 @@ progtype currentProg;
 
 
 
-#ifdef ANSI_C
-
 void init_idents (progtype currentProg, errinfotype *err_info)
-#else
-
-void init_idents (currentProg, err_info)
-progtype currentProg;
-errinfotype *err_info;
-#endif
 
   {
     int position;

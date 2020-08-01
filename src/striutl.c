@@ -99,15 +99,7 @@ int codepage = DEFAULT_CODEPAGE;
 
 
 #if defined OS_PATH_HAS_DRIVE_LETTERS || defined EMULATE_ROOT_CWD
-#ifdef ANSI_C
-
 static const strelemtype *stri_charpos (const_stritype stri, strelemtype ch)
-#else
-
-static strelemtype *stri_charpos (stri, ch)
-stritype stri;
-strelemtype ch;
-#endif
 
   {
     const strelemtype *mem;
@@ -127,18 +119,8 @@ strelemtype ch;
 
 
 
-#ifdef ANSI_C
-
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
     const_ustritype ustri, size_t len)
-#else
-
-memsizetype utf8_to_stri (dest_stri, dest_len, ustri, len)
-strelemtype *dest_stri;
-memsizetype *dest_len;
-ustritype ustri;
-size_t len;
-#endif
 
   {
     strelemtype *stri;
@@ -220,15 +202,7 @@ size_t len;
 
 
 
-#ifdef ANSI_C
-
 memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len)
-#else
-
-memsizetype utf8_bytes_missing (ustri, len)
-ustritype ustri;
-size_t len;
-#endif
 
   {
     memsizetype result;
@@ -303,17 +277,8 @@ size_t len;
 
 
 
-#ifdef ANSI_C
-
 memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *strelem,
     memsizetype len)
-#else
-
-memsizetype stri_to_utf8 (out_stri, strelem, len)
-ustritype out_stri;
-strelemtype *strelem;
-memsizetype len;
-#endif
 
   {
     register ustritype ustri;
@@ -355,16 +320,7 @@ memsizetype len;
 
 
 
-#ifdef ANSI_C
-
 void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len)
-#else
-
-void ustri_expand (stri, ustri, len)
-strelemtype *stri;
-ustritype ustri;
-size_t len;
-#endif
 
   { /* ustri_expand */
     for (; len > 0; stri++, ustri++, len--) {
@@ -374,16 +330,7 @@ size_t len;
 
 
 
-#ifdef ANSI_C
-
 void stri_compress (ustritype ustri, const strelemtype *stri, size_t len)
-#else
-
-void stri_compress (ustri, stri, len)
-ustritype ustri;
-strelemtype *stri;
-size_t len;
-#endif
 
   { /* stri_compress */
     for (; len > 0; stri++, ustri++, len--) {
@@ -407,15 +354,7 @@ size_t len;
  *  function is useful, when in_stri->size is somehow limited,
  *  such that a fixed size 'out_stri' buffer can be used.
  */
-#ifdef ANSI_C
-
 void stri_export_utf8 (ustritype out_stri, const_stritype in_stri)
-#else
-
-void stri_export_utf8 (out_stri, in_stri)
-ustritype out_stri;
-stritype in_stri;
-#endif
 
   {
     memsizetype len;
@@ -428,18 +367,8 @@ stritype in_stri;
 
 
 #ifdef OS_STRI_WCHAR
-#ifdef ANSI_C
-
 memsizetype stri_to_wstri (wstritype out_wstri, register const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
-#else
-
-memsizetype stri_to_wstri (out_wstri, strelem, len, err_info)
-wstritype out_wstri;
-strelemtype *strelem;
-memsizetype len;
-errinfotype *err_info;
-#endif
 
   {
     register wstritype wstri;
@@ -464,18 +393,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
-#else
-
-static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
-os_stritype os_stri;
-strelemtype *strelem;
-memsizetype len;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype length;
@@ -561,18 +480,8 @@ static unsigned char map_to_850_9472[] = {
 
 
 
-#ifdef ANSI_C
-
 static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
-#else
-
-static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
-os_stritype os_stri;
-strelemtype *strelem;
-memsizetype len;
-errinfotype *err_info;
-#endif
 
   {
     unsigned char ch;
@@ -652,18 +561,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
-#else
-
-static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
-os_stritype os_stri;
-strelemtype *strelem;
-memsizetype len;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype length;
@@ -677,18 +576,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
-#else
-
-static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
-os_stritype os_stri;
-strelemtype *strelem;
-memsizetype len;
-errinfotype *err_info;
-#endif
 
   { /* conv_to_os_stri */
     for (; len > 0; strelem++, os_stri++, len--) {
@@ -705,17 +594,7 @@ errinfotype *err_info;
 
 
 #if defined OS_STRI_WCHAR
-#ifdef ANSI_C
-
 static memsizetype wstri_expand (strelemtype *dest_stri, const_wstritype wstri, memsizetype len)
-#else
-
-static memsizetype wstri_expand dest_(stri, wstri, len)
-strelemtype *dest_stri;
-wstritype wstri;
-memsizetype len;
-errinfotype *err_info;
-#endif
 
   {
     strelemtype *stri;
@@ -757,16 +636,8 @@ errinfotype *err_info;
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 stritype conv_from_os_stri (const const_os_stritype os_stri,
     memsizetype length)
-#else
-
-stritype conv_from_os_stri (os_stri, length)
-os_stritype os_stri;
-memsizetype length;
-#endif
 
   {
     memsizetype stri_size;
@@ -865,16 +736,8 @@ static strelemtype map_from_850[] = {
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 stritype conv_from_os_stri (const const_os_stritype os_stri,
     memsizetype length)
-#else
-
-stritype conv_from_os_stri (os_stri, length)
-os_stritype os_stri;
-memsizetype length;
-#endif
 
   {
     memsizetype pos;
@@ -915,16 +778,8 @@ memsizetype length;
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 stritype conv_from_os_stri (const const_os_stritype os_stri,
     memsizetype length)
-#else
-
-stritype conv_from_os_stri (os_stri, length)
-os_stritype os_stri;
-memsizetype length;
-#endif
 
   {
     memsizetype stri_size;
@@ -967,16 +822,8 @@ memsizetype length;
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 stritype conv_from_os_stri (const const_os_stritype os_stri,
     memsizetype length)
-#else
-
-stritype conv_from_os_stri (os_stri, length)
-os_stritype os_stri;
-memsizetype length;
-#endif
 
   {
     stritype stri;
@@ -1005,14 +852,7 @@ memsizetype length;
  *  @return an UTF-8 encoded null terminated C string or
  *          NULL, when the memory allocation failed.
  */
-#ifdef ANSI_C
-
 cstritype cp_to_cstri8 (const_stritype stri)
-#else
-
-cstritype cp_to_cstri8 (stri)
-stritype stri;
-#endif
 
   {
     cstritype cstri;
@@ -1042,14 +882,7 @@ stritype stri;
  *  @return an ISO-8859-1 encoded bstring or
  *          NULL, when the memory allocation failed.
  */
-#ifdef ANSI_C
-
 bstritype stri_to_bstri (const_stritype stri)
-#else
-
-bstritype stri_to_bstri (stri)
-stritype stri;
-#endif
 
   {
     register const strelemtype *str;
@@ -1092,14 +925,7 @@ stritype stri;
  *  @return an UTF-8 encoded bstring or
  *          NULL, when the memory allocation failed.
  */
-#ifdef ANSI_C
-
 bstritype stri_to_bstri8 (const_stritype stri)
-#else
-
-bstritype stri_to_bstri8 (stri)
-stritype stri;
-#endif
 
   {
     bstritype resized_bstri;
@@ -1125,14 +951,7 @@ stritype stri;
 
 
 #ifdef CONSOLE_WCHAR
-#ifdef ANSI_C
-
 bstritype stri_to_bstriw (const_stritype stri)
-#else
-
-bstritype stri_to_bstriw (stri)
-stritype stri;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -1168,14 +987,7 @@ stritype stri;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 bstritype stri_to_os_bstri (const_stritype stri)
-#else
-
-bstritype stri_to_os_bstri (stri)
-stritype stri;
-#endif
 
   {
     bstritype bstri;
@@ -1208,14 +1020,7 @@ stritype stri;
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed.
  */
-#ifdef ANSI_C
-
 stritype cstri_to_stri (const_cstritype cstri)
-#else
-
-stritype cstri_to_stri (cstri)
-cstritype cstri;
-#endif
 
   {
     memsizetype length;
@@ -1233,14 +1038,7 @@ cstritype cstri;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 stritype cstri_to_stri (const_cstritype cstri)
-#else
-
-stritype cstri_to_stri (cstri)
-cstritype cstri;
-#endif
 
   {
     register strelemtype *stri;
@@ -1272,14 +1070,7 @@ cstritype cstri;
  *          NULL, when the memory allocation failed or when
  *          illegal UTF-8 encodings are used.
  */
-#ifdef ANSI_C
-
 stritype cstri8_to_stri (const_cstritype cstri)
-#else
-
-stritype cstri8_to_stri (cstri)
-cstritype cstri;
-#endif
 
   {
     memsizetype length;
@@ -1317,14 +1108,7 @@ cstritype cstri;
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed.
  */
-#ifdef ANSI_C
-
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
-#else
-
-stritype cstri8_or_cstri_to_stri (cstri)
-cstritype cstri;
-#endif
 
   {
     stritype stri;
@@ -1356,15 +1140,7 @@ cstritype cstri;
  *  @return a null terminated os_stritype value used by system calls or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype stri_to_os_stri (stri, err_info)
-const_stritype stri;
-errinfotype *err_info;
-#endif
 
   {
     os_stritype result;
@@ -1404,15 +1180,7 @@ errinfotype *err_info;
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
-#else
-
-stritype os_stri_to_stri (os_stri, err_info)
-os_stritype os_stri;
-errinfotype *err_info;
-#endif
 
   {
     stritype stri;
@@ -1427,14 +1195,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 stritype stri_to_standard_path (stritype stri)
-#else
-
-stritype stri_to_standard_path (stri)
-stritype stri;
-#endif
 
   {
     stritype result;
@@ -1487,15 +1248,7 @@ stritype stri;
  *  @return an UTF-32 encoded Seed7 standard path or
  *          NULL, when the memory allocation failed.
  */
-#ifdef ANSI_C
-
 stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info)
-#else
-
-stritype cp_from_os_path (os_path, err_info)
-os_stritype os_path;
-errinfotype *err_info;
-#endif
 
   {
     stritype result;
@@ -1518,14 +1271,7 @@ errinfotype *err_info;
 
 
 #ifdef EMULATE_ROOT_CWD
-#ifdef ANSI_C
-
 void setEmulatedCwd (const os_stritype os_path)
-#else
-
-void setEmulatedCwd (os_path)
-os_stritype os_path;
-#endif
 
   {
     memsizetype position;
@@ -1558,21 +1304,9 @@ os_stritype os_path;
 
 
 
-#ifdef ANSI_C
-
 static os_stritype append_path (const const_os_stritype absolutePath,
     const strelemtype *const relativePathChars,
     memsizetype relativePathSize, int *path_info, errinfotype *err_info)
-#else
-
-static os_stritype append_path (absolutePath, relativePathChars,
-    relativePathSize, path_info, err_info)
-os_stritype absolutePath;
-strelemtype relativePathChars;
-memsizetype relativePathSize;
-int *path_info;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype abs_path_length;
@@ -1672,18 +1406,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static os_stritype map_to_drive_letter (const strelemtype *const pathChars,
     memsizetype pathSize, int *path_info, errinfotype *err_info)
-#else
-
-static os_stritype map_to_drive_letter (pathChars, pathSize, path_info, err_info)
-strelemtype pathChars;
-memsizetype pathSize;
-int *path_info;
-errinfotype *err_info;
-#endif
 
   {
     os_stritype result;
@@ -1758,17 +1482,8 @@ errinfotype *err_info;
  *  @return a null terminated os_stritype path used by system calls or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
     errinfotype *err_info)
-#else
-
-os_stritype cp_to_os_path (std_path, path_info, err_info)
-stritype std_path;
-int *path_info;
-errinfotype *err_info;
-#endif
 
   {
     os_stritype result;
@@ -1871,17 +1586,8 @@ errinfotype *err_info;
  *  @return a null terminated os_stritype path used by system calls or
  *          NULL, when an error occurred.
  */
-#ifdef ANSI_C
-
 os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
     errinfotype *err_info)
-#else
-
-os_stritype cp_to_os_path (std_path, path_info, err_info)
-stritype std_path;
-int *path_info;
-errinfotype *err_info;
-#endif
 
   {
     os_stritype result;
@@ -1916,17 +1622,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void escape_command (const const_os_stritype inBuffer, os_stritype outBuffer,
     errinfotype *err_info)
-#else
-
-static void escape_command (inBuffer, outBuffer, err_info)
-os_stritype inBuffer;
-os_stritype outBuffer;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype inPos;
@@ -1993,17 +1690,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 os_stritype cp_to_command (const const_stritype commandPath,
     const const_stritype parameters, errinfotype *err_info)
-#else
-
-os_stritype cp_to_command (commandPath, parameters, err_info)
-stritype commandPath;
-stritype parameters;
-errinfotype *err_info;
-#endif
 
   {
     os_stritype os_commandPath;
@@ -2084,16 +1772,8 @@ errinfotype *err_info;
 
 
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
-#ifdef ANSI_C
-
 stritype relativeToProgramPath (const const_stritype basePath,
     const const_cstritype dir)
-#else
-
-stritype relativeToProgramPath (basePath, dir)
-stritype basePath;
-cstritype dir;
-#endif
 
   {
     memsizetype dir_path_size;

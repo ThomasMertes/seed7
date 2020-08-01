@@ -48,14 +48,7 @@
 
 
 
-#ifdef ANSI_C
-
 stritype chrCLit (chartype character)
-#else
-
-stritype chrCLit (character)
-chartype character;
-#endif
 
   {
     memsizetype len;
@@ -103,15 +96,7 @@ chartype character;
 
 
 
-#ifdef ANSI_C
-
 INLINE inttype chrCmp (chartype char1, chartype char2)
-#else
-
-INLINE inttype chrCmp (char1, char2)
-chartype char1;
-chartype char2;
-#endif
 
   { /* chrCmp */
     if (char1 < char2) {
@@ -131,15 +116,7 @@ chartype char2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(chartype).
  */
-#ifdef ANSI_C
-
 inttype chrCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype chrCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* chrCmpGeneric */
     return chrCmp((chartype) value1, (chartype) value2);
@@ -147,15 +124,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 void chrCpy (chartype *dest, chartype source)
-#else
-
-void chrCpy (dest, source)
-chartype *dest;
-chartype source;
-#endif
 
   { /* chrCpy */
     *dest = source;
@@ -163,14 +132,7 @@ chartype source;
 
 
 
-#ifdef ANSI_C
-
 chartype chrLow (chartype ch)
-#else
-
-chartype chrLow (ch)
-chartype ch;
-#endif
 
   { /* chrLow */
     if (ch >= (chartype) 'A' && ch <= (chartype) 'Z') {
@@ -182,14 +144,7 @@ chartype ch;
 
 
 
-#ifdef ANSI_C
-
 stritype chrStr (chartype ch)
-#else
-
-stritype chrStr (ch)
-chartype ch;
-#endif
 
   {
     stritype result;
@@ -207,14 +162,7 @@ chartype ch;
 
 
 
-#ifdef ANSI_C
-
 chartype chrUp (chartype ch)
-#else
-
-chartype chrUp (ch)
-chartype ch;
-#endif
 
   { /* chrUp */
     if (ch >= (chartype) 'a' && ch <= (chartype) 'z') {

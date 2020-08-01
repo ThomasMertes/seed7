@@ -64,16 +64,6 @@ typedef struct {
 #endif
 
 
-#ifdef ANSI_C
-
 DIR *opendir (char *);
 struct dirent *readdir (DIR *);
 int closedir (DIR *);
-
-#else
-
-DIR *opendir ();
-struct dirent *readdir ();
-int closedir ();
-
-#endif

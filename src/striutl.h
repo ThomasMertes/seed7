@@ -79,8 +79,6 @@ extern os_chartype emulated_root[];
 
 
 
-#ifdef ANSI_C
-
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
                           const_ustritype ustri, size_t len);
 memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len);
@@ -117,40 +115,4 @@ os_stritype cp_to_command (const const_stritype commandPath,
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
 stritype relativeToProgramPath (const const_stritype basePath,
     const const_cstritype dir);
-#endif
-
-#else
-
-memsizetype utf8_to_stri ();
-memsizetype utf8_bytes_missing ();
-memsizetype stri_to_utf8 ();
-void stri_export_utf8 ();
-void ustri_expand ();
-void stri_compress ();
-#ifdef OS_STRI_WCHAR
-memsizetype stri_to_wstri ();
-#endif
-cstritype cp_to_cstri8 ();
-bstritype stri_to_bstri ();
-bstritype stri_to_bstri8 ();
-#ifdef CONSOLE_WCHAR
-bstritype stri_to_bstriw ();
-#endif
-stritype cstri_to_stri ();
-stritype cstri8_to_stri ();
-stritype cstri8_or_cstri_to_stri ();
-stritype conv_from_os_stri ();
-os_stritype stri_to_os_stri ();
-stritype os_stri_to_stri ();
-stritype stri_to_standard_path ():
-stritype cp_from_os_path ();
-#ifdef EMULATE_ROOT_CWD
-void setEmulatedCwd ();
-#endif
-os_stritype cp_to_os_path ();
-os_stritype cp_to_command ();
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-stritype relativeToProgramPath ();
-#endif
-
 #endif

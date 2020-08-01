@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype str_append     (listtype arguments);
 objecttype str_cat        (listtype arguments);
 objecttype str_chipos     (listtype arguments);
@@ -75,56 +73,3 @@ objecttype str_trim       (listtype arguments);
 objecttype str_up         (listtype arguments);
 objecttype str_utf8tostri (listtype arguments);
 objecttype str_value      (listtype arguments);
-
-#else
-
-objecttype str_append ();
-objecttype str_cat ();
-objecttype str_chipos ();
-objecttype str_chpos ();
-objecttype str_chsplit ();
-objecttype str_clit ();
-objecttype str_cmp ();
-objecttype str_cpy ();
-objecttype str_create ();
-objecttype str_destr ();
-objecttype str_elemcpy ();
-objecttype str_eq ();
-objecttype str_ge ();
-objecttype str_gt ();
-objecttype str_hashcode ();
-objecttype str_head ();
-objecttype str_idx ();
-objecttype str_ipos ();
-objecttype str_le ();
-objecttype str_lit ();
-objecttype str_lng ();
-objecttype str_low ();
-objecttype str_lpad ();
-objecttype str_lpad0 ();
-objecttype str_lt ();
-objecttype str_ltrim ();
-objecttype str_mult ();
-objecttype str_ne ();
-objecttype str_pos ();
-objecttype str_poscpy ();
-objecttype str_push ();
-objecttype str_range ();
-objecttype str_rchipos ();
-objecttype str_rchpos ();
-objecttype str_repl ();
-objecttype str_ripos ()
-objecttype str_rpad ();
-objecttype str_rpos ();
-objecttype str_rtrim ();
-objecttype str_split ();
-objecttype str_str ();
-objecttype str_substr ();
-objecttype str_tail ();
-objecttype str_toutf8 ();
-objecttype str_trim ();
-objecttype str_up ();
-objecttype str_utf8tostri ();
-objecttype str_value ();
-
-#endif

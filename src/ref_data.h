@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype refAlloc (objecttype obj_arg);
 inttype refArrMaxIdx (objecttype obj_arg);
 inttype refArrMinIdx (objecttype obj_arg);
@@ -71,52 +69,3 @@ void rflSetvalue (objecttype list_to, listtype list_from);
 settype setValue (objecttype obj_arg);
 stritype strValue (objecttype obj_arg);
 typetype typValue (objecttype obj_arg);
-
-#else
-
-objecttype refAlloc ();
-inttype refArrMaxIdx ();
-inttype refArrMinIdx ();
-listtype refArrToList ();
-objecttype refBody ();
-inttype refCategory ();
-inttype refCatParse ();
-stritype refCatStr ();
-void refCpy ();
-stritype refFile ();
-listtype refHshDataToList ();
-listtype refHshKeysToList ();
-booltype refIsVar ();
-objecttype refItfToSct ();
-inttype refLine ();
-listtype refLocalConsts ();
-listtype refLocalVars ();
-inttype refNum ();;
-listtype refParams ();
-objecttype refResini ();
-objecttype refResult ();
-listtype refSctToList ();
-void refSetCategory ();
-void refSetParams ();
-void refSetType ();
-void refSetVar ();
-stritype refStr ();
-typetype refType ();
-acttype actValue ();
-biginttype bigValue ();
-bstritype bstValue ();
-chartype chrValue ();
-wintype drwValue ();
-filetype filValue ();
-floattype fltValue ();
-inttype intValue ();
-polltype polValue ();
-progtype prgValue ();
-objecttype refValue ();
-listtype rflValue ();
-void rflSetvalue ();
-settype setValue ();
-stritype strValue ();
-typetype typValue ();
-
-#endif

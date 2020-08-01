@@ -878,13 +878,7 @@ static primactrecord prim_act_table[] = {
 
 
 
-#ifdef ANSI_C
-
 void init_primitiv (void)
-#else
-
-void init_primitiv ()
-#endif
 
   { /* init_primitiv */
     act_table.size = sizeof(prim_act_table) / sizeof(primactrecord);

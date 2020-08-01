@@ -49,77 +49,37 @@ size_t sizeof_pollrecord = sizeof(pollrecord);
 
 
 
-#ifdef ANSI_C
-
 void initPollOperations (const createfunctype incrUsageCount,
     const destrfunctype decrUsageCount)
-#else
-
-void initPollOperations (incrUsageCount, decrUsageCount)
-createfunctype incrUsageCount;
-destrfunctype decrUsageCount;
-#endif
 
   { /* initPollOperations */
   } /* initPollOperations */
 
 
 
-#ifdef ANSI_C
-
 void polAddCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck, const rtlGenerictype fileObj)
-#else
-
-void polAddCheck (pollData, aSocket, eventsToCheck, fileObj)
-polltype pollData;
-sockettype aSocket;
-inttype eventsToCheck;
-rtlGenerictype fileObj;
-#endif
 
   { /* polAddCheck */
   } /* polAddCheck */
 
 
 
-#ifdef ANSI_C
-
 void polClear (const polltype pollData)
-#else
-
-void polClear (pollData)
-polltype pollData;
-#endif
 
   { /* polClear */
   } /* polClear */
 
 
 
-#ifdef ANSI_C
-
 void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
-#else
-
-void polCpy (poll_to, pollDataFrom)
-polltype poll_to;
-polltype pollDataFrom;
-#endif
 
   {  /* polCpy */
   }  /* polCpy */
 
 
 
-#ifdef ANSI_C
-
 polltype polCreate (const const_polltype pollDataFrom)
-#else
-
-polltype polCreate (pollDataFrom)
-polltype pollDataFrom;
-#endif
 
   { /* polCreate */
     return NULL;
@@ -127,27 +87,14 @@ polltype pollDataFrom;
 
 
 
-#ifdef ANSI_C
-
 void polDestr (const polltype oldPollData)
-#else
-
-void polDestr (oldPollData)
-polltype oldPollData;
-#endif
 
   { /* polDestr */
   } /* polDestr */
 
 
 
-#ifdef ANSI_C
-
 polltype polEmpty (void)
-#else
-
-polltype polEmpty ()
-#endif
 
   { /* polEmpty */
     return NULL;
@@ -155,15 +102,7 @@ polltype polEmpty ()
 
 
 
-#ifdef ANSI_C
-
 inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
-#else
-
-inttype polGetCheck (pollData, aSocket)
-polltype pollData;
-sockettype aSocket;
-#endif
 
   { /* polGetCheck */
     return POLL_NOTHING;
@@ -171,29 +110,14 @@ sockettype aSocket;
 
 
 
-#ifdef ANSI_C
-
 inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
-#else
-
-inttype polGetFinding (pollData, aSocket)
-polltype pollData;
-sockettype aSocket;
-#endif
 
   { /* polGetFinding */
     return POLL_NOTHING;
   } /* polGetFinding */
 
 
-#ifdef ANSI_C
-
 booltype polHasNext (const polltype pollData)
-#else
-
-booltype polHasNext (pollData)
-polltype pollData;
-#endif
 
   { /* polHasNext */
     return FALSE;
@@ -201,45 +125,21 @@ polltype pollData;
 
 
 
-#ifdef ANSI_C
-
 void polIterChecks (const polltype pollData, inttype pollMode)
-#else
-
-void polIterChecks (pollData, pollMode)
-polltype pollData;
-inttype pollMode;
-#endif
 
   { /* polIterChecks */
   } /* polIterChecks */
 
 
 
-#ifdef ANSI_C
-
 void polIterFindings (const polltype pollData, inttype pollMode)
-#else
-
-void polIterFindings (pollData, pollMode)
-polltype pollData;
-inttype pollMode;
-#endif
 
   { /* polIterFindings */
   } /* polIterFindings */
 
 
 
-#ifdef ANSI_C
-
 rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile)
-#else
-
-rtlGenerictype polNextFile (pollData, nullFile)
-polltype pollData;
-rtlGenerictype nullFile;
-#endif
 
   { /* polNextFile */
     return nullFile;
@@ -247,14 +147,7 @@ rtlGenerictype nullFile;
 
 
 
-#ifdef ANSI_C
-
 void polPoll (const polltype pollData)
-#else
-
-void polPoll (pollData)
-polltype pollData;
-#endif
 
   { /* polPoll */
     raise_error(FILE_ERROR);
@@ -262,17 +155,8 @@ polltype pollData;
 
 
 
-#ifdef ANSI_C
-
 void polRemoveCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck)
-#else
-
-void polRemoveCheck (pollData, aSocket, eventsToCheck)
-polltype pollData;
-sockettype aSocket;
-inttype eventsToCheck;
-#endif
 
   { /* polRemoveCheck */
   } /* polRemoveCheck */

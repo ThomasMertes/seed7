@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype enu_conv   (listtype arguments);
 objecttype enu_cpy    (listtype arguments);
 objecttype enu_create (listtype arguments);
@@ -36,17 +34,3 @@ objecttype enu_iconv2 (listtype arguments);
 objecttype enu_ne     (listtype arguments);
 objecttype enu_ord2   (listtype arguments);
 objecttype enu_value  (listtype arguments);
-
-#else
-
-objecttype enu_conv ();
-objecttype enu_cpy ();
-objecttype enu_create ();
-objecttype enu_eq ();
-objecttype enu_genlit ();
-objecttype enu_iconv2 ();
-objecttype enu_ne ();
-objecttype enu_ord2 ();
-objecttype enu_value ();
-
-#endif

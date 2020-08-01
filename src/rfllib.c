@@ -47,14 +47,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_append (listtype arguments)
-#else
-
-objecttype rfl_append (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype rfl_variable;
@@ -94,14 +87,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_cat (listtype arguments)
-#else
-
-objecttype rfl_cat (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype arg1;
@@ -154,14 +140,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_cpy (listtype arguments)
-#else
-
-objecttype rfl_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list_to;
@@ -195,14 +174,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_create (listtype arguments)
-#else
-
-objecttype rfl_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list_to;
@@ -229,14 +201,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_destr (listtype arguments)
-#else
-
-objecttype rfl_destr (arguments)
-listtype arguments;
-#endif
 
   { /* rfl_destr */
     isit_reflist(arg_1(arguments));
@@ -248,14 +213,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_elem (listtype arguments)
-#else
-
-objecttype rfl_elem (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype searched_object;
@@ -278,14 +236,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_elemcpy (listtype arguments)
-#else
-
-objecttype rfl_elemcpy (arguments)
-listtype arguments;
-#endif
 
   {
     inttype position;
@@ -318,14 +269,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_empty (listtype arguments)
-#else
-
-objecttype rfl_empty (arguments)
-listtype arguments;
-#endif
 
   { /* rfl_empty */
     return bld_reflist_temp(NULL);
@@ -333,14 +277,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_eq (listtype arguments)
-#else
-
-objecttype rfl_eq (arguments)
-listtype arguments;
-#endif
 
   {
     listtype list1;
@@ -367,14 +304,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_excl (listtype arguments)
-#else
-
-objecttype rfl_excl (arguments)
-listtype arguments;
-#endif
 
   { /* rfl_excl */
     isit_reflist(arg_1(arguments));
@@ -386,14 +316,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_expr (listtype arguments)
-#else
-
-objecttype rfl_expr (arguments)
-listtype arguments;
-#endif
 
   {
     listtype list1;
@@ -456,14 +379,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_for (listtype arguments)
-#else
-
-objecttype rfl_for (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype statement;
@@ -499,14 +415,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_for_until (listtype arguments)
-#else
-
-objecttype rfl_for_until (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype for_variable;
@@ -567,14 +476,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_head (listtype arguments)
-#else
-
-objecttype rfl_head (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list;
@@ -626,14 +528,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_idx (listtype arguments)
-#else
-
-objecttype rfl_idx (arguments)
-listtype arguments;
-#endif
 
   {
     inttype position;
@@ -665,14 +560,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_incl (listtype arguments)
-#else
-
-objecttype rfl_incl (arguments)
-listtype arguments;
-#endif
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -691,14 +579,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_ipos (listtype arguments)
-#else
-
-objecttype rfl_ipos (arguments)
-listtype arguments;
-#endif
 
   {
     listtype list_element;
@@ -729,14 +610,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_lng (listtype arguments)
-#else
-
-objecttype rfl_lng (arguments)
-listtype arguments;
-#endif
 
   {
     listtype list_element;
@@ -755,14 +629,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_mklist (listtype arguments)
-#else
-
-objecttype rfl_mklist (arguments)
-listtype arguments;
-#endif
 
   {
     listtype result;
@@ -780,14 +647,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_ne (listtype arguments)
-#else
-
-objecttype rfl_ne (arguments)
-listtype arguments;
-#endif
 
   {
     listtype list1;
@@ -814,14 +674,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_not_elem (listtype arguments)
-#else
-
-objecttype rfl_not_elem (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype searched_object;
@@ -844,14 +697,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_pos (listtype arguments)
-#else
-
-objecttype rfl_pos (arguments)
-listtype arguments;
-#endif
 
   {
     listtype list_element;
@@ -876,14 +722,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_range (listtype arguments)
-#else
-
-objecttype rfl_range (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list;
@@ -943,14 +782,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_setvalue (listtype arguments)
-#else
-
-objecttype rfl_setvalue (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list_to;
@@ -990,14 +822,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_tail (listtype arguments)
-#else
-
-objecttype rfl_tail (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list;
@@ -1046,14 +871,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_trace (listtype arguments)
-#else
-
-objecttype rfl_trace (arguments)
-listtype arguments;
-#endif
 
   { /* rfl_trace */
     isit_reflist(arg_1(arguments));
@@ -1063,14 +881,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype rfl_value (listtype arguments)
-#else
-
-objecttype rfl_value (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;

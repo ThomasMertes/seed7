@@ -50,14 +50,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype new_empty_list_object (const_objecttype typeof_object)
-#else
-
-objecttype new_empty_list_object (typeof_object)
-objecttype typeof_object;
-#endif
 
   {
     register objecttype created_list;
@@ -87,17 +80,8 @@ objecttype typeof_object;
 
 
 
-#ifdef ANSI_C
-
 objecttype new_nonempty_expression_object (objecttype first_element,
     listtype *list, const_objecttype typeof_object)
-#else
-
-objecttype new_nonempty_expression_object (first_element, list, typeof_object)
-objecttype first_element;
-listtype *list;
-objecttype typeof_object;
-#endif
 
   {
     register objecttype created_list;
@@ -134,17 +118,8 @@ objecttype typeof_object;
 
 
 
-#ifdef ANSI_C
-
 objecttype new_type_of_expression_object (objecttype first_element,
     listtype *list, typetype type_of)
-#else
-
-objecttype new_type_of_expression_object (first_element, list, type_of)
-objecttype first_element;
-listtype *list;
-typetype type_of;
-#endif
 
   {
     register objecttype created_list;
@@ -181,14 +156,7 @@ typetype type_of;
 
 
 
-#ifdef ANSI_C
-
 objecttype new_expression_object (listtype *list)
-#else
-
-objecttype new_expression_object (list)
-listtype *list;
-#endif
 
   {
     register objecttype created_list;
@@ -223,15 +191,7 @@ listtype *list;
 
 
 
-#ifdef ANSI_C
-
 listtype add_element_to_list (listtype list, objecttype object)
-#else
-
-listtype add_element_to_list (list, object)
-listtype list;
-objecttype object;
-#endif
 
   {
     register listtype help_element;

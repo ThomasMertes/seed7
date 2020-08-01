@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype big_abs            (listtype arguments);
 objecttype big_add            (listtype arguments);
 objecttype big_bit_length     (listtype arguments);
@@ -73,54 +71,3 @@ objecttype big_shrink         (listtype arguments);
 objecttype big_str            (listtype arguments);
 objecttype big_succ           (listtype arguments);
 objecttype big_value          (listtype arguments);
-
-#else
-
-objecttype big_abs ();
-objecttype big_add ();
-objecttype big_bit_length ();
-objecttype big_clit ();
-objecttype big_cmp ();
-objecttype big_cpy ();
-objecttype big_create ();
-objecttype big_decr ();
-objecttype big_destr ();
-objecttype big_div ();
-objecttype big_eq ();
-objecttype big_gcd ();
-objecttype big_ge ();
-objecttype big_grow ();
-objecttype big_gt ();
-objecttype big_hashcode ();
-objecttype big_iconv ();
-objecttype big_incr ();
-objecttype big_ipow ();
-objecttype big_le ();
-objecttype big_log2 ();
-objecttype big_lowest_set_bit ();
-objecttype big_lshift ();
-objecttype big_lshift_assign ();
-objecttype big_lt ();
-objecttype big_mdiv ();
-objecttype big_minus ();
-objecttype big_mod ();
-objecttype big_mult ();
-objecttype big_mult_assign ();
-objecttype big_ne ();
-objecttype big_odd ();
-objecttype big_ord ();
-objecttype big_parse ();
-objecttype big_parse_based ();
-objecttype big_plus ();
-objecttype big_pred ();
-objecttype big_rand ();
-objecttype big_rem ();
-objecttype big_rshift ();
-objecttype big_rshift_assign ();
-objecttype big_sbtr ();
-objecttype big_shrink ();
-objecttype big_str ();
-objecttype big_succ ();
-objecttype big_value ();
-
-#endif

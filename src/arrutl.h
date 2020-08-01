@@ -28,12 +28,4 @@
 #define ARRAY_LENGTH(anArray) (uinttype) ((anArray)->max_position - (anArray)->min_position + 1)
 
 
-#ifdef ANSI_C
-
 rtlArraytype gen_rtl_array (arraytype anArray);
-
-#else
-
-rtlArraytype gen_rtl_array ();
-
-#endif

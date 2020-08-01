@@ -50,14 +50,7 @@
 
 
 
-#ifdef ANSI_C
-
 stritype kbdGets (inttype length)
-#else
-
-stritype kbdGets (length)
-inttype length;
-#endif
 
   {
     memsizetype bytes_requested;
@@ -89,14 +82,7 @@ inttype length;
 
 
 
-#ifdef ANSI_C
-
 stritype kbdLineRead (chartype *terminationChar)
-#else
-
-stritype kbdLineRead (terminationChar)
-chartype *terminationChar;
-#endif
 
   {
     register chartype ch;
@@ -150,14 +136,7 @@ chartype *terminationChar;
 
 
 
-#ifdef ANSI_C
-
 stritype kbdWordRead (chartype *terminationChar)
-#else
-
-stritype kbdWordRead (terminationChar)
-chartype *terminationChar;
-#endif
 
   {
     register chartype ch;

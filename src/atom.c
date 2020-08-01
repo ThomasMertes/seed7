@@ -56,13 +56,7 @@
 
 
 
-#ifdef ANSI_C
-
 static objecttype gen_object (void)
-#else
-
-static objecttype gen_object ()
-#endif
 
   {
     register entitytype atomic_entity;
@@ -115,16 +109,8 @@ static objecttype gen_object ()
 
 
 
-#ifdef ANSI_C
-
 static objecttype gen_literal_object (const_objecttype typeof_object,
     objectcategory category)
-#else
-
-static objecttype gen_literal_object (typeof_object, category)
-objecttype typeof_object;
-objectcategory category;
-#endif
 
   {
     register objecttype literal_object;
@@ -166,13 +152,7 @@ objectcategory category;
 
 
 
-#ifdef ANSI_C
-
 static INLINE stritype new_string (void)
-#else
-
-static INLINE stritype new_string ()
-#endif
 
   /* Allocates memory for a new string and assigns the current      */
   /* string symbol to it.                                           */
@@ -214,13 +194,7 @@ static INLINE stritype new_string ()
 
 
 
-#ifdef ANSI_C
-
 objecttype read_atom (void)
-#else
-
-objecttype read_atom ()
-#endif
 
   {
     register objecttype atomic_object;
@@ -290,13 +264,7 @@ objecttype read_atom ()
 
 
 
-#ifdef ANSI_C
-
 objecttype read_name (void)
-#else
-
-objecttype read_name ()
-#endif
 
   {
     register objecttype atomic_object;

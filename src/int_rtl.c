@@ -160,21 +160,9 @@ static const const_cstritype digitTable[] = {lcDigits, ucDigits};
 
 
 
-#ifdef ANSI_C
-
 void uint2_mult (uinttype a_high, uinttype a_low,
     uinttype b_high, uinttype b_low,
     uinttype *c_high, uinttype *c_low)
-#else
-
-void uint2_mult (a_high, a_low, b_high, b_low, c_high, c_low)
-uinttype a_high;
-uinttype a_low;
-uinttype b_high;
-uinttype b_low;
-uinttype *c_high;
-uinttype *c_low;
-#endif
 
   {
     uinttype a_low1;
@@ -212,21 +200,9 @@ uinttype *c_low;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void uint2_add (uinttype a_high, uinttype a_low,
     uinttype b_high, uinttype b_low,
     uinttype *c_high, uinttype *c_low)
-#else
-
-static INLINE void uint2_add (a_high, a_low, b_high, b_low, c_high, c_low)
-uinttype a_high;
-uinttype a_low;
-uinttype b_high;
-uinttype b_low;
-uinttype *c_high;
-uinttype *c_low;
-#endif
 
   { /* uint2_add */
 #ifdef TRACE_RANDOM
@@ -250,13 +226,7 @@ uinttype *c_low;
 
 
 
-#ifdef ANSI_C
-
 uinttype uint_rand (void)
-#else
-
-uinttype uint_rand ()
-#endif
 
   {
     static booltype seed_necessary = TRUE;
@@ -307,14 +277,7 @@ uinttype uint_rand ()
 
 
 
-#ifdef ANSI_C
-
 int uint8MostSignificantBit (uint8type number)
-#else
-
-int uint8MostSignificantBit (number)
-uint8type number;
-#endif
 
   {
     int result;
@@ -326,14 +289,7 @@ uint8type number;
 
 
 
-#ifdef ANSI_C
-
 int uint16MostSignificantBit (uint16type number)
-#else
-
-int uint16MostSignificantBit (number)
-uint16type number;
-#endif
 
   {
     int result;
@@ -349,14 +305,7 @@ uint16type number;
 
 
 
-#ifdef ANSI_C
-
 int uint32MostSignificantBit (uint32type number)
-#else
-
-int uint32MostSignificantBit (number)
-uint32type number;
-#endif
 
   {
     int result;
@@ -378,14 +327,7 @@ uint32type number;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 int uint64MostSignificantBit (uint64type number)
-#else
-
-int uint64MostSignificantBit (number)
-uint64type number;
-#endif
 
   {
     int result;
@@ -415,14 +357,7 @@ uint64type number;
 
 
 
-#ifdef ANSI_C
-
 int uint8LeastSignificantBit (uint8type number)
-#else
-
-int uint8LeastSignificantBit (number)
-uint8type number;
-#endif
 
   {
     int result;
@@ -434,14 +369,7 @@ uint8type number;
 
 
 
-#ifdef ANSI_C
-
 int uint16LeastSignificantBit (uint16type number)
-#else
-
-int uint16LeastSignificantBit (number)
-uint16type number;
-#endif
 
   {
     int result;
@@ -457,14 +385,7 @@ uint16type number;
 
 
 
-#ifdef ANSI_C
-
 int uint32LeastSignificantBit (uint32type number)
-#else
-
-int uint32LeastSignificantBit (number)
-uint32type number;
-#endif
 
   {
     int result;
@@ -486,14 +407,7 @@ uint32type number;
 
 
 #ifdef INT64TYPE
-#ifdef ANSI_C
-
 int uint64LeastSignificantBit (uint64type number)
-#else
-
-int uint64LeastSignificantBit (number)
-uint64type number;
-#endif
 
   {
     int result;
@@ -519,15 +433,7 @@ uint64type number;
 
 
 
-#ifdef ANSI_C
-
 inttype uintCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype uintCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* uintCmpGeneric */
     if (value1 < value2) {
@@ -541,15 +447,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 inttype intBinom (inttype n_number, inttype k_number)
-#else
-
-inttype intBinom (n_number, k_number)
-inttype n_number;
-inttype k_number;
-#endif
 
   {
     inttype number;
@@ -598,14 +496,7 @@ inttype k_number;
  *  minimal two's-complement representation.
  *  @return the number of bits.
  */
-#ifdef ANSI_C
-
 inttype intBitLength (inttype number)
-#else
-
-inttype intBitLength (number)
-inttype number;
-#endif
 
   {
     inttype result;
@@ -620,15 +511,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 inttype intCmp (inttype number1, inttype number2)
-#else
-
-inttype intCmp (number1, number2)
-inttype number1;
-inttype number2;
-#endif
 
   { /* intCmp */
     if (number1 < number2) {
@@ -648,15 +531,7 @@ inttype number2;
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(rtlGenerictype) != sizeof(inttype).
  */
-#ifdef ANSI_C
-
 inttype intCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
-#else
-
-inttype intCmpGeneric (value1, value2)
-rtlGenerictype value1;
-rtlGenerictype value2;
-#endif
 
   { /* intCmpGeneric */
     return intCmp((inttype) value1, (inttype) value2);
@@ -664,15 +539,7 @@ rtlGenerictype value2;
 
 
 
-#ifdef ANSI_C
-
 void intCpy (inttype *dest, inttype source)
-#else
-
-void intCpy (dest, source)
-inttype *dest;
-inttype source;
-#endif
 
   { /* intCpy */
     *dest = source;
@@ -697,14 +564,7 @@ inttype source;
  *  intCreateGeneric (with rtlGenerictype) must be used even
  *  when sizeof(rtlGenerictype) == sizeof(floattype).
  */
-#ifdef ANSI_C
-
 rtlGenerictype intCreateGeneric (rtlGenerictype source)
-#else
-
-rtlGenerictype intCreateGeneric (source)
-rtlGenerictype source;
-#endif
 
   { /* intCreateGeneric */
     return source;
@@ -721,14 +581,7 @@ rtlGenerictype source;
  *  intDestrGeneric is correct. This is important since some
  *  C compilers generate wrong code when prcNoop is used.
  */
-#ifdef ANSI_C
-
 void intDestrGeneric (rtlGenerictype old_value)
-#else
-
-void intDestrGeneric (old_value)
-rtlGenerictype old_value;
-#endif
 
   { /* intDestrGeneric */
   } /* intDestrGeneric */
@@ -740,14 +593,7 @@ rtlGenerictype old_value;
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */
-#ifdef ANSI_C
-
 inttype intLog2 (inttype number)
-#else
-
-inttype intLog2 (number)
-inttype number;
-#endif
 
   {
     int result;
@@ -769,14 +615,7 @@ inttype number;
  *  For A <> 0 this is equal to the number of lowest-order zero bits.
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  */
-#ifdef ANSI_C
-
 inttype intLowestSetBit (inttype number)
-#else
-
-inttype intLowestSetBit (number)
-inttype number;
-#endif
 
   {
     inttype result;
@@ -797,15 +636,7 @@ inttype number;
 
 
 
-#ifdef ANSI_C
-
 stritype intLpad0 (inttype number, const inttype pad_size)
-#else
-
-stritype intLpad0 (number, pad_size)
-inttype number;
-inttype pad_size;
-#endif
 
   {
     uinttype unsigned_number;
@@ -861,14 +692,7 @@ inttype pad_size;
 
 
 
-#ifdef ANSI_C
-
 inttype intParse (const const_stritype stri)
-#else
-
-inttype intParse (stri)
-stritype stri;
-#endif
 
   {
     booltype okay;
@@ -922,15 +746,7 @@ stritype stri;
 
 
 
-#ifdef ANSI_C
-
 inttype intPow (inttype base, inttype exponent)
-#else
-
-inttype intPow (base, exponent)
-inttype base;
-inttype exponent;
-#endif
 
   {
     inttype result;
@@ -968,16 +784,7 @@ inttype exponent;
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-#ifdef ANSI_C
-
 stritype intRadix (inttype number, inttype base, booltype upperCase)
-#else
-
-stritype intRadix (number, base, upperCase)
-inttype number;
-inttype base;
-booltype upperCase;
-#endif
 
   {
     uinttype unsigned_number;
@@ -1031,17 +838,7 @@ booltype upperCase;
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-#ifdef ANSI_C
-
 stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
-#else
-
-stritype intRadixPow2 (number, shft, mask, upperCase)
-inttype number;
-int shift;
-int mask
-booltype upperCase;
-#endif
 
   {
     uinttype unsigned_number;
@@ -1082,15 +879,7 @@ booltype upperCase;
 
 
 
-#ifdef ANSI_C
-
 inttype intRand (inttype lower_limit, inttype upper_limit)
-#else
-
-inttype intRand (lower_limit, upper_limit)
-inttype lower_limit;
-inttype upper_limit;
-#endif
 
   {
     uinttype scale_limit;
@@ -1124,14 +913,7 @@ inttype upper_limit;
 
 
 
-#ifdef ANSI_C
-
 inttype intSqrt (inttype number)
-#else
-
-inttype intSqrt (number)
-inttype number;
-#endif
 
   {
     register uinttype result;
@@ -1161,14 +943,7 @@ inttype number;
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-#ifdef ANSI_C
-
 stritype intStr (inttype number)
-#else
-
-stritype intStr (number)
-inttype number;
-#endif
 
   {
     register uinttype unsigned_number;

@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype new_empty_list_object (const_objecttype typeof_object);
 objecttype new_nonempty_expression_object (objecttype first_element,
     listtype *list, const_objecttype typeof_object);
@@ -34,13 +32,3 @@ objecttype new_type_of_expression_object (objecttype first_element,
     listtype *list, typetype type_of);
 objecttype new_expression_object (listtype *list);
 listtype add_element_to_list (listtype list, objecttype object);
-
-#else
-
-objecttype new_empty_list_object ();
-objecttype new_nonempty_expression_object ();
-objecttype new_type_of_expression_object ();
-objecttype new_expression_object ();
-listtype add_element_to_list ();
-
-#endif

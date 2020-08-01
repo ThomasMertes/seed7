@@ -34,8 +34,6 @@ EXTERN listtype fail_expression;
 EXTERN listtype fail_stack;
 
 
-#ifdef ANSI_C
-
 void continue_question(void);
 void run_error (objectcategory required, objecttype argument);
 void empty_value (objecttype argument);
@@ -43,15 +41,3 @@ void var_required (objecttype argument);
 void write_call_stack (const_listtype stack_elem);
 objecttype raise_with_arguments (objecttype exception, listtype list);
 objecttype raise_exception (objecttype exception);
-
-#else
-
-void continue_question();
-void run_error ();
-void empty_value ();
-void var_required ();
-void write_call_stack ();
-objecttype raise_with_arguments ();
-objecttype raise_exception ();
-
-#endif

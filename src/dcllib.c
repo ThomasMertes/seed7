@@ -56,14 +56,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_attr (listtype arguments)
-#else
-
-objecttype dcl_attr (arguments)
-listtype arguments;
-#endif
 
   {
     typetype attribute_type;
@@ -79,14 +72,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_const (listtype arguments)
-#else
-
-objecttype dcl_const (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -199,14 +185,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_elements (listtype arguments)
-#else
-
-objecttype dcl_elements (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype local_decls;
@@ -241,14 +220,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_fwd (listtype arguments)
-#else
-
-objecttype dcl_fwd (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -292,14 +264,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_fwdvar (listtype arguments)
-#else
-
-objecttype dcl_fwdvar (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -343,14 +308,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_getfunc (listtype arguments)
-#else
-
-objecttype dcl_getfunc (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype name_expr;
@@ -385,14 +343,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_getobj (listtype arguments)
-#else
-
-objecttype dcl_getobj (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype name_expr;
@@ -427,14 +378,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_global (listtype arguments)
-#else
-
-objecttype dcl_global (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype statement;
@@ -464,14 +408,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_in1var (listtype arguments)
-#else
-
-objecttype dcl_in1var (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -496,14 +433,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_in2var (listtype arguments)
-#else
-
-objecttype dcl_in2var (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -541,14 +471,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_inout1 (listtype arguments)
-#else
-
-objecttype dcl_inout1 (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -576,14 +499,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_inout2 (listtype arguments)
-#else
-
-objecttype dcl_inout2 (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -621,14 +537,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_param_attr (listtype arguments)
-#else
-
-objecttype dcl_param_attr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype f_param_object;
@@ -675,14 +584,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_ref1 (listtype arguments)
-#else
-
-objecttype dcl_ref1 (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -710,14 +612,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_ref2 (listtype arguments)
-#else
-
-objecttype dcl_ref2 (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -755,14 +650,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_symb (listtype arguments)
-#else
-
-objecttype dcl_symb (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype symb_object;
@@ -784,14 +672,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_val1 (listtype arguments)
-#else
-
-objecttype dcl_val1 (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -819,14 +700,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_val2 (listtype arguments)
-#else
-
-objecttype dcl_val2 (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;
@@ -864,14 +738,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype dcl_var (listtype arguments)
-#else
-
-objecttype dcl_var (arguments)
-listtype arguments;
-#endif
 
   {
     typetype object_type;

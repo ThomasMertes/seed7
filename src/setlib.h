@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype set_arrlit    (listtype arguments);
 objecttype set_baselit   (listtype arguments);
 objecttype set_card      (listtype arguments);
@@ -59,40 +57,3 @@ objecttype set_sconv     (listtype arguments);
 objecttype set_symdiff   (listtype arguments);
 objecttype set_union     (listtype arguments);
 objecttype set_value     (listtype arguments);
-
-#else
-
-objecttype set_arrlit ();
-objecttype set_baselit ();
-objecttype set_card ();
-objecttype set_cmp ();
-objecttype set_conv ();
-objecttype set_cpy ();
-objecttype set_create ();
-objecttype set_destr ();
-objecttype set_diff ();
-objecttype set_elem ();
-objecttype set_empty ();
-objecttype set_eq ();
-objecttype set_excl ();
-objecttype set_ge ();
-objecttype set_gt ();
-objecttype set_hashcode ();
-objecttype set_iconv ();
-objecttype set_incl ();
-objecttype set_intersect ();
-objecttype set_le ();
-objecttype set_lt ();
-objecttype set_max ();
-objecttype set_min ();
-objecttype set_ne ();
-objecttype set_next ();
-objecttype set_not_elem ();
-objecttype set_rand ();
-objecttype set_rangelit ();
-objecttype set_sconv ();
-objecttype set_symdiff ();
-objecttype set_union ();
-objecttype set_value ();
-
-#endif

@@ -65,15 +65,7 @@
 
 
 
-#ifdef ANSI_C
-
 static void fix_posinfo (objecttype block_body, const const_objecttype block_body_list)
-#else
-
-static void fix_posinfo (block_body, block_body_list)
-objecttype block_body;
-objecttype block_body_list;
-#endif
 
   { /* fix_posinfo */
     if (block_body_list != NULL &&
@@ -86,14 +78,7 @@ objecttype block_body_list;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_args (listtype arguments)
-#else
-
-objecttype prc_args (arguments)
-listtype arguments;
-#endif
 
   { /* prc_args */
     return prog.arg_v;
@@ -101,14 +86,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_begin (listtype arguments)
-#else
-
-objecttype prc_begin (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype block_body;
@@ -148,14 +126,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_block (listtype arguments)
-#else
-
-objecttype prc_block (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype statement;
@@ -196,14 +167,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_block_def (listtype arguments)
-#else
-
-objecttype prc_block_def (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype statement;
@@ -249,14 +213,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_case (listtype arguments)
-#else
-
-objecttype prc_case (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype switch_object;
@@ -310,14 +267,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_case_def (listtype arguments)
-#else
-
-objecttype prc_case_def (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype switch_object;
@@ -376,14 +326,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_cpy (listtype arguments)
-#else
-
-objecttype prc_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype proc_variable;
@@ -421,14 +364,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_create (listtype arguments)
-#else
-
-objecttype prc_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype proc_to;
@@ -448,14 +384,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_decls (listtype arguments)
-#else
-
-objecttype prc_decls (arguments)
-listtype arguments;
-#endif
 
   { /* prc_decls */
     trace_nodes();
@@ -464,14 +393,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_dynamic (listtype arguments)
-#else
-
-objecttype prc_dynamic (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype result;
@@ -483,14 +405,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_exit (listtype arguments)
-#else
-
-objecttype prc_exit (arguments)
-listtype arguments;
-#endif
 
   {
     inttype status;
@@ -509,14 +424,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_for_downto (listtype arguments)
-#else
-
-objecttype prc_for_downto (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype for_variable;
@@ -546,14 +454,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_for_to (listtype arguments)
-#else
-
-objecttype prc_for_to (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype for_variable;
@@ -583,14 +484,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_heapstat (listtype arguments)
-#else
-
-objecttype prc_heapstat (arguments)
-listtype arguments;
-#endif
 
   { /* prc_heapstat */
 #ifdef DO_HEAP_STATISTIC
@@ -603,14 +497,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_hsize (listtype arguments)
-#else
-
-objecttype prc_hsize (arguments)
-listtype arguments;
-#endif
 
   { /* prc_hsize */
     /* heap_statistic(); */
@@ -619,14 +506,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_if (listtype arguments)
-#else
-
-objecttype prc_if (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype condition;
@@ -642,14 +522,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_if_elsif (listtype arguments)
-#else
-
-objecttype prc_if_elsif (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype condition;
@@ -667,14 +540,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_include (listtype arguments)
-#else
-
-objecttype prc_include (arguments)
-listtype arguments;
-#endif
 
   {
     stritype include_file_name;
@@ -702,14 +568,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_local (listtype arguments)
-#else
-
-objecttype prc_local (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype local_decls;
@@ -767,14 +626,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_noop (listtype arguments)
-#else
-
-objecttype prc_noop (arguments)
-listtype arguments;
-#endif
 
   { /* prc_noop */
     return SYS_EMPTY_OBJECT;
@@ -782,14 +634,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_raise (listtype arguments)
-#else
-
-objecttype prc_raise (arguments)
-listtype arguments;
-#endif
 
   { /* prc_raise */
     isit_enum(arg_2(arguments));
@@ -798,14 +643,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_repeat (listtype arguments)
-#else
-
-objecttype prc_repeat (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype statement;
@@ -834,14 +672,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_res_begin (listtype arguments)
-#else
-
-objecttype prc_res_begin (arguments)
-listtype arguments;
-#endif
 
   {
     typetype result_type;
@@ -912,14 +743,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_res_local (listtype arguments)
-#else
-
-objecttype prc_res_local (arguments)
-listtype arguments;
-#endif
 
   {
     typetype result_type;
@@ -993,14 +817,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_return (listtype arguments)
-#else
-
-objecttype prc_return (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype block_body;
@@ -1054,14 +871,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_return2 (listtype arguments)
-#else
-
-objecttype prc_return2 (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype block_body;
@@ -1115,14 +925,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_settrace (listtype arguments)
-#else
-
-objecttype prc_settrace (arguments)
-listtype arguments;
-#endif
 
   { /* prc_settrace */
     isit_stri(arg_1(arguments));
@@ -1133,14 +936,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_trace (listtype arguments)
-#else
-
-objecttype prc_trace (arguments)
-listtype arguments;
-#endif
 
   { /* prc_trace */
     while (arguments != NULL) {
@@ -1153,14 +949,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_varfunc (listtype arguments)
-#else
-
-objecttype prc_varfunc (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype block_body;
@@ -1197,14 +986,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_varfunc2 (listtype arguments)
-#else
-
-objecttype prc_varfunc2 (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype block_body;
@@ -1241,14 +1023,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype prc_while (listtype arguments)
-#else
-
-objecttype prc_while (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype condition;

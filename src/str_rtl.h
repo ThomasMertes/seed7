@@ -29,8 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 stritype concat_path (const const_stritype absolutePath,
     const const_stritype relativePath);
 void strAppend (stritype *const destination, const_stritype stri_from);
@@ -105,73 +103,3 @@ stritype strTrim (const const_stritype stri);
 stritype strUp (const const_stritype stri);
 stritype strUpTemp (const stritype stri);
 stritype strUtf8ToStri (const_stritype stri8);
-
-#else
-
-stritype concat_path ();
-void strAppend ();
-void strAppendTemp ();
-void strChAppend ();
-inttype strChIPos ();
-inttype strChPos ();
-/* rtlArraytype strChSplit (); */
-stritype strCLit ();
-inttype strCompare ();
-stritype strConcat ();
-stritype strConcatN ();
-stritype strConcatTemp ();
-void strCopy ();
-stritype strCreate ();
-void strDestr ();
-stritype strEmpty ();
-booltype strGe ();
-booltype strGt ();
-inttype strHashCode ();
-#ifdef ALLOW_STRITYPE_SLICES
-stritype strHeadSlice ();
-#else
-stritype strHead ();
-#endif
-stritype strHeadTemp ();
-inttype strIPos ();
-booltype strLe ();
-stritype strLit ();
-stritype strLow ();
-stritype strLowTemp ();
-stritype strLpad ();
-stritype strLpadTemp ();
-stritype strLpad0 ();
-stritype strLpad0Temp ();
-booltype strLt ();
-stritype strMult ();
-inttype strPos ();
-#ifdef ALLOW_STRITYPE_SLICES
-stritype strRangeSlice ();
-#else
-stritype strRange ();
-#endif
-inttype strRChIPos ();
-inttype strRChPos ();
-stritype strRepl ();
-inttype strRIPos ();
-stritype strRpad ();
-inttype strRPos ();
-stritype strRtrim ();
-/* rtlArraytype strSplit (); */
-#ifdef ALLOW_STRITYPE_SLICES
-stritype strSubstrSlice ();
-#else
-stritype strSubstr ();
-#endif
-#ifdef ALLOW_STRITYPE_SLICES
-stritype strTailSlice ();
-#else
-stritype strTail ();
-#endif
-stritype strToUtf8 ();
-stritype strTrim ();
-stritype strUp ();
-stritype strUpTemp ();
-stritype strUtf8ToStri ();
-
-#endif

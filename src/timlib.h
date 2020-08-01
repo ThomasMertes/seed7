@@ -25,18 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype tim_await          (listtype arguments);
 objecttype tim_from_timestamp (listtype arguments);
 objecttype tim_now            (listtype arguments);
 objecttype tim_set_local_tz   (listtype arguments);
-
-#else
-
-objecttype tim_await ();
-objecttype tim_from_timestamp ();
-objecttype tim_now ();
-objecttype tim_set_local_tz ();
-
-#endif

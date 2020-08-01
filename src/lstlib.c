@@ -46,14 +46,7 @@
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_cat (listtype arguments)
-#else
-
-objecttype lst_cat (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype arg1;
@@ -107,14 +100,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_cpy (listtype arguments)
-#else
-
-objecttype lst_cpy (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list_to;
@@ -148,14 +134,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_create (listtype arguments)
-#else
-
-objecttype lst_create (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list_to;
@@ -182,14 +161,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_destr (listtype arguments)
-#else
-
-objecttype lst_destr (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype old_list;
@@ -222,14 +194,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_elem (listtype arguments)
-#else
-
-objecttype lst_elem (arguments)
-listtype arguments;
-#endif
 
   {
 #ifdef OUT_OF_ORDER
@@ -260,14 +225,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_empty (listtype arguments)
-#else
-
-objecttype lst_empty (arguments)
-listtype arguments;
-#endif
 
   { /* lst_empty */
     return bld_list_temp(NULL);
@@ -275,14 +233,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_excl (listtype arguments)
-#else
-
-objecttype lst_excl (arguments)
-listtype arguments;
-#endif
 
   { /* lst_excl */
     isit_list(arg_1(arguments));
@@ -293,14 +244,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_head (listtype arguments)
-#else
-
-objecttype lst_head (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list;
@@ -352,14 +296,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_idx (listtype arguments)
-#else
-
-objecttype lst_idx (arguments)
-listtype arguments;
-#endif
 
   {
     inttype position;
@@ -391,14 +328,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_incl (listtype arguments)
-#else
-
-objecttype lst_incl (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype obj_arg;
@@ -421,14 +351,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_lng (listtype arguments)
-#else
-
-objecttype lst_lng (arguments)
-listtype arguments;
-#endif
 
   {
     listtype list_element;
@@ -447,14 +370,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_range (listtype arguments)
-#else
-
-objecttype lst_range (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list;
@@ -514,14 +430,7 @@ listtype arguments;
 
 
 
-#ifdef ANSI_C
-
 objecttype lst_tail (listtype arguments)
-#else
-
-objecttype lst_tail (arguments)
-listtype arguments;
-#endif
 
   {
     objecttype list;

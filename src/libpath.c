@@ -53,15 +53,7 @@ static rtlArraytype lib_path;
 
 
 
-#ifdef ANSI_C
-
 void find_include_file (const_stritype include_file_name, errinfotype *err_info)
-#else
-
-void find_include_file (include_file_name, err_info)
-stritype include_file_name;
-errinfotype *err_info;
-#endif
 
   {
     booltype found;
@@ -122,13 +114,7 @@ errinfotype *err_info;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static void print_lib_path (void)
-#else
-
-static void print_lib_path ()
-#endif
 
   {
     memsizetype length;
@@ -147,15 +133,7 @@ static void print_lib_path ()
 
 
 
-#ifdef ANSI_C
-
 void append_to_lib_path (const_stritype path, errinfotype *err_info)
-#else
-
-void append_to_lib_path (path, err_info)
-stritype path;
-errinfotype *err_info;
-#endif
 
   {
     memsizetype stri_len;
@@ -206,17 +184,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void init_lib_path (const_stritype source_file_name,
     const const_rtlArraytype seed7_libraries, errinfotype *err_info)
-#else
-
-void init_lib_path (source_file_name, seed7_libraries, err_info)
-stritype source_file_name;
-rtlArraytype seed7_libraries;
-errinfotype *err_info;
-#endif
 
   {
     stritype path;
@@ -305,13 +274,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 void free_lib_path (void)
-#else
-
-void free_lib_path ()
-#endif
 
   {
     memsizetype length;

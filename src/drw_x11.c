@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_x11.c     Graphic access using the X11 capabilities.        */
-/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_x11.c                                       */
-/*  Changes: 1994, 2000 - 2011  Thomas Mertes                       */
+/*  Changes: 1994, 2000 - 2011, 2013  Thomas Mertes                 */
 /*  Content: Graphic access using the X11 capabilities.             */
 /*                                                                  */
 /********************************************************************/
@@ -135,34 +135,13 @@ static const int highest_bit[16] = {
 
 
 
-#ifdef ANSI_C
-
 wintype find_window (Window curr_window);
 void enter_window (wintype curr_window, Window xWin);
 void remove_window (wintype curr_window, Window xWin);
 
-#else
 
-wintype find_window ();
-void enter_window ();
-void remove_window ();
-
-#endif
-
-
-
-#ifdef ANSI_C
 
 void redraw (wintype redraw_window, int xPos, int yPos, int width, int height)
-#else
-
-void redraw (redraw_window, xPos, yPos, width, height)
-wintype redraw_window;
-int xPos;
-int yPos;
-int width;
-int height;
-#endif
 
   {
     x11_wintype expose_window;
@@ -232,13 +211,7 @@ int height;
 
 
 
-#ifdef ANSI_C
-
 void doFlush (void)
-#else
-
-void doFlush ()
-#endif
 
   { /* doFlush */
 #ifdef TRACE_X11
@@ -250,13 +223,7 @@ void doFlush ()
 
 
 
-#ifdef ANSI_C
-
 void flushBeforeRead (void)
-#else
-
-void flushBeforeRead ()
-#endif
 
   { /* flushBeforeRead */
     /* Not necessary, since XNextEvent() does a flush */
@@ -265,14 +232,7 @@ void flushBeforeRead ()
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 void configure (XConfigureEvent *xconfigure)
-#else
-
-void configure (xconfigure)
-XConfigureEvent *xconfigure;
-#endif
 
   {
     x11_wintype configure_window;
@@ -326,14 +286,7 @@ XConfigureEvent *xconfigure;
 
 
 
-#ifdef ANSI_C
-
 static int get_highest_bit (unsigned long number)
-#else
-
-static int get_highest_bit (number)
-unsigned long number;
-#endif
 
   {
     int result = 0;
@@ -356,13 +309,7 @@ unsigned long number;
 
 
 
-#ifdef ANSI_C
-
 static void dra_init (void)
-#else
-
-static void dra_init ()
-#endif
 
   {
 #ifdef OUT_OF_ORDER
@@ -449,14 +396,7 @@ static void dra_init ()
 
 
 
-#ifdef ANSI_C
-
 inttype drwPointerXpos (const_wintype actual_window)
-#else
-
-inttype drwPointerXpos (actual_window)
-wintype actual_window;
-#endif
 
   {
     Window root;
@@ -476,14 +416,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 inttype drwPointerYpos (const_wintype actual_window)
-#else
-
-inttype drwPointerYpos (actual_window)
-wintype actual_window;
-#endif
 
   {
     Window root;
@@ -503,17 +436,8 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 void drwArc (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle)
-#else
-
-void drwArc (actual_window, x, y, radius, startAngle, sweepAngle)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-#endif
 
   {
     int startAng, sweepAng;
@@ -539,18 +463,8 @@ floattype startAngle, sweepAngle;
 
 
 
-#ifdef ANSI_C
-
 void drwPArc (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
-#else
-
-void drwPArc (actual_window, x, y, radius, startAngle, sweepAngle, col)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-inttype col;
-#endif
 
   {
     int startAng, sweepAng;
@@ -577,17 +491,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFArcChord (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle)
-#else
-
-void drwFArcChord (actual_window, x, y, radius, startAngle, sweepAngle)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-#endif
 
   {
     int startAng, sweepAng;
@@ -622,18 +527,8 @@ floattype startAngle, sweepAngle;
 
 
 
-#ifdef ANSI_C
-
 void drwPFArcChord (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
-#else
-
-void drwPFArcChord (actual_window, x, y, radius, startAngle, sweepAngle, col)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-inttype col;
-#endif
 
   {
     int startAng, sweepAng;
@@ -669,17 +564,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle)
-#else
-
-void drwFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-#endif
 
   {
     int startAng, sweepAng;
@@ -714,18 +600,8 @@ floattype startAngle, sweepAngle;
 
 
 
-#ifdef ANSI_C
-
 void drwPFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype startAngle, floattype sweepAngle, inttype col)
-#else
-
-void drwPFArcPieSlice (actual_window, x, y, radius, startAngle, sweepAngle, col)
-wintype actual_window;
-inttype x, y, radius;
-floattype startAngle, sweepAngle;
-inttype col;
-#endif
 
   {
     int startAng, sweepAng;
@@ -739,38 +615,35 @@ inttype col;
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+    if (!inIntRange(x - radius) || !inIntRange(y - radius) ||
+        !inIntRange(radius) || radius < 0) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+      } /* if */
     } /* if */
   } /* drwPFArcPieSlice */
 
 
 
-#ifdef ANSI_C
-
 void drwArc2 (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype radius)
-#else
-
-void drwArc2 (actual_window, x1, y1, x2, y2, radius)
-wintype actual_window;
-inttype x1, y1, x2, y2, radius;
-#endif
 
   { /* drwArc2 */
 /*  printf("drwArc2(%d, %d, %d, %d)\n", x1, y1, radius); */
@@ -782,16 +655,8 @@ inttype x1, y1, x2, y2, radius;
 
 
 
-#ifdef ANSI_C
-
 void drwCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
-#else
-
-void drwCircle (actual_window, x, y, radius)
-wintype actual_window;
-inttype x, y, radius;
-#endif
 
   { /* drwCircle */
 #ifdef TRACE_X11
@@ -809,17 +674,8 @@ inttype x, y, radius;
 
 
 
-#ifdef ANSI_C
-
 void drwPCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col)
-#else
-
-void drwPCircle (actual_window, x, y, radius, col)
-wintype actual_window;
-inttype x, y, radius;
-inttype col;
-#endif
 
   { /* drwPCircle */
 #ifdef TRACE_X11
@@ -838,15 +694,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwClear (wintype actual_window, inttype col)
-#else
-
-void drwClear (actual_window, col)
-wintype actual_window;
-inttype col;
-#endif
 
   { /* drwClear */
 #ifdef TRACE_X11
@@ -865,24 +713,9 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwCopyArea (const_wintype src_window, const_wintype dest_window,
     inttype src_x, inttype src_y, inttype width, inttype height,
     inttype dest_x, inttype dest_y)
-#else
-
-void drwCopyArea (src_window, dest_window, src_x, src_y, width, height,
-    dest_x, dest_y)
-wintype src_window;
-wintype dest_window;
-inttype src_x;
-inttype src_y;
-inttype width;
-inttype height;
-inttype dest_x;
-inttype dest_y;
-#endif
 
   { /* drwCopyArea */
 #ifdef TRACE_X11
@@ -921,16 +754,8 @@ inttype dest_y;
 
 
 
-#ifdef ANSI_C
-
 void drwFCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
-#else
-
-void drwFCircle (actual_window, x, y, radius)
-wintype actual_window;
-inttype x, y, radius;
-#endif
 
   { /* drwFCircle */
 #ifdef TRACE_X11
@@ -954,17 +779,8 @@ inttype x, y, radius;
 
 
 
-#ifdef ANSI_C
-
 void drwPFCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col)
-#else
-
-void drwPFCircle (actual_window, x, y, radius, col)
-wintype actual_window;
-inttype x, y, radius;
-inttype col;
-#endif
 
   { /* drwPFCircle */
 #ifdef TRACE_X11
@@ -990,16 +806,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFEllipse (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height)
-#else
-
-void drwFEllipse (actual_window, x, y, width, height)
-wintype actual_window;
-inttype x, y, width, height;
-#endif
 
   { /* drwFEllipse */
 #ifdef TRACE_X11
@@ -1023,17 +831,8 @@ inttype x, y, width, height;
 
 
 
-#ifdef ANSI_C
-
 void drwPFEllipse (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height, inttype col)
-#else
-
-void drwPFEllipse (actual_window, x, y, width, height, col)
-wintype actual_window;
-inttype x, y, width, height;
-inttype col;
-#endif
 
   { /* drwPFEllipse */
 #ifdef TRACE_X11
@@ -1058,14 +857,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFree (wintype old_window)
-#else
-
-void drwFree (old_window)
-wintype old_window;
-#endif
 
   { /* drwFree */
 #ifdef TRACE_X11
@@ -1082,19 +874,8 @@ wintype old_window;
 
 
 
-#ifdef ANSI_C
-
 wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
     inttype width, inttype height)
-#else
-
-wintype drwGet (actual_window, left, upper, width, height)
-wintype actual_window;
-inttype left;
-inttype upper;
-inttype width;
-inttype height;
-#endif
 
   {
     x11_wintype result;
@@ -1103,7 +884,9 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwGet(%lu, %ld, %ld, %ld, %ld)\n", actual_window, left, upper, width, height);
 #endif
-    if (width < 1 || height < 1) {
+    if (!inIntRange(left) || !inIntRange(upper) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
@@ -1121,11 +904,11 @@ inttype height;
       result->height = (unsigned int) height;
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_backup(actual_window),
-            result->window, mygc, castToInt(left), castToInt(upper),
+            result->window, mygc, (int) left, (int) upper,
             (unsigned int) width, (unsigned int) height, 0, 0);
       } else {
         XCopyArea(mydisplay, to_window(actual_window),
-            result->window, mygc, castToInt(left), castToInt(upper),
+            result->window, mygc, (int) left, (int) upper,
             (unsigned int) width, (unsigned int) height, 0, 0);
       } /* if */
       /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
@@ -1135,16 +918,7 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
-#else
-
-inttype drwGetPixel (actual_window, x, y)
-wintype actual_window;
-inttype x;
-inttype y;
-#endif
 
   {
     XImage *image;
@@ -1171,14 +945,7 @@ inttype y;
 
 
 
-#ifdef ANSI_C
-
 inttype drwHeight (const_wintype actual_window)
-#else
-
-inttype drwHeight (actual_window)
-wintype actual_window;
-#endif
 
   {
     Window root;
@@ -1201,16 +968,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
-wintype drwImage (inttype *image_data, inttype width, inttype height)
-#else
-
-wintype drwImage (image_data, width, height)
-inttype *image_data;
-inttype width;
-inttype height;
-#endif
+wintype drwImage (int32type *image_data, inttype width, inttype height)
 
   {
     XImage *image;
@@ -1220,7 +978,8 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwImage(%ld, %ld)\n", width, height);
 #endif
-    if (width < 1 || height < 1) {
+    if (!inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1261,16 +1020,8 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
 void drwLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2)
-#else
-
-void drwLine (actual_window, x1, y1, x2, y2)
-wintype actual_window;
-inttype x1, y1, x2, y2;
-#endif
 
   { /* drwLine */
 #ifdef TRACE_X11
@@ -1286,17 +1037,8 @@ inttype x1, y1, x2, y2;
 
 
 
-#ifdef ANSI_C
-
 void drwPLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype col)
-#else
-
-void drwPLine (actual_window, x1, y1, x2, y2, col)
-wintype actual_window;
-inttype x1, y1, x2, y2;
-inttype col;
-#endif
 
   { /* drwPLine */
 #ifdef TRACE_X11
@@ -1313,15 +1055,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 wintype drwNewPixmap (inttype width, inttype height)
-#else
-
-wintype drwNewPixmap (width, height)
-inttype width;
-inttype height;
-#endif
 
   {
     x11_wintype result;
@@ -1330,7 +1064,8 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwNewPixmap(%ld, %ld)\n", width, height);
 #endif
-    if (width < 1 || height < 1) {
+    if (!inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1362,16 +1097,7 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
 wintype drwNewBitmap (const_wintype actual_window, inttype width, inttype height)
-#else
-
-wintype drwNewBitmap (actual_window, width, height)
-wintype actual_window;
-inttype width;
-inttype height;
-#endif
 
   {
     x11_wintype result;
@@ -1401,19 +1127,8 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
 wintype drwOpen (inttype xPos, inttype yPos,
     inttype width, inttype height, const const_stritype window_name)
-#else
-
-wintype drwOpen (xPos, yPos, width, height, window_name)
-inttype xPos;
-inttype yPos;
-inttype width;
-inttype height;
-stritype window_name;
-#endif
 
   {
     char *win_name;
@@ -1530,19 +1245,8 @@ stritype window_name;
 
 
 
-#ifdef ANSI_C
-
 wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
     inttype width, inttype height)
-#else
-
-wintype drwOpenSubWindow (parent_window, xPos, yPos, width, height)
-wintype parent_window;
-inttype xPos;
-inttype yPos;
-inttype width;
-inttype height;
-#endif
 
   {
     Screen *x_screen;
@@ -1649,15 +1353,7 @@ inttype height;
 
 
 
-#ifdef ANSI_C
-
 void drwPoint (const_wintype actual_window, inttype x, inttype y)
-#else
-
-void drwPoint (actual_window, x, y)
-wintype actual_window;
-inttype x, y;
-#endif
 
   { /* drwPoint */
 #ifdef TRACE_X11
@@ -1671,16 +1367,7 @@ inttype x, y;
 
 
 
-#ifdef ANSI_C
-
 void drwPPoint (const_wintype actual_window, inttype x, inttype y, inttype col)
-#else
-
-void drwPPoint (actual_window, x, y, col)
-wintype actual_window;
-inttype x, y;
-inttype col;
-#endif
 
   { /* drwPPoint */
 #ifdef TRACE_X11
@@ -1695,15 +1382,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwConvPointList (bstritype pointList, inttype *xy)
-#else
-
-void drwConvPointList (pointList, xy)
-     bstritype pointList;
-inttype *xy;
-#endif
 
   {
     memsizetype len;
@@ -1725,17 +1404,10 @@ inttype *xy;
 
 
 
-#ifdef ANSI_C
-
 bstritype drwGenPointList (const const_rtlArraytype xyArray)
-#else
-
-bstritype drwGenPointList (xyArray)
-rtlArraytype xyArray;
-#endif
 
   {
-    uinttype num_elements;
+    memsizetype num_elements;
     memsizetype len;
     inttype x;
     inttype y;
@@ -1745,43 +1417,45 @@ rtlArraytype xyArray;
 
   /* drwGenPointList */
     /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
-    num_elements = (uinttype) (xyArray->max_position - xyArray->min_position) + 1;
+    num_elements = arraySize(xyArray);
     if (num_elements & 1) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (num_elements >> 1 > MAX_BSTRI_LEN / sizeof(XPoint)) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
     } else {
-      len = (memsizetype) num_elements >> 1;
-      if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(XPoint))) {
+      len = num_elements >> 1;
+      if (len > MAX_BSTRI_LEN / sizeof(XPoint) || len > MAX_MEM_INDEX) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-        result->size = len * sizeof(XPoint);
-        if (len > 0) {
-          points = (XPoint *) result->mem;
-          x = xyArray->arr[0].value.intvalue;
-          y = xyArray->arr[1].value.intvalue;
-          if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
-            raise_error(RANGE_ERROR);
-            return NULL;
-          } else {
-            points[0].x = (short) x;
-            points[0].y = (short) y;
-          } /* if */
-          for (pos = 1; pos < len; pos ++) {
-            x = xyArray->arr[ pos << 1     ].value.intvalue -
-                xyArray->arr[(pos << 1) - 2].value.intvalue;
-            y = xyArray->arr[(pos << 1) + 1].value.intvalue -
-                xyArray->arr[(pos << 1) - 1].value.intvalue;
+        if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(XPoint))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = len * sizeof(XPoint);
+          if (len > 0) {
+            points = (XPoint *) result->mem;
+            x = xyArray->arr[0].value.intvalue;
+            y = xyArray->arr[1].value.intvalue;
             if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
               raise_error(RANGE_ERROR);
               return NULL;
             } else {
-              points[pos].x = (short) x;
-              points[pos].y = (short) y;
+              points[0].x = (short) x;
+              points[0].y = (short) y;
             } /* if */
-          } /* for */
+            for (pos = 1; pos < len; pos ++) {
+              x = xyArray->arr[ pos << 1     ].value.intvalue -
+                  xyArray->arr[(pos << 1) - 2].value.intvalue;
+              y = xyArray->arr[(pos << 1) + 1].value.intvalue -
+                  xyArray->arr[(pos << 1) - 1].value.intvalue;
+              if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
+                raise_error(RANGE_ERROR);
+                return NULL;
+              } else {
+                points[pos].x = (short) x;
+                points[pos].y = (short) y;
+              } /* if */
+            } /* for */
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -1790,14 +1464,7 @@ rtlArraytype xyArray;
 
 
 
-#ifdef ANSI_C
-
 inttype drwLngPointList (bstritype point_list)
-#else
-
-inttype drwLngPointList (point_list)
-bstritype point_list;
-#endif
 
   { /* drwLngPointList */
     return (inttype) (point_list->size / sizeof(XPoint));
@@ -1805,18 +1472,8 @@ bstritype point_list;
 
 
 
-#ifdef ANSI_C
-
 void drwPolyLine (const_wintype actual_window,
     inttype x, inttype y, bstritype point_list, inttype col)
-#else
-
-void drwPolyLine (actual_window, x, y, point_list, col)
-wintype actual_window;
-inttype x, y;
-const_bstritype point_list;
-inttype col;
-#endif
 
   {
     XPoint *points;
@@ -1843,18 +1500,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwFPolyLine (const_wintype actual_window,
     inttype x, inttype y, bstritype point_list, inttype col)
-#else
-
-void drwFPolyLine (actual_window, x, y, point_list, col)
-wintype actual_window;
-inttype x, y;
-const_bstritype point_list;
-inttype col;
-#endif
 
   {
     XPoint *points;
@@ -1885,18 +1532,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwPut (const_wintype actual_window, const_wintype pixmap,
     inttype x, inttype y)
-#else
-
-void drwPut (actual_window, pixmap, x, y)
-wintype actual_window;
-wintype pixmap;
-inttype x;
-inttype y;
-#endif
 
   { /* drwPut */
 #ifdef TRACE_X11
@@ -1925,16 +1562,8 @@ inttype y;
 
 
 
-#ifdef ANSI_C
-
 void drwRect (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height)
-#else
-
-void drwRect (actual_window, x, y, width, height)
-wintype actual_window;
-inttype x, y, width, height;
-#endif
 
   { /* drwRect */
 #ifdef TRACE_X11
@@ -1950,17 +1579,8 @@ inttype x, y, width, height;
 
 
 
-#ifdef ANSI_C
-
 void drwPRect (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height, inttype col)
-#else
-
-void drwPRect (actual_window, x, y, width, height, col)
-wintype actual_window;
-inttype x, y, width, height;
-inttype col;
-#endif
 
   { /* drwPRect */
 #ifdef TRACE_X11
@@ -1977,16 +1597,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 inttype drwRgbColor (inttype red_val, inttype green_val, inttype blue_val)
-#else
-
-inttype drwRgbColor (red_val, green_val, blue_val)
-inttype red_val;
-inttype green_val;
-inttype blue_val;
-#endif
 
   {
     static color_entry_type *color_hash = NULL;
@@ -2198,16 +1809,7 @@ inttype blue_val;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 inttype drwRgbColor (inttype red_val, inttype green_val, inttype blue_val)
-#else
-
-inttype drwRgbColor (red_val, green_val, blue_val)
-inttype red_val;
-inttype green_val;
-inttype blue_val;
-#endif
 
   {
     Colormap cmap;
@@ -2244,17 +1846,7 @@ inttype blue_val;
 
 
 
-#ifdef ANSI_C
-
 void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val)
-#else
-
-void drwPixelToRgb (col, red_val, green_val, blue_val)
-inttype col;
-inttype *red_val;
-inttype *green_val;
-inttype *blue_val;
-#endif
 
   {
     Colormap cmap;
@@ -2278,14 +1870,7 @@ inttype *blue_val;
 
 
 
-#ifdef ANSI_C
-
 void drwBackground (inttype col)
-#else
-
-void drwBackground (col)
-inttype col;
-#endif
 
   { /* drwBackground */
 /*  printf("set color = %ld\n", (long) col); */
@@ -2294,14 +1879,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwColor (inttype col)
-#else
-
-void drwColor (col)
-inttype col;
-#endif
 
   { /* drwColor */
 /*  printf("set color = %ld\n", (long) col); */
@@ -2310,15 +1888,7 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwSetContent (const_wintype actual_window, const_wintype pixmap)
-#else
-
-void drwSetContent (actual_window, pixmap)
-wintype actual_window;
-wintype pixmap;
-#endif
 
   { /* drwSetContent */
     /* printf("begin drwSetContent(%lu, %lu)\n",
@@ -2343,35 +1913,19 @@ wintype pixmap;
 
 
 
-#ifdef ANSI_C
-
 void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
-#else
-
-void drwSetPos (actual_window, xPos, yPos)
-wintype actual_window;
-inttype xPos, yPos;
-#endif
 
   { /* drwSetPos */
     /* printf("begin drwSetPos(%lu, %ld, %ld)\n",
         to_window(actual_window), xPos, yPos); */
-    XMoveWindow(mydisplay, to_window(actual_window), xPos, yPos);
+    XMoveWindow(mydisplay, to_window(actual_window), castToInt(xPos), castToInt(yPos));
     /* printf("end drwSetPos(%lu, %ld, %ld)\n",
         to_window(actual_window), xPos, yPos); */
   } /* drwSetPos */
 
 
 
-#ifdef ANSI_C
-
 void drwSetTransparentColor (wintype pixmap, inttype col)
-#else
-
-void drwSetTransparentColor (pixmap, col)
-wintype pixmap;
-inttype col;
-#endif
 
   {
     GC bitmap_gc;
@@ -2428,19 +1982,8 @@ inttype col;
 
 
 
-#ifdef ANSI_C
-
 void drwText (const_wintype actual_window, inttype x, inttype y,
     const const_stritype stri, inttype col, inttype bkcol)
-#else
-
-void drwText (actual_window, x, y, stri, col, bkcol)
-wintype actual_window;
-inttype x, y;
-stritype stri;
-inttype col;
-inttype bkcol;
-#endif
 
   {
     XChar2b *stri_buffer;
@@ -2480,14 +2023,7 @@ inttype bkcol;
 
 
 
-#ifdef ANSI_C
-
 void drwToBottom (const_wintype actual_window)
-#else
-
-void drwToBottom (actual_window)
-wintype actual_window;
-#endif
 
   { /* drwToBottom */
     /* printf("begin drwRaise(%lu)\n", to_window(actual_window)); */
@@ -2497,14 +2033,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 void drwToTop (const_wintype actual_window)
-#else
-
-void drwToTop (actual_window)
-wintype actual_window;
-#endif
 
   { /* drwToTop */
     /* printf("begin drwRaise(%lu)\n", to_window(actual_window)); */
@@ -2514,14 +2043,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 inttype drwWidth (const_wintype actual_window)
-#else
-
-inttype drwWidth (actual_window)
-wintype actual_window;
-#endif
 
   {
     Window root;
@@ -2544,14 +2066,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 inttype drwXPos (const_wintype actual_window)
-#else
-
-inttype drwXPos (actual_window)
-wintype actual_window;
-#endif
 
   {
     Window root;
@@ -2574,14 +2089,7 @@ wintype actual_window;
 
 
 
-#ifdef ANSI_C
-
 inttype drwYPos (const_wintype actual_window)
-#else
-
-inttype drwYPos (actual_window)
-wintype actual_window;
-#endif
 
   {
     Window root;

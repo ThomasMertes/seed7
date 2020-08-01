@@ -93,14 +93,7 @@ static const_cstritype category_name[] = {
 
 
 
-#ifdef ANSI_C
-
 const_cstritype category_cstri (objectcategory category)
-#else
-
-cstritype category_cstri (category)
-objectcategory category;
-#endif
 
   {
     const_cstritype result;
@@ -116,14 +109,7 @@ objectcategory category;
 
 
 
-#ifdef ANSI_C
-
 inttype category_value (const const_cstritype stri)
-#else
-
-inttype category_value (stri)
-cstritype stri;
-#endif
 
   {
     inttype number;
@@ -139,14 +125,7 @@ cstritype stri;
 
 
 
-#ifdef ANSI_C
-
 const_cstritype id_string (const_identtype actual_ident)
-#else
-
-cstritype id_string (actual_ident)
-identtype actual_ident;
-#endif
 
   {
     const_cstritype result;

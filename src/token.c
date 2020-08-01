@@ -42,14 +42,7 @@
 
 
 
-#ifdef ANSI_C
-
 void free_tokens (tokentype token)
-#else
-
-void free_tokens (token)
-tokentype token;
-#endif
 
   { /* free_tokens */
 #ifdef TRACE_ENTITY
@@ -67,14 +60,7 @@ tokentype token;
 
 
 
-#ifdef ANSI_C
-
 static tokentype new_sy_token (identtype identifier)
-#else
-
-static tokentype new_sy_token (identifier)
-identtype identifier;
-#endif
 
   {
     register tokentype created_token;
@@ -98,15 +84,7 @@ identtype identifier;
 
 
 
-#ifdef ANSI_C
-
 static tokentype new_expr_token (prioritytype priority, typetype type_of)
-#else
-
-static tokentype new_expr_token (priority, type_of)
-prioritytype priority;
-typetype type_of;
-#endif
 
   {
     tokentype created_token;
@@ -131,13 +109,7 @@ typetype type_of;
 
 
 
-#ifdef ANSI_C
-
 static tokentype new_syntax_description (void)
-#else
-
-static tokentype new_syntax_description ()
-#endif
 
   {
     tokentype created_token;
@@ -161,15 +133,7 @@ static tokentype new_syntax_description ()
 
 
 
-#ifdef ANSI_C
-
 tokentype get_sy_token (tokentype *tokens, identtype identifier)
-#else
-
-tokentype get_sy_token (tokens, identifier)
-tokentype *tokens;
-identtype identifier;
-#endif
 
   {
     tokentype token_found;
@@ -210,17 +174,8 @@ identtype identifier;
 
 
 
-#ifdef ANSI_C
-
 tokentype get_expr_token (tokentype *tokens, prioritytype priority,
     typetype type_of)
-#else
-
-tokentype get_expr_token (tokens, priority, type_of)
-tokentype *tokens;
-prioritytype priority;
-typetype type_of;
-#endif
 
   {
     tokentype token_found;
@@ -270,14 +225,7 @@ typetype type_of;
 
 
 
-#ifdef ANSI_C
-
 tokentype get_syntax_description (tokentype *tokens)
-#else
-
-tokentype get_syntax_description (tokens)
-tokentype *tokens;
-#endif
 
   {
     tokentype token_found;

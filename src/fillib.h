@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 objecttype fil_big_lng     (listtype arguments);
 objecttype fil_big_seek    (listtype arguments);
 objecttype fil_big_tell    (listtype arguments);
@@ -58,38 +56,3 @@ objecttype fil_tell        (listtype arguments);
 objecttype fil_value       (listtype arguments);
 objecttype fil_word_read   (listtype arguments);
 objecttype fil_write       (listtype arguments);
-
-#else
-
-objecttype fil_big_lng ();
-objecttype fil_big_seek ();
-objecttype fil_big_tell ();
-objecttype fil_close ();
-objecttype fil_cpy ();
-objecttype fil_create ();
-objecttype fil_empty ();
-objecttype fil_eof ();
-objecttype fil_eq ();
-objecttype fil_err ();
-objecttype fil_flush ();
-objecttype fil_getc ();
-objecttype fil_gets ();
-objecttype fil_has_next ();
-objecttype fil_in ();
-objecttype fil_line_read ();
-objecttype fil_lit();
-objecttype fil_lng();
-objecttype fil_ne ();
-objecttype fil_open ();
-objecttype fil_out ();
-objecttype fil_pclose ();
-objecttype fil_popen ();
-objecttype fil_print ();
-objecttype fil_seek ();
-objecttype fil_setbuf ();
-objecttype fil_tell ();
-objecttype fil_value ();
-objecttype fil_word_read ();
-objecttype fil_write ();
-
-#endif

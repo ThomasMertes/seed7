@@ -124,9 +124,8 @@ chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
 
 version.h: chkccomp.h
-	echo "#define ANSI_C" > version.h
+	echo "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > version.h
 	echo "#define USE_DIRENT" >> version.h
-	echo "#define PATH_DELIMITER 92 /* backslash (ASCII) */" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ';'" >> version.h
 	echo "#define OS_PATH_HAS_DRIVE_LETTERS" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h

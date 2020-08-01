@@ -29,20 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
-
 void conHScroll (inttype startlin, inttype startcol,
                  inttype stoplin, inttype stopcol, inttype count);
 void conSetpos (inttype lin, inttype col);
 void conVScroll (inttype startlin, inttype startcol,
                  inttype stoplin, inttype stopcol, inttype count);
 void conWrite (const_stritype stri);
-
-#else
-
-void conHScroll ();
-void conSetpos ();
-void conVScroll ();
-void conWrite ();
-
-#endif

@@ -58,22 +58,9 @@ typedef struct {
   } WDIR;
 
 
-#ifdef ANSI_C
-
 DIR *opendir (char *name);
 struct dirent *readdir (DIR *curr_dir);
 int closedir (DIR *curr_dir);
 WDIR *wopendir (wchar_t *name);
 struct wdirent *wreaddir (WDIR *curr_dir);
 int wclosedir (WDIR *curr_dir);
-
-#else
-
-DIR *opendir ();
-struct dirent *readdir ();
-int closedir ();
-WDIR *wopendir ();
-struct wdirent *wreaddir ();
-int wclosedir ();
-
-#endif

@@ -490,8 +490,6 @@ EXTERN unsigned int sflist_allowed;
 #define COUNT3_TABLE(tp,nr1,nr2)    CNT3(CNT2_BYT(SIZ_TAB(tp, nr1)), CNT1_BYT(SIZ_TAB(tp, nr2)))
 
 
-#ifdef ANSI_C
-
 #ifdef WITH_STRI_CAPACITY
 stritype growStri (stritype stri, memsizetype len);
 stritype shrinkStri (stritype stri, memsizetype len);
@@ -501,19 +499,4 @@ void check_heap (long, const char *, unsigned int);
 #endif
 #ifdef DO_HEAP_STATISTIC
 void rtlHeapStatistic (void);
-#endif
-
-#else
-
-#ifdef WITH_STRI_CAPACITY
-stritype growStri ();
-stritype shrinkStri ();
-#endif
-#ifdef DO_HEAP_CHECK
-void check_heap ();
-#endif
-#ifdef DO_HEAP_STATISTIC
-void rtlHeapStatistic ();
-#endif
-
 #endif

@@ -65,17 +65,8 @@
 
 
 
-#ifdef ANSI_C
-
 static void init_dollar_type (objecttype declared_object,
     typetype meta_type, errinfotype *err_info)
-#else
-
-static void init_dollar_type (declared_object, meta_type, err_info)
-objecttype declared_object;
-typetype meta_type;
-errinfotype *err_info;
-#endif
 
   {
     typetype generated_type;
@@ -106,16 +97,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static INLINE void init_dollar (objecttype declared_object,
     errinfotype *err_info)
-#else
-
-static INLINE void init_dollar (declared_object, err_info)
-objecttype declared_object;
-errinfotype *err_info;
-#endif
 
   {
     objecttype meta_type;
@@ -194,18 +177,8 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static void decl_value (objecttype typeof_object, objecttype declared_object,
     int is_dollar_type, errinfotype *err_info)
-#else
-
-static void decl_value (typeof_object, declared_object, is_dollar_type, err_info)
-objecttype typeof_object;
-objecttype declared_object;
-int is_dollar_type;
-errinfotype *err_info;
-#endif
 
   {
     objecttype init_expression;
@@ -311,15 +284,7 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
 static objecttype decl_name (nodetype node_level, errinfotype *err_info)
-#else
-
-static objecttype decl_name (node_level, err_info)
-nodetype node_level;
-errinfotype *err_info;
-#endif
 
   {
     objecttype object_name;
@@ -367,15 +332,7 @@ if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
 
 
 
-#ifdef ANSI_C
-
 void decl_const (nodetype node_level, errinfotype *err_info)
-#else
-
-void decl_const (node_level, err_info)
-nodetype node_level;
-errinfotype *err_info;
-#endif
 
   {
     objecttype typeof_object;

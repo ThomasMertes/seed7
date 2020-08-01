@@ -70,14 +70,7 @@ static unsigned int chunk_size[] = { 32768, 16384, 8192, 4096,
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 booltype check_obj_flist (objecttype object)
-#else
-
-booltype check_obj_flist (object)
-objecttype object;
-#endif
 
   {
     objecttype help_obj;
@@ -106,13 +99,7 @@ objecttype object;
 
 
 #if defined DO_HEAPSIZE_COMPUTATION || defined DO_HEAP_STATISTIC
-#ifdef ANSI_C
-
 static unsigned long object_flist_count (void)
-#else
-
-static unsigned long object_flist_count ()
-#endif
 
   {
     register objecttype help_obj;
@@ -129,13 +116,7 @@ static unsigned long object_flist_count ()
 
 
 
-#ifdef ANSI_C
-
 static unsigned long list_elem_flist_count (void)
-#else
-
-static unsigned long list_elem_flist_count ()
-#endif
 
   {
     register listtype help_list;
@@ -152,13 +133,7 @@ static unsigned long list_elem_flist_count ()
 
 
 
-#ifdef ANSI_C
-
 static unsigned long node_flist_count (void)
-#else
-
-static unsigned long node_flist_count ()
-#endif
 
   {
     register nodetype help_node;
@@ -175,13 +150,7 @@ static unsigned long node_flist_count ()
 
 
 
-#ifdef ANSI_C
-
 static unsigned long infile_flist_count (void)
-#else
-
-static unsigned long infile_flist_count ()
-#endif
 
   {
     register infiltype help_infile;
@@ -198,14 +167,7 @@ static unsigned long infile_flist_count ()
 
 
 
-#ifdef ANSI_C
-
 static unsigned long stri_flist_count (unsigned long *stri_chars)
-#else
-
-static unsigned long stri_flist_count (stri_chars)
-unsigned long *stri_chars
-#endif
 
   {
 #ifdef WITH_STRI_FREELIST
@@ -268,13 +230,7 @@ unsigned long *stri_chars
 
 
 #ifdef DO_HEAP_STATISTIC
-#ifdef ANSI_C
-
 void heap_statistic (void)
-#else
-
-void heap_statistic ()
-#endif
 
   {
     unsigned long num_flist_objects;
@@ -628,13 +584,7 @@ void heap_statistic ()
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
 static memsizetype compute_hs (void)
-#else
-
-static memsizetype compute_hs ()
-#endif
 
   {
     memsizetype bytes_total;
@@ -689,13 +639,7 @@ static memsizetype compute_hs ()
 
 
 
-#ifdef ANSI_C
-
 memsizetype heapsize (void)
-#else
-
-memsizetype heapsize ()
-#endif
 
   {
 #ifdef DO_HEAPSIZE_COMPUTATION
@@ -725,14 +669,7 @@ memsizetype heapsize ()
 
 #ifdef USE_CHUNK_ALLOCS
 #ifdef USE_FLIST_ALLOC
-#ifdef ANSI_C
-
 void *flist_alloc (size_t size)
-#else
-
-void *flist_alloc (size)
-size_t size;
-#endif
 
   {
     size_t size_of_rec;
@@ -765,13 +702,7 @@ size_t size;
 
 
 #ifndef USE_CHUNK_ALLOCS
-#ifdef ANSI_C
-
 void reuse_free_lists (void)
-#else
-
-void reuse_free_lists ()
-#endif
 
   {
     objecttype help_obj;
@@ -801,14 +732,7 @@ void reuse_free_lists ()
 
 
 #ifdef USE_CHUNK_ALLOCS
-#ifdef ANSI_C
-
 void *heap_chunk (size_t size)
-#else
-
-void *heap_chunk (size)
-size_t size;
-#endif
 
   {
     int index;
@@ -868,14 +792,7 @@ size_t size;
 
 
 #ifdef DO_HEAP_CHECK
-#ifdef ANSI_C
-
 void check_heap (long sizediff, const char *file_name, unsigned int line_num)
-#else
-
-void check_heap (sizediff)
-long sizediff;
-#endif
 
   {
     memsizetype bytes_used;
