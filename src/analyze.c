@@ -63,6 +63,7 @@
 #include "option.h"
 #include "runerr.h"
 #include "cmd_rtl.h"
+#include "str_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -401,6 +402,68 @@ nodetype objects;
 
 #ifdef ANSI_C
 
+static stritype getProgramName (const const_stritype source_file_name)
+#else
+
+static stritype getProgramName (source_file_name)
+stritype source_file_name;
+#endif
+
+  {
+    memsizetype name_len;
+    inttype lastSlashPos;
+    stritype program_name;
+
+  /* getProgramName */
+    name_len = source_file_name->size;
+    if (name_len > 4 &&
+        source_file_name->mem[name_len - 4] == '.' &&
+        source_file_name->mem[name_len - 3] == 's' &&
+        source_file_name->mem[name_len - 2] == 'd' &&
+        source_file_name->mem[name_len - 1] == '7') {
+      name_len -= 4;
+    } /* if */
+    lastSlashPos = strRChPos(source_file_name, (chartype) '/');
+    name_len -= (memsizetype) lastSlashPos;
+    if (ALLOC_STRI_SIZE_OK(program_name, name_len)) {
+      program_name->size = name_len;
+      memcpy(program_name->mem, &source_file_name->mem[lastSlashPos],
+          name_len * sizeof(strelemtype));
+    } /* if */
+    return program_name;
+  } /* getProgramName */
+
+
+
+#ifdef ANSI_C
+
+static stritype getProgramPath (const const_stritype source_file_name)
+#else
+
+static stritype getProgramPath (source_file_name)
+stritype source_file_name;
+#endif
+
+  {
+    stritype cwd;
+    stritype program_path;
+
+  /* getProgramPath */
+    if (source_file_name->size >= 1 &&
+        source_file_name->mem[0] == (chartype) '/') {
+      program_path = strCreate(source_file_name);
+    } else {
+      cwd = cmdGetcwd();
+      program_path = concat_path(cwd, source_file_name);
+      FREE_STRI(cwd, cwd->size);
+    } /* if */
+    return program_path;
+  } /* getProgramPath */
+
+
+
+#ifdef ANSI_C
+
 static progtype analyze_prog (const const_stritype source_file_argument,
     const const_stritype source_name, errinfotype *err_info)
 #else
@@ -489,8 +552,9 @@ errinfotype *err_info;
           write_idents();
         } /* if */
         clean_idents();
-        resultProg->source_file_name = source_file_argument_copy;
-        resultProg->source_file_path = getProgramPath(source_name);
+        resultProg->arg0             = source_file_argument_copy;
+        resultProg->program_name     = getProgramName(source_name);
+        resultProg->program_path     = getProgramPath(source_name);
         resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));

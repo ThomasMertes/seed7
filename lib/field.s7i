@@ -40,14 +40,6 @@ const type: field_file is sub null_file struct
 type_implements_interface(field_file, file);
 
 
-const func field_file: malloc (in field_file: field_fil) is func
-  result
-    var field_file: result is field_file.value;
-  begin
-    result := field_fil;
-  end func;
-
-
 const func file: open_field (in file: in_fil, inout text: out_fil,
     in integer: line, in integer: column, in integer: width, in string: default) is func
   result
@@ -64,7 +56,7 @@ const func file: open_field (in file: in_fil, inout text: out_fil,
     field_fil.field := (default & " " mult width)[ .. width];
     setPos(out_fil, line, column);
     write(out_fil, default[.. width]);
-    result := malloc(field_fil);
+    result := toInterface(field_fil);
   end func;
 
 

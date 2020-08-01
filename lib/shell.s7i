@@ -194,14 +194,6 @@ const type: popen_file is sub external_file struct
 type_implements_interface(popen_file, file);
 
 
-const func popen_file: malloc (in popen_file: aPipe) is func
-  result
-    var popen_file: newPipe is popen_file.value;
-  begin
-    newPipe := aPipe;
-  end func;
-
-
 (**
  *  Open a pipe to a command, which reads and writes with Latin-1 encoding.
  *  A pipe can only be opened with the modes "r" and "w".
@@ -224,7 +216,7 @@ const func file: popen (in string: cmdAndParams, in string: mode) is func
     if open_file <> CLIB_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;
-      newPipe := malloc(new_file);
+      newPipe := toInterface(new_file);
     end if;
   end func;
 
@@ -239,14 +231,6 @@ const type: popen8_file is sub utf8_file struct
   end struct;
 
 type_implements_interface(popen8_file, file);
-
-
-const func popen8_file: malloc (in popen8_file: aPipe) is func
-  result
-    var popen8_file: newPipe is popen8_file.value;
-  begin
-    newPipe := aPipe;
-  end func;
 
 
 (**
@@ -271,7 +255,7 @@ const func file: popen8 (in string: cmdAndParams, in string: mode) is func
     if open_file <> CLIB_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;
-      newPipe := malloc(new_file);
+      newPipe := toInterface(new_file);
     end if;
   end func;
 
@@ -314,12 +298,12 @@ const proc: pipe2 (in string: command, in array string: parameters,
     pipe2(command, parameters, primitiveChildStdin, primitiveChildStdout);
     if primitiveChildStdin <> CLIB_NULL_FILE then
       new_ChildStdin.ext_file := primitiveChildStdin;
-      childStdin := malloc(new_ChildStdin);
+      childStdin := toInterface(new_ChildStdin);
     end if;
     if primitiveChildStdout <> CLIB_NULL_FILE then
       # setbuf(primitiveChildStdout, IO_NO_BUFFERING, 0);
       new_ChildStdout.ext_file := primitiveChildStdout;
-      childStdout := malloc(new_ChildStdout);
+      childStdout := toInterface(new_ChildStdout);
     end if;
   end func;
 
@@ -340,11 +324,11 @@ const proc: pty (in string: command, in array string: parameters,
     pty(command, parameters, primitiveChildStdin, primitiveChildStdout);
     if primitiveChildStdin <> CLIB_NULL_FILE then
       new_ChildStdin.ext_file := primitiveChildStdin;
-      childStdin := malloc(new_ChildStdin);
+      childStdin := toInterface(new_ChildStdin);
     end if;
     if primitiveChildStdout <> CLIB_NULL_FILE then
       new_ChildStdout.ext_file := primitiveChildStdout;
-      childStdout := malloc(new_ChildStdout);
+      childStdout := toInterface(new_ChildStdout);
     end if;
   end func;
 
@@ -368,6 +352,6 @@ const proc: startProcess (in var string: cmdAndParams) is func
     startProcess(command, parameters);
   end func;
 
-  
+
 const func array string: getSearchPath  is action "CMD_GET_SEARCH_PATH";
 const func array string: environment    is action "CMD_ENVIRONMENT";

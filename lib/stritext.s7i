@@ -41,14 +41,6 @@ const type: stritext is sub null_file struct
 type_implements_interface(stritext, text);
 
 
-const func stritext: malloc (in stritext: aStritext) is func
-  result
-    var stritext: result is stritext.value;
-  begin
-    result := aStritext;
-  end func;
-
-
 (**
  *  Open a ''stritext'' with the given [[string]] [[array]] content.
  *  @return the file opened.
@@ -60,7 +52,7 @@ const func file: openStritext (in array string: content) is func
     var stritext: new_stritext is stritext.value;
   begin
     new_stritext.content := content;
-    result := malloc(new_stritext);
+    result := toInterface(new_stritext);
   end func;
 
 

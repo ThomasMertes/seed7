@@ -195,12 +195,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-09-09 the number of lines is:
+than 150000 lines of Seed7. For version 2012-09-23 the number of lines is:
 
-   101933  C source files (*.c)
-    10057  C header files (*.h)
-   110447  Seed7 source files (*.sd7)
-    80170  Seed7 library/include files (*.s7i)
+   102243  C source files (*.c)
+    10071  C header files (*.h)
+   110509  Seed7 source files (*.sd7)
+    80037  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -924,9 +924,9 @@ Is there a garbage collection?
 ==============================
 
 There is no garbage collection process, that interrupts the normal processing,
-to free some memory. Seed7 uses different mechanisms to manage memory. Memory
-usage can be categorized and for every category a specific strategy of
-automatic memory management is used:
+to free some memory. The automatic memory management of Seed7 uses different
+mechanisms. Memory usage can be categorized and for every category a specific
+strategy of automatic memory management is used:
 
  - Memory used by local variables and parameters is automatically freed, when
    a function is left. The interpreter maintains a list of local values and

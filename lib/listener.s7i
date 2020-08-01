@@ -44,14 +44,6 @@ const type: inetListener is sub baseListener struct
 type_implements_interface(inetListener, listener);
 
 
-const func inetListener: malloc (in inetListener: aListener) is func
-  result
-    var inetListener: result is inetListener.value;
-  begin
-    result := aListener;
-  end func;
-
-
 (**
  *  Create a bound internet listener for a port at localhost.
  *  The listerner is responsible for incoming connections of the
@@ -89,7 +81,7 @@ const func listener: openInetListener (in integer: portNumber) is func
       bind(open_socket, new_listener.addr);
       new_listener.sock := open_socket;
       addCheck(new_listener.checkedSocks, open_socket, POLLIN, STD_NULL);
-      result := malloc(new_listener);
+      result := toInterface(new_listener);
     end if;
   end func;
 
@@ -232,7 +224,7 @@ const func file: accept (inout inetListener: aListener) is func
       new_socket.sock := accepted_socket;
       new_socket.service := aListener.service;
       new_socket.acceptedFrom := aListener;
-      result := malloc(new_socket);
+      result := toInterface(new_socket);
       addCheck(aListener.checkedSocks, result, POLLIN);
     end if;
   end func;

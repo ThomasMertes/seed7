@@ -41,14 +41,6 @@ const type: dir_file is sub null_file struct
   end struct;
 
 
-const func dir_file: malloc (ref dir_file: aDirFile) is func
-  result
-    var dir_file: result is dir_file.value;
-  begin
-    result := aDirFile;
-  end func;
-
-
 (**
  *  Open a ''dir_file''.
  *  @return the ''dir_file'' opened, or [[null_file#STD_NULL|STD_NULL]]
@@ -70,7 +62,7 @@ const func file: openDir (in string: dir_name) is func
     new_file.curr_column := 1;
     block
       new_file.dir_array := readDir(dir_name);
-      result := malloc(new_file);
+      result := toInterface(new_file);
     exception
       catch FILE_ERROR:
         result := STD_NULL;
@@ -93,7 +85,7 @@ const func file: openDirPath (in string: dir_name) is func
     new_file.curr_column := 1;
     block
       new_file.dir_array := readDir(dir_name);
-      result := malloc(new_file);
+      result := toInterface(new_file);
     exception
       catch FILE_ERROR:
         result := STD_NULL;

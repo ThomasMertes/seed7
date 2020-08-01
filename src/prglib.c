@@ -397,7 +397,7 @@ listtype arguments;
 #endif
 
   { /* prg_name */
-    return bld_stri_temp(strCreate(prog.source_file_name));
+    return bld_stri_temp(strCreate(prog.program_name));
   } /* prg_name */
 
 
@@ -433,7 +433,7 @@ listtype arguments;
 #endif
 
   { /* prg_path */
-    return bld_stri_temp(strCreate(prog.source_file_path));
+    return bld_stri_temp(strCreate(prog.program_path));
   } /* prg_path */
 
 

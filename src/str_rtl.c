@@ -93,10 +93,10 @@ size_t number;
 #endif
 
   {
-    const strelemtype *byond;
+    const strelemtype *beyond;
 
   /* search_strelem */
-    for (byond = &mem[number]; mem != byond; mem++) {
+    for (beyond = &mem[number]; mem != beyond; mem++) {
       if (*mem == ch) {
         return mem;
       } /* if */
@@ -201,7 +201,7 @@ stritype relativePath;
     memsizetype estimated_result_size;
     strelemtype *abs_path_end;
     strelemtype *rel_path_pos;
-    strelemtype *rel_path_byond;
+    strelemtype *rel_path_beyond;
     memsizetype result_size;
     stritype resized_result;
     stritype result;
@@ -229,20 +229,20 @@ stritype relativePath;
         result->mem[abs_path_length] = '/';
         abs_path_end = &result->mem[abs_path_length];
         rel_path_pos = relativePath->mem;
-        rel_path_byond = &relativePath->mem[relativePath->size];
-        while (rel_path_pos < rel_path_byond) {
-          if (&rel_path_pos[1] < rel_path_byond &&
+        rel_path_beyond = &relativePath->mem[relativePath->size];
+        while (rel_path_pos < rel_path_beyond) {
+          if (&rel_path_pos[1] < rel_path_beyond &&
               rel_path_pos[0] == '.' && rel_path_pos[1] == '.' &&
-              (&rel_path_pos[2] >= rel_path_byond || rel_path_pos[2] == '/')) {
+              (&rel_path_pos[2] >= rel_path_beyond || rel_path_pos[2] == '/')) {
             rel_path_pos += 2;
             if (abs_path_end > result->mem) {
               do {
                 abs_path_end--;
               } while (*abs_path_end != '/');
             } /* if */
-          } else if (&rel_path_pos[0] < rel_path_byond &&
+          } else if (&rel_path_pos[0] < rel_path_beyond &&
                      rel_path_pos[0] == '.' &&
-                     (&rel_path_pos[1] >= rel_path_byond || rel_path_pos[1] == '/')) {
+                     (&rel_path_pos[1] >= rel_path_beyond || rel_path_pos[1] == '/')) {
             rel_path_pos++;
           } else if (*rel_path_pos == '/') {
             rel_path_pos++;
@@ -251,7 +251,7 @@ stritype relativePath;
               abs_path_end++;
               *abs_path_end = *rel_path_pos;
               rel_path_pos++;
-            } while (&rel_path_pos[0] < rel_path_byond && rel_path_pos[0] != '/');
+            } while (&rel_path_pos[0] < rel_path_beyond && rel_path_pos[0] != '/');
             abs_path_end++;
             /* The line below adds a temporary slash (/) to the end   */
             /* of the intermediate result. Therefore + 2 is used to   */

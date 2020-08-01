@@ -295,6 +295,7 @@ char **argv;
   {
     rtlArraytype arg_v;
     stritype arg_0;
+    stritype programName;
     progtype currentProg;
 
   /* main */
@@ -302,10 +303,11 @@ char **argv;
     printf("BEGIN HI\n");
 #endif
     set_trace(NULL, -1, NULL);
-    arg_v = getArgv(argc, argv, &arg_0, &programPath);
+    arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);
     if (arg_v == NULL) {
       printf("\n*** No more memory. Program terminated.\n");
     } else {
+      FREE_STRI(programName, programName->size);
       FREE_STRI(arg_0, arg_0->size);
       processOptions(arg_v);
       if (option.version_info) {

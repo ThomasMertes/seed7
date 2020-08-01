@@ -56,12 +56,14 @@ typedef uint32type rtlGenerictype;
 typedef struct rtlListstruct   *rtlListtype;
 typedef struct rtlArraystruct  *rtlArraytype;
 typedef struct rtlStructstruct *rtlStructtype;
+typedef struct rtlStructstruct *rtlInterfacetype;
 typedef struct rtlHelemstruct  *rtlHelemtype;
 typedef struct rtlHashstruct   *rtlHashtype;
 
 typedef const struct rtlListstruct   *const_rtlListtype;
 typedef const struct rtlArraystruct  *const_rtlArraytype;
 typedef const struct rtlStructstruct *const_rtlStructtype;
+typedef const struct rtlStructstruct *const_rtlInterfacetype;
 typedef const struct rtlHelemstruct  *const_rtlHelemtype;
 typedef const struct rtlHashstruct   *const_rtlHashtype;
 
@@ -70,6 +72,7 @@ typedef union {
 /*    postype    pos;          ** SYMBOLOBJECT */
 /*    nodetype   nodevalue;    ** MDULEOBJECT */
 /*    typetype   typevalue;    ** TYPEOBJECT */
+/*    booltype   boolvalue;         */
     inttype       intvalue;     /* INTOBJECT */
     biginttype    bigintvalue;  /* BIGINTOBJECT */
     chartype      charvalue;    /* CHAROBJECT */
@@ -82,6 +85,11 @@ typedef union {
     sockettype    socketvalue;  /* SOCKETOBJECT */
     rtlListtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
     wintype       winvalue;     /* WINOBJECT */
+/*    interfacetype interfacevalue; */
+/*    enumtype      enumvalue;      */
+/*    bstritype     bstrivalue;     */
+/*    polltype      pollvalue;      */
+/*    objreftype    objrefvalue;    */
 /*    rtlObjecttype objvalue;     ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
                              /* VARENUMOBJECT, VALUEPARAMOBJECT */
                              /* REFPARAMOBJECT, RESULTOBJECT */
@@ -113,6 +121,7 @@ typedef struct rtlArraystruct {
   } rtlArrayrecord;
 
 struct rtlStructstruct {
+    memsizetype usage_count;
     uint32type type_num;
     rtlObjecttype stru[1];
   };

@@ -52,14 +52,6 @@ const proc: utf8_write (ref clib_file: outFile, in string: stri)      is action 
 const proc: utf8_seek (ref clib_file: aFile, in integer: position)    is action "UT8_SEEK";
 
 
-const func utf8_file: malloc (in utf8_file: anUtf8File) is func
-  result
-    var utf8_file: newFile is utf8_file.value;
-  begin
-    newFile := anUtf8File;
-  end func;
-
-
 (**
  *  Opens an Unicode file which uses the UTF-8 encoding.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
@@ -78,7 +70,7 @@ const func file: open_utf8 (in string: fileName, in string: mode) is func
     if open_file <> CLIB_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := fileName;
-      newFile := malloc(new_file);
+      newFile := toInterface(new_file);
     end if;
   end func;
 

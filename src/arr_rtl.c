@@ -127,6 +127,46 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
 #ifdef ANSI_C
 
+static stritype getProgramName (const const_stritype exePath)
+#else
+
+static stritype getProgramName (exePath)
+stritype exePath;
+#endif
+
+  {
+    memsizetype name_len;
+#ifdef EXECUTABLE_FILE_EXTENSION
+    stritype exeExtension;
+#endif
+    inttype lastSlashPos;
+    stritype program_name;
+
+  /* getProgramName */
+    name_len = exePath->size;
+#ifdef EXECUTABLE_FILE_EXTENSION
+    exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
+    if (name_len > exeExtension->size &&
+        memcmp(&exePath->mem[exePath->size - exeExtension->size],
+               exeExtension->mem, exeExtension->size) == 0) {
+      name_len -= exeExtension->size;
+    } /* if */
+    FREE_STRI(exeExtension, exeExtension->size);
+#endif
+    lastSlashPos = strRChPos(exePath, (chartype) '/');
+    name_len -= (memsizetype) lastSlashPos;
+    if (ALLOC_STRI_SIZE_OK(program_name, name_len)) {
+      program_name->size = name_len;
+      memcpy(program_name->mem, &exePath->mem[lastSlashPos],
+          name_len * sizeof(strelemtype));
+    } /* if */
+    return program_name;
+  } /* getProgramName */
+
+
+
+#ifdef ANSI_C
+
 static rtlArraytype copyArgv (const int argc, const os_stritype *const argv)
 #else
 
@@ -180,13 +220,14 @@ os_stritype *argv;
 #ifdef ANSI_C
 
 rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
-    stritype *exePath)
+    stritype *programName, stritype *exePath)
 #else
 
-rtlArraytype getArgv (argc, argv, arg_0, exePath)
+rtlArraytype getArgv (argc, argv, arg_0, programName, exePath)
 int argc;
 os_stritype *argv;
 stritype *arg_0;
+stritype *programName;
 stritype *exePath;
 #endif
 
@@ -208,6 +249,11 @@ stritype *exePath;
         *exePath = getExecutablePath(*arg_0);
         if (*exePath == NULL) {
           err_info = MEMORY_ERROR;
+        } else {
+          *programName = getProgramName(*exePath);
+          if (*programName == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
         } /* if */
       } /* if */
       if (err_info == OKAY_NO_ERROR) {
@@ -229,13 +275,14 @@ stritype *exePath;
 #ifdef ANSI_C
 
 rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
-    stritype *exePath)
+    stritype *programName, stritype *exePath)
 #else
 
-rtlArraytype getArgv (argc, argv, arg_0, exePath)
+rtlArraytype getArgv (argc, argv, arg_0, programName, exePath)
 int argc;
 char **argv;
 stritype *arg_0;
+stritype *programName;
 stritype *exePath;
 #endif
 
@@ -266,6 +313,11 @@ stritype *exePath;
           *exePath = getExecutablePath(*arg_0);
           if (*exePath == NULL) {
             err_info = MEMORY_ERROR;
+          } else {
+            *programName = getProgramName(*exePath);
+            if (*programName == NULL) {
+              err_info = MEMORY_ERROR;
+            } /* if */
           } /* if */
         } /* if */
         if (err_info == OKAY_NO_ERROR) {
@@ -282,6 +334,11 @@ stritype *exePath;
         *exePath = getExecutablePath(*arg_0);
         if (*exePath == NULL) {
           err_info = MEMORY_ERROR;
+        } else {
+          *programName = getProgramName(*exePath);
+          if (*programName == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
         } /* if */
       } /* if */
       if (err_info == OKAY_NO_ERROR) {

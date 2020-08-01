@@ -31,7 +31,6 @@
 
 #ifdef ANSI_C
 
-stritype getProgramPath (const const_stritype source_file_name);
 #ifdef EMULATE_ROOT_CWD
 void initEmulatedCwd (errinfotype *err_info);
 #endif
@@ -80,7 +79,6 @@ stritype cmdToOsPath (const const_stritype standardPath);
 
 #else
 
-stritype getProgramPath ();
 #ifdef EMULATE_ROOT_CWD
 void initEmulatedCwd (void);
 #endif

@@ -611,6 +611,13 @@ objecttype anyobject;
           prot_cstri("struct[");
           prot_int((inttype) anyobject->value.structvalue->size);
           prot_cstri("]");
+          if (anyobject->value.structvalue->usage_count != 0) {
+            prot_cstri("<");
+            prot_int((inttype) anyobject->value.structvalue->usage_count);
+            prot_cstri(">");
+          } /* if */
+          prot_cstri(" ");
+          prot_int((inttype) anyobject->value.structvalue);
         } else {
           prot_cstri(" *NULL_STRUCT* ");
         } /* if */
@@ -1513,6 +1520,9 @@ objecttype traceobject;
         case REFPARAMOBJECT:
         case RESULTOBJECT:
         case LOCALVOBJECT:
+          prot_int((inttype) traceobject);
+          prot_cstri(" ");
+          prot_int((inttype) traceobject->value.objvalue);
           prot_nl();
           prot_cstri("  ");
           trace1(traceobject->value.objvalue);
@@ -1598,7 +1608,7 @@ objecttype traceobject;
           if (traceobject->value.progvalue == NULL) {
             prot_cstri("NULL");
           } else {
-            prot_stri(traceobject->value.progvalue->source_file_name);
+            prot_stri(traceobject->value.progvalue->program_name);
           } /* if */
           break;
         case SYMBOLOBJECT:

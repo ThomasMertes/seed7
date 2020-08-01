@@ -1,3 +1,14 @@
+20120923:
+- Experimental support for automatic memory management with reference
+  counting was added to the interpreter.
+- The libraries external_file.s7i, field.s7i, stritext.s7i, gzip.s7i,
+  listener.s7i, pixmap_file.s7i, shell.s7i, socket.s7i, strifile.s7i,
+  dir.s7i, utf16.s7i, utf8.s7i and xmldom.s7i were improved to use
+  the function toInterface.
+- The function name(PROGRAM) was improved, to return the name of the
+  program without extension and without path.
+- The interpreter was improved to support the action ITF_DESTR.
+
 20120909:
 - The chapters about predefined statements and the foreign function
   interface in the manual, were improved.

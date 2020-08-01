@@ -509,6 +509,7 @@ static primactrecord prim_act_table[] = {
     { "ITF_CPY2",                itf_cpy2,                },
     { "ITF_CREATE",              itf_create,              },
     { "ITF_CREATE2",             itf_create2,             },
+    { "ITF_DESTR",               itf_destr,               },
     { "ITF_EQ",                  itf_eq,                  },
     { "ITF_HASHCODE",            itf_hashcode,            },
     { "ITF_NE",                  itf_ne,                  },

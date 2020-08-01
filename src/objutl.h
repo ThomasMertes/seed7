@@ -107,6 +107,8 @@
 #define isit_win(arg)       if (CATEGORY_OF_OBJ(arg) != WINOBJECT)       run_exception(WINOBJECT, arg)
 #define is_variable(arg)    if (!VAR_OBJECT(arg)) { var_required(arg);   return(NULL); }
 #define isit_int2(arg)      if (CATEGORY_OF_OBJ(arg) != INTOBJECT)       run_error(INTOBJECT, arg)
+#define just_interface(arg) if (CATEGORY_OF_OBJ(arg) != INTERFACEOBJECT) run_exception(INTERFACEOBJECT, arg); \
+                            if (take_interface(arg) == NULL)             { empty_value(arg); return(NULL); }
 #else
 #define isit_action(arg)
 #define isit_array(arg)
@@ -136,6 +138,7 @@
 #define isit_win(arg)
 #define is_variable(arg)
 #define isit_int2(arg)
+#define just_interface(arg)
 #endif
 
 

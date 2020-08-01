@@ -54,14 +54,6 @@ const type: pixmapFontFile is sub null_file struct
 type_implements_interface(pixmapFontFile, text);
 
 
-const func pixmapFontFile: malloc (ref pixmapFontFile: ext_file) is func
-  result
-    var pixmapFontFile: result is pixmapFontFile.value;
-  begin
-    result := ext_file;
-  end func;
-
-
 (**
  *  Creates a ''pixmapFontFile'' at the upper left corner of ''win''.
  *  The ''pixmapFontFile'' extends over the whole ''win''.
@@ -75,7 +67,7 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win) is func
   begin
     new_file.win := win;
     new_file.font.baseFont := fontProperties.value;
-    result := malloc(new_file);
+    result := toInterface(new_file);
   end func;
 
 
@@ -95,7 +87,7 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
     new_file.font.baseFont := fontProperties.value;
     new_file.min_x := min_x;
     new_file.min_y := min_y;
-    result := malloc(new_file);
+    result := toInterface(new_file);
   end func;
 
 

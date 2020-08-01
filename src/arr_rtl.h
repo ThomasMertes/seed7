@@ -36,7 +36,7 @@ rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg
     stritype *exePath);
 #else
 rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
-    stritype *exePath);
+    stritype *programName, stritype *exePath);
 #endif
 stritype examineSearchPath (const const_stritype fileName);
 void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype arr_from);

@@ -37,14 +37,6 @@ const type: strifile is sub null_file struct
 type_implements_interface(strifile, file);
 
 
-const func strifile: malloc (in strifile: aStrifile) is func
-  result
-    var strifile: result is strifile.value;
-  begin
-    result := aStrifile;
-  end func;
-
-
 (**
  *  Open a ''strifile'' with the given string content.
  *  @return the file opened.
@@ -56,7 +48,7 @@ const func file: openStrifile (in string: content) is func
     var strifile: new_strifile is strifile.value;
   begin
     new_strifile.content := content;
-    result := malloc(new_strifile);
+    result := toInterface(new_strifile);
   end func;
 
 

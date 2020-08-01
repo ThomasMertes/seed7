@@ -879,33 +879,6 @@ errinfotype *err_info;
 
 
 
-#ifdef ANSI_C
-
-stritype getProgramPath (const const_stritype source_file_name)
-#else
-
-stritype getProgramPath (source_file_name)
-stritype source_file_name;
-#endif
-
-  {
-    stritype cwd;
-    stritype result;
-
-  /* getProgramPath */
-    if (source_file_name->size >= 1 &&
-        source_file_name->mem[0] == (chartype) '/') {
-      result = strCreate(source_file_name);
-    } else {
-      cwd = cmdGetcwd();
-      result = concat_path(cwd, source_file_name);
-      FREE_STRI(cwd, cwd->size);
-    } /* if */
-    return result;
-  } /* getProgramPath */
-
-
-
 #ifdef EMULATE_ROOT_CWD
 #ifdef ANSI_C
 

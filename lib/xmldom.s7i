@@ -85,13 +85,6 @@ const type: xmlText is sub xmlBaseNode struct
 
 type_implements_interface(xmlText, xmlNode);
 
-const func xmlText: malloc (ref xmlText: aText) is func
-  result
-    var xmlText: result is xmlText.value;
-  begin
-    result := aText;
-  end func;
-
 const proc: writeXml (in xmlText: aText) is func
   begin
     writeln(aText.content);
@@ -113,13 +106,6 @@ const type: xmlElement is sub xmlBaseNode struct
 
 
 type_implements_interface(xmlElement, xmlNode);
-
-const func xmlElement: malloc (ref xmlElement: anElement) is func
-  result
-    var xmlElement: result is xmlElement.value;
-  begin
-    result := anElement;
-  end func;
 
 const func string: getAttrValue (in xmlElement: anElement, in string: attrName) is
   return anElement.attributes[attrName];
@@ -163,13 +149,6 @@ const type: xmlContainer is sub xmlElement struct
 
 
 type_implements_interface(xmlContainer, xmlNode);
-
-const func xmlContainer: malloc (ref xmlContainer: aContainer) is func
-  result
-    var xmlContainer: result is xmlContainer.value;
-  begin
-    result := aContainer;
-  end func;
 
 const proc: writeXml (in xmlContainer: aContainer) is func
   local
@@ -240,7 +219,7 @@ const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is fu
         # writeln("/>");
         emptyElement.name := containerElement.name;
         emptyElement.attributes := containerElement.attributes;
-        result := malloc(emptyElement);
+        result := toInterface(emptyElement);
       elsif attributeValue = ">" then
         # The XML tag ends with >
         # writeln(">");
@@ -258,15 +237,15 @@ const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is fu
           # There are no subnodes: Create empty element
           emptyElement.name := containerElement.name;
           emptyElement.attributes := containerElement.attributes;
-          result := malloc(emptyElement);
+          result := toInterface(emptyElement);
         else
-          result := malloc(containerElement);
+          result := toInterface(containerElement);
         end if;
       end if;
     else
       # writeln("content=" <& literal(symbol));
       currentText.content := decodeXmlEntities(symbol, predeclaredXmlEntities);
-      result := malloc(currentText);
+      result := toInterface(currentText);
     end if;
     # TRACE_OBJ(result); writeln;
   end func;
@@ -323,7 +302,7 @@ const func xmlNode: readHtmlNode (inout file: inFile, inout string: symbol) is f
         # writeln("/>");
         emptyElement.name := containerElement.name;
         emptyElement.attributes := containerElement.attributes;
-        result := malloc(emptyElement);
+        result := toInterface(emptyElement);
       elsif attributeValue = "" then
         # The HTML tag ends with >
         # writeln(">");
@@ -343,15 +322,15 @@ const func xmlNode: readHtmlNode (inout file: inFile, inout string: symbol) is f
           # There are no subnodes: Create empty element
           emptyElement.name := containerElement.name;
           emptyElement.attributes := containerElement.attributes;
-          result := malloc(emptyElement);
+          result := toInterface(emptyElement);
         else
-          result := malloc(containerElement);
+          result := toInterface(containerElement);
         end if;
       end if;
     else
       # writeln("content=" <& literal(symbol));
       currentText.content := decodeHtmlEntities(symbol);
-      result := malloc(currentText);
+      result := toInterface(currentText);
     end if;
     # TRACE_OBJ(result); writeln;
   end func;

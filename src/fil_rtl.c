@@ -386,7 +386,7 @@ int origin;
 /**
  *  Compute how many bytes can be read from the current position.
  *  Returns 0 when the current position or the file size cannot be
- *  determined or when the current position is byond the filesize.
+ *  determined or when the current position is beyond the filesize.
  *  Returns MAX_MEMSIZETYPE when the result does not fit into
  *  memsizetype.
  */

@@ -77,6 +77,7 @@ listtype arguments;
       if (ALLOC_OBJECT(result)) {
         new_size = take_struct(stru_from)->size;
         if (ALLOC_STRUCT(new_stru, new_size)) {
+          new_stru->usage_count = 0;
           new_stru->size = new_size;
           if (!crea_array(new_stru->stru,
               take_struct(stru_from)->stru, new_size)) {
@@ -136,6 +137,7 @@ listtype arguments;
       if (!ALLOC_STRUCT(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
+      result->usage_count = 0;
       result->size = result_size;
       if (!crea_array(result->stru, stru1->stru, stru1->size)) {
         FREE_STRUCT(result, result_size);
@@ -187,6 +189,7 @@ listtype arguments;
       if (!ALLOC_STRUCT(result_struct, stru1->size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
+      result_struct->usage_count = 0;
       result_struct->size = stru1->size;
       if (!crea_array(result_struct->stru, stru1->stru, stru1->size)) {
         FREE_STRUCT(result_struct, stru1->size);
@@ -232,6 +235,7 @@ listtype arguments;
         if (!ALLOC_STRUCT(new_stru, new_size)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
+          new_stru->usage_count = 0;
           new_stru->size = new_size;
           if (!crea_array(new_stru->stru,
               take_struct(stru_from)->stru, new_size)) {
@@ -286,6 +290,7 @@ printf("create: pointer assignment\n");
         stru_to->value.structvalue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
+        new_stru->usage_count = 0;
         new_stru->size = new_size;
         stru_to->value.structvalue = new_stru;
         if (!crea_array(new_stru->stru,
@@ -406,6 +411,7 @@ listtype arguments;
         if (!ALLOC_STRUCT(result, 1)) {
           err_info = MEMORY_ERROR;
         } else {
+          result->usage_count = 0;
           result->size = 1;
           memcpy(&result->stru[0], current_object, sizeof(objectrecord));
         } /* if */
@@ -438,6 +444,7 @@ listtype arguments;
     if (!ALLOC_STRUCT(result, 0)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
+    result->usage_count = 0;
     result->size = 0;
     return bld_struct_temp(result);
   } /* sct_empty */

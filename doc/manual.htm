@@ -8795,7 +8795,7 @@ TYPE_ACTION
   Some primitive actions are more complicated and inline code would
   not be the best solution for it. In this case an additional helper
   function is used. The action <tt>'INT_LOG2'</tt> is such an action. The
-  definition of the function <tt><span class="func">int_log2</a>()</tt> in the file <tt><span class="lib">"intlib.c"</span></tt> is:
+  definition of the function <tt><span class="func">int_log2</span>()</tt> in the file <tt><span class="lib">"intlib.c"</span></tt> is:
 </p><pre class="indent">
 #<span class="keywd">ifdef</span> ANSI_C
 
@@ -10074,9 +10074,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       The memory for the bstring is allocated. No zero byte is added
       to the end of the bstring. No special action is done, when the
       UTF-32 string contains a null character. When the UTF-32 string
-      contains a character byond ISO-8859-1 the bstring will end with
+      contains a character beyond ISO-8859-1 the bstring will end with
       the last ISO-8859-1 character. When the first UTF-32 character
-      is byond ISO-8859-1 an empty bstring is returned. The conversion
+      is beyond ISO-8859-1 an empty bstring is returned. The conversion
       was successful, when the bstring has the same size as the UTF-32
       string.
 </p></dd>

@@ -584,14 +584,6 @@ const type: gunzipFile is sub null_file struct
 type_implements_interface(gunzipFile, file);
 
 
-const func gunzipFile: malloc (in gunzipFile: aFile) is func
-  result
-    var gunzipFile: result is gunzipFile.value;
-  begin
-    result := aFile;
-  end func;
-
-
 (**
  *  Open a 'gunzipFile' to decompress a compressed string.
  *  @return the file opened.
@@ -605,7 +597,7 @@ const func file: openGunzipFile (in string: compressedStri) is func
     if compressedStri[1 len 2] = "\31\\139\" then
       new_gunzipFile.compressed := compressedStri;
       readGzipHeader(new_gunzipFile.compressed, new_gunzipFile.bytePos);
-      result := malloc(new_gunzipFile);
+      result := toInterface(new_gunzipFile);
     end if;
   end func;
 

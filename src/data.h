@@ -318,6 +318,7 @@ typedef struct hashstruct {
   } hashrecord;
 
 typedef struct structstruct {
+    memsizetype usage_count;
     memsizetype size;
     objectrecord stru[1];
   } structrecord;
@@ -369,8 +370,9 @@ typedef struct {
 typedef struct progstruct {
     uinttype usage_count;
     objecttype main_object;
-    const_stritype source_file_name;
-    const_stritype source_file_path;
+    const_stritype arg0;
+    const_stritype program_name;
+    const_stritype program_path;
     unsigned int error_count;
     idroottype ident;
     findidtype id_for;

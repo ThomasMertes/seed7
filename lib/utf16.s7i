@@ -124,14 +124,6 @@ const type: utf16le_file is sub utf16_file struct
   end struct;
 
 
-const func utf16le_file: malloc (in utf16le_file: anUtf16File) is func
-  result
-    var utf16le_file: newFile is utf16le_file.value;
-  begin
-    newFile := anUtf16File;
-  end func;
-
-
 (**
  *  Opens an Unicode file which uses the UTF-16LE encoding.
  *  When the file is opened with one of the modes "w", "w+", "wt" or
@@ -158,7 +150,7 @@ const func file: open_utf16le (in string: fileName, in string: mode) is func
       end if;
       new_le_file.ext_file := open_file;
       new_le_file.name := fileName;
-      newFile := malloc(new_le_file);
+      newFile := toInterface(new_le_file);
     end if;
   end func;
 
@@ -254,14 +246,6 @@ const type: utf16be_file is sub utf16_file struct
   end struct;
 
 
-const func utf16be_file: malloc (in utf16be_file: anUtf16File) is func
-  result
-    var utf16be_file: newFile is utf16be_file.value;
-  begin
-    newFile := anUtf16File;
-  end func;
-
-
 (**
  *  Opens an Unicode file which uses the UTF-16BE encoding.
  *  When the file is opened with one of the modes "w", "w+", "wt" or
@@ -288,7 +272,7 @@ const func file: open_utf16be (in string: fileName, in string: mode) is func
       end if;
       new_be_file.ext_file := open_file;
       new_be_file.name := fileName;
-      newFile := malloc(new_be_file);
+      newFile := toInterface(new_be_file);
     end if;
   end func;
 
@@ -405,11 +389,11 @@ const func file: open_utf16 (in string: fileName, in string: mode) is func
       if bom = "\16#FF\\16#FE\" then
         new_le_file.ext_file := open_file;
         new_le_file.name := fileName;
-        newFile := malloc(new_le_file);
+        newFile := toInterface(new_le_file);
       elsif bom = "\16#FE\\16#FF\" then
         new_be_file.ext_file := open_file;
         new_be_file.name := fileName;
-        newFile := malloc(new_be_file);
+        newFile := toInterface(new_be_file);
       else
         close(open_file);
       end if;

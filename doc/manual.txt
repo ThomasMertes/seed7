@@ -9952,9 +9952,9 @@ CONTENTS
       The memory for the bstring is allocated. No zero byte is added
       to the end of the bstring. No special action is done, when the
       UTF-32 string contains a null character. When the UTF-32 string
-      contains a character byond ISO-8859-1 the bstring will end with
+      contains a character beyond ISO-8859-1 the bstring will end with
       the last ISO-8859-1 character. When the first UTF-32 character
-      is byond ISO-8859-1 an empty bstring is returned. The conversion
+      is beyond ISO-8859-1 an empty bstring is returned. The conversion
       was successful, when the bstring has the same size as the UTF-32
       string.
 

@@ -986,6 +986,7 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "a->usage_count = b->usage_count;\n";
     c_expr.expr &:= "a->type_num = b->type_num;\n";
     for number range 0 to pred(length(elements)) do
       c_expr.expr &:= diagnosticLine;
@@ -1523,6 +1524,8 @@ const proc: process_sct_cpy_declaration (in type: object_type,
     c_expr.expr &:= " b)\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    # The usage_count is currently left unchanged for a deep copy.
+    # c_expr.expr &:= "a->usage_count = b->usage_count;\n";
     # The dynamic type of a struct cannot change with a deep copy.
     # c_expr.expr &:= "a->type_num = b->type_num;\n";
     for number range 0 to pred(length(elements)) do
@@ -11521,15 +11524,51 @@ const proc: process_itf_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
       AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
     end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
     if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
+      if isNormalVariable(params[1]) then
+        c_expr.expr &:= "structtype old_struct=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "=";
+        c_expr.expr &:= c_param3.result_expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "if ((";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->usage_count != 0) {(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->usage_count++; }\n";
+      else
+        c_expr.expr &:= "structtype *struct_ptr=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "structtype old_struct=*struct_ptr;\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "*struct_ptr=";
+        c_expr.expr &:= c_param3.result_expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "if ((*struct_ptr)->usage_count != 0) {(*struct_ptr)->usage_count++; }\n";
+      end if;
+      process_destr_declaration(getExprResultType(params[1]), global_c_expr);
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (old_struct->usage_count != 0) {old_struct->usage_count--; if (old_struct->usage_count == 0) {\n";
+      setDiagnosticLine(c_expr);
+      process_destr_call(getExprResultType(params[1]),
+          "old_struct", c_expr.expr);
+      c_expr.expr &:= "}}}\n";
     else
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "=";
       c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ";\n";
     end if;
-    c_expr.expr &:= ";\n";
     if has_temp_values(c_param3) then
       AppendWithDiagnostic(c_param1.temp_frees, c_expr);
       AppendWithDiagnostic(c_param3.temp_frees, c_expr);
@@ -11555,17 +11594,14 @@ const proc: process_itf_cpy2 (in ref_list: params, inout expr_type: c_expr) is f
       AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
     end if;
     setDiagnosticLine(c_expr);
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "=";
     if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "=";
       c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ";\n";
     else
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "=";
       c_expr.expr &:= c_param3.expr;
-      c_expr.expr &:= ";\n";
     end if;
+    c_expr.expr &:= ";\n";
     if has_temp_values(c_param3) then
       AppendWithDiagnostic(c_param1.temp_frees, c_expr);
       AppendWithDiagnostic(c_param3.temp_frees, c_expr);
@@ -11601,6 +11637,28 @@ const proc: process_itf_ne (in ref_list: params, inout expr_type: c_expr) is fun
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ") != (";
     getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_itf_to_interface (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: result_name is "";
+  begin
+    incr(c_expr.temp_num);
+    result_name := "result_" & str(c_expr.temp_num);
+    c_expr.temp_decls &:= "interfacetype ";
+    c_expr.temp_decls &:= result_name;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "/* ITF_TO_INTERFACE */(";
+    c_expr.expr &:= result_name;
+    c_expr.expr &:= "=";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ",";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "=(structtype)NULL,";
+    c_expr.expr &:= result_name;
     c_expr.expr &:= ")";
   end func;
 
@@ -12009,7 +12067,7 @@ const proc: process_prg_match_expr (in ref_list: params, inout expr_type: c_expr
 const proc: process_prg_name (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "arg_0";
+    c_expr.expr &:= "programName";
   end func;
 
 
@@ -12664,6 +12722,7 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
           c_expr.expr &:= "if (itf == NULL) {\n";
           c_expr.expr &:= "printf(\" *NULL_INTERFACE* \");\n";
           c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" usage_count=%lu %lx\", itf->usage_count, itf);\n";
           c_expr.expr &:= "printf(\" type_num=%lu %lx\", itf->type_num, itf);\n";
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
@@ -17276,6 +17335,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_itf_hashcode(params, c_expr);
       elsif action_name = "ITF_NE" then
         process_itf_ne(params, c_expr);
+      elsif action_name = "ITF_TO_INTERFACE" then
+        process_itf_to_interface(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -19800,7 +19861,7 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "max_catch_stack = 128;\n";
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
     main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
-    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programPath);\n";
+    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
     main_prolog &:= "activate_signal_handlers();\n";
@@ -20493,12 +20554,8 @@ const proc: process_interface_declaration (in reference: current_object,
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= ";\n\n";
-    object_value := current_object;
+    object_value := interface_to_struct(current_object);
     valueCategory := category(object_value);
-    if valueCategory = INTERFACEOBJECT then
-      object_value := interface_to_struct(object_value);
-      valueCategory := category(object_value);
-    end if;
     if isVar(object_value) then
       global_init.expr &:= diagnosticLine(current_object);
       global_init.expr &:= "o_";
@@ -22199,6 +22256,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  rtlObjecttype arr[1];");
     writeln(c_prog, "};");
     writeln(c_prog, "struct rtlStructstruct {");
+    writeln(c_prog, "  memsizetype usage_count;");
     writeln(c_prog, "  uint32type type_num;");
     writeln(c_prog, "  rtlObjecttype stru[1];");
     writeln(c_prog, "};");
@@ -22234,6 +22292,7 @@ const proc: write_file_head is func
       writeln(c_prog, "#define bitset_pos(number) ((number)<0?~(~(number)>>bitset_shift):(number)>>bitset_shift)");
     end if;
     writeln(c_prog, "stritype          arg_0;");
+    writeln(c_prog, "stritype          programName;");
     writeln(c_prog, "stritype          programPath;");
     writeln(c_prog, "arraytype         arg_v;");
     if ALLOW_STRITYPE_SLICES then
@@ -22835,9 +22894,9 @@ const proc: write_prototypes is func
     declareExtern("stritype    ut8WordRead (filetype, chartype *);");
     declareExtern("void        ut8Write (filetype, const const_stritype);");
     if USE_WMAIN then
-      declareExtern("arraytype   getArgv (const int, wchar_t *const *const, stritype *, stritype *);");
+      declareExtern("arraytype   getArgv (const int, wchar_t *const *const, stritype *, stritype *, stritype *);");
     else
-      declareExtern("arraytype   getArgv (const int, char *const *const, stritype *, stritype *);");
+      declareExtern("arraytype   getArgv (const int, char *const *const, stritype *, stritype *, stritype *);");
     end if;
     declareExtern("void        setupFloat (void);");
     declareExtern("void        init_values (void);");
@@ -23763,6 +23822,9 @@ const proc: init_struct_constants (in reference: const_object, inout expr_type: 
     c_expr.expr &:= "]=(structtype)(malloc(sizeof(struct rtlStructstruct) - sizeof(rtlObjecttype) +\n  ";
     c_expr.expr &:= str(length(struct_list));
     c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= "sct[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]->usage_count=0;\n";
     c_expr.expr &:= "sct[";
     c_expr.expr &:= str(number);
     c_expr.expr &:= "]->type_num=";

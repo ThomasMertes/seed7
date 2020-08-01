@@ -755,7 +755,7 @@ const func type: new interface is func
     interfaceType := newtype;
     IN_PARAM_IS_REFERENCE(interfaceType);
     const proc: (ref interfaceType param) ::= (ref interfaceType param)      is action "ITF_CREATE";
-    const proc: destroy (ref interfaceType param)                            is noop;
+    const proc: destroy (ref interfaceType param)                            is action "ITF_DESTR";
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
     const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
     const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
@@ -769,7 +769,7 @@ const func type: sub (in type: baseType) interface is func
     interfaceType := subtype baseType;
     IN_PARAM_IS_REFERENCE(interfaceType);
     const proc: (ref interfaceType param) ::= (ref interfaceType param)      is action "ITF_CREATE";
-    const proc: destroy (ref interfaceType param)                            is noop;
+    const proc: destroy (ref interfaceType param)                            is action "ITF_DESTR";
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
     const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
     const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";

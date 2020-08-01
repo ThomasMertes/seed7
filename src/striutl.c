@@ -1031,9 +1031,9 @@ stritype stri;
  *  The memory for the bstring is allocated. No zero byte is added
  *  to the end of the bstring. No special action is done, when the
  *  UTF-32 string contains a null character. When the UTF-32 string
- *  contains a character byond ISO-8859-1 the bstring will end with
+ *  contains a character beyond ISO-8859-1 the bstring will end with
  *  the last ISO-8859-1 character. When the first UTF-32 character
- *  is byond ISO-8859-1 an empty bstring is returned. The conversion
+ *  is beyond ISO-8859-1 an empty bstring is returned. The conversion
  *  was successful, when the bstring has the same size as the UTF-32
  *  string.
  *  @param stri Seed7 UTF-32 string to be converted.
@@ -1339,7 +1339,7 @@ cstritype cstri;
 /**
  *  Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
  *  The memory for the null terminated os_stritype string is allocated.
- *  The os_stritype result must be freed with the macro os_stri_free(). 
+ *  The os_stritype result must be freed with the macro os_stri_free().
  *  Many system calls have parameters with null terminated os_stritype
  *  strings. System calls are defined in "version.h" and "os_decls.h".
  *  They are prefixed with os_ and use strings of the type os_stritype.
@@ -1738,7 +1738,7 @@ errinfotype *err_info;
 /**
  *  Convert a Seed7 standard path to a path used by system calls.
  *  The memory for the null terminated os_stritype path is allocated.
- *  The os_stritype result must be freed with the macro os_stri_free(). 
+ *  The os_stritype result must be freed with the macro os_stri_free().
  *  System calls are defined in "version.h" and "os_decls.h". They are
  *  prefixed with os_ and use system paths of the type os_stritype.
  *  Depending on the operating system os_stritype can describe byte or
@@ -1851,7 +1851,7 @@ errinfotype *err_info;
 /**
  *  Convert a Seed7 standard path to a path used by system calls.
  *  The memory for the null terminated os_stritype path is allocated.
- *  The os_stritype result must be freed with the macro os_stri_free(). 
+ *  The os_stritype result must be freed with the macro os_stri_free().
  *  System calls are defined in "version.h" and "os_decls.h". They are
  *  prefixed with os_ and use system paths of the type os_stritype.
  *  Depending on the operating system os_stritype can describe byte or

@@ -100,14 +100,6 @@ const func boolean: inputReady (in socket: inSocket, in duration: timeout) is
   return inputReady(inSocket.sock, toSeconds(timeout), timeout.micro_second);
 
 
-const func socket: malloc (in socket: sock) is func
-  result
-    var socket: newSocket is socket.value;
-  begin
-    newSocket := sock;
-  end func;
-
-
 (**
  *  Return a connected socket file for the given [[sockbase|socket address]].
  *  @return the socket file opened, or [[null_file#STD_NULL|STD_NULL]]
@@ -128,7 +120,7 @@ const func file: openSocket (in socketAddress: address) is func
           new_socket.addr := address;
           new_socket.service := service(address);
           new_socket.sock := open_socket;
-          newSocket := malloc(new_socket);
+          newSocket := toInterface(new_socket);
         exception
           catch FILE_ERROR:
             close(open_socket);

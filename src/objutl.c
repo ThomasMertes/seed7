@@ -872,6 +872,18 @@ objecttype object;
         FREE_OBJECT(object);
         break;
       case INTERFACEOBJECT:
+        if (object->value.objvalue != NULL) {
+#ifdef TRACE_DUMP_ANY_TEMP
+          if (trace.actions) {
+            prot_cstri("before do_destroy: ");
+            trace1(object);
+            prot_nl();
+          } /* if */
+#endif
+          CLEAR_TEMP_FLAG(object);
+          do_destroy(object, &err_info);
+        } /* if */
+        FREE_OBJECT(object);
         break;
       default:
         if (trace.heapsize) {

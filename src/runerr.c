@@ -307,6 +307,16 @@ objecttype argument;
     } else {
       printf("NULL");
     } /* if */
+    if (HAS_POSINFO(curr_action_object)) {
+      printf(" AT %s(%u)",
+          get_file_name_ustri(GET_FILE_NUM(curr_action_object)),
+          GET_LINE_NUM(curr_action_object));
+    } else if (HAS_PROPERTY(curr_action_object) &&
+        curr_action_object->descriptor.property->line != 0) {
+      printf(" AT %s(%u)",
+          get_file_name_ustri(curr_action_object->descriptor.property->file_number),
+          curr_action_object->descriptor.property->line);
+    } /* if */
     printf(" REQUIRES ");
     printcategory(required);
     printf(" NOT ");
