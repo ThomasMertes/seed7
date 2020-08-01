@@ -63,6 +63,38 @@
 
 
 
+#if ANY_LOG_ACTIVE
+#ifdef USE_WMAIN
+static void printArgv (const int argc, const wstriType *const argv)
+#else
+static void printArgv (const int argc, const cstriType *const argv)
+#endif
+
+  {
+    int pos;
+
+  /* printArgv */
+    if (argv == NULL) {
+      printf("NULL");
+    } else {
+      printf("{");
+      for (pos = 0; pos <= argc; pos++) {
+        if (pos != 0) {
+          printf(", ");
+        } /* if */
+#ifdef USE_WMAIN
+        printf("\"" FMT_S_OS "\"", argv[pos]);
+#else
+        printf("\"%s\"", argv[pos]);
+#endif
+      } /* for */
+      printf("}");
+    }
+  } /* printArgv */
+#endif
+
+
+
 static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
     compareType cmp_func)
 
@@ -236,6 +268,11 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
     rtlArrayType arg_v;
 
   /* getArgv */
+    logFunction(printf("getArgv(%d, ", argc);
+                printArgv(argc, argv);
+                printf(", %s", arg_0 != NULL ? "*" : "NULL");
+                printf(", %s", programName != NULL ? "*" : "NULL");
+                printf(", %s)\n", exePath != NULL ? "*" : "NULL"););
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -280,6 +317,14 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
 #ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
+    logFunction(printf("getArgv(%d, ", argc);
+                printArgv(argc, argv);
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(arg_0 != NULL ? *arg_0 : NULL));
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(programName != NULL ? *programName : NULL));
+                printf(", \"%s\") -->\n",
+                       striAsUnquotedCStri(exePath != NULL ? *exePath : NULL)));
     return arg_v;
   } /* getArgv */
 
@@ -298,6 +343,11 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
     rtlArrayType arg_v;
 
   /* getArgv */
+    logFunction(printf("getArgv(%d, ", argc);
+                printArgv(argc, argv);
+                printf(", %s", arg_0 != NULL ? "*" : "NULL");
+                printf(", %s", programName != NULL ? "*" : "NULL");
+                printf(", %s)\n", exePath != NULL ? "*" : "NULL"););
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -349,6 +399,14 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
 #ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
+    logFunction(printf("getArgv(%d, ", argc);
+                printArgv(argc, argv);
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(arg_0 != NULL ? *arg_0 : NULL));
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(programName != NULL ? *programName : NULL));
+                printf(", \"%s\") -->\n",
+                       striAsUnquotedCStri(exePath != NULL ? *exePath : NULL)));
     return arg_v;
   } /* getArgv */
 
@@ -365,6 +423,11 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
     rtlArrayType arg_v;
 
   /* getArgv */
+    logFunction(printf("getArgv(%d, ", argc);
+                printArgv(argc, argv);
+                printf(", %s", arg_0 != NULL ? "*" : "NULL");
+                printf(", %s", programName != NULL ? "*" : "NULL");
+                printf(", %s)\n", exePath != NULL ? "*" : "NULL"););
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -409,6 +472,14 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
 #ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
+    logFunction(printf("getArgv(%d, ", argc);
+                printArgv(argc, argv);
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(arg_0 != NULL ? *arg_0 : NULL));
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(programName != NULL ? *programName : NULL));
+                printf(", \"%s\") -->\n",
+                       striAsUnquotedCStri(exePath != NULL ? *exePath : NULL)));
     return arg_v;
   } /* getArgv */
 

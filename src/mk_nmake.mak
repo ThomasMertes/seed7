@@ -49,7 +49,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
        tim_rtl.o ut8_rtl.o heaputl.o numutl.o striutl.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
-DOBJ = $(BIGINT_LIB).o cmd_win.o dll_win.o fil_win.o pcs_win.o pol_sel.o tim_win.o
+DOBJ = $(BIGINT_LIB).o cmd_win.o dir_win.o dll_win.o fil_win.o pcs_win.o pol_sel.o stat_win.o tim_win.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_win.o gkb_win.o
@@ -72,7 +72,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
-DSRC = $(BIGINT_LIB).c cmd_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c tim_win.c
+DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c stat_win.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
@@ -172,8 +172,10 @@ version.h: chkccomp.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_fstat _fstati64 >> version.h
-	echo #define os_lstat _wstati64 >> version.h
-	echo #define os_stat _wstati64 >> version.h
+	echo #define DEFINE_WSTATI64_EXT >> version.h
+	echo #define os_lstat wstati64Ext >> version.h
+	echo #define os_stat wstati64Ext >> version.h
+	echo #define os_stat_orig _wstati64 >> version.h
 	echo #define os_stat_struct struct _stati64 >> version.h
 	echo #define os_fseek fseeko64 >> version.h
 	echo #define os_ftell ftello64 >> version.h

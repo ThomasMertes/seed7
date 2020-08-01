@@ -1,3 +1,37 @@
+20160831:
+- The Seed7 runtime library has been improved to allow paths longer
+  than PATH_MAX (260) characters under Windows.
+- The program sydir7.sd7 has been improved. Now it is avoided to copy
+  a file, when source and destination differ only by date. The
+  option -c has been added. With -c the source is copied and files
+  that are missing in the source are removed from the destination.
+- The function readVolumeName in dir_rtl.c has been improved to allow
+  extended length paths (This paths exist under Windows and have a
+  prefix of \\?\ ).
+- The functions opendir and wopendir in dir_win.c have been improved
+  to allow paths longer than 260.
+- In the library seed7_05.s7i the undocumented function xalloc has
+  been removed.
+- The function printArgv has been added to arr_rtl.c to improve the
+  logging.
+- The program chkccomp.c has been improved to write settings to
+  always use the directory functions from dir_win.c under Windows.
+- The function adjustCwdForShell has been added to cmd_rtl.c. This
+  function sets the current working directory to something acceptable
+  by cmd.exe.
+- In stat_win.c the function wstati64 has been renamed to wstati64Ext
+  and improved to call the original stat function, when possible.
+- The new file stat_drv.h has been added. In this file a prototype
+  of wstati64Ext is defined when necessary.
+- The program wrdepend.c has been improved to work correctly, when
+  the INCLUDE_OPTIONS macro contains newline characters.
+- Calls of logFunction have been added to arr_rtl.c, cmd_rtl.c,
+  dir_rtl.c, executl.c, fil_rtl.c, pcs_win.c, runerr.c, sctlib.c,
+  sigutl.c, stat_win.c and striutl.c.
+- Calls of logError have been added to arrlib.c, blnlib.c, cmd_rtl.c,
+  conlib.c, dir_win.c, drwlib.c, enulib.c, fil_rtl.c, itflib.c,
+  lstlib.c, prclib.c, reflib.c and striutl.c.
+
 20160731:
 - The bas7.sd7 (basic interpreter) example program has been improved.
   Support for CVD, CVDMBF, CVS, CVSMBF, HPLOT, MKD$, MKDMBF$, MKS$,
@@ -141,7 +175,7 @@
 
 20160430:
 - The makefile mk_clangw.mak has been improved, such that compilation
-  with newer versions of clang under windows works better.
+  with newer versions of clang under Windows works better.
 - Tests for integer parse have been added to chkexc.sd7.
 - The function doRemove in chkccomp.c has been improved to write
   nothing to the console.
@@ -159,8 +193,7 @@
   chr_rtl.c, cmd_rtl.c, dir_dos.c, dir_win.c, drw_rtl.c, fltlib.c,
   flt_rtl.c, int_rtl.c, pcs_rtl.c, pollib.c, pol_sel.c, pol_unx.c,
   prg_comp.c, rfl_data.c, setlib.c, set_rtl.c and str_rtl.c.
-- Calls of logFunction have been added to functions in cmdlib.c and
-  flt_rtl.c,.
+- Calls of logFunction have been added to cmdlib.c and flt_rtl.c.
 - Calls of logError have been added to functions in actlib.c,
   biglib.c, bstlib.c, chrlib.c, cmdlib.c, drwlib.c, fillib.c,
   fltlib.c, hshlib.c, intlib.c, pcslib.c, pollib.c, prglib.c,
@@ -941,7 +974,7 @@
   improvement. The patch proposed by Arkady is based on stdout and
   UTF-8. The actual implementation uses a different approach via the
   console driver con_drv.h. The console driver uses UTF-16 under
-  windows (unless stdout has been redirected) and UTF-8 under
+  Windows (unless stdout has been redirected) and UTF-8 under
   Linux/Unix/BSD.
 - The function getBinary has been added to bin64.s7i. This function
   returns 64 bits from a bitset starting with a given bit number.
@@ -1306,7 +1339,7 @@
   Now the value of a variable is taken from the environment, when it
   has not been defined in the makefile.
 - The function setupStack has been moved from cmd_rtl.c to heaputl.c.
-- The self extracting Seed7 installer for windows has been improved
+- The self extracting Seed7 installer for Windows has been improved
   to allow downloading the latest Seed7 release.
 - Tabs in various files have been replaced with spaces.
 
@@ -1442,7 +1475,7 @@
 
 20140803:
 - The handling of ctrl-c has been changed to work better under
-  windows.
+  Windows.
 - The runtime of the function intPowOvfChk in int_rtl.c has been
   reduced to 57% (measured with gcc and valgrind).
 - The generation of code in the compiler for the action INT_POW has
@@ -1592,7 +1625,7 @@
 - The makefile mk_freebsd.mk has been changed to work with the new
   version of chkccomp.c. Thanks go to Pietro Cerutti for pointing out
   the problem.
-- The self extracting Seed7 package for windows has been improved to
+- The self extracting Seed7 package for Windows has been improved to
   use gcc version 4.8.1 instead of 4.5.0.
 - The new function removeTree, which removes a directory tree, has
   been introduced in osfiles.s7i. The function removeAnyFile, which
@@ -1601,9 +1634,9 @@
 - Checks for hash tables with character keys have been added to
   chkhsh.sd7.
 - The test program "chkcmd.sd7" has been added. This program checks
-  functions that copy, move and remove files. Note that windows has
+  functions that copy, move and remove files. Note that Windows has
   race conditions when files are copied, moved and removed quickly in
-  succession. This bug of windows cannot be fixed in a runtime
+  succession. This bug of Windows cannot be fixed in a runtime
   library.
 - The function temp_name_in_dir has been added to striutl.c.
 - The typedef of socketType in common.h has been changed such that
@@ -3079,9 +3112,9 @@
   the function cmdStartProcess the flag wShowWindow was changed to 1.
 - The file hi.c was renamed to s7.c.
 - In striutl.c the function escape_command was changed to quote
-  commands with special characters under windows.
+  commands with special characters under Windows.
 - In striutl.c the function cp_to_command was improved to do a
-  quoting under windows, even when there are no parameters.
+  quoting under Windows, even when there are no parameters.
 - Parameter names were added to null_file.s7i, osfiles.s7i, time.s7i,
   pixmapfont.s7i, progs.s7i, reference.s7i, seed7_05.s7i, shell.s7i,
   stritext.s7i, text.s7i, rever.sd7 and snake.sd7.
@@ -5284,8 +5317,8 @@
 - A new library named dom.s7i, which contains a simple dom parser, was added.
 - Several changes in the interpreter and the runtime library were done to reduce the
   number of warnings generated by the C compiler.
-- The makefile mk_cygw.mak was improved to better support compilation with cygwin.
-- The file src/read_me.txt was improved to explain compiling under Windows with cygwin.
+- The makefile mk_cygw.mak was improved to better support compilation with Cygwin.
+- The file src/read_me.txt was improved to explain compiling under Windows with Cygwin.
 - The function 'exit' was introduced to terminate a program with a return code.
 - The functions setIsSubset and setIsProperSubset were introduced in set_rtl.c and used
   in setlib.c and comp.sd7 to replace the functions setGe, setLe, setGt and setLt.
@@ -6028,7 +6061,7 @@
 20070909:
 - A gtk-server connection library (gtkserver.s7i), a test program (gtksvtst.sd7) and
   documentation (see doc/gtksvdoc.txt) were added (Patch from Leonardo Cecchi).
-- Some spelling corrections for read_me and a draft for a cygwin makefile (mk_cygw.mak)
+- Some spelling corrections for read_me and a draft for a Cygwin makefile (mk_cygw.mak)
   were added (Patches from Terrence Brannon).
 - A Seed7 mailing list has been created under seed7-NOSPAMusers@lists.sourceforge.net
   (Remove NOSPAM to get the email address).

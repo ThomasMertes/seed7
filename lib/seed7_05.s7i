@@ -901,13 +901,6 @@ const proc: type_implements_interface (in type: aType, in type: interfaceType) i
     const func aType: (attr aType) conv (ref aType: aValue)                 is
       return aValue;
 
-    const func aType: xalloc (in aType: newStuct) is func
-      result
-        var aType: allocated is aType.value;
-      begin
-        allocated := newStuct;
-      end func;
-
     addInterface(aType, interfaceType);
 
     const func interfaceType: create (attr aType) is func

@@ -307,6 +307,7 @@ objectType sct_destr (listType arguments)
   /* sct_destr */
     isit_struct(arg_1(arguments));
     old_struct = take_struct(arg_1(arguments));
+    logFunction(printf("sct_destr(" FMT_U_MEM ")\n", (memSizeType) old_struct););
     if (old_struct != NULL) {
       /* printf("sct_destr: usage_count=%u %lu %lu\n", old_struct->usage_count,
          (unsigned long) old_struct, (unsigned long) arg_1(arguments)); */

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  config.h      Configuration settings.                           */
-/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
+/*  stat_drv.h    Define functions used by os_stat macros.          */
+/*  Copyright (C) 2016  Thomas Mertes                               */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,53 +23,12 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/config.h                                        */
-/*  Changes: 2012  Thomas Mertes                                    */
-/*  Content: Configuration settings.                                */
+/*  File: seed7/src/stat_drv.h                                      */
+/*  Changes: 2016  Thomas Mertes                                    */
+/*  Content: Define functions used by os_stat macros.               */
 /*                                                                  */
 /********************************************************************/
 
-#define WITH_FLOAT
-#define WITH_REFERENCE
-#define WITH_DRAW
-#undef  WITH_STATISTIC
-#define WITH_COMPILATION_INFO
-#define WITH_TYPE_CHECK
-#undef  WITH_ACTION_CHECK
-#define WITH_PROTOCOL
-#define USE_ALTERNATE_NEXT_CHARACTER
-#define USE_INFILE_BUFFER
-#define USE_CHUNK_ALLOCS
-#undef  USE_ALTERNATE_CHUNK_ALLOCS
-#undef  USE_MAXIMUM_MALLOC_CHECK
-#define DO_HEAPSIZE_COMPUTATION 1
-#define DO_HEAP_STATISTIC 0
-#define DO_HEAP_CHECK 0
-#undef  DO_HEAP_LOG
-#undef  CHECK_STACK
-#define CHECKED_STACK_SIZE_LIMIT 0x800000
-#define DIALOG_IN_SIGNAL_HANDLER
-#define WITH_STRI_CAPACITY
-#define ALLOW_STRITYPE_SLICES
-#define ALLOW_BSTRITYPE_SLICES
-#define WITH_STRI_FREELIST 1
-#define WITH_ADJUSTED_STRI_FREELIST 1
-#define WITH_BIGINT_FREELIST 1
-#define WITH_OBJECT_FREELIST 1
-#define WITH_LIST_FREELIST
-#define WITH_NODE_FREELIST
-#define WITH_FILE_FREELIST
-#define STACK_LIKE_ALLOC_FOR_OS_STRI
-#define INTTYPE_SIZE 64
-#define CHECK_INT_OVERFLOW 1
-#define BITSETTYPE_SIZE INTTYPE_SIZE
-#define FLOATTYPE_DOUBLE
-#define LOG_FUNCTIONS_EVERYWHERE 0
-#define VERBOSE_EXCEPTIONS_EVERYWHERE 0
-
-#if OS_PATH_HAS_DRIVE_LETTERS
-#define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#define FORBID_DRIVE_LETTERS
-#define EMULATE_ROOT_CWD
-#define USE_EXTENDED_LENGTH_PATH 1
+#ifdef DEFINE_WSTATI64_EXT
+int wstati64Ext (const wchar_t *path, os_stat_struct *stat_buf);
 #endif

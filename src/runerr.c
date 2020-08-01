@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -111,6 +114,7 @@ void continue_question (void)
 static void write_position_info (objectType currObject, boolType writeNoInfo)
 
   { /* write_position_info */
+    logFunction(printf("write_position_info\n"););
     if (currObject != NULL) {
       if (HAS_POSINFO(currObject)) {
         prot_cstri("at ");
@@ -130,6 +134,7 @@ static void write_position_info (objectType currObject, boolType writeNoInfo)
         /* trace1(currObject); */
       } /* if */
     } /* if */
+    logFunction(printf("write_position_info -->\n"););
   } /* write_position_info */
 
 
@@ -140,6 +145,8 @@ static void write_call_stack_element (const_listType stack_elem)
     objectType func_object;
 
   /* write_call_stack_element */
+    logFunction(printf("write_call_stack_element(" FMT_U_MEM ")\n",
+                       stack_elem););
     if (stack_elem->obj != NULL) {
       if (stack_elem->next != NULL) {
         if (CATEGORY_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
@@ -168,6 +175,8 @@ static void write_call_stack_element (const_listType stack_elem)
       prot_cstri("NULL");
       prot_nl();
     } /* if */
+    logFunction(printf("write_call_stack_element(" FMT_U_MEM ") -->\n",
+                       stack_elem););
   } /* write_call_stack_element */
 
 
@@ -197,6 +206,8 @@ void write_call_stack (const_listType stack_elem)
 #endif
 
   /* write_call_stack */
+    logFunction(printf("write_call_stack(" FMT_U_MEM ")\n",
+                       stack_elem););
     if (stack_elem != NULL) {
       write_call_stack(stack_elem->next);
 #if HAS_SIGACTION
@@ -225,6 +236,8 @@ void write_call_stack (const_listType stack_elem)
       } /* if */
 #endif
     } /* if */
+    logFunction(printf("write_call_stack(" FMT_U_MEM ") -->\n",
+                       stack_elem););
   } /* write_call_stack */
 
 

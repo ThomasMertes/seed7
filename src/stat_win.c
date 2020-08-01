@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  stat_win.c    Define the functions wstati64() and fstati64().   */
-/*  Copyright (C) 2015  Thomas Mertes                               */
+/*  stat_win.c    Define functions used by os_stat macros.          */
+/*  Copyright (C) 2015 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,8 +24,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/stat_win.c                                      */
-/*  Changes: 2015  Thomas Mertes                                    */
-/*  Content: Define the functions wstati64() and fstati64().        */
+/*  Changes: 2015 - 2016  Thomas Mertes                             */
+/*  Content: Define functions used by os_stat macros.               */
 /*                                                                  */
 /********************************************************************/
 
@@ -35,20 +35,26 @@
 #include "version.h"
 
 #include "stdio.h"
-#include "sys/time.h"
 #include "sys/stat.h"
 #include "windows.h"
+#include "io.h"
 #include "errno.h"
 
 #include "common.h"
 #include "striutl.h"
 #include "fil_rtl.h"
 
+#include "stat_drv.h"
+
 
 /* Seconds between 1601-01-01 and 1970-01-01 */
 #define SECONDS_1601_1970 UINT64_SUFFIX(11644473600)
 
 typedef int64Type stat_time64_t;
+
+#ifdef DEFINE_OS_STAT_ORIG_PROTOTYPE
+extern C int __cdecl os_stat_orig (const_os_striType path, os_stat_struct *stat_buf);
+#endif
 
 
 
@@ -76,6 +82,8 @@ static unsigned int fileattr_to_unixmode (DWORD attr, const wchar_t *path)
     unsigned int mode = 0;
 
   /* fileattr_to_unixmode */
+    logFunction(printf("fileattr_to_unixmode(" FMT_X32 ", \"%ls\")\n",
+                       attr, path););
     if (attr & FILE_ATTRIBUTE_READONLY) {
       mode |= S_IRUSR;
     } else {
@@ -100,6 +108,7 @@ static unsigned int fileattr_to_unixmode (DWORD attr, const wchar_t *path)
     } /* if */
     mode |= (mode & 0700) >> 3;
     mode |= (mode & 0700) >> 6;
+    logFunction(printf("fileattr_to_unixmode --> 0%o\n", mode););
     return mode;
   } /* fileattr_to_unixmode */
 
@@ -108,38 +117,48 @@ static unsigned int fileattr_to_unixmode (DWORD attr, const wchar_t *path)
 /**
  *  Stat() function for a wide character path and a 64 bit file size.
  */
-int wstati64 (const wchar_t *path, os_stat_struct *stat_buf)
+int wstati64Ext (const wchar_t *path, os_stat_struct *stat_buf)
 
   {
     HANDLE handle;
     WIN32_FIND_DATAW fileData;
     int result = 0;
 
-  /* wstati64 */
-    logFunction(printf("wstati64(\"%ls\", *)", path);
+  /* wstati64Ext */
+    logFunction(printf("wstati64Ext(\"%ls\", *)", path);
                 fflush(stdout););
-    if (wcspbrk(path, L"?*")) {
-      logError(printf("wstati64(\"%ls\", *): Illegal file name.\n", path););
+#ifdef os_stat_orig
+    if (os_stat_orig(&path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], stat_buf) == 0) {
+      /* printf("os_stat_orig(\"%ls\", *) succeeded.\n",
+          &path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN]); */
+    } else
+#endif
+    if (wcspbrk(&path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], L"?*")) {
+      logError(printf("wstati64Ext(\"%ls\", *): Wildcards in path.\n", path););
       errno = ENOENT;
       result = -1;
     } else {
       handle = FindFirstFileW(path, &fileData);
       if (handle != INVALID_HANDLE_VALUE) {
         FindClose(handle);
+        memset(stat_buf, 0, sizeof(os_stat_struct));
+        stat_buf->st_nlink = 1;
         stat_buf->st_mode  = fileattr_to_unixmode(fileData.dwFileAttributes, path);
         stat_buf->st_atime = filetime_to_unixtime(&fileData.ftLastAccessTime);
         stat_buf->st_mtime = filetime_to_unixtime(&fileData.ftLastWriteTime);
         stat_buf->st_ctime = filetime_to_unixtime(&fileData.ftCreationTime);
         stat_buf->st_size = ((int64Type) fileData.nFileSizeHigh << 32) | fileData.nFileSizeLow;
       } else {
-        logError(printf("wstati64: FindFirstFileW(\"%ls\", *) failed.\n", path););
+        logError(printf("wstati64Ext: FindFirstFileW(\"%ls\", *) failed:\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        path, (uint32Type) GetLastError()););
         errno = ENOENT;
         result = -1;
       } /* if */
     } /* if */
     logFunctionResult(printf("%d\n", result););
     return result;
-  } /* wstati64 */
+  } /* wstati64Ext */
 
 
 

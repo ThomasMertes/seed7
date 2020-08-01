@@ -87,6 +87,45 @@ static void prepareCompileCommand (void)
 
 
 
+const char *writeOption (const char *option, char *command)
+
+  {
+    const char *nlPtr;
+    unsigned long length;
+    unsigned long cmdLen;
+    const char *nextOption;
+
+  /* writeOption */
+    nlPtr = strchr(option, '\n');
+    if (nlPtr != NULL) {
+      length = nlPtr - option;
+      nextOption = nlPtr + 1;
+    } else {
+      length = strlen(option);
+      nlPtr = &option[length];
+      nextOption = NULL;
+    } /* if */
+    if (length != 0) {
+      strcat(command, " ");
+      cmdLen = strlen(command);
+      memcpy(&command[cmdLen], option, length);
+      command[cmdLen + length] = '\0';
+    } /* if */
+    return nextOption;
+  } /* writeOption */
+
+
+
+void writeOptionList (const char *optionList, char *command)
+
+  { /* writeOptionList */
+    do {
+      optionList = writeOption(optionList, command);
+    } while (optionList != NULL);
+  } /* writeOptionList */
+
+
+
 /**
  *  Program to write the C header file dependencies.
  */
@@ -94,16 +133,24 @@ int main (int argc, char **argv)
 
   {
     int idx;
-    char command[8192];
+    char command[16384];
 
   /* main */
     prepareCompileCommand();
-    sprintf(command, "%s %s", c_compiler, INCLUDE_OPTIONS);
+    sprintf(command, "%s", c_compiler);
+    writeOptionList(INCLUDE_OPTIONS, command);
     for (idx = 1; idx < argc; idx++) {
       strcat(command, " ");
-      strcat(command, argv[idx]);
+      if (strchr(argv[idx], ' ') != NULL && argv[idx][0] != '>') {
+        strcat(command, "\"");
+        strcat(command, argv[idx]);
+        strcat(command, "\"");
+      } else {
+        strcat(command, argv[idx]);
+      } /* if */
+      /* printf("arg[%d]: %s\n", idx, argv[idx]); */
     } /* for */
-    /* printf("%s\n", command); */
+    /* printf("command: %s\n", command); */
     system(command);
     return 0;
   } /* main */

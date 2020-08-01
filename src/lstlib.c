@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -328,9 +331,14 @@ objectType lst_idx (listType arguments)
       if (list_element != NULL) {
         result = list_element->obj;
       } else {
+        logError(printf("lst_idx(list1, " FMT_D "): "
+                        "Index larger than maximum (" FMT_D ").\n",
+                        position, number - 1););
         result = raise_exception(SYS_RNG_EXCEPTION);
       } /* if */
     } else {
+      logError(printf("lst_idx(list1, " FMT_D "): "
+                      "Index is negative or zero.\n", position););
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return result;

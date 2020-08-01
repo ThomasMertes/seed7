@@ -71,8 +71,8 @@
 #endif
 
 #ifndef S_ISFIFO
-#ifdef S_IFFIFO
-#define S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFFIFO)
+#ifdef S_IFIFO
+#define S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFIFO)
 #else
 #define S_ISFIFO(mode) FALSE
 #endif

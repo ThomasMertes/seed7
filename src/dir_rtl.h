@@ -35,10 +35,12 @@ typedef os_DIR *dirType;
 extern const wchar_t dot[];
 extern const wchar_t dotdot[];
 extern const wchar_t slash[];
+extern const wchar_t pathDelimiter[];
 #else
 extern const char dot[];
 extern const char dotdot[];
 extern const char slash[];
+extern const char pathDelimiter[];
 #endif
 
 

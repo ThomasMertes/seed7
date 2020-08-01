@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -51,9 +54,11 @@ static void activate_signal_handlers (void);
 void shut_drivers (void)
 
   { /* shut_drivers */
+    logFunction(printf("shut_drivers\n"););
     kbdShut();
     conShut();
     fflush(NULL);
+    logFunction(printf("shut_drivers -->\n"););
   } /* shut_drivers */
 
 
@@ -65,6 +70,7 @@ const_cstriType signal_name (int sig_num)
     const_cstriType sig_name;
 
   /* signal_name */
+    logFunction(printf("signal_name(%d)\n", sig_num););
     if (sig_num == SIGABRT) {
       sig_name = "ABORT";
     } else if (sig_num == SIGFPE) {
@@ -89,6 +95,8 @@ const_cstriType signal_name (int sig_num)
       sprintf(buffer, "%d", sig_num);
       sig_name = buffer;
     } /* if */
+    logFunction(printf("signal_name(%d) --> \"%s\"\n",
+                       sig_num, sig_name););
     return sig_name;
   } /* signal_name */
 
@@ -224,10 +232,13 @@ static void activate_signal_handlers (void)
 void setup_signal_handlers (boolType do_handle_signals, boolType do_trace_signals)
 
   { /* setup_signal_handlers */
+    logFunction(printf("setup_signal_handlers(%d, %d)\n",
+                       do_handle_signals, do_trace_signals););
 #if HAS_SIGACTION || HAS_SIGNAL
     trace_signals = do_trace_signals;
     if (do_handle_signals) {
       activate_signal_handlers();
     } /* if */
 #endif
+    logFunction(printf("setup_signal_handlers -->\n"););
   } /* setup_signal_handlers */

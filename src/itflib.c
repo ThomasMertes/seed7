@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -568,6 +571,11 @@ printf("\n");
         struct_pointer++;
       } /* while */
     } /* if */
+    logError(printf("itf_select(");
+             trace1(arg_1(arguments));
+             printf(", ");
+             trace1(arg_3(arguments));
+             printf("): Selector not found.\n"););
     return raise_exception(SYS_RNG_EXCEPTION);
   } /* itf_select */
 

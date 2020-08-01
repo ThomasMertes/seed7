@@ -207,6 +207,9 @@ objectType arr_arrlit (listType arguments)
       arr1 = take_array(arr_arg);
       result_size = arraySize(arr1);
       if (unlikely(result_size > MAX_MEM_INDEX)) {
+        logError(printf("arr_arrlit(arr1 (size=" FMT_U_MEM ")): "
+                        "Maximal index out of range.\n",
+                        result_size););
         return raise_exception(SYS_RNG_EXCEPTION);
       } else if (unlikely(!ALLOC_ARRAY(result_array, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -1307,6 +1310,8 @@ objectType arr_times (listType arguments)
     factor = take_int(arg_1(arguments));
     element = arg_3(arguments);
     if (unlikely(factor < 0)) {
+      logError(printf("arr_times(" FMT_D ", ...): Factor negative.\n",
+                      factor););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else if (unlikely((uintType) factor > MAX_ARR_LEN ||
                         (uintType) factor > MAX_MEM_INDEX)) {

@@ -75,6 +75,8 @@ static const char null_byte_string_marker[] = "\\ *NULL_BYTE_STRING* ";
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef EMULATE_ROOT_CWD
+/* Assume that drive letters are used only with a backslash as path delimiter. */
+#define OS_PATH_DELIMITER '\\'
 const_os_striType current_emulated_cwd = NULL;
 #endif
 const os_charType emulated_root[] = {'/', '\0'};
@@ -519,8 +521,7 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
     boolType success;
 
   /* heapAllocOsStri */
-    logFunction(printf("heapAllocOsStri(%lx, %lu)\n",
-                       (long unsigned) var, len););
+    logFunction(printf("heapAllocOsStri(*, " FMT_U_MEM ")\n", len););
     if (len < STACK_ALLOC_SIZE) {
       size = STACK_ALLOC_SIZE;
     } else {
@@ -546,8 +547,8 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
       (void) POP_OS_STRI(*var, SIZ_OS_STRI(len));
       success = TRUE;
     } /* if */
-    logFunction(printf("heapAllocOsStri(%lx, %lu) --> %s\n",
-                       (long unsigned) *var, len, success ? "TRUE" : "FALSE"););
+    logFunction(printf("heapAllocOsStri(" FMT_X_MEM ", " FMT_U_MEM ") --> %s\n",
+                       (memSizeType) *var, len, success ? "TRUE" : "FALSE"););
     return success;
   } /* heapAllocOsStri */
 
@@ -559,7 +560,8 @@ void heapFreeOsStri (const_os_striType var)
     stackAllocType old_stack_alloc;
 
   /* heapFreeOsStri */
-    logFunction(printf("heapFreeOsStri(%lx)\n", (long unsigned) var););
+    logFunction(printf("heapFreeOsStri(" FMT_X_MEM ")\n",
+                       (memSizeType) var););
     old_stack_alloc = stack_alloc;
     stack_alloc = old_stack_alloc->previous;
     free(old_stack_alloc);
@@ -2084,6 +2086,12 @@ striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
     striType result;
 
   /* cp_from_os_path */
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+    if (memcmp(os_path, PATH_PREFIX, PREFIX_LEN * sizeof(os_charType)) == 0) {
+      /* For extended path omit the prefix. */
+      os_path = &os_path[PREFIX_LEN];
+    } /* if */
+#endif
     result = os_stri_to_stri(os_path, err_info);
     if (likely(result != NULL)) {
       result = stri_to_standard_path(result);
@@ -2116,7 +2124,7 @@ void setEmulatedCwdToRoot (void)
 
 
 
-void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
+void setEmulatedCwd (os_striType os_path, errInfoType *err_info)
 
   {
     memSizeType cwd_len;
@@ -2125,24 +2133,26 @@ void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
 
   /* setEmulatedCwd */
     logFunction(printf("setEmulatedCwd(\"" FMT_S_OS "\")\n", os_path););
+#if USE_EXTENDED_LENGTH_PATH
+    if (memcmp(os_path, PATH_PREFIX, PREFIX_LEN * sizeof(os_charType)) == 0) {
+      /* For extended path omit the prefix. */
+      os_path = &os_path[PREFIX_LEN];
+    } /* if */
+#endif
     cwd_len = os_stri_strlen(os_path);
     if (unlikely(!ALLOC_OS_STRI(new_cwd, cwd_len))) {
       *err_info = MEMORY_ERROR;
     } else {
       memcpy(new_cwd, os_path, (cwd_len + NULL_TERMINATION_LEN) * sizeof(os_charType));
-      for (position = 0; new_cwd[position] != '\0'; position++) {
-        if (new_cwd[position] == '\\') {
-          new_cwd[position] = '/';
-        } /* if */
-      } /* for */
-      if (position >= 2 && new_cwd[position - 1] == '/') {
+      position = os_stri_strlen(new_cwd);
+      if (position >= 2 && new_cwd[position - 1] == OS_PATH_DELIMITER) {
         new_cwd[position - 1] = '\0';
       } /* if */
       if (((new_cwd[0] >= 'a' && new_cwd[0] <= 'z') ||
            (new_cwd[0] >= 'A' && new_cwd[0] <= 'Z')) &&
           new_cwd[1] == ':') {
         new_cwd[1] = (os_charType) tolower(new_cwd[0]);
-        new_cwd[0] = '/';
+        new_cwd[0] = OS_PATH_DELIMITER;
       } /* if */
       if (current_emulated_cwd != NULL &&
           current_emulated_cwd != emulated_root) {
@@ -2176,12 +2186,19 @@ static os_striType append_path (const const_os_striType absolutePath,
     } else {
       abs_path_length = os_stri_strlen(absolutePath);
     } /* if */
-    result_len = abs_path_length + OS_STRI_SIZE(relativePathSize) + 3;
+    result_len = PREFIX_LEN + abs_path_length +
+                 OS_STRI_SIZE(relativePathSize) + 3;
     if (unlikely(!os_stri_alloc(result, result_len))) {
       *err_info = MEMORY_ERROR;
     } else {
-      memcpy(result, absolutePath, abs_path_length * sizeof(os_charType));
-      result[abs_path_length] = '/';
+#if USE_EXTENDED_LENGTH_PATH
+      memcpy(result, PATH_PREFIX, PREFIX_LEN * sizeof(os_charType));
+#endif
+      memcpy(&result[PREFIX_LEN], absolutePath,
+             abs_path_length * sizeof(os_charType));
+      abs_path_length += PREFIX_LEN;
+      result[abs_path_length] = OS_PATH_DELIMITER;
+      /* Leave one char free between absolute and relative path. */
       conv_to_os_stri(&result[abs_path_length + 2], relativePathChars,
           relativePathSize, err_info);
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
@@ -2194,10 +2211,10 @@ static os_striType append_path (const const_os_striType absolutePath,
           if (rel_path_start[0] == '.' && rel_path_start[1] == '.' &&
               (rel_path_start[2] == '/' || rel_path_start[2] == '\0')) {
             rel_path_start += 2;
-            if (abs_path_end > result) {
+            if (abs_path_end > &result[PREFIX_LEN]) {
               do {
                 abs_path_end--;
-              } while (*abs_path_end != '/');
+              } while (*abs_path_end != OS_PATH_DELIMITER);
             } /* if */
           } else if (rel_path_start[0] == '.' &&
               (rel_path_start[1] == '/' || rel_path_start[1] == '\0')) {
@@ -2211,37 +2228,44 @@ static os_striType append_path (const const_os_striType absolutePath,
               rel_path_start++;
             } while (*rel_path_start != '/' && *rel_path_start != '\0');
             abs_path_end++;
-            *abs_path_end = '/';
+            *abs_path_end = OS_PATH_DELIMITER;
           } /* if */
         } /* while */
-        if (unlikely(abs_path_end == result)) {
+        if (unlikely(abs_path_end == &result[PREFIX_LEN])) {
           *err_info = RANGE_ERROR;
           *path_info = PATH_IS_EMULATED_ROOT;
           os_stri_free(result);
           result = NULL;
         } else {
           *abs_path_end = '\0';
-          if (likely(result[1] >= 'a' && result[1] <= 'z')) {
-            if (result[2] == '\0') {
+          if (likely(result[PREFIX_LEN + 1] >= 'a' &&
+                     result[PREFIX_LEN + 1] <= 'z')) {
+            if (result[PREFIX_LEN + 2] == '\0') {
               /* "/c"   is mapped to "c:\"  */
-              result[0] = result[1];
-              result[1] = ':';
-              result[2] = '\\';
-              result[3] = '\0';
-            } else if (unlikely(result[2] != '/')) {
-              /* "/cd"  cannot be mapped to a drive letter */
+              result[PREFIX_LEN + 0] = result[PREFIX_LEN + 1];
+              result[PREFIX_LEN + 1] = ':';
+              result[PREFIX_LEN + 2] = '\\';
+              result[PREFIX_LEN + 3] = '\0';
+            } else if (unlikely(result[PREFIX_LEN + 2] != OS_PATH_DELIMITER)) {
+              /* "/cd"  cannot be mapped to a drive letter. */
+              logError(printf("append_path(\"" FMT_S_OS "\"): "
+                              "\"/cd\" cannot be mapped to a drive letter.\n",
+                              absolutePath););
               *err_info = RANGE_ERROR;
               *path_info = PATH_NOT_MAPPED;
               os_stri_free(result);
               result = NULL;
             } else {
               /* "/c/d" is mapped to "c:\d" */
-              result[0] = result[1];
-              result[1] = ':';
-              result[2] = '\\';
+              result[PREFIX_LEN + 0] = result[PREFIX_LEN + 1];
+              result[PREFIX_LEN + 1] = ':';
+              result[PREFIX_LEN + 2] = '\\';
             } /* if */
           } else {
-            /* "/C"  cannot be mapped to a drive letter */
+            /* "/C"  cannot be mapped to a drive letter. */
+            logError(printf("append_path(\"" FMT_S_OS "\"): "
+                            "\"/C\" cannot be mapped to a drive letter.\n",
+                            absolutePath););
             *err_info = RANGE_ERROR;
             *path_info = PATH_NOT_MAPPED;
             os_stri_free(result);
@@ -2250,8 +2274,9 @@ static os_striType append_path (const const_os_striType absolutePath,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("append_path(\"" FMT_S_OS "\") --> \"" FMT_S_OS "\"\n",
-                       absolutePath, result););
+    logFunction(printf("append_path(\"" FMT_S_OS "\") --> "
+                       "\"" FMT_S_OS "\", path_info=%d, err_info=%d\n",
+                       absolutePath, result, *path_info, *err_info););
     return result;
   } /* append_path */
 
@@ -2345,7 +2370,8 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
     os_striType result;
 
   /* cp_to_os_path */
-    logFunction(printf("cp_to_os_path(%lx, %d)\n", std_path, *err_info););
+    logFunction(printf("cp_to_os_path(\"%s\", %d)\n",
+                       striAsUnquotedCStri(std_path), *err_info););
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef FORBID_DRIVE_LETTERS
     if (unlikely(std_path->size >= 2 && (std_path->mem[std_path->size - 1] == '/' ||
@@ -2361,9 +2387,13 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
                  ((std_path->mem[0] < 'a' || std_path->mem[0] > 'z') &&
                   (std_path->mem[0] < 'A' || std_path->mem[0] > 'Z'))))) {
 #endif
+      logError(printf("cp_to_os_path(\"%s\"): Path with drive letters or not legal.",
+                      striAsUnquotedCStri(std_path)););
       *err_info = RANGE_ERROR;
       result = NULL;
     } else if (unlikely(stri_charpos(std_path, '\\') != NULL)) {
+      logError(printf("cp_to_os_path(\"%s\"): Path contains a backslash.",
+                      striAsUnquotedCStri(std_path)););
       *err_info = RANGE_ERROR;
       result = NULL;
     } else if (std_path->size == 0) {
@@ -2410,8 +2440,8 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
       } /* if */
 #endif
     } /* if */
-    logFunction(printf("cp_to_os_path(%lx, %d) --> \"" FMT_S_OS "\"\n",
-                       std_path, *err_info, result););
+    logFunction(printf("cp_to_os_path(\"%s\", %d) --> \"" FMT_S_OS "\"\n",
+                       striAsUnquotedCStri(std_path), *err_info, result););
     return result;
   } /* cp_to_os_path */
 
@@ -2519,6 +2549,8 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
     boolType quote_path;
 
   /* escape_command */
+    logFunction(printf("escape_command(\"" FMT_S_OS "\", *, %d)\n",
+                       inBuffer, *err_info););
     quote_path = FALSE;
     for (inPos = 0, outPos = 0; inBuffer[inPos] != '\0'; inPos++, outPos++) {
       switch (inBuffer[inPos]) {
@@ -2546,6 +2578,7 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
         case ':':
           if (likely(inPos == 1 &&
                      inBuffer[0] >= 'a' && inBuffer[0] <= 'z')) {
+            /* After the drive letter a colon is allowed. */
             outBuffer[outPos] = inBuffer[inPos];
           } else {
             *err_info = RANGE_ERROR;
@@ -2574,6 +2607,8 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
     } else {
       outBuffer[outPos] = '\0';
     } /* if */
+    logFunction(printf("escape_command(\"" FMT_S_OS "\", \"" FMT_S_OS "\", %d)\n",
+                       inBuffer, outBuffer, *err_info););
   } /* escape_command */
 
 
@@ -2607,6 +2642,8 @@ os_striType cp_to_command (const const_striType commandPath,
 #else
     os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
 #endif
+    logMessage(printf("cp_to_command: os_commandPath: \"" FMT_S_OS "\"\n",
+                      os_commandPath););
     if (unlikely(os_commandPath == NULL)) {
       result = NULL;
     } else {
@@ -2625,7 +2662,15 @@ os_striType cp_to_command (const const_striType commandPath,
           if (unlikely(!ALLOC_OS_STRI(result, result_len))) {
             *err_info = MEMORY_ERROR;
           } else {
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+            if (memcmp(os_commandPath, PATH_PREFIX, PREFIX_LEN * sizeof(os_charType)) == 0) {
+              escape_command(&os_commandPath[PREFIX_LEN], result, err_info);
+            } else {
+              escape_command(os_commandPath, result, err_info);
+            } /* if */
+#else
             escape_command(os_commandPath, result, err_info);
+#endif
             if (unlikely(*err_info != OKAY_NO_ERROR)) {
               FREE_OS_STRI(result);
               result = NULL;

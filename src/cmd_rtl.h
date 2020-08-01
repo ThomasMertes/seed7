@@ -46,6 +46,9 @@
 #if HAS_SYMBOLIC_LINKS
 striType followLink (striType path);
 #endif
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+void adjustCwdForShell (errInfoType *err_info);
+#endif
 #ifdef EMULATE_ROOT_CWD
 void initEmulatedCwd (errInfoType *err_info);
 #endif

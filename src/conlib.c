@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -72,6 +75,9 @@ objectType con_cursor (listType arguments)
     } else if (take_bool(arg_2(arguments)) == SYS_FALSE_OBJECT) {
       conCursor(FALSE);
     } else {
+      logError(printf("con_cursor(");
+               trace1(take_bool(arg_2(arguments)));
+               printf("): Value not TRUE_OBJECT or FALSE_OBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return SYS_EMPTY_OBJECT;

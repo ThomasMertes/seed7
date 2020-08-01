@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -346,5 +349,8 @@ objectType bln_value (listType arguments)
         } /* if */
       } /* if */
     } /* if */
+    logError(printf("bln_value(");
+             trace1(obj_arg);
+             printf("): Value not TRUE_OBJECT or FALSE_OBJECT.\n"););
     return raise_exception(SYS_RNG_EXCEPTION);
   } /* bln_value */

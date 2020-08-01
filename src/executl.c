@@ -1118,6 +1118,8 @@ void destr_struct (objectType old_elem, memSizeType old_size)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* destr_struct */
+    logFunction(printf("destr_struct(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) old_elem, old_size););
     for (position = old_size; position > 0; position--) {
       switch (CATEGORY_OF_OBJ(old_elem)) {
         case INTOBJECT:

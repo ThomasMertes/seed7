@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -155,9 +158,13 @@ objectType enu_iconv2 (listType arguments)
         isit_enum(list_element->obj);
         result = list_element->obj;
       } else {
+        logError(printf("enu_iconv2(" FMT_D ", ...): "
+                        "Ordinal number too big.", ordinal););
         result = raise_exception(SYS_RNG_EXCEPTION);
       } /* if */
     } else {
+      logError(printf("enu_iconv2(" FMT_D ", ...): "
+                      "Ordinal number less than zero.", ordinal););
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return result;
@@ -206,6 +213,7 @@ objectType enu_ord2 (listType arguments)
     if (list_element != NULL) {
       result = bld_int_temp(number);
     } else {
+      logError(printf("enu_ord2: Enum value not found in list of values."););
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return result;

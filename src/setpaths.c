@@ -44,7 +44,7 @@
 #ifdef OS_STRI_USES_CODE_PAGE
 #include "dos.h"
 #endif
-#ifdef UNISTD_H_PRESENT
+#if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 

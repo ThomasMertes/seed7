@@ -839,6 +839,11 @@ printf("\n");
         } /* while */
       } /* if */
     } /* if */
+    logError(printf("ref_select(");
+             trace1(arg_1(arguments));
+             printf(", ");
+             trace1(arg_3(arguments));
+             printf("): Selector not found.\n"););
     return raise_exception(SYS_RNG_EXCEPTION);
   } /* ref_select */
 
@@ -971,8 +976,11 @@ objectType ref_type (listType arguments)
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL) {
+      logError(printf("ref_type(0): Null argument.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else if (obj_arg->type_of == NULL) {
+      logError(printf("ref_type(" FMT_U_MEM "): Type is null.\n",
+                      (memSizeType) obj_arg););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_type_temp(obj_arg->type_of);

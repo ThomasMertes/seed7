@@ -42,8 +42,10 @@
 #include "stdio.h"
 #include "string.h"
 #include "wchar.h"
+#include "errno.h"
 
 #include "common.h"
+#include "striutl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -62,35 +64,60 @@ DIR *opendir (const char *dirName)
 
   {
     memSizeType nameLen;
-    char fileNamePattern[260];
+    char fileNameBuffer[260];
+    char *fileNamePattern = fileNameBuffer;
     DIR *directory;
 
   /* opendir */
-    logFunction(printf("opendir(%s);\n", dirName););
+    logFunction(printf("opendir(\"%s\");\n", dirName););
     nameLen = strlen(dirName);
-    if (nameLen == 0 || nameLen > sizeof(fileNamePattern) - 5) {
-      logError(printf("opendir(\"%s\"): Name too long "
-                      "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
-                      dirName, nameLen, sizeof(fileNamePattern) - 5););
+    if (nameLen == 0) {
+      logError(printf("opendir(\"%s\"): Name empty.\n", dirName););
       directory = NULL;
-    } else if ((directory = (DIR *) malloc(sizeof(DIR))) != NULL) {
-      memcpy(fileNamePattern, dirName, nameLen);
-      if (dirName[nameLen - 1] != '/' &&
-          dirName[nameLen - 1] != '\\') {
-        fileNamePattern[nameLen++] = '\\';
+      errno = ENOENT;
+    } else if (strpbrk(&dirName[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], "?*") != NULL) {
+      logError(printf("opendir(\"%s\"): Wildcards in path.\n", dirName););
+      directory = NULL;
+      errno = ENOENT;
+    } else {
+      if (nameLen > sizeof(fileNameBuffer) - 3) {
+        fileNamePattern = (char *) malloc((nameLen + 3) * sizeof(char));
+        if (unlikely(fileNamePattern == NULL)) {
+          directory = NULL;
+          errno = ENOMEM;
+        } /* if */
       } /* if */
-      fileNamePattern[nameLen++] = '*';
-      fileNamePattern[nameLen] = '\0';
-      directory->dirHandle = FindFirstFileA(fileNamePattern, &directory->findData);
-      if (directory->dirHandle != INVALID_HANDLE_VALUE) {
-        /* printf("--> OK\n");
-        printf(">%s<\n", directory->findData.cFileName); */
-        directory->firstElement = 1;
-      } else {
-        logError(printf("opendir(\"%s\"): FindFirstFileA() failed.\n",
-                        dirName););
-        free(directory);
-        directory = NULL;
+      if (likely(fileNamePattern != NULL)) {
+        directory = (DIR *) malloc(sizeof(DIR));
+        if (unlikely(directory == NULL)) {
+          errno = ENOMEM;
+        } else {
+          memcpy(fileNamePattern, dirName, nameLen);
+          if (dirName[nameLen - 1] != '/' &&
+              dirName[nameLen - 1] != '\\') {
+            fileNamePattern[nameLen++] = '\\';
+          } /* if */
+          fileNamePattern[nameLen++] = '*';
+          fileNamePattern[nameLen] = '\0';
+          logMessage(printf("wopendir; before FindFirstFileA(\"%s\", *)\n",
+                            fileNamePattern););
+          directory->dirHandle = FindFirstFileA(fileNamePattern, &directory->findData);
+          if (directory->dirHandle != INVALID_HANDLE_VALUE) {
+            /* printf("--> OK\n");
+            printf(">%s<\n", directory->findData.cFileName); */
+            directory->firstElement = 1;
+          } else {
+            logError(printf("opendir(\"%s\"): FindFirstFileA(\"%s\", *) failed:\n"
+                            "GetLastError=" FMT_U32 "\n",
+                            fileNamePattern, (uint32Type) GetLastError()););
+            free(directory);
+            directory = NULL;
+            errno = ENOENT;
+          } /* if */
+          if (unlikely(fileNamePattern != fileNameBuffer)) {
+            free(fileNamePattern);
+          } /* if */
+        } /* if */
       } /* if */
     } /* if */
     return directory;
@@ -164,36 +191,60 @@ WDIR *wopendir (const wchar_t *dirName)
 
   {
     memSizeType nameLen;
-    wchar_t fileNamePattern[260];
+    wchar_t fileNameBuffer[260];
+    wchar_t *fileNamePattern = fileNameBuffer;
     WDIR *directory;
 
   /* wopendir */
-    logFunction(printf("wopendir(%ls);\n", dirName););
+    logFunction(printf("wopendir(\"%ls\");\n", dirName););
     nameLen = wcslen(dirName);
-    if (nameLen == 0 ||
-        nameLen > sizeof(fileNamePattern) / sizeof(wchar_t) - 5) {
-      logError(printf("wopendir(\"%ls\"): Name too long "
-                      "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
-                      dirName, nameLen, sizeof(fileNamePattern) / sizeof(wchar_t) - 5););
+    if (nameLen == 0) {
+      logError(printf("wopendir(\"%ls\"): Name empty.\n", dirName););
       directory = NULL;
-    } else if ((directory = (WDIR *) malloc(sizeof(WDIR))) != NULL) {
-      memcpy(fileNamePattern, dirName, nameLen * sizeof(wchar_t));
-      if (dirName[nameLen - 1] != '/' &&
-          dirName[nameLen - 1] != '\\') {
-        fileNamePattern[nameLen++] = '\\';
+      errno = ENOENT;
+    } else if (wcspbrk(&dirName[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], L"?*") != NULL) {
+      logError(printf("wopendir(\"%ls\"): Wildcards in path.\n", dirName););
+      directory = NULL;
+      errno = ENOENT;
+    } else {
+      if (nameLen > sizeof(fileNameBuffer) / sizeof(wchar_t) - 3) {
+        fileNamePattern = (wchar_t *) malloc((nameLen + 3) * sizeof(wchar_t));
+        if (unlikely(fileNamePattern == NULL)) {
+          directory = NULL;
+          errno = ENOMEM;
+        } /* if */
       } /* if */
-      fileNamePattern[nameLen++] = '*';
-      fileNamePattern[nameLen] = '\0';
-      directory->dirHandle = FindFirstFileW(fileNamePattern, &directory->findData);
-      if (directory->dirHandle != INVALID_HANDLE_VALUE) {
-        /* printf("--> OK\n");
-        printf(">%ls<\n", directory->findData.cFileName); */
-        directory->firstElement = 1;
-      } else {
-        logError(printf("wopendir(\"%ls\"): FindFirstFileW() failed.\n",
-                        dirName););
-        free(directory);
-        directory = NULL;
+      if (likely(fileNamePattern != NULL)) {
+        directory = (WDIR *) malloc(sizeof(WDIR));
+        if (unlikely(directory == NULL)) {
+          errno = ENOMEM;
+        } else {
+          memcpy(fileNamePattern, dirName, nameLen * sizeof(wchar_t));
+          if (dirName[nameLen - 1] != '/' &&
+              dirName[nameLen - 1] != '\\') {
+            fileNamePattern[nameLen++] = '\\';
+          } /* if */
+          fileNamePattern[nameLen++] = '*';
+          fileNamePattern[nameLen] = '\0';
+          logMessage(printf("wopendir; before FindFirstFileW(\"%ls\", *)\n",
+                            fileNamePattern););
+          directory->dirHandle = FindFirstFileW(fileNamePattern, &directory->findData);
+          if (directory->dirHandle != INVALID_HANDLE_VALUE) {
+            /* printf("--> OK\n");
+            printf(">%ls<\n", directory->findData.cFileName); */
+            directory->firstElement = 1;
+          } else {
+            logError(printf("wopendir(\"%ls\"): FindFirstFileW(\"%ls\", *) failed:\n"
+                            "GetLastError=" FMT_U32 "\n",
+                            fileNamePattern, (uint32Type) GetLastError()););
+            free(directory);
+            directory = NULL;
+            errno = ENOENT;
+          } /* if */
+          if (unlikely(fileNamePattern != fileNameBuffer)) {
+            free(fileNamePattern);
+          } /* if */
+        } /* if */
       } /* if */
     } /* if */
     return directory;
@@ -234,7 +285,7 @@ struct wdirent *wreaddir (WDIR *directory)
       dirEntry = NULL;
     } /* if */
     logFunction(printf("wreaddir --> %ls\n",
-                       dirEntry == NULL ? "NULL" : dirEntry->d_name););
+                       dirEntry == NULL ? L"NULL" : dirEntry->d_name););
     return dirEntry;
   } /* wreaddir */
 

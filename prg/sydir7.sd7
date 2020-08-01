@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  sydir7.sd7    Utility to syncronize directory trees             *)
-(*  Copyright (C) 2009 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 2009 - 2016  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -28,11 +28,18 @@ $ include "seed7_05.s7i";
   include "time.s7i";
   include "duration.s7i";
 
+const type: syncFlags is new struct
+    var boolean: removeFilesAtDest is FALSE;
+    var boolean: overwriteNewerDestFiles is FALSE;
+  end struct;
 
-const proc: syncFile (in string: sourcePath, in string: destPath) is forward;
+
+const proc: syncFile (in string: sourcePath, in string: destPath,
+    in syncFlags: flags) is forward;
 
 
-const proc: syncDir (in string: sourcePath, in string: destPath) is func
+const proc: syncDir (in string: sourcePath, in string: destPath,
+    in syncFlags: flags) is func
   local
     var array string: sourceContent is 0 times "";
     var array string: destContent is 0 times "";
@@ -55,18 +62,18 @@ const proc: syncDir (in string: sourcePath, in string: destPath) is func
       if sourceName = destName then
         # writeln("syncFile = " <& literal(sourceName) <& " " <& literal(destName));
         syncFile(sourcePath & "/" & sourceName,
-                 destPath & "/" & destName);
+                 destPath & "/" & destName, flags);
         incr(sourceIndex);
         incr(destIndex);
       elsif sourceName < destName then
         # writeln("syncFile < " <& literal(sourceName) <& " " <& literal(destName));
         syncFile(sourcePath & "/" & sourceName,
-                 destPath & "/" & sourceName);
+                 destPath & "/" & sourceName, flags);
         incr(sourceIndex);
       else # sourceName > destName then
         # writeln("syncFile > " <& literal(sourceName) <& " " <& literal(destName));
         syncFile(sourcePath & "/" & destName,
-                 destPath & "/" & destName);
+                 destPath & "/" & destName, flags);
         incr(destIndex);
       end if;
     end while;
@@ -74,14 +81,14 @@ const proc: syncDir (in string: sourcePath, in string: destPath) is func
       sourceName := sourceContent[sourceIndex];
       # writeln("syncFile S " <& literal(sourceName));
       syncFile(sourcePath & "/" & sourceName,
-               destPath & "/" & sourceName);
+               destPath & "/" & sourceName, flags);
       incr(sourceIndex);
     end while;
     while destIndex <= length(destContent) do
       destName := destContent[destIndex];
       # writeln("syncFile D " <& literal(destName));
       syncFile(sourcePath & "/" & destName,
-               destPath & "/" & destName);
+               destPath & "/" & destName, flags);
       incr(destIndex);
     end while;
     if updateMtime then
@@ -117,17 +124,18 @@ const func boolean: equalFileContent (in string: sourcePath, in string: destPath
   end func;
 
 
-const proc: syncFile (in string: sourcePath, in string: destPath) is func
+const proc: syncFile (in string: sourcePath, in string: destPath,
+    in syncFlags: flags) is func
   local
     var array string: dirContent is 0 times "";
     var string: fileName is "";
   begin
     if fileTypeSL(sourcePath) = FILE_ABSENT then
       if fileTypeSL(destPath) <> FILE_ABSENT then
-        # writeln("leave file " <& literal(destPath));
-        noop;
-        # writeln("delete file " <& literal(destPath));
-        # removeTree(destPath);
+        if flags.removeFilesAtDest then
+          writeln("remove file " <& literal(destPath));
+          removeTree(destPath);
+        end if;
       end if;
     elsif fileTypeSL(sourcePath) = FILE_SYMLINK then
       if fileTypeSL(destPath) = FILE_ABSENT then
@@ -151,10 +159,10 @@ const proc: syncFile (in string: sourcePath, in string: destPath) is func
       if fileTypeSL(destPath) = FILE_ABSENT then
         writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
         mkdir(destPath);
-        syncDir(sourcePath, destPath);
+        syncDir(sourcePath, destPath, flags);
         setMTime(destPath, getMTime(sourcePath));
       elsif fileTypeSL(destPath) = FILE_DIR then
-        syncDir(sourcePath, destPath);
+        syncDir(sourcePath, destPath, flags);
       else
         writeln(" *** Destination " <& literal(destPath) <& " is not a directory");
       end if;
@@ -171,13 +179,22 @@ const proc: syncFile (in string: sourcePath, in string: destPath) is func
         # writeln(getMTime(sourcePath));
         # writeln(getMTime(destPath));
         if getMTime(sourcePath) > getMTime(destPath) + 1 . SECONDS then
-          writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
-          removeFile(destPath);
-          cloneFile(sourcePath, destPath);
+          if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
+            writeln(" *** Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+            setMTime(destPath, getMTime(sourcePath));
+          else
+            writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
+            removeFile(destPath);
+            cloneFile(sourcePath, destPath);
+          end if;
         elsif getMTime(sourcePath) < getMTime(destPath) - 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
             writeln(" *** Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
             setMTime(destPath, getMTime(sourcePath));
+          elsif flags.overwriteNewerDestFiles then
+            writeln("replace newer dest file " <& literal(sourcePath) <& " to " <& literal(destPath));
+            removeFile(destPath);
+            cloneFile(sourcePath, destPath);
           else
             writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
             # writeln(getMTime(sourcePath) <& "   " <& getMTime(destPath) <& "   " <& getMTime(destPath) - 1 . SECONDS);
@@ -198,22 +215,51 @@ const proc: syncFile (in string: sourcePath, in string: destPath) is func
 
 const proc: main is func
   local
+    var integer: numOfFileNames is 0;
+    var string: parameter is "";
     var string: fromName is "";
     var string: toName is "";
+    var boolean: error is FALSE;
+    var syncFlags: flags is syncFlags.value;
   begin
     if length(argv(PROGRAM)) < 2 then
       writeln("Sydir7 Version 1.0 - Utility to syncronize directory trees");
-      writeln("Copyright (C) 2009 - 2011 Thomas Mertes");
+      writeln("Copyright (C) 2009 - 2016 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Sydir7 is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: sydir7 source destination");
+      writeln("usage: sydir7 [-c] source destination");
+      writeln;
+      writeln("Options:");
+      writeln("  -c Copy files. Remove destination files, when they are missing in");
+      writeln("     source. Overwrite newer destination files with older source files.");
       writeln;
     else
-      fromName := convDosPath(argv(PROGRAM)[1]);
-      toName := convDosPath(argv(PROGRAM)[2]);
-      syncFile(fromName, toName);
+      for parameter range argv(PROGRAM) do
+        if startsWith(parameter, "-") then
+          if parameter = "-c" then
+            flags.removeFilesAtDest := TRUE;
+            flags.overwriteNewerDestFiles := TRUE;
+          else
+            writeln(" *** Unknown option: " <& parameter);
+            error := TRUE;
+          end if;
+        else
+          incr(numOfFileNames);
+          case numOfFileNames of
+            when {1}: fromName := convDosPath(parameter);
+            when {2}: toName := convDosPath(parameter);
+          end case;
+        end if;
+      end for;
+      if numOfFileNames <> 2 then
+        writeln(" *** Wrong number of parameters.");
+        error := TRUE;
+      end if;
+      if not error then
+        syncFile(fromName, toName, flags);
+      end if;
     end if;
   end func;

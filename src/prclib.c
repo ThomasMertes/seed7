@@ -594,6 +594,9 @@ objectType prc_exit (listType arguments)
     isit_int(arg_1(arguments));
     status = take_int(arg_1(arguments));
     if (!inIntRange(status)) {
+      logError(printf("prc_exit(" FMT_D "): "
+                      "Exit status not in allowed range (%d .. %d).\n",
+                      status, INT_MIN, INT_MAX););
       raise_error(RANGE_ERROR);
     } else {
       shut_drivers();
@@ -622,6 +625,9 @@ objectType prc_for_downto (listType arguments)
     lower_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
     if (lower_limit == INTTYPE_MIN) {
+      logError(printf("prc_for_downto(var1, " FMT_D ", " FMT_ D "): "
+                      "Lower limit of integer.first not allowed.\n",
+                      upper_limit, lower_limit););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       for_variable->value.intValue = upper_limit;
@@ -687,6 +693,9 @@ objectType prc_for_to (listType arguments)
     upper_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
     if (upper_limit == INTTYPE_MAX) {
+      logError(printf("prc_for_to(var1, " FMT_D ", " FMT_ D "): "
+                      "Upper limit of integer.last not allowed.\n",
+                      lower_limit, upper_limit););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       for_variable->value.intValue = lower_limit;

@@ -7076,10 +7076,16 @@ const proc: execProgram (in string: command, in array string: parameters,
   begin
     if errorFileDescriptor = 1 then
       childStdout := open(errorFile, "w");
+      if childStdout = STD_NULL then
+        writeln("*** Could not open " <& errorFile);
+      end if;
       childStderr := STD_NULL;
     elsif errorFileDescriptor = 2 then
       childStdout := STD_NULL;
       childStderr := open(errorFile, "w");
+      if childStderr = STD_NULL then
+        writeln("*** Could not open " <& errorFile);
+      end if;
     end if;
     aProcess := startProcess(commandPath(command), parameters, STD_IN, childStdout, childStderr);
     waitFor(aProcess);

@@ -36,7 +36,7 @@
 #include "string.h"
 #include "time.h"
 
-#ifdef UNISTD_H_PRESENT
+#if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 

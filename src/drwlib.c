@@ -574,6 +574,9 @@ objectType drw_genPointList (listType arguments)
     points_array = take_array(arg_1(arguments));
     len = arraySize(points_array);
     if (len == 0 || len & 1) {
+      logError(printf("drw_genPointList(arr1 (size=" FMT_U_MEM "): "
+                      "Size zero or odd.",
+                      len););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (!ALLOC_RTL_ARRAY(xyArray, len)) {
@@ -722,6 +725,8 @@ objectType drw_image (listType arguments)
     arr_image = take_array(arg_1(arguments));
     height = arraySize(arr_image);
     if (height == 0) {
+      logError(printf("drw_image(arr1 (size=" FMT_U_MEM "): "
+                      "Hight zero.", len););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       curr_line = &arr_image->arr[0];
@@ -729,6 +734,8 @@ objectType drw_image (listType arguments)
       arr_line = take_array(curr_line);
       width = arraySize(arr_line);
       if (width == 0) {
+        logError(printf("drw_image(arr1 (size=" FMT_U_MEM "): "
+                        "Width zero.", len););
         return raise_exception(SYS_RNG_EXCEPTION);
       } else {
         curr_column = &arr_line->arr[0];

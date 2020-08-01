@@ -46,11 +46,6 @@ typedef struct {
 #define C
 #endif
 
-#ifdef DEFINE_OS_STAT_PROTOTYPE
-extern C int __cdecl os_stat (const_os_striType path, os_stat_struct *buffer);
-#endif
-
-
 os_striType *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_striType *w_argv);
 striType getExecutablePath (const const_striType arg_0);

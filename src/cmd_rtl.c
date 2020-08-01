@@ -57,7 +57,7 @@
 #endif
 #include "errno.h"
 
-#ifdef UNISTD_H_PRESENT
+#if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 
@@ -69,6 +69,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "str_rtl.h"
+#include "chr_rtl.h"
 #include "fil_rtl.h"
 #include "dir_rtl.h"
 #include "set_rtl.h"
@@ -76,6 +77,7 @@
 #include "tim_drv.h"
 #include "big_drv.h"
 #include "cmd_drv.h"
+#include "stat_drv.h"
 #include "rtl_err.h"
 
 #ifdef USE_MMAP
@@ -220,7 +222,7 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
         if (dir_path != NULL) {
           if (init_path) {
             os_stri_strcpy(dir_path, dir_name);
-            os_stri_strcpy(&dir_path[dir_name_size], slash);
+            os_stri_strcpy(&dir_path[dir_name_size], pathDelimiter);
             init_path = FALSE;
           } /* if */
           os_stri_strcpy(&dir_path[dir_name_size + 1], current_entry->d_name);
@@ -464,9 +466,9 @@ static void copy_dir (const const_os_striType from_name,
           if (from_path != NULL && to_path != NULL) {
             if (init_path) {
               os_stri_strcpy(from_path, from_name);
-              os_stri_strcpy(&from_path[from_name_size], slash);
+              os_stri_strcpy(&from_path[from_name_size], pathDelimiter);
               os_stri_strcpy(to_path, to_name);
-              os_stri_strcpy(&to_path[to_name_size], slash);
+              os_stri_strcpy(&to_path[to_name_size], pathDelimiter);
               init_path = FALSE;
             } /* if */
             os_stri_strcpy(&from_path[from_name_size + 1], current_entry->d_name);
@@ -601,6 +603,8 @@ static void move_with_copy (const const_os_striType from_name,
     os_striType temp_name;
 
   /* move_with_copy */
+    logFunction(printf("move_with_copy(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                       from_name, to_name););
     temp_name = temp_name_in_dir(from_name);
     if (unlikely(temp_name == NULL)) {
       *err_info = MEMORY_ERROR;
@@ -627,6 +631,8 @@ static void move_with_copy (const const_os_striType from_name,
       } /* if */
       os_stri_free(temp_name);
     } /* if */
+    logFunction(printf("move_with_copy(\"" FMT_S_OS "\", \"" FMT_S_OS "\", %d) -->\n",
+                       from_name, to_name, *err_info););
   } /* move_with_copy */
 
 
@@ -1075,8 +1081,7 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
     os_striType os_cwd;
 
   /* getOsCwd */
-    logFunction(printf("getOsCwd(*, " FMT_U_MEM ", *)",
-                       buffer_size);
+    logFunction(printf("getOsCwd(*, " FMT_U_MEM ", *)", buffer_size);
                 fflush(stdout););
     if (unlikely((os_cwd = os_getcwd(buffer, buffer_size)) == NULL)) {
       if (errno == ERANGE || errno == ENAMETOOLONG) {
@@ -1117,6 +1122,42 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
   } /* getOsCwd */
 
 
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+void adjustCwdForShell (errInfoType *err_info)
+
+  {
+    struct striStruct stri1_buffer;
+    striType dotStri;
+    os_striType os_cwd;
+    int path_info = PATH_IS_NORMAL;
+    int chdir_result;
+
+  /* adjustCwdForShell */
+    logFunction(printf("adjustCwdForShell(%d)\n", *err_info););
+    dotStri = chrStrMacro('.', stri1_buffer);
+    os_cwd = cp_to_os_path(dotStri, &path_info, err_info);
+    if (unlikely(os_cwd == NULL)) {
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
+        logError(printf("adjustCwdForShell: Current directory is emulated root.\n"););
+      } else {
+        logError(printf("adjustCwdForShell: Cannot get current_emulated_cwd.\n"););
+      } /* if */
+    } else {
+      logMessage(printf("adjustCwdForShell: before os_chdir(\"" FMT_S_OS "\")\n",
+                        &os_cwd[PREFIX_LEN]););
+      chdir_result = os_chdir(&os_cwd[PREFIX_LEN]);
+      if (unlikely(chdir_result != 0)) {
+        logError(printf("adjustCwdForShell: os_chdir(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        &os_cwd[PREFIX_LEN], errno, strerror(errno)););
+        *err_info = FILE_ERROR;
+      } /* if */
+      os_stri_free(os_cwd);
+    } /* if */
+    logFunction(printf("adjustCwdForShell(%d) -->\n", *err_info););
+  } /* adjustCwdForShell */
+#endif
+
 
 #ifdef EMULATE_ROOT_CWD
 void initEmulatedCwd (errInfoType *err_info)
@@ -1126,12 +1167,14 @@ void initEmulatedCwd (errInfoType *err_info)
     os_striType os_cwd;
 
   /* initEmulatedCwd */
+    logFunction(printf("initEmulatedCwd(*)\n"););
     if ((os_cwd = getOsCwd(buffer, PATH_MAX, err_info)) != NULL) {
       setEmulatedCwd(os_cwd, err_info);
       if (os_cwd != buffer) {
         FREE_OS_STRI(os_cwd);
       } /* if */
     } /* if */
+    logFunction(printf("initEmulatedCwd(%d)\n", *err_info););
   } /* initEmulatedCwd */
 #endif
 
@@ -1236,6 +1279,7 @@ void cmdChdir (const const_striType dirPath)
     int chdir_result;
 
   /* cmdChdir */
+    logFunction(printf("cmdChdir(\"%s\")\n", striAsUnquotedCStri(dirPath)););
     os_path = cp_to_os_path(dirPath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
@@ -1250,18 +1294,19 @@ void cmdChdir (const const_striType dirPath)
     } else {
       chdir_result = os_chdir(os_path);
       if (unlikely(chdir_result != 0)) {
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+        logMessage(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, errno, strerror(errno)););
+        setEmulatedCwd(os_path, &err_info);
+#else
         logError(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
+#endif
       } else {
-        if (dirPath->size >= 1 && dirPath->mem[0] == '/') {
-          /* Absolute path */
-          setEmulatedCwd(os_path, &err_info);
-        } else {
-          /* Relative path */
-          initEmulatedCwd(&err_info);
-        } /* if */
+        setEmulatedCwd(os_path, &err_info);
       } /* if */
 #else
       logError(printf("cmdChdir: cp_to_os_path(\"%s\", *, *) failed:\n"
@@ -1282,6 +1327,8 @@ void cmdChdir (const const_striType dirPath)
         raise_error(err_info);
       } /* if */
     } /* if */
+    logFunction(printf("cmdChdir(\"%s\") -->\n",
+                       striAsUnquotedCStri(dirPath)););
   } /* cmdChdir */
 
 
@@ -2044,6 +2091,67 @@ intType cmdFileTypeSL (const const_striType filePath)
 
 
 
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+/**
+ *  Determine the current working directory of the calling process.
+ *  @return The absolute path of the current working directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result string.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
+striType cmdGetcwd (void)
+
+  {
+    struct striStruct stri1_buffer;
+    striType dotStri;
+    os_striType os_cwd;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType cwd;
+
+  /* cmdGetcwd */
+    logFunction(printf("cmdGetcwd\n"););
+    dotStri = chrStrMacro('.', stri1_buffer);
+    os_cwd = cp_to_os_path(dotStri, &path_info, &err_info);
+    if (unlikely(os_cwd == NULL)) {
+#ifdef EMULATE_ROOT_CWD
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
+        cwd = cp_from_os_path(current_emulated_cwd, &err_info);
+        if (unlikely(cwd == NULL)) {
+          logError(printf("cmdGetcwd: "
+                          "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                          "err_info=%d\n",
+                          current_emulated_cwd, err_info););
+          raise_error(err_info);
+        } /* if */
+      } else
+#endif
+      {
+        logError(printf("cmdGetcwd: Cannot get current_emulated_cwd.\n"););
+        raise_error(err_info);
+        cwd = NULL;
+      }
+    } else {
+      cwd = cp_from_os_path(os_cwd, &err_info);
+      if (unlikely(cwd == NULL)) {
+        logError(printf("cmdGetcwd: "
+                        "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                        "err_info=%d\n",
+                        os_cwd, err_info););
+        os_stri_free(os_cwd);
+        raise_error(err_info);
+      } else {
+        os_stri_free(os_cwd);
+      } /* if */
+    } /* if */
+    logFunction(printf("cmdGetcwd --> \"%s\"\n", striAsUnquotedCStri(cwd)););
+    return cwd;
+  } /* cmdGetcwd */
+
+#else
+
+
+
 /**
  *  Determine the current working directory of the calling process.
  *  @return The absolute path of the current working directory.
@@ -2071,8 +2179,9 @@ striType cmdGetcwd (void)
                         current_emulated_cwd, err_info););
         raise_error(err_info);
       } /* if */
-    } else {
+    } else
 #endif
+    {
       if (unlikely((os_cwd = getOsCwd(buffer, PATH_MAX, &err_info)) == NULL)) {
         raise_error(err_info);
         cwd = NULL;
@@ -2093,12 +2202,12 @@ striType cmdGetcwd (void)
           } /* if */
         } /* if */
       } /* if */
-#ifdef EMULATE_ROOT_CWD
-    } /* if */
-#endif
+    }
     logFunction(printf("cmdGetcwd --> \"%s\"\n", striAsUnquotedCStri(cwd)););
     return cwd;
   } /* cmdGetcwd */
+
+#endif
 
 
 
@@ -3137,12 +3246,22 @@ intType cmdShell (const const_striType command, const const_striType parameters)
     intType result;
 
   /* cmdShell */
+    logFunction(printf("cmdShell(\"%s\", ", striAsUnquotedCStri(command));
+                printf("\"%s\")\n", striAsUnquotedCStri(parameters)););
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+    adjustCwdForShell(&err_info);
+#endif
     os_command = cp_to_command(command, parameters, &err_info);
     if (unlikely(os_command == NULL)) {
+      logError(printf("cmdShell: cp_to_command(\"%s\", ",
+                      striAsUnquotedCStri(command));
+               printf("\"%s\", *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(parameters), err_info););
       raise_error(err_info);
       result = 0;
     } else {
-      /* printf("os_command: \"" FMT_S_OS "\"\n", os_command); */
+      logMessage(printf("cmdShell: os_command: \"" FMT_S_OS "\"\n", os_command););
       result = (intType) os_system(os_command);
       /* if (result != 0) {
         printf("errno=%d\nerror: %s\n", errno, strerror(errno));
@@ -3150,6 +3269,7 @@ intType cmdShell (const const_striType command, const const_striType parameters)
       } */
       FREE_OS_STRI(os_command);
     } /* if */
+    logFunction(printf("cmdShell --> " FMT_D "\n", result););
     return result;
   } /* cmdShell */
 

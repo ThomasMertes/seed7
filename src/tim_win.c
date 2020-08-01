@@ -51,6 +51,7 @@
 #include "os_decls.h"
 #include "tim_rtl.h"
 #include "fil_rtl.h"
+#include "stat_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN

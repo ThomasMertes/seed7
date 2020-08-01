@@ -42,7 +42,7 @@
 #include "fcntl.h"
 #include "sys/types.h"
 #include "sys/stat.h"
-#ifdef UNISTD_H_PRESENT
+#if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 #include "errno.h"

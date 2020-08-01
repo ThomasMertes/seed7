@@ -56,7 +56,7 @@
 #endif
 #include "errno.h"
 
-#ifdef UNISTD_H_PRESENT
+#if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 

@@ -41,17 +41,19 @@
 #include "sys/stat.h"
 #include "signal.h"
 #include "setjmp.h"
-#ifdef UNISTD_H_PRESENT
+#if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 #include "errno.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "sigutl.h"
 #include "ut8_rtl.h"
+#include "cmd_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 
@@ -78,7 +80,11 @@ extern C __int64 __cdecl _ftelli64(FILE *);
 DEFINE_WPOPEN
 #endif
 
+#ifndef CTRL_C_SENDS_EOF
+#if HAS_SIGACTION || HAS_SIGNAL
 static long_jump_position intr_jump_pos;
+#endif
+#endif
 
 #define MAX_MODE_LEN               5
 #define BUFFER_SIZE             4096
@@ -193,7 +199,7 @@ static os_off_t seekFileLength (fileType aFile)
       file_no = fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
           !S_ISREG(stat_buf.st_mode)) {
-        logFunction(printf("seekFileLength --> -1\n"););
+        logFunction(printf("seekFileLength --> -1 (not regular file)\n"););
         return (os_off_t) -1;
       } /* if */
     }
@@ -204,7 +210,7 @@ static os_off_t seekFileLength (fileType aFile)
 
       file_no = fileno(aFile);
       if (file_no == -1 || isatty(file_no)) {
-        logFunction(printf("seekFileLength --> -1\n"););
+        logFunction(printf("seekFileLength --> -1 (isatty)\n"););
         return (os_off_t) -1;
       } /* if */
     }
@@ -299,7 +305,7 @@ static os_off_t offsetTell (fileType aFile)
       file_no = fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
           !S_ISREG(stat_buf.st_mode)) {
-        logFunction(printf("offsetTell --> -1\n"););
+        logFunction(printf("offsetTell --> -1 (not regular file)\n"););
         return (os_off_t) -1;
       } /* if */
     }
@@ -310,13 +316,18 @@ static os_off_t offsetTell (fileType aFile)
 
       file_no = fileno(aFile);
       if (file_no == -1 || isatty(file_no)) {
-        logFunction(printf("offsetTell --> -1\n"););
+        logFunction(printf("offsetTell --> -1 (isatty)\n"););
         return (os_off_t) -1;
       } /* if */
     }
 #endif
 #ifdef os_ftell
     current_file_position = os_ftell(aFile);
+    logError(if (unlikely(current_file_position == -1)) {
+               printf("offsetTell: os_ftell(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), errno, strerror(errno));
+             } /* if */);
 #elif defined os_fgetpos
     {
       fpos_t file_pos;
@@ -380,7 +391,7 @@ int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
       file_no = fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
           !S_ISREG(stat_buf.st_mode)) {
-        logFunction(printf("offsetSeek --> -1\n"););
+        logFunction(printf("offsetSeek --> -1 (not regular file)\n"););
         return -1;
       } /* if */
     }
@@ -391,7 +402,7 @@ int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
 
       file_no = fileno(aFile);
       if (file_no == -1 || isatty(file_no)) {
-        logFunction(printf("offsetSeek --> -1\n"););
+        logFunction(printf("offsetSeek --> -1 (isatty)\n"););
         return -1;
       } /* if */
     }
@@ -1671,6 +1682,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
       result = NULL;
     } else {
       os_path = cp_to_os_path(path, &path_info, &err_info);
+      /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, err_info); */
       if (unlikely(os_path == NULL)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
         if (unlikely(path_info == PATH_IS_NORMAL))
@@ -1801,6 +1813,9 @@ fileType filPopen (const const_striType command,
     fileType result;
 
   /* filPopen */
+    logFunction(printf("filPopen(\"%s\", ", striAsUnquotedCStri(command));
+                printf("\"%s\", ", striAsUnquotedCStri(parameters));
+                printf("\"%s\")\n", striAsUnquotedCStri(mode)););
     os_command = cp_to_command(command, parameters, &err_info);
     if (unlikely(os_command == NULL)) {
       logError(printf("filPopen: cp_to_command(\"%s\", ",
@@ -1838,7 +1853,11 @@ fileType filPopen (const const_striType command,
         result = NULL;
       } else {
 #if HAS_POPEN
-        /* printf("popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n", os_command, os_mode); */
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+        adjustCwdForShell(&err_info);
+#endif
+        logMessage(printf("popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                          os_command, os_mode););
         result = os_popen(os_command, os_mode);
 #else
         result = NULL;
@@ -1846,6 +1865,10 @@ fileType filPopen (const const_striType command,
       } /* if */
       FREE_OS_STRI(os_command);
     } /* if */
+    logFunction(printf("filPopen(\"%s\", ", striAsUnquotedCStri(command));
+                printf("\"%s\", ", striAsUnquotedCStri(parameters));
+                printf("\"%s\") --> %d\n",
+                       striAsUnquotedCStri(mode), safe_fileno(result)););
     return result;
   } /* filPopen */
 

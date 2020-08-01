@@ -34,6 +34,8 @@
  */
 #define STRLEN(s) (sizeof(s) / sizeof(s[0]) - 1)
 
+#define toStri(name) #name
+
 extern const const_cstriType stri_escape_sequence[];
 extern const const_cstriType cstri_escape_sequence[];
 
@@ -127,6 +129,13 @@ extern const_os_striType current_emulated_cwd;
 extern const os_charType emulated_root[];
 
 #define IS_EMULATED_ROOT(os_path) (os_path == emulated_root)
+
+#if USE_EXTENDED_LENGTH_PATH
+#define PATH_PREFIX L"\\\\?\\"
+#else
+#define PATH_PREFIX L""
+#endif
+#define PREFIX_LEN STRLEN(PATH_PREFIX)
 #endif
 
 #define PATH_IS_NORMAL        0
@@ -185,7 +194,7 @@ striType stri_to_standard_path (const striType stri);
 striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info);
 #ifdef EMULATE_ROOT_CWD
 void setEmulatedCwdToRoot (void);
-void setEmulatedCwd (const os_striType os_path, errInfoType *err_info);
+void setEmulatedCwd (os_striType os_path, errInfoType *err_info);
 #endif
 os_striType cp_to_os_path (const_striType std_path, int *path_info,
     errInfoType *err_info);

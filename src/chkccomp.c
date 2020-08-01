@@ -2207,60 +2207,12 @@ static void determineOsDirAccess (FILE *versionFile)
     } /* if */
 #ifdef OS_STRI_WCHAR
     if (dir_include != NULL) {
-      if ((sprintf(buffer,
-                   "#include <stdio.h>\n#include %s\n"
-                   "int main(int argc,char *argv[])\n"
-                   "{_WDIR *directory; struct _wdirent *dirEntry;\n"
-                   "printf(\"%%d\\n\", (directory = _wopendir(L\".\")) != NULL &&\n"
-                   "(dirEntry = _wreaddir(directory)) != NULL &&\n"
-                   "_wclosedir(directory) == 0);\n"
-                   "return 0;}\n",
-                   dir_include), compileAndLinkOk(buffer))) {
-        fprintf(versionFile, "#define %s\n", dir_define);
-        fputs("#define os_DIR _WDIR\n", versionFile);
-        fputs("#define os_dirent_struct struct _wdirent\n", versionFile);
-        fputs("#define os_opendir _wopendir\n", versionFile);
-        fputs("#define os_readdir _wreaddir\n", versionFile);
-        fputs("#define os_closedir _wclosedir\n", versionFile);
-      } else if ((sprintf(buffer,
-                          "#include <stdio.h>\n#include %s\n"
-                          "int main(int argc,char *argv[])\n"
-                          "{wDIR *directory; struct wdirent *dirEntry;\n"
-                          "printf(\"%%d\\n\", (directory = wopendir(L\".\")) != NULL &&\n"
-                          "(dirEntry = wreaddir(directory)) != NULL &&\n"
-                          "wclosedir(directory) == 0);\n"
-                          "return 0;}\n",
-                          dir_include), compileAndLinkOk(buffer))) {
-        fprintf(versionFile, "#define %s\n", dir_define);
-        fputs("#define os_DIR wDIR\n", versionFile);
-        fputs("#define os_dirent_struct struct wdirent\n", versionFile);
-        fputs("#define os_opendir wopendir\n", versionFile);
-        fputs("#define os_readdir wreaddir\n", versionFile);
-        fputs("#define os_closedir wclosedir\n", versionFile);
-      } else if ((sprintf(buffer,
-                          "#include <stdio.h>\n#include %s\n#include \"dir.h\"\n"
-                          "int main(int argc,char *argv[])\n"
-                          "{wDIR *directory; struct wdirent *dirEntry;\n"
-                          "printf(\"%%d\\n\", (directory = wopendir(L\".\")) != NULL &&\n"
-                          "(dirEntry = wreaddir(directory)) != NULL &&\n"
-                          "wclosedir(directory) == 0);\n"
-                          "return 0;}\n",
-                          dir_include), compileAndLinkOk(buffer))) {
-        fprintf(versionFile, "#define %s\n", dir_define);
-        fputs("#define OS_WIDE_DIR_INCLUDE_DIR_H\n", versionFile);
-        fputs("#define os_DIR wDIR\n", versionFile);
-        fputs("#define os_dirent_struct struct wdirent\n", versionFile);
-        fputs("#define os_opendir wopendir\n", versionFile);
-        fputs("#define os_readdir wreaddir\n", versionFile);
-        fputs("#define os_closedir wclosedir\n", versionFile);
-      } else {
-        fputs("#define USE_DIRWIN\n", versionFile);
-        fputs("#define os_DIR WDIR\n", versionFile);
-        fputs("#define os_dirent_struct struct wdirent\n", versionFile);
-        fputs("#define os_opendir wopendir\n", versionFile);
-        fputs("#define os_readdir wreaddir\n", versionFile);
-        fputs("#define os_closedir wclosedir\n", versionFile);
-      } /* if */
+      fputs("#define USE_DIRWIN\n", versionFile);
+      fputs("#define os_DIR WDIR\n", versionFile);
+      fputs("#define os_dirent_struct struct wdirent\n", versionFile);
+      fputs("#define os_opendir wopendir\n", versionFile);
+      fputs("#define os_readdir wreaddir\n", versionFile);
+      fputs("#define os_closedir wclosedir\n", versionFile);
     } /* if */
 #else
     if (dir_define != NULL) {
@@ -2367,7 +2319,7 @@ static void determineOsWCharFunctions (FILE *versionFile)
     } /* if */
 #endif
 #ifndef os_getcwd
-    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+    if (compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n#include <direct.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{wchar_t buffer[1024];\n"
                          "printf(\"%d\\n\", _wgetcwd(buffer, 1024) != NULL);return 0;}\n")) {
@@ -3664,9 +3616,9 @@ int main (int argc, char **argv)
       fputs("\"\n", versionFile);
       fclose(aFile);
     } /* if */
-    if (compileAndLinkOk("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
-      fputs("#define UNISTD_H_PRESENT\n", versionFile);
-    } /* if */
+    fprintf(versionFile, "#define UNISTD_H_PRESENT %d\n",
+            compileAndLinkOk("#include <unistd.h>\n"
+                             "int main(int argc,char *argv[]){return 0;}\n"));
     checkSignal(versionFile);
     writeMacroDefs(versionFile);
     closeVersionFile(versionFile);
@@ -3755,6 +3707,8 @@ int main (int argc, char **argv)
       } else {
         fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
       } /* if */
+    } else {
+      fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
     } /* if */
     checkMoveDirectory(makeDirDefinition, versionFile);
     if (compileAndLinkOk("#include <stdio.h>\n#include <errno.h>\nint main(int argc,char *argv[])"

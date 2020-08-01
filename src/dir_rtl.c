@@ -46,6 +46,7 @@
 #include "striutl.h"
 #include "heaputl.h"
 #include "cmd_drv.h"
+#include "stat_drv.h"
 #include "rtl_err.h"
 #include "errno.h"
 
@@ -55,13 +56,25 @@
 
 
 #ifdef OS_STRI_WCHAR
-const wchar_t dot[]    = {'.', 0};
-const wchar_t dotdot[] = {'.', '.', 0};
-const wchar_t slash[]  = {'/', 0};
+const wchar_t dot[]           = {'.', 0};
+const wchar_t dotdot[]        = {'.', '.', 0};
+const wchar_t slash[]         = {'/', 0};
+#if OS_PATH_HAS_DRIVE_LETTERS
+/* Assume that drive letters are used only with a backslash as path delimiter. */
+const wchar_t pathDelimiter[] = {'\\', 0};
 #else
-const char dot[]    = ".";
-const char dotdot[] = "..";
-const char slash[]  = "/";
+const wchar_t pathDelimiter[] = {'/', 0};
+#endif
+#else
+const char dot[]           = ".";
+const char dotdot[]        = "..";
+const char slash[]         = "/";
+#if OS_PATH_HAS_DRIVE_LETTERS
+/* Assume that drive letters are used only with a backslash as path delimiter. */
+const char pathDelimiter[] = "\\";
+#else
+const char pathDelimiter[] = "/";
+#endif
 #endif
 
 
@@ -70,7 +83,7 @@ const char slash[]  = "/";
 static striType readVolumeName (volumeListType *volumeList)
 
   {
-    os_charType os_path[4];
+    os_charType os_path[PREFIX_LEN + 4];
     os_stat_struct stat_buf;
     int stat_result;
     os_DIR *directory;
@@ -78,9 +91,14 @@ static striType readVolumeName (volumeListType *volumeList)
     striType volumeName;
 
   /* readVolumeName */
-    os_path[1] = (os_charType) ':';
-    os_path[2] = (os_charType) '\\';
-    os_path[3] = (os_charType) '\0';
+    logFunction(printf("readVolumeName({0x" F_X32(04) ", %d})\n",
+                       volumeList->driveBitmask, volumeList->currentDrive););
+#if USE_EXTENDED_LENGTH_PATH
+    memcpy(os_path, PATH_PREFIX, PREFIX_LEN * sizeof(os_charType));
+#endif
+    os_path[PREFIX_LEN + 1] = (os_charType) ':';
+    os_path[PREFIX_LEN + 2] = (os_charType) '\\';
+    os_path[PREFIX_LEN + 3] = (os_charType) '\0';
     volumeName = NULL;
     do {
       while (volumeList->currentDrive < 26 &&
@@ -89,7 +107,7 @@ static striType readVolumeName (volumeListType *volumeList)
       } /* while */
       if (volumeList->currentDrive < 26) {
         /* printf("%c:\\\n", (char) ((int) 'a' + volumeList->currentDrive)); */
-        os_path[0] = (os_charType) ((int) 'a' + volumeList->currentDrive);
+        os_path[PREFIX_LEN] = (os_charType) ((int) 'a' + volumeList->currentDrive);
         stat_result = os_stat(os_path, &stat_buf);
         if (stat_result == 0) {
           /* printf("%c:\\ st_mode=%u\n",
@@ -106,6 +124,9 @@ static striType readVolumeName (volumeListType *volumeList)
         volumeList->currentDrive++;
       } /* if */
     } while (volumeName == NULL && volumeList->currentDrive < 26);
+    logFunction(printf("readVolumeName({0x" F_X32(04) ", %d}) --> \"%s\"\n",
+                       volumeList->driveBitmask, volumeList->currentDrive,
+                       striAsUnquotedCStri(volumeName)););
     return volumeName;
   } /* readVolumeName */
 
