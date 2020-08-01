@@ -57,6 +57,7 @@ const func ref_list: local_vars (ref reference param) is                   actio
 const func reference: body (ref reference param) is                        action "REF_BODY";
 const func ref_list: array_to_list (ref reference param) is                action "REF_ARRTOLIST";
 const func ref_list: struct_to_list (ref reference param) is               action "REF_SCTTOLIST";
+const func reference: interface_to_struct (ref reference param) is         action "REF_ITFTOSCT";
 const func integer: obj_number (ref reference param) is                    action "REF_NUM";
 const func integer: type_number (ref type param) is                        action "TYP_NUM";
 const func reference: match_obj (ref type param) is                        action "TYP_MATCHOBJ";
@@ -68,6 +69,8 @@ const func bitset: (attr bitset) value (ref reference param) is            actio
 const func program: (attr program) value (ref reference param) is          action "PRG_VALUE";
 const func ACTION: (attr ACTION) value (ref reference param) is            action "ACT_VALUE";
 const func PRIMITIVE_FILE: (attr PRIMITIVE_FILE) value (ref reference param) is action "FIL_VALUE";
+
+const func reference: match (ref program param, ref ref_list param) is     action "PRG_MATCH";
 
 const func program: get (PROGRAM) is                                       action "PRG_PROG";
 

@@ -100,55 +100,25 @@ rtlArraytype arr1;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-objecttype arrArrlit2 (listtype arguments)
+rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1)
 #else
 
-objecttype arrArrlit2 (arguments)
-listtype arguments;
+rtlArraytype arrArrlit2 (start_position, arr1)
+inttype start_position;
+rtlArraytype arr1;
 #endif
 
   {
-    inttype start_position;
-    objecttype arr_arg;
-    arraytype arr1;
     memsizetype result_size;
-    arraytype result_array;
-    objecttype result;
 
   /* arrArrlit2 */
-    isit_int(arg_2(arguments));
-    start_position = take_int(arg_2(arguments));
-    arr_arg = arg_4(arguments);
-    isit_array(arr_arg);
-    if (TEMP_OBJECT(arr_arg)) {
-      arr1 = take_array(arr_arg);
-      result_size = arr1->max_position - arr1->min_position + 1;
-      arr1->min_position = start_position;
-      arr1->max_position = start_position + result_size - 1;
-      result = arr_arg;
-      result->type_of = NULL;
-      arg_4(arguments) = NULL;
-    } else {
-      arr1 = take_array(arr_arg);
-      result_size = arr1->max_position - arr1->min_position + 1;
-      if (!ALLOC_ARRAY(result_array, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } /* if */
-      COUNT_ARRAY(result_size);
-      result_array->min_position = start_position;
-      result_array->max_position = start_position + result_size - 1;
-      if (!crea_array(result_array->arr, arr1->arr, result_size)) {
-        FREE_ARRAY(result_array, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
-      } /* if */
-      result = bld_array_temp(result_array);
-    } /* if */
-    return(result);
+    result_size = arr1->max_position - arr1->min_position + 1;
+    arr1->min_position = start_position;
+    arr1->max_position = start_position + result_size - 1;
+    return(arr1);
   } /* arrArrlit2 */
-#endif
 
 
 

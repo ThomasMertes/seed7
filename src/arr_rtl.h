@@ -32,6 +32,7 @@
 #ifdef ANSI_C
 
 rtlArraytype arrArrlit (rtlArraytype);
+rtlArraytype arrArrlit2 (inttype, rtlArraytype);
 rtlArraytype arrBaselit (rtlObjecttype);
 rtlArraytype arrBaselit2 (inttype, rtlObjecttype);
 rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
@@ -40,6 +41,7 @@ rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
 #else
 
 rtlArraytype arrArrlit ();
+rtlArraytype arrArrlit2 ();
 rtlArraytype arrBaselit ();
 rtlArraytype arrBaselit2 ();
 rtlArraytype arrExtend ();

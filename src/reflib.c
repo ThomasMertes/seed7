@@ -498,6 +498,29 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype ref_itftosct (listtype arguments)
+#else
+
+objecttype ref_itftosct (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg1;
+    objecttype result;
+
+  /* ref_itftosct */
+    isit_reference(arg_1(arguments));
+    obj_arg1 = take_reference(arg_1(arguments));
+    isit_class(obj_arg1);
+    result = take_reference(obj_arg1);
+    return(bld_reference_temp(result));
+  } /* ref_itftosct */
+
+
+
+#ifdef ANSI_C
+
 objecttype ref_local_consts (listtype arguments)
 #else
 
@@ -1059,6 +1082,33 @@ printf("\n");
     } /* if */
     return(raise_exception(SYS_RNG_EXCEPTION));
   } /* ref_select */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_settype (listtype arguments)
+#else
+
+objecttype ref_settype (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj;
+    typetype type_to_set;
+
+  /* ref_settype */
+    isit_reference(arg_1(arguments));
+    isit_type(arg_2(arguments));
+    obj = take_reference(arg_1(arguments));
+    if (obj == NULL) {
+      raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      obj->type_of = take_type(arg_2(arguments));
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* ref_settype */
 
 
 

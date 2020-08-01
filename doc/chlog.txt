@@ -158,3 +158,10 @@
 - A new include file (complex.s7i) to support complex numbers was added.
 - The support for the bigIConv, bigOrd, cmdMkdir, drwPArc, drwPCircle, drwPFEllipse,
   filBigLng, filBigSeek and filBigTell functions was added to the compiler.
+
+20070118:
+- The compiler was improved to support interfaces (DYNAMIC functions).
+  With this improvement several example programs can be compiled now.
+- The support for the actions gkb_busy_getc, gkb_xpos, gkb_ypos, kbd_busy_getc,
+  drw_pfellipse and arr_arrlit2 was added to the compiler.
+- The X11 keyboard driver was improved.

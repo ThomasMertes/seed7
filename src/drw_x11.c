@@ -194,7 +194,7 @@ XExposeEvent *xexpose;
       expose_window = find_window(xexpose->window);
       if (expose_window != NULL && expose_window->backup != 0) {
         /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d\n",
-	   xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
+           xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
         XCopyArea(mydisplay, expose_window->backup,
             expose_window->window, mygc, 0, 0,
             to_width(expose_window), to_height(expose_window), 0, 0);
@@ -366,6 +366,7 @@ chartype gkbGetc ()
             case XK_KP_Next:    result = K_CTL_PGDN;    break;
             case XK_KP_Insert:  result = K_CTL_INS;     break;
             case XK_KP_Delete:  result = K_CTL_DEL;     break;
+            case XK_KP_Begin:   result = K_UNDEF;       break;
             case XK_KP_4:       result = K_CTL_LEFT;    break;
             case XK_KP_6:       result = K_CTL_RIGHT;   break;
             case XK_KP_8:       result = K_CTL_UP;      break;
@@ -378,6 +379,16 @@ chartype gkbGetc ()
             case XK_KP_5:       result = K_UNDEF;       break;
             case XK_KP_Enter:   result = K_CTL_NL;      break;
             case XK_KP_Decimal: result = K_CTL_DEL;     break;
+            case XK_0:          result = '0';           break;
+            case XK_1:          result = '1';           break;
+            case XK_2:          result = '2';           break;
+            case XK_3:          result = '3';           break;
+            case XK_4:          result = '4';           break;
+            case XK_5:          result = '5';           break;
+            case XK_6:          result = '6';           break;
+            case XK_7:          result = '7';           break;
+            case XK_8:          result = '8';           break;
+            case XK_9:          result = '9';           break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -424,6 +435,17 @@ chartype gkbGetc ()
             case XK_Next:       result = K_UNDEF;       break;
             case XK_Insert:     result = K_UNDEF;       break;
             case XK_Delete:     result = K_UNDEF;       break;
+            case XK_KP_Left:    result = K_UNDEF;       break;
+            case XK_KP_Right:   result = K_UNDEF;       break;
+            case XK_KP_Up:      result = K_UNDEF;       break;
+            case XK_KP_Down:    result = K_UNDEF;       break;
+            case XK_KP_Home:    result = K_UNDEF;       break;
+            case XK_KP_End:     result = K_UNDEF;       break;
+            case XK_KP_Prior:   result = K_UNDEF;       break;
+            case XK_KP_Next:    result = K_UNDEF;       break;
+            case XK_KP_Insert:  result = K_UNDEF;       break;
+            case XK_KP_Delete:  result = K_UNDEF;       break;
+            case XK_KP_Begin:   result = K_UNDEF;       break;
             case XK_KP_4:       result = K_UNDEF;       break;
             case XK_KP_6:       result = K_UNDEF;       break;
             case XK_KP_8:       result = K_UNDEF;       break;

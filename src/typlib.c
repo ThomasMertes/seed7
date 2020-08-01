@@ -368,6 +368,32 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype typ_isderived (listtype arguments)
+#else
+
+objecttype typ_isderived (arguments)
+listtype arguments;
+#endif
+
+  {
+    typetype any_type;
+    objecttype result;
+
+  /* typ_isderived */
+    isit_type(arg_1(arguments));
+    any_type = take_type(arg_1(arguments));
+    if (any_type->meta != NULL) {
+      result = SYS_TRUE_OBJECT;
+    } else {
+      result = SYS_FALSE_OBJECT;
+    } /* if */
+    return(result);
+  } /* typ_isderived */
+
+
+
+#ifdef ANSI_C
+
 objecttype typ_isforward (listtype arguments)
 #else
 
@@ -482,6 +508,9 @@ listtype arguments;
 #endif
     isit_type(arg_1(arguments));
     any_type = take_type(arg_1(arguments));
+    if (any_type->meta == NULL) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } /* if */
     result = any_type->meta;
 #ifdef TRACE_TYPLIB
     printf("END typ_meta\n");

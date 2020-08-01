@@ -30,11 +30,13 @@
 void update_owner (objecttype);
 objecttype match_object (objecttype);
 objecttype match_expression (objecttype);
+objecttype match_prog_expression (nodetype, objecttype);
 
 #else
 
 void update_owner ();
 objecttype match_object ();
 objecttype match_expression ();
+objecttype match_prog_expression ();
 
 #endif

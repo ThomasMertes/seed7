@@ -39,6 +39,8 @@ const func boolean: keypressed (ref KEYBOARD_FILE param) is DYNAMIC;
 const type: SCREEN_KEYBD_FILE is sub NULL_FILE struct
   end struct;
 
+type_implements_interface(SCREEN_KEYBD_FILE, KEYBOARD_FILE);
+
 const func char: getc (ref SCREEN_KEYBD_FILE param) is                           action "KBD_GETC";
 const func string: gets (ref SCREEN_KEYBD_FILE param, ref integer param) is      action "KBD_GETS";
 const func char: raw_getc (ref SCREEN_KEYBD_FILE param) is                       action "KBD_RAW_GETC";
@@ -77,6 +79,8 @@ const func string: getwd (inout SCREEN_KEYBD_FILE: keybd) is func
 
 const type: GRAPH_KEYBD_FILE is sub NULL_FILE struct
   end struct;
+
+type_implements_interface(GRAPH_KEYBD_FILE, KEYBOARD_FILE);
 
 const func char: getc (ref GRAPH_KEYBD_FILE param) is                           action "GKB_GETC";
 const func string: gets (ref GRAPH_KEYBD_FILE param, ref integer param) is      action "GKB_GETS";

@@ -471,6 +471,8 @@ const func integer: hashCode (in type param) is               action "TYP_HASHCO
 const func boolean: is_func (in type param) is                action "TYP_ISFUNC";
 const func boolean: is_varfunc (in type param) is             action "TYP_ISVARFUNC";
 const func type: result_type (in type param) is               action "TYP_RESULT";
+const func boolean: is_derived (in type param) is             action "TYP_ISDERIVED";
+const func type: meta (in type param) is                      action "TYP_META";
 
 
 (* IF *)
@@ -808,6 +810,7 @@ const reference: NIL is                                                 _GENERAT
 const reference: (attr reference) . value is                            NIL;
 
 const func type: getType (in reference param) is                        action "REF_TYPE";
+const proc: setType (in reference param, in type param) is              action "REF_SETTYPE";
 const func boolean: is_symb (in reference param) is                     action "REF_ISSYMB";
 const func f_param: symb (in reference param) is                        action "REF_SYMB";
 const func type: (attr type) value (in reference param) is              action "TYP_VALUE";

@@ -47,6 +47,7 @@
 #include "exec.h"
 #include "runerr.h"
 #include "memory.h"
+#include "match.h"
 #include "name.h"
 #include "option.h"
 
@@ -384,6 +385,54 @@ listtype arguments;
     } /* if */
     return(result);
   } /* prg_getobj */
+
+
+
+#ifdef ANSI_C
+
+objecttype prg_match (listtype arguments)
+#else
+
+objecttype prg_match (arguments)
+listtype arguments;
+#endif
+
+  {
+    progtype currentProg;
+    objectrecord expr_object;
+    objecttype result;
+
+  /* prg_match */
+    isit_prog(arg_1(arguments));
+    isit_reflist(arg_2(arguments));
+    currentProg = take_prog(arg_1(arguments));
+
+    /* prot_list(take_reflist(arg_2(arguments)));
+    printf("\n"); */
+    expr_object.type_of = NULL;
+    expr_object.descriptor.entity = NULL;
+    expr_object.value.listvalue = take_reflist(arg_2(arguments));
+    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+
+    result = match_prog_expression(currentProg->declaration_root, &expr_object);
+    if (result != NULL) {
+      if (CLASS_OF_OBJ(result) == MATCHOBJECT ||
+          CLASS_OF_OBJ(result) == CALLOBJECT) {
+        take_reflist(arg_2(arguments)) = expr_object.value.listvalue->next;
+        result = expr_object.value.listvalue->obj;
+        expr_object.value.listvalue->next = NULL;
+        emptylist(expr_object.value.listvalue);
+      } else {
+        run_error(MATCHOBJECT, result);
+      } /* if */
+    } /* if */
+    /* printf("result == %lx\n", result);
+    trace1(result);
+    printf("\n");
+    prot_list(take_reflist(arg_2(arguments)));
+    printf("\n"); */
+    return(bld_reference_temp(result));
+  } /* prg_match */
 
 
 

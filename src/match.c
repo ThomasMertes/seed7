@@ -820,3 +820,52 @@ objecttype expr_object;
 #endif
     return(matched_object);
   } /* match_expression */
+
+
+
+#ifdef ANSI_C
+
+objecttype match_prog_expression (nodetype start_node, objecttype expr_object)
+#else
+
+objecttype match_prog_expression (start_node, expr_object)
+nodetype start_node;
+objecttype expr_object;
+#endif
+
+  {
+    listtype expr_list;
+    objecttype matched_object;
+
+  /* match_prog_expression */
+#ifdef TRACE_MATCH
+    printf("BEGIN match_expression\n");
+#endif
+    expr_list = expr_object->value.listvalue;
+    if (trace.match) {
+      printf("begin match ");
+      prot_list(expr_list);
+      fflush(stdout);
+      printf(" does ");
+      fflush(stdout);
+    } /* if */
+    if (expr_list != NULL) {
+      matched_object = match_subexpr(expr_object, start_node, expr_list);
+    } else {
+      matched_object = NULL;
+    } /* if */
+    if (trace.match) {
+      printf("expr_object ");
+      trace1(expr_object);
+      printf("end match ");
+      prot_list(expr_list);
+      printf(" ==> ");
+      trace1(matched_object);
+      printf(" @\n");
+      fflush(stdout);
+    } /* if */
+#ifdef TRACE_MATCH
+    printf("END match_expression\n");
+#endif
+    return(matched_object);
+  } /* match_prog_expression */

@@ -784,8 +784,14 @@ objecttype object;
       case CLASSOBJECT:
         break;
       default:
-        prot_heapsize();
-        prot_cstri(" dump_any_temp ");
+        if (trace.heapsize) {
+          prot_heapsize();
+          prot_cstri(" ");
+        } /* if */
+        prot_cstri("dump_any_temp ");
+        /* prot_int((inttype) object);
+        printf("%lx", object);
+        prot_cstri(" "); */
         trace1(object);
         prot_nl();
         /* CLEAR_TEMP_FLAG(object);
