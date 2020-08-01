@@ -126,10 +126,10 @@ static nodetype new_node (objecttype obj)
 
 
 /**
- *  Searches for a node matching the object object_searched in the
- *  specified node_tree. If a node is found it is returned. If no
- *  matching node is found a new node is generated and entered
- *  into the node_tree. In this case the new node is returned.
+ *  Searches node_tree for a node matching object_searched.
+ *  If a node is found it is returned. If no matching node is
+ *  found a new node is generated and entered into node_tree.
+ *  In this case the new node is returned.
  *  @return the node found or the new generated node or
  *          NULL, if a memory error occoured.
  */
@@ -191,9 +191,7 @@ static nodetype get_node (nodetype *node_tree,
 
 
 /**
- *  Searches for a node matching the object object_searched in the
- *  specified node_tree. If a node is found it is returned. If no
- *  matching node is found NULL is returned.
+ *  Searches node_tree for a node matching object_searched.
  *  @return the node found or NULL if no matching node is found.
  */
 nodetype find_node (register nodetype node_tree,
@@ -241,11 +239,12 @@ nodetype find_node (register nodetype node_tree,
 
 
 /**
- *  Searches for a node matching the object object_searched in the
- *  specified node_tree. If a node is found its usage_count is
- *  decremented. If the node is unused now it is removed and NULL
- *  is returned. If the node is still in use it is returned. If no
- *  matching node is found NULL is returned.
+ *  Decrement the usage count of object_searched, when it is found.
+ *  Searches node_tree for a node matching object_searched.
+ *  If a node is found its usage_count is decremented. If the
+ *  node is unused now it is removed and NULL is returned.
+ *  If the node is still in use it is returned. If no matching
+ *  node is found NULL is returned.
  *  @return a node that is still in use after it has been popped, or
  *          NULL when the last usage of a node has been removed, or
  *          NULL when no matching node has been found.
@@ -441,6 +440,14 @@ static listtype copy_params (listtype name_list)
 
 
 
+/**
+ *  Searches declaration_base for an entity matching name_list.
+ *  If an entity is found it is returned. If no matching entity is
+ *  found a new entity is generated and entered into declaration_base.
+ *  In this case the new entity is returned.
+ *  @return the entity found or the new generated entity or
+ *          NULL, if a memory error occoured.
+ */
 entitytype get_entity (nodetype declaration_base, listtype name_list)
 
   {
@@ -523,6 +530,10 @@ printf("\n"); */
 
 
 
+/**
+ *  Searches declaration_base for an entity matching name_list.
+ *  @return the entity found or NULL if no matching entity is found.
+ */
 entitytype find_entity (nodetype declaration_base, listtype name_list)
 
   {

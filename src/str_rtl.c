@@ -3726,7 +3726,8 @@ stritype strTail (const const_stritype stri, inttype start)
 
 /**
  *  Convert a string to an UTF-8 encoded string.
- *  @return 'stri' converted to an UTF-8 encoded string.
+ *  @param stri Normal (UTF-32) string to be converted to UTF-8.
+ *  @return 'stri' converted to a string of bytes with UTF-8 encoding.
  */
 stritype strToUtf8 (const const_stritype stri)
 
@@ -3876,8 +3877,7 @@ stritype strUpTemp (const stritype stri)
 
 /**
  *  Convert a string with bytes in UTF-8 encoding to UTF-32.
- *  The parameter 'utf8' is assumed to be a string of bytes.
- *  The byte sequence in 'utf8' is encoded with UTF-8.
+ *  @param utf8 String of bytes encoded with UTF-8.
  *  @return 'utf8' converted to a normal (UTF-32) string.
  *  @exception RANGE_ERROR When characters beyond '\255\' are present or
  *                         when 'utf8' is not encoded with UTF-8.

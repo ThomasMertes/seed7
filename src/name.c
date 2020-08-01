@@ -257,7 +257,7 @@ printf(" %lu\n", (long unsigned) name_elem->obj); */
 
 
 
-static void free_name_list (listtype name_list, booltype freeActualParams)
+static void free_name_list (listtype name_list, booltype freeParamObject)
 
   {
     listtype name_elem;
@@ -274,7 +274,7 @@ static void free_name_list (listtype name_list, booltype freeActualParams)
         trace1(name_elem->obj);
         printf("\n"); */
         param_obj = name_elem->obj->value.objvalue;
-        if (!HAS_PROPERTY(param_obj) && freeActualParams) {
+        if (freeParamObject && !HAS_PROPERTY(param_obj)) {
           if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
               CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
             /* printf("formparam: ");
@@ -284,6 +284,7 @@ static void free_name_list (listtype name_list, booltype freeActualParams)
             trace1(param_obj);
             printf("\n"); */
             /* if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog.property.literal) {
+              * free_params(param_obj->descriptor.property->params); *
               FREE_RECORD(param_obj->descriptor.property, propertyrecord, count.property);
             } * if */
             FREE_OBJECT(param_obj);
@@ -917,38 +918,47 @@ objecttype find_name (nodetype declaration_base, const_objecttype object_name,
     trace1(object_name);
     printf(")\n");
 #endif
-    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-      if (object_name->value.listvalue->next != NULL) {
-        match_name_list(object_name->value.listvalue);
-        push_stack();
-        name_list = eval_name_list(object_name->value.listvalue, err_info);
-        down_stack();
-        entity = find_entity(declaration_base, name_list);
-        free_name_list(name_list, TRUE);
-      } else if (CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
-          CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
-        match_name_list(object_name->value.listvalue);
-        push_stack();
-        name_list = eval_name_list(object_name->value.listvalue, err_info);
-        down_stack();
-        if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
-          param_obj = name_list->obj->value.objvalue;
-          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-              CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-            entity = NULL;
+    grow_stack(err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
+        if (object_name->value.listvalue->next != NULL) {
+          match_name_list(object_name->value.listvalue);
+          push_stack();
+          name_list = eval_name_list(object_name->value.listvalue, err_info);
+          down_stack();
+          entity = find_entity(declaration_base, name_list);
+          shrink_stack();
+          free_name_list(name_list, TRUE);
+        } else if (CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
+            CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
+          match_name_list(object_name->value.listvalue);
+          push_stack();
+          name_list = eval_name_list(object_name->value.listvalue, err_info);
+          down_stack();
+          if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+            param_obj = name_list->obj->value.objvalue;
+            if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+                CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+              entity = NULL;
+            } else {
+              entity = GET_ENTITY(param_obj);
+            } /* if */
           } else {
-            entity = GET_ENTITY(param_obj);
+            entity = NULL;
           } /* if */
+          shrink_stack();
+          free_name_list(name_list, FALSE);
         } else {
-          entity = NULL;
+          entity = GET_ENTITY(object_name->value.listvalue->obj);
+          shrink_stack();
         } /* if */
-        free_name_list(name_list, FALSE);
       } else {
-        entity = GET_ENTITY(object_name->value.listvalue->obj);
+        entity = GET_ENTITY(object_name);
+        shrink_stack();
       } /* if */
     } else {
-      entity = GET_ENTITY(object_name);
+      entity = NULL;
     } /* if */
     if (entity != NULL && entity->data.owner != NULL) {
       defined_object = entity->data.owner->obj;

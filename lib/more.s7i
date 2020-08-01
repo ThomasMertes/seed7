@@ -35,7 +35,7 @@ const type: more_file is sub null_file struct
   end struct;
 
 
-const func file: open_more (in file: out_fil, in file: cmd_fil, in integer: pg_size) is func
+const func file: openMore (in file: out_fil, in file: cmd_fil, in integer: pg_size) is func
   result
     var file: newFile is STD_NULL;
   local
@@ -48,6 +48,10 @@ const func file: open_more (in file: out_fil, in file: cmd_fil, in integer: pg_s
     new_more_file.active := TRUE;
     newFile := toInterface(new_more_file);
   end func;
+
+
+const func file: open_more (in file: out_fil, in file: cmd_fil, in integer: pg_size) is
+  return openMore(out_fil, cmd_fil, pg_size);
 
 
 const proc: page (inout more_file: more_fil) is func

@@ -2604,21 +2604,16 @@ void cmdSetMTime (const const_stritype filePath,
 
 /**
  *  Use the shell to execute a 'command' with 'parameters'.
- *  The string 'command' specifies the command to be executed.
- *  When 'command' contains a path it must use the standard path
- *  representation (slashes are used as path delimiter and drive
- *  letters like C: must be written as /c instead). 'Parameters'
- *  specifies a space separated list of parameters. Parameters
- *  which contain a space must be enclosed in double quotes
- *  (E.g.: shell("aCommand", "\"par 1\" par2"); ). The commands
- *  supported and the format of the 'parameters' are not covered
- *  by the description of the 'shell' function. Due to the usage of
- *  the operating system shell and external programs, it is hard to
- *  write portable programs, which use the 'shell' function.
+ *  Parameters which contain a space must be enclosed in double
+ *  quotes (E.g.: shell("aCommand", "\"par 1\" par2"); ). The
+ *  commands supported and the format of the 'parameters' are not
+ *  covered by the description of the 'shell' function. Due to the
+ *  usage of the operating system shell and external programs, it is
+ *  hard to write portable programs, which use the 'shell' function.
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
- *  @param parameters The space separated list of parameters for
- *         the 'command', or "" when there are no parameters.
+ *  @param parameters Space separated list of parameters for the
+ *         'command', or "" when there are no parameters.
  *  @return the return code of the executed command or of the shell.
  */
 inttype cmdShell (const const_stritype command, const const_stritype parameters)
@@ -2652,6 +2647,10 @@ inttype cmdShell (const const_stritype command, const const_stritype parameters)
 /**
  *  Convert a string, such that it can be used as shell parameter.
  *  The function adds escape characters or quotations to a string.
+ *  The result is useable as parameter for the functions 'cmdShell'
+ *  and 'filPopen'. Shell parameters must be escaped individually.
+ *  Afterwards escaped parameters are joined to a space separated
+ *  list of parameters.
  *  @return a string which can be used as shell parameter.
  *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
  */
@@ -2820,8 +2819,9 @@ void cmdSymlink (const const_stritype sourcePath, const const_stritype destPath)
 
 /**
  *  Convert a standard path to the path of the operating system.
- *  This function can prepare paths for the 'parameters' of the
- *  'shell' and 'cmd_sh' function.
+ *  The result must be escaped with 'cmdShellEscape' to be useable as
+ *  parameter for the functions 'cmdShell' and 'filPopen'.
+ *  @param standardPath Path in the standard path representation.
  *  @return a string containing an operating system path.
  *  @exception MEMORY_ERROR Not enough memory to convert 'standardPath'.
  *  @exception RANGE_ERROR 'standardPath' is not representable as operating

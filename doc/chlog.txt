@@ -1,3 +1,52 @@
+20140119:
+- The library tdes.s7i with TDES (Triple DES respectively 3DES)
+  cipher support has been added.
+- The library tls.s7i has been improved to allow encoding with TDES
+  (3DES) and to accept the handshake message CertificateRequest.
+- The function drwGetImage has been added to drw_dos.c (thanks to
+  "Rugxulo" for pointing out, that it was missing).
+- Checks for mdiv and mod have been added to chkbig.sd7.
+- The compiler (s7c) has been improved to do more optimizations for
+  the action BIG_MOD (operator mod). Now the functions bigLowerBits
+  and bigLowerBitsTemp are used when the divisor is a power of two.
+- The compiler has been improved to optimize if-statements, when the
+  condition is constant.
+- The compiler has been improved to optimize the action BIG_MDIV
+  (operator mdiv) correctly, when the divisor is a negated power of
+  two (e.g. n div -8). The generated code now corresponds to the
+  Seed7 expression -dividend >> log(-divisor).
+- New functions to open files have been introduced in various
+  libraries. The new functions are openUtf8, openUtf16, openEcho,
+  openLine, openTee, openMore, openUpper, openLower, openReverse,
+  openWindow and openField. The new functions have been added as
+  replacement for the functions open_utf8, open_utf16, open_echo,
+  open_line, open_tee, open_more, open_upper, open_lower,
+  open_reverse, open_window and open_field. The old functions are
+  still supported, but they are deprecated and should not be used.
+  Deprecated functions will be removed in a future version.
+- The example programs have been changed to use the new functions
+  to open files.
+- Documentation comments have been added or improved in cipher.s7i,
+  clib_file.s7i, external_file.s7i, shell.s7i, utf8.s7i, utf16.s7i,
+  unicode.s7i, bytedata.s7i, big_gmp.c, biglib.c, big_rtl.c,
+  cmdlib.c, cmd_rtl.c, fillib.c, fil_rtl.c, intlib.c, int_rtl.c,
+  strlib.c, str_rtl.c and entutl.c.
+- The functions bigLowerBits and bigLowerBitsTemp have been added
+  to big_rtl.c and big_gmp.c.
+- The free list management in big_rtl.c and big_gmp.c has been
+  improved to allow the configuration of a maximum free list length.
+- The function bigMultAssign1 has been added to big_rtl.c. This
+  function is used by bigMultAssign when the factor is just one
+  bigdigit.
+- The function bigLog2BaseLShift has been renamed to
+  bigLog2BaseIPow in big_rtl.c, big_gmp.c and s7c.sd7.
+- The function getValue for boolean values has been added to
+  progs.s7i. Interpreter, compiler and runtime library have been
+  improved to support it.
+- the management of types in the runtime library has been improved.
+  Now they are attached to the corresponding program. This way they
+  can be freed by prgDestr().
+
 20140105:
 - The library des.s7i with DES (Data Encryption Standard) cipher
   support has been added.

@@ -2049,7 +2049,7 @@ const proc: check_file is func
       close(aFile);
     end if;
 
-    aFile := open_utf8(test_file_name8, "w");
+    aFile := openUtf8(test_file_name8, "w");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open UTF-8 file");
     else
@@ -2133,7 +2133,7 @@ const proc: check_file is func
       end block;
     end if;
 
-    aFile := open_utf8(test_file_name, "r");
+    aFile := openUtf8(test_file_name, "r");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open file");
     else

@@ -1612,6 +1612,11 @@ objecttype str_tail (listtype arguments)
 
 
 
+/**
+ *  Convert a string to an UTF-8 encoded string.
+ *  @param stri/arg_1 Normal (UTF-32) string to be converted to UTF-8.
+ *  @return 'stri' converted to a string of bytes with UTF-8 encoding.
+ */
 objecttype str_toutf8 (listtype arguments)
 
   { /* str_toutf8 */
@@ -1681,6 +1686,13 @@ objecttype str_up (listtype arguments)
 
 
 
+/**
+ *  Convert a string with bytes in UTF-8 encoding to UTF-32.
+ *  @param utf8/arg_1 String of bytes encoded with UTF-8.
+ *  @return 'utf8' converted to a normal (UTF-32) string.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *                         when 'utf8' is not encoded with UTF-8.
+ */
 objecttype str_utf8tostri (listtype arguments)
 
   { /* str_utf8tostri */

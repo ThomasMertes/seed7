@@ -32,21 +32,16 @@ include "scanstri.s7i";
 
 (**
  *  Use the shell to execute a ''command'' with ''parameters''.
- *  The [[string]] ''command'' specifies the command to be executed.
- *  When ''command'' contains a path it must use the standard path
- *  representation (slashes are used as path delimiter and drive
- *  letters like C: must be written as /c instead). ''Parameters''
- *  specifies a space separated list of parameters. Parameters
- *  which contain a space must be enclosed in double quotes
- *  (E.g.: shell("aCommand", "\"par 1\" par2"); ). The commands
- *  supported and the format of the ''parameters'' are not covered
- *  by the description of the ''shell'' function. Due to the usage of
- *  the operating system shell and external programs, it is hard to
- *  write portable programs, which use the ''shell'' function.
+ *  Parameters which contain a space must be enclosed in double
+ *  quotes (E.g.: shell("aCommand", "\"par 1\" par2"); ). The
+ *  commands supported and the format of the ''parameters'' are not
+ *  covered by the description of the ''shell'' function. Due to the
+ *  usage of the operating system shell and external programs, it is
+ *  hard to write portable programs, which use the ''shell'' function.
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
- *  @param parameters The space separated list of parameters for
- *         the ''command'', or "" when there are no parameters.
+ *  @param parameters Space separated list of parameters for the
+ *         ''command'', or "" when there are no parameters.
  *  @return the return code of the executed command or of the shell.
  *)
 const func integer: shell (in string: command,
@@ -55,21 +50,16 @@ const func integer: shell (in string: command,
 
 (**
  *  Use the shell to execute a ''command'' with ''parameters''.
- *  The [[string]] ''command'' specifies the command to be executed.
- *  When ''command'' contains a path it must use the standard path
- *  representation (slashes are used as path delimiter and drive
- *  letters like C: must be written as /c instead). ''Parameters''
- *  specifies a space separated list of parameters. Parameters
- *  which contain a space must be enclosed in double quotes
- *  (E.g.: cmd_sh("aCommand", "\"par 1\" par2"); ). The commands
- *  supported and the format of the ''parameters'' are not covered
- *  by the description of the ''cmd_sh'' function. Due to the usage of
- *  the operating system shell and external programs, it is hard to
- *  write portable programs, which use the ''cmd_sh'' function.
+ *  Parameters which contain a space must be enclosed in double
+ *  quotes (E.g.: cmd_sh("aCommand", "\"par 1\" par2"); ). The
+ *  commands supported and the format of the ''parameters'' are not
+ *  covered by the description of the ''cmd_sh'' function. Due to the
+ *  usage of the operating system shell and external programs, it is
+ *  hard to write portable programs, which use the ''cmd_sh'' function.
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
- *  @param parameters The space separated list of parameters for
- *         the ''command'', or "" when there are no parameters.
+ *  @param parameters Space separated list of parameters for the
+ *         ''command'', or "" when there are no parameters.
  *)
 const proc: cmd_sh (in string: command, in string: parameters) is func
   begin
@@ -79,20 +69,19 @@ const proc: cmd_sh (in string: command, in string: parameters) is func
 
 (**
  *  Executes a command using the shell of the operating system.
- *  The [[string]] ''cmdAndParams'' contains a command and an optional
- *  space separated list of parameters. The ''shell'' function always
- *  uses slashes as path separator for the command path (independend
- *  of the operating system used). Spaces in the program name (or
- *  path) must be preceded by a backslash (E.g.: shell("do\\ it"); ).
- *  Alternatively the program name can also be enclosed in double
- *  quotes (E.g.: shell("\"do it\""); ). Command parameters
- *  containing a space must be enclosed in double quotes
- *  (E.g.: shell("do_it \"par 1\" par2"); ). The commands supported
- *  and the path delimiters used in parameters of a specific command
- *  are not covered by the description of the ''shell'' function.
- *  Due to the usage of the operating system shell and external
- *  programs, it is hard to write portable programs, which use the
- *  ''shell'' function.
+ *  The command path must use the standard path representation.
+ *  Spaces in the command must be preceded by a backslash
+ *  (E.g.: shell("do\\ it"); ). Alternatively the command can
+ *  be enclosed in double quotes (E.g.: shell("\"do it\""); ).
+ *  Command parameters containing a space must be enclosed in double
+ *  quotes (E.g.: shell("do_it \"par 1\" par2"); ). The commands
+ *  supported and the format of the ''parameters'' are not covered
+ *  by the description of the ''shell'' function. Due to the usage
+ *  of the operating system shell and external programs, it is hard
+ *  to write portable programs, which use the ''shell'' function.
+ *  @param cmdAndParams Command to be executed and optional space
+ *         separated list of parameters. Command and parameters
+ *         must be space separated.
  *  @return the return code of the executed command or of the shell.
  *)
 const func integer: shell (in string: cmdAndParams) is func
@@ -110,20 +99,19 @@ const func integer: shell (in string: cmdAndParams) is func
 
 (**
  *  Executes a command using the shell of the operating system.
- *  The [[string]] ''cmdAndParams'' contains a command and an optional
- *  space separated list of parameters. The ''cmd_sh'' function always
- *  uses slashes as path separator for the command path (independend
- *  of the operating system used). Spaces in the program name (or
- *  path) must be preceded by a backslash (E.g.: cmd_sh("do\\ it"); ).
- *  Alternatively the program name can also be enclosed in double
- *  quotes (E.g.: cmd_sh("\"do it\""); ). Command parameters
- *  containing a space must be enclosed in double quotes
- *  (E.g.: cmd_sh("do_it \"par 1\" par2"); ). The commands supported
- *  and the path delimiters used in parameters of a specific command
- *  are not covered by the description of the ''cmd_sh'' function.
- *  Due to the usage of the operating system shell and external
- *  programs, it is hard to write portable programs, which use the
- *  ''cmd_sh'' function.
+ *  The command path must use the standard path representation.
+ *  Spaces in the command must be preceded by a backslash
+ *  (E.g.: cmd_sh("do\\ it"); ). Alternatively the command can
+ *  be enclosed in double quotes (E.g.: cmd_sh("\"do it\""); ).
+ *  Command parameters containing a space must be enclosed in double
+ *  quotes (E.g.: cmd_sh("do_it \"par 1\" par2"); ). The commands
+ *  supported and the format of the ''parameters'' are not covered
+ *  by the description of the ''cmd_sh'' function. Due to the usage
+ *  of the operating system shell and external programs, it is hard
+ *  to write portable programs, which use the ''cmd_sh'' function.
+ *  @param cmdAndParams Command to be executed and optional space
+ *         separated list of parameters. Command and parameters
+ *         must be space separated.
  *)
 const proc: cmd_sh (in string: cmdAndParams) is func
   begin
@@ -134,6 +122,10 @@ const proc: cmd_sh (in string: cmdAndParams) is func
 (**
  *  Convert a [[string]], such that it can be used as shell parameter.
  *  The function adds escape characters or quotations to a string.
+ *  The result is useable as parameter for the functions ''shell'',
+ *  ''cmd_sh'', ''popen'' and ''popen8''. Shell parameters must be
+ *  escaped individually. Afterwards escaped parameters are
+ *  joined to a space separated list of parameters.
  *  @return a string which can be used as shell parameter.
  *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
  *)
@@ -142,8 +134,10 @@ const func string: shellEscape (in string: stri)   is action "CMD_SHELL_ESCAPE";
 
 (**
  *  Convert a standard path to the path of the operating system.
- *  This function can prepare paths for the ''parameters'' of the
- *  ''shell'' and ''cmd_sh'' function.
+ *  The result must be escaped with ''shellEscape'' to be useable as
+ *  parameter for the functions ''shell'', ''cmd_sh'', ''popen'' and
+ *  ''popen8''.
+ *  @param standardPath Path in the standard path representation.
  *  @return a string containing an operating system path.
  *  @exception MEMORY_ERROR Not enough memory to convert ''standardPath''.
  *  @exception RANGE_ERROR ''standardPath'' is not representable as operating
@@ -152,6 +146,18 @@ const func string: shellEscape (in string: stri)   is action "CMD_SHELL_ESCAPE";
 const func string: toOsPath (in string: standardPath)   is action "CMD_TO_OS_PATH";
 
 
+(**
+ *  Convert a standard path such that it can be used as shell parameter.
+ *  The result is useable as parameter for the functions ''shell'',
+ *  ''cmd_sh'', ''popen'' and ''popen8''. Shell parameters must be
+ *  converted individually. Afterwards converted parameters are
+ *  joined to a space separated list of parameters.
+ *  @param standardPath Path in the standard path representation.
+ *  @return a string containing an escaped operating system path.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''standardPath''.
+ *  @exception RANGE_ERROR ''standardPath'' is not representable as operating
+ *             system path.
+ *)
 const func string: toShellPath (in string: path) is
   return shellEscape(toOsPath(path));
 
@@ -187,12 +193,23 @@ type_implements_interface(popen_file, file);
 (**
  *  Open a pipe to a shell ''command'', with ''parameters''.
  *  The command reads, respectively writes with Latin-1 encoding.
- *  A pipe can only be opened with the modes "r" and "w".
+ *  Parameters which contain a space must be enclosed in double
+ *  quotes (E.g.: popen("aCommand", "\"par 1\" par2", "r"); ). The
+ *  commands supported and the format of the ''parameters'' are not
+ *  covered by the description of the ''popen'' function. Due to the
+ *  usage of the operating system shell and external programs, it is
+ *  hard to write portable programs, which use the ''popen'' function.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters Space separated list of parameters for
+ *         the ''command'', or "" when there are no parameters.
+ *  @param mode A pipe can only be opened with "r" (read) or "w" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  *)
-const func file: popen (in string: command, in string: parameters, in string: mode) is func
+const func file: popen (in string: command, in string: parameters,
+    in string: mode) is func
   result
     var file: newPipe is STD_NULL;
   local
@@ -209,9 +226,22 @@ const func file: popen (in string: command, in string: parameters, in string: mo
 
 
 (**
- *  Open a pipe to a shell ''command''.
+ *  Open a pipe to a shell command.
  *  The command reads, respectively writes with Latin-1 encoding.
- *  A pipe can only be opened with the modes "r" and "w".
+ *  Spaces in the command must be preceded by a backslash
+ *  (E.g.: popen("do\\ it"); ). Alternatively the command can
+ *  be enclosed in double quotes (E.g.: popen("\"do it\""); ).
+ *  Command parameters containing a space must be enclosed in
+ *  double quotes (E.g.: popen("do_it \"par 1\" par2"); ).
+ *  The commands supported and the format of the ''parameters''
+ *  are not covered by the description of the ''popen'' function.
+ *  Due to the usage of the operating system shell and external
+ *  programs, it is hard to write portable programs, which use the
+ *  ''popen'' function.
+ *  @param cmdAndParams Command to be executed and optional space
+ *         separated list of parameters. Command and parameters
+ *         must be space separated.
+ *  @param mode A pipe can only be opened with "r" (read) or "w" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
@@ -242,8 +272,57 @@ type_implements_interface(popen8_file, file);
 
 
 (**
- *  Open a pipe to a command, which reads and writes with UTF-8 encoding.
- *  A pipe can only be opened with the modes "r" and "w".
+ *  Open an UTF-8 encoded pipe to a shell ''command'', with ''parameters''.
+ *  The command reads, respectively writes with UTF-8 encoding.
+ *  Parameters which contain a space must be enclosed in double
+ *  quotes (E.g.: popen8("aCommand", "\"par 1\" par2", "r"); ). The
+ *  commands supported and the format of the ''parameters'' are not
+ *  covered by the description of the ''popen8'' function. Due to the
+ *  usage of the operating system shell and external programs, it is
+ *  hard to write portable programs, which use the ''popen8'' function.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters Space separated list of parameters for
+ *         the ''command'', or "" when there are no parameters.
+ *  @param mode A pipe can only be opened with "r" (read) or "w" (write).
+ *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception RANGE_ERROR An illegal mode was used.
+ *)
+const func file: popen8 (in string: command, in string: parameters,
+    in string: mode) is func
+  result
+    var file: newPipe is STD_NULL;
+  local
+    var clib_file: open_file is CLIB_NULL_FILE;
+    var popen8_file: new_file is popen8_file.value;
+  begin
+    open_file := popenClibFile(command, parameters, mode);
+    if open_file <> CLIB_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := command;
+      newPipe := toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Open an UTF-8 encoded pipe to a shell command.
+ *  The command reads, respectively writes with UTF-8 encoding.
+ *  Spaces in the command must be preceded by a backslash
+ *  (E.g.: popen8("do\\ it"); ). Alternatively the command can
+ *  be enclosed in double quotes (E.g.: popen8("\"do it\""); ).
+ *  Command parameters containing a space must be enclosed in
+ *  double quotes (E.g.: popen8("do_it \"par 1\" par2"); ).
+ *  The commands supported and the format of the ''parameters''
+ *  are not covered by the description of the ''popen8'' function.
+ *  Due to the usage of the operating system shell and external
+ *  programs, it is hard to write portable programs, which use the
+ *  ''popen8'' function.
+ *  @param cmdAndParams Command to be executed and optional space
+ *         separated list of parameters. Command and parameters
+ *         must be space separated.
+ *  @param mode A pipe can only be opened with "r" (read) or "w" (write).
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
@@ -254,17 +333,10 @@ const func file: popen8 (in string: cmdAndParams, in string: mode) is func
   local
     var string: command is "";
     var string: parameters is "";
-    var clib_file: open_file is CLIB_NULL_FILE;
-    var popen8_file: new_file is popen8_file.value;
   begin
     parameters := cmdAndParams;
     command := getCommandLineWord(parameters);
-    open_file := popenClibFile(command, parameters, mode);
-    if open_file <> CLIB_NULL_FILE then
-      new_file.ext_file := open_file;
-      new_file.name := command;
-      newPipe := toInterface(new_file);
-    end if;
+    newPipe := popen8(command, parameters, mode);
   end func;
 
 

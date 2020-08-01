@@ -220,7 +220,7 @@ const func string: fromQuotedPrintable (in string: quoted) is func
       elsif equalSignPos <= length(quoted) - 2 then
         twoChars := quoted[succ(equalSignPos) len 2];
         if twoChars[1] in hexdigit_char then
-          decoded &:= str(chr(integer(twoChars, 16)));
+          decoded &:= chr(integer(twoChars, 16));
         elsif twoChars <> "\r\n" then
           raise RANGE_ERROR;
         end if;
@@ -258,33 +258,30 @@ const func string: toUuencoded (in string: byteStri) is func
   begin
     if length(byteStri) <> 0 then
       if length(byteStri) < 45 then
-        uuencoded &:= str(chr(32 + length(byteStri)));
+        uuencoded &:= chr(32 + length(byteStri));
       else
         uuencoded &:= "M";
       end if;
       for index range 1 to length(byteStri) step 3 do
         threeBytes := 0;
         for subIndex range index to index + 2 do
+          threeBytes <<:= 8;
           if subIndex <= length(byteStri) then
             ch := byteStri[subIndex];
             if ch >= '\256\' then
               raise RANGE_ERROR;
             end if;
-          else
-            ch := '\0\';
+            threeBytes +:= ord(ch);
           end if;
-          threeBytes := (threeBytes << 8) + ord(ch);
         end for;
         fourBytes @:= [1] chr(32 + (threeBytes >> 18));
         fourBytes @:= [2] chr(32 + (threeBytes >> 12) mod 64);
         fourBytes @:= [3] chr(32 + (threeBytes >>  6) mod 64);
         fourBytes @:= [4] chr(32 +  threeBytes        mod 64);
         uuencoded &:= fourBytes;
-        if index = posToAddNewline then
-          if length(byteStri) <= index + 2 then
-            noop;
-          elsif length(byteStri) - index - 2 < 45 then
-            uuencoded &:= "\n" & str(chr(32 + length(byteStri) - index - 2));
+        if index = posToAddNewline and length(byteStri) > index + 2 then
+          if length(byteStri) - index - 2 < 45 then
+            uuencoded &:= "\n" <& chr(32 + length(byteStri) - index - 2);
           else
             uuencoded &:= "\nM";
           end if;

@@ -27,6 +27,7 @@
 
 
 include "shell.s7i";
+include "osfiles.s7i";
 
 
 (**

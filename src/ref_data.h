@@ -54,6 +54,7 @@ stritype refStr (objecttype obj_arg);
 typetype refType (objecttype obj_arg);
 acttype actValue (objecttype obj_arg);
 biginttype bigValue (objecttype obj_arg);
+booltype blnValue (objecttype obj_arg);
 bstritype bstValue (objecttype obj_arg);
 chartype chrValue (objecttype obj_arg);
 wintype drwValue (objecttype obj_arg);

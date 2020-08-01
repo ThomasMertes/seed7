@@ -36,3 +36,4 @@ objecttype bln_lt     (listtype arguments);
 objecttype bln_not    (listtype arguments);
 objecttype bln_or     (listtype arguments);
 objecttype bln_ord    (listtype arguments);
+objecttype bln_value  (listtype arguments);

@@ -125,12 +125,12 @@ const proc: main is func
     var integer: goal is 0;
     var integer: max_step is 0;
   begin
-    (* OUT := open_reverse(OUT, 79); *)
-    (* OUT := open_upper(OUT); *)
-    (* OUT := open_lower(OUT); *)
-    (* OUT := open_more(OUT, KEYBOARD, 10); *)
-    IN := open_echo(KEYBOARD, OUT);
-    IN := open_line(IN);
+    (* OUT := openReverse(OUT, 79); *)
+    (* OUT := openUpper(OUT); *)
+    (* OUT := openLower(OUT); *)
+    (* OUT := openMore(OUT, KEYBOARD, 10); *)
+    IN := openEcho(KEYBOARD, OUT);
+    IN := openLine(IN);
     writeln;
     writeln("ADDUP - Computer and human sum up numbers to reach a goal number.");
     writeln("        To end the program just type q and enter at any time.");

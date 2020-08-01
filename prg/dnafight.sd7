@@ -421,9 +421,9 @@ const func bactColor: charCol (in char: ch) is func
 const proc: initDisplay is func
 
   begin (* initDisplay *)
-    fieldWin[1] := open_field(KEYBOARD, info, 1,  7, 5, "   10");
-    fieldWin[2] := open_field(KEYBOARD, info, 2,  7, 5, "   10");
-    fieldWin[3] := open_field(KEYBOARD, info, 3, 11, 3, " 10");
+    fieldWin[1] := openField(KEYBOARD, info, 1,  7, 5, "   10");
+    fieldWin[2] := openField(KEYBOARD, info, 2,  7, 5, "   10");
+    fieldWin[3] := openField(KEYBOARD, info, 3, 11, 3, " 10");
 (*
     color(scr, textColor, textBackground);
     clear(scr);

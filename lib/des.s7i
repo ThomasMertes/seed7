@@ -30,6 +30,11 @@ include "bin32.s7i";
 include "cipher.s7i";
 
 
+(**
+ *  [[cipher|cipherState]] implementation type describing the state of a DES cipher.
+ *  The data is encrypted / decrypted with the DES (Data Encryption
+ *  Standard) block cipher.
+ *)
 const type: desState is new struct
     var array bin32: encryptionSubkey is 0 times bin32.value;
     var array bin32: decryptionSubkey is 0 times bin32.value;

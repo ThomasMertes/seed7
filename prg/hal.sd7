@@ -205,11 +205,11 @@ const proc: main is func
     var integer: count is 0;
   begin
     scr := open(CONSOLE);
-    camera := open_window(scr, 10, 36, 11, 9);
-    win1 := open_window(scr, 2, 2, 9, 32);
-    win2 := open_window(scr, 2, 47, 9, 32);
-    win3 := open_window(scr, 14, 2, 9, 32);
-    win4 := open_window(scr, 14, 47, 9, 32);
+    camera := openWindow(scr, 10, 36, 11, 9);
+    win1 := openWindow(scr, 2, 2, 9, 32);
+    win2 := openWindow(scr, 2, 47, 9, 32);
+    win3 := openWindow(scr, 14, 2, 9, 32);
+    win4 := openWindow(scr, 14, 47, 9, 32);
     box(win1);
     box(win2);
     box(win3);

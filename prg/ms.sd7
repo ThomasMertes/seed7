@@ -461,7 +461,7 @@ const proc: select_round is func
     writeln(protocol);
     writeln(protocol, "select game");
     writeln(protocol);
-    field := open_window(scr, 5, 18, 5, 16);
+    field := openWindow(scr, 5, 18, 5, 16);
     box(field);
     writeln(field, " NEW GAME");
     writeln(field);
@@ -499,7 +499,7 @@ const proc: init_round is func
     init_area(round_lines, round_columns);
     init_mines(round_mines);
     explosion_counter := 0;
-    field := open_window(scr, 5, 18,
+    field := openWindow(scr, 5, 18,
         round_lines, round_columns * STRETCH_FACTOR + 1);
     box(field);
     stri := ("." lpad STRETCH_FACTOR) mult round_columns;
@@ -527,8 +527,8 @@ const proc: shut_round is func
 const proc: init is func
   begin
     scr := open(CONSOLE);
-    status := open_window(scr, 2, 18, 1, 33);
-    protocol := open_window(scr, 3, 2, 20, 14);
+    status := openWindow(scr, 2, 18, 1, 33);
+    protocol := openWindow(scr, 3, 2, 20, 14);
     box(status);
     box(protocol);
     setPos(protocol, 1, 1);

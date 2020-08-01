@@ -376,6 +376,8 @@ int main (int argc, char **argv)
                 interpret(currentProg, option.argv, option.argv_start,
                           option.exec_options, option.prot_file_name);
               } /* if */
+              /* prgDestr(currentProg); */
+              /* heap_statistic(); */
             } /* if */
           } /* if */
         } /* if */

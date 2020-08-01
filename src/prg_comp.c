@@ -237,6 +237,9 @@ void prgDestr (progtype old_prog)
     progrecord prog_backup;
 
   /* prgDestr */
+#ifdef TRACE_TYPEUTIL
+    printf("BEGIN prgDestr(%lx)\n", (unsigned long) old_prog);
+#endif
     if (old_prog != NULL) {
       /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
@@ -265,6 +268,9 @@ void prgDestr (progtype old_prog)
         /* heap_statistic(); */
       } /* if */
     } /* if */
+#ifdef TRACE_TYPEUTIL
+    printf("END prgDestr\n");
+#endif
   } /* prgDestr */
 
 

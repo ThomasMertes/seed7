@@ -44,6 +44,7 @@
 #include "infile.h"    /* from the compiler library */
 #include "name.h"      /* from the compiler library */
 #include "blockutl.h"  /* from the compiler library */
+#include "syvarutl.h"  /* from the compiler library */
 #include "hsh_rtl.h"
 #include "int_rtl.h"
 #include "big_drv.h"
@@ -671,6 +672,29 @@ biginttype bigValue (objecttype obj_arg)
       return bigCreate(take_bigint(obj_arg));
     } /* if */
   } /* bigValue */
+
+
+
+booltype blnValue (objecttype obj_arg)
+
+  { /* bln_value */
+    if (obj_arg != NULL) {
+      if (CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
+          CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
+        obj_arg = obj_arg->value.objvalue;
+      } /* if */
+      if (obj_arg->type_of != NULL &&
+          obj_arg->type_of->owningProg != NULL) {
+        if (obj_arg == TRUE_OBJECT(obj_arg->type_of->owningProg)) {
+          return TRUE;
+        } else if (obj_arg == FALSE_OBJECT(obj_arg->type_of->owningProg)) {
+          return FALSE;
+        } /* if */
+      } /* if */
+    } /* if */
+    raise_error(RANGE_ERROR);
+    return FALSE;
+  } /* bln_value */
 
 
 

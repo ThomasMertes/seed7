@@ -3933,13 +3933,13 @@ CONTENTS
                     Type of result: file,
                     Returns STD_NULL if open was not
                     possible )
-      open_utf8(A, B) Open external UTF-8 file
+      openUtf8(A, B) Open external UTF-8 file
                   ( Type of argument A: string,
                     Type of argument B: string,
                     Type of result: file,
                     Returns STD_NULL if open was not
                     possible )
-      open_utf16(A, B) Open external UTF-16 file
+      openUtf16(A, B) Open external UTF-16 file
                   ( Type of argument A: string,
                     Type of argument B: string,
                     Type of result: file,
@@ -5837,8 +5837,9 @@ CONTENTS
     my_out := open("my_file", "w");
 
   The first parameter of 'open' is the path of the file to
-  be opened. Seed7 always uses the slash ('/') as path
-  delimiter. The use of a backslash in a path may raise the
+  be opened. The path must use the standard path representation.
+  This means that a slash ('/') is used as path delimiter.
+  A path with a backslash or a drive letter may raise the
   exception RANGE_ERROR. The second parameter of 'open'
   specifies the mode:
 
@@ -5902,10 +5903,10 @@ CONTENTS
   results in the exception RANGE_ERROR. To write Unicode
   characters other file types must be used. The libraries
   "utf8.s7i" and "utf16.s7i" provide access to UTF-8 and
-  UTF-16 files. The function 'open_utf8' can be used the same
+  UTF-16 files. The function 'openUtf8' can be used the same
   way as 'open':
 
-    my_out := open_utf8("utf8_file", "w");
+    my_out := openUtf8("utf8_file", "w");
 
   An UTF-8 file accepts all Unicode characters. That way
 
@@ -5915,12 +5916,12 @@ CONTENTS
   Therefore they do not need a byte order mark (BOM).
   In case a BOM is required it can be written by the user program:
 
-    my_out := open_utf8("utf8_file", "w");
+    my_out := openUtf8("utf8_file", "w");
     write("\16#FEFF\");
 
   The following example expects a mandatory BOM at the beginning of an UTF-8 file:
 
-    my_out := open_utf8("utf8_file", "r");
+    my_out := openUtf8("utf8_file", "r");
     if getc(my_file) <> '\16#FEFF\' then
       writeln("The BOM is missing"");
     else
@@ -5929,7 +5930,7 @@ CONTENTS
 
   Accepting an optional BOM at the beginning of an UTF-8 file is done with:
 
-    my_out := open_utf8("utf8_file", "r");
+    my_out := openUtf8("utf8_file", "r");
     if getc(my_file) <> '\16#FEFF\' then
       # This is a file without BOM (the first character will be read later).
       seek(my_file, 1);
@@ -5939,16 +5940,16 @@ CONTENTS
   UTF-16 comes in two flavors UTF-16LE and UTF-16BE. To support
   both flavors the "utf16.s7i" library defines several functions.
 
-  The function 'open_utf16' opens an Unicode file which uses the
-  UTF-16LE or UTF-16BE encoding. The function 'open_utf16' checks for
+  The function 'openUtf16' opens an Unicode file which uses the
+  UTF-16LE or UTF-16BE encoding. The function 'openUtf16' checks for
   a BOM and depending on that it opens an UTF-16LE or UTF-16BE file.
 
-  The functions 'open_utf16le' and 'open_utf16be' open Unicode files
+  The functions 'openUtf16le' and 'openUtf16be' open Unicode files
   with the UTF-16LE and UTF-16BE encoding respectively. When the
   file is opened with one of the modes "w", "w+", "wt" or "wt+" an
   appropriate BOM is created. When the file is opened with any other
   mode the application program is in charge to handle optional BOM
-  markers. This way 'open_utf16le' and 'open_utf16be' can be used
+  markers. This way 'openUtf16le' and 'openUtf16be' can be used
   to open existing files without BOM.
 
   External BYTE files use the implementation type 'external_file'.
@@ -6205,7 +6206,7 @@ CONTENTS
       local
         var char: ch is ' ';
       begin
-        IN := open_echo(KEYBOARD, OUT);
+        IN := openEcho(KEYBOARD, OUT);
         repeat
           ch := getc(IN);
         until ch = '!';
@@ -6243,8 +6244,8 @@ CONTENTS
       local
         var char: ch is ' ';
       begin
-        IN := open_echo(KEYBOARD, OUT);
-        IN := open_line(IN);
+        IN := openEcho(KEYBOARD, OUT);
+        IN := openLine(IN);
         repeat
           ch := getc(IN);
           write(ch);

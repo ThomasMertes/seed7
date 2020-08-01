@@ -40,7 +40,7 @@ const type: echo_file is sub null_file struct
  *  Open an echo_file.
  *  @return the file opened.
  *)
-const func file: open_echo (in file: in_fil, in file: out_fil) is func
+const func file: openEcho (in file: in_fil, in file: out_fil) is func
   result
     var file: newFile is STD_NULL;
   local
@@ -51,6 +51,10 @@ const func file: open_echo (in file: in_fil, in file: out_fil) is func
     new_echo_file.in_pos := 1;
     newFile := toInterface(new_echo_file);
   end func;
+
+
+const func file: open_echo (in file: in_fil, in file: out_fil) is
+  return openEcho(in_fil, out_fil);
 
 
 (**

@@ -37,8 +37,9 @@ const type: fontPicType is hash [char] array string;
 (**
  *  [[font|Font]] implementation type for bitmap fonts.
  *  The following bitmap fonts are available:
- *  stdfont9.s7i, stdfont10.s7i, stdfont12.s7i, stdfont14.s7i,
- *  stdfont16.s7i, stdfont18.s7i, stdfont20.s7i, stdfont24.s7i
+ *  stdfont8.s7i, stdfont9.s7i, stdfont10.s7i, stdfont12.s7i,
+ *  stdfont14.s7i, stdfont16.s7i, stdfont18.s7i, stdfont20.s7i,
+ *  stdfont24.s7i
  *)
 const type: bitmapFont is sub fontProperties struct
     var fontPicType: fontPictures is fontPicType.value;

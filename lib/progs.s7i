@@ -364,6 +364,7 @@ const func integer: objNumber (in reference: aReference)               is action
 
 const func reference: alloc (in reference: aReference)                 is action "REF_ALLOC";
 
+const func boolean: getValue (in reference: aReference, attr boolean)        is action "BLN_VALUE";
 const func integer: getValue (in reference: aReference, attr integer)        is action "INT_VALUE";
 const func char: getValue (in reference: aReference, attr char)              is action "CHR_VALUE";
 const func string: getValue (in reference: aReference, attr string)          is action "STR_VALUE";

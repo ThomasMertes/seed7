@@ -6531,11 +6531,11 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
           # Some programs set screen to 0 and draw...
           # curr_win := PRIMITIVE_WINDOW.value;
           scr := open(CONSOLE);
-          win := open_window(scr, 1, 1, 35, 150);
+          win := openWindow(scr, 1, 1, 35, 150);
           KEYBOARD := CONSOLE_KEYBOARD;
           OUT := win;
-          IN := open_echo(KEYBOARD, OUT);
-          IN := open_line(IN);
+          IN := openEcho(KEYBOARD, OUT);
+          IN := openLine(IN);
           screenMode := newScreenMode;
 
         when  {1}:          # 320 x 200 pixel, 40 x 25 text, 8 x 8 chars
@@ -6593,8 +6593,8 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
         scr := open(curr_win);
         KEYBOARD := GRAPH_KEYBOARD;
         OUT := win;
-        IN := open_echo(KEYBOARD, OUT);
-        IN := open_line(IN);
+        IN := openEcho(KEYBOARD, OUT);
+        IN := openLine(IN);
       end if;
     end if;
     line_marker;
@@ -8761,7 +8761,7 @@ const proc: main is func
         if err = STD_NULL then
           writeln(" ***** Could not open log file.");
         else
-          err := open_line(err);
+          err := openLine(err);
         end if;
         if doLog then
           log := err;
@@ -8772,10 +8772,10 @@ const proc: main is func
           # list_prog(log, 0, MAX_LINENUM);
           scr := open(CONSOLE);
           cursor(scr, TRUE);
-          win := open_window(scr, 1, 1, 35, 150);
+          win := openWindow(scr, 1, 1, 35, 150);
           OUT := win;
-          IN := open_echo(KEYBOARD, OUT);
-          IN := open_line(IN);
+          IN := openEcho(KEYBOARD, OUT);
+          IN := openLine(IN);
           run_prog;
           if doPauseAtEnd then
             writeln("=== Program finished ===");

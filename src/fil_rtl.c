@@ -1094,20 +1094,31 @@ inttype filLng (filetype aFile)
 
 
 /**
- *  Opens the file with the specified 'path' and 'mode'.
- *  Unicode characters in 'path' are converted to the representation
- *  used by the fopen() function of the operating system. In 'path'
- *  a slash / must be used as path delimiter. Using a backslash \
- *  in 'path' may raise the exception 'RANGE_ERROR'. The following
- *  values are allowed as mode: "r", "w", "a", "r+", "w+", "a+",
- *  "rt", "wt", "at", "rt+", "wt+" and "at+". The modes with t are
- *  text modes and the modes without t are binary modes. Note that
- *  this modes differ from the ones used by the C function fopen().
- *  When 'mode' is not one of the allowed values the exception
- *  'RANGE_ERROR' is raised. An attempt to open a directory returns
- *  NULL.
- *  @return return a filetype value when fopen() succeeds, or NULL
- *          when fopen() fails or when the file is a directory.
+ *  Opens a file with the specified 'path' and 'mode'.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen(). Unicode characters in 'path' are converted to the
+ *  representation used by the fopen() function of the operating
+ *  system.
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or NULL if it could not be opened or
+ *          when 'path' refers to a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR The 'mode' is not one of the allowed
@@ -1192,8 +1203,19 @@ void filPclose (filetype aFile)
 
 /**
  *  Open a pipe to a shell 'command', with 'parameters'.
- *  The command reads, respectively writes with Latin-1 encoding.
- *  A pipe can only be opened with the modes "r" and "w".
+ *  The pipe can be used to read, respectively write data
+ *  with Latin-1 or UTF-8 encoding. Parameters which contain
+ *  a space must be enclosed in double quotes. The commands
+ *  supported and the format of the 'parameters' are not
+ *  covered by the description of the 'filPopen' function.
+ *  Due to the usage of the operating system shell and external
+ *  programs, it is hard to write portable programs, which use
+ *  the 'filPopen' function.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters Space separated list of parameters for
+ *         the 'command', or "" when there are no parameters.
+ *  @param mode A pipe can only be opened with "r" (read) or "w" (write).
  *  @return the pipe file opened, or NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  */

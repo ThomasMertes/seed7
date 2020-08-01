@@ -79,7 +79,7 @@ const proc: introduction is func
   local
     var text: intro is STD_NULL;
   begin
-    # intro := open_window(scr, 1, 12, height(scr), width(scr) - 12);
+    # intro := openWindow(scr, 1, 12, height(scr), width(scr) - 12);
     intro := scr;
     setPos(intro, 1, 1);
     writeln(intro, "W A T O R");

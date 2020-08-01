@@ -429,8 +429,8 @@ const proc: main is func
     var char: ch is ' ';
   begin
     scr := open(CONSOLE);
-    field := open_window(scr, 3, 4, FIELD_HEIGHT, 2 * FIELD_WIDTH);
-    info_sheet := open_window(scr, 3, 29, 20, 54);
+    field := openWindow(scr, 3, 4, FIELD_HEIGHT, 2 * FIELD_WIDTH);
+    info_sheet := openWindow(scr, 3, 29, 20, 54);
     box(field);
     box(info_sheet);
     repeat

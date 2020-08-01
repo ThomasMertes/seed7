@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/int_rtl.c                                       */
-/*  Changes: 1992, 1993, 1994, 2000, 2005, 2010  Thomas Mertes      */
+/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2014  Thomas Mertes    */
 /*  Content: Primitive actions for the integer type.                */
 /*                                                                  */
 /********************************************************************/
@@ -160,110 +160,181 @@ static const const_cstritype digitTable[] = {lcDigits, ucDigits};
 
 
 
-void uint_mult (uinttype a, uinttype b, uinttype *c_high, uinttype *c_low)
+/**
+ *  Multiply two uinttype factors to a double uinttype product.
+ *  The whole product fits into the double uinttype number.
+ *  The product is returned in product_high and product_low.
+ *  A double uinttype number consists of a low and a high uinttype
+ *  number. A double uinttype number can also be splitted into
+ *  four halve uinttype parts. The bits of a double uinttype have
+ *  the following memory layout:
+ *  +---------------------------------------+
+ *  |            double uinttype            |
+ *  +-------------------+-------------------+
+ *  |   high uinttype   |    low uinttype   |
+ *  +---------+---------+---------+---------+
+ *  | part[3] | part[2] | part[1] | part[0] |
+ *  +---------+---------+---------+---------+
+ *   ^ highest bit                         ^ lowest bit
+ *  @param product_high The address to return the high product.
+ *  @return the low product
+ */
+uinttype uint_mult (uinttype factor1, uinttype factor2, uinttype *product_high)
 
   {
-    uinttype a1;
-    uinttype a2;
-    uinttype b1;
-    uinttype b2;
-    uinttype c1;
-    uinttype c2;
-    uinttype c3;
-    uinttype c4;
+    uinttype factor1_part[2];  /* parts 2 and 3 are not used */
+    uinttype factor2_part[2];  /* parts 2 and 3 are not used */
+    uinttype c1;  /* memory layout:   | part[1] | part[0] |  */
+    uinttype c2;  /* memory layout:   | part[2] | part[1] |  */
+    uinttype c3;  /* memory layout:   | part[2] | part[1] |  */
+    uinttype c4;  /* memory layout:   | part[2] | part[1] |  */
+    uinttype c5;  /* memory layout:   | part[3] | part[2] |  */
+    uinttype product_low;
 
   /* uint_mult */
 #ifdef TRACE_RANDOM
     printf("BEGIN uint_mult(%08x, %08x)\n",
-        (unsigned int) a, (unsigned int) b);
+        (unsigned int) factor1, (unsigned int) factor2);
 #endif
-    a1 = LOWER_HALVE_OF_UINT(a);
-    a2 = UPPER_HALVE_OF_UINT(a);
-    b1 = LOWER_HALVE_OF_UINT(b);
-    b2 = UPPER_HALVE_OF_UINT(b);
-    c1 = UPPER_HALVE_OF_UINT(a1 * b1);
-    c2 = a1 * b2;
-    c3 = a2 * b1;
-    c4 = UPPER_HALVE_OF_UINT(c1 + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3)) +
-        UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) +
-        a2 * b2;
-    *c_low = UINT_BITS(a * b);
-    *c_high = UINT_BITS(c4);
+    factor1_part[0] = LOWER_HALVE_OF_UINT(factor1);
+    factor1_part[1] = UPPER_HALVE_OF_UINT(factor1);
+    factor2_part[0] = LOWER_HALVE_OF_UINT(factor2);
+    factor2_part[1] = UPPER_HALVE_OF_UINT(factor2);
+    c1 = factor1_part[0] * factor2_part[0];
+    c2 = factor1_part[0] * factor2_part[1];
+    c3 = factor1_part[1] * factor2_part[0];
+    c4 = UPPER_HALVE_OF_UINT(c1) + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3);
+    c5 = UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) + UPPER_HALVE_OF_UINT(c4) +
+         factor1_part[1] * factor2_part[1];
+    /* c5 contains the high uinttype of factor1 * factor2 */
+    product_low = UINT_BITS(factor1 * factor2);
+    *product_high = UINT_BITS(c5);
 #ifdef TRACE_RANDOM
     printf("END uint_mult ==> %08x%08x\n",
-        (unsigned int) *c_high, (unsigned int) *c_low);
+        (unsigned int) *product_high, (unsigned int) product_low);
 #endif
+    return product_low;
   } /* uint_mult */
 
 
 
-static inline void uint2_mult (uinttype a_high, uinttype a_low,
-    uinttype b_high, uinttype b_low,
-    uinttype *c_high, uinttype *c_low)
+/**
+ *  Multiply two double uinttype factors to a double uinttype product.
+ *  The low bits of the product are returned as double uinttype
+ *  number (in product_high and product_low). The higher bits of
+ *  the product (the bits higher than product_high) are discarded.
+ *  A double uinttype number consists of a low and a high uinttype
+ *  number. A double uinttype number can also be splitted into
+ *  four halve uinttype parts. The bits of a double uinttype have
+ *  the following memory layout:
+ *  +---------------------------------------+
+ *  |            double uinttype            |
+ *  +-------------------+-------------------+
+ *  |   high uinttype   |    low uinttype   |
+ *  +---------+---------+---------+---------+
+ *  | part[3] | part[2] | part[1] | part[0] |
+ *  +---------+---------+---------+---------+
+ *   ^ highest bit                         ^ lowest bit
+ *  @param product_high The address to return the high product.
+ *  @return the low product
+ */
+static inline uinttype uint2_mult (uinttype factor1_high, uinttype factor1_low,
+    uinttype factor2_high, uinttype factor2_low, uinttype *product_high)
 
   {
-    uinttype a_low1;
-    uinttype a_low2;
-    uinttype b_low1;
-    uinttype b_low2;
-    uinttype c1;
-    uinttype c2;
-    uinttype c3;
-    uinttype c4;
-    uinttype c5;
+    uinttype factor1_part[2];  /* parts 2 and 3 are not used */
+    uinttype factor2_part[2];  /* parts 2 and 3 are not used */
+    uinttype c1;  /* memory layout:   | part[1] | part[0] |  */
+    uinttype c2;  /* memory layout:   | part[2] | part[1] |  */
+    uinttype c3;  /* memory layout:   | part[2] | part[1] |  */
+    uinttype c4;  /* memory layout:   | part[2] | part[1] |  */
+    uinttype c5;  /* memory layout:   | part[3] | part[2] |  */
+    uinttype product_low;
 
   /* uint2_mult */
 #ifdef TRACE_RANDOM
     printf("BEGIN uint2_mult(%08x%08x, %08x%08x)\n",
-        (unsigned int) a_high, (unsigned int) a_low,
-        (unsigned int) b_high, (unsigned int) b_low);
+        (unsigned int) factor1_high, (unsigned int) factor1_low,
+        (unsigned int) factor2_high, (unsigned int) factor2_low);
 #endif
-    a_low1 = LOWER_HALVE_OF_UINT(a_low);
-    a_low2 = UPPER_HALVE_OF_UINT(a_low);
-    b_low1 = LOWER_HALVE_OF_UINT(b_low);
-    b_low2 = UPPER_HALVE_OF_UINT(b_low);
-    c1 = a_low1 * b_low1;
-    c2 = a_low1 * b_low2;
-    c3 = a_low2 * b_low1;
+    factor1_part[0] = LOWER_HALVE_OF_UINT(factor1_low);
+    factor1_part[1] = UPPER_HALVE_OF_UINT(factor1_low);
+    factor2_part[0] = LOWER_HALVE_OF_UINT(factor2_low);
+    factor2_part[1] = UPPER_HALVE_OF_UINT(factor2_low);
+    c1 = factor1_part[0] * factor2_part[0];
+    c2 = factor1_part[0] * factor2_part[1];
+    c3 = factor1_part[1] * factor2_part[0];
     c4 = UPPER_HALVE_OF_UINT(c1) + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3);
-    c5 = UPPER_HALVE_OF_UINT(c4) + UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) +
-        a_low2 * b_low2;
-    *c_low = UINT_BITS(a_low * b_low);
-    *c_high = UINT_BITS(a_low * b_high + a_high * b_low + c5);
+    c5 = UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) + UPPER_HALVE_OF_UINT(c4) +
+         factor1_part[1] * factor2_part[1];
+    /* c5 contains the high uinttype of factor1_low * factor2_low */
+    product_low = UINT_BITS(factor1_low * factor2_low);
+    *product_high = UINT_BITS(factor1_low * factor2_high + factor1_high * factor2_low + c5);
+    /* factor1_high * factor2_high is not computed. All bits of it  */
+    /* would be discarded, since they are higher than product_high. */
 #ifdef TRACE_RANDOM
     printf("END uint2_mult ==> %08x%08x\n",
-        (unsigned int) *c_high, (unsigned int) *c_low);
+        (unsigned int) *product_high, (unsigned int) product_low);
 #endif
+    return product_low;
   } /* uint2_mult */
 
 
 
-static inline void uint2_add (uinttype a_high, uinttype a_low,
-    uinttype b_high, uinttype b_low,
-    uinttype *c_high, uinttype *c_low)
+/**
+ *  Add two double uinttype summands to a double uinttype sum.
+ *  A possible excess bit, that does not fit into the sum
+ *  (the excess bit is higher than sum_high), is discarded.
+ *  A double uinttype number consists of a low and a high uinttype
+ *  number. The bits of a double uinttype have the following
+ *  memory layout:
+ *  +---------------------------------------+
+ *  |            double uinttype            |
+ *  +-------------------+-------------------+
+ *  |   high uinttype   |    low uinttype   |
+ *  +-------------------+-------------------+
+ *   ^ highest bit                         ^ lowest bit
+ *  @param sum_high The address to return the high sum.
+ *  @return the low sum
+ */
+static inline uinttype uint2_add (uinttype summand1_high, uinttype summand1_low,
+    uinttype summand2_high, uinttype summand2_low, uinttype *sum_high)
 
-  { /* uint2_add */
+  {
+    uinttype sum_low;
+
+  /* uint2_add */
 #ifdef TRACE_RANDOM
     printf("BEGIN uint2_add(%08x%08x, %08x%08x)\n",
-        (unsigned int) a_high, (unsigned int) a_low,
-        (unsigned int) b_high, (unsigned int) b_low);
+        (unsigned int) summand1_high, (unsigned int) summand1_low,
+        (unsigned int) summand2_high, (unsigned int) summand2_low);
 #endif
-    *c_low = UINT_BITS(a_low + b_low);
-    if (UINT_HIGHEST_BIT(a_low) + UINT_HIGHEST_BIT(b_low) +
-        UINT_HIGHEST_BIT(UINT_BITS_WITHOUT_HIGHEST_BIT(a_low) +
-                         UINT_BITS_WITHOUT_HIGHEST_BIT(b_low)) >= 2) {
-      *c_high = UINT_BITS(a_high + b_high + 1);
+    sum_low = UINT_BITS(summand1_low + summand2_low);
+    if (UINT_HIGHEST_BIT(summand1_low) + UINT_HIGHEST_BIT(summand2_low) +
+        UINT_HIGHEST_BIT(UINT_BITS_WITHOUT_HIGHEST_BIT(summand1_low) +
+                         UINT_BITS_WITHOUT_HIGHEST_BIT(summand2_low)) >= 2) {
+      *sum_high = UINT_BITS(summand1_high + summand2_high + 1);
     } else {
-      *c_high = UINT_BITS(a_high + b_high);
+      *sum_high = UINT_BITS(summand1_high + summand2_high);
     } /* if */
 #ifdef TRACE_RANDOM
     printf("END uint2_add ==> %08x%08x\n",
-        (unsigned int) *c_high, (unsigned int) *c_low);
+        (unsigned int) *sum_high, (unsigned int) sum_low);
 #endif
+    return sum_low;
   } /* uint2_add */
 
 
 
+/**
+ *  Compute a random unsigned number in the range 0 .. UINTTYPE_MAX.
+ *  The linear congruential method is used to generate the random
+ *  sequence of uinttype numbers. The generator uses double uinttype
+ *  numbers for the seed. Only the high bits of the seed (high_seed)
+ *  are used as random number. This avoids that the lower-order bits
+ *  of the generated sequence have a short period.
+ *  @return the random number.
+ */
 uinttype uint_rand (void)
 
   {
@@ -296,16 +367,16 @@ uinttype uint_rand (void)
     } /* if */
 #if INTTYPE_SIZE == 32
     /* SEED = SEED * 1103515245 + 12345 */
-    uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1103515245),
-        &high_seed, &low_seed);
-    uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(12345),
-        &high_seed, &low_seed);
+    low_seed = uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1103515245),
+        &high_seed);
+    low_seed = uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(12345),
+        &high_seed);
 #elif INTTYPE_SIZE == 64
     /* SEED = SEED * 6364136223846793005 + 1442695040888963407 */
-    uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(6364136223846793005),
-        &high_seed, &low_seed);
-    uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1442695040888963407),
-        &high_seed, &low_seed);
+    low_seed = uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(6364136223846793005),
+        &high_seed);
+    low_seed = uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1442695040888963407),
+        &high_seed);
 #endif
 #ifdef TRACE_RANDOM
     printf("END uint_rand ==> %08x\n", (unsigned int) high_seed);
@@ -471,6 +542,12 @@ int uint64LeastSignificantBit (uint64type number)
 
 
 
+/**
+ *  Compare two generic values.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 inttype genericCmp (const generictype value1, const generictype value2)
 
   { /* genericCmp */
@@ -545,6 +622,12 @@ void genericDestr (generictype old_value)
 
 
 
+/**
+ *  Compare two pointers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 inttype ptrCmp (const void *const value1, const void *const value2)
 
   { /* ptrCmp */
@@ -560,7 +643,7 @@ inttype ptrCmp (const void *const value1, const void *const value2)
 
 
 /**
- *  Reinterpret the generic parameters as biginttype and call bigCmp.
+ *  Reinterpret the generic parameters as rtlPtrtype and call ptrCmp.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
  *  when sizeof(generictype) != sizeof(rtlPtrtype).
@@ -921,8 +1004,8 @@ inttype intPow (inttype base, inttype exponent)
  *  Convert an integer number to a string using a radix.
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with letters.
- *  The parameter upperCase decides about the letter case.
  *  For negative numbers a minus sign is prepended.
+ *  @param upperCase Decides about the letter case.
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -977,7 +1060,10 @@ stritype intRadix (inttype number, inttype base, booltype upperCase)
  *  The conversion uses the numeral system with the specified base.
  *  The base is a power of two and it is specified indirectly with
  *  shift and mask. Digit values from 10 upward are encoded with
- *  letters. The parameter upperCase decides about the letter case.
+ *  letters.
+ *  @param shift Logarithm (log2) of the base (=number of bits in mask).
+ *  @param mask Mask to get the bits of a digit (equivalent to base-1).
+ *  @param upperCase Decides about the letter case.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
@@ -1182,7 +1268,7 @@ stritype intStrToBuffer (inttype number, stritype buffer)
  *  The result uses a twos-complement representation with a base of 256.
  *  For a negative 'number' the most significant byte of the result
  *  (the first byte) has an ordinal >= 128.
- *  @return a string with the big-endian representation.
+ *  @return a bstring with the big-endian representation.
  */
 bstritype intToBStriBe (inttype number)
 
@@ -1239,7 +1325,7 @@ bstritype intToBStriBe (inttype number)
  *  The result uses a twos-complement representation with a base of 256.
  *  For a negative 'number' the most significant byte of the result
  *  (the last byte) has an ordinal >= 128.
- *  @return a string with the little-endian representation.
+ *  @return a bstring with the little-endian representation.
  */
 bstritype intToBStriLe (inttype number)
 

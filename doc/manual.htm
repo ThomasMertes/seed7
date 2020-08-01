@@ -4071,13 +4071,13 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     Type of result: <a class="type" href="#types_file">file</a>,
                     Returns STD_NULL if open was not
                     possible )
-      <span class="func">open_utf8</span>(A, B) Open external UTF-8 <a class="type" href="#types_file">file</a>
+      <span class="func">openUtf8</span>(A, B) Open external UTF-8 <a class="type" href="#types_file">file</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     Type of argument B: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
                     Returns STD_NULL if open was not
                     possible )
-      <span class="func">open_utf16</span>(A, B) Open external UTF-16 <a class="type" href="#types_file">file</a>
+      <span class="func">openUtf16</span>(A, B) Open external UTF-16 <a class="type" href="#types_file">file</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     Type of argument B: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
@@ -5948,7 +5948,7 @@ IN := OTHER_FILE;
 </p><pre class="indent">
 writeln(STD_ERR, <span class="stri">"ERROR MESSAGE"</span>);
 </pre><p>
-  To redirect the standard output to <tt>'STD_ERR'</tt> you can write:
+  To redirect the standard output to <tt><span class="var">STD_ERR</span></tt> you can write:
 </p><pre class="indent">
 OUT := STD_ERR;
 </pre><p>
@@ -5975,8 +5975,9 @@ OUT := STD_ERR;
 my_out := open(<span class="stri">"my_file"</span>, <span class="stri">"w"</span>);
 </pre><p>
   The first parameter of <tt><span class="func">open</span></tt> is the path of the file to
-  be opened. Seed7 always uses the slash (<tt>'/'</tt>) as path
-  delimiter. The use of a backslash in a path may raise the
+  be opened. The path must use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>.
+  This means that a slash (<tt>'/'</tt>) is used as path delimiter.
+  A path with a backslash or a drive letter may raise the
   exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>. The second parameter of <tt><span class="func">open</span></tt>
   specifies the mode:
 </p><dl><dd><dl>
@@ -6040,10 +6041,10 @@ writeln(my_out, <span class="stri">"illegal char: \256\"</span>);
   results in the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>. To write Unicode
   characters other file types must be used. The libraries
   <span class="stri">"<span class="lib">utf8.s7i</span>"</span> and <span class="stri">"<span class="lib">utf16.s7i</span>"</span> provide access to UTF-8 and
-  UTF-16 files. The function <tt><span class="func">open_utf8</span></tt> can be used the same
+  UTF-16 files. The function <tt><span class="func">openUtf8</span></tt> can be used the same
   way as <tt><span class="func">open</span></tt>:
 </p><pre class="indent">
-my_out := open_utf8(<span class="stri">"utf8_file"</span>, <span class="stri">"w"</span>);
+my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"w"</span>);
 </pre><p>
   An UTF-8 file accepts all Unicode characters. That way
 </p><pre class="indent">
@@ -6053,12 +6054,12 @@ writeln(my_out, <span class="stri">"Unicode char: \256\"</span>);
   Therefore they do not need a byte order mark (BOM).
   In case a BOM is required it can be written by the user program:
 </p><pre class="indent">
-my_out := open_utf8(<span class="stri">"utf8_file"</span>, <span class="stri">"w"</span>);
+my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"w"</span>);
 write(<span class="stri">"\16#FEFF\"</span>);
 </pre><p>
   The following example expects a mandatory BOM at the beginning of an UTF-8 file:
 </p><pre class="indent">
-my_out := open_utf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"</span>);
+my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"</span>);
 <span class="keywd">if</span> getc(my_file) &lt;> <span class="stri">'\16#FEFF\'</span> <span class="keywd">then</span>
   writeln(<span class="stri">"The BOM is missing"</span>");
 <span class="keywd">else</span>
@@ -6067,7 +6068,7 @@ my_out := open_utf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r
 </pre><p>
   Accepting an optional BOM at the beginning of an UTF-8 file is done with:
 </p><pre class="indent">
-my_out := open_utf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"</span>);
+my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"</span>);
 <span class="keywd">if</span> getc(my_file) &lt;> <span class="stri">'\16#FEFF\'</span> <span class="keywd">then</span>
   <span class="comment"># This is a file without BOM (the first character will be read later).</span>
   seek(my_file, 1);
@@ -6077,16 +6078,16 @@ my_out := open_utf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r
   UTF-16 comes in two flavors UTF-16LE and UTF-16BE. To support
   both flavors the <span class="stri">"<span class="lib">utf16.s7i</span>"</span> library defines several functions.
 </p><p>
-  The function <tt><span class="func">open_utf16</span></tt> opens an Unicode file which uses the
-  UTF-16LE or UTF-16BE encoding. The function <tt><span class="func">open_utf16</span></tt> checks for
+  The function <tt><span class="func">openUtf16</span></tt> opens an Unicode file which uses the
+  UTF-16LE or UTF-16BE encoding. The function <tt><span class="func">openUtf16</span></tt> checks for
   a BOM and depending on that it opens an UTF-16LE or UTF-16BE file.
 </p><p>
-  The functions <tt><span class="func">open_utf16le</span></tt> and <tt><span class="func">open_utf16be</span></tt> open Unicode files
+  The functions <tt><span class="func">openUtf16le</span></tt> and <tt><span class="func">openUtf16be</span></tt> open Unicode files
   with the UTF-16LE and UTF-16BE encoding respectively. When the
   file is opened with one of the modes <tt><span class="stri">"w"</span></tt>, <tt><span class="stri">"w+"</span></tt>, <tt><span class="stri">"wt"</span></tt> or <tt><span class="stri">"wt+"</span></tt> an
   appropriate BOM is created. When the file is opened with any other
   mode the application program is in charge to handle optional BOM
-  markers. This way <tt><span class="func">open_utf16le</span></tt> and <tt><span class="func">open_utf16be</span></tt> can be used
+  markers. This way <tt><span class="func">openUtf16le</span></tt> and <tt><span class="func">openUtf16be</span></tt> can be used
   to open existing files without BOM.
 </p><p>
   External BYTE files use the implementation type <tt><span class="type">external_file</span></tt>.
@@ -6343,7 +6344,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">char</span>: ch <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
-    IN := open_echo(KEYBOARD, OUT);
+    IN := openEcho(KEYBOARD, OUT);
     <span class="keywd">repeat</span>
       ch := getc(IN);
     <span class="keywd">until</span> ch = <span class="stri">'!'</span>;
@@ -6381,8 +6382,8 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">char</span>: ch <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
-    IN := open_echo(KEYBOARD, OUT);
-    IN := open_line(IN);
+    IN := openEcho(KEYBOARD, OUT);
+    IN := openLine(IN);
     <span class="keywd">repeat</span>
       ch := getc(IN);
       write(ch);

@@ -40,7 +40,7 @@ const type: field_file is sub null_file struct
 type_implements_interface(field_file, file);
 
 
-const func file: open_field (in file: in_fil, inout text: out_fil,
+const func file: openField (in file: in_fil, inout text: out_fil,
     in integer: line, in integer: column, in integer: width, in string: defaultValue) is func
   result
     var file: newFile is STD_NULL;
@@ -58,6 +58,11 @@ const func file: open_field (in file: in_fil, inout text: out_fil,
     write(out_fil, defaultValue[.. width]);
     newFile := toInterface(field_fil);
   end func;
+
+
+const func file: open_field (in file: in_fil, inout text: out_fil,
+    in integer: line, in integer: column, in integer: width, in string: defaultValue) is
+  return openField(in_fil, out_fil, line, column, width, defaultValue);
 
 
 const func string: getwd (inout field_file: field_fil) is func

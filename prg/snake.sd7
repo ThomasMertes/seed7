@@ -580,8 +580,8 @@ const proc: main is func
     var integer: level is 1;
   begin
     scr := open(CONSOLE);
-    win := open_window(scr, 2, 2, 21, 78);
-    status := open_window(scr, 23, 2, 1, 78);
+    win := openWindow(scr, 2, 2, 21, 78);
+    status := openWindow(scr, 23, 2, 1, 78);
 
     max_line := 21; (* height(win); *)
     max_column := 78; (* width(win); *)

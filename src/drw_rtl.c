@@ -146,12 +146,14 @@ inttype drwGetImagePixel (const_bstritype image, inttype width,
         image, width, height, x, y);
 #endif
     if (unlikely(width  < 0 || x < 0 || x >= width ||
-                 height < 0 || y < 0 || y >= height)) {
+                 height < 0 || y < 0 || y >= height ||
+                 (uinttype) height >
+                 MAX_MEMSIZETYPE / sizeof(int32type) / (uinttype) width)) {
       raise_error(RANGE_ERROR);
       pixel = 0;
     } else {
-      idx = (uinttype) y * (uinttype) width + (uinttype) x;
-      if (unlikely(idx < 0 || idx >= image->size / sizeof(int32type))) {
+      idx = (memsizetype) y * (memsizetype) width + (memsizetype) x;
+      if (unlikely(idx >= image->size / sizeof(int32type))) {
         raise_error(RANGE_ERROR);
         pixel = 0;
       } else {

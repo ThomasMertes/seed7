@@ -444,7 +444,9 @@ static progtype analyze_prog (const const_stritype source_file_argument,
           source_file_argument->size * sizeof(strelemtype));
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
+      resultProg->types = NULL;
       memcpy(&prog_backup, &prog, sizeof(progrecord));
+      prog.owningProg = resultProg;
       in_file.owningProg = resultProg;
       init_lib_path(source_file_argument, libraryDirs, err_info);
       init_idents(&prog, err_info);
@@ -500,6 +502,7 @@ static progtype analyze_prog (const const_stritype source_file_argument,
           write_idents();
         } /* if */
         clean_idents();
+        resultProg->owningProg       = resultProg;
         resultProg->arg0             = source_file_argument_copy;
         resultProg->program_name     = getProgramName(source_file_argument);
         resultProg->program_path     = getProgramPath(source_name);
@@ -511,7 +514,6 @@ static progtype analyze_prog (const const_stritype source_file_argument,
         memcpy(&resultProg->entity,   &prog.entity, sizeof(entroottype));
         memcpy(&resultProg->property, &prog.property, sizeof(propertyroottype));
         memcpy(&resultProg->sys_var,  &prog.sys_var, sizeof(systype));
-        resultProg->types            = prog.types;
         resultProg->literals         = prog.literals;
         resultProg->declaration_root = prog.declaration_root;
         resultProg->stack_global     = prog.stack_global;
@@ -539,7 +541,7 @@ static progtype analyze_prog (const const_stritype source_file_argument,
       } /* if */
     } /* if */
 #ifdef TRACE_ANALYZE
-    printf("END analyze_prog\n");
+    printf("END analyze_prog --> %lx\n", (unsigned long) resultProg);
 #endif
     return resultProg;
   } /* analyze_prog */

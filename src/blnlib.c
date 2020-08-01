@@ -273,3 +273,30 @@ objecttype bln_ord (listtype arguments)
       return bld_int_temp(0);
     } /* if */
   } /* bln_ord */
+
+
+
+objecttype bln_value (listtype arguments)
+
+  {
+    objecttype obj_arg;
+
+  /* bln_value */
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
+    if (obj_arg != NULL) {
+      if (CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
+          CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
+        obj_arg = obj_arg->value.objvalue;
+      } /* if */
+      if (obj_arg->type_of != NULL &&
+          obj_arg->type_of->owningProg != NULL) {
+        if (obj_arg == TRUE_OBJECT(obj_arg->type_of->owningProg)) {
+          return SYS_TRUE_OBJECT;
+        } else if (obj_arg == FALSE_OBJECT(obj_arg->type_of->owningProg)) {
+          return SYS_FALSE_OBJECT;
+        } /* if */
+      } /* if */
+    } /* if */
+    return raise_exception(SYS_RNG_EXCEPTION);
+  } /* bln_value */

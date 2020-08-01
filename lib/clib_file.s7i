@@ -83,16 +83,30 @@ const integer: IO_NO_BUFFERING   is 2;
 
 
 (**
- *  Open a clib_file.
- *  The following values are allowed as mode: "r", "w", "a",
- *  "r+", "w+", "a+", "rt", "wt", "at", "rt+", "wt+" and "at+".
- *  The modes with t are text modes and the modes without t are
- *  binary modes. Note that this modes differ from the ones used
- *  by the C function fopen(). When 'mode' is not one of the
- *  allowed values the exception 'RANGE_ERROR' is raised. An
- *  attempt to open a directory returns [[#CLIB_NULL_FILE|CLIB_NULL_FILE]].
- *  @return the file opened, or [[#CLIB_NULL_FILE|CLIB_NULL_FILE]]
- *          if it could not be opened.
+ *  Opens a clib_file with the specified ''path'' and ''mode''.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened or when ''path'' refers to
+ *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR The ''mode'' is not one of the allowed

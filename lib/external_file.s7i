@@ -48,9 +48,30 @@ type_implements_interface(external_file, file);
 
 
 (**
- *  Open an external_file.
+ *  Opens a file with the specified ''path'' and ''mode''.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened.
+ *          if it could not be opened or when ''path'' refers to
+ *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
@@ -58,17 +79,17 @@ type_implements_interface(external_file, file);
  *             representation or ''path'' cannot be converted
  *             to the system path type.
  *)
-const func file: open (in string: fileName, in string: mode) is func
+const func file: open (in string: path, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
     var external_file: new_file is external_file.value;
   begin
-    open_file := openClibFile(fileName, mode);
+    open_file := openClibFile(path, mode);
     if open_file <> CLIB_NULL_FILE then
       new_file.ext_file := open_file;
-      new_file.name := fileName;
+      new_file.name := path;
       newFile := toInterface(new_file);
     end if;
   end func;
@@ -231,13 +252,13 @@ const func integer: tell (in external_file: aFile) is
   return tell(aFile.ext_file);
 
 
-const func boolean: fileOpenSucceeds (in string: fileName) is func
+const func boolean: fileOpenSucceeds (in string: path) is func
   result
     var boolean: fileOpenSucceeds is FALSE;
   local
     var file: a_file is STD_NULL;
   begin
-    a_file := open(fileName, "r");
+    a_file := open(path, "r");
     if a_file <> STD_NULL then
       close(a_file);
       fileOpenSucceeds := TRUE;

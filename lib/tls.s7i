@@ -32,6 +32,7 @@ include "hmac.s7i";
 include "cipher.s7i";
 include "arc4.s7i";
 include "des.s7i";
+include "tdes.s7i";
 
 
 const type: cipherSuite is new enum
@@ -88,6 +89,7 @@ const type: cipherSuite is new enum
 const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_RC4_128_SHA,
     TLS_RSA_WITH_RC4_128_MD5,
+    TLS_RSA_WITH_3DES_EDE_CBC_SHA,
     TLS_RSA_WITH_DES_CBC_SHA
   );
 
@@ -342,6 +344,24 @@ const proc: showServerKeyExchange (in string: stri) is func
   end func;
 
 
+const proc: showCertificateRequest (in string: stri) is func
+  local
+    var integer: length is 0;
+    var integer: index is 0;
+    var integer: pos is 0;
+  begin
+    writeln("certificate_request");
+    length := bytesBe2Int(stri[7 len 3]);
+    writeln("length: " <& length);
+    writeln("Bytes there: " <& length(stri) - 9);
+    write("Version: ");
+    writeln(ord(stri[10]) <& "." <& ord(stri[11]));
+    length := ord(stri[12]);
+    pos := 13;
+    writeln("length: " <& length);
+  end func;
+
+
 const proc: showServerHelloDone (in string: stri) is func
   local
     var integer: length is 0;
@@ -403,7 +423,7 @@ const proc: showHandshake (in string: stri) is func
     if bytesBe2Int(stri[4 len 2]) <> length(stri) - 5 then
       writeln(" ***** TLS record length not ok");
     end if;
-    if bytesBe2Int(stri[7 len 3]) <> length(stri) - 9 then
+    if bytesBe2Int(stri[7 len 3]) > length(stri) - 9 then
       writeln(" ***** TLS handshake length not ok");
       writeln("handshake length field: " <& bytesBe2Int(stri[7 len 3]));
       writeln("actual length: " <& length(stri) - 9);
@@ -417,6 +437,8 @@ const proc: showHandshake (in string: stri) is func
       showCertificate(stri);
     elsif stri[6] = '\12\' then
       showServerKeyExchange(stri);
+    elsif stri[6] = '\13\' then
+      showCertificateRequest(stri);
     elsif stri[6] = '\14\' then
       showServerHelloDone(stri);
     elsif stri[6] = '\16\' then
@@ -508,6 +530,10 @@ const proc: storeCipherSuite (inout securityParameters: parameters) is func
     elsif parameters.cipher_suite = TLS_RSA_WITH_RC4_128_SHA then
       parameters.bulk_cipher_algorithm := RC4;
       parameters.key_material_length := 16;
+      parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_RSA_WITH_3DES_EDE_CBC_SHA then
+      parameters.bulk_cipher_algorithm := TDES;
+      parameters.key_material_length := 24;
       parameters.mac_algorithm := SHA1;
     elsif parameters.cipher_suite = TLS_RSA_WITH_DES_CBC_SHA then
       parameters.bulk_cipher_algorithm := DES;
@@ -699,6 +725,21 @@ const proc: processServerHello (inout securityParameters: parameters, inout tlsP
     else
       raise RANGE_ERROR;
     end if;
+    parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
+  end func;
+
+
+const proc: processCertificateRequest (inout securityParameters: parameters, inout tlsParseState: state) is func
+  local
+    var integer: startPos is 0;
+    var integer: length is 0;
+  begin
+    # writeln("certificate_request");
+    startPos := state.pos;
+    incr(state.pos);
+    length := bytesBe2Int(state.message[state.pos len 3]);
+    state.pos +:= 3;
+    state.pos +:= length;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
 
@@ -1222,11 +1263,14 @@ const func file: openTlsSocket (inout file: sock) is func
           if new_file.parseState.contentType = HANDSHAKE then
             if new_file.parseState.message[new_file.parseState.pos] = '\11\' then  # Certificate
               processCertificate(new_file.parameters, new_file.parseState);
+            elsif new_file.parseState.message[new_file.parseState.pos] = '\13\' then  # CertificateRequest
+              processCertificateRequest(new_file.parameters, new_file.parseState);
             elsif new_file.parseState.message[new_file.parseState.pos] = '\14\' then  # ServerHelloDone
               processServerHelloDone(new_file.parameters, new_file.parseState);
               serverHelloDone := TRUE;
             else  # Any other handshake
               writeln(" ***** Unprocessed handshake message");
+              # showMsg(new_file.parseState.message);
               new_file.parameters.handshake_messages &:= new_file.parseState.message[6 ..];
             end if;
           end if;

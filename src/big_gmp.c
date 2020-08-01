@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_gmp.c     Functions for bigInteger using the gmp library.   */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_gmp.c                                       */
-/*  Changes: 2008, 2009, 2010, 2013  Thomas Mertes                  */
+/*  Changes: 2008, 2009, 2010, 2013, 2014  Thomas Mertes            */
 /*  Content: Functions for bigInteger using the gmp library.        */
 /*                                                                  */
 /********************************************************************/
@@ -48,22 +48,19 @@
 #include "big_drv.h"
 
 
-#define BIG_FREELIST_LENGTH_LIMIT 20
-
-
 #define HEAP_ALLOC_BIG     malloc(sizeof(__mpz_struct))
 #define HEAP_FREE_BIG(var) free(var)
 
 #ifdef WITH_BIGINT_FREELIST
 
 static flisttype flist = NULL;
-static unsigned int flist_len = 0;
+static unsigned int flist_allowed = 100;
 
-#define POP_BIG_OK      flist_len != 0
-#define PUSH_BIG_OK     flist_len < BIG_FREELIST_LENGTH_LIMIT
+#define POP_BIG_OK      flist != NULL
+#define PUSH_BIG_OK     flist_allowed > 0
 
-#define POP_BIG(var)    {var = (biginttype) flist; flist = flist->next; flist_len--; }
-#define PUSH_BIG(var)   {((flisttype) var)->next = flist; flist = (flisttype) var; flist_len++; }
+#define POP_BIG(var)    {var = (biginttype) flist; flist = flist->next; flist_allowed++; }
+#define PUSH_BIG(var)   {((flisttype) var)->next = flist; flist = (flisttype) var; flist_allowed--; }
 
 #define ALLOC_BIG(var)  if (POP_BIG_OK) POP_BIG(var) else var = HEAP_ALLOC_BIG;
 #define FREE_BIG(var)   if (PUSH_BIG_OK) PUSH_BIG(var) else HEAP_FREE_BIG(var);
@@ -374,6 +371,16 @@ inttype bigCmpGeneric (const generictype value1, const generictype value2)
 
 
 
+/**
+ *  Compare 'big1' with the bigdigit 'number'.
+ *  The range of 'number' is restricted and it is the job of the
+ *  compiler to assure that 'number' is within the allowed range.
+ *  @param number Number that must be in the range of
+ *         a long int.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 inttype bigCmpSignedDigit (const const_biginttype big1, inttype number)
 
   {
@@ -452,7 +459,7 @@ void bigDecr (biginttype *const big_variable)
 
 
 
-void bigDestr (const const_biginttype old_bigint)
+void bigDestr (const biginttype old_bigint)
 
   { /* bigDestr */
     if (old_bigint != NULL) {
@@ -515,6 +522,15 @@ booltype bigEq (const const_biginttype big1, const const_biginttype big2)
 
 
 
+/**
+ *  Check if 'big1' is equal to the bigdigit 'number'.
+ *  The range of 'number' is restricted and it is the job of the
+ *  compiler to assure that 'number' is within the allowed range.
+ *  @param number Number that must be in the range of
+ *         a long int.
+ *  @return TRUE if 'big1' and 'number' are equal,
+ *          FALSE otherwise.
+ */
 booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
   { /* bigEqSignedDigit */
@@ -591,6 +607,14 @@ static inline biginttype bigFromByteBufferLe (const memsizetype size,
 
 
 
+/**
+ *  Convert a bstring (interpreted as big-endian) to a bigInteger.
+ *  The 'bstri' is interpreted as twos-complement representation
+ *  with a base of 256. The result is negative when the most significant
+ *  byte (the first byte) has an ordinal >= 128.
+ *  @param bstri Bstring that contains the data to be converted.
+ *  @return a signed bigInteger created from the big-endian bytes.
+ */
 biginttype bigFromBStriBe (const const_bstritype bstri)
 
   { /* bigFromBStriBe */
@@ -599,6 +623,14 @@ biginttype bigFromBStriBe (const const_bstritype bstri)
 
 
 
+/**
+ *  Convert a bstring (interpreted as little-endian) to a bigInteger.
+ *  The 'bstri' is interpreted as twos-complement representation
+ *  with a base of 256. The result is negative when the most significant
+ *  byte (the last byte) has an ordinal >= 128.
+ *  @param bstri Bstring that contains the data to be converted.
+ *  @return a signed bigInteger created from the little-endian bytes.
+ */
 biginttype bigFromBStriLe (const const_bstritype bstri)
 
   { /* bigFromBStriLe */
@@ -607,6 +639,10 @@ biginttype bigFromBStriLe (const const_bstritype bstri)
 
 
 
+/**
+ *  Convert an int32type number to 'bigInteger'.
+ *  @return the bigInteger result of the conversion.
+ */
 biginttype bigFromInt32 (int32type number)
 
   {
@@ -621,6 +657,10 @@ biginttype bigFromInt32 (int32type number)
 
 
 #ifdef INT64TYPE
+/**
+ *  Convert an int64type number to 'bigInteger'.
+ *  @return the bigInteger result of the conversion.
+ */
 biginttype bigFromInt64 (int64type number)
 
   {
@@ -647,6 +687,10 @@ biginttype bigFromInt64 (int64type number)
 
 
 
+/**
+ *  Convert an uint32type number to 'bigInteger'.
+ *  @return the bigInteger result of the conversion.
+ */
 biginttype bigFromUInt32 (uint32type number)
 
   {
@@ -661,6 +705,10 @@ biginttype bigFromUInt32 (uint32type number)
 
 
 #ifdef INT64TYPE
+/**
+ *  Convert an uint64type number to 'bigInteger'.
+ *  @return the bigInteger result of the conversion.
+ */
 biginttype bigFromUInt64 (uint64type number)
 
   {
@@ -793,22 +841,71 @@ biginttype bigLog2 (const const_biginttype big1)
 
   {
     int sign;
-    biginttype result;
+    biginttype logarithm;
 
   /* bigLog2 */
     sign = mpz_sgn(big1);
     if (sign < 0) {
       raise_error(NUMERIC_ERROR);
-      result = NULL;
+      logarithm = NULL;
     } else if (sign == 0) {
-      ALLOC_BIG(result);
-      mpz_init_set_si(result, -1);
+      ALLOC_BIG(logarithm);
+      mpz_init_set_si(logarithm, -1);
+    } else {
+      ALLOC_BIG(logarithm);
+      mpz_init_set_ui(logarithm, mpz_sizeinbase(big1, 2) - 1);
+    } /* if */
+    return logarithm;
+  } /* bigLog2 */
+
+
+
+/**
+ *  Create a number from the lower bits of big1.
+ *  This corresponds to the modulo when the dividend is a power of two:
+ *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
+ *  @param bits Number of lower bits to select from big1.
+ *  @return a number in the range 0 .. pred(2_ ** bits).
+ */
+biginttype bigLowerBits (const const_biginttype big1, const inttype bits)
+
+  {
+    biginttype result;
+
+  /* bigLowerBits */
+    if (unlikely(bits < 0)) {
+      raise_error(NUMERIC_ERROR);
+      result = NULL;
     } else {
       ALLOC_BIG(result);
-      mpz_init_set_ui(result, mpz_sizeinbase(big1, 2) - 1);
+      mpz_init(result);
+      mpz_fdiv_r_2exp(result, big1, (uinttype) bits);
     } /* if */
     return result;
-  } /* bigLog2 */
+  } /* bigLowerBits */
+
+
+
+/**
+ *  Create a number from the lower bits of big1.
+ *  Big1 is assumed to be a temporary value which is reused.
+ *  This corresponds to the modulo when the dividend is a power of two:
+ *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
+ *  @param bits Number of lower bits to select from big1.
+ *  @return a number in the range 0 .. pred(2_ ** bits).
+ */
+biginttype bigLowerBitsTemp (const biginttype big1, const inttype bits)
+
+  { /* bigLowerBitsTemp */
+    if (unlikely(bits < 0)) {
+      FREE_BIG(big1);
+      raise_error(NUMERIC_ERROR);
+      return NULL;
+    } else {
+      mpz_fdiv_r_2exp(big1, big1, (uinttype) bits);
+    } /* if */
+    return big1;
+  } /* bigLowerBitsTemp */
 
 
 
@@ -866,6 +963,14 @@ void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
 
 
 
+/**
+ * Shift one left by 'lshift' bits.
+ * When 'lshift' is positive or zero this corresponts to
+ * the computation of a power of two:
+ *  bigLShiftOne(lshift)  corresponds to  2_ ** lshift
+ * When 'lshift' is negative the result is zero.
+ * @return one shifted left by 'lshift'.
+ */
 biginttype bigLShiftOne (const inttype lshift)
 
   {
@@ -887,23 +992,28 @@ biginttype bigLShiftOne (const inttype lshift)
 
 
 
-biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
+/**
+ *  Exponentiation when the base is a power of two.
+ *  @return (2 ** log2base) ** exponent
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ */
+biginttype bigLog2BaseIPow (const inttype log2base, const inttype exponent)
 
   {
     uinttype high_shift;
     uinttype low_shift;
     biginttype result;
 
-  /* bigLog2BaseLShift */
-    if (unlikely(lshift < 0)) {
+  /* bigLog2BaseIPow */
+    if (unlikely(log2base < 0 || exponent < 0)) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (likely(log2base == 1)) {
-      result = bigLShiftOne(lshift);
-    } else if (log2base <= 10 && lshift <= 214748364) {
-      result = bigLShiftOne(log2base * lshift);
+      result = bigLShiftOne(exponent);
+    } else if (log2base <= 10 && exponent <= MAX_DIV_10) {
+      result = bigLShiftOne(log2base * exponent);
     } else {
-      uint_mult((uinttype) log2base, (uinttype) lshift, &high_shift, &low_shift);
+      low_shift = uint_mult((uinttype) log2base, (uinttype) exponent, &high_shift);
       if (high_shift != 0 || (inttype) low_shift < 0) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -912,7 +1022,7 @@ biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
       } /* if */
     } /* if */
     return result;
-  } /* bigLog2BaseLShift */
+  } /* bigLog2BaseIPow */
 
 
 
@@ -988,24 +1098,32 @@ biginttype bigMult (const const_biginttype factor1, const const_biginttype facto
 /**
  *  Multiply a 'bigInteger' number by a factor and assign the result back to number.
  */
-void bigMultAssign (biginttype *const big_variable, const_biginttype big2)
+void bigMultAssign (biginttype *const big_variable, const_biginttype factor)
 
   { /* bigMultAssign */
-    mpz_mul(*big_variable, *big_variable, big2);
+    mpz_mul(*big_variable, *big_variable, factor);
   } /* bigMultAssign */
 
 
 
-biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
+/**
+ *  Multiply factor1 with the bigdigit factor2.
+ *  The range of factor2 is restricted and it is the job of the
+ *  compiler to assure that factor2 is within the allowed range.
+ *  @param factor2 Multiplication factor that must be
+ *         in the range of a long int.
+ *  @return the product of factor1 * factor2.
+ */
+biginttype bigMultSignedDigit (const_biginttype factor1, inttype factor2)
 
   {
-    biginttype result;
+    biginttype product;
 
   /* bigMultSignedDigit */
-    ALLOC_BIG(result);
-    mpz_init(result);
-    mpz_mul_si(result, big1, number);
-    return result;
+    ALLOC_BIG(product);
+    mpz_init(product);
+    mpz_mul_si(product, factor1, factor2);
+    return product;
   } /* bigMultSignedDigit */
 
 
@@ -1425,6 +1543,13 @@ biginttype bigSuccTemp (biginttype big1)
 
 
 
+/**
+ *  Convert a 'bigInteger' into a little-endian 'bstring'.
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative 'number' the most significant byte of the result
+ *  (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ */
 bstritype bigToBStriBe (const const_biginttype big1)
 
   {
@@ -1491,6 +1616,13 @@ bstritype bigToBStriBe (const const_biginttype big1)
 
 
 
+/**
+ *  Convert a 'bigInteger' into a big-endian 'bstring'.
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative 'number' the most significant byte of the result
+ *  (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ */
 bstritype bigToBStriLe (const const_biginttype big1)
 
   {

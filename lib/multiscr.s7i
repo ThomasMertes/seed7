@@ -46,22 +46,22 @@ var file: OUT3 is STD_NULL;
 const proc: INIT_MULTI is func
   begin
     SCR := open(CONSOLE);
-    OUT := open_window(SCR, 2, 2, 10, 78);
-    OUT1 := open_window(SCR, 14, 30, 10, 50);
-    OUT2 := open_window(SCR, 18, 2, 6, 25);
-    OUT3 := open_window(SCR, 14, 2, 2, 25);
+    OUT := openWindow(SCR, 2, 2, 10, 78);
+    OUT1 := openWindow(SCR, 14, 30, 10, 50);
+    OUT2 := openWindow(SCR, 18, 2, 6, 25);
+    OUT3 := openWindow(SCR, 14, 2, 2, 25);
     box(OUT);
     box(OUT1);
     box(OUT2);
     box(OUT3);
-    OUT := open_tee(OUT, OUT1);
+    OUT := openTee(OUT, OUT1);
     write(OUT3, "Input? ");
     IN := open(getln(IN), "r");
     if IN = STD_NULL then
       IN := KEYBOARD;
     end if;
-    IN := open_echo(IN, open_tee(OUT1, OUT2));
-    IN := open_line(IN);
+    IN := openEcho(IN, openTee(OUT1, OUT2));
+    IN := openLine(IN);
     clear(OUT3);
     write(OUT3, " MULTI SCREEN");
   end func;

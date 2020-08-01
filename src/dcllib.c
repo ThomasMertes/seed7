@@ -357,11 +357,7 @@ objecttype dcl_getobj (listtype arguments)
     trace1(name_expr);
     printf("\n");
 #endif
-    grow_stack(&err_info);
-    if (err_info == OKAY_NO_ERROR) {
-      object_found = find_name(prog.declaration_root, name_expr, &err_info);
-      shrink_stack();
-    } /* if */
+    object_found = find_name(prog.declaration_root, name_expr, &err_info);
 #ifdef TRACE_DCL
     printf("entity=%lu ", (unsigned long) GET_ENTITY(object_found));
     printf("%lu ", (unsigned long) object_found);

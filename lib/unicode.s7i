@@ -28,8 +28,7 @@
 
 (**
  *  Convert a [[string]] with bytes in UTF-8 encoding to UTF-32.
- *  The parameter ''utf8'' is assumed to be a [[string]] of bytes.
- *  The byte sequence in ''utf8'' is encoded with UTF-8.
+ *  @param utf8 String of bytes encoded with UTF-8.
  *  @return ''utf8'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR When ''utf8'' contains a char beyond '\255\' or
  *                         when ''utf8'' is not encoded with UTF-8.
@@ -39,16 +38,16 @@ const func string: utf8ToStri (in string: utf8)                is action "STR_UT
 
 (**
  *  Convert a [[string]] to an UTF-8 encoded string.
- *  @return ''stri'' converted to an UTF-8 encoded [[string]].
+ *  @param stri Normal (UTF-32) string to be converted to UTF-8.
+ *  @return ''stri'' converted to a string of bytes with UTF-8 encoding.
  *)
 const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
 
 
 (**
  *  Convert a [[string]] with bytes in UTF-16BE encoding to UTF-32.
- *  The parameter ''utf16be'' is assumed to be a [[string]] of bytes.
- *  The byte sequence in ''utf16be'' is encoded with UTF-16 in
- *  big endian byte order.
+ *  @param utf16be String of bytes encoded with UTF-16 in
+ *         big endian byte order.
  *  @return ''utf16be'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR When the length of ''utf16be'' is odd or
  *                         when ''utf16be'' contains a char beyond '\255\' or
@@ -96,7 +95,8 @@ const func string: utf16beToStri (in string: utf16be) is func
 
 (**
  *  Convert a [[string]] to an UTF-16BE encoded string.
- *  @return ''stri'' converted to an UTF-16BE encoded [[string]].
+ *  @param stri Normal (UTF-32) string to be converted to UTF-16BE.
+ *  @return ''stri'' converted to a string of bytes with UTF-16BE encoding.
  *  @exception RANGE_ERROR When a character is not representable as UTF-16 or
  *                         the first char of a surrogate pair is found.
  *)
@@ -132,9 +132,8 @@ const func string: striToUtf16be (in string: stri) is func
 
 (**
  *  Convert a [[string]] with bytes in UTF-16LE encoding to UTF-32.
- *  The parameter ''utf16le'' is assumed to be a [[string]] of bytes.
- *  The byte sequence in ''utf16le'' is encoded with UTF-16 in
- *  little endian byte order.
+ *  @param utf16le String of bytes encoded with UTF-16 in
+ *         little endian byte order.
  *  @return ''utf16le'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR When the length of ''utf16le'' is odd or
  *                         when ''utf16le'' contains a char beyond '\255\' or
@@ -182,7 +181,8 @@ const func string: utf16leToStri (in string: utf16le) is func
 
 (**
  *  Convert a [[string]] to an UTF-16LE encoded string.
- *  @return ''stri'' converted to an UTF-16LE encoded [[string]].
+ *  @param stri Normal (UTF-32) string to be converted to UTF-16LE.
+ *  @return ''stri'' converted to a string of bytes with UTF-16LE encoding.
  *  @exception RANGE_ERROR When a character is not representable as UTF-16 or
  *                         the first char of a surrogate pair is found.
  *)
@@ -218,8 +218,8 @@ const func string: striToUtf16le (in string: stri) is func
 
 (**
  *  Return [[string]] where all surrogate pairs are replaced by single chars.
- *  The parameter ''stri'' is assumed to be a [[string]] of UTF-16 or
- *  UTF-32 Unicode characters, which may contain surrogate pairs.
+ *  @param stri String of UTF-16 or UTF-32 Unicode characters,
+ *         which may contain surrogate pairs.
  *  @return ''stri'' with all surrogate pairs replaced by single UTF-32 chars.
  *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
@@ -239,8 +239,8 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
           ch2 := stri[succ(index)];
           if ch2 >= '\16#dc00\' and ch2 <= '\16#dfff\' then
             resultStri &:= stri[startPos .. pred(index)];
-            resultStri &:= str(chr(((ord(ch1) - 16#d800) << 10) +
-                                    (ord(ch2) - 16#dc00) + 16#10000));
+            resultStri &:= chr(((ord(ch1) - 16#d800) << 10) +
+                                (ord(ch2) - 16#dc00) + 16#10000);
             startPos := succ(index);
             incr(index);
           else
@@ -257,8 +257,7 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
 
 (**
  *  Convert a [[string]] from an UTF-7 encoding to UTF-32.
- *  The parameter ''stri7'' is assumed to be a [[string]] of bytes.
- *  The byte sequence in ''stri7'' is encoded with UTF-7.
+ *  @param stri7 String of bytes encoded with UTF-7.
  *  @return ''stri7'' converted a to normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR The [[string]] is not UTF-7 encoded.
  *)
@@ -312,7 +311,7 @@ const func string: utf7ToStri (in string: stri7) is func
                 numBits -:= 16;
                 charNum := accumulator >> numBits;
                 accumulator -:= charNum << numBits;
-                unicodeStri &:= str(chr(charNum));
+                unicodeStri &:= chr(charNum);
               end if;
             else
               okay := FALSE;

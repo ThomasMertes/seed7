@@ -1531,8 +1531,8 @@ const proc: main is func
     screen := open(curr_win);
     panel := open(curr_win, 0, Y_MAXIMUM + 11);
     IN := openEditLine(KEYBOARD, screen);
-    # IN := open_echo(KEYBOARD, screen);
-    # IN := open_line(IN);
+    # IN := openEcho(KEYBOARD, screen);
+    # IN := openLine(IN);
     quit_program := FALSE;
     sound_on := TRUE;
     welcome;

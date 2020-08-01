@@ -235,12 +235,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-01-05 the number of lines is:
+than 200000 lines of Seed7. For version 2014-01-19 the number of lines is:
 
-   95531  C source files (*.c)
-    8176  C header files (*.h)
-  116532  Seed7 source files (*.sd7)
-   96989  Seed7 library/include files (*.s7i)
+   96303  C source files (*.c)
+    8209  C header files (*.h)
+  117170  Seed7 source files (*.sd7)
+   97455  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -270,7 +270,7 @@ Seed7 runs on the following operating systems:
     - Cygwin GCC (the X11 graphics needs Cygwin/X)
     - MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)
     - BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)
- - DOS (uses DJGPP, sockets and graphics are currently not supported)
+ - DOS (uses DJGPP. Sockets and graphics are currently not supported)
  - Mac OS X
 
 For other operating systems it might be necessary to write driver modules for

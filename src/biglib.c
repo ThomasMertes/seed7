@@ -258,6 +258,14 @@ objecttype big_eq (listtype arguments)
 
 
 
+/**
+ *  Convert a bstring (interpreted as big-endian) to a bigInteger.
+ *  The 'bstri' is interpreted as twos-complement representation
+ *  with a base of 256. The result is negative when the most significant
+ *  byte (the first byte) has an ordinal >= 128.
+ *  @param bstri/arg_1 Bstring that contains the data to be converted.
+ *  @return a signed bigInteger created from the big-endian bytes.
+ */
 objecttype big_fromBStriBe (listtype arguments)
 
   { /* big_fromBStriBe */
@@ -268,6 +276,14 @@ objecttype big_fromBStriBe (listtype arguments)
 
 
 
+/**
+ *  Convert a bstring (interpreted as little-endian) to a bigInteger.
+ *  The 'bstri' is interpreted as twos-complement representation
+ *  with a base of 256. The result is negative when the most significant
+ *  byte (the last byte) has an ordinal >= 128.
+ *  @param bstri/arg_1 Bstring that contains the data to be converted.
+ *  @return a signed bigInteger created from the little-endian bytes.
+ */
 objecttype big_fromBStriLe (listtype arguments)
 
   { /* big_fromBStriLe */
@@ -864,6 +880,13 @@ objecttype big_succ (listtype arguments)
 
 
 
+/**
+ *  Convert a 'bigInteger' into a little-endian 'bstring'.
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative 'number' the most significant byte of the result
+ *  (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ */
 objecttype big_toBStriBe (listtype arguments)
 
   { /* big_toBStriBe */
@@ -874,6 +897,13 @@ objecttype big_toBStriBe (listtype arguments)
 
 
 
+/**
+ *  Convert a 'bigInteger' into a big-endian 'bstring'.
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative 'number' the most significant byte of the result
+ *  (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ */
 objecttype big_toBStriLe (listtype arguments)
 
   { /* big_toBStriLe */

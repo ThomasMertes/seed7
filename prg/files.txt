@@ -209,6 +209,7 @@ struct.s7i   Struct support library
 subrange.s7i Subrange support library
 syntax.s7i   Syntax definition of the standard Seed7 library
 tar.s7i      Tar archive library
+tdes.s7i     TDES (Triple DES) cipher support.
 tee.s7i      Filter file which emulates the tee functionality
 text.s7i     Interface type for line/column oriented files
 time.s7i     Time and date library

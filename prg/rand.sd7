@@ -75,9 +75,9 @@ const proc: rand_test_3 is func
   begin
     while busy_getc(KEYBOARD) = KEY_NONE do
       for num range 1 to 1000 do
-        sum := sum + rand(-1.0, 1.0);
+        sum +:= rand(-1.0, 1.0);
       end for;
-      counter := counter + 1000;
+      counter +:= 1000;
       write(sum / flt(counter) digits 28 lpad 31 <& " " <& counter <& " " <& sum <& "    \r");
       flush(OUT);
     end while;

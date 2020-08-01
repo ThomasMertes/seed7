@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2013  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -39,6 +39,8 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 
 const integer: MAX_SHOWN_BIGINT_LITERAL_BITLENGTH is 256;
 const integer: MAX_SHOWN_STRI_LITERAL_LENGTH is 256;
+
+const bigInteger: INTTYPE_MAX is 2_ ** pred(ccConf.INTTYPE_SIZE) - 1_;
 
 const type: option_hash is hash [string] string;
 
@@ -2730,39 +2732,41 @@ const func boolean: isPureFunction (in reference: function) is func
          "ARR_CONV", "ARR_EMPTY", "ARR_EXTEND", "ARR_GEN", "ARR_HEAD", "ARR_IDX",
          "ARR_LNG", "ARR_MAXIDX", "ARR_MINIDX", "ARR_RANGE", "ARR_SORT",
          "ARR_SUBARR", "ARR_TAIL", "ARR_TIMES",
-         "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CLIT", "BIG_CMP", "BIG_DIV",
-         "BIG_EQ", "BIG_GCD", "BIG_GE", "BIG_GT", "BIG_HASHCODE", "BIG_ICONV",
-         "BIG_IPOW", "BIG_LE", "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT",
-         "BIG_LT", "BIG_MDIV", "BIG_MOD", "BIG_MULT", "BIG_NE", "BIG_NEGATE",
-         "BIG_ODD", "BIG_ORD", "BIG_PARSE", "BIG_PLUS", "BIG_PRED", "BIG_REM",
-         "BIG_RSHIFT", "BIG_SBTR", "BIG_STR", "BIG_SUCC", "BIG_VALUE",
-         "BLN_AND", "BLN_GE", "BLN_GT", "BLN_ICONV", "BLN_LE", "BLN_LT",
-         "BLN_NOT", "BLN_OR", "BLN_ORD",
+         "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CLIT", "BIG_CMP", "BIG_CONV",
+         "BIG_DIV", "BIG_EQ", "BIG_FROM_BSTRI_BE", "BIG_FROM_BSTRI_LE", "BIG_GCD",
+         "BIG_GE", "BIG_GT", "BIG_HASHCODE", "BIG_ICONV", "BIG_IPOW", "BIG_LE",
+         "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT", "BIG_LT", "BIG_MDIV",
+         "BIG_MOD", "BIG_MULT", "BIG_NE", "BIG_NEGATE", "BIG_ODD", "BIG_ORD",
+         "BIG_PARSE", "BIG_PLUS", "BIG_PRED", "BIG_REM", "BIG_RSHIFT", "BIG_SBTR",
+         "BIG_STR", "BIG_SUCC", "BIG_TO_BSTRI_BE", "BIG_TO_BSTRI_LE", "BIG_VALUE",
+         "BLN_AND", "BLN_EQ", "BLN_GE", "BLN_GT", "BLN_ICONV", "BLN_LE", "BLN_LT",
+         "BLN_NE", "BLN_NOT", "BLN_OR", "BLN_ORD", "BLN_VALUE",
          "BST_CAT", "BST_CMP", "BST_EMPTY", "BST_EQ", "BST_HASHCODE", "BST_IDX",
          "BST_LNG", "BST_NE", "BST_PARSE", "BST_STR", "BST_VALUE",
          "CHR_CHR", "CHR_CLIT", "CHR_CMP", "CHR_CONV", "CHR_EQ", "CHR_GE",
          "CHR_GT", "CHR_HASHCODE", "CHR_ICONV", "CHR_LE", "CHR_LOW", "CHR_LT",
          "CHR_NE", "CHR_ORD", "CHR_PRED", "CHR_STR", "CHR_SUCC", "CHR_UP",
-         "CHR_VALUE", "DRW_VALUE",
+         "CHR_VALUE", "CMD_CONFIG_VALUE", "DRW_VALUE",
          "ENU_CONV", "ENU_EQ", "ENU_ICONV2", "ENU_NE", "ENU_ORD2", "ENU_VALUE",
          "FIL_EQ", "FIL_NE", "FIL_VALUE",
          "FLT_A2TAN", "FLT_ABS", "FLT_ACOS", "FLT_ADD", "FLT_ASIN", "FLT_ATAN",
          "FLT_CEIL", "FLT_CMP", "FLT_COS", "FLT_COSH", "FLT_DGTS", "FLT_DIV",
          "FLT_EQ", "FLT_EXP", "FLT_FLOOR", "FLT_GE", "FLT_GT", "FLT_HASHCODE",
-         "FLT_ICONV", "FLT_IFLT", "FLT_IPOW", "FLT_ISNAN", "FLT_LE", "FLT_LOG",
-         "FLT_LOG10", "FLT_LT", "FLT_MULT", "FLT_NE", "FLT_NEGATE", "FLT_PARSE",
-         "FLT_PLUS", "FLT_POW", "FLT_ROUND", "FLT_SBTR", "FLT_SCI", "FLT_SIN",
-         "FLT_SINH", "FLT_SQRT", "FLT_STR", "FLT_TAN", "FLT_TANH", "FLT_TRUNC",
-         "FLT_VALUE",
+         "FLT_ICONV", "FLT_IFLT", "FLT_IPOW", "FLT_ISNAN", "FLT_ISNEGATIVEZERO",
+         "FLT_LE", "FLT_LOG", "FLT_LOG10", "FLT_LT", "FLT_MULT", "FLT_NE",
+         "FLT_NEGATE", "FLT_PARSE", "FLT_PLUS", "FLT_POW", "FLT_ROUND", "FLT_SBTR",
+         "FLT_SCI", "FLT_SIN", "FLT_SINH", "FLT_SQRT", "FLT_STR", "FLT_TAN",
+         "FLT_TANH", "FLT_TRUNC", "FLT_VALUE",
          "HSH_CONTAINS", "HSH_EMPTY", "HSH_IDX", "HSH_KEYS", "HSH_LNG",
          "HSH_VALUES",
          "INT_ABS", "INT_ADD", "INT_AND", "INT_BINOM", "INT_BIT_LENGTH", "INT_CMP",
          "INT_CONV", "INT_DIV", "INT_EQ", "INT_FACT", "INT_GE", "INT_GT",
          "INT_HASHCODE", "INT_LE", "INT_LOG2", "INT_LOWEST_SET_BIT", "INT_LPAD0",
          "INT_LSHIFT", "INT_LT", "INT_MDIV", "INT_MOD", "INT_MULT", "INT_NE",
-         "INT_NEGATE", "INT_ODD", "INT_OR", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW",
-         "INT_PRED", "INT_radix", "INT_RADIX", "INT_REM", "INT_RSHIFT", "INT_SBTR",
-         "INT_SQRT", "INT_STR", "INT_SUCC", "INT_URSHIFT", "INT_VALUE", "INT_XOR",
+         "INT_NEGATE", "INT_ODD", "INT_OR", "INT_ORD", "INT_PARSE", "INT_PLUS",
+         "INT_POW", "INT_PRED", "INT_radix", "INT_RADIX", "INT_REM", "INT_RSHIFT",
+         "INT_SBTR", "INT_SQRT", "INT_STR", "INT_SUCC", "INT_TO_BSTRI_BE",
+         "INT_TO_BSTRI_LE", "INT_URSHIFT", "INT_VALUE", "INT_XOR",
          "ITF_CMP", "ITF_EQ", "ITF_HASHCODE", "ITF_NE",
          "LST_CAT", "LST_ELEM", "LST_EMPTY", "LST_HEAD", "LST_IDX", "LST_LNG",
          "LST_RANGE", "LST_TAIL",
@@ -2775,16 +2779,17 @@ const func boolean: isPureFunction (in reference: function) is func
          "SET_ARRLIT", "SET_BASELIT", "SET_CARD", "SET_CMP", "SET_CONV",
          "SET_DIFF", "SET_ELEM", "SET_EMPTY", "SET_EQ", "SET_GE", "SET_GT",
          "SET_HASHCODE", "SET_ICONV", "SET_INTERSECT", "SET_LE", "SET_LT",
-         "SET_MAX", "SET_MIN", "SET_NE", "SET_NOT_ELEM", "SET_SCONV",
-         "SET_SYMDIFF", "SET_UNION", "SET_VALUE",
+         "SET_MAX", "SET_MIN", "SET_NE", "SET_NEXT", "SET_NOT_ELEM",
+         "SET_SCONV", "SET_SYMDIFF", "SET_UNION", "SET_VALUE",
          "SOC_EQ", "SOC_NE",
          "STR_CAT", "STR_CHIPOS", "STR_CHPOS", "STR_CHSPLIT", "STR_CLIT",
          "STR_CMP", "STR_EQ", "STR_GE", "STR_GT", "STR_HASHCODE", "STR_HEAD",
          "STR_IDX","STR_IPOS", "STR_LE", "STR_LIT", "STR_LNG", "STR_LOW",
-         "STR_LPAD", "STR_LPAD0", "STR_LT", "STR_MULT", "STR_NE", "STR_POS",
-         "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS", "STR_REPL", "STR_RIPOS",
-         "STR_RPAD", "STR_RPOS", "STR_SPLIT", "STR_STR", "STR_SUBSTR", "STR_TAIL",
-         "STR_TOUTF8", "STR_TRIM", "STR_UP", "STR_UTF8TOSTRI", "STR_VALUE",
+         "STR_LPAD", "STR_LPAD0", "STR_LT", "STR_LTRIM", "STR_MULT", "STR_NE",
+         "STR_POS", "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS", "STR_REPL",
+         "STR_RIPOS", "STR_RPAD", "STR_RPOS", "STR_RTRIM", "STR_SPLIT", "STR_STR",
+         "STR_SUBSTR", "STR_TAIL", "STR_TOUTF8", "STR_TRIM", "STR_UP",
+         "STR_UTF8TOSTRI", "STR_VALUE",
          "TYP_CMP", "TYP_EQ", "TYP_NE"};
     const set of string: specialFunctionActions is
         {"PRC_FOR_DOWNTO", "PRC_FOR_TO", "SET_INCL", "TYP_VARCONV"};
@@ -2946,7 +2951,8 @@ const proc: process_statements (in expr_type: condition, in expr_type: statement
   end func;
 
 
-const proc: process_else (in reference: else_part, inout expr_type: c_expr) is func
+const proc: process_else (in reference: else_part, in boolean: insertKeyword,
+    inout expr_type: c_expr) is func
 
   local
     var category: functionCategory is category.value;
@@ -2962,11 +2968,17 @@ const proc: process_else (in reference: else_part, inout expr_type: c_expr) is f
       functionCategory := category(function);
       if functionCategory = CONSTENUMOBJECT then
         process_expr(params[2], c_param2);
-        c_expr.expr &:= "else {\n";
+        if insertKeyword then
+          c_expr.expr &:= "else {\n";
+        end if;
         process_statements(c_param2, c_expr);
-        c_expr.expr &:= "}\n";
+        if insertKeyword then
+          c_expr.expr &:= "}\n";
+        end if;
       elsif functionCategory = ACTOBJECT then
-        c_expr.expr &:= "else\n";
+        if insertKeyword then
+          c_expr.expr &:= "else\n";
+        end if;
         c_expr.currentFile := file(else_part);
         c_expr.currentLine := line(else_part);
         process_action(function, params, c_expr);
@@ -2987,73 +2999,122 @@ const proc: process_else (in reference: else_part, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_const_prc_if (in boolean: condition, in reference: statement,
+    inout expr_type: c_expr) is func
+  local
+    var expr_type: c_statement is expr_type.value;
+  begin
+    incr(countOptimizations);
+    if condition then
+      c_expr.expr &:= "/* Optimized: if TRUE */ {\n";
+      process_expr(statement, c_statement);
+      process_statements(c_statement, c_expr);
+      c_expr.expr &:= "}\n";
+    else
+      c_expr.expr &:= "/* Optimized: if FALSE */\n";
+    end if;
+  end func;
+
+
 const proc: process_prc_if (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_condition is expr_type.value;
     var expr_type: c_statement is expr_type.value;
     var string: statementFile is "";
     var integer: statementLine is 0;
   begin
-    process_expr(params[2], c_condition);
-    process_expr(params[4], c_statement);
-    if c_condition.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_condition.temp_decls, c_expr);
-      AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
-    end if;
-    statementFile := c_expr.currentFile;
-    statementLine := c_expr.currentLine;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "if (";
-    c_expr.expr &:= c_condition.expr;
-    c_expr.expr &:= ") {\n";
-    process_statements(c_statement, c_expr);
-    c_expr.expr &:= "}\n";
-    if c_condition.temp_num <> 0 then
-      c_expr.currentFile := statementFile;
-      c_expr.currentLine := statementLine;
-      AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+    if getConstant(params[2], ENUMLITERALOBJECT, evaluatedParam) then
+      process_const_prc_if(getValue(evaluatedParam, boolean), params[4], c_expr);
+    else
+      process_expr(params[2], c_condition);
+      process_expr(params[4], c_statement);
+      if c_condition.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        AppendWithDiagnostic(c_condition.temp_decls, c_expr);
+        AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+      end if;
+      statementFile := c_expr.currentFile;
+      statementLine := c_expr.currentLine;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (";
+      c_expr.expr &:= c_condition.expr;
+      c_expr.expr &:= ") {\n";
+      process_statements(c_statement, c_expr);
       c_expr.expr &:= "}\n";
+      if c_condition.temp_num <> 0 then
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
+  end func;
+
+
+const proc: process_const_prc_if_elsif (in boolean: condition, in reference: thenPart,
+    in reference: elsePart, inout expr_type: c_expr) is func
+  local
+    var expr_type: c_then_part is expr_type.value;
+    var expr_type: c_else_part is expr_type.value;
+  begin
+    incr(countOptimizations);
+    c_expr.expr &:= "/* Optimized: if ";
+    c_expr.expr &:= str(condition);
+    c_expr.expr &:= " */ {\n";
+    if condition then
+      process_expr(thenPart, c_then_part);
+      process_statements(c_then_part, c_expr);
+    else
+      process_else(elsePart, FALSE, c_else_part);
+      process_statements(c_else_part, c_expr);
+    end if;
+    c_expr.expr &:= "}\n";
   end func;
 
 
 const proc: process_prc_if_elsif (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_condition is expr_type.value;
     var expr_type: c_then_part is expr_type.value;
     var expr_type: c_else_part is expr_type.value;
     var string: statementFile is "";
     var integer: statementLine is 0;
   begin
-    process_expr(params[2], c_condition);
-    process_expr(params[4], c_then_part);
-    c_else_part.temp_num := c_condition.temp_num;
-    process_else(params[5], c_else_part);
-    if c_else_part.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_condition.temp_decls, c_expr);
-      AppendWithDiagnostic(c_else_part.temp_decls, c_expr);
-      AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_else_part.temp_assigns, c_expr);
-    end if;
-    statementFile := c_expr.currentFile;
-    statementLine := c_expr.currentLine;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "if (";
-    c_expr.expr &:= c_condition.expr;
-    c_expr.expr &:= ") {\n";
-    process_statements(c_then_part, c_expr);
-    c_expr.expr &:= "} ";
-    c_expr.expr &:= c_else_part.expr;
-    if c_else_part.temp_num <> 0 then
-      c_expr.currentFile := statementFile;
-      c_expr.currentLine := statementLine;
-      AppendWithDiagnostic(c_condition.temp_frees, c_expr);
-      AppendWithDiagnostic(c_else_part.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
+    if getConstant(params[2], ENUMLITERALOBJECT, evaluatedParam) then
+      process_const_prc_if_elsif(getValue(evaluatedParam, boolean),
+          params[4], params[5], c_expr);
+    else
+      process_expr(params[2], c_condition);
+      process_expr(params[4], c_then_part);
+      c_else_part.temp_num := c_condition.temp_num;
+      process_else(params[5], TRUE, c_else_part);
+      if c_else_part.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        AppendWithDiagnostic(c_condition.temp_decls, c_expr);
+        AppendWithDiagnostic(c_else_part.temp_decls, c_expr);
+        AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+        AppendWithDiagnostic(c_else_part.temp_assigns, c_expr);
+      end if;
+      statementFile := c_expr.currentFile;
+      statementLine := c_expr.currentLine;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (";
+      c_expr.expr &:= c_condition.expr;
+      c_expr.expr &:= ") {\n";
+      process_statements(c_then_part, c_expr);
+      c_expr.expr &:= "} ";
+      c_expr.expr &:= c_else_part.expr;
+      if c_else_part.temp_num <> 0 then
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+        AppendWithDiagnostic(c_else_part.temp_frees, c_expr);
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
   end func;
 
@@ -3131,6 +3192,7 @@ const proc: process_const_prc_for (in reference: variable, in reference: startEx
     var string: start_name is "";
     var integer: temp_num is 0;
   begin
+    incr(countOptimizations);
     process_expr(startExpr, c_start_expr);
     c_statement.temp_num := c_start_expr.temp_num;
     process_expr(statement, c_statement);
@@ -5258,16 +5320,15 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: param3,
     inout expr_type: c_expr) is func
 
   local
-    var integer: log2base is 0;
-    var string: int_name is "";
+    var string: exponent_name is "";
   begin
     if base = -1_ then
       incr(countOptimizations);
       c_expr.expr &:= "(";
-      int_name := getParameterAsVariable("inttype", "tmp_", param3, c_expr);
-      c_expr.expr &:= int_name;
+      exponent_name := getParameterAsVariable("inttype", "tmp_", param3, c_expr);
+      c_expr.expr &:= exponent_name;
       c_expr.expr &:= "<0?(biginttype)(raise_error(NUMERIC_ERROR),NULL):(";
-      c_expr.expr &:= int_name;
+      c_expr.expr &:= exponent_name;
       c_expr.expr &:= "&1?";
       c_expr.expr &:= bigIntegerLiteral(-1_);
       c_expr.expr &:= ":";
@@ -5276,10 +5337,10 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: param3,
     elsif base = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= "(";
-      int_name := getParameterAsVariable("inttype", "tmp_", param3, c_expr);
-      c_expr.expr &:= int_name;
+      exponent_name := getParameterAsVariable("inttype", "tmp_", param3, c_expr);
+      c_expr.expr &:= exponent_name;
       c_expr.expr &:= "<0?(biginttype)(raise_error(NUMERIC_ERROR),NULL):(";
-      c_expr.expr &:= int_name;
+      c_expr.expr &:= exponent_name;
       c_expr.expr &:= "==0?";
       c_expr.expr &:= bigIntegerLiteral(1_);
       c_expr.expr &:= ":";
@@ -5292,19 +5353,12 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: param3,
       c_expr.expr &:= ")<0?(biginttype)(raise_error(NUMERIC_ERROR),NULL):";
       c_expr.expr &:= bigIntegerLiteral(1_);
       c_expr.expr &:= ")";
-    elsif base = 2_ then
-      incr(countOptimizations);
-      prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigLog2BaseLShift(1, ";
-      getStdParamToResultExpr(param3, c_expr);
-      c_expr.result_expr &:= ")";
-    elsif base > 0_ and log2(base) <= 2147483647_ and
+    elsif base > 0_ and log2(base) <= INTTYPE_MAX and
         2_ ** ord(log2(base)) = base then
       incr(countOptimizations);
-      log2base := ord(log2(base));
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigLog2BaseLShift(";
-      c_expr.result_expr &:= integerLiteral(log2base);
+      c_expr.result_expr := "bigLog2BaseIPow(";
+      c_expr.result_expr &:= integerLiteral(ord(log2(base)));
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(param3, c_expr);
       c_expr.result_expr &:= ")";
@@ -5532,7 +5586,7 @@ const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
       c_expr.temp_decls &:= "biginttype ";
       c_expr.temp_decls &:= bigint_name;
       c_expr.temp_decls &:= ";\n";
-      c_expr.result_expr &:= "(bigRShiftAssign((";
+      c_expr.result_expr := "(bigRShiftAssign((";
       c_expr.result_expr &:= bigint_name;
       c_expr.result_expr &:= "=";
       c_expr.result_expr &:= c_param1.result_expr;
@@ -5579,15 +5633,36 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
       c_expr.result_expr := "bigNegate(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ")";
-    elsif divisor > 0_ and log2(divisor) <= 2147483647_ and
+    elsif divisor > 0_ and log2(divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(divisor)) = divisor then
       incr(countOptimizations);
       process_const_big_rshift(param1, ord(log2(divisor)), c_expr);
-    elsif divisor < 0_ and log2(-divisor) <= 2147483647_ and
+    elsif divisor < 0_ and log2(-divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(-divisor)) = -divisor then
       incr(countOptimizations);
-      c_expr.result_expr := "bigNegateTemp(";
-      process_const_big_rshift(param1, ord(log2(-divisor)), c_expr);
+      prepare_bigint_result(c_expr);
+      incr(c_expr.temp_num);
+      bigint_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "biginttype ";
+      c_expr.temp_decls &:= bigint_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr := "(bigRShiftAssign((";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "=";
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        c_expr.result_expr &:= "bigNegateTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+      else
+        c_expr.result_expr := "bigNegate(";
+        c_expr.result_expr &:= c_param1.expr;
+      end if;
+      c_expr.result_expr &:= "), &";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= integerLiteral(ord(log2(-divisor)));
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= bigint_name;
       c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
@@ -5618,65 +5693,129 @@ const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_big_mod (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigMod(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
+const proc: process_const_big_mod (in reference: param1, in bigInteger: divisor,
     inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
-    var bigInteger: bigNumber is 0_;
+    var bigInteger: modulus is 0_;
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if divisor = 0_ then
+      incr(countOptimizations);
+      c_expr.expr &:= "(biginttype)(raise_error(NUMERIC_ERROR),NULL)";
+    elsif getConstant(param1, BIGINTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      modulus := getValue(evaluatedParam, bigInteger) mod divisor;
+      c_expr.expr &:= bigIntegerLiteral(modulus);
+    elsif divisor = 1_ or divisor = -1_ then
+      incr(countOptimizations);
+      c_expr.expr &:= bigIntegerLiteral(0_);
+    elsif divisor > 0_ and log2(divisor) <= INTTYPE_MAX and
+        2_ ** ord(log2(divisor)) = divisor then
+      incr(countOptimizations);
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        c_expr.result_expr &:= "bigLowerBitsTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+      else
+        c_expr.result_expr := "bigLowerBits(";
+        c_expr.result_expr &:= c_param1.expr;
+      end if;
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(ord(log2(divisor)));
+      c_expr.result_expr &:= ")";
+    elsif divisor < 0_ and log2(-divisor) <= INTTYPE_MAX and
+        2_ ** ord(log2(-divisor)) = -divisor then
+      incr(countOptimizations);
+      c_expr.result_expr &:= "bigNegateTemp(bigLowerBitsTemp(";
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        c_expr.result_expr &:= "bigNegateTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+      else
+        c_expr.result_expr := "bigNegate(";
+        c_expr.result_expr &:= c_param1.expr;
+      end if;
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= integerLiteral(ord(log2(-divisor)));
+      c_expr.result_expr &:= "))";
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMod(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= bigIntegerLiteral(divisor);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_big_mod (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_mod(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMod(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_big_mult (in reference: param1, in bigInteger: factor,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var bigInteger: product is 0_;
   begin
     if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      bigNumber := getValue(evaluatedParam, bigInteger) * number;
-      c_expr.expr &:= bigIntegerLiteral(bigNumber);
-    elsif number = -1_ then
+      product := getValue(evaluatedParam, bigInteger) * factor;
+      c_expr.expr &:= bigIntegerLiteral(product);
+    elsif factor = -1_ then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigNegate(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ")";
-    elsif number = 0_ then
+    elsif factor = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
-    elsif number = 1_ then
+    elsif factor = 1_ then
       incr(countOptimizations);
       process_expr(param1, c_expr);
-    elsif number > 1_ and log2(number) <= 2147483647_ and
-        2_ ** ord(log2(number)) = number then
+    elsif factor > 1_ and log2(factor) <= INTTYPE_MAX and
+        2_ ** ord(log2(factor)) = factor then
       incr(countOptimizations);
-      process_const_big_lshift(param1, ord(log2(number)), c_expr);
-    elsif number < 1_ and log2(-number) <= 2147483647_ and
-        2_ ** ord(log2(-number)) = -number then
+      process_const_big_lshift(param1, ord(log2(factor)), c_expr);
+    elsif factor < 1_ and log2(-factor) <= INTTYPE_MAX and
+        2_ ** ord(log2(-factor)) = -factor then
       incr(countOptimizations);
       c_expr.result_expr := "bigNegateTemp(";
-      process_const_big_lshift(param1, ord(log2(-number)), c_expr);
+      process_const_big_lshift(param1, ord(log2(-factor)), c_expr);
       c_expr.result_expr &:= ")";
-    elsif abs(number) <= 256_ then
+    elsif abs(factor) <= 127_ then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMultSignedDigit(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= integerLiteral(ord(number));
+      c_expr.result_expr &:= integerLiteral(ord(factor));
       c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMult(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= bigIntegerLiteral(number);
+      c_expr.result_expr &:= bigIntegerLiteral(factor);
       c_expr.result_expr &:= ")";
     end if;
   end func;
@@ -5708,14 +5847,13 @@ const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: number,
+const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: factor,
     inout expr_type: c_expr) is func
 
   local
     var expr_type: statement is expr_type.value;
-    var integer: log2base is 0;
   begin
-    if number = 0_ then
+    if factor = 0_ then
       incr(countOptimizations);
       statement.expr := "bigCpy(&(";
       process_expr(param1, statement);
@@ -5723,24 +5861,23 @@ const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: 
       statement.expr &:= bigIntegerLiteral(0_);
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
-    elsif number = 1_ then
+    elsif factor = 1_ then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore bigInteger *:= 1_; */\n";
-    elsif number > 1_ and log2(number) <= 2147483647_ and
-        2_ ** ord(log2(number)) = number then
+    elsif factor > 1_ and log2(factor) <= INTTYPE_MAX and
+        2_ ** ord(log2(factor)) = factor then
       incr(countOptimizations);
-      log2base := ord(log2(number));
       statement.expr := "bigLShiftAssign(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
-      statement.expr &:= integerLiteral(log2base);
+      statement.expr &:= integerLiteral(ord(log2(factor)));
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
       statement.expr := "bigMultAssign(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
-      statement.expr &:= bigIntegerLiteral(number);
+      statement.expr &:= bigIntegerLiteral(factor);
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     end if;
@@ -6256,6 +6393,15 @@ const proc: process_bln_ord (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "(inttype)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_bln_value (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "blnValue(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -9397,6 +9543,7 @@ const proc: process_const_flt_le (in float: number, in reference: param3,
     end if;
   end func;
 
+
 const proc: process_const_flt_le (in reference: param1, in float: number,
     inout expr_type: c_expr) is func
 
@@ -9429,6 +9576,7 @@ const proc: process_const_flt_le (in reference: param1, in float: number,
       c_expr.expr &:= floatLiteral(number);
     end if;
   end func;
+
 
 const proc: process_flt_le (in ref_list: params, inout expr_type: c_expr) is func
 
@@ -10817,6 +10965,10 @@ const proc: process_const_int_mdiv (in reference: param1, in integer: divisor,
         c_expr.expr &:= ")";
       end if;
     elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
+      # The check above is (almost) equivalent to:
+      #   divisor < 0 and 2 ** log2(-divisor) = -divisor
+      # The check with bitLength is used to avoid negating the divisor.
+      # Negating the divisor would fail for the most negative integer.
       if ccConf.RSHIFT_DOES_SIGN_EXTEND then
         c_expr.expr &:= "-(";
         process_expr(param1, c_expr);
@@ -10971,6 +11123,10 @@ const proc: process_const_int_mod (in reference: param1, in integer: divisor,
       c_expr.expr &:= ")&";
       c_expr.expr &:= str(pred(divisor));
     elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
+      # The check above is (almost) equivalent to:
+      #   divisor < 0 and 2 ** log2(-divisor) = -divisor
+      # The check with bitLength is used to avoid negating the divisor.
+      # Negating the divisor would fail for the most negative integer.
       c_expr.expr &:= "-(-(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")&";
@@ -17319,6 +17475,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_bln_or(params, c_expr);
       elsif action_name = "BLN_ORD" then
         process_bln_ord(params, c_expr);
+      elsif action_name = "BLN_VALUE" then
+        process_bln_value(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -19914,8 +20072,12 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
             create_name2(getValue(current_expression, ref_list)[1], c_expr.expr);
           end if;
           c_expr.expr &:= " */ ";
-          setVar(evaluated_expression, FALSE);
           current_expression := evaluated_expression;
+          if category(current_expression) = VARENUMOBJECT then
+            current_expression := getValue(current_expression, reference);
+          else
+            setVar(current_expression, FALSE);
+          end if;
         end if;
       exception
         catch NUMERIC_ERROR: c_expr.expr &:= "/* NUMERIC_ERROR */ "; # noop;
@@ -21364,6 +21526,9 @@ const proc: process_enum_declaration (in reference: current_object,
 
   begin
     if isVar(current_object) or not isFunc(getType(current_object)) then
+      if not isVar(current_object) then
+        c_expr.expr &:= "const ";
+      end if;
       declare_type_if_necessary(getType(current_object), c_expr);
       c_expr.expr &:= type_name(getType(current_object));
       c_expr.expr &:= " o_";
@@ -21392,6 +21557,7 @@ const proc: process_enum_literal_declaration (in reference: current_object,
       if current_object not in enum_literal[enum_type] then
         enum_literal[enum_type] @:= [current_object] length(enum_literal[enum_type]);
       end if;
+      c_expr.expr &:= "const ";
       declare_type_if_necessary(enum_type, c_expr);
       c_expr.expr &:= type_name(enum_type);
       c_expr.expr &:= " o_";
@@ -22863,6 +23029,16 @@ const proc: process_object (in reference: current_object) is func
   end func;
 
 
+const proc: process_library_import_object (in reference: current_object) is func
+
+  local
+    var expr_type: c_expr is expr_type.value;
+  begin
+    process_object_declaration(current_object, c_expr);
+    global_c_expr := expr_type.value;
+  end func;
+
+
 const proc: write_file_head is func
 
   begin
@@ -23232,7 +23408,7 @@ const proc: write_prototypes is func
     declareExtern("biginttype  bigCreate (const const_biginttype);");
     declareExtern("generictype bigCreateGeneric (const generictype);");
     declareExtern("void        bigDecr (biginttype *const);");
-    declareExtern("void        bigDestr (const const_biginttype);");
+    declareExtern("void        bigDestr (const biginttype);");
     declareExtern("void        bigDestrGeneric (const generictype);");
     declareExtern("biginttype  bigDiv (const const_biginttype, const const_biginttype);");
     declareExtern("booltype    bigEq (const const_biginttype, const const_biginttype);");
@@ -23254,11 +23430,13 @@ const proc: write_prototypes is func
     declareExtern("void        bigIncr (biginttype *const);");
     declareExtern("biginttype  bigIPow (const const_biginttype, inttype);");
     declareExtern("biginttype  bigLog2 (const const_biginttype);");
+    declareExtern("biginttype  bigLowerBits (const const_biginttype, const inttype);");
+    declareExtern("biginttype  bigLowerBitsTemp (const biginttype, const inttype);");
     declareExtern("inttype     bigLowestSetBit (const const_biginttype);");
     declareExtern("biginttype  bigLShift (const const_biginttype, const inttype);");
     declareExtern("void        bigLShiftAssign (biginttype *const, inttype);");
     declareExtern("biginttype  bigLShiftOne (const inttype);");
-    declareExtern("biginttype  bigLog2BaseLShift (const inttype, const inttype);");
+    declareExtern("biginttype  bigLog2BaseIPow (const inttype, const inttype);");
     declareExtern("biginttype  bigMDiv (const const_biginttype, const const_biginttype);");
     declareExtern("biginttype  bigMod (const const_biginttype, const const_biginttype);");
     declareExtern("biginttype  bigMult (const_biginttype, const_biginttype);");
@@ -23296,6 +23474,7 @@ const proc: write_prototypes is func
     declareExtern("biginttype  bigXor (const_biginttype, const_biginttype);");
     declareExtern("biginttype  bigZero (void);");
     declareExtern("void        blnCpy (booltype *, booltype);");
+    declareExtern("booltype    blnValue (objreftype);");
     declareExtern("void        bstAppend (bstritype *const, const_bstritype);");
     declareExtern("bstritype   bstCat (const_bstritype, const_bstritype);");
     declareExtern("inttype     bstCmp (const const_bstritype, const const_bstritype);");
@@ -25253,7 +25432,7 @@ const proc: pass_2 (in string: source, in program: prog,
                 if endsWith(path(prog), file(obj)) then
                   process_object(obj);
                 else
-                  noop; # writeln(file(obj));
+                  process_library_import_object(obj);
                 end if;
               end for;
             else

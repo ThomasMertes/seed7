@@ -31,7 +31,7 @@ const type: upper_file is sub null_file struct
   end struct;
 
 
-const func file: open_upper (in file: aFile) is func
+const func file: openUpper (in file: aFile) is func
   result
     var file: newFile is STD_NULL;
   local
@@ -40,6 +40,10 @@ const func file: open_upper (in file: aFile) is func
     new_upper_file.destination_file := aFile;
     newFile := toInterface(new_upper_file);
   end func;
+
+
+const func file: open_upper (in file: aFile) is
+  return openUpper(aFile);
 
 
 (*

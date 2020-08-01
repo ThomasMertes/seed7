@@ -28,12 +28,18 @@
 
 (**
  *  Enumeration of cipher algorithms.
+ *  Currently the ciphers NO_CIPHER, RC4, DES and TDES are supported.
  *)
 const type: cipherAlgorithm is new enum
-    NO_CIPHER, RC4, RC2, DES, _3DES, DES40
+    NO_CIPHER, RC4, RC2, DES, TDES, DES40
   end enum;
 
 
+(**
+ *  Interface type for the internal state of a cipher.
+ *  The cipherState interface is implemented with [[arc4]], [[des]],
+ *  [[tdes]] and [[#noCipherState|noCipher]] (no encryption).
+ *)
 const type: cipherState is sub object interface;
 
 
@@ -71,6 +77,10 @@ const func string: decode (inout cipherState: state, in string: encoded) is DYNA
 (* NO_CIPHER *)
 
 
+(**
+ *  [[cipher|cipherState]] implementation type describing the state when no cipher is used.
+ *  The data remains unencrypted, when NO_CIPHER is used.
+ *)
 const type: noCipherState is new struct
   end struct;
 

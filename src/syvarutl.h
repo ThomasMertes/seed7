@@ -25,32 +25,59 @@
 /*                                                                  */
 /********************************************************************/
 
-#define SYS_EMPTY_OBJECT              prog.sys_var[ 0]
-#define SYS_MEM_EXCEPTION             prog.sys_var[ 1]
-#define SYS_NUM_EXCEPTION             prog.sys_var[ 2]
-#define SYS_RNG_EXCEPTION             prog.sys_var[ 3]
-#define SYS_FIL_EXCEPTION             prog.sys_var[ 4]
-#define SYS_ACT_ILLEGAL_EXCEPTION     prog.sys_var[ 5]
-#define SYS_FALSE_OBJECT              prog.sys_var[ 6]
-#define SYS_TRUE_OBJECT               prog.sys_var[ 7]
-#define SYS_TYPE_TYPE                 prog.sys_var[ 8]
-#define SYS_EXPR_TYPE                 prog.sys_var[ 9]
-#define SYS_INT_TYPE                  prog.sys_var[10]
-#define SYS_BIGINT_TYPE               prog.sys_var[11]
-#define SYS_CHAR_TYPE                 prog.sys_var[12]
-#define SYS_STRI_TYPE                 prog.sys_var[13]
-#define SYS_PROC_TYPE                 prog.sys_var[14]
-#define SYS_FLT_TYPE                  prog.sys_var[15]
-#define SYS_ASSIGN_OBJECT             prog.sys_var[16]
-#define SYS_CREA_OBJECT               prog.sys_var[17]
-#define SYS_DESTR_OBJECT              prog.sys_var[18]
-#define SYS_ORD_OBJECT                prog.sys_var[19]
-#define SYS_IN_OBJECT                 prog.sys_var[20]
-#define SYS_PROT_OUTFILE_OBJECT       prog.sys_var[21]
-#define SYS_FLUSH_OBJECT              prog.sys_var[22]
-#define SYS_WRITE_OBJECT              prog.sys_var[23]
-#define SYS_WRLN_OBJECT               prog.sys_var[24]
-#define SYS_MAIN_OBJECT               prog.sys_var[25]
+#define EMPTY_OBJECT(prog)          (prog)->sys_var[ 0]
+#define MEM_EXCEPTION(prog)         (prog)->sys_var[ 1]
+#define NUM_EXCEPTION(prog)         (prog)->sys_var[ 2]
+#define RNG_EXCEPTION(prog)         (prog)->sys_var[ 3]
+#define FIL_EXCEPTION(prog)         (prog)->sys_var[ 4]
+#define ACT_ILLEGAL_EXCEPTION(prog) (prog)->sys_var[ 5]
+#define FALSE_OBJECT(prog)          (prog)->sys_var[ 6]
+#define TRUE_OBJECT(prog)           (prog)->sys_var[ 7]
+#define TYPE_TYPE(prog)             (prog)->sys_var[ 8]
+#define EXPR_TYPE(prog)             (prog)->sys_var[ 9]
+#define INT_TYPE(prog)              (prog)->sys_var[10]
+#define BIGINT_TYPE(prog)           (prog)->sys_var[11]
+#define CHAR_TYPE(prog)             (prog)->sys_var[12]
+#define STRI_TYPE(prog)             (prog)->sys_var[13]
+#define PROC_TYPE(prog)             (prog)->sys_var[14]
+#define FLT_TYPE(prog)              (prog)->sys_var[15]
+#define ASSIGN_OBJECT(prog)         (prog)->sys_var[16]
+#define CREA_OBJECT(prog)           (prog)->sys_var[17]
+#define DESTR_OBJECT(prog)          (prog)->sys_var[18]
+#define ORD_OBJECT(prog)            (prog)->sys_var[19]
+#define IN_OBJECT(prog)             (prog)->sys_var[20]
+#define PROT_OUTFILE_OBJECT(prog)   (prog)->sys_var[21]
+#define FLUSH_OBJECT(prog)          (prog)->sys_var[22]
+#define WRITE_OBJECT(prog)          (prog)->sys_var[23]
+#define WRLN_OBJECT(prog)           (prog)->sys_var[24]
+#define MAIN_OBJECT(prog)           (prog)->sys_var[25]
+
+#define SYS_EMPTY_OBJECT          EMPTY_OBJECT(&prog)
+#define SYS_MEM_EXCEPTION         MEM_EXCEPTION(&prog)
+#define SYS_NUM_EXCEPTION         NUM_EXCEPTION(&prog)
+#define SYS_RNG_EXCEPTION         RNG_EXCEPTION(&prog)
+#define SYS_FIL_EXCEPTION         FIL_EXCEPTION(&prog)
+#define SYS_ACT_ILLEGAL_EXCEPTION ACT_ILLEGAL_EXCEPTION(&prog)
+#define SYS_FALSE_OBJECT          FALSE_OBJECT(&prog)
+#define SYS_TRUE_OBJECT           TRUE_OBJECT(&prog)
+#define SYS_TYPE_TYPE             TYPE_TYPE(&prog)
+#define SYS_EXPR_TYPE             EXPR_TYPE(&prog)
+#define SYS_INT_TYPE              INT_TYPE(&prog)
+#define SYS_BIGINT_TYPE           BIGINT_TYPE(&prog)
+#define SYS_CHAR_TYPE             CHAR_TYPE(&prog)
+#define SYS_STRI_TYPE             STRI_TYPE(&prog)
+#define SYS_PROC_TYPE             PROC_TYPE(&prog)
+#define SYS_FLT_TYPE              FLT_TYPE(&prog)
+#define SYS_ASSIGN_OBJECT         ASSIGN_OBJECT(&prog)
+#define SYS_CREA_OBJECT           CREA_OBJECT(&prog)
+#define SYS_DESTR_OBJECT          DESTR_OBJECT(&prog)
+#define SYS_ORD_OBJECT            ORD_OBJECT(&prog)
+#define SYS_IN_OBJECT             IN_OBJECT(&prog)
+#define SYS_PROT_OUTFILE_OBJECT   PROT_OUTFILE_OBJECT(&prog)
+#define SYS_FLUSH_OBJECT          FLUSH_OBJECT(&prog)
+#define SYS_WRITE_OBJECT          WRITE_OBJECT(&prog)
+#define SYS_WRLN_OBJECT           WRLN_OBJECT(&prog)
+#define SYS_MAIN_OBJECT           MAIN_OBJECT(&prog)
 
 
 int find_sysvar (const_stritype stri);

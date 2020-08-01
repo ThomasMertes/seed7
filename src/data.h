@@ -384,6 +384,7 @@ typedef struct propertyrootstruct {
 
 typedef struct progstruct {
     uinttype usage_count;
+    progtype owningProg;
     objecttype main_object;
     const_stritype arg0;
     const_stritype program_name;

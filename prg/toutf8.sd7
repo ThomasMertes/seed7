@@ -38,7 +38,7 @@ const proc: main is func
     var string: stri is "";
     var char: ch is ' ';
   begin
-    if length(argv(PROGRAM)) < 3 then
+    if length(argv(PROGRAM)) < 2 then
       writeln("Toutf8 Version 1.0 - Convert a file to UTF-8");
       writeln("Copyright (C) 2006, 2010 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
@@ -46,7 +46,7 @@ const proc: main is func
       writeln("Toutf8 is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: toutf8 -codepage infile outfile");
+      writeln("usage: toutf8 -codepage infile [outfile]");
       writeln;
       writeln("Converts a file encoded with a codepage to UTF-8.");
       writeln("The following codepages are supported:");
@@ -67,7 +67,9 @@ const proc: main is func
     else
       conv_name := argv(PROGRAM)[1];
       in_name := argv(PROGRAM)[2];
-      out_name := argv(PROGRAM)[3];
+      if length(argv(PROGRAM)) >= 3 then
+        out_name := argv(PROGRAM)[3];
+      end if;
       in_file := open(in_name, "r");
       if in_file <> STD_NULL then
         stri := gets(in_file, length(in_file));
@@ -189,7 +191,11 @@ const proc: main is func
           conv2unicodeByName(stri, conv_name);
         end if;
         if stri <> "" then
-          out_file := open_utf8(out_name, "w");
+          if out_name <> "" then
+            out_file := openUtf8(out_name, "w");
+          else
+            out_file := STD_UTF8_OUT;
+          end if;
           if out_file <> STD_NULL then
             write(out_file, stri);
             close(out_file);

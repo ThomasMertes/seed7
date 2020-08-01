@@ -392,7 +392,7 @@ const proc: showTime is func
     var float: greenwichMeanSiderealTime is 0.0;
     var time: gmTime is time.value;
   begin
-    win := open_window(scr, 2, 58, 8, 32);
+    win := openWindow(scr, 2, 58, 8, 32);
     showLocalTime(win);
     julianDayNumber := julianDayNumber(aTime);
     writeln(win, "julianDayNum =" <& julianDayNumber lpad 10);
@@ -566,7 +566,7 @@ const proc: plotInnerPlanets is func
     var integer: planetNumber is 0;
   begin
     clear(curr_win);
-    win := open_window(scr, 2, 135, 7, 32);
+    win := openWindow(scr, 2, 135, 7, 32);
     showLocalTime(win);
     julianDayNumber := julianDayNumber(aTime);
     writeln(win, "julianDayNum =" <& julianDayNumber lpad 10);
@@ -591,7 +591,7 @@ const proc: plotOuterPlanets is func
     var integer: planetNumber is 0;
   begin
     clear(curr_win);
-    win := open_window(scr, 2, 135, 7, 32);
+    win := openWindow(scr, 2, 135, 7, 32);
     showLocalTime(win);
     julianDayNumber := julianDayNumber(aTime);
     writeln(win, "julianDayNum =" <& julianDayNumber lpad 10);
@@ -949,7 +949,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
     showTime;
     planet := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[planetNumber]);
 
-    win := open_window(scr, 2, 3, 7, 51);
+    win := openWindow(scr, 2, 3, 7, 51);
     setPos(win, 1, 1);
     write  (win, "                          ");
     writeln(win, orbitDescr[planetNumber].name);
@@ -963,7 +963,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
     if planetNumber <> 3 then
 
       earth := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[3]);
-      win := open_window(scr, 2, 40, 7, 14);
+      win := openWindow(scr, 2, 40, 7, 14);
       setPos(win, 1, 1);
       writeln(win, "     Earth");
       writeln(win, angleAsDegrees(earth.meanLongitude));
@@ -977,7 +977,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
       (* Project Position of Planet onto plane of ecliptic *)
       ProjectPlanetOntoEclipticalPlane(planet, orbitDescr[planetNumber]);
 
-      win := open_window(scr, 11, 12, 2, 68);
+      win := openWindow(scr, 11, 12, 2, 68);
       setPos(win, 1, 1);
       write(win, "Projected Longitude  = ");
       write(win, angleAsDegrees(planet.projectedHeliocentricLongitude));
@@ -990,7 +990,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
       (* Calculate Ecliptical Coordinates *)
       geocentricPos.eclipticalCoordinate := calculateEclipticalCoordinates(planet, earth);
 
-      win := open_window(scr, 19, 3, 5, 22);
+      win := openWindow(scr, 19, 3, 5, 22);
       setPos(win, 1, 1);
       writeln(win, "      ECLIPTIC");
       writeln(win);
@@ -1004,7 +1004,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
       geocentricPos.equatorialCoordinate := calculateEquatorialCoordinates(
           geocentricPos.eclipticalCoordinate);
 
-      win := open_window(scr, 19, 29, 5, 23);
+      win := openWindow(scr, 19, 29, 5, 23);
       setPos(win, 1, 1);
       writeln(win, "     EQUATORIAL");
       writeln(win);
@@ -1031,7 +1031,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
           geocentricPos.equatorialCoordinate,
           posAtEarth, geocentricPos.hourAngle);
 
-      win := open_window(scr, 19, 56, 5, 23);
+      win := openWindow(scr, 19, 56, 5, 23);
       setPos(win, 1, 1);
       writeln(win, "      HORIZONTAL");
       writeln(win);
@@ -1041,7 +1041,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
 
       (* Calculate Time and Position of Rise and Set *)
 
-      win := open_window(scr, 15, 4, 2, 50);
+      win := openWindow(scr, 15, 4, 2, 50);
       setPos(win, 1, 1);
       azimuthOfRise := sinD(geocentricPos.equatorialCoordinate.declination) / cosD(posAtEarth.latitude);
       if azimuthOfRise < -1.0 or azimuthOfRise > 1.0 then
@@ -1097,7 +1097,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
 
       (* Calculate Phase, Distance, Diameter, Magnitude *)
 
-      win := open_window(scr, 12, 57, 5, 23);
+      win := openWindow(scr, 12, 57, 5, 23);
       setPos(win, 1, 1);
 
       phase := (1.0 + cosD(geocentricPos.eclipticalCoordinate.geocentricEclipticLongitude -
@@ -1412,8 +1412,8 @@ const proc: main is func
     clear(curr_win, black);
     KEYBOARD := GRAPH_KEYBOARD;
     scr := open(curr_win);
-    IN := open_echo(KEYBOARD, scr);
-    IN := open_line(IN);
+    IN := openEcho(KEYBOARD, scr);
+    IN := openLine(IN);
     OUT := scr;
     aTime := truncToSecond(time(NOW));
     initOrbitDescr;

@@ -264,6 +264,22 @@ wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
 
 
 
+bstritype drwGetImage (const_wintype actual_window)
+
+  {
+    bstritype result;
+
+  /* drwGetImage */
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      result->size = 0;
+    } /* if */
+    return result;
+  } /* drwGetImage */
+
+
+
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
 
   { /* drwGetPixel */

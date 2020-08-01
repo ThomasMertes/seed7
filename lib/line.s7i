@@ -39,7 +39,7 @@ const type: line_file is sub null_file struct
  *  Open a line_file to filter ''aFile'' linewise.
  *  @return the file opened.
  *)
-const func file: open_line (in file: aFile) is func
+const func file: openLine (in file: aFile) is func
   result
     var file: newFile is STD_NULL;
   local
@@ -48,6 +48,10 @@ const func file: open_line (in file: aFile) is func
     new_line_file.baseFile := aFile;
     newFile := toInterface(new_line_file);
   end func;
+
+
+const func file: open_line (in file: aFile) is
+  return openLine(aFile);
 
 
 (**

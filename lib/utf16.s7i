@@ -128,33 +128,63 @@ const type: utf16le_file is sub utf16_file struct
 
 (**
  *  Opens an Unicode file which uses the UTF-16LE encoding.
+ *  The file is opened with the specified ''path'' and ''mode''.
  *  When the file is opened with one of the modes "w", "w+", "wt" or
  *  "wt+" an appropriate BOM is created. When the file is opened
  *  with a any other mode the application program is in charge to
- *  handle optional BOM markers. This way 'open_utf16le' can be used
+ *  handle optional BOM markers. This way 'openUtf16le' can be used
  *  to open existing files without BOM.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened.
- *  @exception RANGE_ERROR Illegal 'mode' or 'fileName' not in
- *             standard path representation.
+ *          if it could not be opened or when ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
  *)
-const func file: open_utf16le (in string: fileName, in string: mode) is func
+const func file: openUtf16le (in string: path, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
     var utf16le_file: new_le_file is utf16le_file.value;
   begin
-    open_file := openClibFile(fileName, mode);
+    open_file := openClibFile(path, mode);
     if open_file <> CLIB_NULL_FILE then
       if mode[1 len 1] = "w" then
         write(open_file, "\16#FF\\16#FE\");
       end if;
       new_le_file.ext_file := open_file;
-      new_le_file.name := fileName;
+      new_le_file.name := path;
       newFile := toInterface(new_le_file);
     end if;
   end func;
+
+
+const func file: open_utf16le (in string: path, in string: mode) is
+  return openUtf16le(path, mode);
 
 
 (**
@@ -230,8 +260,8 @@ const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
           end if;
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
             # ch1 and ch2 are a surrogate pair
-            striRead &:= str(chr((ord(ch1) - 16#D800) << 10 +
-                               (ord(ch2) - 16#DC00) + 16#10000));
+            striRead &:= chr((ord(ch1) - 16#D800) << 10 +
+                             (ord(ch2) - 16#DC00) + 16#10000);
           else
             raise RANGE_ERROR;
           end if;
@@ -250,33 +280,63 @@ const type: utf16be_file is sub utf16_file struct
 
 (**
  *  Opens an Unicode file which uses the UTF-16BE encoding.
+ *  The file is opened with the specified ''path'' and ''mode''.
  *  When the file is opened with one of the modes "w", "w+", "wt" or
  *  "wt+" an appropriate BOM is created. When the file is opened
  *  with a any other mode the application program is in charge to
- *  handle optional BOM markers. This way 'open_utf16be' can be used
+ *  handle optional BOM markers. This way 'openUtf16be' can be used
  *  to open existing files without BOM.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened.
- *  @exception RANGE_ERROR Illegal 'mode' or 'fileName' not in
- *             standard path representation.
+ *          if it could not be opened or when ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
  *)
-const func file: open_utf16be (in string: fileName, in string: mode) is func
+const func file: openUtf16be (in string: path, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
     var utf16be_file: new_be_file is utf16be_file.value;
   begin
-    open_file := openClibFile(fileName, mode);
+    open_file := openClibFile(path, mode);
     if open_file <> CLIB_NULL_FILE then
       if mode[1 len 1] = "w" then
         write(open_file, "\16#FE\\16#FF\");
       end if;
       new_be_file.ext_file := open_file;
-      new_be_file.name := fileName;
+      new_be_file.name := path;
       newFile := toInterface(new_be_file);
     end if;
   end func;
+
+
+const func file: open_utf16be (in string: path, in string: mode) is
+  return openUtf16be(path, mode);
 
 
 (**
@@ -352,8 +412,8 @@ const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
           end if;
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
             # ch1 and ch2 are a surrogate pair
-            striRead &:= str(chr((ord(ch1) - 16#D800) << 10 +
-                                 (ord(ch2) - 16#DC00) + 16#10000));
+            striRead &:= chr((ord(ch1) - 16#D800) << 10 +
+                             (ord(ch2) - 16#DC00) + 16#10000);
           else
             raise RANGE_ERROR;
           end if;
@@ -368,15 +428,41 @@ const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
 
 (**
  *  Opens an Unicode file which uses the UTF-16LE or UTF-16BE encoding.
- *  The function 'open_utf16' checks for a BOM and depending on that
+ *  The file is opened with the specified ''path'' and ''mode''.
+ *  The function 'openUtf16' checks for a BOM and depending on that
  *  opens an UTF-16LE or UTF-16BE file. When the file contains no BOM
  *  the function returns [[null_file#STD_NULL|STD_NULL]].
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened.
- *  @exception RANGE_ERROR Illegal 'mode' or 'fileName' not in
- *             standard path representation.
+ *          if it could not be opened or when ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
  *)
-const func file: open_utf16 (in string: fileName, in string: mode) is func
+const func file: openUtf16 (in string: path, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
@@ -385,19 +471,23 @@ const func file: open_utf16 (in string: fileName, in string: mode) is func
     var utf16be_file: new_be_file is utf16be_file.value;
     var string: bom is "";
   begin
-    open_file := openClibFile(fileName, mode);
+    open_file := openClibFile(path, mode);
     if open_file <> CLIB_NULL_FILE then
       bom := gets(open_file, 2);
       if bom = "\16#FF\\16#FE\" then
         new_le_file.ext_file := open_file;
-        new_le_file.name := fileName;
+        new_le_file.name := path;
         newFile := toInterface(new_le_file);
       elsif bom = "\16#FE\\16#FF\" then
         new_be_file.ext_file := open_file;
-        new_be_file.name := fileName;
+        new_be_file.name := path;
         newFile := toInterface(new_be_file);
       else
         close(open_file);
       end if;
     end if;
   end func;
+
+
+const func file: open_utf16 (in string: path, in string: mode) is
+  return openUtf16(path, mode);

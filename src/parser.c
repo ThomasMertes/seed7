@@ -74,7 +74,7 @@ static void init_dollar_type (objecttype declared_object,
 #ifdef TRACE_PARSER
     printf("BEGIN init_dollar_type\n");
 #endif
-    if ((generated_type = new_type(&prog, meta_type, NULL)) == NULL) {
+    if ((generated_type = new_type(prog.owningProg, meta_type, NULL)) == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
       SET_CATEGORY_OF_OBJ(declared_object, TYPEOBJECT);

@@ -1086,7 +1086,7 @@ const proc: main is func
         if log = STD_NULL then
           writeln("  ***** Could not open log file.");
         else
-          log := open_line(log);
+          log := openLine(log);
           writeln;
           writeln("Processing - Press any key to pause (may take some time to react)");
           writeln("         progress:      okay:  bad blks:     fixed:   bad bytes:");

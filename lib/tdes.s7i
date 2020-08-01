@@ -1,0 +1,136 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tdes.s7i      TDES (Triple DES) cipher support.                 *)
+(*  Copyright (C) 2014  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bin32.s7i";
+include "cipher.s7i";
+include "des.s7i";
+
+
+(**
+ *  [[cipher|cipherState]] implementation type describing the state of a TDES cipher.
+ *  The data is encrypted / decrypted with the TDES (Triple DES)
+ *  block cipher.
+ *)
+const type: tdesState is new struct
+    var array bin32: encryptionSubkey1 is 0 times bin32.value;
+    var array bin32: encryptionSubkey2 is 0 times bin32.value;
+    var array bin32: encryptionSubkey3 is 0 times bin32.value;
+    var array bin32: decryptionSubkey1 is 0 times bin32.value;
+    var array bin32: decryptionSubkey2 is 0 times bin32.value;
+    var array bin32: decryptionSubkey3 is 0 times bin32.value;
+    var string: cipherBlock is "";
+  end struct;
+
+
+type_implements_interface(tdesState, cipherState);
+
+
+(**
+ *  Block size used by the TDES (Triple DES) block cipher.
+ *  @return the block size used by the TDES cipher.
+ *)
+const func integer: blockSize (TDES) is 8;
+
+
+(**
+ *  Set the key for the TDES (Triple DES) block cipher.
+ *  @return the TDES (Triple DES) cipher state.
+ *)
+const func tdesState: setTdesKey (in string: desKey, in string: initializationVector) is func
+  result
+    var tdesState: state is tdesState.value;
+  begin
+    state.encryptionSubkey1 := setDesKey(desKey[1 len 8]);
+    state.decryptionSubkey1 := reverseKeyScheduleOrder(state.encryptionSubkey1);
+    state.encryptionSubkey2 := setDesKey(desKey[9 len 8]);
+    state.decryptionSubkey2 := reverseKeyScheduleOrder(state.encryptionSubkey2);
+    state.encryptionSubkey3 := setDesKey(desKey[17 len 8]);
+    state.decryptionSubkey3 := reverseKeyScheduleOrder(state.encryptionSubkey3);
+    state.cipherBlock := initializationVector;
+  end func;
+
+
+const func cipherState: setCipherKey (TDES, in string: cipherKey,
+    in string: initializationVector) is
+  return toInterface(setTdesKey(cipherKey, initializationVector));
+
+
+(**
+ *  Encode a string with the TDES (Triple DES) block cipher.
+ *  @return the encoded string.
+ *)
+const func string: encode (inout tdesState: state, in string: plaintext) is func
+  result
+    var string: encoded is "";
+  local
+    var integer: index is 0;
+    var integer: subIndex is 0;
+    var string: dataBlock is "";
+    var string: cipherBlock is "";
+  begin
+    for index range 1 to length(plaintext) step 8 do
+      dataBlock := "";
+      for subIndex range 1 to 8 do
+        dataBlock &:= chr(ord(bin32(plaintext[pred(index + subIndex)]) ><
+                              bin32(state.cipherBlock[subIndex])));
+      end for;
+      cipherBlock := processDesBlock(state.encryptionSubkey3,
+                     processDesBlock(state.decryptionSubkey2,
+                     processDesBlock(state.encryptionSubkey1, dataBlock)));
+      state.cipherBlock := cipherBlock;
+      encoded &:= cipherBlock;
+    end for;
+  end func;
+
+
+(**
+ *  Decode a string with the TDES (Triple DES) block cipher.
+ *  @return the decoded string.
+ *)
+const func string: decode (inout tdesState: state, in string: encoded) is func
+  result
+    var string: plaintext is "";
+  local
+    var integer: index is 0;
+    var integer: subIndex is 0;
+    var string: cipherBlock is "";
+    var string: dataBlock is "";
+    var string: plainBlock is "";
+  begin
+    for index range 1 to length(encoded) step 8 do
+      cipherBlock := encoded[index len 8];
+      dataBlock := processDesBlock(state.decryptionSubkey1,
+                   processDesBlock(state.encryptionSubkey2,
+                   processDesBlock(state.decryptionSubkey3, cipherBlock)));
+      for subIndex range 1 to 8 do
+        plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><
+                              bin32(state.cipherBlock[subIndex])));
+      end for;
+      state.cipherBlock := cipherBlock;
+    end for;
+  end func;

@@ -395,6 +395,11 @@ static inline booltype res_init (const_locobjtype block_result,
     trace1(block_result->init_value);
     printf("\n"); */
     if (block_result->object != NULL) {
+      /* Backup_block_result is initialized in res_init and used   */
+      /* res_restore. Backup_block_result is initialized and used  */
+      /* conditionally. In both cases (initialisation and use) the */
+      /* same condition is used. Possible compiler warnings that   */
+      /* "it may be used uninitialized" can be ignored.            */
       *backup_block_result = block_result->object->value.objvalue;
       create_local_object(block_result, block_result->init_value, &err_info);
     } /* if */
@@ -423,6 +428,11 @@ static inline void res_restore (const_locobjtype block_result,
         /* CLEAR_VAR_FLAG(*result); */
         SET_TEMP_FLAG(*result);
       } /* if */
+      /* Backup_block_result is initialized in res_init and used   */
+      /* res_restore. Backup_block_result is initialized and used  */
+      /* conditionally. In both cases (initialisation and use) the */
+      /* same condition is used. Possible compiler warnings that   */
+      /* "it may be used uninitialized" can be ignored.            */
       block_result->object->value.objvalue = backup_block_result;
     } else if (*result != NULL && !TEMP_OBJECT(*result) &&
         CATEGORY_OF_OBJ(*result) != ENUMLITERALOBJECT) {
@@ -1038,6 +1048,18 @@ printf("\n"); */
 /* printf("element_value ");
 trace1(element_value);
 printf("\n"); */
+#ifndef WITH_OBJECT_FREELIST
+        /* When a freelist is used exec_action examines the     */
+        /* object on the freelist and will not free it, because */
+        /* the TEMP flag is not set for free list objects.      */
+        if (TEMP_OBJECT(element_value)) {
+          /* Exec_dynamic is called from the action PRC_DYNAMIC. */
+          /* PRC_DYNAMIC is called from exec_action. Exec_action */
+          /* frees temporary objects. To avoid double frees the  */
+          /* TEMP flag must be cleared here.                     */
+          CLEAR_TEMP_FLAG(element_value);
+        } /* if */
+#endif
         /* err_info is not checked after append! */
         list_insert_place = append_element_to_list(list_insert_place,
             element_value, &err_info);

@@ -57,7 +57,7 @@ typetype new_type (progtype owningProg, typetype meta_type, typetype result_type
 
   /* new_type */
 #ifdef TRACE_TYPEUTIL
-    printf("BEGIN new_type(");
+    printf("BEGIN new_type(%lx, ", (unsigned long) owningProg);
     printtype(meta_type);
     printf(", ");
     printtype(result_type);

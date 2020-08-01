@@ -32,7 +32,7 @@ const type: tee_file is sub null_file struct
   end struct;
 
 
-const func file: open_tee (in file: out_fil1, in file: out_fil2) is func
+const func file: openTee (in file: out_fil1, in file: out_fil2) is func
   result
     var file: newFile is STD_NULL;
   local
@@ -42,6 +42,10 @@ const func file: open_tee (in file: out_fil1, in file: out_fil2) is func
     new_tee_file.out_file2 := out_fil2;
     newFile := toInterface(new_tee_file);
   end func;
+
+
+const func file: open_tee (in file: out_fil1, in file: out_fil2) is
+  return openTee(out_fil1, out_fil2);
 
 
 const proc: write (inout tee_file: tee_fil, in string: stri) is func

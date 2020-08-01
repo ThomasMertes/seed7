@@ -1022,6 +1022,13 @@ objecttype int_succ (listtype arguments)
 
 
 
+/**
+ *  Convert an integer into a big-endian bstring.
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative 'number' the most significant byte of the result
+ *  (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ */
 objecttype int_toBStriBe (listtype arguments)
 
   { /* int_toBStriBe */
@@ -1032,6 +1039,13 @@ objecttype int_toBStriBe (listtype arguments)
 
 
 
+/**
+ *  Convert an integer into a little-endian bstring.
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative 'number' the most significant byte of the result
+ *  (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ */
 objecttype int_toBStriLe (listtype arguments)
 
   { /* int_toBStriLe */

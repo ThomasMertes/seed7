@@ -671,8 +671,8 @@ const proc: main is func
     quit := FALSE;
     high_score := 0;
     scr := open(CONSOLE);
-    labyrinth := open_window(scr, 2, 2, 22, 39);
-    info_sheet := open_window(scr, 2, 44, 22, 20);
+    labyrinth := openWindow(scr, 2, 2, 22, 39);
+    info_sheet := openWindow(scr, 2, 44, 22, 20);
     box(labyrinth);
     box(info_sheet);
     clear(labyrinth);

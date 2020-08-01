@@ -30,6 +30,11 @@ include "bin32.s7i";
 include "cipher.s7i";
 
 
+(**
+ *  [[cipher|cipherState]] implementation type describing the state of an ARC4 cipher.
+ *  The data is encrypted / decrypted with the ARC4 (Alleged RC4)
+ *  stream cipher.
+ *)
 const type: arc4State is new struct
     var array char: s is [0 .. 255] times ' ';
     var integer: i is 0;
