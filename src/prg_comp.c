@@ -53,35 +53,6 @@
 
 #ifdef ANSI_C
 
-progtype prgAnalyze (stritype stri)
-#else
-
-progtype prgAnalyze (stri)
-stritype stri;
-#endif
-
-  {
-    ustritype file_name;
-    progtype result;
-
-  /* prgAnalyze */
-    file_name = cp_to_cstri(stri);
-    if (file_name == NULL) {
-      free_cstri(file_name, stri);
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      option.source_file_name = file_name;
-      result = analyze(file_name);
-      /* ?? set_trace(option.exec_trace_level, -1, NULL); */
-    } /* if */
-    return(result);
-  } /* prgAnalyze */
-
-
-
-#ifdef ANSI_C
-
 void prgCpy (progtype *dest, progtype source)
 #else
 
@@ -215,6 +186,35 @@ progtype currentProg;
 
 #ifdef ANSI_C
 
+progtype prgFilParse (stritype stri)
+#else
+
+progtype prgFilParse (stri)
+stritype stri;
+#endif
+
+  {
+    ustritype file_name;
+    progtype result;
+
+  /* prgFilParse */
+    file_name = cp_to_cstri(stri);
+    if (file_name == NULL) {
+      free_cstri(file_name, stri);
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      option.source_file_name = file_name;
+      result = analyze(file_name);
+      /* ?? set_trace(option.exec_trace_level, -1, NULL); */
+    } /* if */
+    return(result);
+  } /* prgFilParse */
+
+
+
+#ifdef ANSI_C
+
 objecttype prgMatch (progtype currentProg, listtype curr_expr)
 #else
 
@@ -259,22 +259,22 @@ listtype curr_expr;
 
 #ifdef ANSI_C
 
-progtype prgStrAnalyze (stritype stri)
+progtype prgStrParse (stritype stri)
 #else
 
-progtype prgStrAnalyze (stri)
+progtype prgStrParse (stri)
 stritype stri;
 #endif
 
   {
     progtype result;
 
-  /* prgStrAnalyze */
+  /* prgStrParse */
     option.source_file_name = "STRING";
     result = analyze_string(stri);
     /* ?? set_trace(option.exec_trace_level, -1, NULL); */
     return(result);
-  } /* prgStrAnalyze */
+  } /* prgStrParse */
 
 
 

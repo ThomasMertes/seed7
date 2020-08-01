@@ -27,7 +27,6 @@
 
 #ifdef ANSI_C
 
-objecttype prg_analyze (listtype);
 objecttype prg_cpy (listtype);
 objecttype prg_create (listtype);
 objecttype prg_decl_objects (listtype);
@@ -37,19 +36,19 @@ objecttype prg_eq (listtype);
 objecttype prg_error_count (listtype);
 objecttype prg_eval (listtype);
 objecttype prg_exec (listtype);
+objecttype prg_fil_parse (listtype);
 objecttype prg_find (listtype);
 objecttype prg_match (listtype);
 objecttype prg_name (listtype);
 objecttype prg_ne (listtype);
 objecttype prg_prog (listtype);
-objecttype prg_str_analyze (listtype);
+objecttype prg_str_parse (listtype);
 objecttype prg_syobject (listtype);
 objecttype prg_sysvar (listtype);
 objecttype prg_value (listtype);
 
 #else
 
-objecttype prg_analyze ();
 objecttype prg_cpy ();
 objecttype prg_create ();
 objecttype prg_decl_objects ();
@@ -59,12 +58,13 @@ objecttype prg_eq ();
 objecttype prg_error_count ();
 objecttype prg_eval ();
 objecttype prg_exec ();
+objecttype prg_fil_parse ();
 objecttype prg_find ();
 objecttype prg_match ();
 objecttype prg_name ();
 objecttype prg_ne ();
 objecttype prg_prog ();
-objecttype prg_str_analyze ();
+objecttype prg_str_parse ();
 objecttype prg_syobject ();
 objecttype prg_sysvar ();
 objecttype prg_value ();

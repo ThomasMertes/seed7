@@ -190,6 +190,35 @@ program is compiled and linked afterwards.
 (Note that the compiler is currently not finished)
 
 
+What are the reserved words of Seed7?
+=====================================
+
+In Seed7 there are no reserved words. Instead there are keywords which are used
+at various places. Some keywords introduce statements or other constructs (such
+as declarations). E.g.: The keywords 'if', 'while', 'repeat', 'for', and some
+others introduce statements. Other keywords like 'do', 'range', 'result', etc.
+are used in the middle of statements (or other constructs). Finally there are
+also keywords like 'div', 'rem', 'lpad', 'times', etc. which are used as
+operator symbols.
+
+Seed7 uses syntax declarations to specify the syntax of statements. A keyword
+is a name which is used somewhere in a syntax declaration. Syntax declarations
+reduce the possibilitys to use a keyword out of context. E.g: After the keyword
+'if' the lexer expects always an expression. This makes 'if' unusable as
+variable name. This way you get error messages when you try to use 'if' or
+other keywords as variable name. That behaviour is just the same as in other
+languages which have reserved words. It can be subsumed that Seed7 reaches
+the goal of avoiding the misuse of keywords in other ways and not by reserving
+them altogether.
+
+In a classic compiler (e.g. a Pascal compiler) there is a distinction between
+reserved words and identifiers. Pascal compilers and probably also Ada, C/C++,
+Java and C# compilers use an enumeration type to represent the reserved words.
+Since Seed7 allows user defined statements (which may introduce new keywords)
+it is not possible to hardcode reserved words in the compiler as it is done in
+Pascal, Ada, C/C++, Java and many other compilers.
+
+
 Why does Seed7 not use the C statements like C++ and Java?
 ==========================================================
 
@@ -246,6 +275,75 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
       end case;
 
 
+Isn't the code unreadable if everybody invents new statements?
+==============================================================
+
+There are lots of possibilities to write unreadable code without
+using the extension features of Seed7. The programmer is (as always)
+responsible to write readable programs. The variable/type/function
+names and other things chosen by the programmer can always lead to
+obfuscated code.
+
+Defining new statements and operators is a feature which should not
+be used in every program by every programmer. It is a feature which
+allows experienced programmers, to write libraries which use statement
+or operator syntax instead of function syntax, in areas where such an
+notation is already accepted practice.
+
+Statements to access a database or operators for vector arithmetic
+would be such an example. Another example is a construct which can
+be used in the definition of text adventure games.
+
+The possibility to define statements allows also a more precise language
+definition. The C++ for/while/if statements are described in the C++
+manuals using BNF and an english description. Seed7 statements can be
+defined in Seed7. For example:
+
+  $ syntax expr: while.().do.().end.while is -> 25;
+
+  const proc: while (ref func boolean: condition) do
+                (ref proc: statement)
+              end while is func
+    begin
+      if condition then
+        statement;
+        while condition do
+          statement;
+        end while;
+      end if;
+    end func;
+
+The syntax and semantic of a while statement is described using an
+if statement and recursion. For performance reasons the implementation
+will usually use a different approach to implement a while loop, but
+this example shows the expressive power of Seed7.
+
+
+Hasn't Lisp already user defined statements and operators?
+==========================================================
+
+Defining the semantic of a new 'statement' in Lisp is a classic example.
+Normally such 'statements' still use the list notation with lots of parentheses.
+The read macros of Lisp could be used to define the syntax of a statement, but
+read macros make no type checks at compile time. Any type checking must be written
+by the programmer and is not mandated by Lisp. The type checks will be performed
+at runtime and might issue warnings at compile time (this is implementation
+dependent). In general: Lisp 'statement' declarations do not force compile time
+checks and look less elegant. Seed7 statement declarations force a type check at
+compile time.
+
+While Lisp allows new and overloaded functions, the Lisp 'operators' are
+functions which use the prefix notation (with lots of parentheses).
+Again read macros could be used to support infix operators with priority
+and associativity. This read macros would have the same problems as above.
+Although Lisp fanatics would never admit it, infix operators with priority
+and associativity are not really supported by Lisp. If somebody tells you
+that everything can be done in Lisp, send him to the next advocacy group.
+In general: Seed7 supports user definable infix operators with priority and
+associativity. Such operators can be overloaded and the type checks are done
+at compile time. In Lisp all this would be a hack.
+
+
 Can I use something and declare it later?
 =========================================
 
@@ -261,13 +359,34 @@ Why does Seed7 use static type checking?
 ========================================
 
 With static type checking all type checks are performed during compile-time.
-Typing errors can be caught earlier without the need to execute the program.
-This increases the reliability of the program.
-With dynamic typing it would be necessary to reach 100% code coverage to
-find all typing errors. Additionally the program execution can be more efficient
-with static type checking since there are no type checks necessary at run-time.
+Type errors, such as an attempt to divide an integer by a string, can be
+caught earlier (unless this unusual operation has been defined). The key point
+is that type errors are found without the need to execute the program. Some
+type errors can be hidden in rarely executed code paths. Static type checking
+can find such errors easily. With dynamic type checking extensive tests are
+necessary to find all type errors. Even tests with 100% code coverage are not
+enough since the combination of all places where values are created and all
+places where this values are used must be taken into account. Additionally it
+would be necessary to repeat all this tests every time the program is changed.
+Naturally there are doubts that enough tests are done and that the tests are
+adjusted and repeated for every change in the program. Therefore it can be
+said that compile-time type checks increase the reliability of the program.
 
-Interface types can be used when an object can have several types at runtime.
+Since static type checking makes run-time type checks unnecessary, the program
+execution can be more efficient. Type declarations can also serve as a form
+of documentation, because they can illustrate the intent of the programmer.
+Although static type checking is very helpful in finding type errors, it cannot
+replace a careful program design. Some operations, allowed by the static type
+system, can still be wrong because of different measurement units or other
+reasons. In the end there are also other possible sources of errors, such as
+range violations.
+
+Interface types can be used when an object can have several types at run-time.
+In this case the interface type of the object can be determined at compile-time
+and the type of the object value (implementation type) can vary at run-time.
+The static type checking can still check the interface type and the presence
+of interface functions. Additionally the compiler can also check that all
+functions granted by the interface type are defined for the implementation type.
 
 
 Why does Seed7 not use type inference?
@@ -322,38 +441,13 @@ necessary to reach the goal of knowing the type of every expression without know
 where the expression is used.
 
 
-Hasn't Lisp already user defined statements and operators?
-==========================================================
-
-Defining the semantic of a new 'statement' in Lisp is a classic example.
-Normally such 'statements' still use the list notation with lots of parentheses.
-The read macros of Lisp could be used to define the syntax of a statement, but
-read macros make no type checks at compile time. Any type checking must be written
-by the programmer and is not mandated by Lisp. The type checks will be performed
-at runtime and might issue warnings at compile time (this is implementation
-dependent). In general: Lisp 'statement' declarations do not force compile time
-checks and look less elegant. Seed7 statement declarations force a type check at
-compile time.
-
-While Lisp allows new and overloaded functions, the Lisp 'operators' are
-functions which use the prefix notation (with lots of parentheses).
-Again read macros could be used to support infix operators with priority
-and associativity. This read macros would have the same problems as above.
-Although Lisp fanatics would never admit it, infix operators with priority
-and associativity are not really supported by Lisp. If somebody tells you
-that everything can be done in Lisp, send him to the next advocacy group.
-In general: Seed7 supports user definable infix operators with priority and
-associativity. Such operators can be overloaded and the type checks are done
-at compile time. In Lisp all this would be a hack.
-
-
 Can functions have variable parameter lists?
 ============================================
 
 No, because functions with variable parameter lists as the C printf function have
 some problems:
 
- - Type checking is only possible at run time.
+ - Normally type checking is only possible at run time.
  - The recognition of overloaded functions becomes more complicated.
 
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
@@ -393,7 +487,15 @@ a function.
 
 Although functions can return arbitrary complex values (e.g. arrays of structures
 with string elements) the memory allocated for all intermediate results is freed
-automatically without the help of a garbage collector.
+automatically without the help of a garbage collector. This is done in a stack
+like manner. The same way as aritmetic expressions like (1+2)*3+4 can be evaluated
+with the help of a stack (which stores the intermediate results 3 and 9), it is
+possible to maintain a stack of pointers to arbitrary complex values. Note that
+the point where such intermediate results should be freed can be determined at
+compile time. Functions such as the assignment, can abstain from freeing the
+intermediate result and just assign it to the variable. This way it is not
+always necessary to copy arbitrary complex values. All this things can be decided
+at compile time.
 
 
 Is Seed7 object oriented?
@@ -422,7 +524,7 @@ Is everything inherited from object?
 
 There can be several base types, each with their own hierarchy. In many object
 oriented languages the class 'object' is used as element of all container classes.
-Abstract data types provide a better and type save solution for containers and
+Abstract data types provide a better and type safe solution for containers and
 other uses of the root class 'object'. Therefore a single rooted hierarchy is not
 needed.
 
@@ -505,15 +607,31 @@ abstract data type as container you have to specify the type of the element
 in the type declaration. Therefore abstract data types are always type safe.
 Typeless container classes with object elements do not exist. The only thing
 which comes near to this is the 'ref_list' which is used in the reflection.
-A 'ref_list' should not be misused as container class. Examples of abstract
+A 'ref_list' should not be misused as container class. Predefined abstract
 data types are:
+
+ - array
+   The type 'array baseType' describes sequences of identical elements of
+   a 'baseType'
+
+ - hash
+   The type 'hash [keyType] baseType' describes hash tables with elements
+   of 'baseType' which can be accessed using an index of 'keyType'
+
+ - set
+   The type 'set of baseType' describes a set of elements of a 'baseType'
+
+ - struct
+   The type 'struct ... end struct' describes all structured types.
+
+Usage examples of abstract data types are:
 
   array string
   array [boolean] string
-  set of char
-  set of integer
   hash [string] boolean
   hash [string] array array string
+  set of char
+  set of integer
 
 
 Are there primitive types?
@@ -521,8 +639,8 @@ Are there primitive types?
 
 As in C++, Java, C# and other hybrid object oriented languages there are
 predefined primitive types in Seed7. These are integer, char, boolean, string,
-float, rational, time and others. Additionally to the predefined primitive
-types there is also the possibility to declare new primitive types.
+float, rational, time, duration and others. Additionally to the predefined
+primitive types there is also the possibility to declare new primitive types.
 
 
 What is the difference between object and primitive types?
@@ -534,8 +652,8 @@ that after
   a := b
 
 the variable 'a' refers to the same object as variable 'b'. Therefore changes
-on variable 'a' will effect variable 'b' as well (and vice versa) because both
-variables refer to the same object.
+of the object value that 'a' refers to, will effect variable 'b' as well (and
+vice versa) because both variables refer to the same object.
 
 For primitive types a different logic is used. Variables with primitive types
 contain the value itself. This means that after

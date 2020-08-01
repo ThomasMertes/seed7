@@ -7102,16 +7102,6 @@ const proc: process_kbd_word_read (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
-const proc: process_prg_analyze (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgAnalyze(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
 const proc: process_prg_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -7208,6 +7198,16 @@ const proc: process_prg_exec (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_prg_fil_parse (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgFilParse(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_prg_match (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -7238,11 +7238,11 @@ const proc: process_prg_ne (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_prg_str_analyze (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_prg_str_parse (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgStrAnalyze(";
+    c_expr.expr &:= "prgStrParse(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -10910,9 +10910,7 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "PRG" then
-      if action_name = "PRG_ANALYZE" then
-        process_prg_analyze(params, c_expr);
-      elsif action_name = "PRG_CPY" then
+      if action_name = "PRG_CPY" then
         process_prg_cpy(params, c_expr);
       elsif action_name = "PRG_DECL_OBJECTS" then
         process_prg_decl_objects(params, c_expr);
@@ -10924,14 +10922,16 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_prg_eval(params, c_expr);
       elsif action_name = "PRG_EXEC" then
         process_prg_exec(params, c_expr);
+      elsif action_name = "PRG_FIL_PARSE" then
+        process_prg_fil_parse(params, c_expr);
       elsif action_name = "PRG_MATCH" then
         process_prg_match(params, c_expr);
       elsif action_name = "PRG_NAME" then
         process_prg_name(params, c_expr);
       elsif action_name = "PRG_NE" then
         process_prg_ne(params, c_expr);
-      elsif action_name = "PRG_STR_ANALYZE" then
-        process_prg_str_analyze(params, c_expr);
+      elsif action_name = "PRG_STR_PARSE" then
+        process_prg_str_parse(params, c_expr);
       elsif action_name = "PRG_SYOBJECT" then
         process_prg_syobject(params, c_expr);
       elsif action_name = "PRG_SYSVAR" then
@@ -15594,7 +15594,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-r" in compiler_option then
         array_range_check := FALSE;
       end if;
-      prog := analyze(source);
+      prog := parseFile(source);
       if prog = program.EMPTY then
         okay := FALSE;
       elsif error_count(prog) <> 0 then

@@ -55,20 +55,21 @@ CONTENTS
   5.13    struct
   5.14    reference
   5.15    ref_list
-  5.16    ptr
-  5.17    ENUMERATION
-  5.18    color
-  5.19    time
-  5.20    duration
-  5.21    file
-  5.22    text
-  5.23    func
-  5.24    varfunc
-  5.25    void
-  5.26    proc
-  5.27    type
-  5.28    object
-  5.29    expr
+  5.16    program
+  5.17    ptr
+  5.18    ENUMERATION
+  5.19    color
+  5.20    time
+  5.21    duration
+  5.22    file
+  5.23    text
+  5.24    func
+  5.25    varfunc
+  5.26    void
+  5.27    proc
+  5.28    type
+  5.29    object
+  5.30    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -1487,14 +1488,14 @@ CONTENTS
                     rand(TRUE, FALSE) => EXCEPTION RANGE_ERROR )
 
 
-    The logical operators 'and' and 'or' work strictly left to
-  right. First they evaluate the left operand and then the
-  right operand. When the result of the operation can be
+    The logical operators 'and' and 'or' work strictly left
+  to right. First they evaluate the left operand and then
+  the right operand. When the result of the operation can be
   determined after evaluation of the left operand the right
   operand is not evaluated. This can be used to check for
-  a boundary in a boolean expression. Note that the 'and'
-  and 'or' operators do not work correct when side effects
-  appear in the right operand.
+  a boundary in a boolean expression. Note that this early
+  termination behaviour of the 'and' and 'or' operators also
+  has an influence when the right operand has side effects.
 
 
   Table for the behaviour of different boolean expressions:
@@ -1543,13 +1544,29 @@ CONTENTS
 
 5.2 integer
 
-    The type 'integer' consists of all integer numbers. The
-  literals of the type 'integer' are sequences of digits.
+    The type 'integer' consists of signed integer numbers
+  which are at least 32 bits wide. An 'integer' literal is
+  a sequence of digits which is taken to be decimal. The
+  sequence of digits may be followed by the letter E or e
+  an optional + sign and a decimal exponent. Based numbers
+  can be specified when the sequence of digits is followed
+  by the # character and a sequence of extended digits.
+  The decimal number in front of the # character specifies
+  the base of the number which follows the # character.
+  As base a number between 2 and 36 is allowed. As
+  extended digits the letters A or a can be used for 10,
+  B or b can be used for 11 and so on to Z or z which can
+  be used as 35. Examples of 'integer' literals are:
+
+    0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
+
+  The result an 'integer' operation is undefined when it
+  overflows.
 
     Prefix operators:
       +         Identity
       -         Change sign
-      !         Faktorial
+      !         Factorial
     Infix operators:
       +         Addition
       -         Subtraction
@@ -1736,9 +1753,12 @@ CONTENTS
 
 5.3 bigInteger
 
-    The type 'bigInteger' consists of all integer numbers. The
-  literals of the type 'bigInteger' are sequences of digits
-  followed by an underscore character (for example 1_ ).
+    The type 'bigInteger' describes signed integer numbers of
+  unlimited size. The literals of the type 'bigInteger' are sequences
+  of digits followed by an underscore character (for example 1_ ).
+  Although 'bigInteger' operations cannot overflow, it can happen
+  that there is not enough memory to represent a 'bigInteger' value.
+  In this case the exception 'MEMORY_ERROR' is raised.
 
     Prefix operators:
       +         Identity
@@ -1931,9 +1951,12 @@ CONTENTS
 
 5.4 rational
 
-    The type 'rational' consists of rational numbers. The
-  values of the type 'rational' are finite and periodical
-  decimal numbers.
+    The type 'rational' consists of rational numbers
+  represented with an 'integer' numerator and an 'integer'
+  denominator. The values of the type 'rational' are
+  finite and periodical decimal numbers. Rational literals
+  do not exist. The result an 'rational' operation is
+  undefined when it overflows.
 
     Prefix operators:
       +         Identity
@@ -1993,9 +2016,14 @@ CONTENTS
 
 5.5 bigRational
 
-    The type 'bigRational' consists of rational numbers. The
-  values of the type 'bigRational' are finite and periodical
-  decimal numbers.
+    The type 'bigRational' consists of rational numbers
+  represented with an 'bigInteger' numerator and an
+  'bigInteger' denominator. The values of the type
+  'bigRational' are finite and periodical decimal numbers.
+  BigRational literals do not exist. Although 'bigRational'
+  operations cannot overflow, it can happen that there
+  is not enough memory to represent a 'bigRational' value.
+  In this case the exception 'MEMORY_ERROR' is raised.
 
     Prefix operators:
       +         Identity
@@ -2058,7 +2086,8 @@ CONTENTS
 
 5.6 float
 
-    The type 'float' consists of floating point numbers.
+    The type 'float' consists of single precision floating
+  point numbers.
 
     Constants:
       Infinity  Positive infinity
@@ -2179,7 +2208,9 @@ CONTENTS
 
 5.7 complex
 
-    The type 'complex' consists of complex numbers.
+    The type 'complex' consists of complex numbers represented
+  with an 'float' real part and an 'float' imaginary part.
+  Complex literals do not exist. 
 
     Prefix operators:
       +         Identity
@@ -2238,13 +2269,9 @@ CONTENTS
     The type 'char' describes UNICODE characters. The 'char'
   values use the UTF-32 encoding. In the source file a
   character literal is written as UTF-8 UNICODE character
-  enclosed in single quotes. For example:
-
-    'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''
-
-  In order to represent nonprintable characters and certain
-  printable characters the following escape sequences may be
-  used.
+  enclosed in single quotes. In order to represent nonprintable
+  characters and certain printable characters the following
+  escape sequences may be used.
 
     audible alert    BEL      \a    backslash    (\)   \\
     backspace        BS       \b    apostrophe   (')   \'   
@@ -2255,6 +2282,20 @@ CONTENTS
     horizontal tab   HT       \t    control-Z          \Z
     vertical tab     VT       \v
 
+  Additionally the following escape sequence can be used:
+
+    - Two backslashes with an integer literal between them are
+      interpreted as character with the specified ordinal number.
+      Note that the integer literal is interpreted decimal unless
+      it is written as based integer.
+
+  Examples of character literals are:
+
+    'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''   '\8\'
+
+  To use characters beyond ASCII (which is a subset of UNICODE)
+  in the source file make sure that the editor uses UTF-8
+  encoded characters.
 
     Infix operators:
       char conv A   Conversion to char
@@ -2308,17 +2349,36 @@ CONTENTS
 
     The type 'string' describes sequences of UNICODE characters
   (including the empty string). The characters in the 'string'
-  use the UTF-32 encoding. In the source file a string literal
-  is a sequence of UTF-8 UNICODE characters surrounded by
-  double quotes. For example:
+  use the UTF-32 encoding. Strings are not '\0\' terminated
+  and therefore can also contain binary data. Although 'string's
+  are allowed to grow very big, it can happen that there is not
+  enough memory to represent a 'string' value. In this case the
+  exception 'MEMORY_ERROR' is raised. In the source file a string
+  literal is a sequence of UTF-8 UNICODE characters surrounded
+  by double quotes.
+
+  To represent control characters and certain other characters
+  in strings the same escape sequences as for character literals
+  may be used. E.g.: Quotation characters (") inside strings can
+  be represented by preceding them with a backslash ( \" ).
+  Additionally there is the following possibility:
+
+    - Two backslashes with a sequence of blanks, horizontal tabs,
+      carriage returns and new lines between them are completely
+      ignored. The ignored characters are not part of the string.
+      This can be used to continue a string in the following line.
+      Note that in this case the leading spaces in the new line
+      are not part of the string. Although this possibility exists
+      also for character literals it is mentioned here, since it
+      makes more sense to use it with string literals
+
+  Examples of string literals are:
 
     ""   " "   "\""   "'"   "String"   "CAN\"T !"
 
-  To represent control characters and certain other
-  characters in strings the same escape sequences as for
-  character literals may be used. Additionally quotation
-  characters (") inside strings can be represented by
-  preceding them with a backslash ( \" ).
+  To use characters beyond ASCII (which is a subset of UNICODE)
+  in the source file make sure that the editor uses UTF-8
+  encoded characters.
 
     Infix operators:
       &         String concatenation
@@ -2831,7 +2891,38 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.16 ptr
+5.16 program
+
+    The type 'program' describes a Seed7 program.
+
+    Constants:
+      program.EMPTY  Empty program.
+    Relations:
+      =, <>
+    Funktions:
+      parseFile(A)  Parse the file with the name A
+                  ( Type of argument A: string )
+      parseStri(A)  Parse the string A
+                  ( Type of argument A: string )
+      evaluate(A, B)  Evaluate the expression B which is part of program A
+                  ( Type of result: reference,
+                    Type of argument A: program,
+                    Type of argument B: reference )
+      sys_var(A, B)  Return a reference of the system var B of program A
+                  ( Type of result: reference,
+                    Type of argument A: program,
+                    Type of argument B: string )
+      error_count(A)  Number of errors in the program A
+                  ( Type of result: integer,
+                    Type of argument A: program )
+      declared_objects(A)  List of objects declared in the program A
+                  ( Type of result: ref_list,
+                    Type of argument A: program )
+    Statements:
+      execute(A) Execute the program referred by A
+
+
+5.17 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -2858,7 +2949,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.17 ENUMERATION
+5.18 ENUMERATION
 
     With
 
@@ -2898,7 +2989,7 @@ CONTENTS
                   ( decr(A) => A:=pred(A) )
 
 
-5.18 color
+5.19 color
 
     The type 'color' describes colors.
 
@@ -2933,7 +3024,7 @@ CONTENTS
                     Type of argument B: integer )
 
 
-5.19 time
+5.20 time
 
     The type 'time' describes times and dates.
 
@@ -3003,7 +3094,7 @@ CONTENTS
       await(A)  Wait until the given time
 
 
-5.20 duration
+5.21 duration
 
     The type 'duration' describes time and date durations.
 
@@ -3048,7 +3139,7 @@ CONTENTS
       wait(A)   Wait for given duration
 
 
-5.21 file
+5.22 file
 
     The type 'file' describes sequential files.
 
@@ -3140,7 +3231,7 @@ CONTENTS
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 
 
-5.22 text
+5.23 text
 
     The type 'text' describes two dimensional files.
 
@@ -3195,7 +3286,7 @@ CONTENTS
       cursor_off(A) Make the cursor invisible
 
 
-5.23 func
+5.24 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -3284,7 +3375,7 @@ CONTENTS
   parameter is 'TRUE'.
 
 
-5.24 varfunc
+5.25 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -3317,7 +3408,7 @@ CONTENTS
   and structs can be used in the usual way. 
 
 
-5.25 void
+5.26 void
 
     The type 'void' describes the empty type.
 
@@ -3325,7 +3416,7 @@ CONTENTS
       empty     This is the only value of the type 'void'.
 
 
-5.26 proc
+5.27 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -3362,7 +3453,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.27 type
+5.28 type
 
     The type 'type' describes all types.
 
@@ -3419,7 +3510,7 @@ CONTENTS
                 Declare variable 'name' with 'value'
 
 
-5.28 object
+5.29 object
 
     The type 'object' is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -3432,7 +3523,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.29 expr
+5.30 expr
 
     The type 'expr' is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -5474,7 +5565,7 @@ CONTENTS
 10.1.3 Line comments
 
     Line comments are introduced with the character # and are
-  terminated with the end of the line.<br>
+  terminated with the end of the line.
   For example:
 
     # This is a comment

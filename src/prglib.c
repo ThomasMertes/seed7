@@ -61,35 +61,6 @@
 
 #ifdef ANSI_C
 
-objecttype prg_analyze (listtype arguments)
-#else
-
-objecttype prg_analyze (arguments)
-listtype arguments;
-#endif
-
-  {
-    stritype str1;
-    ustritype file_name;
-    progtype result;
-
-  /* prg_analyze */
-    isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    file_name = cp_to_cstri(str1);
-    if (file_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      result = analyze(file_name);
-      set_trace(option.exec_trace_level, -1, NULL);
-      return(bld_prog_temp(result));
-    } /* if */
-  } /* prg_analyze */
-
-
-
-#ifdef ANSI_C
-
 objecttype prg_cpy (listtype arguments)
 #else
 
@@ -320,6 +291,35 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype prg_fil_parse (listtype arguments)
+#else
+
+objecttype prg_fil_parse (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype str1;
+    ustritype file_name;
+    progtype result;
+
+  /* prg_fil_parse */
+    isit_stri(arg_1(arguments));
+    str1 = take_stri(arg_1(arguments));
+    file_name = cp_to_cstri(str1);
+    if (file_name == NULL) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      result = analyze(file_name);
+      set_trace(option.exec_trace_level, -1, NULL);
+      return(bld_prog_temp(result));
+    } /* if */
+  } /* prg_fil_parse */
+
+
+
+#ifdef ANSI_C
+
 objecttype prg_find (listtype arguments)
 #else
 
@@ -465,10 +465,10 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype prg_str_analyze (listtype arguments)
+objecttype prg_str_parse (listtype arguments)
 #else
 
-objecttype prg_str_analyze (arguments)
+objecttype prg_str_parse (arguments)
 listtype arguments;
 #endif
 
@@ -476,13 +476,13 @@ listtype arguments;
     stritype str1;
     progtype result;
 
-  /* prg_str_analyze */
+  /* prg_str_parse */
     isit_stri(arg_1(arguments));
     str1 = take_stri(arg_1(arguments));
     result = analyze_string(str1);
     set_trace(option.exec_trace_level, -1, NULL);
     return(bld_prog_temp(result));
-  } /* prg_str_analyze */
+  } /* prg_str_parse */
 
 
 

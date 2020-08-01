@@ -1095,6 +1095,7 @@ const proc: setupAdvancedLander is func
     end for;
     rect(53, Y_MAXIMUM - 17, 11, 18, dark_gray);
     rect(109, Y_MAXIMUM - 49, 21, 50, dark_green);
+    box(109, Y_MAXIMUM - 49, 21, 50, dark_gray);
     for number range 0 to 3 do
       rect(113, Y_MAXIMUM - 44 + 9 * number, 13, 5, brown);
     end for;

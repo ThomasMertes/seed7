@@ -1,3 +1,18 @@
+20080707:
+- Various FAQs about reserved words, user defined statements, static type checking,
+  garbage collection, container classes, primitive types and the difference between
+  object and primitive types were added or improved.
+- The chapters about boolean, integer, bigInteger, rational, bigRational, float,
+  complex, char, string and program in the manual, were added or improved.
+- A contour was added to a building in the lander.sd7 example program.
+- Some debugging output was removed from the mahjong.sd7 example program.
+- The function analyze and analyze_stri were renamed to parseFile and parseStri
+  respectively in the files progs.s7i, calc.sd7, comp.sd7 .
+- The primitive actions PRG_ANALYZE and PRG_STR_ANALYZE were renamed to PRG_FIL_PARSE
+  and PRG_STR_PARSE respectively.
+- The functions prgAnalyze and prgStrAnalyze were renamed to prgFilParse and prgStrParse
+  respectively.
+
 20080622:
 - A new example program (cellauto.sd7), which simulates cellular automata, was added.
 - Testcases for the @:= statement were added to the chkstr.sd7 program.

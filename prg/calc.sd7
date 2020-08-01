@@ -38,7 +38,7 @@ const proc: main is func
     write("command? ");
     readln(command);
     while command <> "" do
-      prog_expr := analyze_stri("\
+      prog_expr := parseStri("\
         \$ include \"seed7_05.s7i\";\n\
         \include \"float.s7i\";\n\
         \include \"math.s7i\";\n\

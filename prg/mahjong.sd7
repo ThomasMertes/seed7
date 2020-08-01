@@ -1911,7 +1911,6 @@ const proc: main is func
           drawBoard;
           DRAW_FLUSH;
           dealTiles(command);
-writeln("g " <& doQuit <& " " <& command);
           if not doQuit then
             clear(curr_win, BACKGROUND);
             drawBoard;
@@ -1923,7 +1922,6 @@ writeln("g " <& doQuit <& " " <& command);
               command := getCommand;
             end while;
           end if;
-writeln("h");
         end if;
         if command = 'Q' and not doQuit and not isOkay([] ("Quit mahjong?")) then
           command := ' ';
