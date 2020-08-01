@@ -120,6 +120,7 @@ version.h:
 	echo "#define HAS_SYMLINKS" >> version.h
 	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
+	echo "#define AWAIT_WITH_SIGACTION" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define INCL_NCURSES_TERM" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h

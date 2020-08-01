@@ -141,8 +141,8 @@ char *ch;
     poll_fds[0].events = POLLIN | POLLPRI;
     poll_result = poll(poll_fds, 1, 1000 /* milliseconds */);
     if (poll_result == 1) {
-      printf("poll_fds[0].events = %04X\n", poll_fds[0].events);
-      printf("poll_fds[0].revents = %04X\n", poll_fds[0].revents);
+      /* printf("poll_fds[0].events = %04X\n", poll_fds[0].events);
+         printf("poll_fds[0].revents = %04X\n", poll_fds[0].revents); */
       fread(ch, 1, 1, stdin);
       result = TRUE;
     } else {

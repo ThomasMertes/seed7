@@ -678,17 +678,17 @@
   <tt>'call by value'</tt> and <tt>'call by reference'</tt>. When taking the
   access right (constant or variable) into account we get
   the following table:
-</p><pre>
-    +-----------+-----------+--------------+
-    | parameter |  call by  | access right |
-    +-----------+-----------+--------------+
-    | val       |   value   | const        |
-    | ref       | reference | const        |
-    | in        | val / ref | const        |
-    | in var    |   value   | var          |
-    | inout     | reference | var          |
-    +-----------+-----------+--------------+
-</pre><p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+    <!-- +-----------+-----------+--------------+ -->
+    <tr><!-- | --><th> parameter </th><!-- | --><th>  call by  </th><!-- | --><th> access right </th><!-- | --></tr>
+    <!-- +-----------+-----------+--------------+ -->
+    <tr><!-- | --><td> val       </td><!-- | --><td align="center">   value   </td><!-- | --><td> const        </td><!-- | --></tr>
+    <tr><!-- | --><td> ref       </td><!-- | --><td align="center"> reference </td><!-- | --><td> const        </td><!-- | --></tr>
+    <tr><!-- | --><td> in        </td><!-- | --><td align="center"> val / ref </td><!-- | --><td> const        </td><!-- | --></tr>
+    <tr><!-- | --><td> in var    </td><!-- | --><td align="center">   value   </td><!-- | --><td> var          </td><!-- | --></tr>
+    <tr><!-- | --><td> inout     </td><!-- | --><td align="center"> reference </td><!-- | --><td> var          </td><!-- | --></tr>
+    <!-- +-----------+-----------+--------------+ -->
+</table></dd></dl><p>
   Additionally to the parameters we already know this table
   describes also <tt>'<font color=blue>val</font>'</tt> and <tt>'<font color=blue>ref</font>'</tt> parameters which use
   'call by value' and 'call by reference' and have a constant
@@ -850,14 +850,14 @@
   Each object declared with a <tt>'<font color=blue>const</font>'</tt> or <tt>'<font color=blue>var</font>'</tt> declaration obtains
   an initial value. It is not possible to use <tt>'<font color=blue>const</font>'</tt> or <tt>'<font color=blue>var</font>'</tt>
   declarations without initial value. Declarations with
-  initialisation expressions are also possible. For example
+  initialization expressions are also possible. For example
 </p><pre>
     <font color=blue>var</font> <font color=red>string</font>: fileName <font color=blue>is</font> NAME & <font color=maroon>".txt"</font>;
 </pre><p>
   The expression is evaluated and the result is assigned to
   the new object. This is done in the analyze phase of the
   interpreter or compiler, before the execution of the program
-  starts. The initialisation expressions may contain any
+  starts. The initialization expressions may contain any
   function (or operator) call. That way user defined functions
   can also be used to initialize a constant or variable:
 </p><pre>
@@ -889,7 +889,7 @@
 </pre><p>
   User defined abstract data types are also possible.
 </p><p>
-  The initialisation uses the creation operation ( ::= ).
+  The initialization uses the creation operation ( ::= ).
   Explicit calls of the create operation are not needed.
 </p><p>
   The lifetime of an object goes like this:
@@ -926,14 +926,14 @@
     ONE . ::= . 1
 </pre><p>
   is executed to assign 1 to the object ONE. There are two
-  reasons to use ::= instead of := to assign the initialisation
+  reasons to use ::= instead of := to assign the initialization
   value.
 </p><ol><li>
   <!-- 1.  -->The assignment ( := ) can only be used to assign a value
-    to a variable and initialisation is also needed for
+    to a variable and initialization is also needed for
     constants.
 </li><li>
-  <!-- 2.  -->Sometimes some initialisations are needed for the new
+  <!-- 2.  -->Sometimes some initializations are needed for the new
     object in addition to the pure assignment.
 </li></ol><p>
   For all predefined types the creation operator ( ::= )
@@ -1599,7 +1599,7 @@
   take place when the operand is executed.
 
 </p><p>
-  Table for the behaviour of different boolean expressions:
+  Table for the behavior of different boolean expressions:
 </p><pre>
                                Result when the    Result when the
     Expression                  first operand      first operand
@@ -1830,7 +1830,7 @@
                                sign or A <font color=blue>rem</font> B = 0 holds.
 </pre><p>
 
-  Table for the behaviour of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
+  Table for the behavior of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
 </p><pre>
      A    B   A <font color=blue>div</font> B   A <font color=blue>rem</font> B   A <font color=blue>mdiv</font> B  A <font color=blue>mod</font> B
 
@@ -2032,7 +2032,7 @@
                                sign or A <font color=blue>rem</font> B = 0_ holds.
 </pre><p>
 
-  Table for the behaviour of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
+  Table for the behavior of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
 </p><pre>
      A    B   A <font color=blue>div</font> B   A <font color=blue>rem</font> B   A <font color=blue>mdiv</font> B  A <font color=blue>mod</font> B
 
@@ -2424,10 +2424,10 @@
 
 <a name="char"><h3>5.8 char</h3></a>
 <p>
-    The type <tt>'<font color=red>char</font>'</tt> describes UNICODE characters encoded
+    The type <tt>'<font color=red>char</font>'</tt> describes Unicode characters encoded
   with UTF-32. In the source file a character literal is
-  written as UTF-8 encoded UNICODE character enclosed in
-  single quotes. In order to represent nonprintable
+  written as UTF-8 encoded Unicode character enclosed in
+  single quotes. In order to represent non-printable
   characters and certain printable characters the following
   escape sequences may be used.
 </p><pre>
@@ -2451,7 +2451,7 @@
 </p><pre>
     <font color=maroon>'a'</font>   <font color=maroon>' '</font>   <font color=maroon>'\n'</font>   <font color=maroon>'!'</font>   <font color=maroon>'\\'</font>   <font color=maroon>'2'</font>   <font color=maroon>'"'</font>   <font color=maroon>'\"'</font>   <font color=maroon>'\''</font>   <font color=maroon>'\8\'</font>
 </pre><p>
-  To use characters beyond ASCII (which is a subset of UNICODE)
+  To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
   encoded characters.
 </p><pre>
@@ -2506,14 +2506,14 @@
 
 <a name="string"><h3>5.9 string</h3></a>
 <p>
-    The type <tt>'<font color=red>string</font>'</tt> describes sequences of UNICODE characters
+    The type <tt>'<font color=red>string</font>'</tt> describes sequences of Unicode characters
   (including the empty string). The characters in the <tt>'<font color=red>string</font>'</tt>
   use the UTF-32 encoding. Strings are not <font color=maroon><tt>'\0\'</tt></font> terminated
   and therefore can also contain binary data. Although <tt>'<font color=red>string</font>'</tt>s
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a <tt>'<font color=red>string</font>'</tt> value. In this case the
   exception <tt>'MEMORY_ERROR'</tt> is raised. In the source file a string
-  literal is a sequence of UTF-8 encoded UNICODE characters
+  literal is a sequence of UTF-8 encoded Unicode characters
   surrounded by double quotes.
 </p><p>
   To represent control characters and certain other characters
@@ -2535,7 +2535,7 @@
 </p><pre>
     <font color=maroon>""</font>   <font color=maroon>" "</font>   <font color=maroon>"\""</font>   <font color=maroon>"'"</font>   <font color=maroon>"String"</font>   <font color=maroon>"CAN\"T !"</font>
 </pre><p>
-  To use characters beyond ASCII (which is a subset of UNICODE)
+  To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
   encoded characters.
 </p><pre>
@@ -2818,7 +2818,7 @@
   can be any type.
 </p><pre>
     Constants:
-      <font color=red>hashType</font>.EMPTY_HASH  Empty hashtable
+      <font color=red>hashType</font>.EMPTY_HASH  Empty hash table
     Infix operators:
       <font color=blue>in</font>        Element
                   ( Left argument: <font color=red>baseType</font>,
@@ -2827,26 +2827,26 @@
                   ( Left argument: <font color=red>baseType</font>,
                     Type of result: <font color=red>boolean</font> )
     Indices:
-      [ A ]     Access one hashtable element
+      [ A ]     Access one hash table element
                   ( Type of argument A: <font color=red>keyType</font>,
                     Type of result: <font color=red>baseType</font> )
     Functions:
-      length(A) Number of elements in hashtable A
+      length(A) Number of elements in hash table A
                   ( Type of result: <font color=red>integer</font>,
                     length(hashType.EMPTY_HASH) => 0 )
-      keys(A)   Unsorted array of keys of the hashtable A
+      keys(A)   Unsorted array of keys from hash table A
                   ( Type of result: <font color=red>array keyType</font> )
-      values(A) Unsorted array of valuess of the hashtable A
+      values(A) Unsorted array of values from hash table A
                   ( Type of result: <font color=red>array baseType</font> )
       flip(A)   Deliver a hash with keys and values flipped
                   ( Type of result: <font color=red>hash [baseType] array keyType</font> )
     Statements:
-      incl(A,B,C) Include element B to hashtable A
+      incl(A,B,C) Include element B to hash table A
                   ( Type of argument B: <font color=red>keyType</font>,
                     Type of argument C: <font color=red>baseType</font> )
-      excl(A,B) Exclude element B from hashtable A
+      excl(A,B) Exclude element B from hash table A
                   ( Type of argument B: <font color=red>keyType</font> )
-      A @:= [B] C  Assign C to element B of hashtable A
+      A @:= [B] C  Assign C to element B of hash table A
                   ( Type of argument B: <font color=red>keyType</font>,
                     Type of argument C: <font color=red>baseType</font> )
       <font color=blue>for</font> A <font color=blue>range</font> B <font color=blue>do</font>
@@ -2990,7 +2990,7 @@
         ...
       <font color=blue>end struct</font>
                 Create new structure type as subtype of <tt>'<font color=red>metaType</font>'</tt>,
-                which is a structure type. The new stucture type inherits all
+                which is a structure type. The new structure type inherits all
 		elements of the structure type <tt>'<font color=red>metaType</font>'</tt>.
 
       <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value
@@ -3064,7 +3064,7 @@
       isVar(A)  Reference to a variable object
                   ( Type of result: <font color=red>boolean</font>,
                     isVar(NIL) => EXCEPTION RANGE_ERROR )
-      params(A) Gets the formal params of a function
+      params(A) Gets the formal parameters of a function
                   ( Type of result: <font color=red>ref_list</font> )
       local_vars(A) Gets the local variables of a function
                   ( Type of result: <font color=red>ref_list</font>,
@@ -3078,7 +3078,7 @@
                   ( body(NIL) => EXCEPTION RANGE_ERROR,
                     body(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
       func_result(A) Gets the result object of a function
-      func_res_init(A) Gets the init value of the result
+      func_res_init(A) Gets the initialization value of the result
                        object of a function
       array_to_list(A) Return the array elements as list
                   ( Type of result: <font color=red>ref_list</font>,
@@ -3172,7 +3172,7 @@
                     setType(NIL, B) => EXCEPTION RANGE_ERROR )
       setValue(A, B) Set the value of the referenced object A to B
                   ( Type of argument B: <font color=red>ref_list</font> )
-      setParams(A, B) Set the formal params of a function
+      setParams(A, B) Set the formal parameters of a function
                   ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
@@ -3423,12 +3423,12 @@
                   ( Type of result: <font color=red>string</font> )
       strTimeZone(A)  Conversion of the time zone to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      truncToSecond(A)  Trunc a time to a second
-      truncToMinute(A)  Trunc a time to a minute
-      truncToHour(A)  Trunc a time to a hour
-      truncToDay(A)  Trunc a time to a day
-      truncToMonth(A)  Trunc a time to a month
-      truncToYear(A)  Trunc a time to a year
+      truncToSecond(A)  Truncate a time to a second
+      truncToMinute(A)  Truncate a time to a minute
+      truncToHour(A)  Truncate a time to a hour
+      truncToDay(A)  Truncate a time to a day
+      truncToMonth(A)  Truncate a time to a month
+      truncToYear(A)  Truncate a time to a year
       isLeapYear(A)  Determine if a given year is a leap year
                   ( Type of argument A: <font color=red>integer</font> )
                   ( Type of result: <font color=red>boolean</font> )
@@ -3585,12 +3585,12 @@
                     Type of result: <font color=red>file</font>,
                     Returns STD_NULL if popen was not
                     possible )
-      openInetSocket(port) Open local internet client socket
+      openInetSocket(port) Open local Internet client socket
                   ( Type of argument port: <font color=red>integer</font>,
                     Type of result: <font color=red>file</font>,
                     Returns STD_NULL if open was not
                     possible )
-      openInetSocket(addr, port) Open internet client socket
+      openInetSocket(addr, port) Open Internet client socket
                   ( Type of argument addr: <font color=red>string</font>,
                     Type of argument port: <font color=red>integer</font>,
                     Type of result: <font color=red>file</font>,
@@ -4619,7 +4619,7 @@
 <a name="class_methods"><h3>7.4 Class methods</h3></a>
 <p>
     Many object-oriented programming languages support methods
-  that are associated with a class instead of an instanciated
+  that are associated with a class instead of an instantiated
   object. Such methods are called class methods or static
   methods. Seed7 supports class methods via attribute (<tt>'<font color=blue>attr</font>'</tt>)
   parameters which allow that a function is attached to a type:
@@ -4651,7 +4651,7 @@
 </p><pre>
     <font color=blue>const</font> <font color=red>char</font>: (<font color=blue>attr</font> <font color=red>char</font>) . value <font color=blue>is</font> <font color=maroon>' '</font>;
 </pre><p>
-  This way attributes can be used to specify propertys
+  This way attributes can be used to specify properties
   of a type such as its default <tt>'value'</tt>.
   Programming languages such as Seed7 which support function
   definitions outside a class can also use normal functions
@@ -5211,7 +5211,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   process. As such all functions of the <font color=maroon>"scanfile.s7i"</font> library
   assume that the first character to be processed is always in
   <tt>'bufferChar'</tt>. Since the standard <tt>'<font color=red>file</font>'</tt> functions do not have
-  this behaviour, care has to be taken when mixing scanner and
+  this behavior, care has to be taken when mixing scanner and
   file functions.
 </p><p>
   The next declarations allows various I/O operations for strings:
@@ -5433,22 +5433,22 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   delimiter. The use of a backslash in a path may raise the
   exception <tt>'RANGE_ERROR'</tt>. The second parameter of <tt>'open'</tt>
   specifies the mode:
-</p><pre>
-    Binary mode:
-      <font color=maroon>"r"</font>   ... Open file for reading.
-      <font color=maroon>"w"</font>   ... Truncate to zero length or create file for writing.
-      <font color=maroon>"a"</font>   ... Append; open or create file for writing at end-of-file.
-      <font color=maroon>"r+"</font>  ... Open file for update (reading and writing).
-      <font color=maroon>"w+"</font>  ... Truncate to zero length or create file for update.
-      <font color=maroon>"a+"</font>  ... Append; open or create file for update, writing at end-of-file.
-    Text mode:
-      <font color=maroon>"rt"</font>  ... Open file for reading.
-      <font color=maroon>"wt"</font>  ... Truncate to zero length or create file for writing.
-      <font color=maroon>"at"</font>  ... Append; open or create file for writing at end-of-file.
-      <font color=maroon>"rt+"</font> ... Open file for update (reading and writing).
-      <font color=maroon>"wt+"</font> ... Truncate to zero length or create file for update.
-      <font color=maroon>"at+"</font> ... Append; open or create file for update, writing at end-of-file.
-</pre><p>
+</p><dl><dd><dl>
+    <dt>Binary mode:</dt><dd><table border="0" cellspacing="0">
+      <tr><td><font color=maroon>"r"</font></td>   <td>...&nbsp;</td><td>Open file for reading.</td></tr>
+      <tr><td><font color=maroon>"w"</font></td>   <td>...&nbsp;</td><td>Truncate to zero length or create file for writing.</td></tr>
+      <tr><td><font color=maroon>"a"</font></td>   <td>...&nbsp;</td><td>Append; open or create file for writing at end-of-file.</td></tr>
+      <tr><td><font color=maroon>"r+"</font></td>  <td>...&nbsp;</td><td>Open file for update (reading and writing).</td></tr>
+      <tr><td><font color=maroon>"w+"</font></td>  <td>...&nbsp;</td><td>Truncate to zero length or create file for update.</td></tr>
+      <tr><td><font color=maroon>"a+"</font></td>  <td>...&nbsp;</td><td>Append; open or create file for update, writing at end-of-file.</td></tr></table>
+    <dt>Text mode:</dt><dd><table border="0" cellspacing="0">
+      <tr><td><font color=maroon>"rt"</font></td>  <td>...&nbsp;</td><td>Open file for reading.</td></tr>
+      <tr><td><font color=maroon>"wt"</font></td>  <td>...&nbsp;</td><td>Truncate to zero length or create file for writing.</td></tr>
+      <tr><td><font color=maroon>"at"</font></td>  <td>...&nbsp;</td><td>Append; open or create file for writing at end-of-file.</td></tr>
+      <tr><td><font color=maroon>"rt+"</font></td> <td>...&nbsp;</td><td>Open file for update (reading and writing).</td></tr>
+      <tr><td><font color=maroon>"wt+"</font></td> <td>...&nbsp;</td><td>Truncate to zero length or create file for update.</td></tr>
+      <tr><td><font color=maroon>"at+"</font></td> <td>...&nbsp;</td><td>Append; open or create file for update, writing at end-of-file.</td></tr></table>
+</dl></dd></dl><p>
   Note that Seed7 defines the modes <tt><font color=maroon>"r"</font></tt>, <tt><font color=maroon>"w"</font></tt>, <tt><font color=maroon>"a"</font></tt>, <tt><font color=maroon>"r+"</font></tt>, <tt><font color=maroon>"w+"</font></tt>
   and <tt><font color=maroon>"a+"</font></tt> as binary modes. When <tt>'open'</tt> is called, with a mode
   not listed in the table above, the exception <tt>'RANGE_ERROR'</tt>
@@ -5491,7 +5491,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><pre>
     writeln(my_out, <font color=maroon>"illegal char: \256\"</font>);
 </pre><p>
-  results in the exception <tt>'RANGE_ERROR'</tt>. To write unicode
+  results in the exception <tt>'RANGE_ERROR'</tt>. To write Unicode
   characters other file types must be used. The libraries
   <font color=maroon>"utf8.s7i"</font> and <font color=maroon>"utf16.s7i"</font> provide access to UTF-8 and
   UTF-16 files. The function <tt>'open_utf8'</tt> can be used the same
@@ -5499,9 +5499,9 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><pre>
     my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"w"</font>);
 </pre><p>
-  An UTF-8 file accepts all unicode characters. That way
+  An UTF-8 file accepts all Unicode characters. That way
 </p><pre>
-    writeln(my_out, <font color=maroon>"unicode char: \256\"</font>);
+    writeln(my_out, <font color=maroon>"Unicode char: \256\"</font>);
 </pre><p>
   works without problems. UTF-8 files are byte order independent.
   Therefore they do not need a byte order mark (BOM).
@@ -5528,8 +5528,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <font color=blue>end if</font>;
     ...
 </pre><p>
-  UTF-16 comes in two flavours UTF-16LE and UTF-16BE. To support
-  both flavours the <font color=maroon>"utf16.s7i"</font> library defines several functions.
+  UTF-16 comes in two flavors UTF-16LE and UTF-16BE. To support
+  both flavors the <font color=maroon>"utf16.s7i"</font> library defines several functions.
 </p><p>
   The function <tt>'open_utf16'</tt> opens an Unicode file which uses the
   UTF-16LE or UTF-16BE encoding. The function <tt>'open_utf16'</tt> checks for
@@ -5593,7 +5593,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   function. The modes used by <tt>'open'</tt> differ from those used
   by the <tt>'fopen'</tt> function in the C library.
   The following table compares the file modes of Seed7 and C:
-</p><table border="1">
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
     <tr><td>Seed7 <tt>'open'</tt> mode</td>   <td>C <tt>'fopen'</tt> mode</td></tr>
     <tr><td><font color=maroon>"r"</font></td>                 <td><font color=maroon>"rb"</font></td></tr>
     <tr><td><font color=maroon>"w"</font></td>                 <td><font color=maroon>"wb"</font></td></tr>
@@ -5607,11 +5607,11 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td><font color=maroon>"rt+"</font></td>               <td><font color=maroon>"r+"</font></td></tr>
     <tr><td><font color=maroon>"wt+"</font></td>               <td><font color=maroon>"w+"</font></td></tr>
     <tr><td><font color=maroon>"at+"</font></td>               <td><font color=maroon>"a+"</font></td></tr>
-</table><p>
+</table></dd></dl><p>
   The difference between binary and text mode is as follows:
 </p><ul>
-    <li><!-- -  -->Binary mode provides an implementation independend
-      behaviour on all operating systems. In binary mode no
+    <li><!-- -  -->Binary mode provides an implementation independent
+      behavior on all operating systems. In binary mode no
       conversion to and from the line end character (<tt><font color=maroon>'\n'</font></tt>)
       is done. This has the advantage that an <tt>'<font color=red>external_file</font>'</tt>
       written in binary mode is identical on all operating
@@ -5623,8 +5623,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <tt>'<font color=red>external_file</font>'</tt> functions like <tt>'getc'</tt> and <tt>'gets'</tt> deliver
       line endings unchanged.
 </li>
-    <li><!-- -  -->The behaviour of an <tt>'<font color=red>external_file</font>'</tt> in text mode is
-      implementation dependend. Under Unix/Linux/Bsd text and
+    <li><!-- -  -->The behavior of an <tt>'<font color=red>external_file</font>'</tt> in text mode is
+      implementation dependent. Under Unix/Linux/Bsd text and
       binary modes are identical. Other operating systems
       prefer to do some line end conversions in text mode:
       When reading a file all occurrences of <tt><font color=maroon>"\r\n"</font></tt> are
@@ -5650,13 +5650,13 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   the library <font color=maroon>"keybd.s7i"</font>, which defines the type <tt>'<font color=red>keyboard_file</font>'</tt>
   and the file <tt>'KEYBOARD'</tt>. Characters typed at the keyboard are
   queued (first in first out) and can be read directly from
-  <tt>'KEYBOARD'</tt> without any possibiliy to correct. Additionally
+  <tt>'KEYBOARD'</tt> without any possibility to correct. Additionally
   <tt>'KEYBOARD'</tt> does not echo the characters. Reading from <tt>'KEYBOARD'</tt>
-  delivers normal UNICODE characters or special codes (which may be
-  or may not be UNICODE characters) for function and cursor keys.
-  UNICODE characters and special codes both are <tt>'<font color=red>char</font>'</tt> values. The
+  delivers normal Unicode characters or special codes (which may be
+  or may not be Unicode characters) for function and cursor keys.
+  Unicode characters and special codes both are <tt>'<font color=red>char</font>'</tt> values. The
   <font color=maroon>"keybd.s7i"</font> library defines <tt>'<font color=red>char</font>'</tt> constants for various keys:
-</p><table border="1">
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
     <tr><td>Key character constant</td>     <td>Description</td></tr>
     <tr><td><tt>KEY_CTL_A</tt> to <tt>KEY_CTL_Z</tt></td>     <td>The control keys ctrl-a to ctrl-z</td></tr>
     <tr><td><tt>KEY_ALT_A</tt> to <tt>KEY_ALT_Z</tt></td>     <td>The alternate keys alt-a to alt-z</td></tr>
@@ -5709,7 +5709,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td><tt>KEY_MOUSE5</tt></td>                 <td>Mouse key 5 (counted from left)</td></tr>
     <tr><td><tt>KEY_UNDEF</tt></td>                  <td>Undefined key</td></tr>
     <tr><td><tt>KEY_NONE</tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
-</table><p>
+</table></dd></dl><p>
   The following example uses the <tt>'<font color=red>char</font>'</tt> constant <tt>'KEY_UP'</tt>:
 </p><pre>
     $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
@@ -5724,7 +5724,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
         writeln(<font color=maroon>"Cursor up was pressed"</font>);
       <font color=blue>end func</font>;
 </pre><p>
-  Progams should use the <tt>'<font color=red>char</font>'</tt> constants defined in <font color=maroon>"keybd.s7i"</font>
+  Programs should use the <tt>'<font color=red>char</font>'</tt> constants defined in <font color=maroon>"keybd.s7i"</font>
   to deal with function and cursor keys, since the special key
   codes may change in future versions of Seed7.
 </p><p>
@@ -5767,7 +5767,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   This two modes are supported with two basic keyboard files:
 </p><ul>
     <li><!-- -  --><tt>'CONSOLE_KEYBOARD'</tt>, which uses a terminfo or console driver.</li>
-    <li><!-- -  --><tt>'GRAPH_KEYBOARD'</tt>, which uses a X11 or gdi driver.</li>
+    <li><!-- -  --><tt>'GRAPH_KEYBOARD'</tt>, which uses a X11 or GDI driver.</li>
 </ul><p>
   The file <tt>'KEYBOARD'</tt> is actually a variable which refers to one
   of the two basic keyboard files.  The declaration of the type
@@ -5786,7 +5786,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   An <tt>'<font color=red>echo_file</font>'</tt> file can be used to write input characters to
   an output file. This is useful since <tt>'KEYBOARD'</tt> does not echo its
   input, but <tt>'<font color=red>echo_file</font>'</tt> is not restricted to support <tt>'KEYBOARD'</tt>.
-  The following program writes echos of the keys typed and exits as
+  The following program writes echoes of the keys typed and exits as
   soon as a <tt><font color=maroon>'!'</font></tt> is encountered:
 </p><pre>
     $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
@@ -5810,7 +5810,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><pre>
     terminate (y/n)?
 </pre><p>
-  Aswering <tt>'y'</tt> or <tt>'Y'</tt> is interpreted as <tt>'yes'</tt> and the program
+  Answering <tt>'y'</tt> or <tt>'Y'</tt> is interpreted as <tt>'yes'</tt> and the program
   is terminated with the following message:
 </p><pre>
     *** PROGRAM TERMINATED BY USER
@@ -5895,12 +5895,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><pre>
     <font color=blue>var</font> <font color=red>file</font>: clientSocket <font color=blue>is</font> STD_NULL;
 </pre><p>
-  With <tt>'openInetSocket'</tt> an internet client socket can be opened:
+  With <tt>'openInetSocket'</tt> an Internet client socket can be opened:
 </p><pre>
     clientSocket := openInetSocket(<font color=maroon>"www.google.com"</font>, 80);
 </pre><p>
   The function <tt>'openInetSocket'</tt> creates and connects a socket.
-  Opening an internet socket at the local host is done with:
+  Opening an Internet socket at the local host is done with:
 </p><pre>
     clientSocket := openInetSocket(1080);
 </pre><p>
@@ -5975,7 +5975,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
         <font color=blue>var</font> <font color=red>file</font>: result <font color=blue>is</font> STD_NULL;
       <font color=blue>begin</font>
         ...
-        <font color=green>(* Initialisation of the local data *)</font>
+        <font color=green>(* Initialization of the local data *)</font>
         result := malloc( ... );
         ...
       <font color=blue>end func</font>;
@@ -6516,7 +6516,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   of the <tt>'<font color=blue>loop</font>'</tt> function the closures are executed at some places.
 </p><p>
   The <tt>'<font color=blue>loop</font>'</tt> function uses a <tt>'<font color=blue>repeat</font>'</tt> and an <tt>'<font color=blue>if</font>'</tt> statement to
-  implement the desired behaviour. When necessary the closures are
+  implement the desired behavior. When necessary the closures are
   executed several times.
 </p><p>
   For the <tt>'<font color=blue>loop</font>'</tt> example with the semantic errors (see above) we
@@ -6607,21 +6607,20 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   interpretation the expression is illegal.
 </p><p>
   Table for the possibilities of associativity:
-</p><pre>
-    +---------------+------------------------------+
-    | associativity |     The priority of the      |
-    +---------------+--------------+---------------+
-    |               | left operand | right operand |
-    |               |    must be   |    must be    |
-    +---------------+--------------+---------------+
-    |      ->       |      &lt;=      |      &lt;        |
-    |      &lt;-       |      &lt;       |      &lt;=       |
-    |      &lt;->      |      &lt;       |      &lt;        |
-    |     ->&lt;-      |      &lt;=      |      &lt;=       |
-    +---------------+--------------+---------------+
-    |               |  than that of the operator   |
-    +---------------+------------------------------+
-</pre><p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+    <!-- +---------------+----------------------------------------------+ -->
+    <tr><!-- | --><th rowspan="2"> associativity </th><!-- | --><th align="center" colspan="2">             The priority of the              </th><!-- | --></tr>
+    <!-- +               +----------------------+-----------------------+ -->
+    <tr><!-- |               | --><th align="center"> left operand must be </th><!-- | --><th align="center"> right operand must be </th><!-- | --></tr>
+    <!-- +---------------+----------------------+-----------------------+ -->
+    <tr><!-- | --><td align="center">      ->       </td><!-- | --><td align="center">          &lt;=          </td><!-- | --><td align="center">          &lt;            </td><!-- | --></tr>
+    <tr><!-- | --><td align="center">      &lt;-       </td><!-- | --><td align="center">          &lt;           </td><!-- | --><td align="center">          &lt;=           </td><!-- | --></tr>
+    <tr><!-- | --><td align="center">      &lt;->      </td><!-- | --><td align="center">          &lt;           </td><!-- | --><td align="center">          &lt;            </td><!-- | --></tr>
+    <tr><!-- | --><td align="center">     ->&lt;-      </td><!-- | --><td align="center">          &lt;=          </td><!-- | --><td align="center">          &lt;=           </td><!-- | --></tr>
+    <!-- +---------------+----------------------+-----------------------+ -->
+    <tr><!-- | --><td>&nbsp;              </td><!-- | --><td align="center" colspan="2">          than that of the operator           </td><!-- | --></tr>
+    <!-- +---------------+----------------------------------------------+ -->
+</table></dd></dl><p>
   The parameter before the operator symbol is called left operand.
   The parameter after the last symbol of a construct is called
   right operand. In case of normal operators the last symbol of a
@@ -6797,7 +6796,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
     <li><!-- -  -->The associativity is described with one of the symbols
       <tt>-></tt> (left-associative), <tt>&lt;-</tt> (right-associative),
-      <tt>&lt;-></tt> (not associative) and <tt>->&lt;-</tt> (both associativitys).
+      <tt>&lt;-></tt> (not associative) and <tt>->&lt;-</tt> (both associativities).
       When there are no left or right operands, as it is the case
       for the <tt>'<font color=blue>loop</font>'</tt> statement, the associativity is irrelevant.</li>
 
@@ -7350,12 +7349,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="String_literals"><h4>10.3.2 String literals</h4></a>
 <p>
-    A string literal is a sequence of UTF-8 encoded UNICODE
+    A string literal is a sequence of UTF-8 encoded Unicode
   characters surrounded by double quotes. For example:
 </p><pre>
     <font color=maroon>""</font>   <font color=maroon>" "</font>   <font color=maroon>"\""</font>   <font color=maroon>"'"</font>   <font color=maroon>"\'"</font>   <font color=maroon>"String"</font>   <font color=maroon>"ch=\" "</font>   <font color=maroon>"\n\n"</font>
 </pre><p>
-  In order to represent nonprintable characters and certain
+  In order to represent non-printable characters and certain
   printable characters the following escape sequences may be
   used.
 </p><pre>
@@ -7402,7 +7401,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="Character_literals"><h4>10.3.3 Character literals</h4></a>
 <p>
-    A character literal is an UTF-8 encoded UNICODE character
+    A character literal is an UTF-8 encoded Unicode character
   enclosed in single quotes. For example:
 </p><pre>
     <font color=maroon>'a'</font>   <font color=maroon>' '</font>   <font color=maroon>'\n'</font>   <font color=maroon>'!'</font>   <font color=maroon>'\\'</font>   <font color=maroon>'2'</font>   <font color=maroon>'"' </font>  <font color=maroon>'\"'</font>   <font color=maroon>'\''</font>
@@ -7542,7 +7541,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   look like. Seed7 compensates this differences with a standard
   path representation. Standard paths are used by all Seed7
   functions dealing with paths. The standard path representation
-  uses strings with the fillowing properties to describe paths:
+  uses strings with the following properties to describe paths:
 </p><ul>
     <li><!-- -  -->The slash (<tt>'/'</tt>) is used as path delimiter.</li>
     <li><!-- -  -->Drive letters are not allowed, but there is a solution
@@ -7556,7 +7555,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   the drive <tt><font color=maroon>"C:"</font></tt>. Reading the directory <tt><font color=maroon>"/"</font></tt> under Windows
   returns a list of available drives. A path with a backslash
   or with a drive letter may raise the exception <tt>'RANGE_ERROR'</tt>,
-  when a function like <tt>'open'</tt>is called.  
+  when a function like <tt>'open'</tt> is called.  
 </p><p>
   An absolute path specifies an unique location in the file
   system. Absolute paths always start with a slash. A relative
@@ -8004,7 +8003,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="removeAnyFile"><h3>12.19 removeAnyFile</h3></a>
 <p>
-    The function <tt>'removeAnyFile'</tt> removes a file independend
+    The function <tt>'removeAnyFile'</tt> removes a file independent
   of its file type:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: removeAnyFile (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
@@ -8025,8 +8024,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: copyFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
 </pre><p>
-  Permissions/mode, ownership and timestamps of the destination file are
-  determined undependend of the corresponding source properties.
+  Permissions/mode, ownership and timestamps of the destination file
+  are determined independent of the corresponding source properties.
   The destination file gets the permissions/mode defined by umask.
   The user executing the program is the owner of the destination file.
   The timestamps of the destination file are set to the current time.
@@ -8190,7 +8189,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   mechanism called action. For example: It is easy to define
   the <tt>'<font color=blue>while</font>'</tt> statement by using recursion. But this would
   hurt performance and it would also use a huge amount of
-  memory for the runtime stack. In practise an implementation
+  memory for the runtime stack. In practice an implementation
   of the <tt>'<font color=blue>while</font>'</tt> statement can use a conditional jump
   instead of a subroutine call. Since Seed7 has no <tt>'<font color=blue>goto</font>'</tt>
   statement, this is not an option. Instead the primitive
@@ -8220,94 +8219,94 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   with INT_ and all assignment actions end with _CPY .
   The following list shows actions which are used with more
   than one type:
-</p><pre>
-    _ABS      Absolute value
-    _ADD      Addition
-    _CAT      Concatenation
-    _CMP      Compare
-    _CPY      Copy (Assignment)
-    _CREATE   Initialize (Construct)
-    _DESTR    Destroy (Destruct)
-    _DECR     Decrement
-    _DIV      Division
-    _EQ       Equal
-    _GE       Greater equal
-    _GETC     Get one character from a <font color=red>file</font>
-    _GETS     Get string with maximum length from a <font color=red>file</font>
-    _GT       Greater than
-    _HASHCODE Compute a hashCode
-    _HEAD     Head of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _ICONV    Conversion of <font color=red>integer</font> to another type
-    _IDX      Index (Element) of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _INCR     Increment
-    _LE       Less equal
-    _LNG      Length
-    _LOG2     Base 2 logarithm
-    _LOWER    Convert to lower case
-    _LSHIFT   Shift left
-    _LT       Less than
-    _MDIV     Modulo division (Integer division truncated towards negative infinity)
-    _MINUS    Change sign
-    _MOD      Modulo (Reminder of _MDIV integer division)
-    _MULT     Multiply
-    _NE       Not equal
-    _ODD      Odd number
-    _ORD      Ordinal number
-    _PARSE    Conversion of <font color=red>string</font> to another type
-    _PLUS     Positive sign (noop)
-    _POW      Power
-    _PRED     Predecessor
-    _RAND     Random value
-    _RANGE    Range of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _REM      Remainder (Reminder of _DIV integer division)
-    _RSHIFT   Arithmetic shift right
-    _SBTR     Subtract
-    _SCAN     Convert from <font color=red>string</font> to another type
-    _SEEK     Set actual file position of a <font color=red>file</font>
-    _SQRT     Square root
-    _STR      Convert to <font color=red>string</font>
-    _SUCC     Successor
-    _TAIL     Tail of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _TELL     Return the actual <font color=red>file</font> position
-    _UPPER    Convert to upper case
-    _VALUE    Dereference a <font color=red>reference</font>
-    _WRITE    Write <font color=red>string</font> to <font color=red>file</font>
-</pre><p>
+</p><dl><dd><table border="0" cellspacing="0">
+    <tr><td>_ABS      <td width="20"></td><td>Absolute value</td></tr>
+    <tr><td>_ADD      <td width="20"></td><td>Addition</td></tr>
+    <tr><td>_CAT      <td width="20"></td><td>Concatenation</td></tr>
+    <tr><td>_CMP      <td width="20"></td><td>Compare</td></tr>
+    <tr><td>_CPY      <td width="20"></td><td>Copy (Assignment)</td></tr>
+    <tr><td>_CREATE   <td width="20"></td><td>Initialize (Construct)</td></tr>
+    <tr><td>_DESTR    <td width="20"></td><td>Destroy (Destruct)</td></tr>
+    <tr><td>_DECR     <td width="20"></td><td>Decrement</td></tr>
+    <tr><td>_DIV      <td width="20"></td><td>Division</td></tr>
+    <tr><td>_EQ       <td width="20"></td><td>Equal</td></tr>
+    <tr><td>_GE       <td width="20"></td><td>Greater equal</td></tr>
+    <tr><td>_GETC     <td width="20"></td><td>Get one character from a <font color=red>file</font></td></tr>
+    <tr><td>_GETS     <td width="20"></td><td>Get string with maximum length from a <font color=red>file</font></td></tr>
+    <tr><td>_GT       <td width="20"></td><td>Greater than</td></tr>
+    <tr><td>_HASHCODE <td width="20"></td><td>Compute a hashCode</td></tr>
+    <tr><td>_HEAD     <td width="20"></td><td>Head of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font></td></tr>
+    <tr><td>_ICONV    <td width="20"></td><td>Conversion of <font color=red>integer</font> to another type</td></tr>
+    <tr><td>_IDX      <td width="20"></td><td>Index (Element) of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font></td></tr>
+    <tr><td>_INCR     <td width="20"></td><td>Increment</td></tr>
+    <tr><td>_LE       <td width="20"></td><td>Less equal</td></tr>
+    <tr><td>_LNG      <td width="20"></td><td>Length</td></tr>
+    <tr><td>_LOG2     <td width="20"></td><td>Base 2 logarithm</td></tr>
+    <tr><td>_LOWER    <td width="20"></td><td>Convert to lower case</td></tr>
+    <tr><td>_LSHIFT   <td width="20"></td><td>Shift left</td></tr>
+    <tr><td>_LT       <td width="20"></td><td>Less than</td></tr>
+    <tr><td>_MDIV     <td width="20"></td><td>Modulo division (Integer division truncated towards negative infinity)</td></tr>
+    <tr><td>_MINUS    <td width="20"></td><td>Change sign</td></tr>
+    <tr><td>_MOD      <td width="20"></td><td>Modulo (Reminder of _MDIV integer division)</td></tr>
+    <tr><td>_MULT     <td width="20"></td><td>Multiply</td></tr>
+    <tr><td>_NE       <td width="20"></td><td>Not equal</td></tr>
+    <tr><td>_ODD      <td width="20"></td><td>Odd number</td></tr>
+    <tr><td>_ORD      <td width="20"></td><td>Ordinal number</td></tr>
+    <tr><td>_PARSE    <td width="20"></td><td>Conversion of <font color=red>string</font> to another type</td></tr>
+    <tr><td>_PLUS     <td width="20"></td><td>Positive sign (noop)</td></tr>
+    <tr><td>_POW      <td width="20"></td><td>Power</td></tr>
+    <tr><td>_PRED     <td width="20"></td><td>Predecessor</td></tr>
+    <tr><td>_RAND     <td width="20"></td><td>Random value</td></tr>
+    <tr><td>_RANGE    <td width="20"></td><td>Range of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font></td></tr>
+    <tr><td>_REM      <td width="20"></td><td>Remainder (Reminder of _DIV integer division)</td></tr>
+    <tr><td>_RSHIFT   <td width="20"></td><td>Arithmetic shift right</td></tr>
+    <tr><td>_SBTR     <td width="20"></td><td>Subtract</td></tr>
+    <tr><td>_SCAN     <td width="20"></td><td>Convert from <font color=red>string</font> to another type</td></tr>
+    <tr><td>_SEEK     <td width="20"></td><td>Set actual file position of a <font color=red>file</font></td></tr>
+    <tr><td>_SQRT     <td width="20"></td><td>Square root</td></tr>
+    <tr><td>_STR      <td width="20"></td><td>Convert to <font color=red>string</font></td></tr>
+    <tr><td>_SUCC     <td width="20"></td><td>Successor</td></tr>
+    <tr><td>_TAIL     <td width="20"></td><td>Tail of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font></td></tr>
+    <tr><td>_TELL     <td width="20"></td><td>Return the actual <font color=red>file</font> position</td></tr>
+    <tr><td>_UPPER    <td width="20"></td><td>Convert to upper case</td></tr>
+    <tr><td>_VALUE    <td width="20"></td><td>Dereference a <font color=red>reference</font></td></tr>
+    <tr><td>_WRITE    <td width="20"></td><td>Write <font color=red>string</font> to <font color=red>file</font></td></tr>
+</table></dd></dl><p>
   Primitive actions are defined for many types. The functions
   which implement the primitive actions are grouped together
   in *lib.c files. The following list contains the action
   prefix, the file containing the functions and a description:
-</p><pre>
-    ACT_  actlib.c  <font color=red>ACTION</font> operations
-    ARR_  arrlib.c  <font color=red>array</font> operations
-    BIG_  biglib.c  <font color=red>bigInteger</font> operations
-    BLN_  blnlib.c  <font color=red>boolean</font> operations
-    BST_  bstlib.c  Operations for byte strings
-    CHR_  chrlib.c  <font color=red>char</font> operations
-    CMD_  cmdlib.c  Various directory, file and other commands
-    DCL_  dcllib.c  Declaration operations
-    DRW_  drwlib.c  Drawing operations
-    ENU_  enulib.c  Enumeration operations
-    FIL_  fillib.c  <font color=red>PRIMITIVE_FILE</font> operations
-    FLT_  fltlib.c  <font color=red>float</font> operations
-    HSH_  hshlib.c  <font color=red>hash</font> operations
-    INT_  intlib.c  <font color=red>integer</font> operations
-    ITF_  itflib.c  Operations for interface types
-    KBD_  kbdlib.c  Keyboard operations
-    LST_  lstlib.c  List operations
-    PRC_  prclib.c  <font color=red>proc</font> operations and statements
-    PRG_  prglib.c  Program operations
-    REF_  reflib.c  <font color=red>reference</font> operations
-    RFL_  rfllib.c  <font color=red>ref_list</font> operations
-    SCR_  scrlib.c  Screen operations
-    SCT_  sctlib.c  <font color=red>struct</font> operations
-    SET_  setlib.c  <font color=red>set</font> operations
-    SOC_  soclib.c  <font color=red>PRIMITIVE_SOCKET</font> operations
-    STR_  strlib.c  <font color=red>string</font> operations
-    TIM_  timlib.c  <font color=red>time</font> and <font color=red>duration</font> operations
-    TYP_  typlib.c  <font color=red>type</font> operations
-    UT8_  ut8lib.c  <font color=red>utf8_file</font> operations
-</pre><p>
+</p><dl><dd><table border="0" cellspacing="0">
+    <tr><td>ACT_  <td width="20"></td><td>actlib.c  <td width="20"></td><td><font color=red>ACTION</font> operations</td></tr>
+    <tr><td>ARR_  <td width="20"></td><td>arrlib.c  <td width="20"></td><td><font color=red>array</font> operations</td></tr>
+    <tr><td>BIG_  <td width="20"></td><td>biglib.c  <td width="20"></td><td><font color=red>bigInteger</font> operations</td></tr>
+    <tr><td>BLN_  <td width="20"></td><td>blnlib.c  <td width="20"></td><td><font color=red>boolean</font> operations</td></tr>
+    <tr><td>BST_  <td width="20"></td><td>bstlib.c  <td width="20"></td><td>Operations for byte strings</td></tr>
+    <tr><td>CHR_  <td width="20"></td><td>chrlib.c  <td width="20"></td><td><font color=red>char</font> operations</td></tr>
+    <tr><td>CMD_  <td width="20"></td><td>cmdlib.c  <td width="20"></td><td>Various directory, file and other commands</td></tr>
+    <tr><td>DCL_  <td width="20"></td><td>dcllib.c  <td width="20"></td><td>Declaration operations</td></tr>
+    <tr><td>DRW_  <td width="20"></td><td>drwlib.c  <td width="20"></td><td>Drawing operations</td></tr>
+    <tr><td>ENU_  <td width="20"></td><td>enulib.c  <td width="20"></td><td>Enumeration operations</td></tr>
+    <tr><td>FIL_  <td width="20"></td><td>fillib.c  <td width="20"></td><td><font color=red>PRIMITIVE_FILE</font> operations</td></tr>
+    <tr><td>FLT_  <td width="20"></td><td>fltlib.c  <td width="20"></td><td><font color=red>float</font> operations</td></tr>
+    <tr><td>HSH_  <td width="20"></td><td>hshlib.c  <td width="20"></td><td><font color=red>hash</font> operations</td></tr>
+    <tr><td>INT_  <td width="20"></td><td>intlib.c  <td width="20"></td><td><font color=red>integer</font> operations</td></tr>
+    <tr><td>ITF_  <td width="20"></td><td>itflib.c  <td width="20"></td><td>Operations for interface types</td></tr>
+    <tr><td>KBD_  <td width="20"></td><td>kbdlib.c  <td width="20"></td><td>Keyboard operations</td></tr>
+    <tr><td>LST_  <td width="20"></td><td>lstlib.c  <td width="20"></td><td>List operations</td></tr>
+    <tr><td>PRC_  <td width="20"></td><td>prclib.c  <td width="20"></td><td><font color=red>proc</font> operations and statements</td></tr>
+    <tr><td>PRG_  <td width="20"></td><td>prglib.c  <td width="20"></td><td>Program operations</td></tr>
+    <tr><td>REF_  <td width="20"></td><td>reflib.c  <td width="20"></td><td><font color=red>reference</font> operations</td></tr>
+    <tr><td>RFL_  <td width="20"></td><td>rfllib.c  <td width="20"></td><td><font color=red>ref_list</font> operations</td></tr>
+    <tr><td>SCR_  <td width="20"></td><td>scrlib.c  <td width="20"></td><td>Screen operations</td></tr>
+    <tr><td>SCT_  <td width="20"></td><td>sctlib.c  <td width="20"></td><td><font color=red>struct</font> operations</td></tr>
+    <tr><td>SET_  <td width="20"></td><td>setlib.c  <td width="20"></td><td><font color=red>set</font> operations</td></tr>
+    <tr><td>SOC_  <td width="20"></td><td>soclib.c  <td width="20"></td><td><font color=red>PRIMITIVE_SOCKET</font> operations</td></tr>
+    <tr><td>STR_  <td width="20"></td><td>strlib.c  <td width="20"></td><td><font color=red>string</font> operations</td></tr>
+    <tr><td>TIM_  <td width="20"></td><td>timlib.c  <td width="20"></td><td><font color=red>time</font> and <font color=red>duration</font> operations</td></tr>
+    <tr><td>TYP_  <td width="20"></td><td>typlib.c  <td width="20"></td><td><font color=red>type</font> operations</td></tr>
+    <tr><td>UT8_  <td width="20"></td><td>ut8lib.c  <td width="20"></td><td><font color=red>utf8_file</font> operations</td></tr>
+</table></dd></dl><p>
   The C functions which implement primitive actions have
   lowercase names. E.g.: The action <tt>'PRC_WHILE'</tt> is implemented
   with the C function <tt>'prc_while()'</tt> in the file <tt>'prclib.c'</tt>.
@@ -8345,7 +8344,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p>
   The action functions use ANSI C prototypes and K&R function headers.
   The function <tt>'int_add()'</tt> adds the first and the third argument (the
-  second argument contains the + symbol. The file <tt>'memory.h'</tt>
+  second argument contains the + symbol. The file <tt>'objutl.h'</tt>
   contains several macros and functions which help to handle the
   arguments (parameter list) of a C primitive action function.
 <ul>
@@ -8506,18 +8505,18 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   actions the functions of the <tt>'seed7_05.a'</tt> library are used.
 </p>
 <a name="ACTION"><h3>13.1 Actions for the type ACTION</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>actlib.c function</td>   <td>act_comp.c function</td></tr>
-    <tr><td>ACT_ILLEGAL</td>         <td>act_illegal</td>         <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>actlib.c function</th>   <th>act_comp.c function</th></tr>
+    <tr><td>ACT_ILLEGAL</td>         <td>act_illegal</td>         <td>&nbsp;</td></tr>
     <tr><td>ACT_CPY</td>             <td>act_cpy</td>             <td>=</td></tr>
-    <tr><td>ACT_CREATE</td>          <td>act_create</td>          <td></td></tr>
-    <tr><td>ACT_GEN</td>             <td>act_gen</td>             <td></td></tr>
+    <tr><td>ACT_CREATE</td>          <td>act_create</td>          <td>&nbsp;</td></tr>
+    <tr><td>ACT_GEN</td>             <td>act_gen</td>             <td>&nbsp;</td></tr>
     <tr><td>ACT_STR</td>             <td>act_str</td>             <td>actStr</td></tr>
     <tr><td>ACT_VALUE</td>           <td>act_value</td>           <td>actValue</td></tr>
 </table><p></p>
 <a name="array"><h3>13.2 Actions for array types</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>arrlib.c function</td>   <td>arr_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>arrlib.c function</th>   <th>arr_rtl.c function</th></tr>
     <tr><td>ARR_APPEND</td>          <td>arr_append</td>          <td>arrAppend</td></tr>
     <tr><td>ARR_ARRLIT</td>          <td>arr_arrlit</td>          <td>arrArrlit</td></tr>
     <tr><td>ARR_ARRLIT2</td>         <td>arr_arrlit2</td>         <td>arrArrlit2</td></tr>
@@ -8528,7 +8527,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ARR_CPY</td>             <td>arr_cpy</td>             <td>cpy_ ...</td></tr>
     <tr><td>ARR_CREATE</td>          <td>arr_create</td>          <td>create_ ...</td></tr>
     <tr><td>ARR_DESTR</td>           <td>arr_destr</td>           <td>destr_ ...</td></tr>
-    <tr><td>ARR_EMPTY</td>           <td>arr_empty</td>           <td></td></tr>
+    <tr><td>ARR_EMPTY</td>           <td>arr_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>ARR_EXTEND</td>          <td>arr_extend</td>          <td>arrExtend</td></tr>
     <tr><td>ARR_GEN</td>             <td>arr_gen</td>             <td>arrGen</td></tr>
     <tr><td>ARR_HEAD</td>            <td>arr_head</td>            <td>arrHead</td></tr>
@@ -8543,8 +8542,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ARR_TIMES</td>           <td>arr_times</td>           <td>times_ ...</td></tr>
 </table><p></p>
 <a name="bigInteger"><h3>13.3 Actions for the type bigInteger</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>biglib.c function</td>   <td>big_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>biglib.c function</th>   <th>big_rtl.c function</th></tr>
     <tr><td>BIG_ABS</td>             <td>big_abs</td>             <td>bigAbs</td></tr>
     <tr><td>BIG_ADD</td>             <td>big_add</td>             <td>bigAdd, bigAddTemp</td></tr>
     <tr><td>BIG_BIT_LENGTH</td>      <td>big_bit_length</td>      <td>bigBitLength</td></tr>
@@ -8592,8 +8591,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>BIG_VALUE</td>           <td>big_value</td>           <td>bigValue</td></tr>
 </table><p></p>
 <a name="boolean"><h3>13.4 Actions for the type boolean</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>blnlib.c function</td>   <td>bln_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>blnlib.c function</th>   <th>bln_rtl.c function</th></tr>
     <tr><td>BLN_AND</td>             <td>bln_and</td>             <td>&amp;&amp;</td></tr>
     <tr><td>BLN_CPY</td>             <td>bln_cpy</td>             <td>blnCpy</td></tr>
     <tr><td>BLN_CREATE</td>          <td>bln_create</td>          <td>blnCreate</td></tr>
@@ -8607,14 +8606,14 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(inttype)</td></tr>
 </table><p></p>
 <a name="bstring"><h3>13.5 Actions for byte strings</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>bstlib.c function</td>   <td>bst_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>bstlib.c function</th>   <th>bst_rtl.c function</th></tr>
     <tr><td>BST_APPEND</td>          <td>bst_append</td>          <td>bstAppend</td></tr>
     <tr><td>BST_CAT</td>             <td>bst_cat</td>             <td>bstCat</td></tr>
     <tr><td>BST_CPY</td>             <td>bst_cpy</td>             <td>bstCpy</td></tr>
     <tr><td>BST_CREATE</td>          <td>bst_create</td>          <td>bstCreate</td></tr>
     <tr><td>BST_DESTR</td>           <td>bst_destr</td>           <td>bstDestr</td></tr>
-    <tr><td>BST_EMPTY</td>           <td>bst_empty</td>           <td></td></tr>
+    <tr><td>BST_EMPTY</td>           <td>bst_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>BST_EQ</td>              <td>bst_eq</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(unsigned char))==0</td></tr>
     <tr><td>BST_LNG</td>             <td>bst_lng</td>             <td>a->size</td></tr>
     <tr><td>BST_NE</td>              <td>bst_ne</td>              <td>a->size!=b->size||memcmp(a,b,a->size*sizeof(unsigned char))!=0</td></tr>
@@ -8622,8 +8621,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>BST_VALUE</td>           <td>bst_value</td>           <td>bstValue</td></tr>
 </table><p></p>
 <a name="char"><h3>13.6 Actions for the type char</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>chrlib.c function</td>   <td>chr_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>chrlib.c function</th>   <th>chr_rtl.c function</th></tr>
     <tr><td>CHR_CHR</td>             <td>chr_chr</td>             <td>(chartype)</td></tr>
     <tr><td>CHR_CMP</td>             <td>chr_cmp</td>             <td>chrCmp</td></tr>
     <tr><td>CHR_CONV</td>            <td>chr_conv</td>            <td>(noop)</td></tr>
@@ -8648,8 +8647,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CHR_VALUE</td>           <td>chr_value</td>           <td>chrValue</td></tr>
 </table><p></p>
 <a name="commands"><h3>13.7 Actions for various directory, file and other commands</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>cmdlib.c function</td>   <td>cmd_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>cmdlib.c function</th>   <th>cmd_rtl.c function</th></tr>
     <tr><td>CMD_BIG_FILESIZE</td>    <td>cmd_big_filesize</td>    <td>cmdBigFileSize</td></tr>
     <tr><td>CMD_CHDIR</td>           <td>cmd_chdir</td>           <td>cmdChdir</td></tr>
     <tr><td>CMD_CLONE_FILE</td>      <td>cmd_clone_file</td>      <td>cmdCloneFile</td></tr>
@@ -8676,29 +8675,29 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
 </table><p></p>
 <a name="declarations"><h3>13.8 Actions for declarations</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>dcllib.c function</td>   <td></td></tr>
-    <tr><td>DCL_ATTR</td>            <td>dcl_attr</td>            <td></td></tr>
-    <tr><td>DCL_CONST</td>           <td>dcl_const</td>           <td></td></tr>
-    <tr><td>DCL_ELEMENTS</td>        <td>dcl_elements</td>        <td></td></tr>
-    <tr><td>DCL_FWD</td>             <td>dcl_fwd</td>             <td></td></tr>
-    <tr><td>DCL_GETFUNC</td>         <td>dcl_getfunc</td>         <td></td></tr>
-    <tr><td>DCL_GETOBJ</td>          <td>dcl_getobj</td>          <td></td></tr>
-    <tr><td>DCL_GLOBAL</td>          <td>dcl_global</td>          <td></td></tr>
-    <tr><td>DCL_IN1VAR</td>          <td>dcl_in1var</td>          <td></td></tr>
-    <tr><td>DCL_IN2VAR</td>          <td>dcl_in2var</td>          <td></td></tr>
-    <tr><td>DCL_INOUT1</td>          <td>dcl_inout1</td>          <td></td></tr>
-    <tr><td>DCL_INOUT2</td>          <td>dcl_inout2</td>          <td></td></tr>
-    <tr><td>DCL_REF1</td>            <td>dcl_ref1</td>            <td></td></tr>
-    <tr><td>DCL_REF2</td>            <td>dcl_ref2</td>            <td></td></tr>
-    <tr><td>DCL_SYMB</td>            <td>dcl_symb</td>            <td></td></tr>
-    <tr><td>DCL_VAL1</td>            <td>dcl_val1</td>            <td></td></tr>
-    <tr><td>DCL_VAL2</td>            <td>dcl_val2</td>            <td></td></tr>
-    <tr><td>DCL_VAR</td>             <td>dcl_var</td>             <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>dcllib.c function</th></tr>
+    <tr><td>DCL_ATTR</td>            <td>dcl_attr</td></tr>
+    <tr><td>DCL_CONST</td>           <td>dcl_const</td></tr>
+    <tr><td>DCL_ELEMENTS</td>        <td>dcl_elements</td></tr>
+    <tr><td>DCL_FWD</td>             <td>dcl_fwd</td></tr>
+    <tr><td>DCL_GETFUNC</td>         <td>dcl_getfunc</td></tr>
+    <tr><td>DCL_GETOBJ</td>          <td>dcl_getobj</td></tr>
+    <tr><td>DCL_GLOBAL</td>          <td>dcl_global</td></tr>
+    <tr><td>DCL_IN1VAR</td>          <td>dcl_in1var</td></tr>
+    <tr><td>DCL_IN2VAR</td>          <td>dcl_in2var</td></tr>
+    <tr><td>DCL_INOUT1</td>          <td>dcl_inout1</td></tr>
+    <tr><td>DCL_INOUT2</td>          <td>dcl_inout2</td></tr>
+    <tr><td>DCL_REF1</td>            <td>dcl_ref1</td></tr>
+    <tr><td>DCL_REF2</td>            <td>dcl_ref2</td></tr>
+    <tr><td>DCL_SYMB</td>            <td>dcl_symb</td></tr>
+    <tr><td>DCL_VAL1</td>            <td>dcl_val1</td></tr>
+    <tr><td>DCL_VAL2</td>            <td>dcl_val2</td></tr>
+    <tr><td>DCL_VAR</td>             <td>dcl_var</td></tr>
 </table><p></p>
 <a name="graphic_output"><h3>13.9 Actions to do graphic output</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>drwlib.c function</td>   <td>drw_rtl.c/drw_x11.c/drw_win.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>drw_rtl.c/drw_x11.c/drw_win.c function</th></tr>
     <tr><td>DRW_ARC</td>             <td>drw_arc</td>             <td>drwArc</td></tr>
     <tr><td>DRW_ARC2</td>            <td>drw_arc2</td>            <td>drwArc2</td></tr>
     <tr><td>DRW_BACKGROUND</td>      <td>drw_background</td>      <td>drwBackground</td></tr>
@@ -8709,7 +8708,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_CPY</td>             <td>drw_cpy</td>             <td>drwCpy</td></tr>
     <tr><td>DRW_CREATE</td>          <td>drw_create</td>          <td>drwCreate</td></tr>
     <tr><td>DRW_DESTR</td>           <td>drw_destr</td>           <td>drwDestr</td></tr>
-    <tr><td>DRW_EMPTY</td>           <td>drw_empty</td>           <td></td></tr>
+    <tr><td>DRW_EMPTY</td>           <td>drw_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>DRW_EQ</td>              <td>drw_eq</td>              <td>==</td></tr>
     <tr><td>DRW_FARCCHORD</td>       <td>drw_farcchord</td>       <td>drwFArcChord</td></tr>
     <tr><td>DRW_FARCPIESLICE</td>    <td>drw_farcpieslice</td>    <td>drwFArcPieSlice</td></tr>
@@ -8750,29 +8749,29 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_YPOS</td>            <td>drw_ypos</td>            <td>drwYPos</td></tr>
 </table><p></p>
 <a name="enumeration"><h3>13.10 Actions for enumeration types</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>enulib.c function</td>   <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>enulib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>ENU_CONV</td>            <td>enu_conv</td>            <td>(noop)</td></tr>
     <tr><td>ENU_CPY</td>             <td>enu_cpy</td>             <td>=</td></tr>
-    <tr><td>ENU_CREATE</td>          <td>enu_create</td>          <td></td></tr>
+    <tr><td>ENU_CREATE</td>          <td>enu_create</td>          <td>&nbsp;</td></tr>
     <tr><td>ENU_EQ</td>              <td>enu_eq</td>              <td>==</td></tr>
-    <tr><td>ENU_GENLIT</td>          <td>enu_genlit</td>          <td></td></tr>
+    <tr><td>ENU_GENLIT</td>          <td>enu_genlit</td>          <td>&nbsp;</td></tr>
     <tr><td>ENU_ICONV2</td>          <td>enu_iconv2</td>          <td>(noop)</td></tr>
     <tr><td>ENU_NE</td>              <td>enu_ne</td>              <td>!=</td></tr>
     <tr><td>ENU_ORD2</td>            <td>enu_ord2</td>            <td>(noop)</td></tr>
-    <tr><td>ENU_SIZE</td>            <td>enu_size</td>            <td></td></tr>
+    <tr><td>ENU_SIZE</td>            <td>enu_size</td>            <td>&nbsp;</td></tr>
     <tr><td>ENU_VALUE</td>           <td>enu_value</td>           <td>enuValue</td></tr>
 </table><p></p>
 <a name="PRIMITIVE_FILE"><h3>13.11 Actions for the type PRIMITIVE_FILE</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>fillib.c function</td>   <td>fil_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>fillib.c function</th>   <th>fil_rtl.c function</th></tr>
     <tr><td>FIL_BIG_LNG</td>         <td>fil_big_lng</td>         <td>filBigLng</td></tr>
     <tr><td>FIL_BIG_SEEK</td>        <td>fil_big_seek</td>        <td>filBigSeek</td></tr>
     <tr><td>FIL_BIG_TELL</td>        <td>fil_big_tell</td>        <td>filBigTell</td></tr>
     <tr><td>FIL_CLOSE</td>           <td>fil_close</td>           <td>fclose</td></tr>
     <tr><td>FIL_CPY</td>             <td>fil_cpy</td>             <td>fltCpy</td></tr>
     <tr><td>FIL_CREATE</td>          <td>fil_create</td>          <td>fltCreate</td></tr>
-    <tr><td>FIL_EMPTY</td>           <td>fil_empty</td>           <td></td></tr>
+    <tr><td>FIL_EMPTY</td>           <td>fil_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>FIL_EOF</td>             <td>fil_eof</td>             <td>feof</td></tr>
     <tr><td>FIL_EQ</td>              <td>fil_eq</td>              <td>==</td></tr>
     <tr><td>FIL_ERR</td>             <td>fil_err</td>             <td>stderr</td></tr>
@@ -8796,8 +8795,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FIL_WRITE</td>           <td>fil_write</td>           <td>filWrite</td></tr>
 </table><p></p>
 <a name="float"><h3>13.12 Actions for the type float</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>fltlib.c function</td>   <td>flt_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>fltlib.c function</th>   <th>flt_rtl.c function</th></tr>
     <tr><td>FLT_A2TAN</td>           <td>flt_a2tan</td>           <td>atan2</td></tr>
     <tr><td>FLT_ABS</td>             <td>flt_abs</td>             <td>fabs</td></tr>
     <tr><td>FLT_ACOS</td>            <td>flt_acos</td>            <td>acos</td></tr>
@@ -8851,8 +8850,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FLT_VALUE</td>           <td>flt_value</td>           <td>fltValue</td></tr>
 </table><p></p>
 <a name="graphic_keyboard"><h3>13.13 Actions to support the graphic keyboard</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>drwlib.c function</td>   <td>kbd_rtl.c/drw_x11.c/drw_win.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>kbd_rtl.c/drw_x11.c/drw_win.c function</th></tr>
     <tr><td>GKB_BUSY_GETC</td>       <td>gkb_busy_getc</td>       <td>gkbKeyPressed() ? gkbGetc() : 512</td></tr>
     <tr><td>GKB_GETC</td>            <td>gkb_getc</td>            <td>gkbGetc</td></tr>
     <tr><td>GKB_GETS</td>            <td>gkb_gets</td>            <td>gkbGets</td></tr>
@@ -8865,8 +8864,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>GKB_YPOS</td>            <td>gkb_ypos</td>            <td>gkbYpos</td></tr>
 </table><p></p>
 <a name="hash"><h3>13.14 Actions for hash types</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>hshlib.c function</td>   <td>hsh_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>hshlib.c function</th>   <th>hsh_rtl.c function</th></tr>
     <tr><td>HSH_CONTAINS</td>        <td>hsh_contains</td>        <td>hshContains</td></tr>
     <tr><td>HSH_CPY</td>             <td>hsh_cpy</td>             <td>hshCpy</td></tr>
     <tr><td>HSH_CREATE</td>          <td>hsh_create</td>          <td>hshCreate</td></tr>
@@ -8877,16 +8876,16 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>HSH_FOR_DATA_KEY</td>    <td>hsh_for_data_key</td>    <td>for</td></tr>
     <tr><td>HSH_FOR_KEY</td>         <td>hsh_for_key</td>         <td>for</td></tr>
     <tr><td>HSH_IDX</td>             <td>hsh_idx</td>             <td>hshIdx, hshIdxAddr</td></tr>
-    <tr><td>HSH_IDX2</td>            <td>hsh_idx2</td>            <td></td></tr>
+    <tr><td>HSH_IDX2</td>            <td>hsh_idx2</td>            <td>&nbsp;</td></tr>
     <tr><td>HSH_INCL</td>            <td>hsh_incl</td>            <td>hshIncl</td></tr>
     <tr><td>HSH_KEYS</td>            <td>hsh_keys</td>            <td>hshKeys</td></tr>
     <tr><td>HSH_LNG</td>             <td>hsh_lng</td>             <td>a->size</td></tr>
-    <tr><td>HSH_REFIDX</td>          <td>hsh_refidx</td>          <td></td></tr>
+    <tr><td>HSH_REFIDX</td>          <td>hsh_refidx</td>          <td>&nbsp;</td></tr>
     <tr><td>HSH_VALUES</td>          <td>hsh_values</td>          <td>hshValues</td></tr>
 </table><p></p>
 <a name="integer"><h3>13.15 Actions for the type integer</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>intlib.c function</td>   <td>int_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>intlib.c function</th>   <th>int_rtl.c function</th></tr>
     <tr><td>INT_ABS</td>             <td>int_abs</td>             <td>labs</td></tr>
     <tr><td>INT_ADD</td>             <td>int_add</td>             <td>+</td></tr>
     <tr><td>INT_BINOM</td>           <td>int_binom</td>           <td>intBinom</td></tr>
@@ -8936,20 +8935,20 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>INT_VALUE</td>           <td>int_value</td>           <td>intValue</td></tr>
 </table><p></p>
 <a name="interface"><h3>13.16 Actions for interface types</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>itflib.c function</td>   <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>itflib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>ITF_CONV2</td>           <td>itf_conv2</td>           <td>(noop)</td></tr>
     <tr><td>ITF_CPY</td>             <td>itf_cpy</td>             <td>=</td></tr>
     <tr><td>ITF_CPY2</td>            <td>itf_cpy2</td>            <td>=</td></tr>
-    <tr><td>ITF_CREATE</td>          <td>itf_create</td>          <td></td></tr>
-    <tr><td>ITF_CREATE2</td>         <td>itf_create2</td>         <td></td></tr>
+    <tr><td>ITF_CREATE</td>          <td>itf_create</td>          <td>&nbsp;</td></tr>
+    <tr><td>ITF_CREATE2</td>         <td>itf_create2</td>         <td>&nbsp;</td></tr>
     <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
-    <tr><td>ITF_SELECT</td>          <td>itf_select</td>          <td></td></tr>
+    <tr><td>ITF_SELECT</td>          <td>itf_select</td>          <td>&nbsp;</td></tr>
 </table><p></p>
 <a name="console_keyboard"><h3>13.17 Actions to support the text (console) screen keyboard</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>kbdlib.c function</td>   <td>kbd_rtl.c/kbd_inf.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>kbdlib.c function</th>   <th>kbd_rtl.c/kbd_inf.c function</th></tr>
     <tr><td>KBD_BUSY_GETC</td>       <td>kbd_busy_getc</td>       <td>kbdKeyPressed() ? kbdGetc() : 512</td></tr>
     <tr><td>KBD_GETC</td>            <td>kbd_getc</td>            <td>kbdGetc</td></tr>
     <tr><td>KBD_GETS</td>            <td>kbd_gets</td>            <td>kbdGets</td></tr>
@@ -8959,133 +8958,133 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>KBD_WORD_READ</td>       <td>kbd_word_read</td>       <td>kbdWordRead</td></tr>
 </table><p></p>
 <a name="list"><h3>13.18 Actions for the list type</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>lstlib.c function</td>   <td></td></tr>
-    <tr><td>LST_CAT</td>             <td>lst_cat</td>             <td></td></tr>
-    <tr><td>LST_CPY</td>             <td>lst_cpy</td>             <td></td></tr>
-    <tr><td>LST_CREATE</td>          <td>lst_create</td>          <td></td></tr>
-    <tr><td>LST_DESTR</td>           <td>lst_destr</td>           <td></td></tr>
-    <tr><td>LST_ELEM</td>            <td>lst_elem</td>            <td></td></tr>
-    <tr><td>LST_EMPTY</td>           <td>lst_empty</td>           <td></td></tr>
-    <tr><td>LST_EXCL</td>            <td>lst_excl</td>            <td></td></tr>
-    <tr><td>LST_HEAD</td>            <td>lst_head</td>            <td></td></tr>
-    <tr><td>LST_IDX</td>             <td>lst_idx</td>             <td></td></tr>
-    <tr><td>LST_INCL</td>            <td>lst_incl</td>            <td></td></tr>
-    <tr><td>LST_LNG</td>             <td>lst_lng</td>             <td></td></tr>
-    <tr><td>LST_RANGE</td>           <td>lst_range</td>           <td></td></tr>
-    <tr><td>LST_TAIL</td>            <td>lst_tail</td>            <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>lstlib.c function</th></tr>
+    <tr><td>LST_CAT</td>             <td>lst_cat</td></tr>
+    <tr><td>LST_CPY</td>             <td>lst_cpy</td></tr>
+    <tr><td>LST_CREATE</td>          <td>lst_create</td></tr>
+    <tr><td>LST_DESTR</td>           <td>lst_destr</td></tr>
+    <tr><td>LST_ELEM</td>            <td>lst_elem</td></tr>
+    <tr><td>LST_EMPTY</td>           <td>lst_empty</td></tr>
+    <tr><td>LST_EXCL</td>            <td>lst_excl</td></tr>
+    <tr><td>LST_HEAD</td>            <td>lst_head</td></tr>
+    <tr><td>LST_IDX</td>             <td>lst_idx</td></tr>
+    <tr><td>LST_INCL</td>            <td>lst_incl</td></tr>
+    <tr><td>LST_LNG</td>             <td>lst_lng</td></tr>
+    <tr><td>LST_RANGE</td>           <td>lst_range</td></tr>
+    <tr><td>LST_TAIL</td>            <td>lst_tail</td></tr>
 </table><p></p>
 <a name="proc"><h3>13.19 Actions for proc operations and statements</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>prclib.c function</td>   <td></td></tr>
-    <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td></td></tr>
-    <tr><td>PRC_BEGIN</td>           <td>prc_begin</td>           <td></td></tr>
-    <tr><td>PRC_BLOCK</td>           <td>prc_block</td>           <td></td></tr>
-    <tr><td>PRC_BLOCK_DEF</td>       <td>prc_block_def</td>       <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>prclib.c function</th>   <th>&nbsp;</td></tr>
+    <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td>&nbsp;</td></tr>
+    <tr><td>PRC_BEGIN</td>           <td>prc_begin</td>           <td>&nbsp;</td></tr>
+    <tr><td>PRC_BLOCK</td>           <td>prc_block</td>           <td>&nbsp;</td></tr>
+    <tr><td>PRC_BLOCK_DEF</td>       <td>prc_block_def</td>       <td>&nbsp;</td></tr>
     <tr><td>PRC_CASE</td>            <td>prc_case</td>            <td>switch</td></tr>
     <tr><td>PRC_CASE_DEF</td>        <td>prc_case_def</td>        <td>switch</td></tr>
-    <tr><td>PRC_CPY</td>             <td>prc_cpy</td>             <td></td></tr>
-    <tr><td>PRC_CREATE</td>          <td>prc_create</td>          <td></td></tr>
-    <tr><td>PRC_DECLS</td>           <td>prc_decls</td>           <td></td></tr>
-    <tr><td>PRC_DYNAMIC</td>         <td>prc_dynamic</td>         <td></td></tr>
+    <tr><td>PRC_CPY</td>             <td>prc_cpy</td>             <td>&nbsp;</td></tr>
+    <tr><td>PRC_CREATE</td>          <td>prc_create</td>          <td>&nbsp;</td></tr>
+    <tr><td>PRC_DECLS</td>           <td>prc_decls</td>           <td>&nbsp;</td></tr>
+    <tr><td>PRC_DYNAMIC</td>         <td>prc_dynamic</td>         <td>&nbsp;</td></tr>
     <tr><td>PRC_EXIT</td>            <td>prc_exit</td>            <td>exit</td></tr>
     <tr><td>PRC_FOR_DOWNTO</td>      <td>prc_for_downto</td>      <td>for</td></tr>
     <tr><td>PRC_FOR_TO</td>          <td>prc_for_to</td>          <td>for</td></tr>
-    <tr><td>PRC_HEAPSTAT</td>        <td>prc_heapstat</td>        <td></td></tr>
+    <tr><td>PRC_HEAPSTAT</td>        <td>prc_heapstat</td>        <td>&nbsp;</td></tr>
     <tr><td>PRC_HSIZE</td>           <td>prc_hsize</td>           <td>heapsize</td></tr>
     <tr><td>PRC_IF</td>              <td>prc_if</td>              <td>if</td></tr>
     <tr><td>PRC_IF_ELSIF</td>        <td>prc_if_elsif</td>        <td>if</td></tr>
-    <tr><td>PRC_INCLUDE</td>         <td>prc_include</td>         <td></td></tr>
-    <tr><td>PRC_LOCAL</td>           <td>prc_local</td>           <td></td></tr>
+    <tr><td>PRC_INCLUDE</td>         <td>prc_include</td>         <td>&nbsp;</td></tr>
+    <tr><td>PRC_LOCAL</td>           <td>prc_local</td>           <td>&nbsp;</td></tr>
     <tr><td>PRC_NOOP</td>            <td>prc_noop</td>            <td>prcNoop</td></tr>
     <tr><td>PRC_RAISE</td>           <td>prc_raise</td>           <td>raise_error</td></tr>
     <tr><td>PRC_REPEAT</td>          <td>prc_repeat</td>          <td>do</td></tr>
-    <tr><td>PRC_RES_BEGIN</td>       <td>prc_res_begin</td>       <td></td></tr>
-    <tr><td>PRC_RES_LOCAL</td>       <td>prc_res_local</td>       <td></td></tr>
-    <tr><td>PRC_RETURN</td>          <td>prc_return</td>          <td></td></tr>
-    <tr><td>PRC_RETURN2</td>         <td>prc_return2</td>         <td></td></tr>
-    <tr><td>PRC_SETTRACE</td>        <td>prc_settrace</td>        <td></td></tr>
-    <tr><td>PRC_TRACE</td>           <td>prc_trace</td>           <td></td></tr>
-    <tr><td>PRC_VARFUNC</td>         <td>prc_varfunc</td>         <td></td></tr>
-    <tr><td>PRC_VARFUNC2</td>        <td>prc_varfunc2</td>        <td></td></tr>
+    <tr><td>PRC_RES_BEGIN</td>       <td>prc_res_begin</td>       <td>&nbsp;</td></tr>
+    <tr><td>PRC_RES_LOCAL</td>       <td>prc_res_local</td>       <td>&nbsp;</td></tr>
+    <tr><td>PRC_RETURN</td>          <td>prc_return</td>          <td>&nbsp;</td></tr>
+    <tr><td>PRC_RETURN2</td>         <td>prc_return2</td>         <td>&nbsp;</td></tr>
+    <tr><td>PRC_SETTRACE</td>        <td>prc_settrace</td>        <td>&nbsp;</td></tr>
+    <tr><td>PRC_TRACE</td>           <td>prc_trace</td>           <td>&nbsp;</td></tr>
+    <tr><td>PRC_VARFUNC</td>         <td>prc_varfunc</td>         <td>&nbsp;</td></tr>
+    <tr><td>PRC_VARFUNC2</td>        <td>prc_varfunc2</td>        <td>&nbsp;</td></tr>
     <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while</td></tr>
 </table><p></p>
 <a name="program"><h3>13.20 Actions for the type program</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>prglib.c function</td>   <td>prg_comp.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>prglib.c function</th>   <th>prg_comp.c function</th></tr>
     <tr><td>PRG_CPY</td>             <td>prg_cpy</td>             <td>prgCpy</td></tr>
-    <tr><td>PRG_CREATE</td>          <td>prg_create</td>          <td></td></tr>
+    <tr><td>PRG_CREATE</td>          <td>prg_create</td>          <td>&nbsp;</td></tr>
     <tr><td>PRG_DECL_OBJECTS</td>    <td>prg_decl_objects</td>    <td>prgDeclObjects</td></tr>
-    <tr><td>PRG_DESTR</td>           <td>prg_destr</td>           <td></td></tr>
-    <tr><td>PRG_EMPTY</td>           <td>prg_empty</td>           <td></td></tr>
+    <tr><td>PRG_DESTR</td>           <td>prg_destr</td>           <td>&nbsp;</td></tr>
+    <tr><td>PRG_EMPTY</td>           <td>prg_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>PRG_EQ</td>              <td>prg_eq</td>              <td>==</td></tr>
     <tr><td>PRG_ERROR_COUNT</td>     <td>prg_error_count</td>     <td>prgErrorCount</td></tr>
     <tr><td>PRG_EVAL</td>            <td>prg_eval</td>            <td>prgEval</td></tr>
     <tr><td>PRG_EXEC</td>            <td>prg_exec</td>            <td>prgExec</td></tr>
     <tr><td>PRG_FIL_PARSE</td>       <td>prg_fil_parse</td>       <td>prgFilParse</td></tr>
-    <tr><td>PRG_FIND</td>            <td>prg_find</td>            <td></td></tr>
+    <tr><td>PRG_FIND</td>            <td>prg_find</td>            <td>&nbsp;</td></tr>
     <tr><td>PRG_MATCH</td>           <td>prg_match</td>           <td>prgMatch</td></tr>
     <tr><td>PRG_NAME</td>            <td>prg_name</td>            <td>arg_0</td></tr>
     <tr><td>PRG_NE</td>              <td>prg_ne</td>              <td>!=</td></tr>
-    <tr><td>PRG_PROG</td>            <td>prg_prog</td>            <td></td></tr>
+    <tr><td>PRG_PROG</td>            <td>prg_prog</td>            <td>&nbsp;</td></tr>
     <tr><td>PRG_STR_PARSE</td>       <td>prg_str_parse</td>       <td>prgStrParse</td></tr>
     <tr><td>PRG_SYOBJECT</td>        <td>prg_syobject</td>        <td>prgSyobject</td></tr>
     <tr><td>PRG_SYSVAR</td>          <td>prg_sysvar</td>          <td>prgSysvar</td></tr>
     <tr><td>PRG_VALUE</td>           <td>prg_value</td>           <td>prgValue</td></tr>
 </table><p></p>
 <a name="reference"><h3>13.21 Actions for the type reference</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>reflib.c function</td>   <td>ref_data.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>reflib.c function</th>   <th>ref_data.c function</th></tr>
     <tr><td>REF_ADDR</td>            <td>ref_addr</td>            <td>&</td></tr>
     <tr><td>REF_ALLOC</td>           <td>ref_alloc</td>           <td>refAlloc</td></tr>
     <tr><td>REF_ARRMAXIDX</td>       <td>ref_arrmaxidx</td>       <td>refArrmaxidx</td></tr>
     <tr><td>REF_ARRMINIDX</td>       <td>ref_arrminidx</td>       <td>refArrminidx</td></tr>
     <tr><td>REF_ARRTOLIST</td>       <td>ref_arrtolist</td>       <td>refArrtolist</td></tr>
     <tr><td>REF_BODY</td>            <td>ref_body</td>            <td>refBody</td></tr>
-    <tr><td>REF_BUILD</td>           <td>ref_build</td>           <td></td></tr>
+    <tr><td>REF_BUILD</td>           <td>ref_build</td>           <td>&nbsp;</td></tr>
     <tr><td>REF_CATEGORY</td>        <td>ref_category</td>        <td>refCategory</td></tr>
     <tr><td>REF_CAT_PARSE</td>       <td>ref_cat_parse</td>       <td>refCatParse</td></tr>
     <tr><td>REF_CAT_STR</td>         <td>ref_cat_str</td>         <td>refCatStr</td></tr>
     <tr><td>REF_CMP</td>             <td>ref_cmp</td>             <td>refCmp</td></tr>
-    <tr><td>REF_CONTENT</td>         <td>ref_content</td>         <td></td></tr>
+    <tr><td>REF_CONTENT</td>         <td>ref_content</td>         <td>&nbsp;</td></tr>
     <tr><td>REF_CONV</td>            <td>ref_conv</td>            <td>(noop)</td></tr>
     <tr><td>REF_CPY</td>             <td>ref_cpy</td>             <td>refCpy</td></tr>
     <tr><td>REF_CREATE</td>          <td>ref_create</td>          <td>refCreate</td></tr>
-    <tr><td>REF_DEREF</td>           <td>ref_deref</td>           <td></td></tr>
+    <tr><td>REF_DEREF</td>           <td>ref_deref</td>           <td>&nbsp;</td></tr>
     <tr><td>REF_EQ</td>              <td>ref_eq</td>              <td>==</td></tr>
     <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
-    <tr><td>REF_FIND</td>            <td>ref_find</td>            <td></td></tr>
+    <tr><td>REF_FIND</td>            <td>ref_find</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(inttype)(((uinttype)a)&gt;&gt;6)</td></tr>
-    <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td></td></tr>
+    <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td>&nbsp;</td></tr>
     <tr><td>REF_ISVAR</td>           <td>ref_isvar</td>           <td>refIsvar</td></tr>
     <tr><td>REF_ITFTOSCT</td>        <td>ref_itftosct</td>        <td>refItftosct</td></tr>
     <tr><td>REF_LINE</td>            <td>ref_line</td>            <td>refLine</td></tr>
     <tr><td>REF_LOCAL_CONSTS</td>    <td>ref_local_consts</td>    <td>refLocalConsts</td></tr>
     <tr><td>REF_LOCAL_VARS</td>      <td>ref_local_vars</td>      <td>refLocalVars</td></tr>
-    <tr><td>REF_MKREF</td>           <td>ref_mkref</td>           <td></td></tr>
-    <tr><td>REF_NAME</td>            <td>ref_name</td>            <td></td></tr>
+    <tr><td>REF_MKREF</td>           <td>ref_mkref</td>           <td>&nbsp;</td></tr>
+    <tr><td>REF_NAME</td>            <td>ref_name</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_NE</td>              <td>ref_ne</td>              <td>!=</td></tr>
-    <tr><td>REF_NIL</td>             <td>ref_nil</td>             <td></td></tr>
+    <tr><td>REF_NIL</td>             <td>ref_nil</td>             <td>&nbsp;</td></tr>
     <tr><td>REF_NUM</td>             <td>ref_num</td>             <td>refNum</td></tr>
     <tr><td>REF_PARAMS</td>          <td>ref_params</td>          <td>refParams</td></tr>
-    <tr><td>REF_PROG</td>            <td>ref_prog</td>            <td></td></tr>
+    <tr><td>REF_PROG</td>            <td>ref_prog</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_RESINI</td>          <td>ref_resini</td>          <td>refResini</td></tr>
     <tr><td>REF_RESULT</td>          <td>ref_result</td>          <td>refResult</td></tr>
-    <tr><td>REF_SCAN</td>            <td>ref_scan</td>            <td></td></tr>
+    <tr><td>REF_SCAN</td>            <td>ref_scan</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_SCTTOLIST</td>       <td>ref_scttolist</td>       <td>refScttolist</td></tr>
     <tr><td>REF_SELECT</td>          <td>ref_select</td>          <td>a->stru[b]</td></tr>
     <tr><td>REF_SETCATEGORY</td>     <td>ref_setcategory</td>     <td>refSetCategory</td></tr>
     <tr><td>REF_SETPARAMS</td>       <td>ref_setparams</td>       <td>refSetParams</td></tr>
     <tr><td>REF_SETTYPE</td>         <td>ref_settype</td>         <td>refSetType</td></tr>
     <tr><td>REF_STR</td>             <td>ref_str</td>             <td>refStr</td></tr>
-    <tr><td>REF_SYMB</td>            <td>ref_symb</td>            <td></td></tr>
+    <tr><td>REF_SYMB</td>            <td>ref_symb</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_TRACE</td>           <td>ref_trace</td>           <td>printf</td></tr>
     <tr><td>REF_TYPE</td>            <td>ref_type</td>            <td>refType</td></tr>
     <tr><td>REF_VALUE</td>           <td>ref_value</td>           <td>refValue</td></tr>
 </table><p></p>
 <a name="ref_list"><h3>13.22 Actions for the type ref_list</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>rfllib.c function</td>   <td>rfl_data.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>rfllib.c function</th>   <th>rfl_data.c function</th></tr>
     <tr><td>RFL_APPEND</td>          <td>rfl_append</td>          <td>rflAppend</td></tr>
     <tr><td>RFL_CAT</td>             <td>rfl_cat</td>             <td>rflCat</td></tr>
     <tr><td>RFL_CPY</td>             <td>rfl_cpy</td>             <td>rflCpy</td></tr>
@@ -9093,10 +9092,10 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>RFL_DESTR</td>           <td>rfl_destr</td>           <td>rflDestr</td></tr>
     <tr><td>RFL_ELEM</td>            <td>rfl_elem</td>            <td>rflElem</td></tr>
     <tr><td>RFL_ELEMCPY</td>         <td>rfl_elemcpy</td>         <td>rflElemcpy</td></tr>
-    <tr><td>RFL_EMPTY</td>           <td>rfl_empty</td>           <td></td></tr>
+    <tr><td>RFL_EMPTY</td>           <td>rfl_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>RFL_EQ</td>              <td>rfl_eq</td>              <td>rflEq</td></tr>
-    <tr><td>RFL_EXCL</td>            <td>rfl_excl</td>            <td></td></tr>
-    <tr><td>RFL_EXPR</td>            <td>rfl_expr</td>            <td></td></tr>
+    <tr><td>RFL_EXCL</td>            <td>rfl_excl</td>            <td>&nbsp;</td></tr>
+    <tr><td>RFL_EXPR</td>            <td>rfl_expr</td>            <td>&nbsp;</td></tr>
     <tr><td>RFL_FOR</td>             <td>rfl_for</td>             <td>for</td></tr>
     <tr><td>RFL_HEAD</td>            <td>rfl_head</td>            <td>rflHead</td></tr>
     <tr><td>RFL_IDX</td>             <td>rfl_idx</td>             <td>rflIdx</td></tr>
@@ -9110,12 +9109,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>RFL_RANGE</td>           <td>rfl_range</td>           <td>rflRange</td></tr>
     <tr><td>RFL_SETVALUE</td>        <td>rfl_setvalue</td>        <td>rflSetvalue</td></tr>
     <tr><td>RFL_TAIL</td>            <td>rfl_tail</td>            <td>rflTail</td></tr>
-    <tr><td>RFL_TRACE</td>           <td>rfl_trace</td>           <td></td></tr>
+    <tr><td>RFL_TRACE</td>           <td>rfl_trace</td>           <td>&nbsp;</td></tr>
     <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
 </table><p></p>
 <a name="console_output"><h3>13.23 Actions for text (console) screen output</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>scrlib.c function</td>   <td>scr_inf.c/scr_rtl.c/scr_win.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>scrlib.c function</th>   <th>scr_inf.c/scr_rtl.c/scr_win.c function</th></tr>
     <tr><td>SCR_CLEAR</td>           <td>scr_clear</td>           <td>scrClear</td></tr>
     <tr><td>SCR_CURSOR</td>          <td>scr_cursor</td>          <td>scrCursor</td></tr>
     <tr><td>SCR_FLUSH</td>           <td>scr_flush</td>           <td>scrFlush</td></tr>
@@ -9128,24 +9127,24 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SCR_WRITE</td>           <td>scr_write</td>           <td>scrWrite</td></tr>
 </table><p></p>
 <a name="struct"><h3>13.24 Actions for struct types</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>sctlib.c function</td>   <td></td></tr>
-    <tr><td>SCT_ALLOC</td>           <td>sct_alloc</td>           <td></td></tr>
-    <tr><td>SCT_CAT</td>             <td>sct_cat</td>             <td></td></tr>
-    <tr><td>SCT_CONV</td>            <td>sct_conv</td>            <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>sctlib.c function</th>   <th>&nbsp;</th></tr>
+    <tr><td>SCT_ALLOC</td>           <td>sct_alloc</td>           <td>&nbsp;</td></tr>
+    <tr><td>SCT_CAT</td>             <td>sct_cat</td>             <td>&nbsp;</td></tr>
+    <tr><td>SCT_CONV</td>            <td>sct_conv</td>            <td>&nbsp;</td></tr>
     <tr><td>SCT_CPY</td>             <td>sct_cpy</td>             <td>cpy_ ...</td></tr>
     <tr><td>SCT_CREATE</td>          <td>sct_create</td>          <td>create_ ...</td></tr>
     <tr><td>SCT_DESTR</td>           <td>sct_destr</td>           <td>destr_ ...</td></tr>
-    <tr><td>SCT_ELEM</td>            <td>sct_elem</td>            <td></td></tr>
-    <tr><td>SCT_EMPTY</td>           <td>sct_empty</td>           <td></td></tr>
-    <tr><td>SCT_INCL</td>            <td>sct_incl</td>            <td></td></tr>
-    <tr><td>SCT_LNG</td>             <td>sct_lng</td>             <td></td></tr>
-    <tr><td>SCT_REFIDX</td>          <td>sct_refidx</td>          <td></td></tr>
+    <tr><td>SCT_ELEM</td>            <td>sct_elem</td>            <td>&nbsp;</td></tr>
+    <tr><td>SCT_EMPTY</td>           <td>sct_empty</td>           <td>&nbsp;</td></tr>
+    <tr><td>SCT_INCL</td>            <td>sct_incl</td>            <td>&nbsp;</td></tr>
+    <tr><td>SCT_LNG</td>             <td>sct_lng</td>             <td>&nbsp;</td></tr>
+    <tr><td>SCT_REFIDX</td>          <td>sct_refidx</td>          <td>&nbsp;</td></tr>
     <tr><td>SCT_SELECT</td>          <td>sct_select</td>          <td>a->stru[b]</td></tr>
 </table><p></p>
 <a name="set"><h3>13.25 Actions for set types</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>setlib.c function</td>   <td>set_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>setlib.c function</th>   <th>set_rtl.c function</th></tr>
     <tr><td>SET_ARRLIT</td>          <td>set_arrlit</td>          <td>setArrlit</td></tr>
     <tr><td>SET_BASELIT</td>         <td>set_baselit</td>         <td>setBaselit</td></tr>
     <tr><td>SET_CARD</td>            <td>set_card</td>            <td>setCard</td></tr>
@@ -9156,7 +9155,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SET_DESTR</td>           <td>set_destr</td>           <td>setDestr</td></tr>
     <tr><td>SET_DIFF</td>            <td>set_diff</td>            <td>setDiff</td></tr>
     <tr><td>SET_ELEM</td>            <td>set_elem</td>            <td>setElem</td></tr>
-    <tr><td>SET_EMPTY</td>           <td>set_empty</td>           <td></td></tr>
+    <tr><td>SET_EMPTY</td>           <td>set_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>SET_EQ</td>              <td>set_eq</td>              <td>setEq</td></tr>
     <tr><td>SET_EXCL</td>            <td>set_excl</td>            <td>setExcl</td></tr>
     <tr><td>SET_GE</td>              <td>set_ge</td>              <td>setIsSubset(b, a)</td></tr>
@@ -9178,15 +9177,15 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SET_VALUE</td>           <td>set_value</td>           <td>setValue</td></tr>
 </table><p></p>
 <a name="PRIMITIVE_SOCKET"><h3>13.26 Actions for the type PRIMITIVE_SOCKET</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>strlib.c function</td>   <td>str_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>SOC_ACCEPT</td>          <td>soc_accept</td>          <td>socAccept</td></tr>
     <tr><td>SOC_BIND</td>            <td>soc_bind</td>            <td>socBind</td></tr>
     <tr><td>SOC_CLOSE</td>           <td>soc_close</td>           <td>socClose</td></tr>
     <tr><td>SOC_CONNECT</td>         <td>soc_connect</td>         <td>socConnect</td></tr>
     <tr><td>SOC_CPY</td>             <td>soc_cpy</td>             <td>=</td></tr>
-    <tr><td>SOC_CREATE</td>          <td>soc_create</td>          <td></td></tr>
-    <tr><td>SOC_EMPTY</td>           <td>soc_empty</td>           <td></td></tr>
+    <tr><td>SOC_CREATE</td>          <td>soc_create</td>          <td>&nbsp;</td></tr>
+    <tr><td>SOC_EMPTY</td>           <td>soc_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>SOC_EQ</td>              <td>soc_eq</td>              <td>==</td></tr>
     <tr><td>SOC_GETC</td>            <td>soc_getc</td>            <td>socGetc</td></tr>
     <tr><td>SOC_GETS</td>            <td>soc_gets</td>            <td>socGets</td></tr>
@@ -9205,8 +9204,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SOC_WRITE</td>           <td>soc_write</td>           <td>socWrite</td></tr>
 </table><p></p>
 <a name="string"><h3>13.27 Actions for the type string</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>strlib.c function</td>   <td>str_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>STR_APPEND</td>          <td>str_append</td>          <td>strAppend</td></tr>
     <tr><td>STR_CAT</td>             <td>str_cat</td>             <td>strConcat, strConcatTemp</td></tr>
     <tr><td>STR_CHIPOS</td>          <td>str_chipos</td>          <td>strChIpos</td></tr>
@@ -9253,29 +9252,29 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_VALUE</td>           <td>str_value</td>           <td>strValue</td></tr>
 </table><p></p>
 <a name="time"><h3>13.28 Actions for the type time</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>timlib.c function</td>   <td>tim_unx.c/tim_win.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>timlib.c function</th>   <th>tim_unx.c/tim_win.c function</th></tr>
     <tr><td>TIM_AWAIT</td>           <td>tim_await</td>           <td>timAwait</td></tr>
     <tr><td>TIM_FROM_TIMESTAMP</td>  <td>tim_from_timestamp</td>  <td>timFromTimestamp</td></tr>
     <tr><td>TIM_NOW</td>             <td>tim_now</td>             <td>timNow</td></tr>
     <tr><td>TIM_SET_LOCAL_TZ</td>    <td>tim_set_local_tz</td>    <td>timSetLocalTZ</td></tr>
 </table><p></p>
 <a name="type"><h3>13.29 Actions for the type type</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>typlib.c function</td>   <td>typ_data.c function</td></tr>
-    <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td></td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>typlib.c function</th>   <th>typ_data.c function</th></tr>
+    <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td>&nbsp;</td></tr>
     <tr><td>TYP_CMP</td>             <td>typ_cmp</td>             <td>typCmp</td></tr>
     <tr><td>TYP_CPY</td>             <td>typ_cpy</td>             <td>typCpy</td></tr>
     <tr><td>TYP_CREATE</td>          <td>typ_create</td>          <td>typCreate</td></tr>
     <tr><td>TYP_DESTR</td>           <td>typ_destr</td>           <td>typDestr</td></tr>
     <tr><td>TYP_EQ</td>              <td>typ_eq</td>              <td>==</td></tr>
     <tr><td>TYP_FUNC</td>            <td>typ_func</td>            <td>typFunc</td></tr>
-    <tr><td>TYP_GENSUB</td>          <td>typ_gensub</td>          <td></td></tr>
-    <tr><td>TYP_GENTYPE</td>         <td>typ_gentype</td>         <td></td></tr>
+    <tr><td>TYP_GENSUB</td>          <td>typ_gensub</td>          <td>&nbsp;</td></tr>
+    <tr><td>TYP_GENTYPE</td>         <td>typ_gentype</td>         <td>&nbsp;</td></tr>
     <tr><td>TYP_HASHCODE</td>        <td>typ_hashcode</td>        <td>(inttype)(((uinttype)a)&gt;&gt;6)</td></tr>
-    <tr><td>TYP_ISDECLARED</td>      <td>typ_isdeclared</td>      <td></td></tr>
+    <tr><td>TYP_ISDECLARED</td>      <td>typ_isdeclared</td>      <td>&nbsp;</td></tr>
     <tr><td>TYP_ISDERIVED</td>       <td>typ_isderived</td>       <td>typIsDerived</td></tr>
-    <tr><td>TYP_ISFORWARD</td>       <td>typ_isforward</td>       <td></td></tr>
+    <tr><td>TYP_ISFORWARD</td>       <td>typ_isforward</td>       <td>&nbsp;</td></tr>
     <tr><td>TYP_ISFUNC</td>          <td>typ_isfunc</td>          <td>typIsFunc</td></tr>
     <tr><td>TYP_ISVARFUNC</td>       <td>typ_isvarfunc</td>       <td>typIsVarfunc</td></tr>
     <tr><td>TYP_MATCHOBJ</td>        <td>typ_matchobj</td>        <td>typMatchobj</td></tr>
@@ -9285,12 +9284,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>TYP_RESULT</td>          <td>typ_result</td>          <td>typResult</td></tr>
     <tr><td>TYP_STR</td>             <td>typ_str</td>             <td>typStr</td></tr>
     <tr><td>TYP_VALUE</td>           <td>typ_value</td>           <td>typValue</td></tr>
-    <tr><td>TYP_VARCONV</td>         <td>typ_varconv</td>         <td></td></tr>
+    <tr><td>TYP_VARCONV</td>         <td>typ_varconv</td>         <td>&nbsp;</td></tr>
     <tr><td>TYP_VARFUNC</td>         <td>typ_varfunc</td>         <td>typVarfunc</td></tr>
 </table><p></p>
 <a name="utf8_file"><h3>13.30 Actions for the type utf8_file</h3></a>
-<p></p><table border="1">
-    <tr><td>Action name</td>         <td>ut8lib.c function</td>   <td>ut8_rtl.c function</td></tr>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>ut8lib.c function</th>   <th>ut8_rtl.c function</th></tr>
     <tr><td>UT8_GETC</td>            <td>ut8_getc</td>            <td>ut8Getc</td></tr>
     <tr><td>UT8_GETS</td>            <td>ut8_gets</td>            <td>ut8Gets</td></tr>
     <tr><td>UT8_LINE_READ</td>       <td>ut8_line_read</td>       <td>ut8LineRead</td></tr>
@@ -9308,65 +9307,66 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   The compile time errors are not fatal (the program can
   execute) except for the error 1 (Out of heap space) which
   terminates the compilation process and no execution occurs.
-</p><pre>
-   1: Fatal Error: Out of heap space
-   2: File "%s" not found
-   3: Include file "%s" not found
-   4: "END OF FILE" encountered
-   5: Illegal character in text "%s"
-   6: Unclosed comment
-   7: Illegal pragma "%s"
-   8: Illegal action "%s"
-   9: Illegal system declaration "%s"
-  10: Integer "%s" too big
-  11: Negative exponent in integer literal
-  12: Digit expected found "%s"
-  13: Integer "%dE%s" too big
-  14: Integer base "%ld" not between 2 and 36
-  15: Extended digit expected found "%s"
-  16: Illegal digit "%c" in based integer "%d#%s"
-  17: Based integer "%d#%s" too big
-  18: "'" expected found "%s"
-  19: Character literal exceeds source line
-  20: Use \" instead of "" to represent " in a string
-  21: Use / instead of \\ as path delimiter
-  22: Illegal string escape "\%s"
-  23: Numerical escape sequences should end with "\" not "%s");
-  24: String continuations should end with "\" not "%s");
-  25: String literal exceeds source line
-  26: Name expected found "%s"
-  27: Integer literal expected found "%s"
-  28: String literal expected found "%s"
-  29: Identifier expected found "%s"
-  30: Expression expected found "%s"
-  31: Expression expected after "begin"
-  32: Declaration expected found "%s"
-  33: Initialisation of "%s" failed
-  34: "%s" declared twice
-  35: "%s" not declared
-  36: Associativity expected found "%s"
-  37: Statement priority "%s" too big
-  38: Syntax with two parameters before operator is illegal
-  39: Empty syntax declaration
-  40: "%s" redeclared with infix priority %d not %d
-  41: "%s" redeclared with prefix priority %d not %d
-  42: Priority %d required for parameter after "%s" not %d
-  43: Priority &lt;= %d expected found "%s" with priority %d
-  44: Priority <= %d expected found "%s" with priority %d
-  45: "%s" must have priority %d not %d for dot expression
-  46: "%s" expected found "%s"
-  47: "%s" expected found "%s"
-  48: Undefined type for literal "%s"
-  49: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
-  50: "func" or "type" expected found "%s"
-  51: Match for %s failed
-  52: Variable expected in %s found %s
-  53: Type expected found %s
-  54: Procedure expected found %s expression
-  55: Parameter specifier expected found "%s"
-  56: Evaluate type expression %s failed
-      Undefined error
-</pre><p></p>
+  The following compile time errors exist:
+</p><dl><dd><table border="0" cellspacing="0">
+    <tr><td align="right"> 1:</td> <td width="10"></td><td>Fatal Error: Out of heap space</td></tr>
+    <tr><td align="right"> 2:</td> <td width="10"></td><td>File "%s" not found</td></tr>
+    <tr><td align="right"> 3:</td> <td width="10"></td><td>Include file "%s" not found</td></tr>
+    <tr><td align="right"> 4:</td> <td width="10"></td><td>"END OF FILE" encountered</td></tr>
+    <tr><td align="right"> 5:</td> <td width="10"></td><td>Illegal character in text "%s"</td></tr>
+    <tr><td align="right"> 6:</td> <td width="10"></td><td>Unclosed comment</td></tr>
+    <tr><td align="right"> 7:</td> <td width="10"></td><td>Illegal pragma "%s"</td></tr>
+    <tr><td align="right"> 8:</td> <td width="10"></td><td>Illegal action "%s"</td></tr>
+    <tr><td align="right"> 9:</td> <td width="10"></td><td>Illegal system declaration "%s"</td></tr>
+    <tr><td align="right">10:</td> <td width="10"></td><td>Integer "%s" too big</td></tr>
+    <tr><td align="right">11:</td> <td width="10"></td><td>Negative exponent in integer literal</td></tr>
+    <tr><td align="right">12:</td> <td width="10"></td><td>Digit expected found "%s"</td></tr>
+    <tr><td align="right">13:</td> <td width="10"></td><td>Integer "%dE%s" too big</td></tr>
+    <tr><td align="right">14:</td> <td width="10"></td><td>Integer base "%ld" not between 2 and 36</td></tr>
+    <tr><td align="right">15:</td> <td width="10"></td><td>Extended digit expected found "%s"</td></tr>
+    <tr><td align="right">16:</td> <td width="10"></td><td>Illegal digit "%c" in based integer "%d#%s"</td></tr>
+    <tr><td align="right">17:</td> <td width="10"></td><td>Based integer "%d#%s" too big</td></tr>
+    <tr><td align="right">18:</td> <td width="10"></td><td>"'" expected found "%s"</td></tr>
+    <tr><td align="right">19:</td> <td width="10"></td><td>Character literal exceeds source line</td></tr>
+    <tr><td align="right">20:</td> <td width="10"></td><td>Use \" instead of "" to represent " in a string</td></tr>
+    <tr><td align="right">21:</td> <td width="10"></td><td>Use / instead of \\ as path delimiter</td></tr>
+    <tr><td align="right">22:</td> <td width="10"></td><td>Illegal string escape "\%s"</td></tr>
+    <tr><td align="right">23:</td> <td width="10"></td><td>Numerical escape sequences should end with "\" not "%s");</td></tr>
+    <tr><td align="right">24:</td> <td width="10"></td><td>String continuations should end with "\" not "%s");</td></tr>
+    <tr><td align="right">25:</td> <td width="10"></td><td>String literal exceeds source line</td></tr>
+    <tr><td align="right">26:</td> <td width="10"></td><td>Name expected found "%s"</td></tr>
+    <tr><td align="right">27:</td> <td width="10"></td><td>Integer literal expected found "%s"</td></tr>
+    <tr><td align="right">28:</td> <td width="10"></td><td>String literal expected found "%s"</td></tr>
+    <tr><td align="right">29:</td> <td width="10"></td><td>Identifier expected found "%s"</td></tr>
+    <tr><td align="right">30:</td> <td width="10"></td><td>Expression expected found "%s"</td></tr>
+    <tr><td align="right">31:</td> <td width="10"></td><td>Declaration of parameter %s failed</td></tr>
+    <tr><td align="right">32:</td> <td width="10"></td><td>Declaration of "%s" failed</td></tr>
+    <tr><td align="right">33:</td> <td width="10"></td><td>Exception "%s" raised</td></tr>
+    <tr><td align="right">34:</td> <td width="10"></td><td>"%s" declared twice</td></tr>
+    <tr><td align="right">35:</td> <td width="10"></td><td>"%s" not declared</td></tr>
+    <tr><td align="right">36:</td> <td width="10"></td><td>Associativity expected found "%s"</td></tr>
+    <tr><td align="right">37:</td> <td width="10"></td><td>Statement priority "%s" too big</td></tr>
+    <tr><td align="right">38:</td> <td width="10"></td><td>Syntax with two parameters before operator is illegal</td></tr>
+    <tr><td align="right">39:</td> <td width="10"></td><td>Empty syntax declaration</td></tr>
+    <tr><td align="right">40:</td> <td width="10"></td><td>Dot expression requested as syntax description</td></tr>
+    <tr><td align="right">41:</td> <td width="10"></td><td>"%s" redeclared with infix priority %d not %d</td></tr>
+    <tr><td align="right">42:</td> <td width="10"></td><td>"%s" redeclared with prefix priority %d not %d</td></tr>
+    <tr><td align="right">43:</td> <td width="10"></td><td>Priority %d required for parameter after "%s" not %d</td></tr>
+    <tr><td align="right">44:</td> <td width="10"></td><td>Priority &lt;= %d expected found "%s" with priority %d</td></tr>
+    <tr><td align="right">45:</td> <td width="10"></td><td>"%s" must have priority %d not %d for dot expression</td></tr>
+    <tr><td align="right">46:</td> <td width="10"></td><td>"%s" expected found "%s"</td></tr>
+    <tr><td align="right">47:</td> <td width="10"></td><td>"%s" expected found "%s"</td></tr>
+    <tr><td align="right">48:</td> <td width="10"></td><td>Undefined type for literal "%s"</td></tr>
+    <tr><td align="right">49:</td> <td width="10"></td><td>"newtype", "subtype", "func", "enumlit" or "action" expected found "%s"</td></tr>
+    <tr><td align="right">50:</td> <td width="10"></td><td>"func" or "type" expected found "%s"</td></tr>
+    <tr><td align="right">51:</td> <td width="10"></td><td>Match for %s failed</td></tr>
+    <tr><td align="right">52:</td> <td width="10"></td><td>Variable expected in %s found %s</td></tr>
+    <tr><td align="right">53:</td> <td width="10"></td><td>Type expected found %s</td></tr>
+    <tr><td align="right">54:</td> <td width="10"></td><td>Procedure expected found %s expression</td></tr>
+    <tr><td align="right">55:</td> <td width="10"></td><td>Parameter specifier expected found "%s"</td></tr>
+    <tr><td align="right">56:</td> <td width="10"></td><td>Evaluate type expression %s failed</td></tr>
+    <tr><td align="right">   </td> <td width="10"></td><td>Undefined error</td></tr>
+</table></dd></dl><p></p>
 
 <a name="Exceptions"><h3>14.2 Exceptions</h3></a>
 <p>
@@ -9442,7 +9442,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="Stack_trace"><h3>14.4 Stack trace</h3></a>
 <p>
-  When an EXCEPTION is not catched the program is terminated and the hi
+  When an EXCEPTION is not caught the program is terminated and the hi
   interpreter writes a stack trace:
 </p><pre>
     *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -9484,7 +9484,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     gdb ./lander
 </pre><p>
   Then the debugger should be able to run the program and to
-  write a backtrace when a crash occours:
+  write a backtrace when a crash occurs:
 </p><pre>
     (gdb) run
     Starting program: /home/tm/seed7_5/prg/lander 
@@ -9518,7 +9518,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     #2  0x0806fa40 in main (argc=1, argv=0xbffff484) at tmp_lander.c:22354
 </pre><p>
   Some Seed7 exceptions do not send signals. This hinders the debugger
-  to recognize that an uncaught exception occured. The compiler option <tt><b>-e</b></tt>
+  to recognize that an uncaught exception occurred. The compiler option <tt><b>-e</b></tt>
   can help in this situation. It instructs the compiler to generate
   code which sends a signal when an uncaught exception occurs. This
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.

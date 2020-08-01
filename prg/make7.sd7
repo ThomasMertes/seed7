@@ -679,8 +679,6 @@ const func string: doEcho (inout string: command, in boolean: doLog) is func
 const proc: doCd (inout string: command, in boolean: doLog) is func
   local
     var string: parameter is "";
-    var boolean: force is FALSE;
-    var string: fileName is "";
   begin
     skipWhiteSpace(command);
     if command <> "" then
@@ -705,8 +703,6 @@ const proc: processRule (in string: targetName) is forward;
 const proc: doMake (inout string: command, in boolean: doLog) is func
   local
     var string: parameter is "";
-    var boolean: force is FALSE;
-    var string: fileName is "";
   begin
     skipWhiteSpace(command);
     if command <> "" then
@@ -908,11 +904,11 @@ const func string: applyInternalMacros (in ruleType: rule, in string: stri) is f
             result := result[.. pred(dollarPos)] & rule.dependencies[1] & result[dollarPos + 2 ..];
           end if;
         elsif result[succ(dollarPos)] = '?' then
-            result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
+          result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
         elsif result[succ(dollarPos)] = '^' then
-            result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
+          result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
         elsif result[succ(dollarPos)] = '+' then
-            result := result[.. pred(dollarPos)] & join(rule.dependencies, " ") & result[dollarPos + 2 ..];
+          result := result[.. pred(dollarPos)] & join(rule.dependencies, " ") & result[dollarPos + 2 ..];
         elsif result[succ(dollarPos)] = '$' then
           result := result[.. pred(dollarPos)] & result[succ(dollarPos) ..];
         end if;

@@ -31,11 +31,18 @@
 
 #include "version.h"
 
+#ifdef AWAIT_WITH_PPOLL
+#define _GNU_SOURCE
+#endif
 #include "stdio.h"
 #include "time.h"
 #include "sys/time.h"
+#if defined AWAIT_WITH_POLL || defined AWAIT_WITH_PPOLL
+#include "poll.h"
+#elif defined AWAIT_WITH_SIGACTION || defined AWAIT_WITH_SIGNAL
 #include "signal.h"
 #include "setjmp.h"
+#endif
 
 #include "common.h"
 #include "tim_rtl.h"
@@ -46,7 +53,6 @@
 #include "tim_drv.h"
 
 #undef TRACE_TIM_UNX
-#define USE_SIGACTION
 
 
 #ifdef ANSI_C
@@ -66,15 +72,161 @@ int pause ();
 #endif
 
 
-#ifdef USE_SIGACTION
+#if defined AWAIT_WITH_SIGACTION
 sigjmp_buf wait_finished;
-#else
+#elif defined AWAIT_WITH_SIGNAL
 jmp_buf wait_finished;
 #endif
 
 
 
-#ifdef USE_SIGACTION
+#if defined AWAIT_WITH_POLL
+
+
+
+#ifdef ANSI_C
+
+void timAwait (inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+#else
+
+void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
+inttype year;
+inttype month;
+inttype day;
+inttype hour;
+inttype min;
+inttype sec;
+inttype micro_sec;
+inttype time_zone;
+#endif
+
+  {
+    struct tm tm_time;
+    time_t await_second;
+    struct timeval time_val;
+    int timeout_value;
+
+  /* timAwait */
+#ifdef TRACE_TIM_UNX
+    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+        year, month, day, hour, min, sec, micro_sec, time_zone);
+#endif
+    tm_time.tm_year  = (int) year - 1900;
+    tm_time.tm_mon   = (int) month - 1;
+    tm_time.tm_mday  = (int) day;
+    tm_time.tm_hour  = (int) hour;
+    tm_time.tm_min   = (int) min;
+    tm_time.tm_sec   = (int) sec;
+    tm_time.tm_isdst = 0;
+    await_second = mkutc(&tm_time);
+    if (unlikely(await_second == (time_t) -1)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      await_second -= time_zone * 60;
+      gettimeofday(&time_val, NULL);
+      if (time_val.tv_sec < await_second ||
+          (time_val.tv_sec == await_second &&
+          time_val.tv_usec < micro_sec)) {
+        timeout_value = (await_second - time_val.tv_sec) * 1000 +
+                        (micro_sec - (inttype) time_val.tv_usec) / 1000;
+#ifdef TRACE_TIM_UNX
+        fprintf(stderr, "%ld %ld %ld %ld %ld %ld %ld\n",
+            time_val.tv_sec,
+            await_second,
+            await_second - time_val.tv_sec,
+            time_val.tv_usec,
+            micro_sec,
+            micro_sec - time_val.tv_usec,
+            timeout_value);
+#endif
+        poll(NULL, 0, timeout_value);
+      } /* if */
+    } /* if */
+#ifdef TRACE_TIM_UNX
+    printf("END timAwait\n");
+#endif
+  } /* timAwait */
+
+
+
+#elif defined AWAIT_WITH_PPOLL
+
+
+
+#ifdef ANSI_C
+
+void timAwait (inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+#else
+
+void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
+inttype year;
+inttype month;
+inttype day;
+inttype hour;
+inttype min;
+inttype sec;
+inttype micro_sec;
+inttype time_zone;
+#endif
+
+  {
+    struct tm tm_time;
+    time_t await_second;
+    struct timeval time_val;
+    struct timespec timeout_value;
+
+  /* timAwait */
+#ifdef TRACE_TIM_UNX
+    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+        year, month, day, hour, min, sec, micro_sec, time_zone);
+#endif
+    tm_time.tm_year  = (int) year - 1900;
+    tm_time.tm_mon   = (int) month - 1;
+    tm_time.tm_mday  = (int) day;
+    tm_time.tm_hour  = (int) hour;
+    tm_time.tm_min   = (int) min;
+    tm_time.tm_sec   = (int) sec;
+    tm_time.tm_isdst = 0;
+    await_second = mkutc(&tm_time);
+    if (unlikely(await_second == (time_t) -1)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      await_second -= time_zone * 60;
+      gettimeofday(&time_val, NULL);
+      if (time_val.tv_sec < await_second ||
+          (time_val.tv_sec == await_second &&
+          time_val.tv_usec < micro_sec)) {
+        timeout_value.tv_sec = await_second - time_val.tv_sec;
+        if (micro_sec >= time_val.tv_usec) {
+          timeout_value.tv_nsec = (micro_sec - time_val.tv_usec) * 1000;
+        } else {
+          timeout_value.tv_nsec = (1000000 - time_val.tv_usec + micro_sec) * 1000;
+          timeout_value.tv_sec--;
+        } /* if */
+#ifdef TRACE_TIM_UNX
+        fprintf(stderr, "%ld %ld %ld %ld %ld %ld %ld %ld\n",
+            time_val.tv_sec,
+            await_second,
+            await_second - time_val.tv_sec,
+            time_val.tv_usec,
+            micro_sec,
+            micro_sec - time_val.tv_usec,
+            timeout_value.tv_sec,
+            timeout_value.tv_nsec);
+#endif
+        ppoll(NULL, 0, &timeout_value, NULL);
+      } /* if */
+    } /* if */
+#ifdef TRACE_TIM_UNX
+    printf("END timAwait\n");
+#endif
+  } /* timAwait */
+
+
+
+#elif defined AWAIT_WITH_SIGACTION
 
 
 
@@ -183,7 +335,7 @@ inttype time_zone;
 
 
 
-#else
+#elif defined AWAIT_WITH_SIGNAL
 
 
 

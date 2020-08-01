@@ -20,6 +20,9 @@ Which license does Seed7 use?
 <li><a href="#free"><b>
 But Java and C# are also free?
 </b></a></li>
+<li><a href="#lines_of_code"><b>
+How many lines of code are in the Seed7 project?
+</b></a></li>
 <li><a href="#os"><b>
 On which operating systems does Seed7 run?
 </b></a></li>
@@ -135,7 +138,7 @@ Are there generics / templates?
 Are there exceptions?
 </b></a></li>
 <li><a href="#stack_trace"><b>
-What happens when an exception is not catched?
+What happens when an exception is not caught?
 </b></a></li>
 </ul></li><li><h2>
 Implementation
@@ -209,8 +212,8 @@ The programmer is allowed to define new language constructs such as
 statements, declaration constructs and operators syntactically
 and semantically. Most programming languages allow user defined
 variables, functions and types, but they also use constructs which
-are hardcoded in the compiler/interpreter. An extensible programming
-language trys to avoid such hardcoded constructs in normal programs.
+are hard-coded in the compiler/interpreter. An extensible programming
+language tries to avoid such hard-coded constructs in normal programs.
 </p><p>
 Extensible programming was an area of active research in the 1960s,
 but in the 1970s the extensibility movement was displaced by the
@@ -222,9 +225,9 @@ meta-language capable of modifying the base language. A program then
 consisted of meta-language modifications and code in the modified
 base language. A popular approach to do language extension was the
 use of macro definitions. The constructs of the base language were
-implemented with hardcoded technics.
+hard-coded.
 </p><p>
-The design and development of Seed7 is based on independ research
+The design and development of Seed7 is based on independent research
 which was done without knowing that the historic extensible
 programming language movement existed. Although Seed7 has different
 roots it reaches many of the original extensible programming language
@@ -239,17 +242,16 @@ statically typed closure parameters are used.
 </h3></a><hr><!-- ============================ -->
 <p>
 Yes. Seed7 spares no effort to support portable programming.
-Several driver librarys assure that the access to operating system
+Several driver libraries assure that the access to operating system
 resources such as files, directories, network, clock, keyboard,
 console and graphics are done in a portable way. Many functions
 are defined to avoid the need to use shell (and cmd.exe) commands.
 </p><ul>
-<li><!--  -  -->Different ways to encode unicode strings (e.g.: UTF-8 or UTF-16)
-   in system calls (e.g. fopen()/wopen()) are hidden from the
-   programmer.</li>
-<li><!--  -  -->Seed7 defines portable funtions to copy, move and remove files,
-   directory trees and files with other types.</li>
-<li><!--  -  -->The propertys of files such as size, type, time and mode can be
+<li><!--  -  -->Different Unicode encodings (e.g.: UTF-8 or UTF-16) in system
+   calls (e.g. fopen()/wopen()) are hidden from the programmer.</li>
+<li><!--  -  -->Copying, moving and removing files (and directory trees)
+   is supported with portable functions.</li>
+<li><!--  -  -->File properties such as size, type, time and mode can be
    obtained and changed with portable functions.</li>
 <li><!--  -  -->A forward slash is used as path delimiter on all operating systems
    and an attempt to use a backslash as path delimiter is an error.</li>
@@ -300,15 +302,48 @@ Seed7 is "Free as in Freedom" and not only "Free as in Free Beer" and this can
 make a big difference. Undocumented native interfaces are just not possible.
 </p></p>
 
+<p><br><a name="lines_of_code"><h3>How many lines of code are in the Seed7 project?
+</h3></a><hr><!-- ================================================ -->
+<p>
+The Seed7 package contains more than 100000 lines of C and more
+than 150000 lines of Seed7. For version 2011-04-03 the number of lines is:
+</p><dl><dd><table border="0" cellspacing="0">
+  <tr><td align="right">91660</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 9617</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">98027</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">58928</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+</table></dd></dl><p>
+C code (*.c and *.h files) can be divided into the following areas:
+</p><dl><dd><table border="0" cellspacing="0">
+  <tr><td align="right"> 0.3%</td> <td width="20"></td> <td>Interpreter main
+  <tr><td align="right">11.6%</td> <td width="20"></td> <td>Parser
+  <tr><td align="right"> 2.8%</td> <td width="20"></td> <td>Interpreter core
+  <tr><td align="right">24.7%</td> <td width="20"></td> <td>Primitive action functions
+  <tr><td align="right"> 7.4%</td> <td width="20"></td> <td>General helper functions
+  <tr><td align="right">48.5%</td> <td width="20"></td> <td>Runtime library
+  <tr><td align="right"> 4.7%</td> <td width="20"></td> <td>Compiler data library
+</table></dd></dl><p>
+Details about this files can be found in the file <nobr>'seed7/src/read_me.txt'</nobr>.
+</p></p>
+
 <p><br><a name="os"><h3>On which operating systems does Seed7 run?
 </h3></a><hr><!-- ========================================== -->
 <p>
-Linux is supported out of the box (because the development is done using
-Linux). I used Seed7 also under various Unix variants, so it is probably
-easy to port Seed7 to a Unix variant. Windows is supported with MinGW,
-Cygwin (it may be necessary to change some include or library paths),
-the stand alone compiler of MSVC (cl.exe) and the stand alone compiler of
-the BDS (bcc32.exe). For other operating systems it might be necessary to
+Seed7 runs on the following operating systems:
+</p><ul>
+<li><!--  -  -->Linux is supported out of the box (because the development is done using
+   Linux)</li>
+<li><!--  -  -->Unix (I used Seed7 also under various Unix variants, so it is probably
+   easy to port Seed7 to a Unix variant)</li>
+<li><!--  -  -->BSD (there is a <a href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/lang/seed7">FreeBSD port</a>)</li>
+<li><!--  -  -->Windows is supported with several compilers:<ul>
+<li><!--     -  -->MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
+<li><!--     -  -->Cygwin GCC (the X11 graphics is untested)</li>
+<li><!--     -  -->MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
+<li><!--     -  -->BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul>
+<li><!--  -  -->Mac OS X</li>
+</ul><p>
+For other operating systems it might be necessary to
 write driver modules for screen (=text console), graphics, time or other
 aspects of Seed7. The package contains various older driver modules
 which are not up to date, but can be used as base to write such driver
@@ -344,9 +379,9 @@ available at: <a href="http://www.7-zip.org">www.7-zip.org</a>.
 <p><br><a name="compile_interpreter"><h3>How do I compile the Seed7 interpreter?
 </h3></a><hr><!-- ======================================= -->
 <p>
-The way to compile the interpreter is dependend on the
+The way to compile the interpreter is dependent on the
 operating system and the development tools used. You need a
-stand alone C compiler and a make utility to compile the
+stand-alone C compiler and a make utility to compile the
 interpreter. A C compiler which is only usable from an IDE
 is not so useful, since some Seed7 programs (e.g. The
 Seed7 to C compiler comp.sd7) need to call the C compiler
@@ -359,19 +394,19 @@ the <tt>'src'</tt> directory and type:
 For other cases several makefiles are prepared for various
 combinations of operating system, make utility, C compiler
 and shell:
-</p><pre>
-  makefile name|operating system |make prog     |compiler    |shell
-  -------------+-----------------+--------------+------------+--------
-  mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
-  mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
-  mk_msys.mak  | Windows (MinGW) | (g)make      | gcc        | sh
-  mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
-  mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
-  mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
-  mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
-  mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
-  mk_osx.mak   | Mac OS X (Xcode)| (g)make      | gcc        | sh
-</pre><p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>makefile name</th><!-- | --><th>operating system </th><!-- | --><th>make prog     </th><!-- | --><th>compiler    </th><!-- | --><th>shell</th></tr>
+  <!-- -------------+-----------------+--------------+------------+-------- -->
+  <tr><td>mk_linux.mak </td><!-- | --><td> Linux/Unix/BSD  </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
+  <tr><td>mk_cygw.mak  </td><!-- | --><td> Windows (Cygwin)</td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
+  <tr><td>mk_msys.mak  </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
+  <tr><td>mk_mingw.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> mingw32-make </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
+  <tr><td>mk_nmake.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> nmake        </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
+  <tr><td>mk_msvc.mak  </td><!-- | --><td> Windows (MSVC)  </td><!-- | --><td> nmake        </td><!-- | --><td> cl         </td><!-- | --><td> cmd.exe</td></tr>
+  <tr><td>mk_bcc32.mak </td><!-- | --><td> Windows (bcc32) </td><!-- | --><td> make         </td><!-- | --><td> bcc32      </td><!-- | --><td> cmd.exe</td></tr>
+  <tr><td>mk_bccv5.mak </td><!-- | --><td> Windows (bcc32) </td><!-- | --><td> make         </td><!-- | --><td> bcc32 V5.5 </td><!-- | --><td> cmd.exe</td></tr>
+  <tr><td>mk_osx.mak   </td><!-- | --><td> Mac OS X (Xcode)</td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
+</table></dd></dl><p>
 In the optimal case you just copy one of this files to 'makefile'
 and do (with the make program from the table above):
 </p><pre>
@@ -504,13 +539,13 @@ and searched for that file.
 The following options are recognized by hi:
 </p><ul>
   <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
-  <li><b>-dx</b>  Set compiletime trace level to x. Where x is a string consisting
+  <li><b>-dx</b>  Set compile-time trace level to x. Where x is a string consisting
          of the following characters:<ul>
            <li><b>a</b> Trace primitive actions</li>
            <li><b>c</b> Do action check</li>
            <li><b>d</b> Trace dynamic calls</li>
            <li><b>e</b> Trace exceptions and handlers</li>
-           <li><b>h</b> Trace heapsize (in combination with 'a')</li></ul></li>
+           <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
   <li><b>-i</b>   Show the identifier table after the analyzing phase.</li>
   <li><b>-m</b>   Use less memory during the analyzing phase.
@@ -524,7 +559,7 @@ The following options are recognized by hi:
            <li><b>c</b> Do action check</li>
            <li><b>d</b> Trace dynamic calls</li>
            <li><b>e</b> Trace exceptions and handlers</li>
-           <li><b>h</b> Trace heapsize (in combination with 'a')</li></ul></li>
+           <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
   <li><b>-v</b>   Compile verbose. Write line numbers while analyzing.</li>
   <li><b>-x</b>   Execute even when the program contains errors.</li>
@@ -549,7 +584,7 @@ Possible options are
 </p><ul>
   <li><b>-O</b> and <b>-O2</b> tell the C compiler to optimize.</li>
   <li><b>-g</b> tells the C compiler to generate an executable with debug information.
-                This way the debuger will refer to Seed7 source files and line numbers.
+                This way the debugger will refer to Seed7 source files and line numbers.
                 To generate debug information which refers to the temporary C program
                 the option <b>-g-debug_c</b> can be used.</li>
   <li><b>-te</b> generates code to trace exceptions. This option works in the same way
@@ -577,7 +612,7 @@ is a name which is used somewhere in a syntax declaration. Syntax declarations
 reduce the possibilities to use a keyword out of context. E.g.: After the keyword
 <tt>'<font color=blue>if</font>'</tt> the parser expects always an expression. This makes <tt>'<font color=blue>if</font>'</tt> unusable as
 variable name. This way you get error messages when you try to use <tt>'<font color=blue>if</font>'</tt> or
-other keywords as variable name. That behaviour is just the same as in other
+other keywords as variable name. That behavior is just the same as in other
 languages which have reserved words. It can be summarized that Seed7 reaches
 the goal of avoiding the misuse of keywords in other ways and not by reserving
 them altogether.
@@ -735,7 +770,7 @@ Therefore it can be said that compile-time type checks increase the reliability
 of the program.
 </p><p>
 Seed7 makes sure that the object values always have the type of the object.
-This goal is reached with mechanisms like mandatory initialisation, runtime
+This goal is reached with mechanisms like mandatory initialization, runtime
 checks and the impossibility to change arbitrary places in memory. When the
 generation of garbage values is avoided, it can be guaranteed that only legal
 values of the correct type are used as object values. This way runtime type
@@ -966,7 +1001,7 @@ Overloading is resolved at compile time while object orientation uses dynamic di
 which decides at runtime which method should be called. Overloading resolution uses
 static types to decide. Dynamic dispatch uses the implementation type, which is only
 known at runtime, to decide. Besides this difference overloading resolution and
-dynamic dispatch both use the same technic to do the work: The types and the access
+dynamic dispatch both use the same approach to do the work: The types and the access
 rights of all parameters are used in the decision process.
 </p></p>
 
@@ -1172,16 +1207,16 @@ assignment and the comparison operators.
 <p>
 There are value and reference parameters. The formal parameter can be constant or
 variable. The combination of these features allows four types of parameters:
-</p><pre>
-    +-----------+-----------+--------------+
-    | parameter |  call by  | access right |
-    +-----------+-----------+--------------+
-    | val       |   value   | const        |
-    | ref       | reference | const        |
-    | in var    |   value   | var          |
-    | inout     | reference | var          |
-    +-----------+-----------+--------------+
-</pre><p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <!-- +-----------+-----------+--------------+ -->
+  <tr><!-- | --><th> parameter </th><!-- | --><th>  call by  </th><!-- | --><th> access right </th><!-- | --></tr>
+  <!-- +-----------+-----------+--------------+ -->
+  <tr><!-- | --><td> val       </td><!-- | --><td align="center">   value   </td><!-- | --><td> const        </td><!-- | --></tr>
+  <tr><!-- | --><td> ref       </td><!-- | --><td align="center"> reference </td><!-- | --><td> const        </td><!-- | --></tr>
+  <tr><!-- | --><td> in var    </td><!-- | --><td align="center">   value   </td><!-- | --><td> var          </td><!-- | --></tr>
+  <tr><!-- | --><td> inout     </td><!-- | --><td align="center"> reference </td><!-- | --><td> var          </td><!-- | --></tr>
+  <!-- +-----------+-----------+--------------+ -->
+</table></dd></dl><p>
 Additionally every type defines an <tt>'<font color=blue>in</font>'</tt> parameter which is either a <tt>'<font color=blue>val</font>'</tt> or a
 <tt>'<font color=blue>ref</font>'</tt> parameter. Types with little memory requirements like <tt>'<font color=red>integer</font>'</tt>, <tt>'<font color=red>char</font>'</tt>
 or <tt>'<font color=red>boolean</font>'</tt> use a <tt>'<font color=blue>val</font>'</tt> parameter as <tt>'<font color=blue>in</font>'</tt>. Other types like <tt>'<font color=red>string</font>'</tt>, arrays
@@ -1294,10 +1329,10 @@ Yes, Seed7 has exceptions which are similar to Ada exceptions.
 description of the Seed7 exceptions.
 </p></p>
 
-<p><br><a name="stack_trace"><h3>What happens when an exception is not catched?
-</h3></a><hr><!-- ============================================== -->
+<p><br><a name="stack_trace"><h3>What happens when an exception is not caught?
+</h3></a><hr><!-- ============================================= -->
 <p>
-When an EXCEPTION is not catched the program is terminated and the hi
+When an EXCEPTION is not caught the program is terminated and the hi
 interpreter writes a stack trace:
 </p><pre>
   *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -1341,7 +1376,7 @@ description how to debug compiled Seed7 programs.
 <p><br><a name="lib_path"><h3>Where does the interpreter look for include libraries?
 </h3></a><hr><!-- ====================================================== -->
 <p>
-Include libraries with absolut path (an absolute path starts with
+Include libraries with absolute path (an absolute path starts with
 a forward slash) are only searched at the specified place. All
 other include libraries are searched in several directories. This
 is done according to a list of library directories (a library
@@ -1354,9 +1389,9 @@ following directories are in the list of library directories:
     program <tt><font color=maroon>"/home/abc/test/pairs.sd7"</font></tt> is interpreted the directory
     <tt><font color=maroon>"/home/abc/test"</font></tt> is in the list of library directories.</li>
 <li><!--  2.  -->The directory containing the predefined Seed7 include libraries.
-    This directory is hardcoded in the interpreter (an absolute
+    This directory is hard-coded in the interpreter (an absolute
     path like <tt><font color=maroon>"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</font></tt>).
-    The hardcoded library directory is determined when the
+    The hard-coded library directory is determined when the
     interpreter is compiled. So it only exists when the interpreter
     was compiled from source. The interpreter from the binary
     release uses the relative path <tt><font color=maroon>"../lib"</font></tt> instead. This works only
@@ -1385,7 +1420,7 @@ absolute path <tt><font color=maroon>"/<i>directory_where_Seed7_was_installed</i
 <p><br><a name="predefined_include_libraries"><h3>How is the directory of the predefined include libraries determined?
 </h3></a><hr><!-- ==================================================================== -->
 <p>
-The directory of the predefined include libraries is hardcoded in the
+The directory of the predefined include libraries is hard-coded in the
 interpreter. This information is determined when the Seed7 interpreter
 is compiled. The command <tt>'make depend'</tt> writes a line, which defines the
 C preprocessor variable SEED7_LIBRARY, to the file <tt><font color=maroon>"seed7/src/version.h"</font></tt>.
@@ -1472,12 +1507,18 @@ never written to a file. After the analyze phase the call-code is interpreted.
 <p><br><a name="analyze"><h3>How does the analyze phase of the interpreter work?
 </h3></a><hr><!-- =================================================== -->
 <p>
-The analyzer reads successive expressions according to the syntax definitions.
-For each expression the analyzer searches the internal database of declared
-objects (this search process is called matching) and generates call-code for
-this expression. Then the call code for this expression is executed. Normally
-this expressions are declaration statements. In that case new declared objects
-are added to the internal database.
+The analyzer reads successive expressions. The expressions are read with a
+table-driven LL(1) recursive descent parser. The parser is controlled by
+<a href="manual/syntax.htm">Seed7 syntax definitions</a>. The parser calls
+a scanner, which skips <a href="manual/tokens.htm#White_space">whitespace</a> and reads <a href="manual/tokens.htm#Identifiers">identifiers</a> and <a href="manual/tokens.htm#Literals">literals</a>.
+Each parsed expression is searched in the internal database of defined
+objects. This search process is called matching. The matching resolves
+overloaded functions and generates call-code for the parsed expression.
+Call-code uses a data structure which is similar to S-Expressions.
+The analyzer executes the call-code of the parsed and matched expressions.
+Normally parsed and matched expressions represents declaration statements.
+Executing a declaration statement adds new defined objects to the internal
+database.
 </p></p>
 
 <p><br><a name="action"><h3>What does action "XYZ_SOMETHING" mean?

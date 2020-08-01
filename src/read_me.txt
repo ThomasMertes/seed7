@@ -492,7 +492,7 @@ INTERPRETER CORE
 
     exec.c     Main interpreter procedures.
     doany.c    Procedures to call several Seed7 functions from C.
-    memory.c   isit_.. and bld_.. functions for primitive datatypes.
+    objutl.c   isit_.. and bld_.. functions for primitive datatypes.
 
   The interpreter core is licensed under the GPL.
 
@@ -548,7 +548,6 @@ GENERAL HELPER FUNCTIONS
     syvarutl.c Maintains the interpreter system variables.
     traceutl.c Tracing and protocol procedures.
     actutl.c   Conversion of strings to ACTIONs and back.
-    arrutl.c   Procedures to maintain objects of type arraytype.
     executl.c  Initalisation operation procedures used at runtime.
     blockutl.c Procedures to maintain objects of type blocktype.
     entutl.c   Procedures to maintain objects of type entitytype.
@@ -587,12 +586,18 @@ RUNTIME LIBRARY
     heaputl.c  heap utility library
     striutl.c  string utility library
     big_gmp.c  Alternate bigInteger library based on GMP
+    cmd_unx.c  Unix functions for commands
+    cmd_win.c  Windows functions for commands
+    dir_dos.c  Dos directory access functions
+    dir_win.c  Windows directory access functions
     scr_inf.c  Terminfo screen (text console/terminal) driver
     scr_win.c  Windows screen (text console/terminal) driver
     kbd_inf.c  Terminfo keybord driver
+    kbd_poll.c Terminfo keyboard driver using poll()
     trm_inf.c  Terminfo support
     tim_unx.c  Unix time driver
     tim_win.c  Windows time driver
+    drw_dos.c  Dos drawing functions (dummy functions)
     drw_win.c  Windows drawing functions
     drw_x11.c  X11 drawing functions
 
@@ -665,6 +670,30 @@ THE VERSION.H FILE
               from dir_dos.c are used. This functions are based
               on _dos_findfirst() and _dos_findnext(). Only one
               #define of USE_DIRxxx is allowed.
+
+  AWAIT_WITH_POLL: The function timAwait() uses the function
+                   poll() to implement waiting for a time.
+                   Only one #define of AWAIT_WITH_xxx is
+                   allowed.
+
+  AWAIT_WITH_PPOLL: The function timAwait() uses the function
+                    ppoll() to implement waiting for a time.
+                    Only one #define of AWAIT_WITH_xxx is
+                    allowed.
+
+  AWAIT_WITH_SIGACTION: The function timAwait() uses the
+                        functions sigaction(), sigsetjmp(),
+                        setitimer(), pause(), siglongjmp() and 
+                        a signal handler function to catch
+                        a SIGALRM signal. Only one #define of
+                        AWAIT_WITH_xxx is allowed.
+
+  AWAIT_WITH_SIGNAL: The function timAwait() uses the
+                        functions signal(), setjmp(),
+                        setitimer(), pause(), longjmp() and 
+                        a signal handler function to catch
+                        a SIGALRM signal. Only one #define of
+                        AWAIT_WITH_xxx is allowed.
 
   OS_PATH_WCHAR: Defined when the system calls (os_...) use
                  wide characters (type wchar_t) for the

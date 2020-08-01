@@ -1,3 +1,17 @@
+20110424:
+- Information about the lines of code in Seed7 was added to the FAQ.
+- The FAQ answers about supported operating systems and the analyze
+  phase of the interpreter, were improved.
+- Several spelling errors in the FAQ and in the manual were fixed.
+- The appearance of tables in the FAQ and in the manual was improved.
+- Variants of the function 'timAwait', which work with poll() and ppoll(),
+  were added to the file "tim_unx.c".
+- The makefiles "makefile", "mk_linux.mak", "mk_cygw.mak" and "mk_osx.mak"
+  were improved to select one version of the function 'timAwait'.
+- Descriptions of the configuration macros AWAIT_WITH_POLL,
+  AWAIT_WITH_PPOLL, AWAIT_WITH_SIGACTION and AWAIT_WITH_SIGNAL were added
+  to the file "src/read_me.txt".
+
 20110403:
 - The compiler (comp.sd7) was improved to generate less code to initialize
   arrays. Repeated elements in array initialisations are recognized and

@@ -131,6 +131,7 @@ version.h:
 	echo "#define HAS_FIFO_FILES" >> version.h
 	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
+	echo "#define AWAIT_WITH_POLL" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
 	echo "#define OS_PATH_UTF8" >> version.h

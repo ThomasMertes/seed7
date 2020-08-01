@@ -436,7 +436,7 @@ filetype aFile;
  *  with malloc(). After the data is read the result string is
  *  shrinked to the actual size (with realloc()). When 'length' is
  *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
- *  a different strategy is used. In this case the function trys to
+ *  a different strategy is used. In this case the function tries to
  *  find out the number of available characters (this is possible
  *  for a regular file but not for a pipe). If this fails a third
  *  strategy is used. In this case a smaller block is requested. This

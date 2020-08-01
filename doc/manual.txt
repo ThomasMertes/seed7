@@ -850,14 +850,14 @@ CONTENTS
   Each object declared with a 'const' or 'var' declaration obtains
   an initial value. It is not possible to use 'const' or 'var'
   declarations without initial value. Declarations with
-  initialisation expressions are also possible. For example
+  initialization expressions are also possible. For example
 
     var string: fileName is NAME & ".txt";
 
   The expression is evaluated and the result is assigned to
   the new object. This is done in the analyze phase of the
   interpreter or compiler, before the execution of the program
-  starts. The initialisation expressions may contain any
+  starts. The initialization expressions may contain any
   function (or operator) call. That way user defined functions
   can also be used to initialize a constant or variable:
 
@@ -889,7 +889,7 @@ CONTENTS
 
   User defined abstract data types are also possible.
 
-  The initialisation uses the creation operation ( ::= ).
+  The initialization uses the creation operation ( ::= ).
   Explicit calls of the create operation are not needed.
 
   The lifetime of an object goes like this:
@@ -926,14 +926,14 @@ CONTENTS
     ONE . ::= . 1
 
   is executed to assign 1 to the object ONE. There are two
-  reasons to use ::= instead of := to assign the initialisation
+  reasons to use ::= instead of := to assign the initialization
   value.
 
   1. The assignment ( := ) can only be used to assign a value
-    to a variable and initialisation is also needed for
+    to a variable and initialization is also needed for
     constants.
 
-  2. Sometimes some initialisations are needed for the new
+  2. Sometimes some initializations are needed for the new
     object in addition to the pure assignment.
 
   For all predefined types the creation operator ( ::= )
@@ -1599,7 +1599,7 @@ CONTENTS
   take place when the operand is executed.
 
 
-  Table for the behaviour of different boolean expressions:
+  Table for the behavior of different boolean expressions:
 
                                Result when the    Result when the
     Expression                  first operand      first operand
@@ -1830,7 +1830,7 @@ CONTENTS
                                sign or A rem B = 0 holds.
 
 
-  Table for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
+  Table for the behavior of 'div', 'rem', 'mdiv' and 'mod':
 
      A    B   A div B   A rem B   A mdiv B  A mod B
 
@@ -2032,7 +2032,7 @@ CONTENTS
                                sign or A rem B = 0_ holds.
 
 
-  Table for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
+  Table for the behavior of 'div', 'rem', 'mdiv' and 'mod':
 
      A    B   A div B   A rem B   A mdiv B  A mod B
 
@@ -2424,10 +2424,10 @@ CONTENTS
 
 5.8 char
 
-    The type 'char' describes UNICODE characters encoded
+    The type 'char' describes Unicode characters encoded
   with UTF-32. In the source file a character literal is
-  written as UTF-8 encoded UNICODE character enclosed in
-  single quotes. In order to represent nonprintable
+  written as UTF-8 encoded Unicode character enclosed in
+  single quotes. In order to represent non-printable
   characters and certain printable characters the following
   escape sequences may be used.
 
@@ -2451,7 +2451,7 @@ CONTENTS
 
     'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''   '\8\'
 
-  To use characters beyond ASCII (which is a subset of UNICODE)
+  To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
   encoded characters.
 
@@ -2506,14 +2506,14 @@ CONTENTS
 
 5.9 string
 
-    The type 'string' describes sequences of UNICODE characters
+    The type 'string' describes sequences of Unicode characters
   (including the empty string). The characters in the 'string'
   use the UTF-32 encoding. Strings are not '\0\' terminated
   and therefore can also contain binary data. Although 'string's
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a 'string' value. In this case the
   exception 'MEMORY_ERROR' is raised. In the source file a string
-  literal is a sequence of UTF-8 encoded UNICODE characters
+  literal is a sequence of UTF-8 encoded Unicode characters
   surrounded by double quotes.
 
   To represent control characters and certain other characters
@@ -2535,7 +2535,7 @@ CONTENTS
 
     ""   " "   "\""   "'"   "String"   "CAN\"T !"
 
-  To use characters beyond ASCII (which is a subset of UNICODE)
+  To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
   encoded characters.
 
@@ -2818,7 +2818,7 @@ CONTENTS
   can be any type.
 
     Constants:
-      hashType.EMPTY_HASH  Empty hashtable
+      hashType.EMPTY_HASH  Empty hash table
     Infix operators:
       in        Element
                   ( Left argument: baseType,
@@ -2827,26 +2827,26 @@ CONTENTS
                   ( Left argument: baseType,
                     Type of result: boolean )
     Indices:
-      [ A ]     Access one hashtable element
+      [ A ]     Access one hash table element
                   ( Type of argument A: keyType,
                     Type of result: baseType )
     Functions:
-      length(A) Number of elements in hashtable A
+      length(A) Number of elements in hash table A
                   ( Type of result: integer,
                     length(hashType.EMPTY_HASH) => 0 )
-      keys(A)   Unsorted array of keys of the hashtable A
+      keys(A)   Unsorted array of keys from hash table A
                   ( Type of result: array keyType )
-      values(A) Unsorted array of valuess of the hashtable A
+      values(A) Unsorted array of values from hash table A
                   ( Type of result: array baseType )
       flip(A)   Deliver a hash with keys and values flipped
                   ( Type of result: hash [baseType] array keyType )
     Statements:
-      incl(A,B,C) Include element B to hashtable A
+      incl(A,B,C) Include element B to hash table A
                   ( Type of argument B: keyType,
                     Type of argument C: baseType )
-      excl(A,B) Exclude element B from hashtable A
+      excl(A,B) Exclude element B from hash table A
                   ( Type of argument B: keyType )
-      A @:= [B] C  Assign C to element B of hashtable A
+      A @:= [B] C  Assign C to element B of hash table A
                   ( Type of argument B: keyType,
                     Type of argument C: baseType )
       for A range B do
@@ -2990,7 +2990,7 @@ CONTENTS
         ...
       end struct
                 Create new structure type as subtype of 'metaType',
-                which is a structure type. The new stucture type inherits all
+                which is a structure type. The new structure type inherits all
 		elements of the structure type 'metaType'.
 
       var aType: name is value
@@ -3064,7 +3064,7 @@ CONTENTS
       isVar(A)  Reference to a variable object
                   ( Type of result: boolean,
                     isVar(NIL) => EXCEPTION RANGE_ERROR )
-      params(A) Gets the formal params of a function
+      params(A) Gets the formal parameters of a function
                   ( Type of result: ref_list )
       local_vars(A) Gets the local variables of a function
                   ( Type of result: ref_list,
@@ -3078,7 +3078,7 @@ CONTENTS
                   ( body(NIL) => EXCEPTION RANGE_ERROR,
                     body(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
       func_result(A) Gets the result object of a function
-      func_res_init(A) Gets the init value of the result
+      func_res_init(A) Gets the initialization value of the result
                        object of a function
       array_to_list(A) Return the array elements as list
                   ( Type of result: ref_list,
@@ -3172,7 +3172,7 @@ CONTENTS
                     setType(NIL, B) => EXCEPTION RANGE_ERROR )
       setValue(A, B) Set the value of the referenced object A to B
                   ( Type of argument B: ref_list )
-      setParams(A, B) Set the formal params of a function
+      setParams(A, B) Set the formal parameters of a function
                   ( Type of argument B: ref_list )
 
 
@@ -3423,12 +3423,12 @@ CONTENTS
                   ( Type of result: string )
       strTimeZone(A)  Conversion of the time zone to string
                   ( Type of result: string )
-      truncToSecond(A)  Trunc a time to a second
-      truncToMinute(A)  Trunc a time to a minute
-      truncToHour(A)  Trunc a time to a hour
-      truncToDay(A)  Trunc a time to a day
-      truncToMonth(A)  Trunc a time to a month
-      truncToYear(A)  Trunc a time to a year
+      truncToSecond(A)  Truncate a time to a second
+      truncToMinute(A)  Truncate a time to a minute
+      truncToHour(A)  Truncate a time to a hour
+      truncToDay(A)  Truncate a time to a day
+      truncToMonth(A)  Truncate a time to a month
+      truncToYear(A)  Truncate a time to a year
       isLeapYear(A)  Determine if a given year is a leap year
                   ( Type of argument A: integer )
                   ( Type of result: boolean )
@@ -3585,12 +3585,12 @@ CONTENTS
                     Type of result: file,
                     Returns STD_NULL if popen was not
                     possible )
-      openInetSocket(port) Open local internet client socket
+      openInetSocket(port) Open local Internet client socket
                   ( Type of argument port: integer,
                     Type of result: file,
                     Returns STD_NULL if open was not
                     possible )
-      openInetSocket(addr, port) Open internet client socket
+      openInetSocket(addr, port) Open Internet client socket
                   ( Type of argument addr: string,
                     Type of argument port: integer,
                     Type of result: file,
@@ -4619,7 +4619,7 @@ CONTENTS
 7.4 Class methods
 
     Many object-oriented programming languages support methods
-  that are associated with a class instead of an instanciated
+  that are associated with a class instead of an instantiated
   object. Such methods are called class methods or static
   methods. Seed7 supports class methods via attribute ('attr')
   parameters which allow that a function is attached to a type:
@@ -4651,7 +4651,7 @@ CONTENTS
 
     const char: (attr char) . value is ' ';
 
-  This way attributes can be used to specify propertys
+  This way attributes can be used to specify properties
   of a type such as its default 'value'.
   Programming languages such as Seed7 which support function
   definitions outside a class can also use normal functions
@@ -5211,7 +5211,7 @@ ont color=blue>is "";
   process. As such all functions of the "scanfile.s7i" library
   assume that the first character to be processed is always in
   'bufferChar'. Since the standard 'file' functions do not have
-  this behaviour, care has to be taken when mixing scanner and
+  this behavior, care has to be taken when mixing scanner and
   file functions.
 
   The next declarations allows various I/O operations for strings:
@@ -5491,7 +5491,7 @@ ont color=blue>is "";
 
     writeln(my_out, "illegal char: \256\");
 
-  results in the exception 'RANGE_ERROR'. To write unicode
+  results in the exception 'RANGE_ERROR'. To write Unicode
   characters other file types must be used. The libraries
   "utf8.s7i" and "utf16.s7i" provide access to UTF-8 and
   UTF-16 files. The function 'open_utf8' can be used the same
@@ -5499,9 +5499,9 @@ ont color=blue>is "";
 
     my_out := open_utf8("utf8_file", "w");
 
-  An UTF-8 file accepts all unicode characters. That way
+  An UTF-8 file accepts all Unicode characters. That way
 
-    writeln(my_out, "unicode char: \256\");
+    writeln(my_out, "Unicode char: \256\");
 
   works without problems. UTF-8 files are byte order independent.
   Therefore they do not need a byte order mark (BOM).
@@ -5528,8 +5528,8 @@ ont color=blue>is "";
     end if;
     ...
 
-  UTF-16 comes in two flavours UTF-16LE and UTF-16BE. To support
-  both flavours the "utf16.s7i" library defines several functions.
+  UTF-16 comes in two flavors UTF-16LE and UTF-16BE. To support
+  both flavors the "utf16.s7i" library defines several functions.
 
   The function 'open_utf16' opens an Unicode file which uses the
   UTF-16LE or UTF-16BE encoding. The function 'open_utf16' checks for
@@ -5610,8 +5610,8 @@ ont color=blue>is "";
 
   The difference between binary and text mode is as follows:
 
-    - Binary mode provides an implementation independend
-      behaviour on all operating systems. In binary mode no
+    - Binary mode provides an implementation independent
+      behavior on all operating systems. In binary mode no
       conversion to and from the line end character ('\n')
       is done. This has the advantage that an 'external_file'
       written in binary mode is identical on all operating
@@ -5623,8 +5623,8 @@ ont color=blue>is "";
       'external_file' functions like 'getc' and 'gets' deliver
       line endings unchanged.
 
-    - The behaviour of an 'external_file' in text mode is
-      implementation dependend. Under Unix/Linux/Bsd text and
+    - The behavior of an 'external_file' in text mode is
+      implementation dependent. Under Unix/Linux/Bsd text and
       binary modes are identical. Other operating systems
       prefer to do some line end conversions in text mode:
       When reading a file all occurrences of "\r\n" are
@@ -5650,11 +5650,11 @@ ont color=blue>is "";
   the library "keybd.s7i", which defines the type 'keyboard_file'
   and the file 'KEYBOARD'. Characters typed at the keyboard are
   queued (first in first out) and can be read directly from
-  'KEYBOARD' without any possibiliy to correct. Additionally
+  'KEYBOARD' without any possibility to correct. Additionally
   'KEYBOARD' does not echo the characters. Reading from 'KEYBOARD'
-  delivers normal UNICODE characters or special codes (which may be
-  or may not be UNICODE characters) for function and cursor keys.
-  UNICODE characters and special codes both are 'char' values. The
+  delivers normal Unicode characters or special codes (which may be
+  or may not be Unicode characters) for function and cursor keys.
+  Unicode characters and special codes both are 'char' values. The
   "keybd.s7i" library defines 'char' constants for various keys:
 
     Key character constant     Description
@@ -5724,7 +5724,7 @@ ont color=blue>is "";
         writeln("Cursor up was pressed");
       end func;
 
-  Progams should use the 'char' constants defined in "keybd.s7i"
+  Programs should use the 'char' constants defined in "keybd.s7i"
   to deal with function and cursor keys, since the special key
   codes may change in future versions of Seed7.
 
@@ -5767,7 +5767,7 @@ ont color=blue>is "";
   This two modes are supported with two basic keyboard files:
 
     - 'CONSOLE_KEYBOARD', which uses a terminfo or console driver.
-    - 'GRAPH_KEYBOARD', which uses a X11 or gdi driver.
+    - 'GRAPH_KEYBOARD', which uses a X11 or GDI driver.
 
   The file 'KEYBOARD' is actually a variable which refers to one
   of the two basic keyboard files.  The declaration of the type
@@ -5786,7 +5786,7 @@ ont color=blue>is "";
   An 'echo_file' file can be used to write input characters to
   an output file. This is useful since 'KEYBOARD' does not echo its
   input, but 'echo_file' is not restricted to support 'KEYBOARD'.
-  The following program writes echos of the keys typed and exits as
+  The following program writes echoes of the keys typed and exits as
   soon as a '!' is encountered:
 
     $ include "seed7_05.s7i";
@@ -5810,7 +5810,7 @@ ont color=blue>is "";
 
     terminate (y/n)?
 
-  Aswering 'y' or 'Y' is interpreted as 'yes' and the program
+  Answering 'y' or 'Y' is interpreted as 'yes' and the program
   is terminated with the following message:
 
     *** PROGRAM TERMINATED BY USER
@@ -5895,12 +5895,12 @@ ont color=blue>is "";
 
     var file: clientSocket is STD_NULL;
 
-  With 'openInetSocket' an internet client socket can be opened:
+  With 'openInetSocket' an Internet client socket can be opened:
 
     clientSocket := openInetSocket("www.google.com", 80);
 
   The function 'openInetSocket' creates and connects a socket.
-  Opening an internet socket at the local host is done with:
+  Opening an Internet socket at the local host is done with:
 
     clientSocket := openInetSocket(1080);
 
@@ -5975,7 +5975,7 @@ ont color=blue>is "";
         var file: result is STD_NULL;
       begin
         ...
-        (* Initialisation of the local data *)
+        (* Initialization of the local data *)
         result := malloc( ... );
         ...
       end func;
@@ -6516,7 +6516,7 @@ ont color=blue>is "";
   of the 'loop' function the closures are executed at some places.
 
   The 'loop' function uses a 'repeat' and an 'if' statement to
-  implement the desired behaviour. When necessary the closures are
+  implement the desired behavior. When necessary the closures are
   executed several times.
 
   For the 'loop' example with the semantic errors (see above) we
@@ -6608,19 +6608,18 @@ ont color=blue>is "";
 
   Table for the possibilities of associativity:
 
-    +---------------+------------------------------+
-    | associativity |     The priority of the      |
-    +---------------+--------------+---------------+
-    |               | left operand | right operand |
-    |               |    must be   |    must be    |
-    +---------------+--------------+---------------+
-    |      ->       |      <=      |      <        |
-    |      <-       |      <       |      <=       |
-    |      <->      |      <       |      <        |
-    |     -><-      |      <=      |      <=       |
-    +---------------+--------------+---------------+
-    |               |  than that of the operator   |
-    +---------------+------------------------------+
+    +---------------+----------------------------------------------+
+    | associativity |             The priority of the              |
+    +               +----------------------+-----------------------+
+    |               | left operand must be | right operand must be |
+    +---------------+----------------------+-----------------------+
+    |      ->       |          <=          |          <            |
+    |      <-       |          <           |          <=           |
+    |      <->      |          <           |          <            |
+    |     -><-      |          <=          |          <=           |
+    +---------------+----------------------+-----------------------+
+    |               |          than that of the operator           |
+    +---------------+----------------------------------------------+
 
   The parameter before the operator symbol is called left operand.
   The parameter after the last symbol of a construct is called
@@ -6797,7 +6796,7 @@ ont color=blue>is "";
 
     - The associativity is described with one of the symbols
       -> (left-associative), <- (right-associative),
-      <-> (not associative) and -><- (both associativitys).
+      <-> (not associative) and -><- (both associativities).
       When there are no left or right operands, as it is the case
       for the 'loop' statement, the associativity is irrelevant.
 
@@ -7350,12 +7349,12 @@ ont color=blue>is "";
 
 10.3.2 String literals
 
-    A string literal is a sequence of UTF-8 encoded UNICODE
+    A string literal is a sequence of UTF-8 encoded Unicode
   characters surrounded by double quotes. For example:
 
     ""   " "   "\""   "'"   "\'"   "String"   "ch=\" "   "\n\n"
 
-  In order to represent nonprintable characters and certain
+  In order to represent non-printable characters and certain
   printable characters the following escape sequences may be
   used.
 
@@ -7402,7 +7401,7 @@ ont color=blue>is "";
 
 10.3.3 Character literals
 
-    A character literal is an UTF-8 encoded UNICODE character
+    A character literal is an UTF-8 encoded Unicode character
   enclosed in single quotes. For example:
 
     'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''
@@ -7542,7 +7541,7 @@ ont color=blue>is "";
   look like. Seed7 compensates this differences with a standard
   path representation. Standard paths are used by all Seed7
   functions dealing with paths. The standard path representation
-  uses strings with the fillowing properties to describe paths:
+  uses strings with the following properties to describe paths:
 
     - The slash ('/') is used as path delimiter.
     - Drive letters are not allowed, but there is a solution
@@ -7556,7 +7555,7 @@ ont color=blue>is "";
   the drive "C:". Reading the directory "/" under Windows
   returns a list of available drives. A path with a backslash
   or with a drive letter may raise the exception 'RANGE_ERROR',
-  when a function like 'open'is called.  
+  when a function like 'open' is called.  
 
   An absolute path specifies an unique location in the file
   system. Absolute paths always start with a slash. A relative
@@ -8004,7 +8003,7 @@ ont color=blue>is "";
 
 12.19 removeAnyFile
 
-    The function 'removeAnyFile' removes a file independend
+    The function 'removeAnyFile' removes a file independent
   of its file type:
 
     const proc: removeAnyFile (in string: filePath) is ...
@@ -8025,8 +8024,8 @@ ont color=blue>is "";
 
     const proc: copyFile (in string: sourcePath, in string: destPath) is ...
 
-  Permissions/mode, ownership and timestamps of the destination file are
-  determined undependend of the corresponding source properties.
+  Permissions/mode, ownership and timestamps of the destination file
+  are determined independent of the corresponding source properties.
   The destination file gets the permissions/mode defined by umask.
   The user executing the program is the owner of the destination file.
   The timestamps of the destination file are set to the current time.
@@ -8190,7 +8189,7 @@ ont color=blue>is "";
   mechanism called action. For example: It is easy to define
   the 'while' statement by using recursion. But this would
   hurt performance and it would also use a huge amount of
-  memory for the runtime stack. In practise an implementation
+  memory for the runtime stack. In practice an implementation
   of the 'while' statement can use a conditional jump
   instead of a subroutine call. Since Seed7 has no 'goto'
   statement, this is not an option. Instead the primitive
@@ -8345,7 +8344,7 @@ ont color=blue>is "";
 
   The action functions use ANSI C prototypes and K&R function headers.
   The function 'int_add()' adds the first and the third argument (the
-  second argument contains the + symbol. The file 'memory.h'
+  second argument contains the + symbol. The file 'objutl.h'
   contains several macros and functions which help to handle the
   arguments (parameter list) of a C primitive action function.
 
@@ -8508,10 +8507,10 @@ ont color=blue>is "";
 13.1 Actions for the type ACTION
 
     Action name         actlib.c function   act_comp.c function
-    ACT_ILLEGAL         act_illegal         
+    ACT_ILLEGAL         act_illegal          
     ACT_CPY             act_cpy             =
-    ACT_CREATE          act_create          
-    ACT_GEN             act_gen             
+    ACT_CREATE          act_create           
+    ACT_GEN             act_gen              
     ACT_STR             act_str             actStr
     ACT_VALUE           act_value           actValue
 
@@ -8528,7 +8527,7 @@ ont color=blue>is "";
     ARR_CPY             arr_cpy             cpy_ ...
     ARR_CREATE          arr_create          create_ ...
     ARR_DESTR           arr_destr           destr_ ...
-    ARR_EMPTY           arr_empty           
+    ARR_EMPTY           arr_empty            
     ARR_EXTEND          arr_extend          arrExtend
     ARR_GEN             arr_gen             arrGen
     ARR_HEAD            arr_head            arrHead
@@ -8614,7 +8613,7 @@ ont color=blue>is "";
     BST_CPY             bst_cpy             bstCpy
     BST_CREATE          bst_create          bstCreate
     BST_DESTR           bst_destr           bstDestr
-    BST_EMPTY           bst_empty           
+    BST_EMPTY           bst_empty            
     BST_EQ              bst_eq              a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(unsigned char))==0
     BST_LNG             bst_lng             a->size
     BST_NE              bst_ne              a->size!=b->size||memcmp(a,b,a->size*sizeof(unsigned char))!=0
@@ -8677,24 +8676,24 @@ ont color=blue>is "";
 
 13.8 Actions for declarations
 
-    Action name         dcllib.c function   
-    DCL_ATTR            dcl_attr            
-    DCL_CONST           dcl_const           
-    DCL_ELEMENTS        dcl_elements        
-    DCL_FWD             dcl_fwd             
-    DCL_GETFUNC         dcl_getfunc         
-    DCL_GETOBJ          dcl_getobj          
-    DCL_GLOBAL          dcl_global          
-    DCL_IN1VAR          dcl_in1var          
-    DCL_IN2VAR          dcl_in2var          
-    DCL_INOUT1          dcl_inout1          
-    DCL_INOUT2          dcl_inout2          
-    DCL_REF1            dcl_ref1            
-    DCL_REF2            dcl_ref2            
-    DCL_SYMB            dcl_symb            
-    DCL_VAL1            dcl_val1            
-    DCL_VAL2            dcl_val2            
-    DCL_VAR             dcl_var             
+    Action name         dcllib.c function
+    DCL_ATTR            dcl_attr
+    DCL_CONST           dcl_const
+    DCL_ELEMENTS        dcl_elements
+    DCL_FWD             dcl_fwd
+    DCL_GETFUNC         dcl_getfunc
+    DCL_GETOBJ          dcl_getobj
+    DCL_GLOBAL          dcl_global
+    DCL_IN1VAR          dcl_in1var
+    DCL_IN2VAR          dcl_in2var
+    DCL_INOUT1          dcl_inout1
+    DCL_INOUT2          dcl_inout2
+    DCL_REF1            dcl_ref1
+    DCL_REF2            dcl_ref2
+    DCL_SYMB            dcl_symb
+    DCL_VAL1            dcl_val1
+    DCL_VAL2            dcl_val2
+    DCL_VAR             dcl_var
 
 13.9 Actions to do graphic output
 
@@ -8709,7 +8708,7 @@ ont color=blue>is "";
     DRW_CPY             drw_cpy             drwCpy
     DRW_CREATE          drw_create          drwCreate
     DRW_DESTR           drw_destr           drwDestr
-    DRW_EMPTY           drw_empty           
+    DRW_EMPTY           drw_empty            
     DRW_EQ              drw_eq              ==
     DRW_FARCCHORD       drw_farcchord       drwFArcChord
     DRW_FARCPIESLICE    drw_farcpieslice    drwFArcPieSlice
@@ -8751,16 +8750,16 @@ ont color=blue>is "";
 
 13.10 Actions for enumeration types
 
-    Action name         enulib.c function   
+    Action name         enulib.c function    
     ENU_CONV            enu_conv            (noop)
     ENU_CPY             enu_cpy             =
-    ENU_CREATE          enu_create          
+    ENU_CREATE          enu_create           
     ENU_EQ              enu_eq              ==
-    ENU_GENLIT          enu_genlit          
+    ENU_GENLIT          enu_genlit           
     ENU_ICONV2          enu_iconv2          (noop)
     ENU_NE              enu_ne              !=
     ENU_ORD2            enu_ord2            (noop)
-    ENU_SIZE            enu_size            
+    ENU_SIZE            enu_size             
     ENU_VALUE           enu_value           enuValue
 
 13.11 Actions for the type PRIMITIVE_FILE
@@ -8772,7 +8771,7 @@ ont color=blue>is "";
     FIL_CLOSE           fil_close           fclose
     FIL_CPY             fil_cpy             fltCpy
     FIL_CREATE          fil_create          fltCreate
-    FIL_EMPTY           fil_empty           
+    FIL_EMPTY           fil_empty            
     FIL_EOF             fil_eof             feof
     FIL_EQ              fil_eq              ==
     FIL_ERR             fil_err             stderr
@@ -8877,11 +8876,11 @@ ont color=blue>is "";
     HSH_FOR_DATA_KEY    hsh_for_data_key    for
     HSH_FOR_KEY         hsh_for_key         for
     HSH_IDX             hsh_idx             hshIdx, hshIdxAddr
-    HSH_IDX2            hsh_idx2            
+    HSH_IDX2            hsh_idx2             
     HSH_INCL            hsh_incl            hshIncl
     HSH_KEYS            hsh_keys            hshKeys
     HSH_LNG             hsh_lng             a->size
-    HSH_REFIDX          hsh_refidx          
+    HSH_REFIDX          hsh_refidx           
     HSH_VALUES          hsh_values          hshValues
 
 13.15 Actions for the type integer
@@ -8937,15 +8936,15 @@ ont color=blue>is "";
 
 13.16 Actions for interface types
 
-    Action name         itflib.c function   
+    Action name         itflib.c function    
     ITF_CONV2           itf_conv2           (noop)
     ITF_CPY             itf_cpy             =
     ITF_CPY2            itf_cpy2            =
-    ITF_CREATE          itf_create          
-    ITF_CREATE2         itf_create2         
+    ITF_CREATE          itf_create           
+    ITF_CREATE2         itf_create2          
     ITF_EQ              itf_eq              ==
     ITF_NE              itf_ne              !=
-    ITF_SELECT          itf_select          
+    ITF_SELECT          itf_select           
 
 13.17 Actions to support the text (console) screen keyboard
 
@@ -8960,74 +8959,74 @@ ont color=blue>is "";
 
 13.18 Actions for the list type
 
-    Action name         lstlib.c function   
-    LST_CAT             lst_cat             
-    LST_CPY             lst_cpy             
-    LST_CREATE          lst_create          
-    LST_DESTR           lst_destr           
-    LST_ELEM            lst_elem            
-    LST_EMPTY           lst_empty           
-    LST_EXCL            lst_excl            
-    LST_HEAD            lst_head            
-    LST_IDX             lst_idx             
-    LST_INCL            lst_incl            
-    LST_LNG             lst_lng             
-    LST_RANGE           lst_range           
-    LST_TAIL            lst_tail            
+    Action name         lstlib.c function
+    LST_CAT             lst_cat
+    LST_CPY             lst_cpy
+    LST_CREATE          lst_create
+    LST_DESTR           lst_destr
+    LST_ELEM            lst_elem
+    LST_EMPTY           lst_empty
+    LST_EXCL            lst_excl
+    LST_HEAD            lst_head
+    LST_IDX             lst_idx
+    LST_INCL            lst_incl
+    LST_LNG             lst_lng
+    LST_RANGE           lst_range
+    LST_TAIL            lst_tail
 
 13.19 Actions for proc operations and statements
 
-    Action name         prclib.c function   
-    PRC_ARGS            prc_args            
-    PRC_BEGIN           prc_begin           
-    PRC_BLOCK           prc_block           
-    PRC_BLOCK_DEF       prc_block_def       
+    Action name         prclib.c function    
+    PRC_ARGS            prc_args             
+    PRC_BEGIN           prc_begin            
+    PRC_BLOCK           prc_block            
+    PRC_BLOCK_DEF       prc_block_def        
     PRC_CASE            prc_case            switch
     PRC_CASE_DEF        prc_case_def        switch
-    PRC_CPY             prc_cpy             
-    PRC_CREATE          prc_create          
-    PRC_DECLS           prc_decls           
-    PRC_DYNAMIC         prc_dynamic         
+    PRC_CPY             prc_cpy              
+    PRC_CREATE          prc_create           
+    PRC_DECLS           prc_decls            
+    PRC_DYNAMIC         prc_dynamic          
     PRC_EXIT            prc_exit            exit
     PRC_FOR_DOWNTO      prc_for_downto      for
     PRC_FOR_TO          prc_for_to          for
-    PRC_HEAPSTAT        prc_heapstat        
+    PRC_HEAPSTAT        prc_heapstat         
     PRC_HSIZE           prc_hsize           heapsize
     PRC_IF              prc_if              if
     PRC_IF_ELSIF        prc_if_elsif        if
-    PRC_INCLUDE         prc_include         
-    PRC_LOCAL           prc_local           
+    PRC_INCLUDE         prc_include          
+    PRC_LOCAL           prc_local            
     PRC_NOOP            prc_noop            prcNoop
     PRC_RAISE           prc_raise           raise_error
     PRC_REPEAT          prc_repeat          do
-    PRC_RES_BEGIN       prc_res_begin       
-    PRC_RES_LOCAL       prc_res_local       
-    PRC_RETURN          prc_return          
-    PRC_RETURN2         prc_return2         
-    PRC_SETTRACE        prc_settrace        
-    PRC_TRACE           prc_trace           
-    PRC_VARFUNC         prc_varfunc         
-    PRC_VARFUNC2        prc_varfunc2        
+    PRC_RES_BEGIN       prc_res_begin        
+    PRC_RES_LOCAL       prc_res_local        
+    PRC_RETURN          prc_return           
+    PRC_RETURN2         prc_return2          
+    PRC_SETTRACE        prc_settrace         
+    PRC_TRACE           prc_trace            
+    PRC_VARFUNC         prc_varfunc          
+    PRC_VARFUNC2        prc_varfunc2         
     PRC_WHILE           prc_while           while
 
 13.20 Actions for the type program
 
     Action name         prglib.c function   prg_comp.c function
     PRG_CPY             prg_cpy             prgCpy
-    PRG_CREATE          prg_create          
+    PRG_CREATE          prg_create           
     PRG_DECL_OBJECTS    prg_decl_objects    prgDeclObjects
-    PRG_DESTR           prg_destr           
-    PRG_EMPTY           prg_empty           
+    PRG_DESTR           prg_destr            
+    PRG_EMPTY           prg_empty            
     PRG_EQ              prg_eq              ==
     PRG_ERROR_COUNT     prg_error_count     prgErrorCount
     PRG_EVAL            prg_eval            prgEval
     PRG_EXEC            prg_exec            prgExec
     PRG_FIL_PARSE       prg_fil_parse       prgFilParse
-    PRG_FIND            prg_find            
+    PRG_FIND            prg_find             
     PRG_MATCH           prg_match           prgMatch
     PRG_NAME            prg_name            arg_0
     PRG_NE              prg_ne              !=
-    PRG_PROG            prg_prog            
+    PRG_PROG            prg_prog             
     PRG_STR_PARSE       prg_str_parse       prgStrParse
     PRG_SYOBJECT        prg_syobject        prgSyobject
     PRG_SYSVAR          prg_sysvar          prgSysvar
@@ -9042,43 +9041,43 @@ ont color=blue>is "";
     REF_ARRMINIDX       ref_arrminidx       refArrminidx
     REF_ARRTOLIST       ref_arrtolist       refArrtolist
     REF_BODY            ref_body            refBody
-    REF_BUILD           ref_build           
+    REF_BUILD           ref_build            
     REF_CATEGORY        ref_category        refCategory
     REF_CAT_PARSE       ref_cat_parse       refCatParse
     REF_CAT_STR         ref_cat_str         refCatStr
     REF_CMP             ref_cmp             refCmp
-    REF_CONTENT         ref_content         
+    REF_CONTENT         ref_content          
     REF_CONV            ref_conv            (noop)
     REF_CPY             ref_cpy             refCpy
     REF_CREATE          ref_create          refCreate
-    REF_DEREF           ref_deref           
+    REF_DEREF           ref_deref            
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
-    REF_FIND            ref_find            
+    REF_FIND            ref_find             
     REF_HASHCODE        ref_hashcode        (inttype)(((uinttype)a)&gt;&gt;6)
-    REF_ISSYMB          ref_issymb          
+    REF_ISSYMB          ref_issymb           
     REF_ISVAR           ref_isvar           refIsvar
     REF_ITFTOSCT        ref_itftosct        refItftosct
     REF_LINE            ref_line            refLine
     REF_LOCAL_CONSTS    ref_local_consts    refLocalConsts
     REF_LOCAL_VARS      ref_local_vars      refLocalVars
-    REF_MKREF           ref_mkref           
-    REF_NAME            ref_name            
+    REF_MKREF           ref_mkref            
+    REF_NAME            ref_name             
     REF_NE              ref_ne              !=
-    REF_NIL             ref_nil             
+    REF_NIL             ref_nil              
     REF_NUM             ref_num             refNum
     REF_PARAMS          ref_params          refParams
-    REF_PROG            ref_prog            
+    REF_PROG            ref_prog             
     REF_RESINI          ref_resini          refResini
     REF_RESULT          ref_result          refResult
-    REF_SCAN            ref_scan            
+    REF_SCAN            ref_scan             
     REF_SCTTOLIST       ref_scttolist       refScttolist
     REF_SELECT          ref_select          a->stru[b]
     REF_SETCATEGORY     ref_setcategory     refSetCategory
     REF_SETPARAMS       ref_setparams       refSetParams
     REF_SETTYPE         ref_settype         refSetType
     REF_STR             ref_str             refStr
-    REF_SYMB            ref_symb            
+    REF_SYMB            ref_symb             
     REF_TRACE           ref_trace           printf
     REF_TYPE            ref_type            refType
     REF_VALUE           ref_value           refValue
@@ -9093,10 +9092,10 @@ ont color=blue>is "";
     RFL_DESTR           rfl_destr           rflDestr
     RFL_ELEM            rfl_elem            rflElem
     RFL_ELEMCPY         rfl_elemcpy         rflElemcpy
-    RFL_EMPTY           rfl_empty           
+    RFL_EMPTY           rfl_empty            
     RFL_EQ              rfl_eq              rflEq
-    RFL_EXCL            rfl_excl            
-    RFL_EXPR            rfl_expr            
+    RFL_EXCL            rfl_excl             
+    RFL_EXPR            rfl_expr             
     RFL_FOR             rfl_for             for
     RFL_HEAD            rfl_head            rflHead
     RFL_IDX             rfl_idx             rflIdx
@@ -9110,7 +9109,7 @@ ont color=blue>is "";
     RFL_RANGE           rfl_range           rflRange
     RFL_SETVALUE        rfl_setvalue        rflSetvalue
     RFL_TAIL            rfl_tail            rflTail
-    RFL_TRACE           rfl_trace           
+    RFL_TRACE           rfl_trace            
     RFL_VALUE           rfl_value           rflValue
 
 13.23 Actions for text (console) screen output
@@ -9129,18 +9128,18 @@ ont color=blue>is "";
 
 13.24 Actions for struct types
 
-    Action name         sctlib.c function   
-    SCT_ALLOC           sct_alloc           
-    SCT_CAT             sct_cat             
-    SCT_CONV            sct_conv            
+    Action name         sctlib.c function    
+    SCT_ALLOC           sct_alloc            
+    SCT_CAT             sct_cat              
+    SCT_CONV            sct_conv             
     SCT_CPY             sct_cpy             cpy_ ...
     SCT_CREATE          sct_create          create_ ...
     SCT_DESTR           sct_destr           destr_ ...
-    SCT_ELEM            sct_elem            
-    SCT_EMPTY           sct_empty           
-    SCT_INCL            sct_incl            
-    SCT_LNG             sct_lng             
-    SCT_REFIDX          sct_refidx          
+    SCT_ELEM            sct_elem             
+    SCT_EMPTY           sct_empty            
+    SCT_INCL            sct_incl             
+    SCT_LNG             sct_lng              
+    SCT_REFIDX          sct_refidx           
     SCT_SELECT          sct_select          a->stru[b]
 
 13.25 Actions for set types
@@ -9156,7 +9155,7 @@ ont color=blue>is "";
     SET_DESTR           set_destr           setDestr
     SET_DIFF            set_diff            setDiff
     SET_ELEM            set_elem            setElem
-    SET_EMPTY           set_empty           
+    SET_EMPTY           set_empty            
     SET_EQ              set_eq              setEq
     SET_EXCL            set_excl            setExcl
     SET_GE              set_ge              setIsSubset(b, a)
@@ -9185,8 +9184,8 @@ ont color=blue>is "";
     SOC_CLOSE           soc_close           socClose
     SOC_CONNECT         soc_connect         socConnect
     SOC_CPY             soc_cpy             =
-    SOC_CREATE          soc_create          
-    SOC_EMPTY           soc_empty           
+    SOC_CREATE          soc_create           
+    SOC_EMPTY           soc_empty            
     SOC_EQ              soc_eq              ==
     SOC_GETC            soc_getc            socGetc
     SOC_GETS            soc_gets            socGets
@@ -9263,19 +9262,19 @@ ont color=blue>is "";
 13.29 Actions for the type type
 
     Action name         typlib.c function   typ_data.c function
-    TYP_ADDINTERFACE    typ_addinterface    
+    TYP_ADDINTERFACE    typ_addinterface     
     TYP_CMP             typ_cmp             typCmp
     TYP_CPY             typ_cpy             typCpy
     TYP_CREATE          typ_create          typCreate
     TYP_DESTR           typ_destr           typDestr
     TYP_EQ              typ_eq              ==
     TYP_FUNC            typ_func            typFunc
-    TYP_GENSUB          typ_gensub          
-    TYP_GENTYPE         typ_gentype         
+    TYP_GENSUB          typ_gensub           
+    TYP_GENTYPE         typ_gentype          
     TYP_HASHCODE        typ_hashcode        (inttype)(((uinttype)a)&gt;&gt;6)
-    TYP_ISDECLARED      typ_isdeclared      
+    TYP_ISDECLARED      typ_isdeclared       
     TYP_ISDERIVED       typ_isderived       typIsDerived
-    TYP_ISFORWARD       typ_isforward       
+    TYP_ISFORWARD       typ_isforward        
     TYP_ISFUNC          typ_isfunc          typIsFunc
     TYP_ISVARFUNC       typ_isvarfunc       typIsVarfunc
     TYP_MATCHOBJ        typ_matchobj        typMatchobj
@@ -9285,7 +9284,7 @@ ont color=blue>is "";
     TYP_RESULT          typ_result          typResult
     TYP_STR             typ_str             typStr
     TYP_VALUE           typ_value           typValue
-    TYP_VARCONV         typ_varconv         
+    TYP_VARCONV         typ_varconv          
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
 13.30 Actions for the type utf8_file
@@ -9308,64 +9307,65 @@ ont color=blue>is "";
   The compile time errors are not fatal (the program can
   execute) except for the error 1 (Out of heap space) which
   terminates the compilation process and no execution occurs.
+  The following compile time errors exist:
 
-   1: Fatal Error: Out of heap space
-   2: File "%s" not found
-   3: Include file "%s" not found
-   4: "END OF FILE" encountered
-   5: Illegal character in text "%s"
-   6: Unclosed comment
-   7: Illegal pragma "%s"
-   8: Illegal action "%s"
-   9: Illegal system declaration "%s"
-  10: Integer "%s" too big
-  11: Negative exponent in integer literal
-  12: Digit expected found "%s"
-  13: Integer "%dE%s" too big
-  14: Integer base "%ld" not between 2 and 36
-  15: Extended digit expected found "%s"
-  16: Illegal digit "%c" in based integer "%d#%s"
-  17: Based integer "%d#%s" too big
-  18: "'" expected found "%s"
-  19: Character literal exceeds source line
-  20: Use \" instead of "" to represent " in a string
-  21: Use / instead of \\ as path delimiter
-  22: Illegal string escape "\%s"
-  23: Numerical escape sequences should end with "\" not "%s");
-  24: String continuations should end with "\" not "%s");
-  25: String literal exceeds source line
-  26: Name expected found "%s"
-  27: Integer literal expected found "%s"
-  28: String literal expected found "%s"
-  29: Identifier expected found "%s"
-  30: Expression expected found "%s"
-  31: Expression expected after "begin"
-  32: Declaration expected found "%s"
-  33: Initialisation of "%s" failed
-  34: "%s" declared twice
-  35: "%s" not declared
-  36: Associativity expected found "%s"
-  37: Statement priority "%s" too big
-  38: Syntax with two parameters before operator is illegal
-  39: Empty syntax declaration
-  40: "%s" redeclared with infix priority %d not %d
-  41: "%s" redeclared with prefix priority %d not %d
-  42: Priority %d required for parameter after "%s" not %d
-  43: Priority <= %d expected found "%s" with priority %d
-  44: Priority <= %d expected found "%s" with priority %d
-  45: "%s" must have priority %d not %d for dot expression
-  46: "%s" expected found "%s"
-  47: "%s" expected found "%s"
-  48: Undefined type for literal "%s"
-  49: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
-  50: "func" or "type" expected found "%s"
-  51: Match for %s failed
-  52: Variable expected in %s found %s
-  53: Type expected found %s
-  54: Procedure expected found %s expression
-  55: Parameter specifier expected found "%s"
-  56: Evaluate type expression %s failed
-      Undefined error
+     1: Fatal Error: Out of heap space
+     2: File "%s" not found
+     3: Include file "%s" not found
+     4: "END OF FILE" encountered
+     5: Illegal character in text "%s"
+     6: Unclosed comment
+     7: Illegal pragma "%s"
+     8: Illegal action "%s"
+     9: Illegal system declaration "%s"
+    10: Integer "%s" too big
+    11: Negative exponent in integer literal
+    12: Digit expected found "%s"
+    13: Integer "%dE%s" too big
+    14: Integer base "%ld" not between 2 and 36
+    15: Extended digit expected found "%s"
+    16: Illegal digit "%c" in based integer "%d#%s"
+    17: Based integer "%d#%s" too big
+    18: "'" expected found "%s"
+    19: Character literal exceeds source line
+    20: Use \" instead of "" to represent " in a string
+    21: Use / instead of \\ as path delimiter
+    22: Illegal string escape "\%s"
+    23: Numerical escape sequences should end with "\" not "%s");
+    24: String continuations should end with "\" not "%s");
+    25: String literal exceeds source line
+    26: Name expected found "%s"
+    27: Integer literal expected found "%s"
+    28: String literal expected found "%s"
+    29: Identifier expected found "%s"
+    30: Expression expected found "%s"
+    31: Declaration of parameter %s failed
+    32: Declaration of "%s" failed
+    33: Exception "%s" raised
+    34: "%s" declared twice
+    35: "%s" not declared
+    36: Associativity expected found "%s"
+    37: Statement priority "%s" too big
+    38: Syntax with two parameters before operator is illegal
+    39: Empty syntax declaration
+    40: Dot expression requested as syntax description
+    41: "%s" redeclared with infix priority %d not %d
+    42: "%s" redeclared with prefix priority %d not %d
+    43: Priority %d required for parameter after "%s" not %d
+    44: Priority <= %d expected found "%s" with priority %d
+    45: "%s" must have priority %d not %d for dot expression
+    46: "%s" expected found "%s"
+    47: "%s" expected found "%s"
+    48: Undefined type for literal "%s"
+    49: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
+    50: "func" or "type" expected found "%s"
+    51: Match for %s failed
+    52: Variable expected in %s found %s
+    53: Type expected found %s
+    54: Procedure expected found %s expression
+    55: Parameter specifier expected found "%s"
+    56: Evaluate type expression %s failed
+        Undefined error
 
 
 14.2 Exceptions
@@ -9442,7 +9442,7 @@ ont color=blue>is "";
 
 14.4 Stack trace
 
-  When an EXCEPTION is not catched the program is terminated and the hi
+  When an EXCEPTION is not caught the program is terminated and the hi
   interpreter writes a stack trace:
 
     *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -9484,7 +9484,7 @@ ont color=blue>is "";
     gdb ./lander
 
   Then the debugger should be able to run the program and to
-  write a backtrace when a crash occours:
+  write a backtrace when a crash occurs:
 
     (gdb) run
     Starting program: /home/tm/seed7_5/prg/lander 
@@ -9518,7 +9518,7 @@ ont color=blue>is "";
     #2  0x0806fa40 in main (argc=1, argv=0xbffff484) at tmp_lander.c:22354
 
   Some Seed7 exceptions do not send signals. This hinders the debugger
-  to recognize that an uncaught exception occured. The compiler option -e
+  to recognize that an uncaught exception occurred. The compiler option -e
   can help in this situation. It instructs the compiler to generate
   code which sends a signal when an uncaught exception occurs. This
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.

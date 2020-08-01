@@ -42,8 +42,8 @@ The programmer is allowed to define new language constructs such as
 statements, declaration constructs and operators syntactically
 and semantically. Most programming languages allow user defined
 variables, functions and types, but they also use constructs which
-are hardcoded in the compiler/interpreter. An extensible programming
-language trys to avoid such hardcoded constructs in normal programs.
+are hard-coded in the compiler/interpreter. An extensible programming
+language tries to avoid such hard-coded constructs in normal programs.
 
 Extensible programming was an area of active research in the 1960s,
 but in the 1970s the extensibility movement was displaced by the
@@ -55,9 +55,9 @@ meta-language capable of modifying the base language. A program then
 consisted of meta-language modifications and code in the modified
 base language. A popular approach to do language extension was the
 use of macro definitions. The constructs of the base language were
-implemented with hardcoded technics.
+hard-coded.
 
-The design and development of Seed7 is based on independ research
+The design and development of Seed7 is based on independent research
 which was done without knowing that the historic extensible
 programming language movement existed. Although Seed7 has different
 roots it reaches many of the original extensible programming language
@@ -72,17 +72,16 @@ Are Seed7 programs portable?
 ============================
 
 Yes. Seed7 spares no effort to support portable programming.
-Several driver librarys assure that the access to operating system
+Several driver libraries assure that the access to operating system
 resources such as files, directories, network, clock, keyboard,
 console and graphics are done in a portable way. Many functions
 are defined to avoid the need to use shell (and cmd.exe) commands.
 
- - Different ways to encode unicode strings (e.g.: UTF-8 or UTF-16)
-   in system calls (e.g. fopen()/wopen()) are hidden from the
-   programmer.
- - Seed7 defines portable funtions to copy, move and remove files,
-   directory trees and files with other types.
- - The propertys of files such as size, type, time and mode can be
+ - Different Unicode encodings (e.g.: UTF-8 or UTF-16) in system
+   calls (e.g. fopen()/wopen()) are hidden from the programmer.
+ - Copying, moving and removing files (and directory trees)
+   is supported with portable functions.
+ - File properties such as size, type, time and mode can be
    obtained and changed with portable functions.
  - A forward slash is used as path delimiter on all operating systems
    and an attempt to use a backslash as path delimiter is an error.
@@ -133,15 +132,48 @@ Seed7 is "Free as in Freedom" and not only "Free as in Free Beer" and this can
 make a big difference. Undocumented native interfaces are just not possible.
 
 
+How many lines of code are in the Seed7 project?
+================================================
+
+The Seed7 package contains more than 100000 lines of C and more
+than 150000 lines of Seed7. For version 2011-04-03 the number of lines is:
+
+  91660  C source files (*.c)
+   9617  C header files (*.h)
+  98027  Seed7 source files (*.sd7)
+  58928  Seed7 library/include files (*.s7i)
+
+C code (*.c and *.h files) can be divided into the following areas:
+
+   0.3%  Interpreter main
+  11.6%  Parser
+   2.8%  Interpreter core
+  24.7%  Primitive action functions
+   7.4%  General helper functions
+  48.5%  Runtime library
+   4.7%  Compiler data library
+
+Details about this files can be found in the file 'seed7/src/read_me.txt'.
+
+
 On which operating systems does Seed7 run?
 ==========================================
 
-Linux is supported out of the box (because the development is done using
-Linux). I used Seed7 also under various Unix variants, so it is probably
-easy to port Seed7 to a Unix variant. Windows is supported with MinGW,
-Cygwin (it may be necessary to change some include or library paths),
-the stand alone compiler of MSVC (cl.exe) and the stand alone compiler of
-the BDS (bcc32.exe). For other operating systems it might be necessary to
+Seed7 runs on the following operating systems:
+
+ - Linux is supported out of the box (because the development is done using
+   Linux)
+ - Unix (I used Seed7 also under various Unix variants, so it is probably
+   easy to port Seed7 to a Unix variant)
+ - BSD (there is a FreeBSD port)
+ - Windows is supported with several compilers:
+    - MinGW GCC (the binary Windows release of Seed7 uses MinGW)
+    - Cygwin GCC (the X11 graphics is untested)
+    - MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)
+    - BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)
+ - Mac OS X
+
+For other operating systems it might be necessary to
 write driver modules for screen (=text console), graphics, time or other
 aspects of Seed7. The package contains various older driver modules
 which are not up to date, but can be used as base to write such driver
@@ -177,9 +209,9 @@ available at: www.7-zip.org.
 How do I compile the Seed7 interpreter?
 =======================================
 
-The way to compile the interpreter is dependend on the
+The way to compile the interpreter is dependent on the
 operating system and the development tools used. You need a
-stand alone C compiler and a make utility to compile the
+stand-alone C compiler and a make utility to compile the
 interpreter. A C compiler which is only usable from an IDE
 is not so useful, since some Seed7 programs (e.g. The
 Seed7 to C compiler comp.sd7) need to call the C compiler
@@ -337,13 +369,13 @@ and searched for that file.
 The following options are recognized by hi:
 
   -a   Analyze only and suppress the execution phase.
-  -dx  Set compiletime trace level to x. Where x is a string consisting
+  -dx  Set compile-time trace level to x. Where x is a string consisting
          of the following characters:
            a Trace primitive actions
            c Do action check
            d Trace dynamic calls
            e Trace exceptions and handlers
-           h Trace heapsize (in combination with 'a')
+           h Trace heap size (in combination with 'a')
   -d   Equivalent to -da
   -i   Show the identifier table after the analyzing phase.
   -m   Use less memory during the analyzing phase.
@@ -357,7 +389,7 @@ The following options are recognized by hi:
            c Do action check
            d Trace dynamic calls
            e Trace exceptions and handlers
-           h Trace heapsize (in combination with 'a')
+           h Trace heap size (in combination with 'a')
   -t   Equivalent to -ta
   -v   Compile verbose. Write line numbers while analyzing.
   -x   Execute even when the program contains errors.
@@ -382,7 +414,7 @@ Possible options are
 
   -O and -O2 tell the C compiler to optimize.
   -g tells the C compiler to generate an executable with debug information.
-                This way the debuger will refer to Seed7 source files and line numbers.
+                This way the debugger will refer to Seed7 source files and line numbers.
                 To generate debug information which refers to the temporary C program
                 the option -g-debug_c can be used.
   -te generates code to trace exceptions. This option works in the same way
@@ -410,7 +442,7 @@ is a name which is used somewhere in a syntax declaration. Syntax declarations
 reduce the possibilities to use a keyword out of context. E.g.: After the keyword
 'if' the parser expects always an expression. This makes 'if' unusable as
 variable name. This way you get error messages when you try to use 'if' or
-other keywords as variable name. That behaviour is just the same as in other
+other keywords as variable name. That behavior is just the same as in other
 languages which have reserved words. It can be summarized that Seed7 reaches
 the goal of avoiding the misuse of keywords in other ways and not by reserving
 them altogether.
@@ -568,7 +600,7 @@ Therefore it can be said that compile-time type checks increase the reliability
 of the program.
 
 Seed7 makes sure that the object values always have the type of the object.
-This goal is reached with mechanisms like mandatory initialisation, runtime
+This goal is reached with mechanisms like mandatory initialization, runtime
 checks and the impossibility to change arbitrary places in memory. When the
 generation of garbage values is avoided, it can be guaranteed that only legal
 values of the correct type are used as object values. This way runtime type
@@ -799,7 +831,7 @@ Overloading is resolved at compile time while object orientation uses dynamic di
 which decides at runtime which method should be called. Overloading resolution uses
 static types to decide. Dynamic dispatch uses the implementation type, which is only
 known at runtime, to decide. Besides this difference overloading resolution and
-dynamic dispatch both use the same technic to do the work: The types and the access
+dynamic dispatch both use the same approach to do the work: The types and the access
 rights of all parameters are used in the decision process.
 
 
@@ -1006,14 +1038,14 @@ What types of parameters does Seed7 have?
 There are value and reference parameters. The formal parameter can be constant or
 variable. The combination of these features allows four types of parameters:
 
-    +-----------+-----------+--------------+
-    | parameter |  call by  | access right |
-    +-----------+-----------+--------------+
-    | val       |   value   | const        |
-    | ref       | reference | const        |
-    | in var    |   value   | var          |
-    | inout     | reference | var          |
-    +-----------+-----------+--------------+
+  +-----------+-----------+--------------+
+  | parameter |  call by  | access right |
+  +-----------+-----------+--------------+
+  | val       |   value   | const        |
+  | ref       | reference | const        |
+  | in var    |   value   | var          |
+  | inout     | reference | var          |
+  +-----------+-----------+--------------+
 
 Additionally every type defines an 'in' parameter which is either a 'val' or a
 'ref' parameter. Types with little memory requirements like 'integer', 'char'
@@ -1127,10 +1159,10 @@ Chapter 14.2 (Exceptions) of the manual contains a detailed
 description of the Seed7 exceptions.
 
 
-What happens when an exception is not catched?
-==============================================
+What happens when an exception is not caught?
+=============================================
 
-When an EXCEPTION is not catched the program is terminated and the hi
+When an EXCEPTION is not caught the program is terminated and the hi
 interpreter writes a stack trace:
 
   *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -1174,7 +1206,7 @@ description how to debug compiled Seed7 programs.
 Where does the interpreter look for include libraries?
 ======================================================
 
-Include libraries with absolut path (an absolute path starts with
+Include libraries with absolute path (an absolute path starts with
 a forward slash) are only searched at the specified place. All
 other include libraries are searched in several directories. This
 is done according to a list of library directories (a library
@@ -1187,9 +1219,9 @@ following directories are in the list of library directories:
     program "/home/abc/test/pairs.sd7" is interpreted the directory
     "/home/abc/test" is in the list of library directories.
  2. The directory containing the predefined Seed7 include libraries.
-    This directory is hardcoded in the interpreter (an absolute
+    This directory is hard-coded in the interpreter (an absolute
     path like "/directory_where_Seed7_was_installed/seed7/lib").
-    The hardcoded library directory is determined when the
+    The hard-coded library directory is determined when the
     interpreter is compiled. So it only exists when the interpreter
     was compiled from source. The interpreter from the binary
     release uses the relative path "../lib" instead. This works only
@@ -1218,7 +1250,7 @@ absolute path "/directory_where_Seed7_was_installed/seed7/lib".
 How is the directory of the predefined include libraries determined?
 ====================================================================
 
-The directory of the predefined include libraries is hardcoded in the
+The directory of the predefined include libraries is hard-coded in the
 interpreter. This information is determined when the Seed7 interpreter
 is compiled. The command 'make depend' writes a line, which defines the
 C preprocessor variable SEED7_LIBRARY, to the file "seed7/src/version.h".
@@ -1305,12 +1337,18 @@ never written to a file. After the analyze phase the call-code is interpreted.
 How does the analyze phase of the interpreter work?
 ===================================================
 
-The analyzer reads successive expressions according to the syntax definitions.
-For each expression the analyzer searches the internal database of declared
-objects (this search process is called matching) and generates call-code for
-this expression. Then the call code for this expression is executed. Normally
-this expressions are declaration statements. In that case new declared objects
-are added to the internal database.
+The analyzer reads successive expressions. The expressions are read with a
+table-driven LL(1) recursive descent parser. The parser is controlled by
+Seed7 syntax definitions. The parser calls
+a scanner, which skips whitespace and reads identifiers and literals.
+Each parsed expression is searched in the internal database of defined
+objects. This search process is called matching. The matching resolves
+overloaded functions and generates call-code for the parsed expression.
+Call-code uses a data structure which is similar to S-Expressions.
+The analyzer executes the call-code of the parsed and matched expressions.
+Normally parsed and matched expressions represents declaration statements.
+Executing a declaration statement adds new defined objects to the internal
+database.
 
 
 What does action "XYZ_SOMETHING" mean?

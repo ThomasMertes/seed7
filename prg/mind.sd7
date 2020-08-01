@@ -350,7 +350,7 @@ const proc: round_computer_guesses is func
         if not quit_round then
           writeln;
           if current_guess.right_place = 4 then
-            writeln("I guessed it in " <& length(guesses) + 1 <& " trys.");
+            writeln("I guessed it in " <& length(guesses) + 1 <& " tries.");
           else
             writeln("This is not possible.");
             writeln("Some of your answers must be wrong.");
@@ -374,18 +374,18 @@ const proc: round_human_guesses is func
     var integer: current_try is 0;
     var integer: right is 0;
     var integer: wrong is 0;
-    var integer: number_of_trys is 0;
+    var integer: number_of_tries is 0;
     var boolean: quit_round is FALSE;
   begin
     writeln;
     writeln("Guess my secret four digit number (between 1000 and 9999).");
     writeln;
     secret_number := rand(1000, 9999);
-    number_of_trys := 0;
+    number_of_tries := 0;
     repeat
       read_number("Your guess? ", 1000, 9999, current_try, quit_round);
       if not quit_round then
-        incr(number_of_trys);
+        incr(number_of_tries);
         compare(current_try, secret_number, right, wrong);
         writeln(right <& " digits are right and at the right place.");
         writeln(wrong <& " digits are right but at the wrong place.");
@@ -395,8 +395,8 @@ const proc: round_human_guesses is func
     if quit_round then
       writeln("The secret number was " <& secret_number <& ".");
     else
-      if number_of_trys > 1 then
-        writeln("You guessed it in " <& number_of_trys <& " trys.");
+      if number_of_tries > 1 then
+        writeln("You guessed it in " <& number_of_tries <& " tries.");
       else
         writeln("You guessed it immediately, how lucky!");
       end if;

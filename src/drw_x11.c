@@ -2643,7 +2643,7 @@ inttype col;
 
   /* drwPolyLine */
     points = (XPoint *) point_list->mem;
-    npoints = point_list->size / sizeof(XPoint);
+    npoints = (int) (point_list->size / sizeof(XPoint));
     memcpy(&startBackup, &points[0], sizeof(XPoint));
     points[0].x += x1;
     points[0].y += y1;
@@ -2677,7 +2677,7 @@ inttype col;
 
   /* drwFPolyLine */
     points = (XPoint *) point_list->mem;
-    npoints = point_list->size / sizeof(XPoint);
+    npoints = (int) (point_list->size / sizeof(XPoint));
     memcpy(&startBackup, &points[0], sizeof(XPoint));
     points[0].x += x1;
     points[0].y += y1;
