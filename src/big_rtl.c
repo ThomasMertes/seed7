@@ -448,16 +448,16 @@ biginttype big1;
 
 
 /**
- *  Multiplies big1 by 10 and adds carry to the result. This
- *  function works for unsigned big integers. It is assumed
- *  that big1 contains enough memory.
+ *  Multiplies big1 by POWER_OF_10_IN_BIGDIGIT and adds carry to
+ *  the result. This function works for unsigned big integers.
+ *  It is assumed that big1 contains enough memory.
  */
 #ifdef ANSI_C
 
-static INLINE void uBigMultBy10AndAdd (const biginttype big1, doublebigdigittype carry)
+static INLINE void uBigMultByPowerOf10AndAdd (const biginttype big1, doublebigdigittype carry)
 #else
 
-static INLINE void uBigMultBy10AndAdd (big1, carry)
+static INLINE void uBigMultByPowerOf10AndAdd (big1, carry)
 biginttype big1;
 doublebigdigittype carry;
 #endif
@@ -465,10 +465,10 @@ doublebigdigittype carry;
   {
     memsizetype pos;
 
-  /* uBigMultBy10AndAdd */
+  /* uBigMultByPowerOf10AndAdd */
     pos = 0;
     do {
-      carry += (doublebigdigittype) big1->bigdigits[pos] * 10;
+      carry += (doublebigdigittype) big1->bigdigits[pos] * POWER_OF_10_IN_BIGDIGIT;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       carry >>= BIGDIGIT_SIZE;
       pos++;
@@ -477,7 +477,7 @@ doublebigdigittype carry;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       big1->size++;
     } /* if */
-  } /* uBigMultBy10AndAdd */
+  } /* uBigMultByPowerOf10AndAdd */
 
 
 
@@ -4910,52 +4910,67 @@ stritype stri;
     booltype okay;
     booltype negative;
     memsizetype position;
-    doublebigdigittype digitval;
+    memsizetype limit;
+    bigdigittype digitval;
     biginttype result;
 
   /* bigParse */
-    if (stri->size == 0) {
-      result_size = 1;
-    } else {
-      result_size = (stri->size - 1) / DECIMAL_DIGITS_IN_BIGDIGIT + 1;
-    } /* if */
-    if (unlikely(!ALLOC_BIG(result, result_size))) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(stri->size == 0)) {
+      raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      result->size = 1;
-      result->bigdigits[0] = 0;
-      okay = TRUE;
-      position = 0;
-      if (stri->size >= 1 && stri->mem[0] == ((strelemtype) '-')) {
-        negative = TRUE;
-        position++;
-      } else {
-        negative = FALSE;
-      } /* if */
-      while (position < stri->size &&
-          stri->mem[position] >= ((strelemtype) '0') &&
-          stri->mem[position] <= ((strelemtype) '9')) {
-        digitval = ((doublebigdigittype) (stri->mem[position]) - ((bigdigittype) '0'));
-        uBigMultBy10AndAdd(result, digitval);
-        position++;
-      } /* while */
-      if (position == 0 || position < stri->size) {
-        okay = FALSE;
-      } /* if */
-      if (likely(okay)) {
-        memset(&result->bigdigits[result->size], 0,
-            (size_t) (result_size - result->size) * sizeof(bigdigittype));
-        result->size = result_size;
-        if (negative) {
-          negate_positive_big(result);
-        } /* if */
-        result = normalize(result);
-        return result;
-      } else {
-        FREE_BIG(result, result_size);
-        raise_error(RANGE_ERROR);
+      result_size = (stri->size - 1) / DECIMAL_DIGITS_IN_BIGDIGIT + 1;
+      if (unlikely(!ALLOC_BIG(result, result_size))) {
+        raise_error(MEMORY_ERROR);
         return NULL;
+      } else {
+        result->size = 1;
+        result->bigdigits[0] = 0;
+        okay = TRUE;
+        position = 0;
+        if (stri->mem[0] == ((strelemtype) '-')) {
+          negative = TRUE;
+          position++;
+        } else {
+          if (stri->mem[0] == ((strelemtype) '+')) {
+            position++;
+          } /* if */
+          negative = FALSE;
+        } /* if */
+        if (unlikely(position >= stri->size)) {
+          okay = FALSE;
+        } else {
+          limit = (stri->size - position - 1) % DECIMAL_DIGITS_IN_BIGDIGIT + position + 1;
+          do {
+            digitval = 0;
+            while (position < limit && okay) {
+              if (likely(stri->mem[position] >= ((strelemtype) '0') &&
+                         stri->mem[position] <= ((strelemtype) '9'))) {
+                digitval = ((bigdigittype) 10) * digitval +
+                    ((bigdigittype) stri->mem[position]) - ((bigdigittype) '0');
+              } else {
+                okay = FALSE;
+              } /* if */
+              position++;
+            } /* while */
+            uBigMultByPowerOf10AndAdd(result, (doublebigdigittype) digitval);
+            limit += DECIMAL_DIGITS_IN_BIGDIGIT;
+          } while (position < stri->size && okay);
+        } /* if */
+        if (likely(okay)) {
+          memset(&result->bigdigits[result->size], 0,
+              (size_t) (result_size - result->size) * sizeof(bigdigittype));
+          result->size = result_size;
+          if (negative) {
+            negate_positive_big(result);
+          } /* if */
+          result = normalize(result);
+          return result;
+        } else {
+          FREE_BIG(result, result_size);
+          raise_error(RANGE_ERROR);
+          return NULL;
+        } /* if */
       } /* if */
     } /* if */
   } /* bigParse */

@@ -37,166 +37,166 @@ const type: float is          subtype object;
 
 $ system "float" is float;
 
-const proc: destroy (ref float param)                            is noop;
-const proc: (ref float param) ::= (ref float param)              is action "FLT_CREATE";
+const proc: destroy (ref float param)                          is noop;
+const proc: (ref float param) ::= (ref float param)            is action "FLT_CREATE";
 IN_PARAM_IS_VALUE(float);
 
 const float: (attr float) . value is 0.0;
 
 
-const proc: (inout float param) := (ref float param)             is action "FLT_CPY";
+const proc: (inout float param) := (in float param)            is action "FLT_CPY";
 
 
 (**
  *  Plus sign for float numbers.
  *  @return its operand unchanged.
  *)
-const func float: + (ref float: number)                          is action "FLT_PLUS";
+const func float: + (in float: number)                         is action "FLT_PLUS";
 
 
 (**
  *  Minus sign, negate a float ''number''.
  *  @return the negated value of the number.
  *)
-const func float: - (ref float: number)                          is action "FLT_MINUS";
+const func float: - (in float: number)                         is action "FLT_MINUS";
 
 
 (**
  *  Add two float numbers.
  *  @return the sum of the two numbers.
  *)
-const func float: (ref float: summand1) + (ref float: summand2)  is action "FLT_ADD";
+const func float: (in float: summand1) + (in float: summand2)  is action "FLT_ADD";
 
 
 (**
  *  Compute the subtraction of two float numbers.
  *  @return the difference of the two numbers.
  *)
-const func float: (ref float: minuend) - (ref float: subtrahend) is action "FLT_SBTR";
+const func float: (in float: minuend) - (in float: subtrahend) is action "FLT_SBTR";
 
 
 (**
  *  Multiply two float numbers.
  *  @return the product of the two numbers.
  *)
-const func float: (ref float: factor1) * (ref float: factor2)    is action "FLT_MULT";
+const func float: (in float: factor1) * (in float: factor2)    is action "FLT_MULT";
 
 
 (**
  *  Compute the division of two float numbers.
  *  @return the quotient of the division.
  *)
-const func float: (ref float: dividend) / (ref float: divisor)   is action "FLT_DIV";
+const func float: (in float: dividend) / (in float: divisor)   is action "FLT_DIV";
 
 
 (**
- *  Compute the exponentiation of a float ''base'' by an integer ''exponent''.
+ *  Compute the exponentiation of a float ''base'' by an [[integer]] ''exponent''.
  *  @return the result of the exponentation.
  *)
-const func float: (ref float: base) ** (ref integer: exponent)   is action "FLT_IPOW";
+const func float: (in float: base) ** (in integer: exponent)   is action "FLT_IPOW";
 
 
 (**
- *  Compute the exponentiation of a float ''base'' by an float ''exponent''.
+ *  Compute the exponentiation of a float ''base'' by a float ''exponent''.
  *  @return the result of the exponentation.
  *)
-const func float: (ref float: base) ** (ref float: exponent)     is action "FLT_POW";
+const func float: (in float: base) ** (in float: exponent)     is action "FLT_POW";
 
 
 (**
  *  Increment a float ''number'' by a ''delta''.
  *)
-const proc: (inout float: number) +:= (ref float: delta)         is action "FLT_GROW";
+const proc: (inout float: number) +:= (in float: delta)        is action "FLT_GROW";
 
 
 (**
  *  Decrement a float ''number'' by a ''delta''.
  *)
-const proc: (inout float: number) -:= (ref float: delta)         is action "FLT_SHRINK";
+const proc: (inout float: number) -:= (in float: delta)        is action "FLT_SHRINK";
 
 
 (**
  *  Multiply a float number by a factor and assign the result back to number.
  *)
-const proc: (inout float: number) *:= (ref float: factor)        is action "FLT_MULT_ASSIGN";
+const proc: (inout float: number) *:= (in float: factor)       is action "FLT_MULT_ASSIGN";
 
 
 (**
  *  Divide a float ''number'' by a ''divisor'' and assign the result back to ''number''.
  *)
-const proc: (inout float: number) /:= (ref float: divisor)       is action "FLT_DIV_ASSIGN";
+const proc: (inout float: number) /:= (in float: divisor)      is action "FLT_DIV_ASSIGN";
 
 
 (**
  *  Check if two float numbers are equal.
- *  According to IEEE 754 a NaN is not equal to any float value.
+ *  According to IEEE 754 a [[#NaN|NaN]] is not equal to any float value.
  *  Therefore ''NaN = any_value'' and ''any_value = NaN''
  *  always return FALSE. Even ''NaN = NaN'' returns FALSE.
  *  @return TRUE if both numbers are equal, FALSE otherwise.
  *)
-const func boolean: (ref float: number1) = (ref float: number2)  is action "FLT_EQ";
+const func boolean: (in float: number1) = (in float: number2)  is action "FLT_EQ";
 
 
 (**
  *  Check if two float numbers are not equal.
- *  According to IEEE 754 a NaN is not equal to any float value.
+ *  According to IEEE 754 a [[#NaN|NaN]] is not equal to any float value.
  *  Therefore ''NaN <> any_value'' and ''any_value <> NaN''
  *  always return TRUE. Even ''NaN <> NaN'' returns TRUE.
  *  @return FALSE if both numbers are equal, TRUE otherwise.
  *)
-const func boolean: (ref float: number1) <> (ref float: number2) is action "FLT_NE";
+const func boolean: (in float: number1) <> (in float: number2) is action "FLT_NE";
 
 
 (**
  *  Check if ''number1'' is less than ''number2''.
- *  According to IEEE 754 a NaN is neither less than,
+ *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
  *  When ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is less than ''number2'',
  *          FALSE otherwise.
  *)
-const func boolean: (ref float: number1) < (ref float: number2)  is action "FLT_LT";
+const func boolean: (in float: number1) < (in float: number2)  is action "FLT_LT";
 
 
 (**
  *  Check if ''number1'' is greater than ''number2''.
- *  According to IEEE 754 a NaN is neither less than,
+ *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
  *  When ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is greater than ''number2'',
  *          FALSE otherwise.
  *)
-const func boolean: (ref float: number1) > (ref float: number2)  is action "FLT_GT";
+const func boolean: (in float: number1) > (in float: number2)  is action "FLT_GT";
 
 
 (**
  *  Check if ''number1'' is less than or equal to ''number2''.
- *  According to IEEE 754 a NaN is neither less than,
+ *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
  *  When ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is less than or equal to ''number2'',
  *          FALSE otherwise.
  *)
-const func boolean: (ref float: number1) <= (ref float: number2) is action "FLT_LE";
+const func boolean: (in float: number1) <= (in float: number2) is action "FLT_LE";
 
 
 (**
  *  Check if ''number1'' is greater than or equal to ''number2''.
- *  According to IEEE 754 a NaN is neither less than,
+ *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
  *  When ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is greater than or equal to ''number2'',
  *          FALSE otherwise.
  *)
-const func boolean: (ref float: number1) >= (ref float: number2) is action "FLT_GE";
+const func boolean: (in float: number1) >= (in float: number2) is action "FLT_GE";
 
 
-const func integer: (attr integer) cast (in float param)         is action "FLT_CAST";
-const func float: (attr float) cast (in integer param)           is action "FLT_ICAST";
+const func integer: (attr integer) cast (in float param)       is action "FLT_CAST";
+const func float: (attr float) cast (in integer param)         is action "FLT_ICAST";
 
 
 (**
@@ -210,7 +210,7 @@ const float: Infinity is 1.0 / 0.0;
  *  Not-a-Number (NaN) value.
  *  Represents an undefined or unrepresentable value.
  *  NaN is the result of 0.0 / 0.0 .
- *  Checking for NaN is done with the function isNaN.
+ *  Checking for NaN is done with the function [[#isNaN(in_float)|isNaN]].
  *)
 const float: NaN is 0.0 / 0.0;
 
@@ -219,7 +219,7 @@ const float: NaN is 0.0 / 0.0;
  *  Compare two float numbers.
  *  Because ''compare'' is used to sort float values, a total
  *  order of all float values is needed. Therefore ''compare''
- *  considers ''NaN'' as equal to itself and greater than
+ *  considers [[#NaN|NaN]] as equal to itself and greater than
  *  ''Infinite''.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
@@ -232,7 +232,7 @@ const func integer: compare (in float: number1, in float: number2) is action "FL
  *  Compute the hash value of a float number.
  *  @return the hash value.
  *)
-const func integer: hashCode (in float: number)                  is action "FLT_HASHCODE";
+const func integer: hashCode (in float: number)                is action "FLT_HASHCODE";
 
 
 (**
@@ -247,7 +247,7 @@ const func integer: hashCode (in float: number)                  is action "FLT_
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: str (ref float: number)                       is action "FLT_STR";
+const func string: str (in float: number)                      is action "FLT_STR";
 
 
 (**
@@ -255,7 +255,7 @@ const func string: str (ref float: number)                       is action "FLT_
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR When the string contains not a float literal.
  *)
-const func float: (attr float) parse (in string: stri)           is action "FLT_PARSE";
+const func float: (attr float) parse (in string: stri)         is action "FLT_PARSE";
 
 
 (**
@@ -276,7 +276,7 @@ const func float: (attr float) parse (in string: stri)           is action "FLT_
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: (ref float: number) digits (ref integer: precision) is action "FLT_DGTS";
+const func string: (in float: number) digits (in integer: precision) is action "FLT_DGTS";
 
 
 (**
@@ -300,7 +300,7 @@ const func string: (ref float: number) digits (ref integer: precision) is action
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: (ref float: number) sci (ref integer: precision)    is action "FLT_SCI";
+const func string: (in float: number) sci (in integer: precision)    is action "FLT_SCI";
 
 
 (**
@@ -344,43 +344,43 @@ const func string: (in string: sciNumber) exp (in integer: expDigits) is func
 
 
 (**
- *  Convert an integer to a float.
+ *  Convert an [[integer]] to a float.
  *  @return the float result of the conversion.
  *)
-const func float: flt (ref integer: number)                      is action "FLT_IFLT";
+const func float: flt (in integer: number)                     is action "FLT_IFLT";
 
 
 (**
- *  Convert an integer to a float.
+ *  Convert an [[integer]] to a float.
  *  @return the float result of the conversion.
  *)
-const func float: (attr float) conv (ref integer: number)        is action "FLT_ICONV";
+const func float: (attr float) conv (in integer: number)       is action "FLT_ICONV";
 
 
 (**
- *  Round towards the nearest integer.
+ *  Round towards the nearest [[integer]].
  *  Halfway cases are rounded away from zero.
  *  @return the rounded value.
  *)
-const func integer: round (ref float: number)                    is action "FLT_ROUND";
+const func integer: round (in float: number)                   is action "FLT_ROUND";
 
 
 (**
  *  Truncate towards zero.
  *  The fractional part of a number is discarded.
- *  @return the nearest integer not larger in absolute value
+ *  @return the nearest [[integer]] not larger in absolute value
  *          than the argument.
  *)
-const func integer: trunc (ref float: number)                    is action "FLT_TRUNC";
+const func integer: trunc (in float: number)                   is action "FLT_TRUNC";
 
 
 (**
- *  Determine if a number has a Not-a-Number (NaN) value.
+ *  Determine if a number has a Not-a-Number ([[#NaN|NaN]]) value.
  *  NaN represents an undefined or unrepresentable value.
  *  @return TRUE if the number has a Not-a-Number (NaN) value,
  *          FALSE otherwise.
  *)
-const func boolean: isNaN (ref float: number)                    is action "FLT_ISNAN";
+const func boolean: isNaN (in float: number)                   is action "FLT_ISNAN";
 
 
 (**
@@ -393,7 +393,7 @@ const func boolean: isNaN (ref float: number)                    is action "FLT_
  *  @return TRUE if the number is -0.0,
  *          FALSE otherwise.
  *)
-const func boolean: isNegativeZero (in float: number)            is action "FLT_ISNEGATIVEZERO";
+const func boolean: isNegativeZero (in float: number)          is action "FLT_ISNEGATIVEZERO";
 
 
 (**
@@ -402,7 +402,7 @@ const func boolean: isNegativeZero (in float: number)            is action "FLT_
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: literal (ref float: number)                   is action "FLT_STR";
+const func string: literal (in float: number)                  is action "FLT_STR";
 
 
 (**
@@ -411,7 +411,7 @@ const func string: literal (ref float: number)                   is action "FLT_
  *  @return the computed pseudo-random number.
  *  @exception RANGE_ERROR The range is empty (low > high holds).
  *)
-const func float: rand (ref float: low, ref float: high)         is action "FLT_RAND";
+const func float: rand (in float: low, in float: high)         is action "FLT_RAND";
 
 
 enable_io(float);

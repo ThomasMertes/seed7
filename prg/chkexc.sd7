@@ -1158,6 +1158,24 @@ const proc: check_bigInteger is func
     end block;
 
     block
+      i_num  := bigInteger parse "";
+      writeln(" ***** bigInteger parse \"\" did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num  := bigInteger parse "123asdf";
+      writeln(" ***** bigInteger parse \"123asdf\" did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
       i_num  := bigInteger parse "asdf";
       writeln(" ***** bigInteger parse \"asdf\" did not raise RANGE_ERROR");
       okay := FALSE;
@@ -1214,7 +1232,7 @@ const proc: check_bigInteger is func
 
     check_bigInteger_exponentiation(okay);
 
-    if okay and number = 10 then
+    if okay and number = 12 then
       writeln("BigInteger exceptions work correct.");
     else
       writeln(" ***** BigInteger exceptions do not work correct");

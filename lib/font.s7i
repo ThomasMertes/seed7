@@ -29,7 +29,7 @@
 (**
  *  Interface type for fonts.
  *  The font interface is implemented with ''emptyFont'',
- *  ''fontProperties'' and [[bitmapfont|bitmapFont]].
+ *  ''fontProperties'', [[bitmapfont|bitmapFont]] and [[vectorfont|vectorFont]].
  *)
 const type: font is sub object interface;
 

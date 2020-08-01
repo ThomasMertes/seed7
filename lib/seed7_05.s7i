@@ -1714,6 +1714,55 @@ const proc: for (inout integer: variable) range (in bitset: aSet) do
     end if;
   end func;
 
+const proc: for (inout integer: variable) range (in bitset: aSet) until (ref func boolean: cond) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: upperBound is 0;
+    var boolean: leave is FALSE;
+  begin
+    if aSet <> EMPTY_SET and not cond then
+      variable := min(aSet);
+      upperBound := max(aSet);
+      repeat
+        statements;
+        if variable = upperBound or cond then
+          leave := TRUE;
+        else
+          variable := next(aSet, variable);
+        end if;
+      until leave;
+    end if;
+  end func;
+
+const proc: for (inout integer: variable) range (in bitset: aSet) until (ref boolean: cond) do
+              (in proc: statements)
+            end for is func
+  begin
+    for variable range aSet until cond = TRUE do
+      statements;
+    end for;
+  end func;
+(*
+  local
+    var integer: upperBound is 0;
+    var boolean: leave is FALSE;
+  begin
+    if aSet <> EMPTY_SET and not cond then
+      variable := min(aSet);
+      upperBound := max(aSet);
+      repeat
+        statements;
+        if variable = upperBound or cond then
+          leave := TRUE;
+        else
+          variable := next(aSet, variable);
+        end if;
+      until leave;
+    end if;
+  end func;
+*)
+
 const func string: str (in bitset: aSet) is func
   result
     var string: result is "{";

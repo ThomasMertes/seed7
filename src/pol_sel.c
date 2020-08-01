@@ -787,7 +787,7 @@ rtlGenerictype fileObj;
 
   { /* polAddCheck */
     switch (eventsToCheck) {
-      case POLL_IN: 
+      case POLL_IN:
         addCheck(&var_conv(pollData)->readTest, aSocket, fileObj);
         break;
       case POLL_OUT:
@@ -1245,7 +1245,7 @@ inttype pollMode;
       case POLL_NOTHING:
         var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
-      case POLL_IN: 
+      case POLL_IN:
         var_conv(pollData)->iteratorMode = ITER_CHECKS_IN;
         var_conv(pollData)->readTest.iterPos = 0;
         break;
@@ -1281,7 +1281,7 @@ inttype pollMode;
       case POLL_NOTHING:
         var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
-      case POLL_IN: 
+      case POLL_IN:
         var_conv(pollData)->iteratorMode = ITER_FINDINGS_IN;
         var_conv(pollData)->readTest.iterPos = 0;
         break;

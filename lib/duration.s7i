@@ -704,7 +704,7 @@ const proc: (inout duration: aDuration) -:= (in duration: delta) is func
 
 
 (**
- *  Increment a time by a duration.
+ *  Increment a [[time]] by a duration.
  *)
 const proc: (inout time: tim) +:= (in duration: aDuration) is func
   begin
@@ -720,7 +720,7 @@ const proc: (inout time: tim) +:= (in duration: aDuration) is func
 
 
 (**
- *  Decrement a time by a duration.
+ *  Decrement a [[time]] by a duration.
  *)
 const proc: (inout time: tim) -:= (in duration: aDuration) is func
   begin
@@ -736,7 +736,7 @@ const proc: (inout time: tim) -:= (in duration: aDuration) is func
 
 
 (**
- *  Add a duration to a time.
+ *  Add a duration to a [[time]].
  *  @return the time result of the addition.
  *)
 const func time: (in time: tim) + (in duration: aDuration) is func
@@ -757,7 +757,7 @@ const func time: (in time: tim) + (in duration: aDuration) is func
 
 
 (**
- *  Subtract a duration from a time.
+ *  Subtract a duration from a [[time]].
  *  @return the time result of the subtraction.
  *)
 const func time: (in time: tim) - (in duration: aDuration) is func
@@ -778,7 +778,7 @@ const func time: (in time: tim) - (in duration: aDuration) is func
 
 
 (**
- *  Subtract two times.
+ *  Subtract two [[time|times]].
  *  @return the duration between the two points in time.
  *)
 const func duration: (in time: tim1) - (in time: tim2) is func

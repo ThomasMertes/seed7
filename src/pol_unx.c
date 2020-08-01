@@ -379,7 +379,7 @@ rtlGenerictype fileObj;
 
   { /* polAddCheck */
     switch (eventsToCheck) {
-      case POLL_IN: 
+      case POLL_IN:
         addCheck(pollData, POLLIN, aSocket, fileObj);
         break;
       case POLL_OUT:

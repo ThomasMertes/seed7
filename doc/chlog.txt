@@ -1,3 +1,31 @@
+20120520:
+- The FAQ and the manual were improved to contain more links. The
+  additional links improve also the Seed7 homepage.
+- Documentation comments were added to "boolean.s7i", "charsets.s7i"
+  and "vectorfont.s7i"
+- Documentation comments were improved in "integer.s7i", "font.s7i",
+  "duration.s7i", "enable_io.s7i", "listener.s7i", "scanfile.s7i",
+  "poll.s7i", "shell.s7i" and "socket.s7i".
+- The function 'bigParse' in "big_rtl.c" was improved, to work up to
+  9 times faster. The bigInteger operator 'parse' is implemented with
+  'bigParse'.
+- The factorial operator (!) was added to "bigint.s7i".
+- A for-until-loop for 'bitset' was added to "seed7_05.s7i".
+- Tests for the 'parse' operator, when it parses integer literals with
+  a + sign, were added to "chkbig.sd7".
+- Tests of the function 'compare' were added to "chkbool.sd7".
+- Tests of the bigInteger operator 'parse' were added to
+  "chkexc.sd7".
+- The compiler was improved to generate better inline code for set
+  membership (operator: in).
+- The example program "make7.sd7" was improved. Now it accepts :=
+  to assign a value to a macro.
+- The libraries "bigint.s7i", "float.s7i" and "math.s7i" were
+  improved, to use 'in' parameters instead of 'ref' parameters.
+- Spaces at the end of the line were removed in "file.s7i",
+  "ftp.s7i", "osfiles.s7i", "stdio.s7i", "pol_sel.c", "read_me.txt",
+  "pol_unx.c" and "soc_rtl.c".
+
 20120506:
 - A typo in the manual, concerning the 'integer' operator 'rpad',
   was fixed (thanks to Robert A Duff for pointing it out).

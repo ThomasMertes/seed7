@@ -191,17 +191,16 @@ Seed7 can be used in various application areas:
     - Cellular automaton
 
 
-
 How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
 than 150000 lines of Seed7. For version 2012-05-06 the number of lines is:
 
-  101211  C source files (*.c)
+  101226  C source files (*.c)
    10093  C header files (*.h)
-  111245  Seed7 source files (*.sd7)
-   76485  Seed7 library/include files (*.s7i)
+  111481  Seed7 source files (*.sd7)
+   76908  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -473,7 +472,7 @@ The following options are recognized by hi:
   -x   Execute even when the program contains errors.
 
   In the program the 'parameters' can be accessed via 'argv(PROGRAM)'.
-  The 'argv(PROGRAM)' function delivers an array of strings. The number
+  The function 'argv(PROGRAM)' delivers an array of strings. The number
   of parameters is 'length(argv(PROGRAM))' and 'argv(PROGRAM)[1]'
   returns the first parameter.
 
@@ -657,9 +656,9 @@ defined in Seed7. For example:
       end if;
     end func;
 
-The syntax and semantic of a while statement is described using an
-if statement and recursion. For performance reasons the implementation
-will usually use a different approach to implement a while loop, but
+The syntax and semantic of a while-statement is described using an
+if-statement and recursion. For performance reasons the implementation
+will usually use a different approach to implement a while-loop, but
 this example shows the expressive power of Seed7.
 
 
@@ -796,8 +795,8 @@ Are there automatic casts to the right type?
 
 No, because Seed7 is strong typed. This means that for every expression (and sub expression)
 you know its type at compile time without knowing where this expression is used.
-Although this means that you have to convert types explicit (for example from integer
-to float) it has more advantages than disadvantages:
+Although this means that you have to convert types explicit (for example from 'integer'
+to 'float') it has more advantages than disadvantages:
 
  1. The overloading rules are much simpler.
  2. An expression can be understood without its calling context.
@@ -1143,8 +1142,8 @@ Are there primitive types?
 ==========================
 
 As in C++, Java, C# and other hybrid object oriented languages there are
-predefined primitive types in Seed7. These are integer, char, boolean, string,
-float, rational, time, duration and others. Additionally to the predefined
+predefined primitive types in Seed7. These are 'integer', 'char', 'boolean', 'string',
+'float', 'rational', 'time', 'duration' and others. Additionally to the predefined
 primitive types there is also the possibility to declare new primitive types.
 
 
@@ -1219,7 +1218,7 @@ forms of assignment since every type can define its own assignment. If a
 value copy works like a deep or a shallow copy can also be defined depending
 on the type. 
 
-For example: For 'integer', 'char', 'string' variables a value copy is what most
+For example: For 'integer', 'char' and 'string' variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with
 an assignment, therefore a reference copy seems appropriate.
 
@@ -1248,8 +1247,8 @@ variable. The combination of these features allows four types of parameters:
 
 Additionally every type defines an 'in' parameter which is either a 'val' or a
 'ref' parameter. Types with little memory requirements like 'integer', 'char'
-or 'boolean' use a 'val' parameter as 'in'. Other types like 'string', arrays
-and structs use a 'ref' parameter as 'in'. Usually it is not necessary to
+and 'boolean' use a 'val' parameter as 'in'. Other types like 'string', 'array'
+and 'struct' use a 'ref' parameter as 'in'. Usually it is not necessary to
 care if an 'in' parameter is by value or by reference.
 
 
@@ -1373,19 +1372,19 @@ interpreter writes a stack trace:
   {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
   Stack:
-  in {(val integer param) div (val integer param) } at seed7_05.s7i(557)
-  in init_display at lander.sd7(838)
-  in setup at lander.sd7(907)
-  in main at lander.sd7(1539)
+  in {(val integer param) div (val integer param) } at integer.s7i(95)
+  in init_display at lander.sd7(840)
+  in setup at lander.sd7(909)
+  in main at lander.sd7(1541)
 
 This stack trace shows that a 'div' operation causes a 'NUMERIC_ERROR'
-(probably a division by zero) in line 838 of the file "lander.sd7".
+(probably a division by zero) in line 840 of the file "lander.sd7".
 A short examination in "lander.sd7" shows that an assignment to
 'fuel_max' was commented out to show how stack traces work.
 
   A compiled program creates a much shorter crash message:
 
-  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(698)
+  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
 
 In this case the mentioned file name and line number refers to
 the temporary C file or the Seed7 runtime library. To get useful
@@ -1615,7 +1614,7 @@ instead of the configurable one. This mechanism is used to boot the Seed7 langua
 At the beginning of the seed7_05.s7i file nothing is declared. This means that
 no statements, no functions, no operators, no types and no variables are predefined.
 To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
-contains only $ commands. First the type 'type' is declared. Declarations of other
+contains only $ commands. First the type 'type' is defined. Declarations of other
 types, system variables and syntax descriptions of operators and statements follow.
 After finishing the inclusion of syntax.s7i the file seed7_05.s7i contains some $
 declarations until the 'const' declaration statement is established. From that point
@@ -1627,7 +1626,7 @@ Why does "seed7_05.s7i" contain a version number?
 
 The number 05 is actually a 'branch info'. As if C had headers like
 
-  <stdlib_c78.h> /* For K&amp;R C programs */
+  <stdlib_c78.h> /* For K&R C programs */
   <stdlib_c89.h> /* For ANSI C */
   <stdlib_c99.h> /* For C99 */
 
@@ -1635,8 +1634,8 @@ and your program must include one of these three headers
 as first include file (Other include files have no version/branch
 info in the name). That way nobody is forced to upgrade
 an old program (to get no warnings or to make it compile).
-You can leave your old K&amp;R program from 1980 as is.
-When you decide to rewrite your K&amp;R program to use
+You can leave your old K&R program from 1980 as is.
+When you decide to rewrite your K&R program to use
 prototypes, you change the <stdlib...> include file as well.
 
 Programming languages change over long time periods.
@@ -1665,4 +1664,5 @@ in different branches.
 The capability to boot a language can be used to allow slightly different
 future versions of Seed7 to coexist with the current version. This is also the
 reason why the file seed7_05.s7i contains a version number (05).
+
 

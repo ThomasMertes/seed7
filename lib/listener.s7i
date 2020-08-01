@@ -57,10 +57,10 @@ const func inetListener: malloc (in inetListener: aListener) is func
  *  The listerner is responsible for incoming connections of the
  *  specified port. The listener also manages its accepted sockets.
  *  Processing requests from port 1080 can be done with:
- *   inetListener := openInetListener(1080);
- *   listen(inetListener, 10);
+ *   aListener := openInetListener(1080);
+ *   listen(aListener, 10);
  *   while TRUE do
- *     sock := accept(inetListener);
+ *     sock := accept(aListener);
  *     # Read and process the request from sock.
  *     close(sock);
  *   end while;
@@ -102,7 +102,6 @@ const func listener: openInetListener (in integer: portNumber) is func
 const proc: close (inout inetListener: aListener) is func
   local
     var array file: managedFiles is 0 times STD_NULL;
-    var integer: index is 0;
     var file: aFile is STD_NULL;
   begin
     close(aListener.sock);
@@ -252,8 +251,6 @@ const func file: accept (in array listener: listeners) is func
 
 
 const proc: waitForRequest (inout inetListener: aListener) is func
-  local
-    var integer: index is 0;
   begin
     if hasNext(aListener.checkedSocks) then
       aListener.newConnection := STD_NULL;
@@ -306,7 +303,7 @@ const func file: getNewConnection (in inetListener: aListener) is
  *       # Read and process the request from existingConnection.
  *     end if;
  *     if newConnection <> STD_NULL then
- *       # Send welcome message to newConnection
+ *       # Send welcome message to newConnection.
  *     end if;
  *   end while;
  *  @param existingConnection A random existing connection, were

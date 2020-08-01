@@ -85,8 +85,8 @@ filetype aFile;
     return result;
   } /* filInputReady */
 
-	
-	
+
+
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 

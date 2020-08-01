@@ -1,3 +1,4 @@
+
 (********************************************************************)
 (*                                                                  *)
 (*  manual.txt                                                      *)
@@ -127,23 +128,33 @@ CONTENTS
   11.2    Call expressions
   11.3    Dot expressions
   12.   OPERATING SYSTEM ACCESS
-  12.1    Directory access
-  12.2    Other directory operations
-  12.3    fileType
-  12.4    fileMode
-  12.5    setFileMode
-  12.6    fileSize
-  12.7    getATime
-  12.8    getCTime
-  12.9    getMTime
-  12.10   setATime
-  12.11   setMTime
-  12.12   readlink
-  12.13   symlink
-  12.14   removeAnyFile
-  12.15   Other functions
-  12.16   argv
-  12.17   getenv
+  12.1    Standard path representation
+  12.2    readDir
+  12.3    openDir
+  12.4    getcwd
+  12.5    chdir
+  12.6    mkdir
+  12.7    fileType
+  12.8    fileMode
+  12.9    setFileMode
+  12.10   fileSize
+  12.11   getATime
+  12.12   getCTime
+  12.13   getMTime
+  12.14   setATime
+  12.15   setMTime
+  12.16   readlink
+  12.17   symlink
+  12.18   removeFile
+  12.19   removeAnyFile
+  12.20   copyFile
+  12.21   cloneFile
+  12.22   moveFile
+  12.23   argv(PROGRAM)
+  12.24   path(PROGRAM)
+  12.25   dir(PROGRAM)
+  12.26   getenv
+  12.27   setenv
   13.   PRIMITIVE ACTIONS
   13.1    Actions for the type ACTION
   13.2    Actions for array types
@@ -182,7 +193,6 @@ CONTENTS
   14.3    Handlers
   14.4    Stack trace
   14.5    Other errors and warnings
-
 
 
 
@@ -445,7 +455,7 @@ CONTENTS
   construct as value. The 'func' construct is similar to
   begin ... end in PASCAL and { ... } in C. Inside the 'func' is a
   'writeln' statement with the "hello world" string. The
-  'writeln' statement is used to write a string followed by a
+  'writeln' statement is used to write a 'string' followed by a
   newline character. To use this declaration as the standard
   hello world example program, we have to add a few things:
 
@@ -515,11 +525,11 @@ CONTENTS
         end while;
       end func;
 
-  Everything between (* and *) is a comment which is ignored.
+  Everything between (* and *) is a comment, which is ignored.
   This program contains local constants and variables of the
   type 'integer'. The constants and variables must be
   initialized when they are declared. This program contains
-  also an assignment, a while loop and the expression to
+  also an assignment, a while-statement and the expression to
   compute the 'celsius' value. Note that the statements inside
   the 'while' loop are between 'do' and 'end while'. The
   expression to compute the 'celsius' value uses an integer
@@ -569,7 +579,7 @@ CONTENTS
 
   To use the type 'float' it is necessary to include
   "float.s7i". The 'float' variable 'celsius' must be
-  initialized with 0.0 (instead of 0). The 'for' loop is
+  initialized with 0.0 (instead of 0). The for-loop is
   written as:
 
     for ... range ... to ... step ... do
@@ -577,7 +587,7 @@ CONTENTS
     end for
 
   To specify a lower and an upper limit together with a step
-  value. For a step value of 1 the for loop it is written as:
+  value. For a step value of 1 the for-loop it is written as:
 
     for ... range ... to ... do
       ...
@@ -592,7 +602,7 @@ CONTENTS
   Since Seed7 is strong typed 'integer' and 'float' values
   cannot be mixed in expressions. Therefore the 'integer'
   expression '5 * (fahr - 32)' is converted to 'float' with
-  the 'flt' function. For the same reason a '/' division and
+  the function 'flt'. For the same reason a '/' division and
   the value '9.0' must be used. The '<&' operator is used to
   concatenate elements before writing. If the right operand of
   the '<&' operator has not the type 'string' it is converted to
@@ -746,11 +756,11 @@ CONTENTS
         writeln;
       end func;
 
-  The 'for' statement iterates over 'argv(PROGRAM)'.
-  The 'argv(PROGRAM)' function returns an 'array string'
-  (=array of string elements). The 'for' statement is overloaded
+  The for-statement iterates over 'argv(PROGRAM)'.
+  The function 'argv(PROGRAM)' returns an 'array string'
+  (='array' of 'string' elements). The for-statement is overloaded
   for various collection types. In the standard Seed7 library
-  "seed7_05.s7i" the 'for' statement for arrays is declared as
+  "seed7_05.s7i" the for-statement for arrays is declared as
   follows:
 
     const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
@@ -765,18 +775,18 @@ CONTENTS
         end for;
       end func;
 
-  The syntax of this 'for' statement is declared as:
+  The syntax of this for-statement is declared as:
 
     $ syntax expr: .for.().range.().to.().do.().end.for is              -> 25;
 
-  Additionally everybody can overload the 'for' statement also.
+  Additionally everybody can overload the for-statement also.
   Because of these powerful features Seed7 does not need Iterators.
 
 
 2.6 Template declaring a statement
 
   Templates are just normal functions with types as parameters.
-  The following template function declares 'for' statements:
+  The following template function declares for-statements:
 
     const proc: FOR_DECLS (in type: aType) is func
       begin
@@ -800,10 +810,10 @@ CONTENTS
     FOR_DECLS(boolean);
 
   The body of the 'FOR_DECLS' function contains a declaration of
-  the 'for' statement for the type aType. Calling 'FOR_DECLS' with
-  char and boolean as parameter creates corresponding declarations
-  of 'for' statements. The example above is a simplified part of
-  the standard Seed7 library "seed7_05.s7i".
+  the for-statement for the type aType. Calling 'FOR_DECLS' with
+  'char' and 'boolean' as parameter creates corresponding declarations
+  of for-statements. The example above is a simplified part of
+  the library "forloop.s7i".
 
 
 
@@ -1432,11 +1442,9 @@ CONTENTS
   For example:
 
     case currChar of
-      when {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-          'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-          'U', 'V', 'W', 'X', 'Y', 'Z'}:
+      when {'A' .. 'Z'} | {'a' .. 'z'}:
         characterClass := LETTER;
-      when {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}:
+      when {'0' .. '9'}:
         characterClass := DIGIT;
       when {'!', '$', '%', '&', '*', '+', ',', '-', '.', '/',
           ':', ';', '<', '=', '>', '?', '@', '\', '^', '`',
@@ -1529,7 +1537,8 @@ CONTENTS
 5.1 boolean
 
     The type 'boolean' consists of the two truth values
-  TRUE and FALSE.
+  TRUE and FALSE. The 'boolean' functions are defined in
+  the library "boolean.s7i".
 
     Prefix operators:
       not       Negation
@@ -1655,7 +1664,8 @@ CONTENTS
     0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
 
   The result of an 'integer' operation is undefined when
-  it overflows.
+  it overflows. The 'integer' functions are defined in
+  the library "integer.s7i".
 
     Prefix operators:
       +         Identity
@@ -1874,11 +1884,13 @@ CONTENTS
   of digits followed by an underscore character (for example 1_ ).
   Although 'bigInteger' operations cannot overflow, it can happen
   that there is not enough memory to represent a 'bigInteger' value.
-  In this case the exception 'MEMORY_ERROR' is raised.
+  In this case the exception 'MEMORY_ERROR' is raised. The 'bigInteger'
+  functions are defined in the library "bigint.s7i".
 
     Prefix operators:
       +         Identity
       -         Change sign
+      !         Factorial
     Infix operators:
       +         Addition
       -         Subtraction
@@ -2076,7 +2088,8 @@ CONTENTS
   denominator. The values of the type 'rational' are
   finite and periodical decimal numbers. Rational literals
   do not exist. The result of a 'rational' operation
-  is undefined when it overflows.
+  is undefined when it overflows. The 'rational' functions
+  are defined in the library "rational.s7i".
 
     Elements:
       var integer: numerator is 0;
@@ -2153,6 +2166,8 @@ CONTENTS
   operations cannot overflow, it can happen that there
   is not enough memory to represent a 'bigRational' value.
   In this case the exception 'MEMORY_ERROR' is raised.
+  The 'bigRational' functions are defined in the library
+  "bigrat.s7i".
 
     Elements:
       var bigInteger: numerator is 0_;
@@ -2237,7 +2252,8 @@ CONTENTS
   0.1234
 
   The functions 'str' and the operators 'digits' and 'parse'
-  create and accept float literals with sign.
+  create and accept float literals with sign. The 'float'
+  functions are defined in the library "float.s7i".
 
     Constants:
       Infinity  Positive infinity
@@ -2369,7 +2385,8 @@ CONTENTS
 
     The type 'complex' consists of complex numbers represented
   with an 'float' real part and an 'float' imaginary part.
-  Complex literals do not exist. 
+  Complex literals do not exist. The 'complex' functions are
+  defined in the library "complex.s7i".
 
     Elements:
       var float: re is 0.0;
@@ -2466,7 +2483,8 @@ CONTENTS
 
   To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
-  encoded characters.
+  encoded characters. The 'char' functions are defined in
+  the library "char.s7i".
 
     Infix operators:
       char conv A   Conversion of integer to char
@@ -2550,7 +2568,8 @@ CONTENTS
 
   To use characters beyond ASCII (which is a subset of Unicode)
   in the source file make sure that the editor uses UTF-8
-  encoded characters.
+  encoded characters. The 'string' functions are defined in
+  the library "string.s7i".
 
     Infix operators:
       &         String concatenation
@@ -2571,7 +2590,7 @@ CONTENTS
                     "HELLO" lpad  4 => "HELLO",
                     "HELLO" lpad  0 => "HELLO",
                     "HELLO" lpad -8 => "HELLO" )
-      lpad0      Left padding with spaces
+      lpad0      Left padding with zeroes
                   ( Type of right operand: integer,
                     "12" lpad0  5 => "00012",
                     "12" lpad0  3 => "012",
@@ -3356,7 +3375,8 @@ CONTENTS
 
 5.20 color
 
-    The type 'color' describes colors.
+    The type 'color' describes colors. The 'color'
+  functions are defined in the library "color.s7i".
 
     Elements:
       var integer: red_part is 0;
@@ -3403,7 +3423,8 @@ CONTENTS
   and that the year preceding 1 is 0. Time is measured in hours,
   minutes, seconds and micro seconds. Additionally information about
   the difference to UTC and a flag indicating daylight saving time
-  is maintained also.
+  is maintained also. The 'time' functions are defined in the
+  library "time.s7i".
 
     Elements:
       var integer: year is 0;
@@ -3501,6 +3522,8 @@ CONTENTS
 5.22 duration
 
     The type 'duration' describes time and date durations.
+  The 'duration' functions are defined in the library
+  "duration.s7i".
 
     Prefix operators:
       +         Identity
@@ -3563,7 +3586,8 @@ CONTENTS
 
 5.23 file
 
-    The type 'file' describes sequential files.
+    The type 'file' is the interface type for sequential files.
+  The 'file' functions are defined in the library "file.s7i".
 
     Constants:
       STD_NULL  Standard null file
@@ -3656,6 +3680,7 @@ CONTENTS
 5.24 text
 
     The type 'text' describes two dimensional files.
+  The 'text' functions are defined in the library "text.s7i".
 
     Relations:
       =, <>
@@ -3984,8 +4009,12 @@ CONTENTS
 
 6.1 'val' parameter
 
-  This function appends a comma and a string to the globalStri
-  variable:
+  Value parameters are marked with the keyword 'val'.
+  A value parameter copies the value of the actual parameter.
+  Value parameters are used, when copying is cheap or
+  when copying  is necessary for the correct behavior.
+  The function below appends a comma and a string to the
+  variable 'globalStri':
 
     const proc: appendStri (val string: stri) is func
       begin
@@ -4046,7 +4075,11 @@ CONTENTS
 
 6.2 'ref' parameter
 
-  The following function defines the primitive action for the
+  Reference parameters are marked with the keyword 'ref'.
+  A reference parameter refers to the value of the actual parameter.
+  Reference parameters are used, when copying is expensive and
+  referring to the value does not change the correct bahavior.
+  The function below defines the primitive action for the
   semicolon operator:
 
     const proc: (ref void param) ; (ref void param) is noop;
@@ -4102,7 +4135,10 @@ CONTENTS
 
 6.3 'in' parameter
 
-  This function checks if a given number is a prime number:
+  Input parameters are marked with the keyword 'in'.
+  Depending on the type an input parameter is either a
+  value or a reference parameter. The function below
+  checks if a given number is a prime number:
 
     const func boolean: is_prime (in integer: number) is func
       result
@@ -4861,8 +4897,8 @@ CONTENTS
     write("hello world");
     writeln;
 
-  'writeln' means write newline. We can also write data of
-  various types with 'write':
+  The procedure 'write' writes a given string and 'writeln' means: Write newline.
+  We can also write data of various types with 'write':
 
     write("result = ");
     write(number div 5);
@@ -5113,8 +5149,8 @@ CONTENTS
   I/O methods are assigned to the type of the file-value and
   not to the type of the file-variable. This allows a file
   variable to point to any file-value. The file-variables
-  have the type 'file' which has only the assignment method
-  defined. For the operating system files and for each user
+  have the type 'file', which is the interface type for sequencial
+  files. For the operating system files and for each user
   defined file a file-type must be declared which has the
   I/O methods defined. These file-types are derived (direct
   or indirect) from the type 'null_file' for which all I/O
@@ -5122,27 +5158,25 @@ CONTENTS
   methods. So for a new user defined file-type only the
   basic string I/O methods must be defined.
 
-  The two basic I/O methods defined for the 'null_file' are
+  The two basic I/O methods defined for 'null_file' are
 
-    const proc: write (ref null_file param, in string param) <font
- color=blue>is noop;
-    const string: gets (ref null_file param, ref integer param) <f
-ont color=blue>is "";
+    const proc: write (ref null_file: aFile, in string: stri) is noop;
+    const string: gets (ref null_file: aFile, ref integer: maxLength) is "";
 
-  This means that writing any string to the 'null_file' has
-  no effect and reading any number of characters from the
+  A 'write' to 'null_file' with any string has no effect.
+  Reading any number of characters with 'gets' from
   'null_file' delivers the empty string. When a user defined
-  file type is declared these are the two methods that must
-  be redefined for the new file-type. Based upon these
-  two methods three more methods are defined for the
-  'null_file' named 'getc', 'getwd' and 'getln'.
+  file type is declared these are the two methods, which must
+  be redefined, for the new file-type. Based upon these
+  two methods three more methods are defined for
+  'null_file', named  'getc', 'getwd' and 'getln'.
   These methods get a character, a word and a line
   respectively. A word is terminated by a space, a tab
   or a linefeed. A line is terminated by a linefeed.
   This methods need not to be redefined for a user defined
   file type but for performance reasons they can also be
   redefined. The definitions for 'getc', 'getwd' and 'getln' for
-  the 'null_file' are
+  'null_file' are
 
     const func char: getc (inout null_file: aFile) is func
       result
@@ -5320,7 +5354,7 @@ ont color=blue>is "";
     write("Amount? ");
     read(amount);
 
-  'read' and 'write' use the files IN and OUT which are described
+  'read' and 'write' use the files 'IN' and 'OUT', which are described
   in the next chapter.  Here is the definition of the 'read' and
   'write' procedures done with 'enable_io':
 
@@ -5393,7 +5427,7 @@ ont color=blue>is "";
 
 8.5 Standard input and output files
 
-    The standard I/O files are OUT for output and IN for input.
+    The standard I/O files are 'OUT' for output and 'IN' for input.
   This TWO are file-variables which are declared as follows:
 
     var file: IN is STD_IN;
@@ -5432,7 +5466,7 @@ ont color=blue>is "";
 8.6 Access to operating system files
 
     The interface type 'file' is also used to access
-  operating system files. Usually a file variable is declared
+  operating system files. Usually a file variable is defined
 
     var file: my_out is STD_NULL;
 
@@ -5553,7 +5587,7 @@ ont color=blue>is "";
   file is opened with one of the modes "w", "w+", "wt" or "wt+" an
   appropriate BOM is created. When the file is opened with any other
   mode the application program is in charge to handle optional BOM
-  markers. This way  'open_utf16le' and 'open_utf16be' can be used
+  markers. This way 'open_utf16le' and 'open_utf16be' can be used
   to open existing files without BOM.
 
   External BYTE files use the implementation type 'external_file'.
@@ -5668,7 +5702,7 @@ ont color=blue>is "";
   delivers normal Unicode characters or special codes (which may be
   or may not be Unicode characters) for function and cursor keys.
   Unicode characters and special codes both are 'char' values. The
-  "keybd.s7i" library defines 'char' constants for various keys:
+  library "keybd.s7i" defines 'char' constants for various keys:
 
     Key character constant     Description
     KEY_CTL_A to KEY_CTL_Z     The control keys ctrl-a to ctrl-z
@@ -5862,7 +5896,7 @@ ont color=blue>is "";
 
 8.8 Files with line structure
 
-  The type 'text' is a subtype of 'file' which adds a
+  The type 'text' is a subtype of 'file', which adds a
   line structure and other features such as scrolling and color.
   The lines and columns of a type 'text' start with 1
   in the upper left corner and increase downward and rightward.
@@ -5918,25 +5952,54 @@ ont color=blue>is "";
     clientSocket := openInetSocket(1080);
 
   Server sockets are supported with the type 'listener'.
-  The type 'listener' is used directly without interface
-  type:
+  A listener is defined with:
 
     var listener: myListener is listener.value;
 
-  The function 'openInetListener' opens a 'listener':
+  The library "listener.s7i" defines the function 'openInetListener',
+  which opens a 'listener':
 
-    myListener := openInetListener(1080);
+    aListener := openInetListener(1080);
 
   The function 'listen' is used to listen for incoming socket
   connections of a 'listener', and to
   limit the incoming queue:
 
-    listen(myListener, 10);
+    listen(aListener, 10);
 
   The function 'accept' returns the first connected socked
   of the 'listener':
 
-    serverSocket := accept(myListener);
+    serverSocket := accept(aListener);
+
+  Together the functions above can be use to process requests without sessions:
+
+    aListener := openInetListener(1080);
+    listen(aListener, 10);
+    while TRUE do
+      sock := accept(aListener);
+      # Read and process the request from sock.
+      close(sock);
+    end while;
+
+  A similar loop is used in the comanche webserver (see main function).
+  The function 'waitForRequest' can be used to process requests with session:
+
+    aListener := openInetListener(2021);
+    listen(aListener, 10);
+    while TRUE do
+      waitForRequest(aListener, existingConnection, newConnection);
+      if existingConnection <> STD_NULL then
+        # Read and process the request from existingConnection.
+      end if;
+      if newConnection <> STD_NULL then
+        # Send welcome message to newConnection.
+      end if;
+    end while;
+
+  Similar code is used in the program "ftpserv.sd7".
+  The implementation of 'waitForRequest' is based on 'pollData',
+  which is defined in "poll.s7i".
 
 
 8.10 User defined file types
@@ -6232,8 +6295,8 @@ ont color=blue>is "";
         write(outFile, getWhiteSpace(inFile));
         currSymbol := getSymbolOrComment(inFile);
         while currSymbol <> "" do
-          currSymbol := replace(currSymbol, "&amp;", "&amp;amp;");
-          currSymbol := replace(currSymbol, "<", "&amp;lt;");
+          currSymbol := replace(currSymbol, "&", "&amp;");
+          currSymbol := replace(currSymbol, "<", "&lt;");
           if currSymbol[1] in {'"', '''} then
             write(outFile, "<font color=\"maroon\">");
             write(outFile, currSymbol);
@@ -7545,7 +7608,8 @@ ont color=blue>is "";
 
     Seed7 provides a portable access to the services provided
   by an operating system. This interface is oriented towards
-  Posix and Unix.
+  Posix and Unix. The functions in this chapter are defined
+  in the libraries "osfiles.s7i" and "dir.s7i".
 
 
 12.1 Standard path representation
@@ -7686,7 +7750,7 @@ ont color=blue>is "";
       my_dir := getcwd;
     
     assigns the full path of the current working directory to
-    the string variable 'my_dir'.
+    the 'string' variable 'my_dir'.
     
 
 12.5 chdir
@@ -7873,7 +7937,7 @@ ont color=blue>is "";
     RANGE_ERROR
         'filePath' is not representable in the system path type.
     RANGE_ERROR
-        The file size is not representable as integer
+        The file size is not representable as 'integer'
         (this exception is not raised by 'bigFileSize').
     FILE_ERROR
         It was not possible to determine the file size.
@@ -8158,7 +8222,7 @@ ont color=blue>is "";
 
   The 'getenv' function searches the environment for an
   environment variable with the given 'name'. When such
-  an environment variable exists the corresponding string
+  an environment variable exists the corresponding 'string'
   value is returned.
 
   Returns:
@@ -8201,20 +8265,20 @@ ont color=blue>is "";
   functions of the same language. For this reason and for
   performance reasons several functions are defined using a
   mechanism called action. For example: It is easy to define
-  the 'while' statement by using recursion. But this would
+  the while-statement by using recursion. But this would
   hurt performance and it would also use a huge amount of
   memory for the runtime stack. In practice an implementation
-  of the 'while' statement can use a conditional jump
+  of the while-statement can use a conditional jump
   instead of a subroutine call. Since Seed7 has no 'goto'
   statement, this is not an option. Instead the primitive
-  action PRC_WHILE can be used. The 'while' statement is
+  action PRC_WHILE can be used. The while-statement is
   defined in the basic Seed7 library 'seed7_05.s7i' with:
 
     const proc: while (in func boolean param) do
         (in proc param) end while is action "PRC_WHILE";
 
   This declaration shows the types and the position of
-  the parameters of a 'while' statement. Such an action
+  the parameters of a while-statement. Such an action
   declaration contains enough information to use the defined
   construct. The semantic of all primitive actions is
   hard coded in the interpreter and in the compiler. The
@@ -8246,12 +8310,12 @@ ont color=blue>is "";
     _EQ       Equal
     _GE       Greater equal
     _GETC     Get one character from a file
-    _GETS     Get string with maximum length from a file
+    _GETS     Get 'string' with maximum length from a file
     _GT       Greater than
     _HASHCODE Compute a hashCode
-    _HEAD     Head of ref_list, array, string
-    _ICONV    Conversion of integer to another type
-    _IDX      Index (Element) of ref_list, array, string
+    _HEAD     Head of 'string', 'array' or 'ref_list'
+    _ICONV    Conversion of 'integer' to another type
+    _IDX      Index (Element) of 'string', 'array' or 'ref_list'
     _INCR     Increment
     _LE       Less equal
     _LNG      Length
@@ -8266,59 +8330,59 @@ ont color=blue>is "";
     _NE       Not equal
     _ODD      Odd number
     _ORD      Ordinal number
-    _PARSE    Conversion of string to another type
+    _PARSE    Conversion of 'string' to another type
     _PLUS     Positive sign (noop)
     _POW      Power
     _PRED     Predecessor
     _RAND     Random value
-    _RANGE    Range of ref_list, array, string
+    _RANGE    Range of 'string', 'array' or 'ref_list'
     _REM      Remainder (Reminder of _DIV integer division)
     _RSHIFT   Arithmetic shift right
     _SBTR     Subtract
-    _SCAN     Convert from string to another type
+    _SCAN     Convert from 'string' to another type
     _SEEK     Set actual file position of a file
     _SQRT     Square root
-    _STR      Convert to string
+    _STR      Convert to 'string'
     _SUCC     Successor
-    _TAIL     Tail of ref_list, array, string
+    _TAIL     Tail of 'string', 'array' or 'ref_list'
     _TELL     Return the actual file position
     _UPPER    Convert to upper case
     _VALUE    Dereference a reference
-    _WRITE    Write string to file
+    _WRITE    Write 'string' to file
 
   Primitive actions are defined for many types. The functions
   which implement the primitive actions are grouped together
   in *lib.c files. The following list contains the action
   prefix, the file containing the functions and a description:
 
-    ACT_  actlib.c  ACTION operations
-    ARR_  arrlib.c  array operations
-    BIG_  biglib.c  bigInteger operations
-    BLN_  blnlib.c  boolean operations
+    ACT_  actlib.c  'ACTION' operations
+    ARR_  arrlib.c  'array' operations
+    BIG_  biglib.c  'bigInteger' operations
+    BLN_  blnlib.c  'boolean' operations
     BST_  bstlib.c  Operations for byte strings
-    CHR_  chrlib.c  char operations
+    CHR_  chrlib.c  'char' operations
     CMD_  cmdlib.c  Various directory, file and other commands
     DCL_  dcllib.c  Declaration operations
     DRW_  drwlib.c  Drawing operations
     ENU_  enulib.c  Enumeration operations
-    FIL_  fillib.c  PRIMITIVE_FILE operations
-    FLT_  fltlib.c  float operations
-    HSH_  hshlib.c  hash operations
-    INT_  intlib.c  integer operations
+    FIL_  fillib.c  'PRIMITIVE_FILE' operations
+    FLT_  fltlib.c  'float' operations
+    HSH_  hshlib.c  'hash' operations
+    INT_  intlib.c  'integer' operations
     ITF_  itflib.c  Operations for interface types
     KBD_  kbdlib.c  Keyboard operations
     LST_  lstlib.c  List operations
     PRC_  prclib.c  proc operations and statements
     PRG_  prglib.c  Program operations
-    REF_  reflib.c  reference operations
-    RFL_  rfllib.c  ref_list operations
+    REF_  reflib.c  'reference' operations
+    RFL_  rfllib.c  'ref_list' operations
     SCR_  scrlib.c  Screen operations
-    SCT_  sctlib.c  struct operations
-    SET_  setlib.c  set operations
-    SOC_  soclib.c  PRIMITIVE_SOCKET operations
-    STR_  strlib.c  string operations
-    TIM_  timlib.c  time and duration operations
-    TYP_  typlib.c  type operations
+    SCT_  sctlib.c  'struct' operations
+    SET_  setlib.c  'set' operations
+    SOC_  soclib.c  'PRIMITIVE_SOCKET' operations
+    STR_  strlib.c  'string' operations
+    TIM_  timlib.c  'time' and 'duration' operations
+    TYP_  typlib.c  'type' operations
     UT8_  ut8lib.c  utf8_file operations
 
   The C functions which implement primitive actions have
@@ -8328,11 +8392,12 @@ ont color=blue>is "";
   Every *lib.c file has a corresponding *lib.h file which
   contains the prototypes for the action functions.
 
-  The primitive action, which describes the addition of two
-  integers, is 'INT_ADD'. The Seed7 interface to the action
-  'INT_ADD' is defined in the file 'integer.s7i' with:
+  In a Seed7 program the operator '+' is used to add two 'integer'
+  values. The primitive action, which describes the addition of
+  two integers, is 'INT_ADD'. The connection between '+'
+  and 'INT_ADD' is done in the library "integer.s7i" with the definition:
 
-    const func integer: (in integer param) + (in integer param) is action "INT_ADD";
+    const func integer: (in integer: summand1) + (in integer: summand2) is action "INT_ADD";
 
   To execute an action a corresponding C function must
   be present in the hi interpreter. The function for the
@@ -8368,7 +8433,7 @@ ont color=blue>is "";
 
     - The macros 'isit_int', 'isit_stri',
       'isit_file', etc. can be used to check for the correct
-      category of an argument
+      'category' of an argument
       (E.g.: 'isit_int(arg_1(arguments))' ).
 
     - The macros 'take_char', 'take_float',
@@ -8564,7 +8629,7 @@ ont color=blue>is "";
     ARR_EXTEND          arr_extend          arrExtend
     ARR_GEN             arr_gen             arrGen
     ARR_HEAD            arr_head            arrHead
-    ARR_IDX             arr_idx             a-&gt;arr[b-a-&gt;min_position]
+    ARR_IDX             arr_idx             a->arr[b-a->min_position]
     ARR_LNG             arr_lng             a->max_position-a->min_position + 1
     ARR_MAXIDX          arr_maxidx          a->max_position
     ARR_MINIDX          arr_minidx          a->min_position
@@ -8627,12 +8692,12 @@ ont color=blue>is "";
 13.4 Actions for the type boolean
 
     Action name         blnlib.c function   bln_rtl.c function
-    BLN_AND             bln_and             &amp;&amp;
+    BLN_AND             bln_and             &&
     BLN_CPY             bln_cpy             blnCpy
     BLN_CREATE          bln_create          blnCreate
-    BLN_GE              bln_ge              &gt;=
-    BLN_GT              bln_gt              &gt;
-    BLN_ICONV           bln_iconv           &amp; 1
+    BLN_GE              bln_ge              >=
+    BLN_GT              bln_gt              >
+    BLN_ICONV           bln_iconv           & 1
     BLN_LE              bln_le              <=
     BLN_LT              bln_lt              <
     BLN_NOT             bln_not             !
@@ -8649,9 +8714,9 @@ ont color=blue>is "";
     BST_CREATE          bst_create          bstCreate
     BST_DESTR           bst_destr           bstDestr
     BST_EMPTY           bst_empty            
-    BST_EQ              bst_eq              a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(unsigned char))==0
+    BST_EQ              bst_eq              a->size==b->size && memcmp(a,b,a->size*sizeof(unsigned char))==0
     BST_HASHCODE        bst_hashcode        bstHashCode
-    BST_IDX             bst_idx             a-&gt;mem[b-1]
+    BST_IDX             bst_idx             a->mem[b-1]
     BST_LNG             bst_lng             a->size
     BST_NE              bst_ne              a->size!=b->size || memcmp(a,b,a->size*sizeof(unsigned char))!=0
     BST_PARSE           bst_parse           bstParse
@@ -8669,8 +8734,8 @@ ont color=blue>is "";
     CHR_CREATE          chr_create          chrCreate
     CHR_DECR            chr_decr            --
     CHR_EQ              chr_eq              ==
-    CHR_GE              chr_ge              &gt;=
-    CHR_GT              chr_gt              &gt;
+    CHR_GE              chr_ge              >=
+    CHR_GT              chr_gt              >
     CHR_HASHCODE        chr_hashcode        (inttype)((schartype)a)
     CHR_ICONV           chr_iconv           (chartype)
     CHR_INCR            chr_incr            ++
@@ -8782,7 +8847,7 @@ ont color=blue>is "";
     DRW_GENPOINTLIST    drw_genPointList    drwGenPointList
     DRW_GET             drw_get             drwGet
     DRW_GETPIXEL        drw_getPixel        drwGetPixel
-    DRW_HASHCODE        drw_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
+    DRW_HASHCODE        drw_hashcode        (inttype)(((memsizetype)a)>>6)
     DRW_HEIGHT          drw_height          drwHeight
     DRW_IMAGE           drw_image           drwImage
     DRW_LINE            drw_line            drwLine
@@ -8887,9 +8952,9 @@ ont color=blue>is "";
     FLT_EQ              flt_eq              ==
     FLT_EXP             flt_exp             exp
     FLT_FLOOR           flt_floor           floor
-    FLT_GE              flt_ge              &gt;=
+    FLT_GE              flt_ge              >=
     FLT_GROW            flt_grow            +=
-    FLT_GT              flt_gt              &gt;
+    FLT_GT              flt_gt              >
     FLT_HASHCODE        flt_hashcode        (x.floatvalue=a, x.intvalue)
     FLT_ICAST           flt_icast           (x.intvalue=a, x.floatvalue)
     FLT_ICONV           flt_iconv           (float)
@@ -8972,9 +9037,9 @@ ont color=blue>is "";
     INT_DIV             int_div             /
     INT_EQ              int_eq              ==
     INT_FACT            int_fact            fact[a]
-    INT_GE              int_ge              &gt;=
+    INT_GE              int_ge              >=
     INT_GROW            int_grow            +=
-    INT_GT              int_gt              &gt;
+    INT_GT              int_gt              >
     INT_HASHCODE        int_hashcode        (noop)
     INT_INCR            int_incr            ++
     INT_LE              int_le              <=
@@ -8984,13 +9049,13 @@ ont color=blue>is "";
     INT_LSHIFT          int_lshift          <<
     INT_LSHIFT_ASSIGN   int_lshift_assign   <<=
     INT_LT              int_lt              <
-    INT_MDIV            int_mdiv            a&gt;0&amp;&amp;b<0 ? (a-1)/b-1 : a<0&amp;&amp;b&gt;0 ? (a+1)/b-1 : a/b
+    INT_MDIV            int_mdiv            a>0&&b<0 ? (a-1)/b-1 : a<0&&b>0 ? (a+1)/b-1 : a/b
     INT_MINUS           int_minus           -
-    INT_MOD             int_mod             c=a%b, ((a&gt;0&amp;&amp;b<0) || (a<0&amp;&amp;b&gt;0)) &amp;&amp; c!=0 ? c+b : c
+    INT_MOD             int_mod             c=a%b, ((a>0&&b<0) || (a<0&&b>0)) && c!=0 ? c+b : c
     INT_MULT            int_mult            *
     INT_MULT_ASSIGN     int_mult_assign     *=
     INT_NE              int_ne              !=
-    INT_ODD             int_odd             &amp;1
+    INT_ODD             int_odd             &1
     INT_ORD             int_ord             (noop)
     INT_PARSE           int_parse           intParse
     INT_PLUS            int_plus            (noop)
@@ -8998,8 +9063,8 @@ ont color=blue>is "";
     INT_PRED            int_pred            --
     INT_RAND            int_rand            intRand
     INT_REM             int_rem             %
-    INT_RSHIFT          int_rshift          a&gt;&gt;b<br />a<0?~(~a&gt;&gt;b):a&gt;&gt;b
-    INT_RSHIFT_ASSIGN   int_rshift_assign   a&gt;&gt;=b<br />if (a<0) a= ~(~a&gt;&gt;b); else a&gt;&gt;=b;
+    INT_RSHIFT          int_rshift          a>>b<br />a<0?~(~a>>b):a>>b
+    INT_RSHIFT_ASSIGN   int_rshift_assign   a>>=b<br />if (a<0) a= ~(~a>>b); else a>>=b;
     INT_SBTR            int_sbtr            -
     INT_SHRINK          int_shrink          -=
     INT_SQRT            int_sqrt            intSqrt
@@ -9018,7 +9083,7 @@ ont color=blue>is "";
     ITF_CREATE          itf_create           
     ITF_CREATE2         itf_create2          
     ITF_EQ              itf_eq              ==
-    ITF_HASHCODE        itf_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
+    ITF_HASHCODE        itf_hashcode        (inttype)(((memsizetype)a)>>6)
     ITF_NE              itf_ne              !=
     ITF_TO_HEAP         itf_to_heap          
     ITF_TO_INTERFACE    itf_to_interface     
@@ -9154,7 +9219,7 @@ ont color=blue>is "";
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
     REF_FIND            ref_find             
-    REF_HASHCODE        ref_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
+    REF_HASHCODE        ref_hashcode        (inttype)(((memsizetype)a)>>6)
     REF_HSHDATATOLIST   ref_hshdatatolist   refHshDataToList
     REF_HSHKEYTOLIST    ref_hshkeytolist    refHshKeyToList
     REF_ISSYMB          ref_issymb           
@@ -9258,7 +9323,8 @@ ont color=blue>is "";
     SET_MAX             set_max             setMax
     SET_MIN             set_min             setMin
     SET_NE              set_ne              setNe
-    SET_NOT_ELEM        set_not_elem        setNotElem
+    SET_NEXT            set_next            setNext
+    SET_NOT_ELEM        set_not_elem        !setElem
     SET_RAND            set_rand            setRand
     SET_RANGELIT        set_rangelit        setRangelit
     SET_SCONV           set_sconv           setSConv
@@ -9313,13 +9379,13 @@ ont color=blue>is "";
     STR_CPY             str_cpy             strCopy
     STR_CREATE          str_create          strCreate
     STR_DESTR           str_destr           strDestr
-    STR_ELEMCPY         str_elemcpy         a-&gt;mem[b-1]=c
-    STR_EQ              str_eq              a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strelemtype))==0
+    STR_ELEMCPY         str_elemcpy         a->mem[b-1]=c
+    STR_EQ              str_eq              a->size==b->size && memcmp(a,b,a->size*sizeof(strelemtype))==0
     STR_GE              str_ge              strGe
     STR_GT              str_gt              strGt
     STR_HASHCODE        str_hashcode        strHashCode
     STR_HEAD            str_head            strHead
-    STR_IDX             str_idx             a-&gt;mem[b-1]
+    STR_IDX             str_idx             a->mem[b-1]
     STR_IPOS            str_ipos            strIpos
     STR_LE              str_le              strLe
     STR_LIT             str_lit             strLit
@@ -9370,7 +9436,7 @@ ont color=blue>is "";
     TYP_FUNC            typ_func            typFunc
     TYP_GENSUB          typ_gensub           
     TYP_GENTYPE         typ_gentype          
-    TYP_HASHCODE        typ_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
+    TYP_HASHCODE        typ_hashcode        (inttype)(((memsizetype)a)>>6)
     TYP_ISDECLARED      typ_isdeclared       
     TYP_ISDERIVED       typ_isderived       typIsDerived
     TYP_ISFORWARD       typ_isforward        
@@ -9474,7 +9540,7 @@ ont color=blue>is "";
 
     MEMORY_ERROR:
       May be raised by various operations of the following types:
-          array, struct, hash, file, func, proc, reference, string.
+          'array', 'struct', 'hash', 'file', 'func', 'proc', 'reference', 'string'.
       Additionally the interpreter kernel may raise this exception also.
     NUMERIC_ERROR:
       May be raised from the following 'integer' operations:
@@ -9548,21 +9614,21 @@ ont color=blue>is "";
     {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
     Stack:
-    in {(val integer param) div (val integer param) } at seed7_05.s7i(557)
-    in init_display at lander.sd7(838)
-    in setup at lander.sd7(907)
-    in main at lander.sd7(1539)
+    in {(val integer param) div (val integer param) } at integer.s7i(95)
+    in init_display at lander.sd7(840)
+    in setup at lander.sd7(909)
+    in main at lander.sd7(1541)
 
   The stack trace shows that a 'NUMERIC_ERROR' was raised by the 'div' operation.
-  This operation is defined in line 555 of "seed7_05.s7i". More interesting is that
-  'div' was called from the function "init_display" in
-  line 838 of "lander.sd7". A 'NUMERIC_ERROR' with 'div' is
+  This operation is defined in line 95 of "integer.s7i". More interesting is that
+  'div' was called from the function 'init_display' in
+  line 840 of "lander.sd7". A 'NUMERIC_ERROR' with 'div' is
   probably caused by a zero division. A short examination in "lander.sd7" shows that an assignment to
   'fuel_max' was commented out to show how stack traces work.
 
   A compiled program creates a much shorter crash message:
 
-    *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(698)
+    *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
 
   To get more information there are two possibilities:
 
@@ -9589,16 +9655,16 @@ ont color=blue>is "";
     Starting program: /home/tm/seed7_5/prg/lander 
 
     Program received signal SIGFPE, Arithmetic exception.
-    0x0806ba94 in o_2847_init_display () at lander.sd7:838
-    838	    fuel_gauge := 40 * rocket.fuel div fuel_max;
+    0x08068518 in o_2541_init_display () at lander.sd7:840
+    840	    fuel_gauge := 40 * rocket.fuel div fuel_max;
     (gdb) bt
-    #0  0x0806ba94 in o_2847_init_display () at lander.sd7:838
-    #1  0x0806c1e5 in o_2852_setup () at lander.sd7:907
-    #2  0x0806fa40 in main (argc=1, argv=0xbffff484) at lander.sd7:1539
+    #0  0x08068518 in o_2541_init_display () at lander.sd7:840
+    #1  0x08068c21 in o_2546_setup () at lander.sd7:909
+    #2  0x0806c304 in main (argc=1, argv=0xbffff324) at lander.sd7:1541
 
   Sometimes it is helpful to debug the generated C program instead of
   the Seed7 source. The option -g-debug_c creates debug
-  information which refers to the C program generated by the Seed7 compiler:
+  information, which refers to the C program generated by the Seed7 compiler:
 
     ./hi comp -g-debug_c -e lander
     gdb ./lander
@@ -9609,12 +9675,12 @@ ont color=blue>is "";
     Starting program: /home/tm/seed7_5/prg/lander 
 
     Program received signal SIGFPE, Arithmetic exception.
-    0x0806ba94 in o_2847_init_display () at tmp_lander.c:20741
-    20741	o_2737_fuel_gauge=((40) * (((structtype)(o_2650_rocket))->stru[10].value.intvalue/*->o_2648_fuel*/)) / (o_2740_fuel_max);
+    0x08068518 in o_2541_init_display () at tmp_lander.c:19727
+    19727	o_2428_fuel_gauge=((40) * (((structtype)(o_2338_rocket))->stru[10].value.intvalue/*->o_2336_fuel*/)) / (o_2431_fuel_max);
     (gdb) bt
-    #0  0x0806ba94 in o_2847_init_display () at tmp_lander.c:20741
-    #1  0x0806c1e5 in o_2852_setup () at tmp_lander.c:20922
-    #2  0x0806fa40 in main (argc=1, argv=0xbffff484) at tmp_lander.c:22354
+    #0  0x08068518 in o_2541_init_display () at tmp_lander.c:19727
+    #1  0x08068c21 in o_2546_setup () at tmp_lander.c:19864
+    #2  0x0806c304 in main (argc=1, argv=0xbffff324) at tmp_lander.c:21188
 
   Some Seed7 exceptions do not send signals. This hinders the debugger
   to recognize that an uncaught exception occurred. The compiler option -e

@@ -140,7 +140,8 @@ const proc: enable_output (in type: aType) is func
 
 (**
  *  Template function to define I/O functions for 'aType'.
- *  To do this it calls the templates enable_input and enable_output.
+ *  To do this it calls the templates [[#enable_input(in_type)|enable_input]]
+ *  and [[#enable_output(in_type)|enable_output]].
  *)
 const proc: enable_io (in type: aType) is func
   begin

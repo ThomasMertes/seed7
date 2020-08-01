@@ -32,7 +32,7 @@ include "scanstri.s7i";
 
 (**
  *  Use the shell to execute a ''command'' with ''parameters''.
- *  The ''command'' string specifies the command to be executed.
+ *  The [[string]] ''command'' specifies the command to be executed.
  *  When ''command'' contains a path it must use the standard path
  *  representation (slashes are used as path delimiter and drive
  *  letters like C: must be written as /c instead). ''Parameters''
@@ -55,7 +55,7 @@ const func integer: shell (in string: command,
 
 (**
  *  Use the shell to execute a ''command'' with ''parameters''.
- *  The ''command'' string specifies the command to be executed.
+ *  The [[string]] ''command'' specifies the command to be executed.
  *  When ''command'' contains a path it must use the standard path
  *  representation (slashes are used as path delimiter and drive
  *  letters like C: must be written as /c instead). ''Parameters''
@@ -79,7 +79,7 @@ const proc: cmd_sh (in string: command, in string: parameters) is func
 
 (**
  *  Executes a command using the shell of the operating system.
- *  The ''cmdAndParams'' string contains a command and an optional
+ *  The [[string]] ''cmdAndParams'' contains a command and an optional
  *  space separated list of parameters. The ''shell'' function always
  *  uses slashes as path separator for the command path (independend
  *  of the operating system used). Spaces in the program name (or
@@ -110,7 +110,7 @@ const func integer: shell (in string: cmdAndParams) is func
 
 (**
  *  Executes a command using the shell of the operating system.
- *  The ''cmdAndParams'' string contains a command and an optional
+ *  The [[string]] ''cmdAndParams'' contains a command and an optional
  *  space separated list of parameters. The ''cmd_sh'' function always
  *  uses slashes as path separator for the command path (independend
  *  of the operating system used). Spaces in the program name (or
@@ -132,7 +132,7 @@ const proc: cmd_sh (in string: cmdAndParams) is func
 
 
 (**
- *  Convert a string, such that it can be used as shell parameter.
+ *  Convert a [[string]], such that it can be used as shell parameter.
  *  The function adds escape characters or quotations to a string.
  *  @return a string which can be used as shell parameter.
  *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.

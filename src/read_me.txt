@@ -237,7 +237,7 @@ COMPILING UNTER MAC OS X
   linker normally does not search libraries in '/usr/X11R6/lib'.
   Therefore 'mk_osx.mak' defines the following linker flag:
 
-    LDFLAGS = -L/usr/X11R6/lib 
+    LDFLAGS = -L/usr/X11R6/lib
 
   Besides this 'mk_osx.mak' is almost identical to
   'mk_linux.mak' and 'makefile'. When the X11 library is in a
@@ -365,7 +365,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
   to
 
-    LDFLAGS = -L/usr/X11R6/lib 
+    LDFLAGS = -L/usr/X11R6/lib
 
  --- Other errors
 
@@ -400,7 +400,7 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
      This are false complaints. Interestingly gcc is not able to
      recognize when the states of two variables are connected.
      Such as a global fail_flag variable and a local condition
-     variable (cond). The connection is: As long as fail_flag is 
+     variable (cond). The connection is: As long as fail_flag is
      FALSE the cond variable is initialised. When the fail_flag
      is TRUE the cond variable is not used and therefore it could
      be in an uninitialized state. At several places I use such
@@ -748,14 +748,14 @@ THE VERSION.H FILE
 
   AWAIT_WITH_SIGACTION: The function timAwait() uses the
                         functions sigaction(), sigsetjmp(),
-                        setitimer(), pause(), siglongjmp() and 
+                        setitimer(), pause(), siglongjmp() and
                         a signal handler function to catch
                         a SIGALRM signal. Only one #define of
                         AWAIT_WITH_xxx is allowed.
 
   AWAIT_WITH_SIGNAL: The function timAwait() uses the
                         functions signal(), setjmp(),
-                        setitimer(), pause(), longjmp() and 
+                        setitimer(), pause(), longjmp() and
                         a signal handler function to catch
                         a SIGALRM signal. Only one #define of
                         AWAIT_WITH_xxx is allowed.
@@ -978,7 +978,7 @@ THE VERSION.H FILE
                           compilers/libraries raise exceptions
                           for floating point errors. This macro
                           is used to turn off such a behaviour.
-                          
+
   DEFINE_MATHERR_FUNCTION: Some C compilers/libraries call the
                            _matherr() function for every floating
                            point error and terminate the program

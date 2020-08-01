@@ -100,7 +100,7 @@ const proc: writeln is func
  *  Discard a line from the standard input file ([[#IN|IN]]).
  *  The function discards characters up to end-of-line or [[char#EOF|EOF]].
  *  When the function is left inFile.bufferChar contains the
- *  line ending character ('\n' or EOF). 
+ *  line ending character ('\n' or EOF).
  *)
 const proc: readln is func
   local
@@ -140,7 +140,7 @@ const proc: writeln (in string: stri) is func
  *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
- *  word ending character (' ', '\t', '\n' or EOF). 
+ *  word ending character (' ', '\t', '\n' or EOF).
  *)
 const proc: read (inout string: stri) is func
   begin
@@ -153,7 +153,7 @@ const proc: read (inout string: stri) is func
  *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
- *  line ending character ('\n' or EOF). 
+ *  line ending character ('\n' or EOF).
  *)
 const proc: readln (inout string: stri) is func
   begin

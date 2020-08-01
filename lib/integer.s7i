@@ -197,7 +197,7 @@ const func integer: (in integer param) ! (in integer param)         is action "I
 
 (**
  *  Check if two integer numbers are equal.
- *  @return TRUE if both numbers are equal,
+ *  @return TRUE if the two numbers are equal,
  *          FALSE otherwise.
  *)
 const func boolean: (in integer: number1) = (in integer: number2)   is action "INT_EQ";

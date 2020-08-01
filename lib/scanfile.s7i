@@ -348,7 +348,7 @@ const func string: getQuotedText (inout file: inFile) is func
 
 (**
  *  Reads an escape sequence from ''inFile'' and appends it to ''symbol''.
- *  The function accepts escape sequences from character end string
+ *  The function accepts escape sequences from character and string
  *  literals. When the function is called it is assumed that the
  *  introducing \ is in inFile.bufferChar. When the function is left
  *  the character after the escape sequence is in inFile.bufferChar.
@@ -435,7 +435,7 @@ const func string: getCharLiteral (inout file: inFile) is func
 
 
 (**
- *  Reads a string literal from a [[file]].
+ *  Read a [[string]] literal from a [[file]].
  *  When the function is called it is assumed that the introducing "
  *  is in inFile.bufferChar. When the function is left the character
  *  after the closing " is in inFile.bufferChar.
@@ -948,7 +948,7 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
  *  The XML comment starts with <!-- and ends with --> . When the
  *  function is called it is assumed that the character in
  *  inFile.bufferChar is the last '-' of the introducing <!-- .
- *  When the function is left the character after '>' is in
+ *  When the function is left the character after --> is in
  *  inFile.bufferChar.
  *)
 const proc: skipXmlComment (inout file: inFile) is func

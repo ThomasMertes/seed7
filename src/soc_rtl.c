@@ -160,7 +160,7 @@ int addr_family2;
 
   /* select_addrinfo */
     current_addrinfo = addrinfo_list;
-    while (current_addrinfo != NULL) { 
+    while (current_addrinfo != NULL) {
       if (current_addrinfo->ai_addr->sa_family == AF_INET) {
         if (inet_addrinfo == NULL) {
           struct sockaddr_in *inet_address = (struct sockaddr_in *) current_addrinfo->ai_addr;
@@ -243,7 +243,7 @@ struct addrinfo *addrinfo_list;
         int pos;
         printf("sin_port=%d\n", ntohs(inet6_address->sin6_port));
         for (pos = 0; pos <= 7; pos++) {
-          digitGroup[pos] = 
+          digitGroup[pos] =
               inet6_address->sin6_addr.s6_addr[pos << 1] << 8 |
               inet6_address->sin6_addr.s6_addr[(pos << 1) + 1];
         } /* for */
@@ -401,7 +401,7 @@ bstritype address;
             int pos;
 
             for (pos = 0; pos <= 7; pos++) {
-              digitGroup[pos] = 
+              digitGroup[pos] =
                   (unsigned int) (inet6_address->sin6_addr.s6_addr[pos << 1]) << 8 |
                   (unsigned int) (inet6_address->sin6_addr.s6_addr[(pos << 1) + 1]);
             } /* for */
@@ -1150,8 +1150,8 @@ inttype micro_seconds;
   } /* socInputReady */
 #endif
 
-  
-  
+
+
 #ifdef ANSI_C
 
 booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)

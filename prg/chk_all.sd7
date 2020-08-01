@@ -133,6 +133,7 @@ const string: chkbool_output is "\n\
   \Boolean >= works correct.\n\
   \Boolean < works correct.\n\
   \Boolean <= works correct.\n\
+  \Boolean compare works correct.\n\
   \Boolean ord() works correct.\n\
   \Boolean str() works correct.\n";
 

@@ -104,7 +104,7 @@ enable_output(fileMode);
  *  Determine the filenames in a directory.
  *  The files "." and ".." are left out from the result.
  *  Note that the function returns only the filenames.
- *  Additional information must be obtained with other calls. 
+ *  Additional information must be obtained with other calls.
  *  @return a string-array containing the filenames in the directory.
  *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
  *             to the system path type or not enough memory to
@@ -161,7 +161,7 @@ const proc: mkdir (in string: name)                          is action "CMD_MKDI
  *  @exception RANGE_ERROR 'filePath' is not representable in the
  *             system path type.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT or ENOTDIR. 
+ *             than ENOENT or ENOTDIR.
  *)
 const func fileType: fileType (in string: filePath)          is action "CMD_FILETYPE";
 
@@ -176,7 +176,7 @@ const func fileType: fileType (in string: filePath)          is action "CMD_FILE
  *  @exception RANGE_ERROR 'filePath' is not representable in the
  *             system path type.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT or ENOTDIR. 
+ *             than ENOENT or ENOTDIR.
  *)
 const func fileType: fileTypeSL (in string: filePath)        is action "CMD_FILETYPE_SL";
 
@@ -240,7 +240,7 @@ const func bigInteger: bigFileSize (in string: filePath)     is action "CMD_BIG_
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' is not representable in the
  *             system path type.
- *  @exception FILE_ERROR A system function returns an error. 
+ *  @exception FILE_ERROR A system function returns an error.
  *)
 const func time: getATime (in string: filePath) is func
   result
@@ -260,7 +260,7 @@ const func time: getATime (in string: filePath) is func
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' is not representable in the
  *             system path type.
- *  @exception FILE_ERROR A system function returns an error. 
+ *  @exception FILE_ERROR A system function returns an error.
  *)
 const func time: getCTime (in string: filePath) is func
   result
@@ -280,7 +280,7 @@ const func time: getCTime (in string: filePath) is func
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' is not representable in the
  *             system path type.
- *  @exception FILE_ERROR A system function returns an error. 
+ *  @exception FILE_ERROR A system function returns an error.
  *)
 const func time: getMTime (in string: filePath) is func
   result

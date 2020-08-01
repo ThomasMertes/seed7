@@ -1257,6 +1257,28 @@ const proc: check_relations is func
   end func;
 
 
+const proc: check_compare is func
+  begin
+    if compare(TRUE, TRUE) <> 0 then
+      writeln(" ***** compare(TRUE, TRUE) does not return 0");
+    else
+      if compare(FALSE, FALSE) <> 0 then
+        writeln(" ***** compare(FALSE, FALSE) does not return 0");
+      else
+        if compare(TRUE, FALSE) <> 1 then
+          writeln(" ***** compare(TRUE, FALSE) does not return 1");
+        else
+          if compare(FALSE, TRUE) <> -1 then
+            writeln(" ***** compare(FALSE, TRUE) does not return 0");
+          else
+            writeln("Boolean compare works correct.");
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
 const proc: check_ord_expr is func
   begin
     if ord(1 = 1) = 1 then
@@ -1577,6 +1599,7 @@ const proc: main is func
     check_and();
     check_or();
     check_relations;
+    check_compare;
     check_ord();
     check_str();
 (*!

@@ -320,7 +320,6 @@ const proc: readRule (inout file: makefile, in string: name) is func
     var ruleType: rule is ruleType.value;
   begin
     rule.name := name;
-    makefile.bufferChar := getc(makefile);
     skipSpaceOrTab(makefile);
     dependencies := getLineWithMacrosApplied(makefile);
     # write(name <& ":");
@@ -402,6 +401,19 @@ const proc: readMakefile (in string: fileName) is func
               macros @:= [name] data;
               # writeln(name <& " = " <& data);
               makefile.bufferChar := getc(makefile);
+            elsif makefile.bufferChar = ':' then
+              makefile.bufferChar := getc(makefile);
+              if makefile.bufferChar = '=' then
+                makefile.bufferChar := getc(makefile);
+                skipSpace(makefile);
+                data := getLineWithMacrosApplied(makefile);
+                macros @:= [name] data;
+                # writeln(name <& " := " <& data);
+                makefile.bufferChar := getc(makefile);
+              else
+                name := applyMacros(name, TRUE);
+                readRule(makefile, name);
+              end if;
             else
               name := applyMacros(name, TRUE);
               alternateTargets := 0 times "";
@@ -410,6 +422,7 @@ const proc: readMakefile (in string: fileName) is func
                 skipSpace(makefile);
               end while;
               if makefile.bufferChar = ':' then
+                makefile.bufferChar := getc(makefile);
                 readRule(makefile, name);
               else
                 writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");

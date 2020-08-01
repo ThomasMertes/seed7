@@ -44,21 +44,21 @@ const float: E  is 2.7182818284590452353602874713526624977572;
  *  Compute the sine of x, where x is given in radians.
  *  @return the trigonometric sine of an angle.
  *)
-const func float: sin (ref float: x)                            is action "FLT_SIN";
+const func float: sin (in float: x)                            is action "FLT_SIN";
 
 
 (**
  *  Compute the cosine of x, where x is given in radians.
  *  @return the trigonometric cosine of an angle.
  *)
-const func float: cos (ref float: x)                            is action "FLT_COS";
+const func float: cos (in float: x)                            is action "FLT_COS";
 
 
 (**
  *  Compute the tangent of x, where x is given in radians.
  *  @return the trigonometric tangent of an angle.
  *)
-const func float: tan (ref float: x)                            is action "FLT_TAN";
+const func float: tan (in float: x)                            is action "FLT_TAN";
 
 
 (**
@@ -66,7 +66,7 @@ const func float: tan (ref float: x)                            is action "FLT_T
  *  @return the arc sine of x in radians. The return angle is in the
  *          range [-PI/2, PI/2].
  *)
-const func float: asin (ref float: x)                           is action "FLT_ASIN";
+const func float: asin (in float: x)                           is action "FLT_ASIN";
 
 
 (**
@@ -74,7 +74,7 @@ const func float: asin (ref float: x)                           is action "FLT_A
  *  @return the arc cosine of x in radians. The returned angle is in
  *          the range [0.0, PI].
  *)
-const func float: acos (ref float: x)                           is action "FLT_ACOS";
+const func float: acos (in float: x)                           is action "FLT_ACOS";
 
 
 (**
@@ -82,7 +82,7 @@ const func float: acos (ref float: x)                           is action "FLT_A
  *  @return the arc tangent of x in radians. The returned angle is in
  *          the range [-PI/2, PI/2].
  *)
-const func float: atan (ref float: x)                           is action "FLT_ATAN";
+const func float: atan (in float: x)                           is action "FLT_ATAN";
 
 
 (**
@@ -93,7 +93,7 @@ const func float: atan (ref float: x)                           is action "FLT_A
  *  @return the arc tangent of y/x in radians. The returned angle is in
  *          the range [-PI, PI].
  *)
-const func float: atan2 (ref float: y, ref float: x)            is action "FLT_A2TAN";
+const func float: atan2 (in float: y, in float: x)             is action "FLT_A2TAN";
 
 
 (**
@@ -101,7 +101,7 @@ const func float: atan2 (ref float: y, ref float: x)            is action "FLT_A
  *  sinh(x) is mathematically defined as: (exp(x) - exp(-x)) / 2.0
  *  @return the hyperbolic sine.
  *)
-const func float: sinh (ref float: x)                           is action "FLT_SINH";
+const func float: sinh (in float: x)                           is action "FLT_SINH";
 
 
 (**
@@ -109,7 +109,7 @@ const func float: sinh (ref float: x)                           is action "FLT_S
  *  cosh(x) is mathematically defined as: (exp(x) + exp(-x)) / 2.0
  *  @return the hyperbolic cosine.
  *)
-const func float: cosh (ref float: x)                           is action "FLT_COSH";
+const func float: cosh (in float: x)                           is action "FLT_COSH";
 
 
 (**
@@ -117,35 +117,35 @@ const func float: cosh (ref float: x)                           is action "FLT_C
  *  tanh(x) is mathematically defined as: sinh(x) / cosh(x)
  *  @return the hyperbolic tangent.
  *)
-const func float: tanh (ref float: x)                           is action "FLT_TANH";
+const func float: tanh (in float: x)                           is action "FLT_TANH";
 
 
 (**
  *  Returns Euler's number e raised to the power of x.
  *  @return e raised to the power of x.
  *)
-const func float: exp (ref float: x)                            is action "FLT_EXP";
+const func float: exp (in float: x)                            is action "FLT_EXP";
 
 
 (**
  *  Return the natural logarithm (base e) of x.
  *  @return the natural logarithm of x.
  *)
-const func float: log (ref float: x)                            is action "FLT_LOG";
+const func float: log (in float: x)                            is action "FLT_LOG";
 
 
 (**
  *  Returns the base 10 logarithm of x.
  *  @return the base 10 logarithm of x.
  *)
-const func float: log10 (ref float: x)                          is action "FLT_LOG10";
+const func float: log10 (in float: x)                          is action "FLT_LOG10";
 
 
 (**
  *  Returns the non-negative square root of x.
  *  @return the square root of x.
  *)
-const func float: sqrt (ref float: x)                           is action "FLT_SQRT";
+const func float: sqrt (in float: x)                           is action "FLT_SQRT";
 
 
 (**
@@ -154,7 +154,7 @@ const func float: sqrt (ref float: x)                           is action "FLT_S
  *  to the argument and is equal to a mathematical integer.
  *  @return the rounded value.
  *)
-const func float: ceil (ref float: x)                           is action "FLT_CEIL";
+const func float: ceil (in float: x)                           is action "FLT_CEIL";
 
 
 (**
@@ -163,11 +163,11 @@ const func float: ceil (ref float: x)                           is action "FLT_C
  *  argument and is equal to a mathematical integer.
  *  @return the rounded value.
  *)
-const func float: floor (ref float: x)                          is action "FLT_FLOOR";
+const func float: floor (in float: x)                          is action "FLT_FLOOR";
 
 
 (**
- *  Compute the absolute value of a float number.
+ *  Compute the absolute value of a [[float]] number.
  *  @return the absolute value.
  *)
-const func float: abs (ref float: number)                       is action "FLT_ABS";
+const func float: abs (in float: number)                       is action "FLT_ABS";

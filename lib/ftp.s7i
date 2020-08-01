@@ -556,7 +556,7 @@ const proc: rmdir (inout ftpConnection: ftp, in string: dirName) is func
 
 (**
  *  Determine the current working directory of a FTP connection.
- *  @return the current working directory as absolute path. 
+ *  @return the current working directory as absolute path.
  *  @exception FILE_ERROR The remote host returns an error.
  *)
 const func string: getcwd (inout ftpConnection: ftp) is func
@@ -711,7 +711,7 @@ const func string: getFtp (in string: hostName, in integer: portNumber, in strin
 
 (**
  *  Get data specified by an URL using the FTP protocol.
- *  The contents of the file "/pub/read_me.txt" can be obtained from 
+ *  The contents of the file "/pub/read_me.txt" can be obtained from
  *  the computer ''www.example.org'' with:
  *   fileContent := getFtp("www.example.org/pub/read_me.txt");
  *  @return the string of data found, or "" when nothing was found.

@@ -809,7 +809,7 @@ listtype arguments;
     isit_set(arg_1(arguments));
     isit_int(arg_2(arguments));
     return bld_int_temp(
-	setNext(take_set(arg_1(arguments)), take_int(arg_2(arguments))));
+        setNext(take_set(arg_1(arguments)), take_int(arg_2(arguments))));
   } /* set_next */
 
 
