@@ -1131,7 +1131,6 @@ const proc: check_array is func
     var integer: number is 0;
     var integer: i_num is 0;
     var array integer: arr is 0 times 1;
-    var char: ch is ' ';
   begin
     block
       i_num := (4 times 1)[-1];

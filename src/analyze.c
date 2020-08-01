@@ -70,6 +70,10 @@
 #undef TRACE_DECL_ANY
 
 
+/* when the analyzer is used from a compiled program this */
+/* flag decides which exception handler should be called: */
+booltype in_analyze = FALSE;
+
 static booltype analyze_initialized = FALSE;
 progrecord prog;
 
@@ -523,6 +527,7 @@ ustritype source_file_name;
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze\n");
 #endif
+    in_analyze = TRUE;
     init_analyze();
     resultProg = NULL;
     len = strlen((const_cstritype) source_file_name);
@@ -572,6 +577,7 @@ ustritype source_file_name;
       } /* if */
       FREE_STRI(source_name, name_len);
     } /* if */
+    in_analyze = FALSE;
 #ifdef TRACE_ANALYZE
     printf("END analyze\n");
 #endif
@@ -598,6 +604,7 @@ stritype input_string;
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze_string\n");
 #endif
+    in_analyze = TRUE;
     init_analyze();
     resultProg = NULL;
     input_bstri = stri_to_bstri8(input_string);
@@ -612,6 +619,7 @@ stritype input_string;
       } /* if */
       FREE_BSTRI(input_bstri, input_bstri->size);
     } /* if */
+    in_analyze = FALSE;
 #ifdef TRACE_ANALYZE
     printf("END analyze_string\n");
 #endif

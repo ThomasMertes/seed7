@@ -36,7 +36,7 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 const boolean: WITH_STRI_CAPACITY       is boolean parse configValue("WITH_STRI_CAPACITY");
 const boolean: RSHIFT_DOES_SIGN_EXTEND  is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
 const boolean: TWOS_COMPLEMENT_INTTYPE  is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
-const boolean: LITTLE_ENDIAN            is boolean parse configValue("LITTLE_ENDIAN");
+const boolean: LITTLE_ENDIAN_INTTYPE    is boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
 const boolean: USE_SIGSETJMP            is boolean parse configValue("USE_SIGSETJMP");
 const boolean: FLOAT_ZERO_DIV_ERROR     is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
 const boolean: ISNAN_WITH_UNDERLINE     is boolean parse configValue("ISNAN_WITH_UNDERLINE");
@@ -68,15 +68,13 @@ var integer: countOptimizations is 0;
 
 var program: prog is program.EMPTY;
 var file: c_prog is STD_NULL;
+
+# Type variables which hold types from the program being compiled
 var type: typetype is void;
 var type: proctype is void;
-var type: inttype is void;
-var type: biginttype is void;
-var type: chartype is void;
-var type: stritype is void;
-var type: floattype is void;
 var type: voidtype is void;
 var type: wintype is void;
+var type: progtype is void;
 
 var ref_list: declared_types is ref_list.EMPTY;
 
@@ -101,7 +99,6 @@ end struct;
 var expr_type: global_c_expr is expr_type.value;
 
 var integer: declaration_count is 1;
-var array ref_list: object_value is 0 times ref_list.EMPTY;
 var expr_type: global_init is expr_type.value;
 
 const type: bigint_table_hash is hash [bigInteger] integer;
@@ -114,10 +111,20 @@ const type: stri_index_hash is hash [integer] array string;
 
 var stri_table_hash: stri_const_table is stri_table_hash.EMPTY_HASH;
 
+const type: bstri_table_hash is hash [bstring] integer;
+const type: bstri_index_hash is hash [integer] array bstring;
+
+var bstri_table_hash: bstri_const_table is bstri_table_hash.EMPTY_HASH;
+
 const type: set_table_hash is hash [bitset] integer;
 const type: set_index_hash is hash [integer] array bitset;
 
 var set_table_hash: set_const_table is set_table_hash.EMPTY_HASH;
+
+const type: type_table_hash is hash [type] integer;
+const type: type_index_hash is hash [integer] array type;
+
+var type_table_hash: type_const_table is type_table_hash.EMPTY_HASH;
 
 const type: const_table_hash is hash [reference] integer;
 const type: const_index_hash is hash [integer] array reference;
@@ -139,6 +146,8 @@ const type: string_type_hash is hash [type] string;
 const type: act_to_form_param_hash is hash [reference] reference;
 const type: params_added_hash is hash [reference] act_to_form_param_hash;
 const type: setOfCategory is set of category;
+const type: macro_param_value_hash is hash [reference] ref_list;
+const type: macro_param_hash is hash [reference] array integer;
 
 var type_hash: array_element is type_hash.EMPTY_HASH;
 var type_hash: array_type is type_hash.EMPTY_HASH;
@@ -151,26 +160,34 @@ var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH
 var boolean_type_hash: destr_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
-var boolean_type_hash: simple_pod_type is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_pointer_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
 var implements_hash: implements is implements_hash.EMPTY_HASH;
 var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
-var boolean_type_hash: isInterfaceType is boolean_type_hash.EMPTY_HASH;
-var boolean_type_hash: isHashType is boolean_type_hash.EMPTY_HASH;
 var string_type_hash: parametersOfHshCreate is string_type_hash.EMPTY_HASH;
 var string_type_hash: parametersOfHshDestr is string_type_hash.EMPTY_HASH;
 var string_type_hash: parametersOfHshCpy is string_type_hash.EMPTY_HASH;
 var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
-var boolean_type_hash: int_types is boolean_type_hash.EMPTY_HASH;
+var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
+var macro_param_value_hash: macro_param_value is macro_param_value_hash.EMPTY_HASH;
+var macro_param_hash: macro_param is macro_param_hash.EMPTY_HASH;
+
+var boolean_type_hash: bool_types is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: enum_types is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: int_types is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: bigint_types is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: float_types is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: char_types is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: stri_types is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: bstri_types is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: reference_types is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: ref_list_types is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: struct_types is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: set_types is boolean_type_hash.EMPTY_HASH;
-var boolean_type_hash: bstri_types is boolean_type_hash.EMPTY_HASH;
-var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
+var boolean_type_hash: hash_types is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: simple_pod_type is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: isInterfaceType is boolean_type_hash.EMPTY_HASH;
 
 var boolean: write_object_declaration is TRUE;
 
@@ -277,7 +294,7 @@ const proc: create_name2 (in reference: current_object, inout string: expr) is f
       expr &:= name;
     end if;
     if raw_name <> "" then
-      expr &:= "**";
+      expr &:= "/ ";
       expr &:= raw_name;
     end if;
   end func;
@@ -290,27 +307,81 @@ const func string: type_name (in type: object_type) is func
   begin
     if object_type = typetype then
       result := "typetype";
-    elsif object_type = inttype then
+    elsif object_type in bool_types then
+      result := "booltype";
+    elsif object_type in enum_types then
+      result := "enumtype";
+    elsif object_type in int_types then
       result := "inttype";
-    elsif object_type = biginttype then
+    elsif object_type in bigint_types then
       result := "biginttype";
-    elsif object_type = chartype then
-      result := "chartype";
-    elsif object_type = stritype then
-      result := "stritype";
-    elsif object_type = floattype then
+    elsif object_type in float_types then
       result := "floattype";
+    elsif object_type in char_types then
+      result := "chartype";
+    elsif object_type in stri_types then
+      result := "stritype";
+    elsif object_type in bstri_types then
+      result := "bstritype";
+    elsif object_type = voidtype then
+      result := "void";
     elsif object_type = wintype then
       result := "wintype";
+    elsif object_type = progtype then
+      result := "progtype";
     elsif object_type in reference_types then
       result := "objreftype";
     else
       result := "t_";
       result &:= str(type_number(object_type));
-      result &:= "/*";
-      result &:= str(object_type);
-      result &:= "*/";
     end if;
+    result &:= "/*t_";
+    result &:= str(type_number(object_type));
+    result &:= "_";
+    result &:= str(object_type);
+    result &:= "*/";
+  end func;
+
+
+const func string: type_name2 (in type: object_type) is func
+
+  result
+    var string: result is "";
+  begin
+    if object_type = typetype then
+      result := "typetype";
+    elsif object_type in bool_types then
+      result := "booltype";
+    elsif object_type in enum_types then
+      result := "enumtype";
+    elsif object_type in int_types then
+      result := "inttype";
+    elsif object_type in bigint_types then
+      result := "biginttype";
+    elsif object_type in float_types then
+      result := "floattype";
+    elsif object_type in char_types then
+      result := "chartype";
+    elsif object_type in stri_types then
+      result := "stritype";
+    elsif object_type in bstri_types then
+      result := "bstritype";
+    elsif object_type = voidtype then
+      result := "void";
+    elsif object_type = wintype then
+      result := "wintype";
+    elsif object_type = progtype then
+      result := "progtype";
+    elsif object_type in reference_types then
+      result := "objreftype";
+    else
+      result := "t_";
+      result &:= str(type_number(object_type));
+    end if;
+    result &:= "/t_";
+    result &:= str(type_number(object_type));
+    result &:= "_";
+    result &:= str(object_type);
   end func;
 
 
@@ -344,41 +415,47 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
     type_obj := match_obj(aType);
     if not type_obj in declared_types then
       if aType <> typetype and
-          aType <> inttype and
-          aType <> biginttype and
-          aType <> chartype and
-          aType <> stritype and
-          aType <> floattype and
+          aType not in bool_types and
+          aType not in enum_types and
+          aType not in int_types and
+          aType not in bigint_types and
+          aType not in float_types and
+          aType not in char_types and
+          aType not in stri_types and
+          aType not in bstri_types and
+          aType <> voidtype and
+          aType <> wintype and
+          aType <> progtype and
           aType not in reference_types then
         c_expr.expr &:= "typedef generictype ";
         c_expr.expr &:= type_name(aType);
         c_expr.expr &:= ";\n\n";
         if is_derived(aType) then
           metaType := meta(aType);
-          if metaType in int_types then
-            if aType not in int_types then
-              int_types @:= [aType] TRUE;
-            end if;
+          if metaType in bool_types then
+            bool_types @:= [aType] TRUE;
           elsif metaType in enum_types then
-            if aType not in enum_types then
-              enum_types @:= [aType] TRUE;
-            end if;
-          elsif metaType in reference_types then
-            if aType not in reference_types then
-              reference_types @:= [aType] TRUE;
-            end if;
-          elsif metaType in ref_list_types then
-            if aType not in ref_list_types then
-              ref_list_types @:= [aType] TRUE;
-            end if;
-          elsif metaType in set_types then
-            if aType not in set_types then
-              set_types @:= [aType] TRUE;
-            end if;
+            enum_types @:= [aType] TRUE;
+          elsif metaType in int_types then
+            int_types @:= [aType] TRUE;
+          elsif metaType in bigint_types then
+            bigint_types @:= [aType] TRUE;
+          elsif metaType in float_types then
+            float_types @:= [aType] TRUE;
+          elsif metaType in char_types then
+            char_types @:= [aType] TRUE;
+          elsif metaType in stri_types then
+            stri_types @:= [aType] TRUE;
           elsif metaType in bstri_types then
-            if aType not in bstri_types then
-              bstri_types @:= [aType] TRUE;
-            end if;
+            bstri_types @:= [aType] TRUE;
+          elsif metaType in reference_types then
+            reference_types @:= [aType] TRUE;
+          elsif metaType in ref_list_types then
+            ref_list_types @:= [aType] TRUE;
+          elsif metaType in set_types then
+            set_types @:= [aType] TRUE;
+          elsif metaType in isInterfaceType then
+            isInterfaceType @:= [aType] TRUE;
           elsif metaType in array_element then
             baseType := base_type(metaType);
             if baseType <> void then
@@ -417,16 +494,24 @@ const func string: select_value_from_rtlObjectstruct (in type: typeWanted) is fu
   begin
     if typeWanted = typetype then
       result := ".value.typevalue";
-    elsif typeWanted = floattype then
-      result := ".value.floatvalue";
-    elsif typeWanted = stritype then
-      result := ".value.strivalue";
-    elsif typeWanted = biginttype then
+    elsif typeWanted in bool_types then
+      result := ".value.boolvalue";
+    elsif typeWanted in enum_types then
+      result := ".value.enumvalue";
+    elsif typeWanted in int_types then
+      result := ".value.intvalue";
+    elsif typeWanted in bigint_types then
       result := ".value.bigintvalue";
+    elsif typeWanted in float_types then
+      result := ".value.floatvalue";
+    elsif typeWanted in stri_types then
+      result := ".value.strivalue";
+    elsif typeWanted in bstri_types then
+      result := ".value.bstrivalue";
     elsif typeWanted = wintype then
       result := ".value.winvalue";
-    elsif typeWanted = inttype then
-      result := ".value.intvalue";
+    elsif typeWanted = progtype then
+      result := ".value.progvalue";
     elsif typeWanted in reference_types then
       result := ".value.objrefvalue";
     else
@@ -441,16 +526,24 @@ const func string: select_value_from_rtlObjectptr (in type: typeWanted) is func
   begin
     if typeWanted = typetype then
       result := "->value.typevalue";
-    elsif typeWanted = floattype then
-      result := "->value.floatvalue";
-    elsif typeWanted = stritype then
-      result := "->value.strivalue";
-    elsif typeWanted = biginttype then
+    elsif typeWanted in bool_types then
+      result := "->value.boolvalue";
+    elsif typeWanted in enum_types then
+      result := "->value.enumvalue";
+    elsif typeWanted in int_types then
+      result := "->value.intvalue";
+    elsif typeWanted in bigint_types then
       result := "->value.bigintvalue";
+    elsif typeWanted in float_types then
+      result := "->value.floatvalue";
+    elsif typeWanted in stri_types then
+      result := "->value.strivalue";
+    elsif typeWanted in bstri_types then
+      result := "->value.bstrivalue";
     elsif typeWanted = wintype then
       result := "->value.winvalue";
-    elsif typeWanted = inttype then
-      result := "->value.intvalue";
+    elsif typeWanted = progtype then
+      result := "->value.progvalue";
     elsif typeWanted in reference_types then
       result := "->value.objrefvalue";
     else
@@ -464,13 +557,15 @@ const func boolean: valueIsAtHeap (in type: aType) is func
   result
     var boolean: result is FALSE;
   begin
-    if  aType = biginttype or
-        aType = stritype or
+    if  aType in bigint_types or
+        aType in stri_types or
+        aType in bstri_types or
         aType = wintype or
+        aType = progtype or
         aType in array_element or
         aType in struct_types or
         aType in set_types or
-        aType in isHashType or
+        aType in hash_types or
         aType in isInterfaceType then
       result := TRUE;
     end if;
@@ -598,6 +693,34 @@ const func string: floatLiteral (in float: aFloat) is func
   end func;
 
 
+const func string: bstriLiteral (in bstring: bstri) is func
+  result
+    var string: expr is "";
+  begin
+    if bstri not in bstri_const_table then
+      bstri_const_table @:= [bstri] length(bstri_const_table);
+    end if;
+    expr := "bst[";
+    expr &:= str(bstri_const_table[bstri]);
+    expr &:= "]";
+  end func;
+
+
+const func string: typeLiteral (in type: aType) is func
+  result
+    var string: expr is "";
+  begin
+    if aType not in type_const_table then
+      type_const_table @:= [aType] length(type_const_table);
+    end if;
+    expr := "typ[";
+    expr &:= str(type_const_table[aType]);
+    expr &:= "] /* ";
+    expr &:= type_name2(aType);
+    expr &:= " */";
+  end func;
+
+
 const proc: process_create_declaration (in type: object_type,
     inout expr_type: c_expr) is forward;
 
@@ -624,14 +747,14 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= "{\n";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
-    c_expr.expr &:= "unsigned long i;\n";
-    c_expr.expr &:= "unsigned long size = ((arraytype)b)->max_position - ((arraytype)b)->min_position + 1;\n";
+    c_expr.expr &:= "memsizetype i;\n";
+    c_expr.expr &:= "memsizetype size = (uinttype)(((arraytype)b)->max_position - ((arraytype)b)->min_position + 1);\n";
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= ")(malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size * sizeof(rtlObjecttype)));\n";
 #!    c_expr.expr &:= "ALLOC_RTL_ARRAY(a,size);\n";
-    c_expr.expr &:= "if (a == NULL) {\n";
+    c_expr.expr &:= "if ((arraytype)a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "((arraytype)a)->min_position = ((arraytype)b)->min_position;\n";
@@ -645,7 +768,7 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= ";\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "return(a);\n";
+    c_expr.expr &:= "return a;\n";
     c_expr.expr &:= "}\n\n";
     create_declared @:= [object_type] TRUE;
   end func;
@@ -682,7 +805,7 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= ")(malloc(sizeof(struct structstruct) - sizeof(rtlObjecttype) + \n  ";
     c_expr.expr &:= str(length(elements));
     c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
-    c_expr.expr &:= "if (a == NULL) {\n";
+    c_expr.expr &:= "if ((structtype)a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "((structtype)a)->type_num = ((structtype)b)->type_num;\n";
@@ -695,7 +818,7 @@ const proc: process_sct_create_declaration (in type: object_type,
       c_expr.expr &:= ";\n";
     end for;
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "return(a);\n";
+    c_expr.expr &:= "return a;\n";
     c_expr.expr &:= "}\n\n";
     create_declared @:= [object_type] TRUE;
   end func;
@@ -735,17 +858,17 @@ const proc: process_create_declaration (in type: object_type,
       elsif object_type in parametersOfHshCreate then
         process_hsh_create_declaration(object_type, c_expr);
       elsif object_type = typetype or
-          object_type = inttype or
-          object_type = biginttype or
-          object_type = chartype or
-          object_type = stritype or
-          object_type = floattype or
-          object_type = wintype or
-          object_type in int_types or
           object_type in enum_types or
+          object_type in int_types or
+          object_type in bigint_types or
+          object_type in float_types or
+          object_type in char_types or
+          object_type in stri_types or
+          object_type in bstri_types or
+          object_type = wintype or
+          object_type = progtype or
           object_type in ref_list_types or
           object_type in set_types or
-          object_type in bstri_types or
           object_type in simple_pod_type then
         create_declared @:= [object_type] TRUE;
       else
@@ -782,26 +905,26 @@ const proc: process_create_call (in type: object_type,
   begin
     if object_type = typetype then
       expr &:= "typCreate(" & param_b & ")";
-    elsif object_type = inttype then
+    elsif object_type in enum_types then
       expr &:= param_b;
-    elsif object_type = biginttype then
+    elsif object_type in int_types then
+      expr &:= param_b;
+    elsif object_type in bigint_types then
       expr &:= "bigCreate((biginttype)(" & param_b & "))";
-    elsif object_type = chartype then
+    elsif object_type in float_types then
       expr &:= param_b;
-    elsif object_type = stritype then
+    elsif object_type in char_types then
+      expr &:= param_b;
+    elsif object_type in stri_types then
       expr &:= "strCreate((stritype)(" & param_b & "))";
     elsif object_type in bstri_types then
       expr &:= "(";
       expr &:= type_name(object_type);
       expr &:= ")(bstCreate((bstritype)(" & param_b & ")))";
-    elsif object_type = floattype then
-      expr &:= param_b;
     elsif object_type = wintype then
       expr &:= "drwCreate(" & param_b & ")";
-    elsif object_type in int_types then
-      expr &:= param_b;
-    elsif object_type in enum_types then
-      expr &:= param_b;
+    elsif object_type = progtype then
+      expr &:= "prgCreate(" & param_b & ")";
     elsif object_type in ref_list_types then
       expr &:= "(";
       expr &:= type_name(object_type);
@@ -872,10 +995,10 @@ const proc: process_arr_destr_declaration (in type: object_type,
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
     c_expr.expr &:= "{\n";
-    c_expr.expr &:= "unsigned long i;\n";
-    c_expr.expr &:= "unsigned long size;\n";
+    c_expr.expr &:= "memsizetype i;\n";
+    c_expr.expr &:= "memsizetype size;\n";
     c_expr.expr &:= "if ((arraytype)b != NULL) {\n";
-    c_expr.expr &:= "size = ((arraytype)b)->max_position - ((arraytype)b)->min_position + 1;\n";
+    c_expr.expr &:= "size = (uinttype)(((arraytype)b)->max_position - ((arraytype)b)->min_position + 1);\n";
     c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
     process_destr_call(array_element[object_type],
         "((arraytype)b)->arr[i]" & select_value, c_expr.expr);
@@ -954,17 +1077,17 @@ const proc: process_destr_declaration (in type: object_type,
       elsif object_type in parametersOfHshDestr then
         process_hsh_destr_declaration(object_type, c_expr);
       elsif object_type = typetype or
-          object_type = inttype or
-          object_type = biginttype or
-          object_type = chartype or
-          object_type = stritype or
-          object_type = floattype or
-          object_type = wintype or
-          object_type in int_types or
           object_type in enum_types or
+          object_type in int_types or
+          object_type in bigint_types or
+          object_type in float_types or
+          object_type in char_types or
+          object_type in stri_types or
+          object_type in bstri_types or
+          object_type = wintype or
+          object_type = progtype or
           object_type in ref_list_types or
           object_type in set_types or
-          object_type in bstri_types or
           object_type in simple_pod_type then
         destr_declared @:= [object_type] TRUE;
       else
@@ -999,24 +1122,24 @@ const proc: process_destr_call (in type: object_type,
   begin
     if object_type = typetype then
       noop;
-    elsif object_type = inttype then
+    elsif object_type in enum_types then
       noop;
-    elsif object_type = biginttype then
+    elsif object_type in int_types then
+      noop;
+    elsif object_type in bigint_types then
       expr &:= "bigDestr((biginttype)(" & param_b & "));\n";
-    elsif object_type = chartype then
+    elsif object_type in float_types then
       noop;
-    elsif object_type = stritype then
+    elsif object_type in char_types then
+      noop;
+    elsif object_type in stri_types then
       expr &:= "strDestr((stritype)(" & param_b & "));\n";
     elsif object_type in bstri_types then
       expr &:= "bstDestr((bstritype)(" & param_b & "));\n";
-    elsif object_type = floattype then
-      noop;
     elsif object_type = wintype then
       expr &:= "drwDestr(" & param_b & ");\n";
-    elsif object_type in int_types then
-      noop;
-    elsif object_type in enum_types then
-      noop;
+    elsif object_type = progtype then
+      expr &:= "prgDestr(" & param_b & ");\n";
     elsif object_type in ref_list_types then
       expr &:= "rflDestr((listtype)(" & param_b & "));\n";
     elsif object_type in set_types then
@@ -1087,10 +1210,10 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
     c_expr.expr &:= "{\n";
-    c_expr.expr &:= "unsigned long i;\n";
-    c_expr.expr &:= "unsigned long size_a = ((arraytype)*a)->max_position - ((arraytype)*a)->min_position + 1;\n";
-    c_expr.expr &:= "unsigned long size_b = ((arraytype)b)->max_position - ((arraytype)b)->min_position + 1;\n";
-    c_expr.expr &:= "unsigned long size;\n";
+    c_expr.expr &:= "memsizetype i;\n";
+    c_expr.expr &:= "memsizetype size_a = (uinttype)(((arraytype)*a)->max_position - ((arraytype)*a)->min_position + 1);\n";
+    c_expr.expr &:= "memsizetype size_b = (uinttype)(((arraytype)b)->max_position - ((arraytype)b)->min_position + 1);\n";
+    c_expr.expr &:= "memsizetype size;\n";
     c_expr.expr &:= "((arraytype)*a)->min_position = ((arraytype)b)->min_position;\n";
     c_expr.expr &:= "((arraytype)*a)->max_position = ((arraytype)b)->max_position;\n";
     c_expr.expr &:= "if (size_a == size_b) {\n";
@@ -1101,6 +1224,9 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= "if ((arraytype)*a == NULL) {\n";
+    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "size = size_a;\n";
     c_expr.expr &:= "for (i = size_a; i < size_b; i++) {\n";
     c_expr.expr &:= "((arraytype)*a)->arr[i]";
@@ -1109,6 +1235,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     process_create_call(array_element[object_type],
         "((arraytype)b)->arr[i]" & select_value, c_expr.expr);
     c_expr.expr &:= ";\n";
+    c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "} else /* size_a > size_b */ {\n";
     c_expr.expr &:= "size = size_b;\n";
@@ -1120,6 +1247,9 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= "if ((arraytype)*a == NULL) {\n";
+    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
@@ -1204,27 +1334,25 @@ const proc: process_cpy_declaration (in type: object_type,
       elsif object_type in parametersOfHshCpy then
         process_hsh_cpy_declaration(object_type, c_expr);
       elsif object_type = typetype or
-          object_type = inttype or
-          object_type = biginttype or
-          object_type = chartype or
-          object_type = stritype or
-          object_type = floattype or
-          object_type = wintype or
-          object_type in int_types or
           object_type in enum_types or
+          object_type in int_types or
+          object_type in bigint_types or
+          object_type in float_types or
+          object_type in char_types or
+          object_type in stri_types or
+          object_type in bstri_types or
+          object_type = wintype or
+          object_type = progtype or
           object_type in ref_list_types or
           object_type in set_types or
-          object_type in bstri_types or
           object_type in simple_pod_type then
         cpy_declared @:= [object_type] TRUE;
       else
         c_expr.expr &:= "/* cpy_";
         c_expr.expr &:= str(type_number(object_type));
-        c_expr.expr &:= " declaration for type t_";
-        c_expr.expr &:= str(type_number(object_type));
-        c_expr.expr &:= "**";
-        c_expr.expr &:= str(object_type);
-        c_expr.expr &:= "*/\n\n";
+        c_expr.expr &:= " declaration for type ";
+        c_expr.expr &:= type_name2(object_type);
+        c_expr.expr &:= " */\n\n";
       end if;
     end if;
   end func;
@@ -1236,17 +1364,13 @@ const proc: process_cpy_call (in type: object_type,
   begin
     if object_type = typetype then
       expr &:= param_a & "=" & param_b;
-    elsif object_type = inttype then
+    elsif object_type in enum_types then
       expr &:= param_a & "=" & param_b;
-    elsif object_type = biginttype then
+    elsif object_type in int_types then
+      expr &:= param_a & "=" & param_b;
+    elsif object_type in bigint_types then
       expr &:= "bigCpy(&(" & param_a & "), (biginttype)(" & param_b & "))";
-    elsif object_type = chartype then
-      expr &:= param_a & "=" & param_b;
-    elsif object_type = stritype then
-      expr &:= "strCopy(&(" & param_a & "), (stritype)(" & param_b & "))";
-    elsif object_type in bstri_types then
-      expr &:= "bstCpy(&(" & param_a & "), (bstritype)(" & param_b & "))";
-    elsif object_type = floattype then
+    elsif object_type in float_types then
       # expr &:= param_a & "=(" & param_b & ")";
       # expr &:= "*((floattype *) &(" & param_a & "))=(" & param_b & ")";
       expr &:= "memcpy(&(";
@@ -1254,14 +1378,18 @@ const proc: process_cpy_call (in type: object_type,
       expr &:= "), &(";
       expr &:= param_b;
       expr &:= "), sizeof(floattype))"; # Assuming that sizeof(floattype) == sizeof(generictype)
+    elsif object_type in char_types then
+      expr &:= param_a & "=" & param_b;
+    elsif object_type in stri_types then
+      expr &:= "strCopy(&(" & param_a & "), (stritype)(" & param_b & "))";
+    elsif object_type in bstri_types then
+      expr &:= "bstCpy((bstritype *)(&(" & param_a & ")), (bstritype)(" & param_b & "))";
     elsif object_type = wintype then
       expr &:= "drwCpy(&(" & param_a & "), " & param_b & ")";
-    elsif object_type in int_types then
-      expr &:= param_a & "=" & param_b;
-    elsif object_type in enum_types then
-      expr &:= param_a & "=" & param_b;
+    elsif object_type = progtype then
+      expr &:= "prgCpy(&(" & param_a & "), " & param_b & ")";
     elsif object_type in ref_list_types then
-      expr &:= "rflCpy(&(" & param_a & "), (listtype)(" & param_b & "))";
+      expr &:= "rflCpy((listtype *)(&(" & param_a & ")), (listtype)(" & param_b & "))";
     elsif object_type in set_types then
       expr &:= "setCpy((settype *)(&(" & param_a & ")), (settype)(" & param_b & "))";
     elsif object_type in simple_pod_type then
@@ -1307,11 +1435,9 @@ const proc: process_cpy_call (in type: object_type,
     else
       expr &:= param_b & " /* cpy_";
       expr &:= str(type_number(object_type));
-      expr &:= " for type t_";
-      expr &:= str(type_number(object_type));
-      expr &:= "**";
-      expr &:= str(object_type);
-      expr &:= "*/";
+      expr &:= " for type ";
+      expr &:= type_name2(object_type);
+      expr &:= " */";
     end if;
   end func;
 
@@ -1474,24 +1600,31 @@ const proc: prepare_bigint_result (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: prepare_list_result (inout expr_type: c_expr) is func
+const proc: prepare_list_result (in type: list_type, inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
     c_expr.result_temp := "tmp_";
     c_expr.result_temp &:= str(c_expr.temp_num);
-    c_expr.result_decl := "listtype tmp_";
+    c_expr.result_decl := type_name(list_type);
+    c_expr.result_decl &:= " tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
-    c_expr.result_decl &:= " = NULL;\n";
-    c_expr.result_free := "rflDestr(tmp_";
+    c_expr.result_decl &:= " = (";
+    c_expr.result_decl &:= type_name(list_type);
+    c_expr.result_decl &:= ")(NULL);\n";
+    c_expr.result_free := "rflDestr((listtype)(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
-    c_expr.result_free &:= ");\n";
+    c_expr.result_free &:= "));\n";
     c_expr.result_to_null := c_expr.result_temp;
-    c_expr.result_to_null &:= " = NULL;\n";
+    c_expr.result_to_null &:= " = (";
+    c_expr.result_to_null &:= type_name(list_type);
+    c_expr.result_to_null &:= ")(NULL);\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
-    c_expr.result_intro &:= "=";
-    c_expr.result_finish := ")";
+    c_expr.result_intro &:= "=(";
+    c_expr.result_intro &:= type_name(list_type);
+    c_expr.result_intro &:= ")(";
+    c_expr.result_finish := "))";
   end func;
 
 
@@ -1702,7 +1835,7 @@ const proc: process_cast_from_float_expr (in reference: current_expression,
   local
     var integer: temp_num is 0;
   begin
-    if getExprResultType(current_expression) = floattype then
+    if getExprResultType(current_expression) in float_types then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
       c_expr.temp_decls &:= "valueunion tmp_";
@@ -3137,7 +3270,7 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
     proc_type := getType(function);
     result_type := result_type(proc_type);
     prepare_typed_result(result_type, c_expr);
-    if result_type = floattype then
+    if result_type in float_types then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
       c_expr.temp_decls &:= "valueunion tmp_";
@@ -3154,7 +3287,7 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
     c_expr.result_expr &:= ")), ";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
-    if result_type = floattype then
+    if result_type in float_types then
       c_expr.result_expr &:= "),tmp_";
       c_expr.result_expr &:= str(temp_num);
       c_expr.result_expr &:= ".floatvalue)";
@@ -4719,9 +4852,9 @@ const proc: process_bst_append (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "bstAppend(&(";
+    c_expr.expr &:= "bstAppend((bstritype *)(&(";
     c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), (bstritype)(";
+    c_expr.expr &:= ")), (bstritype)(";
     c_expr.expr &:= c_param3.expr;
     c_expr.expr &:= "));\n";
     if has_temp_values(c_param3) then
@@ -4729,6 +4862,17 @@ const proc: process_bst_append (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param3.temp_frees;
       c_expr.expr &:= "}\n";
     end if;
+  end func;
+
+
+const proc: process_bst_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bstCmp((bstritype)(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= "), (bstritype)(";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -4757,26 +4901,28 @@ const proc: process_bst_cpy (in ref_list: params, inout expr_type: c_expr) is fu
         c_expr.expr &:= ");\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= "=";
+        c_expr.expr &:= "=(";
+        c_expr.expr &:= type_name(getExprResultType(params[1]));
+        c_expr.expr &:= ")(";
       else
-        c_expr.expr &:= "bstritype *bstri_ptr=&(";
+        c_expr.expr &:= "bstritype *bstri_ptr=(bstritype *)(&(";
         c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ");\n";
+        c_expr.expr &:= "));\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "bstritype old_bstri=*bstri_ptr;\n";
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "*bstri_ptr=";
+        c_expr.expr &:= "*bstri_ptr=(bstritype)(";
       end if;
       c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= ");\n";
       setDiagnosticLine(c_expr);
       c_expr.expr &:= "bstDestr(old_bstri);\n";
       c_expr.expr &:= "}\n";
     else
       setDiagnosticLine(c_expr);
-      c_expr.expr &:= "bstCpy(&(";
+      c_expr.expr &:= "bstCpy((bstritype *)(&(";
       c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "), (bstritype)(";
+      c_expr.expr &:= ")), (bstritype)(";
       c_expr.expr &:= c_param3.expr;
       c_expr.expr &:= "));\n";
     end if;
@@ -4822,6 +4968,15 @@ const proc: process_bst_eq (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= "->mem,tmp_a_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "->size*sizeof(unsigned char))==0)";
+  end func;
+
+
+const proc: process_bst_hashcode (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bstHashCode((bstritype)(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -4874,7 +5029,7 @@ const proc: process_bst_ne (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_bst_parse (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_stri_result(c_expr);
+    prepare_bstri_result(c_expr);
     c_expr.result_expr := "bstParse(";
     getAnyParamToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= ")";
@@ -4884,7 +5039,7 @@ const proc: process_bst_parse (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_bst_value (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_stri_result(c_expr);
+    prepare_bstri_result(c_expr);
     c_expr.result_expr := "bstValue(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
@@ -5840,27 +5995,11 @@ const proc: process_drw_fpolyline (in ref_list: params, inout expr_type: c_expr)
 
 const proc: process_drw_genpointlist (in ref_list: params, inout expr_type: c_expr) is func
 
-  local
-    var integer: temp_num is 0;
   begin
     prepare_bstri_result(c_expr);
-    incr(c_expr.temp_num);
-    temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "arraytype tmp_";
-    c_expr.temp_decls &:= str(temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.result_expr := "(tmp_";
-    c_expr.result_expr &:= str(temp_num);
-    c_expr.result_expr &:= "=(arraytype)(";
+    c_expr.result_expr &:= "drwGenPointList((arraytype)(";
     getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= "), drwGenPointList(";
-    c_expr.result_expr &:= "tmp_";
-    c_expr.result_expr &:= str(temp_num);
-    c_expr.result_expr &:= "->arr, (uinttype)(tmp_";
-    c_expr.result_expr &:= str(temp_num);
-    c_expr.result_expr &:= "->max_position - tmp_";
-    c_expr.result_expr &:= str(temp_num);
-    c_expr.result_expr &:= "->min_position + 1)))";
+    c_expr.result_expr &:= "))";
   end func;
 
 
@@ -6049,7 +6188,7 @@ const proc: process_drw_pfarcpieslice (in ref_list: params, inout expr_type: c_e
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwFArcPieSlice(";
+    c_expr.expr &:= "drwPFArcPieSlice(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -6061,6 +6200,8 @@ const proc: process_drw_pfarcpieslice (in ref_list: params, inout expr_type: c_e
     process_expr(params[5], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -6456,7 +6597,7 @@ const proc: process_fil_close (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "fclose((filetype)(";
+    c_expr.expr &:= "filClose((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "));\n";
   end func;
@@ -6633,6 +6774,16 @@ const proc: process_fil_out (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "stdout";
+  end func;
+
+
+const proc: process_fil_pclose (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filPclose((filetype)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "));\n";
   end func;
 
 
@@ -9500,9 +9651,9 @@ const proc: process_prg_decl_objects (in ref_list: params, inout expr_type: c_ex
 
   begin
     compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgDeclObjects((progtype)(";
+    c_expr.expr &:= "prgDeclObjects(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -9521,9 +9672,9 @@ const proc: process_prg_error_count (in ref_list: params, inout expr_type: c_exp
 
   begin
     compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgErrorCount((progtype)(";
+    c_expr.expr &:= "prgErrorCount(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -9543,9 +9694,9 @@ const proc: process_prg_exec (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgExec((progtype)(";
+    c_expr.expr &:= "prgExec(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "));\n";
+    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -9627,9 +9778,9 @@ const proc: process_prg_sysvar (in ref_list: params, inout expr_type: c_expr) is
 
   begin
     compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgSysvar((progtype)(";
+    c_expr.expr &:= "prgSysvar(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), ";
+    c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -9814,7 +9965,7 @@ const proc: process_ref_file (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_ref_hashcode (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(inttype)(((uinttype)(";
+    c_expr.expr &:= "(inttype)(((memsizetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")) >> 6)";
   end func;
@@ -9969,7 +10120,7 @@ const proc: process_ref_select (in reference: function, in ref_list: params,
       create_name2(params[3], c_expr.expr);
       c_expr.expr &:= "*/";
     else
-      if result_type(getType(function)) = floattype then
+      if result_type(getType(function)) in float_types then
         c_expr.expr &:= "*refFSelect(";
       else
         c_expr.expr &:= "*refSelect(";
@@ -10002,9 +10153,9 @@ const proc: process_ref_setparams (in ref_list: params, inout expr_type: c_expr)
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetParams(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
+    c_expr.expr &:= ", (listtype)(";
     getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
+    c_expr.expr &:= "));\n";
   end func;
 
 
@@ -10062,27 +10213,29 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= ", ";
     c_expr.expr &:= c_literal(str(traceParam));
     c_expr.expr &:= ");\n";
-    if object_type = inttype then
+    if object_type in enum_types then
+      c_expr.expr &:= "printf(\"<ENUMOBJECT>\")";
+    elsif object_type in int_types then
       c_expr.expr &:= "printf(\"<INTOBJECT> %ld\", ";
       process_expr(traceParam, c_expr);
       c_expr.expr &:= ")";
-    elsif object_type = biginttype then
+    elsif object_type in bigint_types then
       c_expr.expr &:= "printf(\"<BIGINTOBJECT>\")";
-    elsif object_type = chartype then
+    elsif object_type in float_types then
+      c_expr.expr &:= "printf(\"<FLOATOBJECT> %f\", ";
+      process_expr(traceParam, c_expr);
+      c_expr.expr &:= ")";
+    elsif object_type in char_types then
       c_expr.expr &:= "printf(\"<CHAROBJECT> %c\", ";
       process_expr(traceParam, c_expr);
       c_expr.expr &:= ")";
-    elsif object_type = stritype then
+    elsif object_type in stri_types then
       c_expr.expr &:= "printf(\"<STRIOBJECT>\"); ";
       c_expr.expr &:= "filPrint(";
       process_expr(traceParam, c_expr);
       c_expr.expr &:= ")";
     elsif object_type in bstri_types then
       c_expr.expr &:= "printf(\"<BSTRIOBJECT>\")";
-    elsif object_type = floattype then
-      c_expr.expr &:= "printf(\"<FLOATOBJECT> %f\", ";
-      process_expr(traceParam, c_expr);
-      c_expr.expr &:= ")";
     elsif object_type = typetype then
       c_expr.expr &:= "printf(\"<TYPEOBJECT> %X\", ";
       process_expr(traceParam, c_expr);
@@ -10103,12 +10256,18 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
       c_expr.expr &:= "printf(\" window [%lu] %lu\", win->usage_count, win);\n";
       c_expr.expr &:= "}\n";
       c_expr.expr &:= "}\n";
-    elsif object_type in int_types then
-      c_expr.expr &:= "printf(\"<INTOBJECT> %ld\", ";
+    elsif object_type = progtype then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "progtype prg = (progtype)(";
       process_expr(traceParam, c_expr);
-      c_expr.expr &:= ")";
-    elsif object_type in enum_types then
-      c_expr.expr &:= "printf(\"<ENUMOBJECT>\")";
+      c_expr.expr &:= ");\n";
+      c_expr.expr &:= "printf(\"<PROGOBJECT>\");\n";
+      c_expr.expr &:= "if (prg == NULL) {\n";
+      c_expr.expr &:= "printf(\" *NULL_PROG* \");\n";
+      c_expr.expr &:= "} else {\n";
+      c_expr.expr &:= "printf(\" program [%lu] %lu\", prg->usage_count, prg);\n";
+      c_expr.expr &:= "}\n";
+      c_expr.expr &:= "}\n";
     elsif object_type in reference_types then
       c_expr.expr &:= "printf(\"<REFOBJECT>\")";
     elsif object_type in ref_list_types then
@@ -10129,7 +10288,7 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
       c_expr.expr &:= "printf(\" array[%ld .. %ld]\", arr->min_position, arr->max_position);\n";
       c_expr.expr &:= "}\n";
       c_expr.expr &:= "}\n";
-    elsif object_type in isHashType then
+    elsif object_type in hash_types then
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "hashtype hsh = (hashtype)(";
       process_expr(traceParam, c_expr);
@@ -10217,7 +10376,7 @@ const proc: process_rfl_cat (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     compDataLibraryUsed := TRUE;
-    prepare_list_result(c_expr);
+    prepare_list_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "rflCat((listtype)(";
     getTemporaryToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), (listtype)(";
@@ -10382,7 +10541,7 @@ const proc: process_rfl_head (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     compDataLibraryUsed := TRUE;
-    prepare_list_result(c_expr);
+    prepare_list_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "rflHead((listtype)(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), ";
@@ -10458,11 +10617,12 @@ const proc: process_rfl_lng (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
-const proc: process_rfl_mklist (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_rfl_mklist (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
     compDataLibraryUsed := TRUE;
-    prepare_list_result(c_expr);
+    prepare_list_result(result_type(getType(function)), c_expr);
     c_expr.result_expr := "rflMklist(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
@@ -10522,7 +10682,7 @@ const proc: process_rfl_tail (in ref_list: params, inout expr_type: c_expr) is f
 
   begin
     compDataLibraryUsed := TRUE;
-    prepare_list_result(c_expr);
+    prepare_list_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "rflTail((listtype)(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), ";
@@ -10531,11 +10691,12 @@ const proc: process_rfl_tail (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_rfl_value (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_rfl_value (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
     compDataLibraryUsed := TRUE;
-    prepare_list_result(c_expr);
+    prepare_list_result(result_type(getType(function)), c_expr);
     c_expr.result_expr := "rflValue((objreftype)(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "))";
@@ -10662,7 +10823,7 @@ const proc: process_sct_alloc (in ref_list: params, inout expr_type: c_expr) is 
   begin
     # prepare_struct_result(getExprResultType(params[1]), c_expr);
     prepareAnyParamTemporarys(params[1], c_param1, c_expr);
-    c_expr.expr &:= "/* SCT_ALLOC */ ";
+    c_expr.expr &:= "/* SCT_ALLOC */ (objreftype)(";
     if c_param1.result_expr <> "" then
       c_expr.expr &:= c_param1.result_expr;
     else
@@ -10670,6 +10831,7 @@ const proc: process_sct_alloc (in ref_list: params, inout expr_type: c_expr) is 
       process_create_call(getExprResultType(params[1]),
           c_param1.expr, c_expr.expr);
     end if;
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -10758,7 +10920,7 @@ const proc: process_sct_select (in reference: function, in ref_list: params,
       create_name2(params[3], c_expr.expr);
       c_expr.expr &:= "*/";
     else
-      if result_type(getType(function)) = floattype then
+      if result_type(getType(function)) in float_types then
         c_expr.expr &:= "*sctFSelect(";
       else
         c_expr.expr &:= "*sctSelect(";
@@ -11223,7 +11385,7 @@ const proc: process_set_sconv (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     c_expr.expr &:= "setSConv((settype)(";
-    process_expr(params[3], c_expr);
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= "))";
   end func;
 
@@ -11268,9 +11430,9 @@ const proc: process_soc_accept (in ref_list: params, inout expr_type: c_expr) is
   begin
     c_expr.expr &:= "socAccept(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", &(";
+    c_expr.expr &:= ", (bstritype *)(&(";
     getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")))";
   end func;
 
 
@@ -12095,10 +12257,14 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
         c_expr.temp_decls &:= ";\n";
         c_expr.expr &:= "(tmp_";
         c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "=(";
-        process_expr(param3, c_expr);
-        c_expr.expr &:= ")-1, tmp_";
-        if not TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= "=";
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "(memsizetype)((";
+          process_expr(param3, c_expr);
+          c_expr.expr &:= ")-1), tmp_";
+        else
+          process_expr(param3, c_expr);
+          c_expr.expr &:= ")-1, tmp_";
           c_expr.expr &:= str(index_temp_num);
           c_expr.expr &:= "<0 || tmp_";
         end if;
@@ -12195,10 +12361,14 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(tmp_";
       c_expr.expr &:= str(index_temp_num);
-      c_expr.expr &:= "=(";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ")-1, tmp_";
-      if not TWOS_COMPLEMENT_INTTYPE then
+      c_expr.expr &:= "=";
+      if TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= "(memsizetype)((";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")-1), tmp_";
+      else
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")-1, tmp_";
         c_expr.expr &:= str(index_temp_num);
         c_expr.expr &:= "<0 || tmp_";
       end if;
@@ -12882,7 +13052,7 @@ const proc: process_typ_eq (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_typ_hashcode (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(inttype)(((uinttype)(";
+    c_expr.expr &:= "(inttype)(((memsizetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")) >> 6)";
   end func;
@@ -12972,10 +13142,16 @@ const proc: process_typ_result (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_typ_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "typStr(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
+    if category(params[1]) = TYPEOBJECT and not isVar(params[1]) then
+      incr(countOptimizations);
+      c_expr.expr &:= stringLiteral(str(getValue(params[1], type)));
+    else
+      compDataLibraryUsed := TRUE;
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "typStr(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -13265,10 +13441,14 @@ const proc: process_action (in reference: function, in ref_list: params,
     elsif action_prefix = "BST" then
       if action_name = "BST_APPEND" then
         process_bst_append(params, c_expr);
+      elsif action_name = "BST_CMP" then
+        process_bst_cmp(params, c_expr);
       elsif action_name = "BST_CPY" then
         process_bst_cpy(params, c_expr);
       elsif action_name = "BST_EQ" then
         process_bst_eq(params, c_expr);
+      elsif action_name = "BST_HASHCODE" then
+        process_bst_hashcode(params, c_expr);
       elsif action_name = "BST_LNG" then
         process_bst_lng(params, c_expr);
       elsif action_name = "BST_NE" then
@@ -13551,6 +13731,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_fil_open(params, c_expr);
       elsif action_name = "FIL_OUT" then
         process_fil_out(params, c_expr);
+      elsif action_name = "FIL_PCLOSE" then
+        process_fil_pclose(params, c_expr);
       elsif action_name = "FIL_POPEN" then
         process_fil_popen(params, c_expr);
       elsif action_name = "FIL_PRINT" then
@@ -14030,7 +14212,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "RFL_LNG" then
         process_rfl_lng(params, c_expr);
       elsif action_name = "RFL_MKLIST" then
-        process_rfl_mklist(params, c_expr);
+        process_rfl_mklist(function, params, c_expr);
       elsif action_name = "RFL_NE" then
         process_rfl_ne(params, c_expr);
       elsif action_name = "RFL_NOT_ELEM" then
@@ -14042,7 +14224,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "RFL_TAIL" then
         process_rfl_tail(params, c_expr);
       elsif action_name = "RFL_VALUE" then
-        process_rfl_value(params, c_expr);
+        process_rfl_value(function, params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -14464,7 +14646,8 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         c_expr.temp_assigns &:= "]);\n";
       end if;
     elsif valueCategory = TYPEOBJECT then
-      c_expr.temp_decls &:= "=NULL";
+      c_expr.temp_decls &:= "=";
+      c_expr.temp_decls &:= typeLiteral(getValue(object_value, type));
     elsif valueCategory = INTOBJECT then
       c_expr.temp_decls &:= "=";
       c_expr.temp_decls &:= str(getValue(object_value, integer));
@@ -14498,7 +14681,9 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=(";
       c_expr.temp_assigns &:= type_name(objectType);
-      c_expr.temp_assigns &:= ")(bstCreate(&empty_bst));\n";
+      c_expr.temp_assigns &:= ")(bstCreate(";
+      c_expr.temp_assigns &:= bstriLiteral(getValue(object_value, bstring));
+      c_expr.temp_assigns &:= "));\n";
       c_expr.temp_frees &:= "bstDestr((bstritype)(o_";
       create_name(current_object, c_expr.temp_frees);
       c_expr.temp_frees &:= "));\n";
@@ -14600,9 +14785,9 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_expr.temp_frees &:= ");\n";
     elsif valueCategory = PROGOBJECT then
       c_expr.temp_decls &:= "=NULL";
-      c_expr.temp_frees &:= "prgDestr((progtype)(o_";
+      c_expr.temp_frees &:= "prgDestr(o_";
       create_name(current_object, c_expr.temp_frees);
-      c_expr.temp_frees &:= "));\n";
+      c_expr.temp_frees &:= ");\n";
     elsif valueCategory = CONSTENUMOBJECT then
       c_expr.temp_decls &:= "=";
       c_expr.temp_decls &:= enum_value(getValue(object_value, reference));
@@ -14656,28 +14841,65 @@ const proc: process_local_var_declaration (in reference: current_object,
   end func;
 
 
-const proc: push_object_value (in reference: obj, in reference: value) is func
+const proc: push_macro_param_value (in reference: obj, in reference: value) is func
 
-  local
-    var integer: length is 0;
-    var integer: number is 0;
   begin
-    length := length(object_value);
-    number := obj_number(obj);
-    if length < number then
-      object_value := object_value & number - length times ref_list.EMPTY;
+    if obj not in macro_param_value then
+      macro_param_value @:= [obj] ref_list.EMPTY;
     end if;
-    incl(object_value[number], value);
+    incl(macro_param_value[obj], value);
   end func;
 
 
-const proc: pop_object_value (in reference: obj) is func
+const proc: pop_macro_param_value (in reference: obj) is func
+
+  begin
+    macro_param_value @:= [obj] macro_param_value[obj][2 ..];
+  end func;
+
+
+const proc: assign_macro_param (in reference: formal_param,
+    in reference: actual_param, inout expr_type: c_expr) is func
 
   local
-    var integer: number is 0;
+    var integer: temp_num is 0;
   begin
-    number := obj_number(obj);
-    object_value[number] := object_value[number][2 ..];
+    c_expr.expr &:= "o_";
+    create_name(formal_param, c_expr.expr);
+    c_expr.expr &:= "=";
+    if isPointerParam(formal_param) then
+      if category(actual_param) = REFPARAMOBJECT then
+        if actual_param in macro_param then
+          c_expr.expr &:= "par_";
+          c_expr.expr &:= str(macro_param[actual_param][1]);
+          c_expr.expr &:= "_";
+        end if;
+        c_expr.expr &:= "o_";
+        create_name(actual_param, c_expr.expr);
+      elsif canTakeAddress(actual_param) then
+        c_expr.expr &:= "&(";
+        process_expr(actual_param, c_expr);
+        c_expr.expr &:= ")";
+      else
+        incr(c_expr.temp_num);
+        temp_num := c_expr.temp_num;
+        c_expr.temp_decls &:= type_name(getExprResultType(actual_param));
+        c_expr.temp_decls &:= " tmp_";
+        c_expr.temp_decls &:= str(temp_num);
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= "(tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "=(";
+        c_expr.expr &:= type_name(getExprResultType(actual_param));
+        c_expr.expr &:= ")(";
+        getAnyParamToExpr(actual_param, c_expr);
+        c_expr.expr &:= "), &tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= ")";
+      end if;
+    else
+      getAnyParamToExpr(actual_param, c_expr);
+    end if;
   end func;
 
 
@@ -14686,15 +14908,14 @@ const proc: push_macro_param (in reference: formal_param,
 
   local
     var type: param_type is void;
-    var integer: temp_num is 0;
   begin
     if category(formal_param) <> SYMBOLOBJECT then
       param_type := getType(formal_param);
       if is_func(param_type) then
-        c_expr.expr &:= "/* proc param o_";
+        c_expr.expr &:= "/* push proc param o_";
         create_name2(formal_param, c_expr.expr);
-        c_expr.expr &:= "*/\n";
-        push_object_value(formal_param, actual_param);
+        c_expr.expr &:= " */\n";
+        push_macro_param_value(formal_param, actual_param);
 (*
       elsif param_type = typetype then
         c_expr.expr &:= "/* type param o_";
@@ -14704,42 +14925,12 @@ const proc: push_macro_param (in reference: formal_param,
       else
         setDiagnosticLine(c_expr);
         c_expr.expr &:= type_name(param_type);
+        c_expr.expr &:= " ";
         if isPointerParam(formal_param) then
-          c_expr.expr &:= " *o_";
-          create_name(formal_param, c_expr.expr);
-          c_expr.expr &:= "=";
-          if category(actual_param) = REFPARAMOBJECT then
-            c_expr.expr &:= "o_";
-            create_name(actual_param, c_expr.expr);
-            c_expr.expr &:= ";\n";
-          elsif canTakeAddress(actual_param) then
-            c_expr.expr &:= "&(";
-            process_expr(actual_param, c_expr);
-            c_expr.expr &:= ");\n";
-          else
-            incr(c_expr.temp_num);
-            temp_num := c_expr.temp_num;
-            c_expr.temp_decls &:= type_name(getExprResultType(actual_param));
-            c_expr.temp_decls &:= " tmp_";
-            c_expr.temp_decls &:= str(temp_num);
-            c_expr.temp_decls &:= ";\n";
-            c_expr.expr &:= "(tmp_";
-            c_expr.expr &:= str(temp_num);
-            c_expr.expr &:= "=(";
-            c_expr.expr &:= type_name(getExprResultType(actual_param));
-            c_expr.expr &:= ")(";
-            getAnyParamToExpr(actual_param, c_expr);
-            c_expr.expr &:= "), &tmp_";
-            c_expr.expr &:= str(temp_num);
-            c_expr.expr &:= ");\n";
-          end if;
-        else
-          c_expr.expr &:= " o_";
-          create_name(formal_param, c_expr.expr);
-          c_expr.expr &:= "=";
-          getAnyParamToExpr(actual_param, c_expr);
-          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "*";
         end if;
+        assign_macro_param(formal_param, actual_param, c_expr);
+        c_expr.expr &:= ";\n";
       end if;
     end if;
   end func;
@@ -14757,6 +14948,104 @@ const proc: push_macro_params (in ref_list: formal_params,
   end func;
 
 
+const proc: push_func_macro_param (in reference: formal_param,
+    in reference: actual_param, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var integer: temp_num is 0;
+  begin
+    if category(formal_param) <> SYMBOLOBJECT then
+      param_type := getType(formal_param);
+      if is_func(param_type) then
+        c_expr.expr &:= "/* push proc param o_";
+        create_name2(formal_param, c_expr.expr);
+        c_expr.expr &:= " */\n";
+        push_macro_param_value(formal_param, actual_param);
+(*
+      elsif param_type = typetype then
+        c_expr.expr &:= "/* type param o_";
+        create_name2(formal_param, c_expr.expr);
+        c_expr.expr &:= "*/\n";
+*)
+      else
+        c_expr.temp_decls &:= type_name(param_type);
+        c_expr.temp_decls &:= " ";
+        if isPointerParam(formal_param) then
+          c_expr.temp_decls &:= "*";
+        end if;
+        incr(c_expr.temp_num);
+        temp_num := c_expr.temp_num;
+        if formal_param in macro_param then
+          macro_param @:= [formal_param] [] (temp_num) & macro_param[formal_param];
+        else
+          macro_param @:= [formal_param] [] (temp_num);
+        end if;
+        c_expr.temp_decls &:= "par_";
+        c_expr.temp_decls &:= str(temp_num);
+        c_expr.temp_decls &:= "_o_";
+        create_name(formal_param, c_expr.temp_decls);
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= "par_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "_";
+        assign_macro_param(formal_param, actual_param, c_expr);
+        c_expr.expr &:= ",\n";
+      end if;
+    end if;
+  end func;
+
+
+const proc: push_func_macro_params (in ref_list: formal_params,
+    in ref_list: actual_params, inout expr_type: c_expr) is func
+
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(formal_params) do
+      push_func_macro_param(formal_params[number], actual_params[number], c_expr);
+    end for;
+  end func;
+
+
+const proc: pop_func_macro_param (in reference: formal_param,
+    inout string: expr) is func
+
+  local
+    var category: paramCategory is category.value;
+    var type: param_type is void;
+  begin
+    paramCategory := category(formal_param);
+    if paramCategory <> SYMBOLOBJECT then
+      param_type := getType(formal_param);
+      if is_func(param_type) then
+        expr &:= "/* pop proc param o_";
+        create_name2(formal_param, expr);
+        expr &:= " */\n";
+        pop_macro_param_value(formal_param);
+      else
+        if length(macro_param[formal_param]) = 1 then
+          excl(macro_param, formal_param);
+        else
+          macro_param @:= [formal_param] macro_param[formal_param][2 ..];
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: pop_func_macro_params (in ref_list: formal_params,
+    inout string: expr) is func
+
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(formal_params) do
+      pop_func_macro_param(formal_params[number], expr);
+    end for;
+  end func;
+
+
 const proc: pop_macro_param (in reference: formal_param,
     inout expr_type: c_expr) is func
 
@@ -14768,10 +15057,10 @@ const proc: pop_macro_param (in reference: formal_param,
     if paramCategory <> SYMBOLOBJECT then
       param_type := getType(formal_param);
       if is_func(param_type) then
-        c_expr.expr &:= "/* end proc param o_";
+        c_expr.expr &:= "/* pop proc param o_";
         create_name2(formal_param, c_expr.expr);
-        c_expr.expr &:= "*/\n";
-        pop_object_value(formal_param);
+        c_expr.expr &:= " */\n";
+        pop_macro_param_value(formal_param);
       end if;
     end if;
   end func;
@@ -14789,6 +15078,111 @@ const proc: pop_macro_params (in ref_list: formal_params,
   end func;
 
 
+const proc: process_func_macro (in reference: function,
+    in ref_list: formal_params, in ref_list: actual_params,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: function_type is void;
+    var type: result_type is void;
+    var expr_type: macro_body is expr_type.value;
+    var expr_type: macro_decls is expr_type.value;
+    var reference: result_object is NIL;
+  begin
+    function_type := getType(function);
+    result_type := result_type(function_type);
+    macro_decls.temp_num := c_expr.temp_num;
+    push_func_macro_params(formal_params, actual_params, macro_decls);
+    process_local_var_declaration(function, macro_decls);
+    result_object := func_result(function);
+    if result_object <> NIL then
+      macro_decls.expr &:= type_name(getType(result_object));
+      macro_decls.expr &:= " o_";
+      create_name(result_object, macro_decls.expr);
+      macro_decls.expr &:= ";\n";
+    end if;
+    c_expr.temp_num := macro_decls.temp_num;
+    c_expr.temp_decls &:= macro_decls.temp_decls;
+    c_expr.temp_frees &:= macro_decls.temp_frees;
+    c_expr.temp_to_null &:= macro_decls.temp_to_null;
+    prepareAnyParamTemporarys(body(function), macro_body, c_expr);
+    if macro_body.result_expr <> "" then
+      c_expr.result_expr &:= "\n/* ";
+      if is_varfunc(function_type) then
+        c_expr.result_expr &:= "var";
+      end if;
+      c_expr.result_expr &:= "func macro o_";
+      create_name2(function, c_expr.result_expr);
+      c_expr.result_expr &:= " */ ";
+      if is_varfunc(function_type) then
+        c_expr.result_expr &:= "*";
+      end if;
+      c_expr.result_expr &:= "((";
+      c_expr.result_expr &:= type_name(result_type);
+      if is_varfunc(function_type) then
+        c_expr.result_expr &:= " *";
+      end if;
+      c_expr.result_expr &:= ")(\n";
+      c_expr.result_expr &:= macro_decls.temp_assigns;
+      c_expr.result_expr &:= macro_decls.expr;
+      # c_expr.result_decl &:= macro_body.result_decl;
+      # c_expr.result_free &:= macro_body.result_free;
+      # c_expr.result_to_null &:= macro_body.result_to_null;
+      if is_varfunc(function_type) then
+        c_expr.result_expr &:= "&(";
+        c_expr.result_expr &:= macro_body.expr;
+        c_expr.result_expr &:= ")";
+      else
+        c_expr.result_expr &:= macro_body.result_expr;
+      end if;
+      c_expr.result_expr &:= "\n";
+      pop_func_macro_params(formal_params, c_expr.result_expr);
+      c_expr.result_expr &:= ")) /* ";
+      if is_varfunc(function_type) then
+        c_expr.result_expr &:= "var";
+      end if;
+      c_expr.result_expr &:= "func macro o_";
+      create_name2(function, c_expr.result_expr);
+      c_expr.result_expr &:= " */\n";
+    else
+      c_expr.expr &:= "\n/* ";
+      if is_varfunc(function_type) then
+        c_expr.expr &:= "var";
+      end if;
+      c_expr.expr &:= "func macro o_";
+      create_name2(function, c_expr.expr);
+      c_expr.expr &:= " */ ";
+      if is_varfunc(function_type) then
+        c_expr.expr &:= "*";
+      end if;
+      c_expr.expr &:= "((";
+      c_expr.expr &:= type_name(result_type);
+      if is_varfunc(function_type) then
+        c_expr.expr &:= " *";
+      end if;
+      c_expr.expr &:= ")(\n";
+      c_expr.expr &:= macro_decls.temp_assigns;
+      c_expr.expr &:= macro_decls.expr;
+      if is_varfunc(function_type) then
+        c_expr.expr &:= "&(";
+        c_expr.expr &:= macro_body.expr;
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= macro_body.expr;
+      end if;
+      c_expr.expr &:= "\n";
+      pop_func_macro_params(formal_params, c_expr.expr);
+      c_expr.expr &:= ")) /* ";
+      if is_varfunc(function_type) then
+        c_expr.expr &:= "var";
+      end if;
+      c_expr.expr &:= "func macro o_";
+      create_name2(function, c_expr.expr);
+      c_expr.expr &:= " */\n";
+    end if;
+  end func;
+
+
 const proc: process_macro (in reference: function,
     in ref_list: formal_params, in ref_list: actual_params,
     inout expr_type: c_expr) is func
@@ -14796,11 +15190,10 @@ const proc: process_macro (in reference: function,
   local
     var type: result_type is void;
     var expr_type: macro_decls is expr_type.value;
-    var reference: result_object is NIL;
   begin
     result_type := result_type(getType(function));
     if result_type = voidtype then
-      c_expr.expr &:= "/* macro o_";
+      c_expr.expr &:= "/* proc macro o_";
       create_name2(function, c_expr.expr);
       c_expr.expr &:= "*/ {\n";
       c_expr.expr &:= "/* macro params */\n";
@@ -14813,35 +15206,11 @@ const proc: process_macro (in reference: function,
       process_expr(body(function), c_expr);
       c_expr.expr &:= macro_decls.temp_frees;
       pop_macro_params(formal_params, c_expr);
-      c_expr.expr &:= "\n} /* macro o_";
+      c_expr.expr &:= "\n} /* proc macro o_";
       create_name2(function, c_expr.expr);
       c_expr.expr &:= "*/\n";
     else
-      c_expr.expr &:= "/* macro o_";
-      create_name2(function, c_expr.expr);
-      c_expr.expr &:= "*/ (\n";
-      macro_decls.temp_num := c_expr.temp_num;
-      push_macro_params(formal_params, actual_params, macro_decls);
-      process_local_var_declaration(function, macro_decls);
-      result_object := func_result(function);
-      if result_object <> NIL then
-        macro_decls.expr &:= type_name(getType(result_object));
-        macro_decls.expr &:= " o_";
-        create_name(result_object, macro_decls.expr);
-        macro_decls.expr &:= ";\n";
-      end if;
-      c_expr.temp_num := macro_decls.temp_num;
-      incr(c_expr.temp_num);
-      c_expr.temp_decls &:= macro_decls.temp_decls;
-      c_expr.temp_assigns &:= macro_decls.temp_assigns;
-      c_expr.temp_assigns &:= macro_decls.expr;
-      c_expr.temp_frees &:= macro_decls.temp_frees;
-      c_expr.temp_to_null &:= macro_decls.temp_to_null;
-      process_expr(body(function), c_expr);
-      pop_macro_params(formal_params, c_expr);
-      c_expr.expr &:= "\n) /* macro o_";
-      create_name2(function, c_expr.expr);
-      c_expr.expr &:= "*/\n";
+      process_func_macro(function, formal_params, actual_params, c_expr);
     end if;
   end func;
 
@@ -14877,6 +15246,11 @@ const proc: call_params (in ref_list: formal_params,
           end if;
           if isPointerParam(formal_param) then
             if category(actual_param) = REFPARAMOBJECT then
+              if actual_param in macro_param then
+                c_expr.expr &:= "par_";
+                c_expr.expr &:= str(macro_param[actual_param][1]);
+                c_expr.expr &:= "_";
+              end if;
               c_expr.expr &:= "o_";
               create_name(actual_param, c_expr.expr);
             elsif canTakeAddress(actual_param) then
@@ -15030,6 +15404,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
       process_expr(function, c_expr);
     elsif functionCategory = BIGINTOBJECT then
       process_expr(function, c_expr);
+    elsif functionCategory = FLOATOBJECT then
+      process_expr(function, c_expr);
     elsif functionCategory = CHAROBJECT then
       process_expr(function, c_expr);
     elsif functionCategory = STRIOBJECT then
@@ -15058,6 +15434,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     elsif functionCategory = REFLISTOBJECT then
       c_expr.expr &:= "o_";
       create_name(function, c_expr.expr);
+    elsif functionCategory = TYPEOBJECT then
+      process_expr(function, c_expr);
     else
       c_expr.expr &:= "/*[ ";
       c_expr.expr &:= str(functionCategory);
@@ -15113,17 +15491,22 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
     elsif exprCategory = VALUEPARAMOBJECT then
+      if current_expression in macro_param then
+        c_expr.expr &:= "par_";
+        c_expr.expr &:= str(macro_param[current_expression][1]);
+        c_expr.expr &:= "_";
+      end if;
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
     elsif exprCategory = REFPARAMOBJECT then
       if isPointerParam(current_expression) then
-        if obj_number(current_expression) <= length(object_value) and
-            length(object_value[obj_number(current_expression)]) > 0 then
+        if current_expression in macro_param_value and
+            length(macro_param_value[current_expression]) > 0 then
           if getType(current_expression) = proctype then
             c_expr.expr &:= "/* body o_";
             create_name2(current_expression, c_expr.expr);
             c_expr.expr &:= "*/ {\n";
-            process_expr(object_value[obj_number(current_expression)][1], c_body);
+            process_expr(macro_param_value[current_expression][1], c_body);
             c_expr.expr &:= c_body.temp_decls;
             c_expr.expr &:= c_body.temp_assigns;
             c_expr.expr &:= c_body.expr;
@@ -15135,7 +15518,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
             c_expr.expr &:= "/* body o_";
             create_name2(current_expression, c_expr.expr);
             c_expr.expr &:= "*/ (";
-            process_expr(object_value[obj_number(current_expression)][1], c_body);
+            process_expr(macro_param_value[current_expression][1], c_body);
             c_expr.expr &:= c_body.temp_decls;
             c_expr.expr &:= c_body.temp_assigns;
             c_expr.expr &:= c_body.expr;
@@ -15143,11 +15526,22 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
             c_expr.expr &:= ")";
           end if;
         else
-          c_expr.expr &:= "(*o_";
+          c_expr.expr &:= "(*";
+          if current_expression in macro_param then
+            c_expr.expr &:= "par_";
+            c_expr.expr &:= str(macro_param[current_expression][1]);
+            c_expr.expr &:= "_";
+          end if;
+          c_expr.expr &:= "o_";
           create_name(current_expression, c_expr.expr);
           c_expr.expr &:= ")";
         end if;
       else
+        if current_expression in macro_param then
+          c_expr.expr &:= "par_";
+          c_expr.expr &:= str(macro_param[current_expression][1]);
+          c_expr.expr &:= "_";
+        end if;
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       end if;
@@ -15159,9 +15553,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        c_expr.expr &:= "NULL/*";
-        c_expr.expr &:= str(current_expression);
-        c_expr.expr &:= "*/";
+        c_expr.expr &:= typeLiteral(getValue(current_expression, type));
       end if;
     elsif exprCategory = INTOBJECT then
       if isVar(current_expression) then
@@ -15203,7 +15595,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        c_expr.expr &:= "&empty_bst";
+        c_expr.expr &:= bstriLiteral(getValue(current_expression, bstring));
       end if;
     elsif exprCategory = REFOBJECT then
       if isVar(current_expression) then
@@ -15302,7 +15694,7 @@ const proc: declare_types_of_params (in ref_list: formal_params, inout expr_type
     for formal_param range formal_params do
       paramCategory := category(formal_param);
       if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
-        declare_type_if_necessary(getType(formal_param), global_c_expr);
+        declare_type_if_necessary(getType(formal_param), c_expr);
       end if;
     end for;
   end func;
@@ -15389,9 +15781,9 @@ const proc: process_return (in reference: result_object,
 
   begin
     if result_object <> NIL then
-      c_expr.expr &:= "return(o_";
+      c_expr.expr &:= "return o_";
       create_name(result_object, c_expr.expr);
-      c_expr.expr &:= ");\n";
+      c_expr.expr &:= ";\n";
     end if;
   end func;
 
@@ -15455,7 +15847,7 @@ const proc: process_func_declaration (in reference: function,
       # The variable write_object_declaration is used to
       # decide if the function declaration should be written
       function_declared @:= [function] TRUE;
-      declare_types_of_params(param_list, c_expr);
+      declare_types_of_params(param_list, global_c_expr);
       process_local_consts(function, c_expr);
       c_expr.expr &:= diagnosticLine(function);
       c_expr.expr &:= "static ";
@@ -15496,7 +15888,7 @@ const proc: process_func_declaration (in reference: function,
           c_expr.expr &:= ");\n";
           c_expr.expr &:= c_param_list.temp_frees;
           c_expr.expr &:= c_proc_body.temp_frees;
-          c_expr.expr &:= "return(result);\n";
+          c_expr.expr &:= "return result;\n";
         else
           c_expr.expr &:= diagnosticLine(body(function));
           c_expr.expr &:= "return (";
@@ -15563,7 +15955,7 @@ const proc: process_prototype_declaration (in reference: current_object,
       if param_list_okay(param_list) then
         # Forward declared functions cannot (at the moment) be macros
         function_declared @:= [current_object] TRUE;
-        declare_types_of_params(param_list, c_expr);
+        declare_types_of_params(param_list, global_c_expr);
         c_expr.expr &:= "static ";
         c_expr.expr &:= type_name(result_type);
         if is_varfunc(current_type) then
@@ -15603,15 +15995,15 @@ const proc: process_type_declaration (in reference: current_object,
     if isVar(current_object) then
       c_expr.expr &:= "typetype o_";
       create_name(current_object, c_expr.expr);
-      c_expr.expr &:= "=NULL";
       c_expr.expr &:= ";\n\n";
+      global_init.expr &:= diagnosticLine(current_object);
+      global_init.expr &:= "o_";
+      create_name(current_object, global_init.expr);
+      global_init.expr &:= "=";
+      global_init.expr &:= typeLiteral(getValue(current_object, type));
+      global_init.expr &:= ";\n";
     else
       aType := getValue(current_object, type);
-      if is_derived(aType) and
-          meta(aType) in isInterfaceType and
-          aType not in isInterfaceType then
-        isInterfaceType @:= [aType] TRUE;
-      end if;
       declare_type_if_necessary(aType, c_expr);
     end if;
     count_declarations;
@@ -15626,7 +16018,7 @@ const proc: process_int_declaration (in reference: current_object,
       c_expr.expr &:= "inttype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
-      c_expr.expr &:= str(getValue(current_object, integer));
+      c_expr.expr &:= integerLiteral(getValue(current_object, integer));
       c_expr.expr &:= ";\n\n";
       count_declarations;
     end if;
@@ -15695,7 +16087,9 @@ const proc: process_bstri_declaration (in reference: current_object,
       global_init.expr &:= diagnosticLine(current_object);
       global_init.expr &:= "o_";
       create_name(current_object, global_init.expr);
-      global_init.expr &:= "=bstCreate(&empty_bst);\n";
+      global_init.expr &:= "=bstCreate(";
+      global_init.expr &:= bstriLiteral(getValue(current_object, bstring));
+      global_init.expr &:= ");\n";
       count_declarations;
     end if;
   end func;
@@ -15752,6 +16146,14 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&blnCpy";
     elsif action_name = "BLN_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
+    elsif action_name = "BST_CMP" then
+      c_expr.expr &:= "&bstCmpGeneric";
+    elsif action_name = "BST_CPY" then
+      c_expr.expr &:= "&bstCpy";
+    elsif action_name = "BST_CREATE" then
+      c_expr.expr &:= "&bstCreateGeneric";
+    elsif action_name = "BST_DESTR" then
+      c_expr.expr &:= "&bstDestr";
     elsif action_name = "CHR_CMP" then
       c_expr.expr &:= "&chrCmpGeneric";
     elsif action_name = "CHR_CPY" then
@@ -15792,6 +16194,12 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&refCpy";
     elsif action_name = "REF_CMP" then
       c_expr.expr &:= "&refCmpGeneric";
+    elsif action_name = "RFL_CREATE" then
+      c_expr.expr &:= "&rflCreateGeneric";
+    elsif action_name = "RFL_CPY" then
+      c_expr.expr &:= "&rflCpy";
+    elsif action_name = "RFL_DESTR" then
+      c_expr.expr &:= "&rflDestr";
     elsif action_name = "SCT_CREATE" then
       object_type := getType(params(function)[1]);
       process_create_declaration(object_type, global_c_expr);
@@ -15935,16 +16343,14 @@ const proc: process_ref_list_declaration (in reference: current_object,
     var boolean: first_element is TRUE;
   begin
     if TRUE then
+      c_expr.expr &:= type_name(getType(current_object));
+      c_expr.expr &:= " o_";
+      create_name(current_object, c_expr.expr);
       if length(getValue(current_object, ref_list)) = 0 then
-        c_expr.expr &:= "listtype o_";
-        create_name(current_object, c_expr.expr);
         c_expr.expr &:= "=";
         c_expr.expr &:= "NULL";
       else
-        c_expr.expr &:= "listtype o_";
-        create_name(current_object, c_expr.expr);
-        c_expr.expr &:= "[]=";
-        c_expr.expr &:= "{";
+        c_expr.expr &:= "[]={";
         for element range getValue(current_object, ref_list) do
           if first_element then
             first_element := FALSE;
@@ -16139,9 +16545,7 @@ const proc: process_win_declaration (in reference: current_object,
     if isVar(current_object) then
       c_expr.expr &:= "wintype o_";
       create_name(current_object, c_expr.expr);
-      c_expr.expr &:= "=";
-      c_expr.expr &:= "NULL";
-      c_expr.expr &:= ";\n\n";
+      c_expr.expr &:= "=NULL;\n\n";
       count_declarations;
     end if;
   end func;
@@ -16154,9 +16558,7 @@ const proc: process_prog_declaration (in reference: current_object,
     if isVar(current_object) then
       c_expr.expr &:= "progtype o_";
       create_name(current_object, c_expr.expr);
-      c_expr.expr &:= "=";
-      c_expr.expr &:= "NULL";
-      c_expr.expr &:= ";\n\n";
+      c_expr.expr &:= "=NULL;\n\n";
       count_declarations;
     end if;
   end func;
@@ -16194,19 +16596,23 @@ const proc: process_enum_literal_declaration (in reference: current_object,
     var type: enum_type is void;
   begin
     enum_type := getType(current_object);
-    if enum_type not in enum_literal then
-      enum_literal @:= [enum_type] element_number_hash.EMPTY_HASH;
+    if enum_type = voidtype then
+      c_expr.expr &:= "/* do not declare: void o_4_empty */\n\n";
+    else
+      if enum_type not in enum_literal then
+        enum_literal @:= [enum_type] element_number_hash.EMPTY_HASH;
+      end if;
+      if current_object not in enum_literal[enum_type] then
+        enum_literal[enum_type] @:= [current_object] length(enum_literal[enum_type]);
+      end if;
+      declare_type_if_necessary(enum_type, c_expr);
+      c_expr.expr &:= type_name(enum_type);
+      c_expr.expr &:= " o_";
+      create_name(current_object, c_expr.expr);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= enum_value(current_object);
+      c_expr.expr &:= ";\n\n";
     end if;
-    if current_object not in enum_literal[enum_type] then
-      enum_literal[enum_type] @:= [current_object] length(enum_literal[enum_type]);
-    end if;
-    declare_type_if_necessary(getType(current_object), c_expr);
-    c_expr.expr &:= type_name(getType(current_object));
-    c_expr.expr &:= " o_";
-    create_name(current_object, c_expr.expr);
-    c_expr.expr &:= "=";
-    c_expr.expr &:= enum_value(current_object);
-    c_expr.expr &:= ";\n\n";
     count_declarations;
   end func;
 
@@ -16233,10 +16639,7 @@ const proc: print_parameter_list (in ref_list: formal_params,
         if param_type in implements then
           c_expr.expr &:= " /*# ";
           for implementationType range implements[param_type] do
-            c_expr.expr &:= "t_";
-            c_expr.expr &:= str(type_number(implementationType));
-            c_expr.expr &:= "**";
-            c_expr.expr &:= str(implementationType);
+            c_expr.expr &:= type_name2(implementationType);
             c_expr.expr &:= "  ";
           end for;
           c_expr.expr &:= " */ ";
@@ -16244,18 +16647,18 @@ const proc: print_parameter_list (in ref_list: formal_params,
         c_expr.expr &:= "printf(";
         c_expr.expr &:= c_literal(str(paramCategory) & " ");
         c_expr.expr &:= "); ";
-        if param_type = stritype then
-          c_expr.expr &:= "printf(\"stritype \"); ";
-          c_expr.expr &:= "filPrint(";
-        elsif param_type = chartype then
-          c_expr.expr &:= "printf(\"chartype \"); ";
-          c_expr.expr &:= "printf(\"%c\", ";
-        elsif param_type = inttype then
+        if param_type in int_types then
           c_expr.expr &:= "printf(\"inttype \"); ";
           c_expr.expr &:= "printf(\"%ld\", ";
-        elsif param_type = floattype then
+        elsif param_type in float_types then
           c_expr.expr &:= "printf(\"floattype \"); ";
           c_expr.expr &:= "printf(\"%f\", ";
+        elsif param_type in char_types then
+          c_expr.expr &:= "printf(\"chartype \"); ";
+          c_expr.expr &:= "printf(\"%c\", ";
+        elsif param_type in stri_types then
+          c_expr.expr &:= "printf(\"stritype \"); ";
+          c_expr.expr &:= "filPrint(";
         elsif param_type = typetype then
           c_expr.expr &:= "printf(\"typetype \"); ";
           c_expr.expr &:= "printf(\"%X\", ";
@@ -16409,6 +16812,7 @@ const proc: process_dynamic_call (in reference: current_object,
           objectCategory = CHAROBJECT or
           objectCategory = STRIOBJECT or
           objectCategory = BSTRIOBJECT or
+          objectCategory = STRUCTOBJECT or
           objectCategory = SETOBJECT or
           objectCategory = CONSTENUMOBJECT then
         c_expr.expr &:= "return ";
@@ -16596,7 +17000,7 @@ const proc: process_dynamic_decision (in reference: current_object,
     if is_func(object_type) or is_varfunc(object_type) then
       result_type := result_type(object_type);
       if result_type <> typetype then
-        declare_types_of_params(param_list, c_expr);
+        declare_types_of_params(param_list, global_c_expr);
         c_expr.expr &:= diagnosticLine(current_object);
         c_expr.expr &:= "/* DYNAMIC */ static ";
         c_expr.expr &:= type_name(result_type);
@@ -16653,7 +17057,7 @@ const proc: process_dynamic_declaration (in reference: current_object,
       result_type := result_type(object_type);
       if result_type <> typetype then
         dynamic_functions &:= make_list(current_object);
-        declare_types_of_params(param_list, c_expr);
+        declare_types_of_params(param_list, global_c_expr);
         c_expr.expr &:= "/* DYNAMIC */ static ";
         c_expr.expr &:= type_name(result_type);
         if is_varfunc(object_type) then
@@ -16670,48 +17074,6 @@ const proc: process_dynamic_declaration (in reference: current_object,
         prototype_declared @:= [current_object] TRUE;
       end if;
     end if;
-  end func;
-
-
-const proc: create_func_addr(in type: arrayType, inout expr_type: c_expr) is func
-
-  local
-    var type: baseType is void;
-  begin
-(*
-    main_obj := sys_var(prog, "main");
-    baseType := base_type(arrayType);
-(ref baseType param) ::= (in baseType param)
-*)
-    c_expr.expr &:= "NULL";
-  end func;
-
-
-const proc: destroy_func_addr(in type: arrayType, inout expr_type: c_expr) is func
-
-  local
-    var type: baseType is void;
-  begin
-(*
-    main_obj := sys_var(prog, "main");
-    baseType := base_type(arrayType);
-(ref baseType param) ::= (in baseType param)
-*)
-    c_expr.expr &:= "NULL";
-  end func;
-
-
-const proc: copy_func_addr(in type: arrayType, inout expr_type: c_expr) is func
-
-  local
-    var type: baseType is void;
-  begin
-(*
-    main_obj := sys_var(prog, "main");
-    baseType := base_type(arrayType);
-(ref baseType param) ::= (in baseType param)
-*)
-    c_expr.expr &:= "NULL";
   end func;
 
 
@@ -16829,16 +17191,10 @@ const proc: process_arr_gen_declaration (in reference: current_object,
       array_type @:= [object_type] result_type;
     end if;
     c_expr.expr &:= "/* ACTION ARR_GEN for type ";
-    c_expr.expr &:= "t_";
-    c_expr.expr &:= str(type_number(result_type));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(result_type);
+    c_expr.expr &:= type_name2(result_type);
     c_expr.expr &:= " element is ";
-    c_expr.expr &:= "t_";
-    c_expr.expr &:= str(type_number(object_type));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(object_type);
-    c_expr.expr &:= "*/\n\n";
+    c_expr.expr &:= type_name2(object_type);
+    c_expr.expr &:= " */\n\n";
   end func;
 
 
@@ -16862,16 +17218,10 @@ const proc: process_arr_idx_declaration (in reference: current_object,
       array_type @:= [result_type] object_type;
     end if;
     c_expr.expr &:= "/* ACTION ARR_IDX for type ";
-    c_expr.expr &:= "t_";
-    c_expr.expr &:= str(type_number(object_type));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(object_type);
+    c_expr.expr &:= type_name2(object_type);
     c_expr.expr &:= " element is ";
-    c_expr.expr &:= "t_";
-    c_expr.expr &:= str(type_number(result_type));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(result_type);
-    c_expr.expr &:= "*/\n\n";
+    c_expr.expr &:= type_name2(result_type);
+    c_expr.expr &:= " */\n\n";
   end func;
 
 
@@ -16896,20 +17246,20 @@ const proc: process_arr_times_declaration (in reference: current_object,
     prototype_declared @:= [current_object] TRUE;
     c_expr.expr &:= "{\n";
     c_expr.expr &:= "arraytype a;\n";
-    c_expr.expr &:= "unsigned long i;\n";
+    c_expr.expr &:= "memsizetype i;\n";
     c_expr.expr &:= "if (n < 0) {\n";
     process_raise_error("RANGE_ERROR", NIL, c_expr);
     c_expr.expr &:= ";\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "a=(arraytype)(malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
-    c_expr.expr &:= "  n * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= "  (memsizetype)(n) * sizeof(rtlObjecttype)));\n";
 #!    c_expr.expr &:= "ALLOC_RTL_ARRAY(a,n);\n";
     c_expr.expr &:= "if (a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "a->min_position = 1;\n";
     c_expr.expr &:= "a->max_position = n;\n";
-    c_expr.expr &:= "for (i = 0; i < n; i++) {\n";
+    c_expr.expr &:= "for (i = 0; i < (memsizetype)(n); i++) {\n";
     c_expr.expr &:= "a->arr[i]";
     c_expr.expr &:= select_value_from_rtlObjectstruct(object_type);
     c_expr.expr &:= "=";
@@ -16918,7 +17268,7 @@ const proc: process_arr_times_declaration (in reference: current_object,
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "return(a);\n";
+    c_expr.expr &:= "return a;\n";
     c_expr.expr &:= "}\n\n";
   end func;
 
@@ -16928,13 +17278,12 @@ const proc: process_bln_cpy_declaration (in reference: current_object,
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var type: booltype is void;
+    var type: bool_type is void;
   begin
     params := params(current_object);
-    booltype := getType(params[1]);
-    if booltype not in simple_pod_type then
-      simple_pod_type @:= [booltype] TRUE;
-    end if;
+    bool_type := getType(params[1]);
+    bool_types @:= [bool_type] TRUE;
+    simple_pod_type @:= [bool_type] TRUE;
   end func;
 
 
@@ -16947,9 +17296,7 @@ const proc: process_itf_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     itf_type := getType(params[1]);
-    if itf_type not in isInterfaceType then
-      isInterfaceType @:= [itf_type] TRUE;
-    end if;
+    isInterfaceType @:= [itf_type] TRUE;
   end func;
 
 
@@ -16981,15 +17328,11 @@ const proc: process_itf_cpy2_declaration (in reference: current_object,
     interfaceType := getType(params[1]);
     implementationType := getType(params[3]);
     addImplementationToInterface(implementationType, interfaceType);
-    c_expr.expr &:= "/* itf_cpy2: t_";
-    c_expr.expr &:= str(type_number(interfaceType));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(interfaceType);
-    c_expr.expr &:= " := t_";
-    c_expr.expr &:= str(type_number(implementationType));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(implementationType);
-    c_expr.expr &:= "*/\n";
+    c_expr.expr &:= "/* itf_cpy2: ";
+    c_expr.expr &:= type_name2(interfaceType);
+    c_expr.expr &:= " := ";
+    c_expr.expr &:= type_name2(implementationType);
+    c_expr.expr &:= " */\n";
   end func;
 
 
@@ -17013,9 +17356,7 @@ const proc: process_fil_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     filetype := getType(params[1]);
-    if filetype not in simple_pod_type then
-      simple_pod_type @:= [filetype] TRUE;
-    end if;
+    simple_pod_type @:= [filetype] TRUE;
   end func;
 
 
@@ -17028,9 +17369,7 @@ const proc: process_soc_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     sockettype := getType(params[1]);
-    if sockettype not in simple_pod_type then
-      simple_pod_type @:= [sockettype] TRUE;
-    end if;
+    simple_pod_type @:= [sockettype] TRUE;
   end func;
 
 
@@ -17043,9 +17382,18 @@ const proc: process_hsh_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     hash_type := getType(params[1]);
-    if hash_type not in isHashType then
-      isHashType @:= [hash_type] TRUE;
-    end if;
+    hash_types @:= [hash_type] TRUE;
+  end func;
+
+
+const proc: process_prg_cpy_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+  begin
+    params := params(current_object);
+    progtype := getType(params[1]);
   end func;
 
 
@@ -17058,12 +17406,8 @@ const proc: process_ref_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     aType := getType(params[1]);
-    if aType not in simple_pod_type then
-      simple_pod_type @:= [aType] TRUE;
-    end if;
-    if aType not in reference_types then
-      reference_types @:= [aType] TRUE;
-    end if;
+    reference_types @:= [aType] TRUE;
+    simple_pod_type @:= [aType] TRUE;
   end func;
 
 
@@ -17103,9 +17447,7 @@ const proc: process_sct_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     sct_type := getType(params[1]);
-    if sct_type not in struct_types then
-      struct_types @:= [sct_type] TRUE;
-    end if;
+    struct_types @:= [sct_type] TRUE;
     if is_derived(sct_type) then
       meta_type := meta(sct_type);
       if meta_type in struct_elements then
@@ -17138,15 +17480,11 @@ const proc: process_sct_select_declaration (in reference: current_object,
     structType := getType(params[1]);
     elementOfStruct := params[3];
     addStructElem(structType, elemType, elementOfStruct);
-    c_expr.expr &:= "/* struct element t_";
-    c_expr.expr &:= str(type_number(elemType));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(elemType);
-    c_expr.expr &:= "** t_";
-    c_expr.expr &:= str(type_number(structType));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(structType);
-    c_expr.expr &:= "**->o_";
+    c_expr.expr &:= "/* struct element ";
+    c_expr.expr &:= type_name2(elemType);
+    c_expr.expr &:= " ** ";
+    c_expr.expr &:= type_name2(structType);
+    c_expr.expr &:= "->o_";
     create_name2(elementOfStruct, c_expr.expr);
     c_expr.expr &:= " = ";
     c_expr.expr &:= str(struct_elements[structType][elementOfStruct]);
@@ -17168,15 +17506,11 @@ const proc: process_ref_select_declaration (in reference: current_object,
     structType := getType(params[1]);
     elementOfStruct := params[3];
     addStructElem(structType, elemType, elementOfStruct);
-    c_expr.expr &:= "/* ref struct element t_";
-    c_expr.expr &:= str(type_number(elemType));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(elemType);
-    c_expr.expr &:= "** t_";
-    c_expr.expr &:= str(type_number(structType));
-    c_expr.expr &:= "**";
-    c_expr.expr &:= str(structType);
-    c_expr.expr &:= "**->o_";
+    c_expr.expr &:= "/* ref struct element ";
+    c_expr.expr &:= type_name2(elemType);
+    c_expr.expr &:= " ** ";
+    c_expr.expr &:= type_name2(structType);
+    c_expr.expr &:= "->o_";
     create_name2(elementOfStruct, c_expr.expr);
     c_expr.expr &:= " = ";
     c_expr.expr &:= str(struct_elements[structType][elementOfStruct]);
@@ -17193,9 +17527,7 @@ const proc: process_int_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     int_type := getType(params[1]);
-    if int_type not in int_types then
-      int_types @:= [int_type] TRUE;
-    end if;
+    int_types @:= [int_type] TRUE;
   end func;
 
 
@@ -17208,9 +17540,7 @@ const proc: process_enu_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     enum_type := getType(params[1]);
-    if enum_type not in enum_types then
-      enum_types @:= [enum_type] TRUE;
-    end if;
+    enum_types @:= [enum_type] TRUE;
   end func;
 
 
@@ -17223,9 +17553,7 @@ const proc: process_rfl_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     ref_list_type := getType(params[1]);
-    if ref_list_type not in ref_list_types then
-      ref_list_types @:= [ref_list_type] TRUE;
-    end if;
+    ref_list_types @:= [ref_list_type] TRUE;
   end func;
 
 
@@ -17238,9 +17566,7 @@ const proc: process_set_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     set_type := getType(params[1]);
-    if set_type not in set_types then
-      set_types @:= [set_type] TRUE;
-    end if;
+    set_types @:= [set_type] TRUE;
   end func;
 
 
@@ -17305,6 +17631,9 @@ const proc: process_action_declaration (in reference: current_object,
       count_declarations;
     elsif action_name = "HSH_CPY" then
       process_hsh_cpy_declaration(current_object, c_expr);
+      count_declarations;
+    elsif action_name = "PRG_CPY" then
+      process_prg_cpy_declaration(current_object, c_expr);
       count_declarations;
     elsif action_name = "REF_CPY" then
       process_ref_cpy_declaration(current_object, c_expr);
@@ -17395,6 +17724,8 @@ const proc: process_object_declaration (in reference: current_object,
     else
       c_expr.expr &:= "/* ";
       c_expr.expr &:= str(objectCategory);
+      c_expr.expr &:= ": ";
+      create_name2(current_object, c_expr.expr);
       c_expr.expr &:= " */\n";
     end if;
   end func;
@@ -17651,7 +17982,8 @@ const proc: write_file_head is func
       writeln(c_prog, "typedef uint32type uinttype;");
     end if;
     writeln(c_prog, "typedef int booltype;");
-    writeln(c_prog, "typedef uint" <& POINTER_SIZE <& "type typetype;");
+    writeln(c_prog, "typedef int enumtype;");
+    writeln(c_prog, "typedef struct typestruct *typetype;");
     if FLOATTYPE_DOUBLE then
       writeln(c_prog, "typedef double floattype;");
     else
@@ -17686,18 +18018,24 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef struct winstruct {");
     writeln(c_prog, "  uinttype usage_count;");
     writeln(c_prog, "} *wintype;");
+    writeln(c_prog, "typedef struct progstruct {");
+    writeln(c_prog, "  uinttype usage_count;");
+    writeln(c_prog, "} *progtype;");
     writeln(c_prog, "typedef struct objectstruct *objreftype;");
     writeln(c_prog, "typedef uint" <& GENERIC_SIZE <& "type generictype;");
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  generictype genericvalue;");
-    writeln(c_prog, "  inttype     intvalue;");
     writeln(c_prog, "  typetype    typevalue;");
+    writeln(c_prog, "  booltype    boolvalue;");
+    writeln(c_prog, "  enumtype    enumvalue;");
+    writeln(c_prog, "  inttype     intvalue;");
+    writeln(c_prog, "  biginttype  bigintvalue;");
     writeln(c_prog, "  floattype   floatvalue;");
     writeln(c_prog, "  stritype    strivalue;");
     writeln(c_prog, "  bstritype   bstrivalue;");
     writeln(c_prog, "  settype     setvalue;");
-    writeln(c_prog, "  biginttype  bigintvalue;");
     writeln(c_prog, "  wintype     winvalue;");
+    writeln(c_prog, "  progtype    progvalue;");
     writeln(c_prog, "  objreftype  objrefvalue;");
     writeln(c_prog, "} valueunion;");
     writeln(c_prog, "typedef struct rtlObjectstruct {");
@@ -17707,11 +18045,14 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef int sockettype;");
     writeln(c_prog, "typedef inttype (*intfunctype)();");
     writeln(c_prog, "typedef unsigned int categorytype;");
-    writeln(c_prog, "typedef struct objectstruct {");
+    writeln(c_prog, "struct objectstruct {");
     writeln(c_prog, "  typetype type_of;");
     writeln(c_prog, "  uint" <& POINTER_SIZE <& "type descriptor;");
     writeln(c_prog, "  valueunion value;");
     writeln(c_prog, "  categorytype objcategory;");
+    writeln(c_prog, "};");
+    writeln(c_prog, "struct typestruct {");
+    writeln(c_prog, "  int dummy;");
     writeln(c_prog, "};");
     writeln(c_prog, "typedef struct list {");
     writeln(c_prog, "  struct list *next;");
@@ -17751,12 +18092,13 @@ const proc: write_file_head is func
     writeln(c_prog, "  rtlObjecttype stru[1];");
     writeln(c_prog, "} *structtype;");
     writeln(c_prog, "typedef structtype interfacetype;");
-    writeln(c_prog, "typedef void *progtype;");
     writeln(c_prog, "stritype       arg_0;");
     writeln(c_prog, "arraytype      arg_v;");
     writeln(c_prog, "biginttype    *big;");
     writeln(c_prog, "stritype       str[];");
+    writeln(c_prog, "bstritype      bst[];");
     writeln(c_prog, "settype        set[];");
+    writeln(c_prog, "typetype       typ[];");
     writeln(c_prog, "arraytype     *arr;");
     writeln(c_prog, "structtype    *sct;");
     writeln(c_prog, "hashtype      *hsh;");
@@ -17764,7 +18106,6 @@ const proc: write_file_head is func
     writeln(c_prog, "valueunion      flt2int;");
     writeln(c_prog, "memsizetype hs;");
     writeln(c_prog);
-    writeln(c_prog, "static struct bstri empty_bst = {0, 0};");
     writeln(c_prog, "static inttype fact[] = {");
     writeln(c_prog, "    1, 1, 2, 6, 24, 120, 720, 5040, 40320,");
     writeln(c_prog, "    362880, 3628800, 39916800, 479001600");
@@ -17779,7 +18120,7 @@ const proc: write_file_head is func
     writeln(c_prog, "#define DESTROY_ERROR 6");
     writeln(c_prog, "#define COPY_ERROR    7");
     writeln(c_prog, "#define IN_ERROR      8");
-    writeln(c_prog, "static char *exception_name[] = {");
+    writeln(c_prog, "static const char *exception_name[] = {");
     writeln(c_prog, "    \"OKAY_NO_ERROR\",");
     writeln(c_prog, "    \"MEMORY_ERROR\",");
     writeln(c_prog, "    \"NUMERIC_ERROR\",");
@@ -17815,9 +18156,9 @@ const proc: write_file_head is func
     # writeln(c_prog, "typedef sigjmp_buf catch_type;");
     writeln(c_prog, "typedef jmp_buf catch_type;");
     writeln(c_prog, "catch_type *catch_stack;");
-    writeln(c_prog, "int catch_stack_pos;");
-    writeln(c_prog, "int max_catch_stack;");
-    writeln(c_prog, "char *error_file = NULL;");
+    writeln(c_prog, "size_t catch_stack_pos;");
+    writeln(c_prog, "size_t max_catch_stack;");
+    writeln(c_prog, "const char *error_file = NULL;");
     writeln(c_prog, "int error_line = 0;");
   end func;
 
@@ -17909,10 +18250,15 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        blnCpy (booltype *, booltype);");
     writeln(c_prog, "void        bstAppend (bstritype *, bstritype);");
     writeln(c_prog, "bstritype   bstCat (bstritype, bstritype);");
+    writeln(c_prog, "inttype     bstCmp (bstritype, bstritype);");
+    writeln(c_prog, "inttype     bstCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        bstCpy (bstritype *, bstritype);");
     writeln(c_prog, "bstritype   bstCreate (bstritype);");
+    writeln(c_prog, "generictype bstCreateGeneric (generictype);");
     writeln(c_prog, "void        bstDestr (bstritype);");
+    writeln(c_prog, "inttype     bstHashCode (bstritype);");
     writeln(c_prog, "bstritype   bstParse (stritype);");
+    writeln(c_prog, "bstritype   bstValue (objreftype);");
     writeln(c_prog, "stritype    chrCLit (chartype);");
     writeln(c_prog, "inttype     chrCmp (chartype, chartype);");
     writeln(c_prog, "inttype     chrCmpGeneric (generictype, generictype);");
@@ -17963,7 +18309,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        drwFCircle (wintype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwFEllipse (wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwFlush (void);");
-    writeln(c_prog, "bstritype   drwGenPointList (inttype *, memsizetype);");
+    writeln(c_prog, "bstritype   drwGenPointList (arraytype);");
     writeln(c_prog, "wintype     drwGet (wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "inttype     drwHeight (wintype);");
     writeln(c_prog, "wintype     drwImage (wintype, inttype *, inttype, inttype);");
@@ -17992,16 +18338,17 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     drwWidth (wintype);");
     writeln(c_prog, "inttype     drwXPos (wintype);");
     writeln(c_prog, "inttype     drwYPos (wintype);");
-    writeln(c_prog, "inttype     enuValue (objreftype a)                         {printf(\"enuValue\\n\");}");
     writeln(c_prog, "biginttype  filBigLng (filetype);");
     writeln(c_prog, "void        filBigSeek (filetype, biginttype);");
     writeln(c_prog, "biginttype  filBigTell (filetype);");
+    writeln(c_prog, "void        filClose (filetype);");
     writeln(c_prog, "stritype    filGets (filetype, inttype);");
     writeln(c_prog, "booltype    filHasNext (filetype);");
     writeln(c_prog, "stritype    filLineRead (filetype, chartype *);");
     writeln(c_prog, "stritype    filLit (filetype);");
     writeln(c_prog, "inttype     filLng (filetype);");
     writeln(c_prog, "filetype    filOpen (stritype, stritype);");
+    writeln(c_prog, "void        filPclose (filetype);");
     writeln(c_prog, "filetype    filPopen (stritype, stritype);");
     writeln(c_prog, "void        filPrint (stritype);");
     writeln(c_prog, "void        filSeek (filetype, inttype);");
@@ -18089,7 +18436,6 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    refCatStr (inttype);");
     writeln(c_prog, "inttype     refCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        refCpy (objreftype *, objreftype);");
-    writeln(c_prog, "floattype * refFSselect (void *a, inttype b)              {printf(\"refFSelect\\n\");}");
     writeln(c_prog, "stritype    refFile (objreftype);");
     writeln(c_prog, "listtype    refHshDataToList (objreftype);");
     writeln(c_prog, "listtype    refHshKeyToList (objreftype);");
@@ -18103,7 +18449,6 @@ const proc: write_prototypes is func
     writeln(c_prog, "objreftype  refResini (objreftype);");
     writeln(c_prog, "objreftype  refResult (objreftype);");
     writeln(c_prog, "listtype    refScttolist (objreftype);");
-    writeln(c_prog, "long *      refSelect (void *a, inttype b)                {printf(\"refSelect\\n\");}");
     writeln(c_prog, "void        refSetCategory (objreftype, inttype);");
     writeln(c_prog, "void        refSetParams (objreftype, listtype);");
     writeln(c_prog, "void        refSetType (objreftype, typetype);");
@@ -18115,6 +18460,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "listtype    rflCat (listtype, listtype);");
     writeln(c_prog, "void        rflCpy (listtype *, listtype);");
     writeln(c_prog, "listtype    rflCreate (listtype);");
+    writeln(c_prog, "generictype rflCreateGeneric (generictype);");
     writeln(c_prog, "void        rflDestr (listtype);");
     writeln(c_prog, "booltype    rflElem (objreftype, listtype);");
     writeln(c_prog, "void        rflElemcpy (listtype, inttype, objreftype);");
@@ -18141,9 +18487,6 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        scrVScroll (inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "int         scrWidth (void);");
     writeln(c_prog, "void        scrWrite (stritype stri);");
-    writeln(c_prog, "void        sctCreate (structtype a, structtype b)        {printf(\"sctCreate\\n\");}");
-    writeln(c_prog, "long *      sctSelect (void *a, inttype b)                {printf(\"sctSelect\\n\");}");
-    writeln(c_prog, "floattype * sctFSelect (void *a, inttype b)               {printf(\"sctFSelect\\n\");}");
     writeln(c_prog, "settype     setArrlit (arraytype);");
     writeln(c_prog, "settype     setBaselit (inttype);");
     writeln(c_prog, "inttype     setCard (settype);");
@@ -18171,7 +18514,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "settype     setSymdiff (settype, settype);");
     writeln(c_prog, "settype     setUnion (settype, settype);");
     writeln(c_prog, "settype     setValue (objreftype);");
-    writeln(c_prog, "sockettype  socAccept (sockettype, bstritype * );");
+    writeln(c_prog, "sockettype  socAccept (sockettype, bstritype *);");
     writeln(c_prog, "void        socBind (sockettype, bstritype);");
     writeln(c_prog, "void        socClose (sockettype);");
     writeln(c_prog, "void        socConnect (sockettype, bstritype);");
@@ -18180,14 +18523,14 @@ const proc: write_prototypes is func
     writeln(c_prog, "bstritype   socInetAddr (stritype, inttype);");
     writeln(c_prog, "bstritype   socInetLocalAddr (inttype);");
     writeln(c_prog, "bstritype   socInetServAddr (inttype);");
-    writeln(c_prog, "stritype    socLineRead (sockettype, chartype * );");
+    writeln(c_prog, "stritype    socLineRead (sockettype, chartype *);");
     writeln(c_prog, "void        socListen (sockettype, inttype);");
     writeln(c_prog, "inttype     socRecv (sockettype, stritype *, inttype, inttype);");
-    writeln(c_prog, "inttype     socRecvfrom (sockettype, stritype *, inttype, inttype, bstritype * );");
+    writeln(c_prog, "inttype     socRecvfrom (sockettype, stritype *, inttype, inttype, bstritype *);");
     writeln(c_prog, "inttype     socSend (sockettype, stritype, inttype);");
     writeln(c_prog, "inttype     socSendto (sockettype, stritype, inttype, bstritype);");
     writeln(c_prog, "sockettype  socSocket (inttype, inttype, inttype);");
-    writeln(c_prog, "stritype    socWordRead (sockettype, chartype * );");
+    writeln(c_prog, "stritype    socWordRead (sockettype, chartype *);");
     writeln(c_prog, "void        socWrite (sockettype, stritype);");
     writeln(c_prog, "void        strAppend (stritype *, stritype);");
     writeln(c_prog, "void        strAppendTemp (stritype *, stritype);");
@@ -18252,7 +18595,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "typetype    typMeta (typetype);");
     writeln(c_prog, "inttype     typNum (typetype);");
     writeln(c_prog, "typetype    typResult (typetype);");
-    writeln(c_prog, "stritype    typStr (int);");
+    writeln(c_prog, "stritype    typStr (typetype);");
     writeln(c_prog, "typetype    typValue (objreftype);");
     writeln(c_prog, "chartype    ut8Getc (filetype);");
     writeln(c_prog, "stritype    ut8Gets (filetype, inttype);");
@@ -18261,35 +18604,13 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    ut8WordRead (filetype, chartype *);");
     writeln(c_prog, "void        ut8Write (filetype, stritype);");
     writeln(c_prog, "void        setupFloat (void);");
-    writeln(c_prog, "void        raise_error2 (int, char *, int);");
+    writeln(c_prog, "void        raise_error2 (int, const char *, int);");
     writeln(c_prog, "#define raise_error(num) raise_error2(num, __FILE__, __LINE__)\n");
 (*
+    writeln(c_prog, "inttype     enuValue (objreftype a)                         {printf(\"enuValue\\n\");}");
     writeln(c_prog, "inttype     enuValue (objreftype);");
-    writeln(c_prog, "void        filPrint (stritype stri) {\n\
-              \char *str1;\n\
-              \str1 = cp_to_cstri(stri);\n\
-              \if (str1 != NULL) {\n\
-              \  fputs(str1, stdout);\n\
-              \  fflush(stdout);\n\
-              \  free(str1);\n\
-              \}\n\
-              \}");
-    writeln(c_prog, "void        hsh_create (hashtype *, hashtype, void *, void *, void *, void * );");
-    writeln(c_prog, "void        hsh_destr (hashtype, void *, void * );");
-    writeln(c_prog, "void        hsh_cpy (hashtype *, hashtype, void *, void *, void *, void * );");
-    writeln(c_prog, "inttype     hsh_contains ();");
-    writeln(c_prog, "void        hsh_incl ();");
-    writeln(c_prog, "void        hsh_excl ();");
     writeln(c_prog, "inttype     heapsize (void);");
     writeln(c_prog, "void        prcNoop (void);");
-    writeln(c_prog, "long *      refSelect (void *, inttype);");
-    writeln(c_prog, "floattype * refFSelect (void *, inttype);");
-    writeln(c_prog, "void        sct_cpy (structtype a, structtype b)          {printf(\"sct_cpy\\n\");}");
-    writeln(c_prog, "void        sct_cpy (structtype, structtype);");
-    writeln(c_prog, "long *      sctSelect (void *, inttype);");
-    writeln(c_prog, "floattype * sctFSelect (void *, inttype);");
-    writeln(c_prog, "stritype    strCLit (stritype);");
-    writeln(c_prog, "stritype    typStr (int a)                                {printf(\"typStr\\n\");}");
 *)
   end func;
 
@@ -18418,6 +18739,10 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
         if getValue(current_object, string) not in stri_const_table then
           stri_const_table @:= [getValue(current_object, string)] length(stri_const_table);
         end if;
+      elsif objectCategory = BSTRIOBJECT then
+        if getValue(current_object, bstring) not in bstri_const_table then
+          bstri_const_table @:= [getValue(current_object, bstring)] length(bstri_const_table);
+        end if;
       elsif objectCategory = ARRAYOBJECT then
         if current_object not in const_table then
           const_table @:= [current_object] length(const_table);
@@ -18474,7 +18799,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= stringLiteral(getValue(current_object, string));
     elsif objectCategory = BSTRIOBJECT then
       c_expr.expr &:= ".value.bstrivalue=";
-      c_expr.expr &:= "&empty_bst";
+      c_expr.expr &:= bstriLiteral(getValue(current_object, bstring));
     elsif objectCategory = SETOBJECT then
       c_expr.expr &:= ".value.setvalue=";
       c_expr.expr &:= bitsetLiteral(getValue(current_object, bitset));
@@ -18591,7 +18916,7 @@ const func string: int64AsTwoInt32 (in bigInteger: number) is func
   result
     var string: result is "";
   begin
-    if LITTLE_ENDIAN then
+    if LITTLE_ENDIAN_INTTYPE then
       result  := str( number        mod 4294967295_);
       result &:= ",";
       result &:= str((number >> 32) mod 4294967295_);
@@ -18639,15 +18964,125 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
       end for;
       c_expr.expr &:= "};\n";
     end for;
+    c_expr.expr &:= "stritype str[]={\n";
     if length(stri_const_table) > 0 then
-      c_expr.expr &:= "stritype str[]={\n";
       for number range sort(keys(stri_index)) do
         c_expr.expr &:= "(stritype) stri_";
         c_expr.expr &:= str(number);
         c_expr.expr &:= ",\n";
       end for;
-      c_expr.expr &:= "};\n\n";
+    else
+      c_expr.expr &:= "(stritype) NULL";
     end if;
+    c_expr.expr &:= "};\n\n";
+  end func;
+
+
+const func string: int32AsFourInt8 (in bigInteger: number) is func
+  result
+    var string: result is "";
+  begin
+    if LITTLE_ENDIAN_INTTYPE then
+      result  := str( number        mod 256_);
+      result &:= ",";
+      result &:= str((number >>  8) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 16) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 24) mod 256_);
+      result &:= ",";
+    else
+      result &:= str((number >> 24) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 16) mod 256_);
+      result &:= ",";
+      result &:= str((number >>  8) mod 256_);
+      result &:= ",";
+      result  := str( number        mod 256_);
+      result &:= ",";
+    end if;
+  end func;
+
+
+const func string: int64AsEightInt8 (in bigInteger: number) is func
+  result
+    var string: result is "";
+  begin
+    if LITTLE_ENDIAN_INTTYPE then
+      result  := str( number        mod 256_);
+      result &:= ",";
+      result &:= str((number >>  8) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 16) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 24) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 32) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 40) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 48) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 56) mod 256_);
+      result &:= ",";
+    else
+      result &:= str((number >> 56) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 48) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 40) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 32) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 24) mod 256_);
+      result &:= ",";
+      result &:= str((number >> 16) mod 256_);
+      result &:= ",";
+      result &:= str((number >>  8) mod 256_);
+      result &:= ",";
+      result  := str( number        mod 256_);
+      result &:= ",";
+    end if;
+  end func;
+
+
+const proc: init_bstri_constants (inout expr_type: c_expr) is func
+  local
+    var bstri_index_hash: bstri_index is bstri_index_hash.EMPTY_HASH;
+    var bstring: bstri is bstring.value;
+    var integer: number is 0;
+    var char: ch is ' ';
+  begin
+    bstri_index := flip(bstri_const_table);
+    for number range sort(keys(bstri_index)) do
+      bstri := bstri_index[number][1];
+      c_expr.expr &:= "/* bst[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "] */ static unsigned char bstri_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "[]={";
+      if POINTER_SIZE = 32 then
+        c_expr.expr &:= int32AsFourInt8(bigInteger conv length(bstri));
+      elsif POINTER_SIZE = 64 then
+        c_expr.expr &:= int64AsEightInt8(bigInteger conv length(bstri));
+      end if;
+      #% for ch range bstri do
+      #%   c_expr.expr &:= c_literal(ch);
+      #%   c_expr.expr &:= ",";
+      #% end for;
+      c_expr.expr &:= "};\n";
+    end for;
+    c_expr.expr &:= "bstritype bst[]={\n";
+    if length(bstri_const_table) > 0 then
+      for number range sort(keys(bstri_index)) do
+        c_expr.expr &:= "(bstritype) bstri_";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= ",\n";
+      end for;
+    else
+      c_expr.expr &:= "(bstritype) NULL";
+    end if;
+    c_expr.expr &:= "};\n\n";
   end func;
 
 
@@ -18706,15 +19141,52 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
       end if;
       c_expr.expr &:= "};\n";
     end for;
+    c_expr.expr &:= "settype set[]={\n";
     if length(set_const_table) > 0 then
-      c_expr.expr &:= "settype set[]={\n";
       for number range sort(keys(set_index)) do
         c_expr.expr &:= "(settype) set_";
         c_expr.expr &:= str(number);
         c_expr.expr &:= ",\n";
       end for;
-      c_expr.expr &:= "};\n\n";
+    else
+      c_expr.expr &:= "(settype) NULL";
     end if;
+    c_expr.expr &:= "};\n\n";
+  end func;
+
+
+const proc: init_type_constants (inout expr_type: c_expr) is func
+  local
+    var type_index_hash: type_index is type_index_hash.EMPTY_HASH;
+    var type: aType is void;
+    var integer: number is 0;
+  begin
+    type_index := flip(type_const_table);
+    for number range sort(keys(type_index)) do
+      aType := type_index[number][1];
+      c_expr.expr &:= "/* typ[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "] */ static unsigned char typ_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "[]={";
+      c_expr.expr &:= "0, 0, 0, 0, 0, 0, 0";
+      #% c_expr.expr &:= c_literal(aType);
+      c_expr.expr &:= "};\n";
+    end for;
+    c_expr.expr &:= "typetype typ[]={\n";
+    if length(type_const_table) > 0 then
+      for number range sort(keys(type_index)) do
+        aType := type_index[number][1];
+        c_expr.expr &:= "(typetype) typ_";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= ", /* ";
+        c_expr.expr &:= type_name2(aType);
+        c_expr.expr &:= " */\n";
+      end for;
+    else
+      c_expr.expr &:= "(typetype) NULL";
+    end if;
+    c_expr.expr &:= "};\n\n";
   end func;
 
 
@@ -18734,42 +19206,52 @@ const proc: generate_main (in program: prog) is func
     var ref_list: hash_data_list is ref_list.EMPTY;
     var ref_list: sorted_list is ref_list.EMPTY;
   begin
-    if not compilerLibraryUsed then
-      c_expr.expr &:= "void raise_error2 (int a, char *file_name, int line_number)\n";
-      c_expr.expr &:= "{\n";
-      c_expr.expr &:= "  error_file = file_name;\n";
-      c_expr.expr &:= "  error_line = line_number;\n";
-      if signal_exception then
-        c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
-        c_expr.expr &:= "  signal(SIGFPE, SIG_DFL);\n";
-#       c_expr.expr &:= "  signal(SIGINT, SIG_DFL);\n";
-#       c_expr.expr &:= "  signal(SIGSEGV, SIG_DFL);\n";
-        c_expr.expr &:= "  flt2int.intvalue = a / (error_line - line_number);\n";
-#       c_expr.expr &:= "  raise(SIGTRAP);\n";
-#       c_expr.expr &:= "  raise(SIGFPE);\n";
-#       c_expr.expr &:= "  raise(SIGINT);\n";
-#       c_expr.expr &:= "  raise(SIGSEGV);\n";
-        c_expr.expr &:= "  activate_signal_handlers();\n";
-      end if;
-      if USE_SIGSETJMP then
-        c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], a);\n";
-      else
-        c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], a);\n";
-      end if;
-      c_expr.expr &:= "}\n";
-      c_expr.expr &:= "\n";
+    if compilerLibraryUsed then
+      writeln(c_prog, "extern booltype in_analyze;");
+      writeln(c_prog, "void raise_error3 (int, const char *, int);");
     end if;
+    c_expr.expr &:= "void raise_error2 (int a, const char *file_name, int line_number)\n";
+    c_expr.expr &:= "{\n";
+    if compilerLibraryUsed then
+      c_expr.expr &:= "if (in_analyze) {\n";
+      c_expr.expr &:= "  raise_error3(a, file_name, line_number);\n";
+      c_expr.expr &:= "} else {\n";
+    end if;
+    c_expr.expr &:= "  error_file = file_name;\n";
+    c_expr.expr &:= "  error_line = line_number;\n";
+    if signal_exception then
+      c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
+      c_expr.expr &:= "  signal(SIGFPE, SIG_DFL);\n";
+#     c_expr.expr &:= "  signal(SIGINT, SIG_DFL);\n";
+#     c_expr.expr &:= "  signal(SIGSEGV, SIG_DFL);\n";
+      c_expr.expr &:= "  flt2int.intvalue = a / (error_line - line_number);\n";
+#     c_expr.expr &:= "  raise(SIGTRAP);\n";
+#     c_expr.expr &:= "  raise(SIGFPE);\n";
+#     c_expr.expr &:= "  raise(SIGINT);\n";
+#     c_expr.expr &:= "  raise(SIGSEGV);\n";
+      c_expr.expr &:= "  activate_signal_handlers();\n";
+    end if;
+    if USE_SIGSETJMP then
+      c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], a);\n";
+    else
+      c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], a);\n";
+    end if;
+    if compilerLibraryUsed then
+      c_expr.expr &:= "}\n";
+    end if;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= "\n";
     if not compDataLibraryUsed then
-      c_expr.expr &:= "inttype heapsize (void) {return(0);}\n";
-#!    c_expr.expr &:= "inttype heapsize (void) {rtlHeapStatistic(); return(0);}\n";
+      c_expr.expr &:= "inttype heapsize (void) {return 0;}\n";
+#!    c_expr.expr &:= "inttype heapsize (void) {rtlHeapStatistic(); return 0;}\n";
       c_expr.expr &:= "inttype refType (objreftype a) {printf(\"refType\\n\");}\n";
       c_expr.expr &:= "inttype typValue (objreftype a) {printf(\"typValue\\n\");}\n";
       c_expr.expr &:= "\n";
     end if;
     if compDataLibraryUsed and not compilerLibraryUsed then
-      c_expr.expr &:= "unsigned char *file_name (unsigned int a) {printf(\"file_name\\n\");}\n";
-      c_expr.expr &:= "void *get_param_list (listtype a, int *b) {printf(\"get_param_list\\n\");}\n";
-      c_expr.expr &:= "void *create_parameter_list (listtype a, int *b) {printf(\"create_parameter_list\\n\");}\n";
+      c_expr.expr &:= "const unsigned char *file_name (unsigned int a) {return \"?\";}\n";
+      c_expr.expr &:= "void *get_param_list (listtype a, int *b) {printf(\"get_param_list\\n\"); return NULL;}\n";
+      c_expr.expr &:= "void *create_parameter_list (listtype a, int *b) {printf(\"create_parameter_list\\n\"); return NULL;}\n";
       c_expr.expr &:= "\n";
     end if;
     process_dynamic_decisions(c_expr);
@@ -18806,7 +19288,9 @@ const proc: generate_main (in program: prog) is func
     writeln("after walk_const_list");
     init_bigint_constants(c_expr);
     init_string_constants(c_expr);
+    init_bstri_constants(c_expr);
     init_set_constants(c_expr);
+    init_type_constants(c_expr);
 
     c_expr.expr &:= "int main (int argc, char **argv)\n";
     c_expr.expr &:= "\n";
@@ -18986,6 +19470,11 @@ const proc: init_systypes (in program: prog) is func
   local
     var reference: type_ref is NIL;
     var reference: ref_to_empty is NIL;
+    var type: int_type is void;
+    var type: float_type is void;
+    var type: bigint_type is void;
+    var type: char_type is void;
+    var type: stri_type is void;
   begin
     type_ref := sys_var(prog, "type");
     if type_ref <> NIL then
@@ -18997,23 +19486,28 @@ const proc: init_systypes (in program: prog) is func
     end if;
     type_ref := sys_var(prog, "integer");
     if type_ref <> NIL then
-      inttype := getValue(type_ref, type);
+      int_type := getValue(type_ref, type);
+      int_types @:= [int_type] TRUE;
     end if;
     type_ref := sys_var(prog, "bigInteger");
     if type_ref <> NIL then
-      biginttype := getValue(type_ref, type);
-    end if;
-    type_ref := sys_var(prog, "char");
-    if type_ref <> NIL then
-      chartype := getValue(type_ref, type);
-    end if;
-    type_ref := sys_var(prog, "string");
-    if type_ref <> NIL then
-      stritype := getValue(type_ref, type);
+      bigint_type := getValue(type_ref, type);
+      bigint_types @:= [bigint_type] TRUE;
     end if;
     type_ref := sys_var(prog, "float");
     if type_ref <> NIL then
-      floattype := getValue(type_ref, type);
+      float_type := getValue(type_ref, type);
+      float_types @:= [float_type] TRUE;
+    end if;
+    type_ref := sys_var(prog, "char");
+    if type_ref <> NIL then
+      char_type := getValue(type_ref, type);
+      char_types @:= [char_type] TRUE;
+    end if;
+    type_ref := sys_var(prog, "string");
+    if type_ref <> NIL then
+      stri_type := getValue(type_ref, type);
+      stri_types @:= [stri_type] TRUE;
     end if;
     ref_to_empty := sys_var(prog, "empty");
     if ref_to_empty <> NIL then
@@ -19172,11 +19666,20 @@ const proc: pass_3 (in string: source, in program: prog,
       writeln(compile_cmd);
       flush(OUT);
       cmd_sh(compile_cmd);
+      if fileType(source & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+        block
+          removeFile(source & EXECUTABLE_FILE_EXTENSION);
+        exception
+          catch FILE_ERROR:
+            writeln("*** Cannot remove old executable: " <&
+                literal(source & EXECUTABLE_FILE_EXTENSION));
+        end block;
+      end if;
+      if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR and
+          fileSize(temp_name(source) & ".cerrs") = 0 then
+        removeFile(temp_name(source) & ".cerrs");
+      end if;
       if fileType(temp_name(source) & OBJECT_FILE_EXTENSION) <> FILE_REGULAR then
-        if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR and
-            fileSize(temp_name(source) & ".cerrs") = 0 then
-          removeFile(temp_name(source) & ".cerrs");
-        end if;
         if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR then
           writeln("*** Errors in " <& literal(temp_name(source) & ".c") <&
               " - see " <& literal(temp_name(source) & ".cerrs"));
@@ -19186,15 +19689,6 @@ const proc: pass_3 (in string: source, in program: prog,
       else
         if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR then
           removeFile(temp_name(source) & ".cerrs");
-        end if;
-        if fileType(source & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
-          block
-            removeFile(source & EXECUTABLE_FILE_EXTENSION);
-          exception
-            catch FILE_ERROR:
-              writeln("*** Cannot remove old executable: " <&
-                  literal(source & EXECUTABLE_FILE_EXTENSION));
-          end block;
         end if;
         if fileType(source & EXECUTABLE_FILE_EXTENSION) = FILE_ABSENT then
           writeln("Calling the linker ...");

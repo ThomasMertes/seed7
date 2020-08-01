@@ -291,6 +291,7 @@ errinfotype *err_info;
     FILE *from_file;
     FILE *to_file;
 #ifdef USE_MMAP
+    int file_no;
     os_stat_struct file_stat;
     memsizetype file_length;
     ustritype file_content;
@@ -313,8 +314,9 @@ errinfotype *err_info;
       if ((to_file = fopen(to_name, "wb")) != NULL) {
 #endif
 #ifdef USE_MMAP
-        if (os_fstat(fileno(from_file), &file_stat) == 0) {
-          if (file_stat.st_size < MAX_MEMSIZETYPE) {
+        file_no = fileno(from_file);
+        if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
+          if (file_stat.st_size < MAX_MEMSIZETYPE && file_stat.st_size >= 0) {
             file_length = (memsizetype) file_stat.st_size;
             if ((file_content = (ustritype) mmap(NULL, file_length,
                 PROT_READ, MAP_PRIVATE, fileno(from_file),
@@ -950,8 +952,8 @@ stritype name;
 #else
         opt = "FALSE";
 #endif
-      } else if (strcmp(opt_name, "LITTLE_ENDIAN") == 0) {
-#ifdef LITTLE_ENDIAN
+      } else if (strcmp(opt_name, "LITTLE_ENDIAN_INTTYPE") == 0) {
+#ifdef LITTLE_ENDIAN_INTTYPE
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -1174,7 +1176,11 @@ stritype file_name;
         if (errno != ENOENT || file_name->size == 0) {
           /* printf("errno=%d\n", errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
+              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+          printf("EIO=%d  ELOOP=%d  ENAMETOOLONG=%d  EOVERFLOW=%d\n",
+              EIO, ELOOP, ENAMETOOLONG, EOVERFLOW);
+          printf("EBADF=%d  EFAULT=%d  ENOMEM=%d\n",
+              EBADF, EFAULT, ENOMEM); */
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */
@@ -1918,36 +1924,3 @@ stritype dest_name;
       raise_error(err_info);
     } /* if */
   } /* cmdSymlink */
-
-
-
-#ifdef FTELL_WRONG_FOR_PIPE
-#undef ftell
-
-
-
-#ifdef ANSI_C
-
-long improved_ftell (FILE *stream)
-#else
-
-long improved_ftell (stream)
-FILE *stream;
-#endif
-
-  {
-    int file_no;
-    os_stat_struct stat_buf;
-    int result;
-
-  /* improved_ftell */
-    file_no = fileno(stream);
-    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
-        S_ISREG(stat_buf.st_mode)) {
-      result = ftell(stream);
-    } else {
-      result = -1;
-    } /* if */
-    return result;
-  } /* improved_ftell */
-#endif

@@ -37,6 +37,7 @@
 #include "windows.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "kbd_drv.h"
@@ -1916,12 +1917,11 @@ inttype *xy;
 
 #ifdef ANSI_C
 
-bstritype drwGenPointList (inttype *xy, memsizetype length)
+bstritype drwGenPointList (const const_rtlArraytype xyArray)
 #else
 
-bstritype drwGenPointList (xy, length)
-inttype *xy;
-memsizetype length;
+bstritype drwGenPointList (xyArray)
+rtlArraytype xyArray;
 #endif
 
   {
@@ -1931,8 +1931,8 @@ memsizetype length;
     bstritype result;
 
   /* drwGenPointList */
-    /* printf("drwGenPointList(%ld, %ld)\n", xy, length); */
-    len = length >> 1;
+    /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
+    len = (memsizetype) (((uinttype) (xyArray->max_position - xyArray->min_position)) >> 1);
     if (!ALLOC_BSTRI(result, len * sizeof(POINT))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -1940,8 +1940,8 @@ memsizetype length;
       if (len > 0) {
         points = (POINT *) result->mem;
         for (pos = 0; pos < len; pos ++) {
-          points[pos].x = xy[pos << 1];
-          points[pos].y = xy[(pos << 1) + 1];
+          points[pos].x = xyArray->arr[ pos << 1     ].value.intvalue;
+          points[pos].y = xyArray->arr[(pos << 1) + 1].value.intvalue;
         } /* for */
       } /* if */
     } /* if */

@@ -70,7 +70,7 @@ wintype drwOpenSubWindow (const_wintype, inttype, inttype, inttype, inttype);
 void drwPoint (const_wintype, inttype, inttype);
 void drwPPoint (const_wintype, inttype, inttype, inttype);
 void drwConvPointList (bstritype, inttype *);
-bstritype drwGenPointList (inttype *, memsizetype);
+bstritype drwGenPointList (const const_rtlArraytype xyArray);
 inttype drwLngPointList (bstritype);
 void drwPolyLine (const_wintype, inttype, inttype, bstritype, inttype);
 void drwFPolyLine (const_wintype, inttype, inttype, bstritype, inttype);

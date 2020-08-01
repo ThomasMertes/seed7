@@ -119,11 +119,13 @@ version.h:
 	echo "#define PATH_DELIMITER '/'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
+	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define USE_FSEEKO" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	echo "#include \"stdio.h\"" > chkftell.c
@@ -187,7 +189,7 @@ version.h:
 	echo "}" >> chkccomp.c
 	echo "number = 1;" >> chkccomp.c
 	echo "if (((char *) &number)[0] == 1) {" >> chkccomp.c
-	echo "puts(\"\043define LITTLE_ENDIAN\");" >> chkccomp.c
+	echo "puts(\"\043define LITTLE_ENDIAN_INTTYPE\");" >> chkccomp.c
 	echo "}" >> chkccomp.c
 	echo "return 0;" >> chkccomp.c
 	echo "}" >> chkccomp.c

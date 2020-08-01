@@ -53,6 +53,23 @@
 
 #ifdef ANSI_C
 
+void raise_error2 (int exception_num, const_cstritype filename, int line)
+#else
+
+void raise_error2 (exception_num, filename, line)
+int exception_num;
+char *filename;
+int line;
+#endif
+
+  { /* raise_error2 */
+    raise_exception(prog.sys_var[exception_num]);
+  } /* raise_error2 */
+
+
+
+#ifdef ANSI_C
+
 int main (int argc, char **argv)
 #else
 

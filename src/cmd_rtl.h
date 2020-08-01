@@ -29,10 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef FTELL_WRONG_FOR_PIPE
-#define ftell improved_ftell
-#endif
-
 #ifdef ANSI_C
 
 biginttype cmdBigFileSize (stritype file_name);
@@ -71,9 +67,6 @@ void cmdSetMTime (stritype file_name,
     inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
 inttype cmdShell (stritype command_stri);
 void cmdSymlink (stritype source_name, stritype dest_name);
-#ifdef FTELL_WRONG_FOR_PIPE
-long improved_ftell (FILE *stream);
-#endif
 
 #else
 
@@ -100,8 +93,5 @@ void cmdSetFileMode ();
 void cmdSetMTime ();
 inttype cmdShell ();
 void cmdSymlink ();
-#ifdef FTELL_WRONG_FOR_PIPE
-long improved_ftell ();
-#endif
 
 #endif

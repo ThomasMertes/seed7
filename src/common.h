@@ -100,19 +100,21 @@ typedef UINT32TYPE         uint32type;
 #ifdef INT32TYPE_SUFFIX_L
 #define INT32TYPE_LITERAL_SUFFIX "L"
 #ifdef TWOS_COMPLEMENT_INTTYPE
-#define INT32TYPE_MIN ((int32type) -2147483648L)
+#define INT32TYPE_MIN  ((int32type) -2147483648L)
 #else
-#define INT32TYPE_MIN             (-2147483647L)
+#define INT32TYPE_MIN              (-2147483647L)
 #endif
-#define INT32TYPE_MAX               2147483647L
+#define INT32TYPE_MAX                2147483647L
+#define UINT32TYPE_MAX ((uint32type) 4294967295L)
 #else
 #define INT32TYPE_LITERAL_SUFFIX ""
 #ifdef TWOS_COMPLEMENT_INTTYPE
-#define INT32TYPE_MIN ((int32type) -2147483648)
+#define INT32TYPE_MIN  ((int32type) -2147483648)
 #else
-#define INT32TYPE_MIN             (-2147483647)
+#define INT32TYPE_MIN              (-2147483647)
 #endif
-#define INT32TYPE_MAX               2147483647
+#define INT32TYPE_MAX                2147483647
+#define UINT32TYPE_MAX ((uint32type) 4294967295)
 #endif
 
 #if   defined INT32TYPE_FORMAT_L
@@ -128,13 +130,16 @@ typedef UINT64TYPE         uint64type;
 
 #if   defined INT64TYPE_SUFFIX_LL
 #define INT64TYPE_LITERAL_SUFFIX "LL"
-#define INT64TYPE_MAX 9223372036854775807LL
+#define INT64TYPE_MAX                 9223372036854775807LL
+#define UINT64TYPE_MAX ((uint64type) 18446744073709551615LL)
 #elif defined INT64TYPE_SUFFIX_L
 #define INT64TYPE_LITERAL_SUFFIX "L"
-#define INT64TYPE_MAX 9223372036854775807L
+#define INT64TYPE_MAX                 9223372036854775807L
+#define UINT64TYPE_MAX ((uint64type) 18446744073709551615L)
 #else
 #define INT64TYPE_LITERAL_SUFFIX ""
-#define INT64TYPE_MAX 9223372036854775807
+#define INT64TYPE_MAX                 9223372036854775807
+#define UINT64TYPE_MAX ((uint64type) 18446744073709551615)
 #endif
 
 #if   defined INT64TYPE_FORMAT_L
@@ -156,6 +161,7 @@ typedef int64type               inttype;
 typedef uint64type              uinttype;
 #define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
 #define INTTYPE_MAX             INT64TYPE_MAX
+#define UINTTYPE_MAX            UINT64TYPE_MAX
 #define INTTYPE_FORMAT          INT64TYPE_FORMAT
 #define uintMostSignificantBit  uint64MostSignificantBit
 #define uintLeastSignificantBit uint64LeastSignificantBit
@@ -164,6 +170,7 @@ typedef int32type               inttype;
 typedef uint32type              uinttype;
 #define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
 #define INTTYPE_MAX             INT32TYPE_MAX
+#define UINTTYPE_MAX            UINT32TYPE_MAX
 #define INTTYPE_FORMAT          INT32TYPE_FORMAT
 #define uintMostSignificantBit  uint32MostSignificantBit
 #define uintLeastSignificantBit uint32LeastSignificantBit
@@ -296,6 +303,9 @@ typedef int errinfotype;
 #endif
 #ifndef os_system
 #define os_system system
+#endif
+#ifndef os_pclose
+#define os_pclose pclose
 #endif
 #ifndef os_popen
 #define os_popen popen

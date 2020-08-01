@@ -154,9 +154,9 @@ version.h:
 	cmd /S /C "echo #define os_DIR wDIR" >> version.h
 	cmd /S /C "echo #define os_dirent_struct struct wdirent >> version.h
 	cmd /S /C "echo #define os_fstat _fstat" >> version.h
-	cmd /S /C "echo #define os_lstat _wstat" >> version.h
-	cmd /S /C "echo #define os_stat _wstat" >> version.h
-	cmd /S /C "echo #define os_stat_struct struct _stat" >> version.h
+	cmd /S /C "echo #define os_lstat _wstati64" >> version.h
+	cmd /S /C "echo #define os_stat _wstati64" >> version.h
+	cmd /S /C "echo #define os_stat_struct struct stati64" >> version.h
 	cmd /S /C "echo #define os_chown(NAME,UID,GID)" >> version.h
 	cmd /S /C "echo #define os_chmod _wchmod" >> version.h
 	cmd /S /C "echo #define os_utime_orig _wutime" >> version.h
@@ -165,8 +165,10 @@ version.h:
 	cmd /S /C "echo #define os_remove _wremove" >> version.h
 	cmd /S /C "echo #define os_rename _wrename" >> version.h
 	cmd /S /C "echo #define os_system _wsystem" >> version.h
+	cmd /S /C "echo #define os_pclose _pclose" >> version.h
 	cmd /S /C "echo #define os_popen _wpopen" >> version.h
 	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
+	cmd /S /C "echo #define USE_FSEEKI64" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
 	cmd /S /C "echo #define $(BIGINT_LIB_DEFINE)" >> version.h
 	cmd /S /C "echo bcc32.exe %*" > bcc32.bat
@@ -233,7 +235,7 @@ version.h:
 	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo number = 1;" >> chkccomp.c
 	cmd /S /C "echo if (((char *) ^&number)[0] == 1) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define LITTLE_ENDIAN");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define LITTLE_ENDIAN_INTTYPE");" >> chkccomp.c
 	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo return 0;" >> chkccomp.c
 	cmd /S /C "echo }" >> chkccomp.c

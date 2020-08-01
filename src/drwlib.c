@@ -33,6 +33,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "runerr.h"
@@ -735,7 +736,7 @@ listtype arguments;
   {
     arraytype points_array;
     memsizetype len;
-    inttype *xy;
+    rtlArraytype xyArray;
     objecttype curr_number;
     memsizetype pos;
     bstritype result;
@@ -747,17 +748,19 @@ listtype arguments;
     if (len == 0 || len & 1) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
-      if (!ALLOC_TABLE(xy, inttype, len)) {
+      if (!ALLOC_RTL_ARRAY(xyArray, len)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
+        xyArray->min_position = 1;
+        xyArray->max_position = (inttype) (len);
         curr_number = &points_array->arr[0];
         for (pos = 0; pos < len; pos++) {
           isit_int(curr_number);
-          xy[pos] = take_int(curr_number);
+          xyArray->arr[pos].value.intvalue = take_int(curr_number);
           curr_number++;
         } /* for */
-        result = drwGenPointList(xy, len);
-        FREE_TABLE(xy, inttype, len);
+        result = drwGenPointList(xyArray);
+        FREE_RTL_ARRAY(xyArray, len);
       } /* if */
     } /* if */
     return(bld_bstri_temp(result));

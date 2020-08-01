@@ -149,17 +149,20 @@
 
 #ifdef ANSI_C
 
+memsizetype remainingBytesInFile (filetype aFile, errinfotype *err_info);
 inttype getFileLengthUsingSeek (filetype aFile);
 biginttype getBigFileLengthUsingSeek (filetype aFile);
 biginttype filBigLng (filetype aFile);
 void filBigSeek (filetype aFile, biginttype big_position);
 biginttype filBigTell (filetype aFile);
+void filClose (filetype aFile);
 stritype filGets (filetype aFile, inttype length);
 booltype filHasNext (filetype aFile);
 stritype filLineRead (filetype aFile, chartype *termination_char);
 stritype filLit (filetype aFile);
 inttype filLng (filetype aFile);
 filetype filOpen (stritype file_name, stritype file_mode);
+void filPclose (filetype aFile);
 filetype filPopen (stritype command, stritype file_mode);
 void filPrint (stritype stri);
 void filSeek (filetype aFile, inttype file_position);
@@ -170,17 +173,20 @@ void filWrite (filetype aFile, stritype stri);
 
 #else
 
+memsizetype remainingBytesInFile ();
 inttype getFileLengthUsingSeek ();
 biginttype getBigFileLengthUsingSeek ();
 biginttype filBigLng ();
 void filBigSeek ();
 biginttype filBigTell ();
+void filClose ();
 stritype filGets ();
 booltype filHasNext ();
 stritype filLineRead ();
 stritype filLit ();
 inttype filLng ();
 filetype filOpen ();
+void filPclose ();
 filetype filPopen ();
 void filPrint ();
 void filSeek ();

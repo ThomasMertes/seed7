@@ -122,7 +122,7 @@ listtype arguments;
 
   { /* fil_close */
     isit_file(arg_1(arguments));
-    fclose(take_file(arg_1(arguments)));
+    filClose(take_file(arg_1(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* fil_close */
 
@@ -437,6 +437,23 @@ listtype arguments;
   { /* fil_out */
     return(bld_file_temp(stdout));
   } /* fil_out */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_pclose (listtype arguments)
+#else
+
+objecttype fil_pclose (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_pclose */
+    isit_file(arg_1(arguments));
+    filPclose(take_file(arg_1(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* fil_pclose */
 
 
 

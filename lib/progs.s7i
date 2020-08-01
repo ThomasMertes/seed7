@@ -118,6 +118,21 @@ const proc: for (inout category param) range (in category param) downto (in cate
             end for is                                                     action "PRC_FOR_DOWNTO";
 
 
+const type: bstring is newtype;
+IN_PARAM_IS_REFERENCE(bstring);
+
+const proc: destroy (ref bstring param) is                                 action "BST_DESTR";
+const proc: (ref bstring param) ::= (ref bstring param) is                 action "BST_CREATE";
+const proc: (inout bstring param) := (ref bstring param) is                action "BST_CPY";
+
+const func bstring: _GENERATE_EMPTY_BSTRING is                             action "BST_EMPTY";
+const bstring: (attr bstring) . value is                                   _GENERATE_EMPTY_BSTRING;
+
+const func integer: length (ref bstring param) is                          action "BST_LNG";
+const func integer: hashCode (ref bstring param) is                        action "BST_HASHCODE";
+const func integer: compare (ref bstring param, ref bstring param) is      action "BST_CMP";
+
+
 const func boolean: isVar (ref reference param) is                         action "REF_ISVAR";
 const proc: setVar (ref reference param, ref boolean param) is             action "REF_SETVAR";
 const func category: category (ref reference param) is                     action "REF_CATEGORY";
@@ -145,6 +160,7 @@ const func integer: obj_number (ref reference param) is                    actio
 const func integer: getValue (ref reference param, attr integer) is        action "INT_VALUE";
 const func char: getValue (ref reference param, attr char) is              action "CHR_VALUE";
 const func string: getValue (ref reference param, attr string) is          action "STR_VALUE";
+const func bstring: getValue (ref reference param, attr bstring) is        action "BST_VALUE";
 const func bitset: getValue (ref reference param, attr bitset) is          action "SET_VALUE";
 const func program: getValue (ref reference param, attr program) is        action "PRG_VALUE";
 const func ACTION: getValue (ref reference param, attr ACTION) is          action "ACT_VALUE";

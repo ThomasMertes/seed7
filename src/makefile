@@ -134,7 +134,7 @@ version.h:
 	echo "#define SCREEN_UTF8" >> version.h
 	echo "#define OS_PATH_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
-	echo "#define USE_LSEEK" >> version.h
+	echo "#define USE_FSEEKO" >> version.h
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
@@ -142,11 +142,11 @@ version.h:
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
-	echo "printf(\"#define POINTER_SIZE %d\", 8 * sizeof(char *));" >> chkccomp.c
+	echo "printf(\"#define POINTER_SIZE %lu\", (long unsigned)(8 * sizeof(char *)));" >> chkccomp.c
 	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"#define FLOAT_SIZE %d\", 8 * sizeof(float));" >> chkccomp.c
+	echo "printf(\"#define FLOAT_SIZE %lu\", (long unsigned)(8 * sizeof(float)));" >> chkccomp.c
 	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"#define DOUBLE_SIZE %d\", 8 * sizeof(double));" >> chkccomp.c
+	echo "printf(\"#define DOUBLE_SIZE %lu\", (long unsigned)(8 * sizeof(double)));" >> chkccomp.c
 	echo "puts(\"\");" >> chkccomp.c
 	echo "if (sizeof(int) == 4) {" >> chkccomp.c
 	echo "puts(\"#define INT32TYPE int\");" >> chkccomp.c
@@ -185,7 +185,7 @@ version.h:
 	echo "}" >> chkccomp.c
 	echo "number = 1;" >> chkccomp.c
 	echo "if (((char *) &number)[0] == 1) {" >> chkccomp.c
-	echo "puts(\"#define LITTLE_ENDIAN\");" >> chkccomp.c
+	echo "puts(\"#define LITTLE_ENDIAN_INTTYPE\");" >> chkccomp.c
 	echo "}" >> chkccomp.c
 	echo "return 0;" >> chkccomp.c
 	echo "}" >> chkccomp.c

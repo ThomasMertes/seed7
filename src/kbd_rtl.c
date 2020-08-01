@@ -35,6 +35,7 @@
 #include "stdio.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "rtl_err.h"
 #include "kbd_drv.h"

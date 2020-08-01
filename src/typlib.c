@@ -88,15 +88,15 @@ listtype arguments;
 #endif
 
   {
-    uinttype typ1;
-    uinttype typ2;
+    memsizetype typ1;
+    memsizetype typ2;
     inttype result;
 
   /* typ_cmp */
     isit_type(arg_1(arguments));
     isit_type(arg_2(arguments));
-    typ1 = (uinttype) take_type(arg_1(arguments));
-    typ2 = (uinttype) take_type(arg_2(arguments));
+    typ1 = (memsizetype) take_type(arg_1(arguments));
+    typ2 = (memsizetype) take_type(arg_2(arguments));
     if (typ1 < typ2) {
       result = -1;
     } else if (typ1 > typ2) {
@@ -388,7 +388,7 @@ listtype arguments;
   { /* typ_hashcode */
     isit_type(arg_1(arguments));
     return(bld_int_temp((inttype)
-        (((unsigned int) take_type(arg_1(arguments))) >> 6)));
+        (((memsizetype) take_type(arg_1(arguments))) >> 6)));
   } /* typ_hashcode */
 
 

@@ -151,6 +151,7 @@ version.h:
 	echo #define os_remove _wremove >> version.h
 	echo #define os_rename _wrename >> version.h
 	echo #define os_system _wsystem >> version.h
+	echo #define os_pclose _pclose >> version.h
 	echo #define os_popen _wpopen >> version.h
 	echo #define wide_fopen _wfopen >> version.h
 	echo #define USE_FSEEKI64 >> version.h
@@ -216,7 +217,7 @@ version.h:
 	echo } >> chkccomp.c
 	echo number = 1; >> chkccomp.c
 	echo if (((char *) ^&number)[0] == 1) { >> chkccomp.c
-	echo puts("\043define LITTLE_ENDIAN"); >> chkccomp.c
+	echo puts("\043define LITTLE_ENDIAN_INTTYPE"); >> chkccomp.c
 	echo } >> chkccomp.c
 	echo return 0; >> chkccomp.c
 	echo } >> chkccomp.c

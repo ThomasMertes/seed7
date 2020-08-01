@@ -29,11 +29,13 @@
 
 objecttype bst_append (listtype);
 objecttype bst_cat (listtype);
+objecttype bst_cmp (listtype);
 objecttype bst_cpy (listtype);
 objecttype bst_create (listtype);
 objecttype bst_destr (listtype);
 objecttype bst_empty (listtype);
 objecttype bst_eq (listtype);
+objecttype bst_hashcode (listtype);
 objecttype bst_lng (listtype);
 objecttype bst_ne (listtype);
 objecttype bst_parse (listtype);
@@ -43,11 +45,13 @@ objecttype bst_value (listtype);
 
 objecttype bst_append ();
 objecttype bst_cat ();
+objecttype bst_cmp ();
 objecttype bst_cpy ();
 objecttype bst_create ();
 objecttype bst_destr ();
 objecttype bst_empty ();
 objecttype bst_eq ();
+objecttype bst_hashcode ();
 objecttype bst_lng ();
 objecttype bst_ne ();
 objecttype bst_parse ();

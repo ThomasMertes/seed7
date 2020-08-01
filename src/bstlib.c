@@ -150,6 +150,50 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype bst_cmp (listtype arguments)
+#else
+
+objecttype bst_cmp (arguments)
+listtype arguments;
+#endif
+
+  {
+    bstritype bstr1;
+    bstritype bstr2;
+    inttype result;
+
+  /* bst_cmp */
+    isit_bstri(arg_1(arguments));
+    isit_bstri(arg_2(arguments));
+    bstr1 = take_bstri(arg_1(arguments));
+    bstr2 = take_bstri(arg_2(arguments));
+    if (bstr1->size < bstr2->size) {
+      if (memcmp(bstr1->mem, bstr2->mem, bstr1->size * sizeof(uchartype)) <= 0) {
+        result = -1;
+      } else {
+        result = 1;
+      } /* if */
+    } else if (bstr1->size > bstr2->size) {
+      if (memcmp(bstr1->mem, bstr2->mem, bstr2->size * sizeof(uchartype)) >= 0) {
+        result = 1;
+      } else {
+        result = -1;
+      } /* if */
+    } else {
+      result = memcmp(bstr1->mem, bstr2->mem, bstr1->size * sizeof(uchartype));
+      if (result > 0) {
+        result = 1;
+      } else if (result < 0) {
+        result = -1;
+      } /* if */
+    } /* if */
+    return(bld_int_temp(result));
+  } /* bst_cmp */
+
+
+
+#ifdef ANSI_C
+
 objecttype bst_cpy (listtype arguments)
 #else
 
@@ -299,21 +343,48 @@ listtype arguments;
 #endif
 
   {
-    bstritype str1;
-    bstritype str2;
+    bstritype bstr1;
+    bstritype bstr2;
 
   /* bst_eq */
     isit_bstri(arg_1(arguments));
     isit_bstri(arg_3(arguments));
-    str1 = take_bstri(arg_1(arguments));
-    str2 = take_bstri(arg_3(arguments));
-    if (str1->size == str2->size && memcmp(str1->mem, str2->mem,
-        str1->size * sizeof(uchartype)) == 0) {
+    bstr1 = take_bstri(arg_1(arguments));
+    bstr2 = take_bstri(arg_3(arguments));
+    if (bstr1->size == bstr2->size && memcmp(bstr1->mem, bstr2->mem,
+        bstr1->size * sizeof(uchartype)) == 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* bst_eq */
+
+
+
+#ifdef ANSI_C
+
+objecttype bst_hashcode (listtype arguments)
+#else
+
+objecttype bst_hashcode (arguments)
+listtype arguments;
+#endif
+
+  {
+    bstritype bstr1;
+    inttype result;
+
+  /* bst_hashcode */
+    isit_bstri(arg_1(arguments));
+    bstr1 = take_bstri(arg_1(arguments));
+    if (bstr1->size == 0) {
+      result = 0;
+    } else {
+      result = (inttype) ((memsizetype) bstr1->mem[0] << 5 ^
+          bstr1->size << 3 ^ bstr1->mem[bstr1->size - 1]);
+    } /* if */
+    return(bld_int_temp(result));
+  } /* bst_hashcode */
 
 
 
@@ -343,16 +414,16 @@ listtype arguments;
 #endif
 
   {
-    bstritype str1;
-    bstritype str2;
+    bstritype bstr1;
+    bstritype bstr2;
 
   /* bst_ne */
     isit_bstri(arg_1(arguments));
     isit_bstri(arg_3(arguments));
-    str1 = take_bstri(arg_1(arguments));
-    str2 = take_bstri(arg_3(arguments));
-    if (str1->size != str2->size || memcmp(str1->mem, str2->mem,
-        str1->size * sizeof(uchartype)) != 0) {
+    bstr1 = take_bstri(arg_1(arguments));
+    bstr2 = take_bstri(arg_3(arguments));
+    if (bstr1->size != bstr2->size || memcmp(bstr1->mem, bstr2->mem,
+        bstr1->size * sizeof(uchartype)) != 0) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);

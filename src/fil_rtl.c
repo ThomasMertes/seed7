@@ -49,7 +49,6 @@
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
-#include "cmd_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 
@@ -91,6 +90,7 @@ typedef long               offsettype;
 #endif
 
 
+#define GETS_DEFAULT_SIZE 1048576
 #define BUFFER_SIZE 4096
 #define READ_BLOCK_SIZE 4096
 
@@ -126,7 +126,7 @@ stritype file_mode;
           /* Binary mode
              r+ ... Open file for update (reading and writing). 
              w+ ... Truncate to zero length or create file for update. 
-             a+ ... Append; open or create file for update, writing at end-of-file. 
+             a+ ... Append; open or create file for update, writing at end-of-file.
           */
           mode[0] = (os_chartype) file_mode->mem[0];
           mode[1] = 'b';
@@ -134,9 +134,9 @@ stritype file_mode;
           mode[3] = '\0';
         } else if (file_mode->mem[1] == 't') {
           /* Text mode
-             rt ... Open file for reading. 
-             wt ... Truncate to zero length or create file for writing. 
-             at ... Append; open or create file for writing at end-of-file. 
+             rt ... Open file for reading.
+             wt ... Truncate to zero length or create file for writing.
+             at ... Append; open or create file for writing at end-of-file.
           */
           mode[0] = (os_chartype) file_mode->mem[0];
           mode[1] = '\0';
@@ -145,9 +145,9 @@ stritype file_mode;
         if (file_mode->mem[1] == 't' &&
             file_mode->mem[2] == '+') {
           /* Text mode
-             rt+ ... Open file for update (reading and writing). 
-             wt+ ... Truncate to zero length or create file for update. 
-             at+ ... Append; open or create file for update, writing at end-of-file. 
+             rt+ ... Open file for update (reading and writing).
+             wt+ ... Truncate to zero length or create file for update.
+             at+ ... Append; open or create file for update, writing at end-of-file.
           */
           mode[0] = (os_chartype) file_mode->mem[0];
           mode[1] = '+';
@@ -161,6 +161,206 @@ stritype file_mode;
 
 #ifdef ANSI_C
 
+static offsettype seekFileLength (filetype aFile)
+#else
+
+static offsettype seekFileLength (aFile)
+filetype aFile;
+#endif
+
+  {
+    offsettype current_file_position;
+    offsettype file_length;
+
+  /* seekFileLength */
+#ifdef FTELL_WRONG_FOR_PIPE
+    {
+      int file_no;
+      os_stat_struct stat_buf;
+
+      file_no = fileno(aFile);
+      if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
+          !S_ISREG(stat_buf.st_mode)) {
+        return (offsettype) -1;
+      } /* if */
+    }
+#endif
+#ifdef myLseek
+    {
+      int file_no;
+
+      file_no = fileno(aFile);
+      if (file_no == -1) {
+        file_length = -1;
+      } else {
+        fflush(aFile);
+        current_file_position = myLseek(file_no, (offsettype) 0, SEEK_CUR);
+        if (current_file_position == (offsettype) -1) {
+          file_length = -1;
+        } else {
+          file_length = myLseek(file_no, (offsettype) 0, SEEK_END);
+          if (file_length != (offsettype) -1) {
+            if (myLseek(file_no, current_file_position, SEEK_SET) == (offsettype) -1) {
+              file_length = -1;
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+    }
+#else
+    current_file_position = myFtell(aFile);
+    if (current_file_position == (offsettype) -1) {
+      file_length = -1;
+    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
+      file_length = -1;
+    } else {
+      file_length = myFtell(aFile);
+      if (file_length != (offsettype) -1) {
+        if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
+          file_length = -1;
+        } /* if */
+      } /* if */
+    } /* if */
+#endif
+    return file_length;
+  } /* seekFileLength */
+
+
+
+#ifdef ANSI_C
+
+static offsettype offsetTell (filetype aFile)
+#else
+
+static offsettype offsetTell (aFile)
+filetype aFile;
+#endif
+
+  {
+    offsettype current_file_position;
+
+  /* offsetTell */
+#ifdef FTELL_WRONG_FOR_PIPE
+    {
+      int file_no;
+      os_stat_struct stat_buf;
+
+      file_no = fileno(aFile);
+      if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
+          !S_ISREG(stat_buf.st_mode)) {
+        return (offsettype) -1;
+      } /* if */
+    }
+#endif
+#ifdef myLseek
+    {
+      int file_no;
+
+      file_no = fileno(aFile);
+      if (file_no == -1) {
+        current_file_position = -1;
+      } else {
+        fflush(aFile);
+        current_file_position = myLseek(file_no, (offsettype) 0, SEEK_CUR);
+      } /* if */
+    }
+#else
+    current_file_position = myFtell(aFile);
+#endif
+    return current_file_position;
+  } /* offsetTell */
+
+
+
+#ifdef ANSI_C
+
+static int offsetSeek (filetype aFile, offsettype file_position)
+#else
+
+static int offsetSeek (aFile, file_position)
+filetype aFile;
+offsettype file_position;
+#endif
+
+  {
+    int result;
+
+  /* offsetSeek */
+#ifdef myLseek
+    {
+      int file_no;
+
+      file_no = fileno(aFile);
+      if (file_no == -1) {
+        result = -1;
+      } else {
+        fflush(aFile);
+        if (myLseek(file_no, file_position, SEEK_SET) == (offsettype) -1) {
+          result = -1;
+        } else {
+          result = 0;
+        } /* if */
+      } /* if */
+    }
+#else
+    result = myFseek(aFile, file_position, SEEK_SET);
+#endif
+    return result;
+  } /* offsetSeek */
+
+
+
+/**
+ *  Determine how many bytes can be read from the current position.
+ *  Returns MAX_MEMSIZETYPE when the file is not seekable
+ *  or when the result does not fit into memsizetype.
+ */
+#ifdef ANSI_C
+
+memsizetype remainingBytesInFile (filetype aFile, errinfotype *err_info)
+#else
+
+memsizetype remainingBytesInFile (aFile, err_info)
+filetype aFile;
+errinfotype *err_info;
+#endif
+
+  {
+    int file_no;
+    os_stat_struct stat_buf;
+    offsettype file_length;
+    offsettype current_file_position;
+    memsizetype result;
+
+  /* remainingBytesInFile */
+    current_file_position = offsetTell(aFile);
+    if (current_file_position == (offsettype) -1) {
+      result = MAX_MEMSIZETYPE;
+    } else {
+      file_no = fileno(aFile);
+      if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
+          S_ISREG(stat_buf.st_mode)) {
+        file_length = stat_buf.st_size;
+      } else {
+        file_length = seekFileLength(aFile);
+      } /* if */
+      if (file_length == (offsettype) -1) {
+        *err_info = FILE_ERROR;
+        result = 0;
+      } else if (file_length < current_file_position ||
+          file_length - current_file_position >= MAX_MEMSIZETYPE) {
+        result = MAX_MEMSIZETYPE;
+      } else {
+        result = (memsizetype) (file_length - current_file_position);
+      } /* if */
+    } /* if */
+    return result;
+  } /* remainingBytesInFile */
+
+
+
+#ifdef ANSI_C
+
 inttype getFileLengthUsingSeek (filetype aFile)
 #else
 
@@ -169,62 +369,20 @@ filetype aFile;
 #endif
 
   {
-    offsettype current_file_position;
     offsettype file_length;
     inttype result;
 
   /* getFileLengthUsingSeek */
-#ifdef myLseek
-    fflush(aFile);
-    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
-    if (current_file_position == (offsettype) -1) {
+    file_length = seekFileLength(aFile);
+    if (file_length == (offsettype) -1) {
       raise_error(FILE_ERROR);
+      result = 0;
+    } else if (file_length > INTTYPE_MAX || file_length < (offsettype) 0) {
+      raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
-      if (file_length == (offsettype) -1) {
-        raise_error(FILE_ERROR);
-        result = 0;
-      } else {
-        if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
-          raise_error(FILE_ERROR);
-          result = 0;
-        } else {
-          if (file_length > INTTYPE_MAX || file_length < (offsettype) 0) {
-            raise_error(RANGE_ERROR);
-            result = 0;
-          } else {
-            result = (inttype) file_length;
-          } /* if */
-        } /* if */
-      } /* if */
+      result = (inttype) file_length;
     } /* if */
-#else
-    current_file_position = myFtell(aFile);
-    if (current_file_position == -1) {
-      raise_error(FILE_ERROR);
-      result = 0;
-    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
-      raise_error(FILE_ERROR);
-      result = 0;
-    } else {
-      file_length = myFtell(aFile);
-      if (file_length == -1) {
-        raise_error(FILE_ERROR);
-        result = 0;
-      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
-        raise_error(FILE_ERROR);
-        result = 0;
-      } else {
-        if (file_length > INTTYPE_MAX || file_length < (offsettype) 0) {
-          raise_error(RANGE_ERROR);
-          result = 0;
-        } else {
-          result = (inttype) file_length;
-        } /* if */
-      } /* if */
-    } /* if */
-#endif
     return result;
   } /* getFileLengthUsingSeek */
 
@@ -240,54 +398,22 @@ filetype aFile;
 #endif
 
   {
-    offsettype current_file_position;
     offsettype file_length;
     biginttype result;
 
   /* getBigFileLengthUsingSeek */
-#ifdef myLseek
-    fflush(aFile);
-    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
-    if (current_file_position == (offsettype) -1) {
+    file_length = seekFileLength(aFile);
+    if (file_length == (offsettype) -1) {
       raise_error(FILE_ERROR);
       result = NULL;
+    } else if (sizeof(offsettype) == 8) {
+      result = bigFromUInt64((uint64type) file_length);
+    } else if (sizeof(offsettype) == 4) {
+      result = bigFromUInt32((uint32type) file_length);
     } else {
-      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
-      if (file_length == (offsettype) -1) {
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else if (sizeof(offsettype) == 8) {
-        result = bigFromUInt64((uint64type) file_length);
-      } else {
-        result = bigFromUInt32((uint32type) file_length);
-      } /* if */
-    } /* if */
-#else
-    current_file_position = myFtell(aFile);
-    if (current_file_position == -1) {
-      raise_error(FILE_ERROR);
+      raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
-      raise_error(FILE_ERROR);
-      result = NULL;
-    } else {
-      file_length = myFtell(aFile);
-      if (file_length == -1) {
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else if (sizeof(offsettype) == 8) {
-        result = bigFromUInt64((uint64type) file_length);
-      } else {
-        result = bigFromUInt32((uint32type) file_length);
-      } /* if */
     } /* if */
-#endif
     return result;
   } /* getBigFileLengthUsingSeek */
 
@@ -313,8 +439,11 @@ filetype aFile;
         S_ISREG(stat_buf.st_mode)) {
       if (sizeof(stat_buf.st_size) == 8) {
         result = bigFromUInt64((uint64type) stat_buf.st_size);
-      } else {
+      } else if (sizeof(stat_buf.st_size) == 4) {
         result = bigFromUInt32((uint32type) stat_buf.st_size);
+      } else {
+        raise_error(RANGE_ERROR);
+        result = NULL;
       } /* if */
     } else {
       result = getBigFileLengthUsingSeek(aFile);
@@ -338,30 +467,18 @@ biginttype big_position;
     offsettype file_position;
 
   /* filBigSeek */
-#ifdef myLseek
-    fflush(aFile);
     if (sizeof(offsettype) == 8) {
       file_position = (offsettype) bigToInt64(big_position);
-    } else {
+    } else if (sizeof(offsettype) == 4) {
       file_position = (offsettype) bigToInt32(big_position);
+    } else {
+      raise_error(RANGE_ERROR);
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-    } else if (myLseek(fileno(aFile), file_position - 1, SEEK_SET) == (offsettype) -1) {
+    } else if (offsetSeek(aFile, file_position - 1) != 0) {
       raise_error(FILE_ERROR);
     } /* if */
-#else
-    if (sizeof(offsettype) == 8) {
-      file_position = (offsettype) bigToInt64(big_position);
-    } else {
-      file_position = (offsettype) bigToInt32(big_position);
-    } /* if */
-    if (file_position <= 0) {
-      raise_error(RANGE_ERROR);
-    } else if (myFseek(aFile, file_position - 1, SEEK_SET) != 0) {
-      raise_error(FILE_ERROR);
-    } /* if */
-#endif
   } /* filBigSeek */
 
 
@@ -379,29 +496,36 @@ filetype aFile;
     offsettype current_file_position;
 
   /* filBigTell */
-#ifdef myLseek
-    fflush(aFile);
-    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
+    current_file_position = offsetTell(aFile);
     if (current_file_position == (offsettype) -1) {
       raise_error(FILE_ERROR);
       return NULL;
     } else if (sizeof(offsettype) == 8) {
       return bigFromUInt64((uint64type) current_file_position + 1);
-    } else {
+    } else if (sizeof(offsettype) == 4) {
       return bigFromUInt32((uint32type) current_file_position + 1);
-    } /* if */
-#else
-    current_file_position = myFtell(aFile);
-    if (current_file_position == -1) {
-      raise_error(FILE_ERROR);
+    } else {
+      raise_error(RANGE_ERROR);
       return NULL;
-    } else if (sizeof(offsettype) == 8) {
-      return bigFromUInt64((uint64type) current_file_position + 1);
-    } else {
-      return bigFromUInt32((uint32type) current_file_position + 1);
     } /* if */
-#endif
   } /* filBigTell */
+
+
+
+#ifdef ANSI_C
+
+void filClose (filetype aFile)
+#else
+
+void filClose (aFile)
+filetype aFile;
+#endif
+
+  { /* filClose */
+    if (fclose(aFile) != 0) {
+      raise_error(FILE_ERROR);
+    } /* if */
+  } /* filClose */
 
 
 
@@ -410,9 +534,9 @@ filetype aFile;
  *  In order to work reasonable good for the common case (reading
  *  just some characters) memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
- *  shrinked to the actual size (with realloc()). When 'length'
- *  is larger than a limit or the memory cannot be requested a
- *  different strategy is used. In this case the function trys to
+ *  shrinked to the actual size (with realloc()). When 'length' is
+ *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
+ *  a different strategy is used. In this case the function trys to
  *  find out the number of available characters (this is possible
  *  for a regular file but not for a pipe). If this fails a third
  *  strategy is used. In this case a smaller block is requested. This
@@ -429,7 +553,6 @@ inttype length;
 #endif
 
   {
-    long current_file_position;
     memsizetype bytes_requested;
     memsizetype bytes_there;
     memsizetype read_size_requested;
@@ -437,16 +560,18 @@ inttype length;
     memsizetype allocated_size;
     memsizetype result_size;
     ustritype memory;
+    errinfotype err_info = OKAY_NO_ERROR;
     stritype resized_result;
     stritype result;
 
   /* filGets */
+    /* printf("filGets(%d, %d)\n", fileno(aFile), length); */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       bytes_requested = (memsizetype) length;
-      if (bytes_requested > 0x1FFFFFFF) {
+      if (bytes_requested > GETS_DEFAULT_SIZE) {
         /* Avoid requesting too much */
         result = NULL;
       } else {
@@ -454,11 +579,12 @@ inttype length;
         ALLOC_STRI(result, allocated_size);
       } /* if */
       if (result == NULL) {
-        /* Determine how many bytes are available in aFile */
-        if ((current_file_position = ftell(aFile)) != -1) {
-          fseek(aFile, 0, SEEK_END);
-          bytes_there = (memsizetype) (ftell(aFile) - current_file_position);
-          fseek(aFile, current_file_position, SEEK_SET);
+        bytes_there = remainingBytesInFile(aFile, &err_info);
+        /* printf("bytes_there=%lu\n", bytes_there); */
+        if (err_info != OKAY_NO_ERROR) {
+          raise_error(err_info);
+          return NULL;
+        } else if (bytes_there != MAX_MEMSIZETYPE) {
           /* Now we know that bytes_there bytes are available in aFile */
           if (bytes_there < bytes_requested) {
             allocated_size = bytes_there;
@@ -466,7 +592,7 @@ inttype length;
               raise_error(MEMORY_ERROR);
               return NULL;
             } /* if */
-          } else if (bytes_requested <= 0x1FFFFFFF) {
+          } else if (bytes_requested <= GETS_DEFAULT_SIZE) {
             /* The request for memory already failed */
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -539,6 +665,9 @@ inttype length;
         } /* if */
       } /* if */
     } /* if */
+    /* printf("filGets(%d, %d) ==> ", fileno(aFile), length);
+       prot_stri(result);
+       printf("\n"); */
     return result;
   } /* filGets */
 
@@ -751,6 +880,23 @@ stritype file_mode;
 
 #ifdef ANSI_C
 
+void filPclose (filetype aFile)
+#else
+
+void filPclose (aFile)
+filetype aFile;
+#endif
+
+  { /* filPclose */
+    if (os_pclose(aFile) == -1) {
+      raise_error(FILE_ERROR);
+    } /* if */
+  } /* filPclose */
+
+
+
+#ifdef ANSI_C
+
 filetype filPopen (stritype command, stritype file_mode)
 #else
 
@@ -832,7 +978,7 @@ inttype file_position;
     /* printf("filSeek(%ld, %ld)\n", aFile, file_position); */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-    } else if (fseek(aFile, file_position - 1, SEEK_SET) != 0) {
+    } else if (offsetSeek(aFile, (offsettype) (file_position - 1)) != 0) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSeek */
@@ -870,19 +1016,22 @@ filetype aFile;
 #endif
 
   {
-    inttype file_position;
+    offsettype current_file_position;
+    inttype result;
 
   /* filTell */
-    file_position = ftell(aFile);
-    if (file_position == -1) {
+    current_file_position = offsetTell(aFile);
+    if (current_file_position == (offsettype) -1) {
       raise_error(FILE_ERROR);
-      return 0;
-    } else if (file_position + 1 <= 0) {
+      result = 0;
+    } else if (current_file_position >= INTTYPE_MAX ||
+        current_file_position < (offsettype) 0) {
       raise_error(RANGE_ERROR);
-      return 0;
+      result = 0;
     } else {
-      return file_position + 1;
+      result = (inttype) (current_file_position + 1);
     } /* if */
+    return result;
   } /* filTell */
 
 

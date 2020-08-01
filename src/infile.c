@@ -113,7 +113,8 @@ static INLINE booltype speedup ()
   {
     booltype okay;
 #ifdef USE_MMAP
-    struct stat file_stat;
+    int file_no;
+    os_stat_struct file_stat;
     memsizetype file_length;
 #endif
 
@@ -124,29 +125,34 @@ static INLINE booltype speedup ()
     okay = TRUE;
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
 #ifdef USE_MMAP
-    if (fstat(fileno(in_file.fil), &file_stat) == 0) {
-      file_length = file_stat.st_size;
-      if ((in_file.start = (ustritype) mmap(NULL, file_length,
-          PROT_READ, MAP_PRIVATE, fileno(in_file.fil),
-          0)) != (ustritype) -1) {
-        in_file.nextch = in_file.start;
-        in_file.beyond = in_file.start + file_length;
-        in_file.buffer_size = 0;
-      } else {
-        if (ALLOC_UBYTES(in_file.start, file_length)) {
-          if (fread(in_file.start, 1, file_length, in_file.fil) ==
-              file_length) {
-            in_file.nextch = in_file.start;
-            in_file.beyond = in_file.start + file_length;
-            in_file.buffer_size = file_length;
-            fseek(in_file.fil, 0, SEEK_SET);
+    file_no = fileno(in_file.fil);
+    if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
+      if (file_stat.st_size < MAX_MEMSIZETYPE && file_stat.st_size >= 0) {
+	file_length = (memsizetype) file_stat.st_size;
+        if ((in_file.start = (ustritype) mmap(NULL, file_length,
+            PROT_READ, MAP_PRIVATE, fileno(in_file.fil),
+            0)) != (ustritype) -1) {
+          in_file.nextch = in_file.start;
+          in_file.beyond = in_file.start + file_length;
+          in_file.buffer_size = 0;
+        } else {
+          if (ALLOC_UBYTES(in_file.start, file_length)) {
+            if (fread(in_file.start, 1, file_length, in_file.fil) ==
+                file_length) {
+              in_file.nextch = in_file.start;
+              in_file.beyond = in_file.start + file_length;
+              in_file.buffer_size = file_length;
+              fseek(in_file.fil, 0, SEEK_SET);
+            } else {
+              FREE_BYTES(in_file.start, file_length);
+              okay = FALSE;
+            } /* if */
           } else {
-            FREE_BYTES(in_file.start, file_length);
             okay = FALSE;
           } /* if */
-        } else {
-          okay = FALSE;
         } /* if */
+      } else {
+        okay = FALSE;
       } /* if */
     } else {
       okay = FALSE;

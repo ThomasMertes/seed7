@@ -970,6 +970,11 @@ objecttype object;
       case CHAROBJECT:
       case STRIOBJECT:
       case BSTRIOBJECT:
+      case ARRAYOBJECT:
+      case STRUCTOBJECT:
+#ifdef WITH_FLOAT
+      case FLOATOBJECT:
+#endif
       case ENUMLITERALOBJECT:
         result = object;
         break;

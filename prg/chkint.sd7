@@ -27,6 +27,10 @@ $ include "seed7_05.s7i";
 const integer: INT32_MIN is pred(-2147483647);
 
 
+const func string: striExpr (in string: stri) is
+  return stri;
+
+
 const func integer: intExpr (in integer: number) is
   return number;
 
@@ -4428,9 +4432,6 @@ const proc: check_rShift is func
 const proc: check_str is func
   local
     var boolean: okay is TRUE;
-    
-    var integer: n is 0;
-    var integer: k is 0;
   begin
     okay := TRUE;
     if  str(  INT32_MIN) <> "-2147483648" or
@@ -4569,8 +4570,6 @@ const proc: check_str is func
 const proc: check_parse is func
   local
     var boolean: okay is TRUE;
-    var integer: n is 0;
-    var integer: k is 0;
   begin
     okay := TRUE;
     if  # integer parse "-2147483648" <>   INT32_MIN or
@@ -4633,9 +4632,78 @@ const proc: check_parse is func
         integer parse  "1073741823" <>  1073741823 or
         integer parse  "1073741824" <>  1073741824 or
         integer parse  "2147483647" <>  2147483647 then
-      writeln(" ***** Integer parse is not correct computed.");
+      writeln(" ***** Integer parse with literals does not work correct.");
       okay := FALSE;
     end if;
+    if  # integer parse striExpr("-2147483648") <>   INT32_MIN or
+        integer parse striExpr("-2147483647") <> -2147483647 or
+        integer parse striExpr("-1073741825") <> -1073741825 or
+        integer parse striExpr("-1073741824") <> -1073741824 or
+        integer parse striExpr("-1000000000") <> -1000000000 or
+        integer parse striExpr( "-100000000") <>  -100000000 or
+        integer parse striExpr(  "-10000000") <>   -10000000 or
+        integer parse striExpr(   "-1000000") <>    -1000000 or
+        integer parse striExpr(    "-100000") <>     -100000 or
+        integer parse striExpr(     "-65537") <>      -65537 or
+        integer parse striExpr(     "-65536") <>      -65536 or
+        integer parse striExpr(     "-32769") <>      -32769 or
+        integer parse striExpr(     "-32768") <>      -32768 or
+        integer parse striExpr(     "-10001") <>      -10001 or
+        integer parse striExpr(     "-10000") <>      -10000 or
+        integer parse striExpr(      "-9999") <>       -9999 or
+        integer parse striExpr(      "-2000") <>       -2000 or
+        integer parse striExpr(      "-1001") <>       -1001 or
+        integer parse striExpr(      "-1000") <>       -1000 or
+        integer parse striExpr(       "-999") <>        -999 or
+        integer parse striExpr(       "-200") <>        -200 or
+        integer parse striExpr(       "-101") <>        -101 or
+        integer parse striExpr(       "-100") <>        -100 or
+        integer parse striExpr(        "-99") <>         -99 or
+        integer parse striExpr(        "-20") <>         -20 or
+        integer parse striExpr(        "-11") <>         -11 or
+        integer parse striExpr(        "-10") <>         -10 or
+        integer parse striExpr(         "-9") <>          -9 or
+        integer parse striExpr(         "-2") <>          -2 or
+        integer parse striExpr(         "-1") <>          -1 or
+        integer parse striExpr(          "0") <>           0 or
+        integer parse striExpr(          "1") <>           1 or
+        integer parse striExpr(          "2") <>           2 or
+        integer parse striExpr(          "9") <>           9 or
+        integer parse striExpr(         "10") <>          10 or
+        integer parse striExpr(         "11") <>          11 or
+        integer parse striExpr(         "20") <>          20 or
+        integer parse striExpr(         "99") <>          99 or
+        integer parse striExpr(        "100") <>         100 or
+        integer parse striExpr(        "101") <>         101 or
+        integer parse striExpr(        "200") <>         200 or
+        integer parse striExpr(        "999") <>         999 or
+        integer parse striExpr(       "1000") <>        1000 or
+        integer parse striExpr(       "1001") <>        1001 or
+        integer parse striExpr(       "2000") <>        2000 or
+        integer parse striExpr(       "9999") <>        9999 or
+        integer parse striExpr(      "10000") <>       10000 or
+        integer parse striExpr(      "10001") <>       10001 or
+        integer parse striExpr(      "32768") <>       32768 or
+        integer parse striExpr(      "32769") <>       32769 or
+        integer parse striExpr(      "65536") <>       65536 or
+        integer parse striExpr(      "65537") <>       65537 or
+        integer parse striExpr(     "100000") <>      100000 or
+        integer parse striExpr(    "1000000") <>     1000000 or
+        integer parse striExpr(   "10000000") <>    10000000 or
+        integer parse striExpr(  "100000000") <>   100000000 or
+        integer parse striExpr( "1000000000") <>  1000000000 or
+        integer parse striExpr( "1073741823") <>  1073741823 or
+        integer parse striExpr( "1073741824") <>  1073741824 or
+        integer parse striExpr( "2147483647") <>  2147483647 then
+      writeln(" ***** Integer parse with expressions does not work correct.");
+      okay := FALSE;
+    end if;
+    if  integer parse          "0123"  <> 123 or
+        integer parse striExpr("0123") <> 123 then
+      writeln(" ***** Integer parse with leading zeros does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Integer parse does work correct.");
     end if;
@@ -4645,8 +4713,6 @@ const proc: check_parse is func
 const proc: check_lpad0 is func
   local
     var boolean: okay is TRUE;
-    var integer: n is 0;
-    var integer: k is 0;
   begin
     okay := TRUE;
     if (-10001 lpad0 0) <> "-10001" or
@@ -4871,8 +4937,6 @@ const proc: check_lpad0 is func
 const proc: check_bitLength is func
   local
     var boolean: okay is TRUE;
-    var integer: n is 0;
-    var integer: k is 0;
   begin
     okay := TRUE;
     if  bitLength(  INT32_MIN) <> 31 or

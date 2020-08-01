@@ -160,6 +160,7 @@ version.h:
 	cmd /S /C "echo #define os_remove _wremove" >> version.h
 	cmd /S /C "echo #define os_rename _wrename" >> version.h
 	cmd /S /C "echo #define os_system _wsystem" >> version.h
+	cmd /S /C "echo #define os_pclose _pclose" >> version.h
 	cmd /S /C "echo #define os_popen _wpopen" >> version.h
 	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
@@ -227,7 +228,7 @@ version.h:
 	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo number = 1;" >> chkccomp.c
 	cmd /S /C "echo if (((char *) ^&number)[0] == 1) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define LITTLE_ENDIAN");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define LITTLE_ENDIAN_INTTYPE");" >> chkccomp.c
 	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo return 0;" >> chkccomp.c
 	cmd /S /C "echo }" >> chkccomp.c

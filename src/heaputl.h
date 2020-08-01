@@ -118,7 +118,7 @@ typedef struct {
     char *freemem;
     char *start;
     char *beyond;
-    unsigned int size;
+    memsizetype size;
     memsizetype total_size;
     memsizetype lost_bytes;
     unsigned int number_of_chunks;

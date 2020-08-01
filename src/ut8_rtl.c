@@ -38,7 +38,7 @@
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
-#include "cmd_rtl.h"
+#include "fil_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -46,6 +46,7 @@
 #include "ut8_rtl.h"
 
 
+#define GETS_DEFAULT_SIZE 0x1FFFFFFF
 #define BUFFER_SIZE 2048
 
 
@@ -147,116 +148,11 @@ errinfotype *err_info;
       /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
           bytes_in_buffer, chars_missing, chars_read, chars_there,
           state.bytes_missing, (memsizetype) (stri_dest - result->mem)); */
-
       bytes_to_strelements(buffer, bytes_in_buffer, stri_dest,
            &state, err_info);
     } /* for */
     return (memsizetype) (stri_dest - result->mem);
   } /* read_strelements */
-
-
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-static void read_strelements (filetype aFile, memsizetype chars_requested, strelemtype *result_mem,
-    memsizetype *result_size, errinfotype *err_info)
-#else
-
-static void read_strelements (aFile, chars_requested, result_mem, result_size, err_info)
-filetype aFile;
-memsizetype chars_requested;
-strelemtype *result_mem;
-memsizetype *result_size;
-errinfotype *err_info;
-#endif
-
-  {
-    memsizetype chars_missing;
-    uchartype buffer[BUFFER_SIZE + 6];
-    memsizetype bytes_remaining = 0;
-    /* memsizetype old_bytes_remaining; */
-    memsizetype bytes_missing = 0;
-    memsizetype bytes_in_buffer;
-    memsizetype chars_read = 1;
-    memsizetype chars_there = 0;
-    strelemtype *stri_dest;
-
-  /* read_strelements */
-    /* printf("#0-A#\n"); */
-    for (stri_dest = result_mem, chars_missing = chars_requested;
-        chars_missing >= BUFFER_SIZE - bytes_missing + chars_there && (chars_read > 0 || chars_there);
-        stri_dest += chars_read, chars_missing -= chars_read) {
-      bytes_in_buffer = (memsizetype) fread(&buffer[bytes_remaining], 1,
-          BUFFER_SIZE, aFile);
-      /* printf("#1-A# bytes_in_buffer=%d result_size=%d\n", bytes_in_buffer, stri_dest - result_mem); */
-      if (bytes_in_buffer != 0) {
-        /* old_bytes_remaining = bytes_remaining; */
-        bytes_in_buffer += bytes_remaining;
-        /* printf("#1-A# bytes_in_buffer=%d %X %X\n", bytes_in_buffer, buffer[0], buffer[1]); */
-        bytes_remaining = utf8_to_stri(stri_dest, &chars_read, buffer, bytes_in_buffer);
-        if (bytes_remaining != 0) {
-          /* printf("#1-A# bytes_remaining=%d %X\n", bytes_remaining, buffer[bytes_in_buffer - bytes_remaining]); */
-          bytes_missing = utf8_bytes_missing(&buffer[bytes_in_buffer - bytes_remaining], bytes_remaining);
-          /* printf("#1-A# bytes_missing=%d\n", bytes_missing); */
-          if (bytes_missing != 0) {
-            memmove(buffer, &buffer[bytes_in_buffer - bytes_remaining], bytes_remaining);
-            /* printf("#2-A# %X %X\n", buffer[0], buffer[1]); */
-            chars_there = 1;
-          } else {
-            /* printf("#3-A# bytes_in_buffer=%d bytes_remaining=%d old_bytes_remaining=%d bytes_missing=%d result_size=%d chars_requested=%d, chars_missing=%d %X ftell=%ld\n",
-                bytes_in_buffer, bytes_remaining, old_bytes_remaining, bytes_missing, stri_dest - result_mem,
-                chars_requested, chars_missing, buffer[bytes_in_buffer - bytes_remaining], ftell(aFile)); */
-            *err_info = RANGE_ERROR;
-            return;
-          } /* if */
-        } else {
-          bytes_missing = 0;
-          chars_there = 0;
-        } /* if */
-      } else {
-        chars_read = 0;
-      } /* if */
-      /* printf("#1-B# chars_read=%d\n", chars_read); */
-    } /* for */
-    for (; chars_missing > 0 && (chars_read > 0 || chars_there);
-        stri_dest += chars_read, chars_missing -= chars_read) {
-      bytes_in_buffer = (memsizetype) fread(&buffer[bytes_remaining], 1,
-          chars_missing - chars_there + bytes_missing, aFile);
-      /* printf("#1-B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d result_size=%d\n",
-          bytes_in_buffer, chars_missing, chars_read, chars_there, bytes_missing, stri_dest - result_mem); */
-      if (bytes_in_buffer != 0) {
-        /* old_bytes_remaining = bytes_remaining; */
-        bytes_in_buffer += bytes_remaining;
-        /* printf("#1-B# bytes_in_buffer=%d %X %X\n", bytes_in_buffer, buffer[0], buffer[1]); */
-        bytes_remaining = utf8_to_stri(stri_dest, &chars_read, buffer, bytes_in_buffer);
-        if (bytes_remaining != 0) {
-          /* printf("#1-B# bytes_remaining=%d %X\n", bytes_remaining, buffer[bytes_in_buffer - bytes_remaining]); */
-          bytes_missing = utf8_bytes_missing(&buffer[bytes_in_buffer - bytes_remaining], bytes_remaining);
-          /* printf("#1-B# bytes_missing=%d\n", bytes_missing); */
-          if (bytes_missing != 0) {
-            memmove(buffer, &buffer[bytes_in_buffer - bytes_remaining], bytes_remaining);
-            /* printf("#2-B# %X %X\n", buffer[0], buffer[1]); */
-            chars_there = 1;
-          } else {
-            /* printf("#3-B# bytes_in_buffer=%d bytes_remaining=%d old_bytes_remaining=%d bytes_missing=%d result_size=%d chars_requested=%d, chars_missing=%d %X ftell=%ld\n",
-                bytes_in_buffer, bytes_remaining, old_bytes_remaining, bytes_missing, stri_dest - result_mem,
-                chars_requested, chars_missing, buffer[bytes_in_buffer - bytes_remaining], ftell(aFile)); */
-            *err_info = RANGE_ERROR;
-            return;
-          } /* if */
-        } else {
-          bytes_missing = 0;
-          chars_there = 0;
-        } /* if */
-      } else {
-        chars_read = 0;
-      } /* if */
-      /* printf("#1-B# chars_read=%d\n", chars_read); */
-    } /* for */
-    *result_size = stri_dest - result_mem;
-  } /* read_strelements */
-#endif
 
 
 
@@ -441,7 +337,6 @@ inttype length;
 #endif
 
   {
-    long current_file_position;
     memsizetype bytes_there;
     memsizetype chars_requested;
     errinfotype err_info = OKAY_NO_ERROR;
@@ -450,33 +345,48 @@ inttype length;
     stritype result;
 
   /* ut8Gets */
+    /* printf("ut8Gets(%d, %d)\n", fileno(aFile), length); */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       chars_requested = (memsizetype) length;
-      if (!ALLOC_STRI(result, chars_requested)) {
-        if ((current_file_position = ftell(aFile)) != -1) {
-          fseek(aFile, 0, SEEK_END);
-          bytes_there = (memsizetype) (ftell(aFile) - current_file_position);
-          fseek(aFile, current_file_position, SEEK_SET);
+      if (chars_requested > GETS_DEFAULT_SIZE) {
+        /* Avoid requesting too much */
+        result = NULL;
+      } else {
+        ALLOC_STRI(result, chars_requested);
+      } /* if */
+      if (result == NULL) {
+        bytes_there = remainingBytesInFile(aFile, &err_info);
+        /* printf("bytes_there=%lu\n", bytes_there); */
+        if (err_info != OKAY_NO_ERROR) {
+          raise_error(err_info);
+          return NULL;
+        } else if (bytes_there != MAX_MEMSIZETYPE) {
+          /* Now we know that bytes_there bytes are available in aFile */
           if (bytes_there < chars_requested) {
             chars_requested = bytes_there;
             if (!ALLOC_STRI(result, chars_requested)) {
               raise_error(MEMORY_ERROR);
               return NULL;
             } /* if */
-          } else {
+          } else if (chars_requested <= GETS_DEFAULT_SIZE) {
+            /* The request for memory already failed */
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
-        } else {
-          raise_error(MEMORY_ERROR);
-          return NULL;
         } /* if */
       } /* if */
-      result->size = chars_requested;
-      num_of_chars_read = read_strelements(aFile, chars_requested, result, &err_info);
+      if (result != NULL) {
+        /* We have allocated a buffer for the requested number of chars
+           or for the number of bytes which are available in the file */
+        result->size = chars_requested;
+        num_of_chars_read = read_strelements(aFile, chars_requested, result, &err_info);
+      } else {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } /* if */
       if (err_info != OKAY_NO_ERROR) {
         FREE_STRI(result, chars_requested);
         raise_error(err_info);
@@ -494,6 +404,9 @@ inttype length;
         } /* if */
       } /* if */
     } /* if */
+    /* printf("filGets(%d, %d) ==> ", fileno(aFile), length);
+       prot_stri(result);
+       printf("\n"); */
     return result;
   } /* ut8Gets */
 

@@ -30,16 +30,6 @@
 /********************************************************************/
 
 #ifdef ANSI_C
-#include "limits.h"
-#endif
-
-
-#ifndef ULONG_MAX
-#define ULONG_MAX ((uinttype) 4294967295L)
-#endif
-
-
-#ifdef ANSI_C
 
 uinttype rand_32 (void);
 int uint8MostSignificantBit (uint8type number);

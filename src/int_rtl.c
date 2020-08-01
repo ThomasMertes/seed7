@@ -868,7 +868,7 @@ inttype upper_limit;
       return 0;
     } else {
       scale_limit = (uinttype) (upper_limit - lower_limit);
-      if (scale_limit <= ULONG_MAX - 2) {
+      if (scale_limit <= UINTTYPE_MAX - 2) {
         high_factor = 0L;
       } else {
         high_factor = 1L;

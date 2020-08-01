@@ -36,6 +36,12 @@
 #include "string.h"
 #include "time.h"
 
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
+
 #include "common.h"
 #include "striutl.h"
 

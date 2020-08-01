@@ -344,15 +344,15 @@ listtype arguments;
 #endif
 
   {
-    uinttype ref1;
-    uinttype ref2;
+    memsizetype ref1;
+    memsizetype ref2;
     inttype result;
 
   /* ref_cmp */
     isit_reference(arg_1(arguments));
     isit_reference(arg_2(arguments));
-    ref1 = (uinttype) take_reference(arg_1(arguments));
-    ref2 = (uinttype) take_reference(arg_2(arguments));
+    ref1 = (memsizetype) take_reference(arg_1(arguments));
+    ref2 = (memsizetype) take_reference(arg_2(arguments));
     if (ref1 < ref2) {
       result = -1;
     } else if (ref1 > ref2) {
@@ -578,7 +578,7 @@ listtype arguments;
   { /* ref_hashcode */
     isit_reference(arg_1(arguments));
     return bld_int_temp((inttype)
-        (((unsigned int) take_reference(arg_1(arguments))) >> 6));
+        (((memsizetype) take_reference(arg_1(arguments))) >> 6));
   } /* ref_hashcode */
 
 

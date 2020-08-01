@@ -27,30 +27,32 @@
 
 #ifdef ANSI_C
 
-void rflAppend (listtype *list_to, listtype list_from);
-listtype rflCat (listtype list1, listtype list2);
-void rflCpy (listtype *list_to, listtype list_from);
-listtype rflCreate (listtype list_from);
-void rflDestr (listtype old_list);
-booltype rflElem (objecttype searched_object, listtype list_element);
+void rflAppend (listtype *const list_to, const listtype list_from);
+listtype rflCat (listtype list1, const listtype list2);
+inttype rflCmp (const_listtype list1, const_listtype list2);
+void rflCpy (listtype *const list_to, const const_listtype list_from);
+listtype rflCreate (const const_listtype list_from);
+void rflDestr (const listtype old_list);
+booltype rflElem (const const_objecttype searched_object, const_listtype list_element);
 void rflElemcpy (listtype list, inttype position, objecttype elem);
-booltype rflEq (listtype list1, listtype list2);
-listtype rflHead (listtype list, inttype stop);
-objecttype rflIdx (listtype list, inttype position);
+booltype rflEq (const_listtype list1, const_listtype list2);
+listtype rflHead (const listtype list, inttype stop);
+objecttype rflIdx (const_listtype list, inttype position);
 void rflIncl (listtype *list, objecttype elem);
 inttype rflIpos (listtype list_element, objecttype searched_object,
     const inttype from_index);
-inttype rflLng (listtype list);
+inttype rflLng (const_listtype list);
 listtype rflMklist (objecttype elem);
-booltype rflNe (listtype list1, listtype list2);
-inttype rflPos (listtype list_element, objecttype searched_object);
-listtype rflRange (listtype list, inttype start, inttype stop);
-listtype rflTail (listtype list, inttype start);
+booltype rflNe (const_listtype list1, const_listtype list2);
+inttype rflPos (const_listtype list_element, const const_objecttype searched_object);
+listtype rflRange (const listtype list, inttype start, inttype stop);
+listtype rflTail (const listtype list, inttype start);
 
 #else
 
 void rflAppend ();
 listtype rflCat ();
+inttype rflCmp ();
 void rflCpy ();
 listtype rflCreate ();
 void rflDestr ();

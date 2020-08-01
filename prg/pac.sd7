@@ -355,8 +355,6 @@ const proc: check_all_ghosts (PACMAN) is func
 
 
 const proc: move_pacman is func
-  local
-    var place_type: new_place is FREE_PLACE;
 
   begin (* move_pacman *)
     if map[PACMAN.line + PACMAN.line_move]
