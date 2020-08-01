@@ -786,6 +786,7 @@ chartype button;
       case K_DEL:   case K_CTL_DEL:   vkey1 = VK_DELETE; break;
 
       case K_ESC:                 vkey1 = VK_ESCAPE;               break;
+      case K_PAD_CENTER:          vkey1 = VK_CLEAR;                break;
       case K_BS:                  vkey1 = VK_BACK;    vkey2 = 'H'; break;
       case K_NL:                  vkey1 = VK_RETURN;  vkey2 = 'J'; break;
       case K_TAB: case K_BACKTAB: vkey1 = VK_TAB;     vkey2 = 'I'; break;

@@ -6,6 +6,12 @@ Frequently asked questions
 <li><a href="#new_language"><b>
 Why a new programming language?
 </b></a></li>
+<li><a href="#extensible_programming"><b>
+What is an extensible programming language?
+</b></a></li>
+<li><a href="#portable"><b>
+Are Seed7 programs portable?
+</b></a></li>
 <li><a href="#license"><b>
 Which license does Seed7 use?
 </b></a></li>
@@ -161,6 +167,67 @@ programming languages:
    the hi interpreter is booted with the language description when it
    starts. This way it is possible to define language variants or a
    totally different language.</li>
+</ul></p>
+
+<p><br><a name="extensible_programming"><h3>What is an extensible programming language?
+</h3></a><hr><!-- =========================================== -->
+<p>
+An extensible programming language supports mechanisms to extend the
+programming language, compiler/interpreter and runtime environment.
+The programmer is allowed to define new language constructs such as
+statements, declaration constructs and operators syntactically
+and semantically. Most programming languages allow user defined
+variables, functions and types, but they also use constructs which
+are hardcoded in the compiler/interpreter. An extensible programming
+language trys to avoid such hardcoded constructs in normal programs.
+</p><p>
+Extensible programming was an area of active research in the 1960s,
+but in the 1970s the extensibility movement was displaced by the
+abstraction movement. Todays software history gives almost no hint
+that the extensible languages movement had ever occurred. In the
+historical movement an extensible programming language consisted of
+a base language providing elementary computing facilities, and a
+meta-language capable of modifying the base language. A program then
+consisted of meta-language modifications and code in the modified
+base language. A popular approach to do language extension was the
+use of macro definitions. The constructs of the base language were
+implemented with hardcoded technics.
+</p><p>
+The design and development of Seed7 is based on independ research
+which was done without knowing that the historic extensible
+programming language movement existed. Although Seed7 has different
+roots it reaches many of the original extensible programming language
+goals. Seed7 differentiates between syntactic and semantic extensions.
+</p></p>
+
+<p><br><a name="portable"><h3>Are Seed7 programs portable?
+</h3></a><hr><!-- ============================ -->
+<p>
+Yes. Seed7 spares no effort to support portable programming.
+Several driver librarys assure that the access to operating system
+resources such as files, directorys, network, clock, keyboard,
+console and graphics are done in a portable way. Many functions
+are defined to avoid the need to use shell (and cmd.exe) commands.
+</p><ul>
+<li><!--  -  -->Different ways to encode unicode strings (e.g.: UTF-8 or
+   UTF-16) in system calls (e.g. fopen()/wopen()) are hidden from the
+   programmer.</li>
+<li><!--  -  -->Seed7 defines portable funtions to copy, move and remove
+   files, directory trees and files with other types.</li>
+<li><!--  -  -->The propertys of files such as size, type, time and mode
+   can be obtained and changed with portable functions.</li>
+<li><!--  -  -->A forward slash is used as path delimiter on all
+   operating systems and an attempt to use a backslash as path delimiter
+   is an error.</li>
+<li><!--  -  -->Differences between UNIX sockets and winsockets
+   are hidden and Seed7 sockets are files (as in UNIX).</li>
+<li><!--  -  -->Reading keys and key combinations such as ctrl-F1 from
+   a text console or a graphic window under different operating systems
+   always delivers the same character code.</li>
+<li><!--  -  -->Alternate code paths are provided to hide weaknesses
+   of operating systems (E.g.: The windows utime() function does
+   not work on directorys, but Seed7 allows to modify directory access
+   and modification times also under windows).</li>
 </ul></p>
 
 <p><br><a name="license"><h3>Which license does Seed7 use?

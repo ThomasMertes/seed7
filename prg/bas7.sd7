@@ -124,6 +124,12 @@ var image_hash: image_var is image_hash.EMPTY_HASH;
 const type: file_hash is hash [integer] file;
 var file_hash: file_value is file_hash.EMPTY_HASH;
 
+const type: varptr_hash is hash [string] integer;
+var varptr_hash: varptr_value is varptr_hash.EMPTY_HASH;
+
+const type: varname_hash is hash [integer] string;
+var varname_hash: varname_value is varname_hash.EMPTY_HASH;
+
 const type: reclen_array is array integer;
 var reclen_array: reclen_value is 256 times 0;
 
@@ -156,9 +162,9 @@ const type: doLoopDescrType is new struct
 var array doLoopDescrType: doLoop is 0 times doLoopDescrType.value;
 
 const type: doLoopHeaderInColumn is hash [integer] doLoopDescrType;
-const type: doLoopHeaderInLineAndColumn is hash [integer] doLoopHeaderInColumn;
+const type: doLoopHeaderData is hash [integer] doLoopHeaderInColumn;
 
-var doLoopHeaderInLineAndColumn: doLoopHeaders is doLoopHeaderInLineAndColumn.EMPTY_HASH;
+var doLoopHeaderData: doLoopHeaders is doLoopHeaderData.EMPTY_HASH;
 
 const type: gosubReturnDescrType is new struct
     var integer: returnLine is 0;
@@ -639,8 +645,8 @@ const proc: closeAllFiles is func
   end func;
 
 
-const proc: addCorrespondingDo (in integer: tailLine,
-    in integer: tailColumn, in integer: headLine, in integer: headColumn) is func
+const proc: addDoLoopHeader (in integer: tailLine, in integer: tailColumn,
+    in integer: headLine, in integer: headColumn) is func
   begin
     if tailLine in doLoopHeaders then
       if tailColumn not in doLoopHeaders[tailLine] then
@@ -655,8 +661,8 @@ const proc: addCorrespondingDo (in integer: tailLine,
   end func;
 
 
-const func boolean: correspondingDoPresent (in integer: tailLine,
-    in integer: tailColumn, inout integer: headLine, inout integer: headColumn) is func
+const func boolean: doLoopHeaderPresent (in integer: tailLine, in integer: tailColumn,
+    inout integer: headLine, inout integer: headColumn) is func
   result
     var boolean: result is FALSE;
   begin
@@ -2441,6 +2447,18 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       end while;
       result := flt(index1);
       writeln(log, "FREEFILE -> " <& result);
+    elsif symbol = "VARPTR" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      variable_name := get_name(symbol, line);
+      expect(")", symbol, line);
+      if variable_name not in varptr_value then
+        varptr_value @:= [variable_name] succ(length(varptr_value));
+      end if;
+      index1 := varptr_value[variable_name];
+      varname_value @:= [index1] variable_name;
+      result := flt(index1);
+      writeln(log, "VARPTR(" <& variable_name <& ") -> " <& result);
     elsif symbol = "ERR" then
       symbol := get_symbol(line);
       result := flt(error_code);
@@ -2698,11 +2716,19 @@ const func float: exec_cond_and (inout string: symbol, inout string: line) is fu
     var integer: number2 is 0;
   begin
     result := exec_cond_not(symbol, line);
+    if startsWith(symbol, "AND") then
+      line := symbol[4 ..] & line;
+      symbol := "AND";
+    end if;
     while symbol = "AND" do
       number1 := round(result);
       symbol := get_symbol(line);
       number2 := round(exec_cond_not(symbol, line));
       result := flt(binary_and(number1, number2));
+      if startsWith(symbol, "AND") then
+        line := symbol[4 ..] & line;
+        symbol := "AND";
+      end if;
     end while;
   end func;
 
@@ -2749,6 +2775,10 @@ const func float: exec_cond_or (inout string: symbol, inout string: line) is fun
     var integer: number2 is 0;
   begin
     result := exec_cond_and(symbol, line);
+    if startsWith(symbol, "OR") then
+      line := symbol[3 ..] & line;
+      symbol := "OR";
+    end if;
     while symbol = "OR" or symbol = "XOR" do
       number1 := round(result);
       op := symbol;
@@ -2758,6 +2788,10 @@ const func float: exec_cond_or (inout string: symbol, inout string: line) is fun
         result := flt(binary_or(number1, number2));
       elsif op = "XOR" then
         result := flt(binary_xor(number1, number2));
+      end if;
+      if startsWith(symbol, "OR") then
+        line := symbol[3 ..] & line;
+        symbol := "OR";
       end if;
     end while;
   end func;
@@ -2860,6 +2894,30 @@ const func boolean: nameInList (in string: name, in var string: nameList) is fun
         symbol := get_symbol(nameList);
       end if;
     until symbol <> "," or found;
+  end func;
+
+
+const func string: removeNameFromList (in string: name, in var string: nameList) is func
+  result
+    var string: result is "";
+  local
+    var string: symbol is "";
+    var boolean: found is FALSE;
+  begin
+    repeat
+      symbol := get_symbol(nameList);
+      if name = symbol then
+        symbol := get_symbol(nameList);
+        found := TRUE;
+      else
+        if result <> "" then
+          result &:= ",";
+        end if;
+        result &:= symbol;
+        symbol := get_symbol(nameList);
+      end if;
+    until symbol <> "," or found;
+    result &:= nameList;
   end func;
 
 
@@ -3571,7 +3629,7 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
 
 
 const proc: exec_next_decision (inout string: symbol, inout string: line,
-    in string: variable_name, in  string: nameList) is func
+    val string: variable_name, in string: nameList) is func
   local
     var float: num1 is 0.0;
   begin
@@ -3597,13 +3655,15 @@ const proc: exec_next_decision (inout string: symbol, inout string: line,
         line_marker;
         writeln(log, "NEXT " <& variable_name <& " = " <& num1 <& " END FOR");
         forLoop := forLoop[2 .. ];
-        if length(forLoop) >= 1 and nameInList(forLoop[1].varName, nameList) then
+        if length(forLoop) >= 1 and forLoop[1].varName <> variable_name and
+            nameInList(forLoop[1].varName, nameList) then
           line_marker;
           write(log, "THE \"FOR " <& forLoop[1].varName <&
               "\" LOOP AT LINE ");
           line_marker(forLoop[1].bodyLine);
           writeln(log, " IS ALSO HANDLED WITH THIS NEXT STATEMENT");
-          exec_next_decision(symbol, line, forLoop[1].varName, nameList);
+          exec_next_decision(symbol, line, forLoop[1].varName,
+              removeNameFromList(variable_name, nameList));
         end if;
       end if;
     else
@@ -3614,9 +3674,375 @@ const proc: exec_next_decision (inout string: symbol, inout string: line,
   end func;
 
 
-const proc: exec_do (inout string: symbol, inout string: line) is func
+const proc: exec_if (inout string: symbol, inout string: line,
+    inout boolean: process_next) is func
+  local
+    var string: param1 is "";
+    var float: num1 is 0.0;
+  begin
+    symbol := get_symbol(line);
+    num1 := exec_expr(symbol, line);
+    if startsWith(symbol, "THEN") then
+      line := symbol[5 ..] & line;
+      symbol := "THEN";
+    elsif startsWith(symbol, "GOTO") then
+      line := symbol[5 ..] & line;
+      symbol := "GOTO";
+    end if;
+    if num1 <> 0.0 then
+      if symbol = "THEN" then
+        line_marker;
+        write(log, "IF " <& num1);
+        symbol := get_symbol(line);
+        if symbol = "" or symbol = "'" or symbol = "REM" then
+          # Execute the following statements until "ELSE", "ELSEIF" or "END" "IF".
+          writeln(log, " THEN - EXECUTE STATEMENT BLOCK");
+        elsif label_or_linenum(symbol) then
+          param1 := symbol;
+          symbol := get_symbol(line);
+          # A label and a variable can share the same name
+          if symbol = "=" or symbol = "("  or symbol = "[" then
+            # A let statement is recognized: Write log and exec the let statement.
+            writeln(log, " THEN - EXECUTE STATEMENTS IN LINE UNTIL \"ELSE\"");
+            exec_let(param1, symbol, line);
+          else
+            writeln(log, " THEN " <& param1 <& " - GOTO LINE");
+            goto_label_or_linenum(param1);
+            symbol := "";
+            line := "";
+          end if;
+        else
+          writeln(log, " THEN - EXECUTE STATEMENTS IN LINE UNTIL \"ELSE\"");
+          process_next := TRUE;
+        end if;
+      elsif symbol = "GOTO" then
+        symbol := get_symbol(line);
+        line_marker;
+        writeln(log, "IF " <& num1 <& " GOTO " <& symbol <& " - GOTO LINE");
+        if label_or_linenum(symbol) then
+          goto_label_or_linenum(symbol);
+          symbol := "";
+          line := "";
+        else
+          error_marker;
+          writeln(err, "UNDEFINED LABEL " <& symbol <& " AFTER \"GOTO\".");
+        end if;
+      else
+        error_expect2("THEN", "GOTO", symbol);
+      end if;
+    else
+      if symbol = "THEN" or symbol = "GOTO" then
+        symbol := get_symbol(line);
+      else
+        error_expect2("THEN", "GOTO", symbol);
+      end if;
+      line_marker;
+      write(log, "IF " <& num1);
+      if symbol = "" or symbol = "'" or symbol = "REM" then
+        writeln(log, " THEN - SKIP STATEMENT BLOCK");
+        exec_elseif_else_chain(symbol, line, process_next);
+      elsif label_or_linenum(symbol) then
+        writeln(log, " THEN " <& symbol <& " - SKIP LABEL");
+        symbol := get_symbol(line);
+        if symbol = "ELSE" then
+          symbol := get_symbol(line);
+          if label_or_linenum(symbol) then
+            line_marker;
+            writeln(log, "ELSE " <& symbol <& " - GOTO LINE");
+            goto_label_or_linenum(symbol);
+            symbol := "";
+            line := "";
+          else
+            line_marker;
+            writeln(log, "ELSE - EXECUTE STATEMENTS IN LINE");
+            process_next := TRUE;
+          end if;
+        elsif symbol = ":" then
+          line_marker;
+          writeln(log, "NO ELSE - CONTINUE AFTER THE LABEL");
+        else
+          line_marker;
+          writeln(log, "NO ELSE - CONTINUE AT NEXT LINE");
+          symbol := "";
+          line := "";
+        end if;
+      else
+        writeln(log, " THEN - SKIP STATEMENTS IN LINE UNTIL \"ELSE\"");
+        if symbol <> "ELSE" then
+          symbol := find_else(line);
+        end if;
+        if symbol = "ELSE" then
+          symbol := get_symbol(line);
+          if label_or_linenum(symbol) then
+            line_marker;
+            writeln(log, "ELSE " <& symbol <& " - GOTO LINE");
+            goto_label_or_linenum(symbol);
+            symbol := "";
+            line := "";
+          else
+            line_marker;
+            writeln(log, "ELSE - EXECUTE STATEMENTS IN LINE");
+            process_next := TRUE;
+          end if;
+        else
+          line_marker;
+          writeln(log, "NO ELSE - CONTINUE AT NEXT LINE");
+          symbol := "";
+          line := "";
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: exec_for (inout string: symbol, inout string: line) is func
   local
     var string: variable_name is "";
+    var float: num1 is 0.0;
+    var float: num2 is 0.0;
+    var float: num3 is 0.0;
+    var integer: index1 is 0;
+    var string: label is "";
+  begin
+    variable_name := get_symbol(line);
+    symbol := get_symbol(line);
+    expect("=", symbol, line);
+    num1 := exec_expr(symbol, line);
+    setNumericVar(variable_name, num1);
+    if symbol = "TO" then
+      symbol := get_symbol(line);
+    elsif startsWith(symbol, "TO") then
+      line := symbol[3 ..] & line;
+      symbol := get_symbol(line);
+    else
+      error_expect("TO", symbol);
+    end if;
+    num2 := exec_expr(symbol, line);
+    if symbol = "STEP" then
+      symbol := get_symbol(line);
+      num3 := exec_expr(symbol, line);
+    elsif startsWith(symbol, "STEP") then
+      line := symbol[5 ..] & line;
+      symbol := get_symbol(line);
+      num3 := exec_expr(symbol, line);
+    else
+      num3 := 1.0;
+    end if;
+    if (num3 > 0.0 and num1 <= num2) or
+       (num3 < 0.0 and num1 >= num2) then
+      if symbol = "'" or symbol = "REM" then
+        index1 := succ(length(prg[file_line_number].line));
+      else
+        index1 := length(prg[file_line_number].line) - length(line) + 1;
+      end if;
+      forLoop := [] (forLoopDescrType.value) & forLoop;
+      forLoop[1].varName := variable_name;
+      forLoop[1].endValue := num2;
+      forLoop[1].stepValue := num3;
+      forLoop[1].bodyLine := file_line_number;
+      forLoop[1].bodyColumn := index1;
+      line_marker;
+      write(log, "FOR " <& variable_name <& "=" <& num1);
+      writeln(log, " TO " <& num2 <& " STEP " <& num3);
+    else
+      line_marker;
+      write(log, "EMPTY FOR " <& variable_name <& "=" <& num1);
+      writeln(log, " TO " <& num2 <& " STEP " <& num3);
+      label := statement_label;
+      if not find_next(symbol, line, variable_name) then
+        error_marker(label);
+        write(err, "NO CORRESPONDING \"NEXT\" OR \"NEXT " <& variable_name);
+        writeln(err, "\" FOUND FOR \"FOR " <& variable_name <& "\"");
+      end if;
+    end if;
+  end func;
+
+
+const proc: exec_next (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: param1 is "";
+    var integer: index1 is 0;
+    var integer: index2 is 0;
+  begin
+    if length(forLoop) >= 1 then
+      symbol := get_symbol(line);
+      if endOfStatement(symbol) then
+        param1 := "";
+        variable_name := forLoop[1].varName;
+      else
+        param1 := getNameList(symbol, line);
+        if nameInList(forLoop[1].varName, param1) then
+          variable_name := forLoop[1].varName;
+        else
+          index1 := 2;
+          while index1 <= length(forLoop) and not nameInList(forLoop[index1].varName, param1) do
+            incr(index1)
+          end while;
+          if index1 <= length(forLoop) and nameInList(forLoop[index1].varName, param1) then
+            for index2 range 1 to pred(index1) do
+              line_marker;
+              write(log, "THE \"FOR " <& forLoop[index2].varName <& "\" LOOP AT LINE ");
+              line_marker(forLoop[index2].bodyLine);
+              writeln(log, " SEEMS TO HAVE BEEN LEFT");
+            end for;
+            forLoop := forLoop[index1 .. ];
+            variable_name := forLoop[1].varName;
+          elsif on_error_label <> "" then
+            error_code := 1; # NEXT without FOR
+            line_marker;
+            write(log, error_code <& " NEXT WITHOUT FOR");
+            writeln(log, " - ON ERROR GOTO " <& on_error_label);
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
+            variable_name := "";
+          else
+            error_marker;
+            writeln(err, "NEXT - NO MATCHING FOR FOUND");
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
+            variable_name := "";
+          end if;
+        end if;
+      end if;
+      exec_next_decision(symbol, line, variable_name, param1);
+    elsif on_error_label <> "" then
+      error_code := 1; # NEXT without FOR
+      line_marker;
+      write(log, error_code <& " NEXT " <& variable_name <& " WITHOUT FOR");
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
+    else
+      error_marker;
+      writeln(err, "NEXT " <& variable_name <& " WITHOUT FOR");
+      repeat
+        symbol := get_symbol(line);
+      until endOfStatement(symbol);
+    end if;
+  end func;
+
+
+const proc: exec_on (inout string: symbol, inout string: line) is func
+  local
+    var string: param1 is "";
+    var integer: index1 is 0;
+    var integer: index2 is 0;
+    var integer: keywordPos is 0;
+  begin
+    symbol := get_symbol(line);
+    if symbol = "ERROR" then
+      symbol := get_symbol(line);
+      expect("GOTO", symbol, line);
+      if symbol = "0" then
+        on_error_label := "";
+        line_marker;
+        writeln(log, "ON ERROR GOTO 0 - DISABLE ERROR HANDLING");
+        symbol := get_symbol(line);
+      elsif label_or_linenum(symbol) then
+        on_error_label := symbol;
+        line_marker;
+        write(log, "ON ERROR GOTO " <& literal(symbol));
+        writeln(log, " LINE: " <& label[symbol]);
+        symbol := get_symbol(line);
+      else
+        error_marker;
+        writeln(err, "ON ERROR GOTO NEEDS A LABEL NOT " <& literal(symbol) <& ".");
+      end if;
+    elsif symbol = "KEY" then
+      line_marker;
+      writeln(log, "**ON KEY " <& line);
+      repeat
+        symbol := get_symbol(line);
+      until endOfStatement(symbol);
+    elsif symbol = "TIMER" then
+      line_marker;
+      writeln(log, "**ON TIMER " <& line);
+      repeat
+        symbol := get_symbol(line);
+      until endOfStatement(symbol);
+    else
+      if symbol not in numeric_var and symbol not in def_fn_list and
+          symbol not in subfunction then
+        keywordPos := pos(symbol, "GOTO");
+        if keywordPos <> 0 then
+          line := symbol[keywordPos ..] & line;
+          symbol := symbol[.. pred(keywordPos)];
+        else
+          keywordPos := pos(symbol, "GOSUB");
+          if keywordPos <> 0 then
+            line := symbol[keywordPos ..] & line;
+            symbol := symbol[.. pred(keywordPos)];
+          end if;
+        end if;
+      end if;
+      index1 := round(exec_expr(symbol, line));
+      if startsWith(symbol, "GOTO") then
+        line := symbol[5 ..] & line;
+        symbol := "GOTO";
+      elsif startsWith(symbol, "GOSUB") then
+        line := symbol[6 ..] & line;
+        symbol := "GOSUB";
+      end if;
+      if symbol = "GOTO" or symbol = "GOSUB" then
+        param1 := symbol;
+        symbol := get_symbol(line);
+        if index1 >= 1 then
+          index2 := 1;
+          while index2 < index1 do
+            symbol := get_symbol(line);
+            if symbol = "," then
+              symbol := get_symbol(line);
+              incr(index2);
+            else
+              index2 := succ(index1);
+            end if;
+          end while;
+          if index2 = index1 then
+            if label_or_linenum(symbol) then
+              line_marker;
+              writeln(log, "ON " <& index1 <& " " <& param1 <& " " <& symbol);
+              if param1 = "GOSUB" then
+                advance_after_statement(line);
+                set_return_position(line);
+                goto_label_or_linenum(symbol);
+                set_sub_entry_position;
+              else
+                goto_label_or_linenum(symbol);
+              end if;
+              symbol := "";
+              line := "";
+            else
+              error_marker;
+              write(err, "UNDEFINED LABEL " <& symbol <& " AFTER \"");
+              writeln(err, "ON " <& index1 <& " " <& param1 <& "\".");
+            end if;
+          else
+            line_marker;
+            writeln(log, "ON " <& index1 <& " GOTO NEXT STATEMENT");
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
+          end if;
+        else
+          line_marker;
+          writeln(log, "ON " <& index1 <& " GOTO NEXT STATEMENT");
+          while not endOfStatement(symbol) do
+            symbol := get_symbol(line);
+          end while;
+        end if;
+      else
+        error_expect2("GOTO", "GOSUB", symbol);
+      end if;
+    end if;
+  end func;
+
+
+const proc: exec_do (inout string: symbol, inout string: line) is func
+  local
     var float: num1 is 0.0;
     var string: headLabel is "";
     var integer: headLine is 0;
@@ -3703,7 +4129,7 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
   begin
     tailLine := file_line_number;
     tailColumn := length(prg[file_line_number].line) - length(line) + 1;
-    if correspondingDoPresent(tailLine, tailColumn, headLine, headColumn) then
+    if doLoopHeaderPresent(tailLine, tailColumn, headLine, headColumn) then
       if length(doLoop) >= 1 then
         if doLoop[1].headLine <> headLine or
             doLoop[1].headColumn <> headColumn then
@@ -4050,8 +4476,9 @@ const proc: exec_print_using (inout file: outFile,
               if isStringExpr(symbol) then
                 param2 := exec_str_expr(symbol, line, unused_name);
                 if ch1 = '!' then
-                  write(outFile, param2[1 len 1] rpad 1);
-                  write(log, literal(param2));
+                  param2 := param2[1 len 1] rpad 1;
+                  write(outFile, param2);
+                  write(log, " " <& literal(param2));
                 elsif ch1 = '\\' then
                   index2 := index1;
                   repeat
@@ -4063,15 +4490,16 @@ const proc: exec_print_using (inout file: outFile,
                     end if;
                   until ch1 <> ' ';
                   if ch1 = '\\' then
-                    write(outFile, param2[1 len succ(index2 - index1)] rpad succ(index2 - index1));
-                    write(log, literal(param2));
+                    param2 := param2[1 len succ(index1 - index2)] rpad succ(index1 - index2);
+                    write(outFile, param2);
+                    write(log, " " <& literal(param2));
                   else
                     error_marker;
                     writeln(err, "'\\' - FOUND " <& literal(ch1) <& ".");
                   end if;
                 elsif ch1 = '&' then
                   write(outFile, param2);
-                  write(log, literal(param2));
+                  write(log, " " <& literal(param2));
                 end if;
               else
                 error_marker;
@@ -4186,6 +4614,13 @@ const proc: exec_print_using (inout file: outFile,
               noop;
             when {'$'}:
               noop;
+            when {'_'}:
+              incr(index1);
+              if index1 <= length(param1) then
+                ch1 := param1[index1];
+                write(outFile, ch1);
+                write(log, ch1);
+              end if;
             otherwise:
               write(outFile, ch1);
               write(log, ch1);
@@ -5491,10 +5926,11 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
         expect("(", symbol, line);
         varptr_variable := get_name(symbol, line);
         expect(")", symbol, line);
-        line_marker;
-        writeln(log, "**VARPTR(" <& varptr_variable <& ")");
       else
         index1 := round(exec_expr(symbol, line));
+        if index1 in varname_value then
+          varptr_variable := varname_value[index1];
+        end if;
       end if;
     end if;
     if varptr_variable <> "" then
@@ -5531,7 +5967,7 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
       end if;
     end if;
     line_marker;
-    writeln(log, "BLOAD " <& literal(file_name));
+    writeln(log, "BLOAD " <& literal(file_name) <& ", VARPTR(" <& varptr_variable <& ")");
   end func;
 
 
@@ -6285,111 +6721,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
     repeat
       process_next := FALSE;
       if symbol = "IF" then
-        symbol := get_symbol(line);
-        num1 := exec_expr(symbol, line);
-        if num1 <> 0.0 then
-          if symbol = "THEN" then
-            line_marker;
-            write(log, "IF " <& num1);
-            symbol := get_symbol(line);
-            if symbol = "" or symbol = "'" or symbol = "REM" then
-              # Execute the following statements until "ELSE", "ELSEIF" or "END" "IF".
-              writeln(log, " THEN - EXECUTE STATEMENT BLOCK");
-            elsif label_or_linenum(symbol) then
-              param1 := symbol;
-              symbol := get_symbol(line);
-              # A label and a variable can share the same name
-              if symbol = "=" or symbol = "("  or symbol = "[" then
-                # A let statement is recognized: Write log and exec the let statement.
-                writeln(log, " THEN - EXECUTE STATEMENTS IN LINE UNTIL \"ELSE\"");
-                exec_let(param1, symbol, line);
-              else
-                writeln(log, " THEN " <& param1 <& " - GOTO LINE");
-                goto_label_or_linenum(param1);
-                symbol := "";
-                line := "";
-              end if;
-            else
-              writeln(log, " THEN - EXECUTE STATEMENTS IN LINE UNTIL \"ELSE\"");
-              process_next := TRUE;
-            end if;
-          elsif symbol = "GOTO" then
-            symbol := get_symbol(line);
-            line_marker;
-            writeln(log, "IF " <& num1 <& " GOTO " <& symbol <& " - GOTO LINE");
-            if label_or_linenum(symbol) then
-              goto_label_or_linenum(symbol);
-              symbol := "";
-              line := "";
-            else
-              error_marker;
-              writeln(err, "UNDEFINED LABEL " <& symbol <& " AFTER \"GOTO\".");
-            end if;
-          else
-            error_expect2("THEN", "GOTO", symbol);
-          end if;
-        else
-          if symbol = "THEN" or symbol = "GOTO" then
-            symbol := get_symbol(line);
-          else
-            error_expect2("THEN", "GOTO", symbol);
-          end if;
-          line_marker;
-          write(log, "IF " <& num1);
-          if symbol = "" or symbol = "'" or symbol = "REM" then
-            writeln(log, " THEN - SKIP STATEMENT BLOCK");
-            exec_elseif_else_chain(symbol, line, process_next);
-          elsif label_or_linenum(symbol) then
-            writeln(log, " THEN " <& symbol <& " - SKIP LABEL");
-            symbol := get_symbol(line);
-            if symbol = "ELSE" then
-              symbol := get_symbol(line);
-              if label_or_linenum(symbol) then
-                line_marker;
-                writeln(log, "ELSE " <& symbol <& " - GOTO LINE");
-                goto_label_or_linenum(symbol);
-                symbol := "";
-                line := "";
-              else
-                line_marker;
-                writeln(log, "ELSE - EXECUTE STATEMENTS IN LINE");
-                process_next := TRUE;
-              end if;
-            elsif symbol = ":" then
-              line_marker;
-              writeln(log, "NO ELSE - CONTINUE AFTER THE LABEL");
-            else
-              line_marker;
-              writeln(log, "NO ELSE - CONTINUE AT NEXT LINE");
-              symbol := "";
-              line := "";
-            end if;
-          else
-            writeln(log, " THEN - SKIP STATEMENTS IN LINE UNTIL \"ELSE\"");
-            if symbol <> "ELSE" then
-              symbol := find_else(line);
-            end if;
-            if symbol = "ELSE" then
-              symbol := get_symbol(line);
-              if label_or_linenum(symbol) then
-                line_marker;
-                writeln(log, "ELSE " <& symbol <& " - GOTO LINE");
-                goto_label_or_linenum(symbol);
-                symbol := "";
-                line := "";
-              else
-                line_marker;
-                writeln(log, "ELSE - EXECUTE STATEMENTS IN LINE");
-                process_next := TRUE;
-              end if;
-            else
-              line_marker;
-              writeln(log, "NO ELSE - CONTINUE AT NEXT LINE");
-              symbol := "";
-              line := "";
-            end if;
-          end if;
-        end if;
+        exec_if(symbol, line, process_next);
       elsif symbol = "GOTO" then
         exec_goto(symbol, line);
       elsif symbol = "GO" then
@@ -6618,190 +6950,11 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           writeln(err, "UNEXPECTED SYMBOL AFTER END " <& literal(symbol));
         end if;
       elsif symbol = "FOR" then
-        variable_name := get_symbol(line);
-        symbol := get_symbol(line);
-        expect("=", symbol, line);
-        num1 := exec_expr(symbol, line);
-        setNumericVar(variable_name, num1);
-        expect("TO", symbol, line);
-        num2 := exec_expr(symbol, line);
-        if symbol = "STEP" then
-          symbol := get_symbol(line);
-          num3 := exec_expr(symbol, line);
-        else
-          num3 := 1.0;
-        end if;
-        if (num3 > 0.0 and num1 <= num2) or
-           (num3 < 0.0 and num1 >= num2) then
-          if symbol = "'" or symbol = "REM" then
-            index1 := succ(length(prg[file_line_number].line));
-          else
-            index1 := length(prg[file_line_number].line) - length(line) + 1;
-          end if;
-          forLoop := [] (forLoopDescrType.value) & forLoop;
-          forLoop[1].varName := variable_name;
-          forLoop[1].endValue := num2;
-          forLoop[1].stepValue := num3;
-          forLoop[1].bodyLine := file_line_number;
-          forLoop[1].bodyColumn := index1;
-          line_marker;
-          write(log, "FOR " <& variable_name <& "=" <& num1);
-          writeln(log, " TO " <& num2 <& " STEP " <& num3);
-        else
-          line_marker;
-          write(log, "EMPTY FOR " <& variable_name <& "=" <& num1);
-          writeln(log, " TO " <& num2 <& " STEP " <& num3);
-          param1 := statement_label;
-          if not find_next(symbol, line, variable_name) then
-            error_marker(param1);
-            write(err, "NO CORRESPONDING \"NEXT\" OR \"NEXT " <& variable_name);
-            writeln(err, "\" FOUND FOR \"FOR " <& variable_name <& "\"");
-          end if;
-        end if;
+        exec_for(symbol, line);
       elsif symbol = "NEXT" then
-        if length(forLoop) >= 1 then
-          symbol := get_symbol(line);
-          if endOfStatement(symbol) then
-            param1 := "";
-            variable_name := forLoop[1].varName;
-          else
-            param1 := getNameList(symbol, line);
-            if nameInList(forLoop[1].varName, param1) then
-              variable_name := forLoop[1].varName;
-            else
-              index1 := 2;
-              while index1 <= length(forLoop) and not nameInList(forLoop[index1].varName, param1) do
-                incr(index1)
-              end while;
-              if index1 <= length(forLoop) and nameInList(forLoop[index1].varName, param1) then
-                for index2 range 1 to pred(index1) do
-                  line_marker;
-                  write(log, "THE \"FOR " <& forLoop[index2].varName <& "\" LOOP AT LINE ");
-                  line_marker(forLoop[index2].bodyLine);
-                  writeln(log, " SEEMS TO HAVE BEEN LEFT");
-                end for;
-                forLoop := forLoop[index1 .. ];
-                variable_name := forLoop[1].varName;
-              elsif on_error_label <> "" then
-                error_code := 1; # NEXT without FOR
-                line_marker;
-                write(log, error_code <& " NEXT WITHOUT FOR");
-                writeln(log, " - ON ERROR GOTO " <& on_error_label);
-                goto_on_error(on_error_label, line);
-                symbol := "";
-                line := "";
-                variable_name := "";
-              else
-                error_marker;
-                writeln(err, "NEXT - NO MATCHING FOR FOUND");
-                while not endOfStatement(symbol) do
-                  symbol := get_symbol(line);
-                end while;
-                variable_name := "";
-              end if;
-            end if;
-          end if;
-          exec_next_decision(symbol, line, variable_name, param1);
-        elsif on_error_label <> "" then
-          error_code := 1; # NEXT without FOR
-          line_marker;
-          write(log, error_code <& " NEXT " <& variable_name <& " WITHOUT FOR");
-          writeln(log, " - ON ERROR GOTO " <& on_error_label);
-          goto_on_error(on_error_label, line);
-          symbol := "";
-          line := "";
-        else
-          error_marker;
-          writeln(err, "NEXT " <& variable_name <& " WITHOUT FOR");
-          repeat
-            symbol := get_symbol(line);
-          until endOfStatement(symbol);
-        end if;
+        exec_next(symbol, line);
       elsif symbol = "ON" then
-        symbol := get_symbol(line);
-        if symbol = "ERROR" then
-          symbol := get_symbol(line);
-          expect("GOTO", symbol, line);
-          if symbol = "0" then
-            on_error_label := "";
-            line_marker;
-            writeln(log, "ON ERROR GOTO 0 - DISABLE ERROR HANDLING");
-            symbol := get_symbol(line);
-          elsif label_or_linenum(symbol) then
-            on_error_label := symbol;
-            line_marker;
-            write(log, "ON ERROR GOTO " <& literal(symbol));
-            writeln(log, " LINE: " <& label[symbol]);
-            symbol := get_symbol(line);
-          else
-            error_marker;
-            writeln(err, "ON ERROR GOTO NEEDS A LABEL NOT " <& literal(symbol) <& ".");
-          end if;
-        elsif symbol = "KEY" then
-          line_marker;
-          writeln(log, "**ON KEY " <& line);
-          repeat
-            symbol := get_symbol(line);
-          until endOfStatement(symbol);
-        elsif symbol = "TIMER" then
-          line_marker;
-          writeln(log, "**ON TIMER " <& line);
-          repeat
-            symbol := get_symbol(line);
-          until endOfStatement(symbol);
-        else
-          index1 := round(exec_expr(symbol, line));
-          if symbol = "GOTO" or symbol = "GOSUB" then
-            param1 := symbol;
-            symbol := get_symbol(line);
-            if index1 >= 1 then
-              index2 := 1;
-              while index2 < index1 do
-                symbol := get_symbol(line);
-                if symbol = "," then
-                  symbol := get_symbol(line);
-                  incr(index2);
-                else
-                  index2 := succ(index1);
-                end if;
-              end while;
-              if index2 = index1 then
-                if label_or_linenum(symbol) then
-                  line_marker;
-                  writeln(log, "ON " <& index1 <& " " <& param1 <& " " <& symbol);
-                  if param1 = "GOSUB" then
-                    advance_after_statement(line);
-                    set_return_position(line);
-                    goto_label_or_linenum(symbol);
-                    set_sub_entry_position;
-                  else
-                    goto_label_or_linenum(symbol);
-                  end if;
-                  symbol := "";
-                  line := "";
-                else
-                  error_marker;
-                  write(err, "UNDEFINED LABEL " <& symbol <& " AFTER \"");
-                  writeln(err, "ON " <& index1 <& " " <& param1 <& "\".");
-                end if;
-              else
-                line_marker;
-                writeln(log, "ON " <& index1 <& " GOTO NEXT STATEMENT");
-                while not endOfStatement(symbol) do
-                  symbol := get_symbol(line);
-                end while;
-              end if;
-            else
-              line_marker;
-              writeln(log, "ON " <& index1 <& " GOTO NEXT STATEMENT");
-              while not endOfStatement(symbol) do
-                symbol := get_symbol(line);
-              end while;
-            end if;
-          else
-            error_expect2("GOTO", "GOSUB", symbol);
-          end if;
-        end if;
+        exec_on(symbol, line);
       elsif symbol = "WHILE" then
         index1 := file_line_number;
         index2 := length(prg[file_line_number].line) - length(line) + 1;
@@ -7658,6 +7811,13 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             setStringVar(variable_name, param3);
             line_marker;
             writeln(log, "LET " <& variable_name <& "=" <& literal(param3));
+          elsif startsWith(variable_name, "IF") then
+            line := variable_name[3 ..] & symbol & line;
+            exec_if(symbol, line, process_next);
+          elsif startsWith(variable_name, "PRINT") then
+            line := variable_name[6 ..] & symbol & line;
+            symbol := get_symbol(line);
+            exec_print(symbol, line);
           else
             error_marker;
             write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
@@ -7668,15 +7828,42 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           if symbol = "=" then
             symbol := get_symbol(line);
             num1 := exec_expr(symbol, line);
-            setNumericVar(variable_name, num1);
-            line_marker;
-            writeln(log, "LET " <& variable_name <& "=" <& num1);
-          elsif variable_name[.. 3] = "REM" then
+            if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
+              line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
+              exec_if(symbol, line, process_next);
+            elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
+              line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
+              exec_for(symbol, line);
+            else
+              setNumericVar(variable_name, num1);
+              line_marker;
+              writeln(log, "LET " <& variable_name <& "=" <& num1);
+            end if;
+          elsif startsWith(variable_name, "REM") then
             (* When a name is starting with REM and is      *)
             (* not followed by "=" it is treated as remark. *)
             line_marker;
             writeln(log, "REM " <& variable_name <& " " <& symbol <& line);
             symbol := "";
+          elsif startsWith(variable_name, "IF") then
+            line := variable_name[3 ..] & symbol & line;
+            exec_if(symbol, line, process_next);
+          elsif startsWith(variable_name, "GOTO") then
+            line := variable_name[5 ..] & symbol & line;
+            exec_goto(symbol, line);
+          elsif startsWith(variable_name, "GOSUB") then
+            line := variable_name[6 ..] & symbol & line;
+            exec_gosub(symbol, line);
+          elsif startsWith(variable_name, "NEXT") then
+            line := variable_name[5 ..] & symbol & line;
+            exec_next(symbol, line);
+          elsif startsWith(variable_name, "ON") then
+            line := variable_name[3 ..] & symbol & line;
+            exec_on(symbol, line);
+          elsif startsWith(variable_name, "PRINT") then
+            line := variable_name[6 ..] & symbol & line;
+            symbol := get_symbol(line);
+            exec_print(symbol, line);
           else
             error_marker;
             write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
@@ -7766,7 +7953,7 @@ const proc: log_line (in lineType: aLine) is func
 
 const proc: prepare_loops is func
   local
-    var boolean: running is TRUE;
+    var boolean: processing is TRUE;
     var string: symbol is "";
     var string: line is "";
     var string: headLabel is "";
@@ -7774,11 +7961,12 @@ const proc: prepare_loops is func
     var integer: headColumn is 0;
     var integer: tailLine is 0;
     var integer: tailColumn is 0;
+    var string: variable_name is "";
   begin
     file_line_number := 1;
-    while running do
+    while processing do
       if file_line_number > length(prg) then
-        running := FALSE;
+        processing := FALSE;
       elsif prg[file_line_number].line <> "" then
         statement_label := prg[file_line_number].linenum;
         line := prg[file_line_number].line;
@@ -7796,7 +7984,7 @@ const proc: prepare_loops is func
               tailColumn := length(prg[file_line_number].line) - length(line) + 1;
               # writeln(log, "LOOP[" <& tailLine <& "," <& tailColumn <&
               #              "]->DO[" <& headLine <& "," <& headColumn <& "]");
-              addCorrespondingDo(tailLine, tailColumn, headLine, headColumn);
+              addDoLoopHeader(tailLine, tailColumn, headLine, headColumn);
               file_line_number := headLine;
               line := prg[file_line_number].line[headColumn .. ];
               symbol := get_symbol(line);
@@ -7804,13 +7992,13 @@ const proc: prepare_loops is func
               file_line_number := headLine;
               line := prg[file_line_number].line[headColumn .. ];
               symbol := get_symbol(line);
-              error_marker;
+              error_marker(headLabel);
               writeln(err, "DO - NO STATICALLY CORRESPONDING \"LOOP\" STATEMENT FOUND");
             end if;
           elsif symbol = "LOOP" then
             tailLine := file_line_number;
             tailColumn := length(prg[file_line_number].line) - length(line) + 1;
-            if not correspondingDoPresent(tailLine, tailColumn, headLine, headColumn) then
+            if not doLoopHeaderPresent(tailLine, tailColumn, headLine, headColumn) then
               error_marker;
               writeln(err, "LOOP - NO STATICALLY CORRESPONDING \"DO\" STATEMENT FOUND");
             end if;

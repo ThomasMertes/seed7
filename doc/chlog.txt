@@ -1,3 +1,9 @@
+20090920:
+- A FAQ about extensible programming languages and the portability of Seed7 programs,
+  was added.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The function gkbButtonPressed in the file drw_win.c was improved.
+
 20090906:
 - Various syntax descriptions in the manual were improved.
 - The functions get_uint16_le, get_uint32_le, get_uint16_be and get_uint32_be in the
