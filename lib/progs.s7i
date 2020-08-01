@@ -59,6 +59,9 @@ const proc: (inout category param) := (in category param)      is action "INT_CP
 const func boolean: (in category param) = (in category param)  is action "INT_EQ";
 const func boolean: (in category param) <> (in category param) is action "INT_NE";
 
+const func integer: ord (in category param)                    is action "INT_ORD";
+const func category: (attr category) conv (in integer param)   is action "INT_CONV";
+
 const func string: str (in category param)                     is action "REF_CAT_STR";
 const func category: (attr category) parse (in string param)   is action "REF_CAT_PARSE";
 
@@ -101,6 +104,13 @@ const category: REFPARAMOBJECT    is category parse "REFPARAMOBJECT";
 const category: RESULTOBJECT      is category parse "RESULTOBJECT";
 const category: LOCALVOBJECT      is category parse "LOCALVOBJECT";
 const category: PROGOBJECT        is category parse "PROGOBJECT";
+
+const proc: for (inout category param) range (in category param) to (in category param) do
+              (in proc param)
+            end for is                                                     action "PRC_FOR_TO";
+const proc: for (inout category param) range (in category param) downto (in category param) do
+              (in proc param)
+            end for is                                                     action "PRC_FOR_DOWNTO";
 
 
 const func boolean: is_var (ref reference param) is                        action "REF_ISVAR";

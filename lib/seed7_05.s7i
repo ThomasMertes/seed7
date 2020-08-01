@@ -572,6 +572,7 @@ const func integer: ord (in integer param) is                       action "INT_
 const func integer: (attr integer) conv (in integer param) is       action "INT_CONV";
 const func string: str (in integer param) is                        action "INT_STR";
 const func string: literal (in integer param) is                    action "INT_STR";
+const func string: str (in integer param, in integer param) is      action "INT_STR_BASED";
 const func string: (in integer param) lpad0 (in integer param) is   action "INT_LPAD0";
 const proc: incr (inout integer param) is                           action "INT_INCR";
 const proc: decr (inout integer param) is                           action "INT_DECR";
@@ -631,6 +632,7 @@ const proc: (inout string param) := (in string param) is          action "STR_CP
 const proc: (inout string param) &:= (in string param) is         action "STR_APPEND";
 const proc: (inout string param) @:= [ (in integer param) ] (in char param) is action "STR_ELEMCPY";
 const func string: (in string param) lpad (in integer param) is   action "STR_LPAD";
+const func string: (in string param) lpad0 (in integer param) is  action "STR_LPAD0";
 const func string: (in string param) rpad (in integer param) is   action "STR_RPAD";
 const func string: (in string param) <& (in string param) is      action "STR_CAT";
 const func char: (in string param) [ (in integer param) ] is      action "STR_IDX";
@@ -663,6 +665,8 @@ const func string: replace (in string param, in string param, in string param) i
 const func string: upper (in string param) is                     action "STR_UP";
 const func string: lower (in string param) is                     action "STR_LOW";
 const func string: trim (in string param) is                      action "STR_TRIM";
+const func string: striToUtf8 (in string param) is                action "STR_TOUTF8";
+const func string: utf8ToStri (in string param) is                action "STR_UTF8TOSTRI";
 const func string: str (in string param) is                       action "STR_STR";
 const func string: literal (in string param) is                   action "STR_LIT";
 const func string: c_literal (in string param) is                 action "STR_CLIT";
@@ -799,18 +803,6 @@ const func string: c_literal (in char: ch) is func
           str(ord(ch) mod 8) & "'";
 *)
     end if;
-  end func;
-
-const func string: str (in var integer: number, in integer: base) is func
-  result
-    var string: result is "";
-  local
-    const string: digit is "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  begin
-    while number <> 0 do
-      result := str(digit[succ(number rem base)]) & result;
-      number := number div base;
-    end while;
   end func;
 
 
@@ -1458,6 +1450,15 @@ const func type: array (in type: baseType) is func
           end for;
         end func;
 
+      const proc: for key (inout integer: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) do
+            statements;
+          end for;
+        end func;
+
       const func baseType: rand (in arrayType: arr) is
         baseType return arr[rand(minIdx(arr), maxIdx(arr))];
 
@@ -1620,6 +1621,15 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
         begin
           for number range minIntIdx(arr) to maxIntIdx(arr) do
             variable := stdArrayType conv arr[number];
+            statements;
+          end for;
+        end func;
+
+      const proc: for key (inout indexType: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) do
             statements;
           end for;
         end func;
@@ -1884,19 +1894,22 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 *)
 
       const proc: for (inout baseType: forVar) range (in hashType: aHash) do
-          (in proc: statements) end for is func
+                    (in proc: statements)
+                  end for is func
         begin
           FOR_DATA(forVar, aHash, statements, hashType.dataCopy);
         end func;
 
       const proc: for key (inout keyType: keyVar) range (in hashType: aHash) do
-          (in proc: statements) end for is func
+                    (in proc: statements)
+                  end for is func
         begin
           FOR_KEY(keyVar, aHash, statements, hashType.keyCopy);
         end func;
 
       const proc: for (inout baseType: forVar) key (inout keyType: keyVar) range (in hashType: aHash) do
-          (in proc: statements) end for is func
+                    (in proc: statements)
+                  end for is func
         begin
           FOR_DATA_KEY(forVar, keyVar, aHash, statements, hashType.dataCopy, hashType.keyCopy);
         end func;
@@ -2225,6 +2238,8 @@ const func type: HASHSET_OF (in type: baseType) is func
       const proc: COPY (inout setType param, in setType param,
                         in reference param, in reference param,
                         in reference param, in reference param) is               action "HSH_CPY";
+      const proc: FOR_KEY (inout baseType param, in setType param,
+                           in proc param, in reference param) is                 action "HSH_FOR_KEY";
 
       const proc: (ref setType: dest) ::= (in setType: source) is func
         begin
@@ -2285,6 +2300,13 @@ const func type: HASHSET_OF (in type: baseType) is func
           incl(result, value);
         end func;
 
+      const proc: for (inout baseType: variable) range (in setType: aSet) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          FOR_KEY(variable, aSet, statements, setType.keyCopy);
+        end func;
+
       tupleType := tuple baseType;
       array_type := array baseType;
 
@@ -2333,6 +2355,31 @@ const type: TEST_E is set of string;
 const set of char: alpha is {'A' .. 'Z'} | {'a' .. 'z'};
 const set of char: alnum is {'A' .. 'Z'} | {'a' .. 'z'} | {'0' .. '9'};
 const set of char: digit is {'0' .. '9'};
+
+
+const func integer: toInt (in string: stri, in integer: base) is func
+  result
+    var integer: result is 0;
+  local
+    const array integer: digitval is [] (                    # -1 is illegal
+         0,  1,  2,  3,  4,  5,  6,  7,  8,  9,              # 0 - 9
+        -1, -1, -1, -1, -1, -1, -1,                          #
+        10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,  # A - M
+        23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,  # N - Z
+        -1, -1, -1, -1, -1, -1,
+        10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,  # a - m
+        23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35); # n - z
+    var integer: pos is 1;
+    var integer: digit is 0;
+  begin
+    for pos range 1 to length(stri) do
+      digit := digitval[ord(stri[pos]) - 47];
+      if digit = -1 then
+        raise RANGE_ERROR;
+      end if;
+      result := result * base + digit;
+    end for;
+  end func;
 
 
 (* INTERFACE *)

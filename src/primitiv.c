@@ -434,6 +434,7 @@ static primactrecord prim_act_table[] = {
     { "INT_SHRINK",          int_shrink,          },
     { "INT_SQRT",            int_sqrt,            },
     { "INT_STR",             int_str,             },
+    { "INT_STR_BASED",       int_str_based,       },
     { "INT_SUCC",            int_succ,            },
     { "INT_VALUE",           int_value,           },
 
@@ -702,6 +703,7 @@ static primactrecord prim_act_table[] = {
     { "STR_LNG",             str_lng,             },
     { "STR_LOW",             str_low,             },
     { "STR_LPAD",            str_lpad,            },
+    { "STR_LPAD0",           str_lpad0,           },
     { "STR_LT",              str_lt,              },
     { "STR_MULT",            str_mult,            },
     { "STR_NE",              str_ne,              },
@@ -715,8 +717,10 @@ static primactrecord prim_act_table[] = {
     { "STR_STR",             str_str,             },
     { "STR_SUBSTR",          str_substr,          },
     { "STR_TAIL",            str_tail,            },
+    { "STR_TOUTF8",          str_toutf8,          },
     { "STR_TRIM",            str_trim,            },
     { "STR_UP",              str_up,              },
+    { "STR_UTF8TOSTRI",      str_utf8tostri,      },
     { "STR_VALUE",           str_value,           },
 
     { "TIM_AWAIT",           tim_await,           },

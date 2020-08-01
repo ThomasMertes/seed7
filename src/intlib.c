@@ -1009,6 +1009,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype int_str_based (listtype arguments)
+#else
+
+objecttype int_str_based (arguments)
+listtype arguments;
+#endif
+
+  { /* int_str */
+    isit_int(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    return(bld_stri_temp(intStrBased(
+        take_int(arg_1(arguments)), take_int(arg_2(arguments)))));
+  } /* int_str */
+
+
+
+#ifdef ANSI_C
+
 objecttype int_succ (listtype arguments)
 #else
 

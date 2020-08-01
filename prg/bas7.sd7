@@ -193,46 +193,6 @@ const proc: list_prog is func
   end func;
 
 
-const func integer: hex_value (in string: stri) is func
-  result
-    var integer: result is 0;
-  local
-    var integer: pos is 0;
-    var integer: digit is 0;
-  begin
-    pos := 1;
-    while pos <= length(stri) do
-      if stri[pos] >= '0' and stri[pos] <= '9' then
-        digit := ord(stri[pos]) - ord('0');
-      elsif stri[pos] >= 'A' and stri[pos] <= 'F' then
-        digit := 10 + ord(stri[pos]) - ord('A');
-      elsif stri[pos] >= 'a' and stri[pos] <= 'f' then
-        digit := 10 + ord(stri[pos]) - ord('a');
-      end if;
-      result := result * 16 + digit;
-      incr(pos);
-    end while;
-  end func;
-
-
-const func integer: oct_value (in string: stri) is func
-  result
-    var integer: result is 0;
-  local
-    var integer: pos is 0;
-    var integer: digit is 0;
-  begin
-    pos := 1;
-    while pos <= length(stri) do
-      if stri[pos] >= '0' and stri[pos] <= '7' then
-        digit := ord(stri[pos]) - ord('0');
-      end if;
-      result := result * 8 + digit;
-      incr(pos);
-    end while;
-  end func;
-
-
 const func string: hex_str (in var integer: number) is func
   result
     var string: result is "";
@@ -448,10 +408,14 @@ const func string: get_symbol (inout string: line) is func
               while index <= leng and line[index] in hexdigit_char do
                 incr(index);
               end while;
-              symbol := str(hex_value(line[start .. pred(index)]));
-              if index <= leng and line[index] in number_suffix then
-                symbol &:= line[index len 1];
-                incr(index);
+              if index > start then
+                symbol := str(toInt(line[start .. pred(index)], 16));
+                if index <= leng and line[index] in number_suffix then
+                  symbol &:= line[index len 1];
+                  incr(index);
+                end if;
+              else
+                symbol := "&H";
               end if;
             elsif ch = 'O' or ch = 'o' then
               incr(index);
@@ -459,10 +423,14 @@ const func string: get_symbol (inout string: line) is func
               while index <= leng and line[index] in octdigit_char do
                 incr(index);
               end while;
-              symbol := str(oct_value(line[start .. pred(index)]));
-              if index <= leng and line[index] in number_suffix then
-                symbol &:= line[index len 1];
-                incr(index);
+              if index > start then
+                symbol := str(toInt(line[start .. pred(index)], 8));
+                if index <= leng and line[index] in number_suffix then
+                  symbol &:= line[index len 1];
+                  incr(index);
+                end if;
+              else
+                symbol := "&O";
               end if;
             else
               symbol := "&";

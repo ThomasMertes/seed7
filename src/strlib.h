@@ -51,6 +51,7 @@ objecttype str_lit (listtype);
 objecttype str_lng (listtype);
 objecttype str_low (listtype);
 objecttype str_lpad (listtype);
+objecttype str_lpad0 (listtype);
 objecttype str_lt (listtype);
 objecttype str_mult (listtype);
 objecttype str_ne (listtype);
@@ -64,8 +65,10 @@ objecttype str_split (listtype);
 objecttype str_str (listtype);
 objecttype str_substr (listtype);
 objecttype str_tail (listtype);
+objecttype str_toutf8 (listtype);
 objecttype str_trim (listtype);
 objecttype str_up (listtype);
+objecttype str_utf8tostri (listtype);
 objecttype str_value (listtype);
 
 #else
@@ -94,6 +97,7 @@ objecttype str_lit ();
 objecttype str_lng ();
 objecttype str_low ();
 objecttype str_lpad ();
+objecttype str_lpad0 ();
 objecttype str_lt ();
 objecttype str_mult ();
 objecttype str_ne ();
@@ -107,8 +111,10 @@ objecttype str_split ();
 objecttype str_str ();
 objecttype str_substr ();
 objecttype str_tail ();
+objecttype str_toutf8 ();
 objecttype str_trim ();
 objecttype str_up ();
+objecttype str_utf8tostri ();
 objecttype str_value ();
 
 #endif

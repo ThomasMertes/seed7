@@ -216,16 +216,16 @@ stritype stri_from;
     if (stri_from->size != 0) {
       stri_dest = *stri_to;
       new_size = stri_dest->size + stri_from->size;
-      REALLOC_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
       if (stri_dest == NULL) {
         raise_error(MEMORY_ERROR);
-        return;
+      } else {
+        COUNT3_STRI(stri_dest->size, new_size);
+        memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
+            (SIZE_TYPE) stri_from->size * sizeof(strelemtype));
+        stri_dest->size = new_size;
+        *stri_to = stri_dest;
       } /* if */
-      COUNT3_STRI(stri_dest->size, new_size);
-      memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
-          (SIZE_TYPE) stri_from->size * sizeof(strelemtype));
-      stri_dest->size = new_size;
-      *stri_to = stri_dest;
     } /* if */
   } /* strAppend */
 
@@ -614,7 +614,7 @@ stritype stri2;
 
   /* strConcatTemp */
     result_size = stri1->size + stri2->size;
-    REALLOC_STRI(resized_stri1, stri1, stri1->size, result_size);
+    GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
     if (resized_stri1 == NULL) {
       FREE_STRI(stri1, stri1->size);
       raise_error(MEMORY_ERROR);
@@ -1125,34 +1125,133 @@ inttype pad_size;
       f_size = (memsizetype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
-      } /* if */
-      result->size = f_size;
+      } else {
+        result->size = f_size;
 #ifdef WIDE_CHAR_STRINGS
-      {
-        strelemtype *elem = result->mem;
-        memsizetype len = f_size - length;
+        {
+          strelemtype *elem = result->mem;
+          memsizetype len = f_size - length;
 
-        while (len--) {
-          *elem++ = (strelemtype) ' ';
-        } /* while */
-      }
+          while (len--) {
+            *elem++ = (strelemtype) ' ';
+          } /* while */
+        }
 #else
-      memset(result->mem, ' ', (SIZE_TYPE) (f_size - length));
+        memset(result->mem, ' ', (SIZE_TYPE) (f_size - length));
 #endif
-      memcpy(&result->mem[f_size - length], stri->mem,
-          (SIZE_TYPE) length * sizeof(strelemtype));
+        memcpy(&result->mem[f_size - length], stri->mem,
+            (SIZE_TYPE) length * sizeof(strelemtype));
+      } /* if */
     } else {
       if (!ALLOC_STRI(result, length)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+      } else {
+        result->size = length;
+        memcpy(result->mem, stri->mem,
+            (SIZE_TYPE) length * sizeof(strelemtype));
       } /* if */
-      result->size = length;
-      memcpy(result->mem, stri->mem,
-          (SIZE_TYPE) length * sizeof(strelemtype));
     } /* if */
     return(result);
   } /* strLpad */
+
+
+
+#ifdef ANSI_C
+
+stritype strLpad0 (const const_stritype stri, const inttype pad_size)
+#else
+
+stritype strLpad0 (stri, pad_size)
+stritype stri;
+inttype pad_size;
+#endif
+
+  {
+    memsizetype f_size;
+    memsizetype length;
+    stritype result;
+
+  /* strLpad0 */
+    length = stri->size;
+    if (pad_size > (inttype) length) {
+      f_size = (memsizetype) pad_size;
+      if (!ALLOC_STRI(result, f_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = f_size;
+#ifdef WIDE_CHAR_STRINGS
+        {
+          strelemtype *elem = result->mem;
+          memsizetype len = f_size - length;
+
+          while (len--) {
+            *elem++ = (strelemtype) '0';
+          } /* while */
+        }
+#else
+        memset(result->mem, '0', (SIZE_TYPE) (f_size - length));
+#endif
+        memcpy(&result->mem[f_size - length], stri->mem,
+            (SIZE_TYPE) length * sizeof(strelemtype));
+      } /* if */
+    } else {
+      if (!ALLOC_STRI(result, length)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = length;
+        memcpy(result->mem, stri->mem,
+            (SIZE_TYPE) length * sizeof(strelemtype));
+      } /* if */
+    } /* if */
+    return(result);
+  } /* strLpad0 */
+
+
+
+#ifdef ANSI_C
+
+stritype strLpad0Temp (const stritype stri, const inttype pad_size)
+#else
+
+stritype strLpad0Temp (stri, pad_size)
+stritype stri;
+inttype pad_size;
+#endif
+
+  {
+    memsizetype f_size;
+    memsizetype length;
+    stritype result;
+
+  /* strLpad0Temp */
+    length = stri->size;
+    if (pad_size > (inttype) length) {
+      f_size = (memsizetype) pad_size;
+      if (!ALLOC_STRI(result, f_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = f_size;
+#ifdef WIDE_CHAR_STRINGS
+        {
+          strelemtype *elem = result->mem;
+          memsizetype len = f_size - length;
+
+          while (len--) {
+            *elem++ = (strelemtype) '0';
+          } /* while */
+        }
+#else
+        memset(result->mem, '0', (SIZE_TYPE) (f_size - length));
+#endif
+        memcpy(&result->mem[f_size - length], stri->mem,
+            (SIZE_TYPE) length * sizeof(strelemtype));
+        FREE_STRI(stri, length);
+      } /* if */
+    } else {
+      result = stri;
+    } /* if */
+    return(result);
+  } /* strLpad0Temp */
 
 
 
@@ -1905,6 +2004,74 @@ inttype start;
 
 #ifdef ANSI_C
 
+stritype strToUtf8 (const const_stritype stri)
+#else
+
+stritype strToUtf8 (stri)
+stritype stri;
+#endif
+
+  {
+    register strelemtype *dest;
+    register const strelemtype *source;
+    memsizetype len;
+    stritype resized_result;
+    stritype result;
+
+  /* strToUtf8 */
+    if (!ALLOC_STRI(result, compr_size(stri))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      dest = result->mem;
+      source = stri->mem;
+      len = stri->size;
+      for (; len > 0; source++, len--) {
+        if (*source <= 0x7F) {
+          *dest++ = *source;
+        } else if (*source <= 0x7FF) {
+          *dest++ = 0xC0 | ( *source >>  6);
+          *dest++ = 0x80 | ( *source        & 0x3F);
+        } else if (*source <= 0xFFFF) {
+          *dest++ = 0xE0 | ( *source >> 12);
+          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
+          *dest++ = 0x80 | ( *source        & 0x3F);
+        } else if (*source <= 0x1FFFFF) {
+          *dest++ = 0xF0 | ( *source >> 18);
+          *dest++ = 0x80 | ((*source >> 12) & 0x3F);
+          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
+          *dest++ = 0x80 | ( *source        & 0x3F);
+        } else if (*source <= 0x3FFFFFF) {
+          *dest++ = 0xF8 | ( *source >> 24);
+          *dest++ = 0x80 | ((*source >> 18) & 0x3F);
+          *dest++ = 0x80 | ((*source >> 12) & 0x3F);
+          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
+          *dest++ = 0x80 | ( *source        & 0x3F);
+        } else {
+          *dest++ = 0xFC | ( *source >> 30);
+          *dest++ = 0x80 | ((*source >> 24) & 0x3F);
+          *dest++ = 0x80 | ((*source >> 18) & 0x3F);
+          *dest++ = 0x80 | ((*source >> 12) & 0x3F);
+          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
+          *dest++ = 0x80 | ( *source        & 0x3F);
+        } /* if */
+      } /* for */
+      result->size = dest - result->mem;
+      REALLOC_STRI(resized_result, result, compr_size(stri), result->size);
+      if (resized_result == NULL) {
+        FREE_BSTRI(result, compr_size(stri));
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_BSTRI(compr_size(stri), result->size);
+      } /* if */
+    } /* if */
+    return(result);
+  } /* strToUtf8 */
+
+
+
+#ifdef ANSI_C
+
 stritype strTrim (const const_stritype stri)
 #else
 
@@ -2028,54 +2195,57 @@ stritype stri8;
 
   /* strUtf8ToStri */
     length = stri8->size;
-    if (ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI(result, length)) {
+      raise_error(MEMORY_ERROR);
+    } else {
       stri8ptr = &stri8->mem[0];
       pos = 0;
-      for (; length > 0; length--, pos++) {
+      for (; length > 0; pos++) {
         if (*stri8ptr <= 0x7F) {
           result->mem[pos] = *stri8ptr++;
-        } else if ((stri8ptr[0] & 0xE0) == 0xC0 && length > 1 &&
-                   (stri8ptr[1] & 0xC0) == 0x80) {
+          length--;
+        } else if ((stri8ptr[0] & 0xFFFFFFE0) == 0xC0 && length >= 2 &&
+                   (stri8ptr[1] & 0xFFFFFFC0) == 0x80) {
           result->mem[pos] = (stri8ptr[0] & 0x1F) << 6 |
                              (stri8ptr[1] & 0x3F);
           stri8ptr += 2;
-          length--;
-        } else if ((stri8ptr[0] & 0xF0) == 0xE0 && length > 2 &&
-                   (stri8ptr[1] & 0xC0) == 0x80 &&
-                   (stri8ptr[2] & 0xC0) == 0x80) {
+          length -= 2;
+        } else if ((stri8ptr[0] & 0xFFFFFFF0) == 0xE0 && length >= 3 &&
+                   (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[2] & 0xFFFFFFC0) == 0x80) {
           result->mem[pos] = (stri8ptr[0] & 0x0F) << 12 |
                              (stri8ptr[1] & 0x3F) <<  6 |
                              (stri8ptr[2] & 0x3F);
           stri8ptr += 3;
-          length -= 2;
-        } else if ((stri8ptr[0] & 0xF8) == 0xF0 && length > 3 &&
-                   (stri8ptr[1] & 0xC0) == 0x80 &&
-                   (stri8ptr[2] & 0xC0) == 0x80 &&
-                   (stri8ptr[3] & 0xC0) == 0x80) {
+          length -= 3;
+        } else if ((stri8ptr[0] & 0xFFFFFFF8) == 0xF0 && length >= 4 &&
+                   (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[2] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[3] & 0xFFFFFFC0) == 0x80) {
           result->mem[pos] = (stri8ptr[0] & 0x07) << 18 |
                              (stri8ptr[1] & 0x3F) << 12 |
                              (stri8ptr[2] & 0x3F) <<  6 |
                              (stri8ptr[3] & 0x3F);
           stri8ptr += 4;
-          length -= 3;
-        } else if ((stri8ptr[0] & 0xFC) == 0xF8 && length > 4 &&
-                   (stri8ptr[1] & 0xC0) == 0x80 &&
-                   (stri8ptr[2] & 0xC0) == 0x80 &&
-                   (stri8ptr[3] & 0xC0) == 0x80 &&
-                   (stri8ptr[4] & 0xC0) == 0x80) {
+          length -= 4;
+        } else if ((stri8ptr[0] & 0xFFFFFFFC) == 0xF8 && length >= 5 &&
+                   (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[2] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[3] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[4] & 0xFFFFFFC0) == 0x80) {
           result->mem[pos] = (stri8ptr[0] & 0x03) << 24 |
                              (stri8ptr[1] & 0x3F) << 18 |
                              (stri8ptr[2] & 0x3F) << 12 |
                              (stri8ptr[3] & 0x3F) <<  6 |
                              (stri8ptr[4] & 0x3F);
           stri8ptr += 5;
-          length -= 4;
-        } else if ((stri8ptr[0] & 0xFC) == 0xFC && length > 5 &&
-                   (stri8ptr[1] & 0xC0) == 0x80 &&
-                   (stri8ptr[2] & 0xC0) == 0x80 &&
-                   (stri8ptr[3] & 0xC0) == 0x80 &&
-                   (stri8ptr[4] & 0xC0) == 0x80 &&
-                   (stri8ptr[5] & 0xC0) == 0x80) {
+          length -= 5;
+        } else if ((stri8ptr[0] & 0xFFFFFFFC) == 0xFC && length >= 6 &&
+                   (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[2] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[3] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[4] & 0xFFFFFFC0) == 0x80 &&
+                   (stri8ptr[5] & 0xFFFFFFC0) == 0x80) {
           result->mem[pos] = (stri8ptr[0] & 0x03) << 30 |
                              (stri8ptr[1] & 0x3F) << 24 |
                              (stri8ptr[2] & 0x3F) << 18 |
@@ -2083,7 +2253,7 @@ stritype stri8;
                              (stri8ptr[4] & 0x3F) <<  6 |
                              (stri8ptr[5] & 0x3F);
           stri8ptr += 6;
-          length -= 5;
+          length -= 6;
         } else {
           okay = FALSE;
           length = 0;
@@ -2104,8 +2274,6 @@ stritype stri8;
         raise_error(RANGE_ERROR);
         result = NULL;
       } /* if */
-    } else {
-      raise_error(MEMORY_ERROR);
     } /* if */
     return(result);
   } /* strUtf8ToStri */

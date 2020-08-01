@@ -25,582 +25,8 @@
 
 
 $ include "seed7_05.s7i";
+  include "charsets.s7i";
   include "utf8.s7i";
-
-
-const string: cp_437 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäàåçêëèïîìÄÅ\
-    \ÉæÆôöòûùÿÖÜ¢£¥₧ƒ\
-    \áíóúñÑªº¿⌐¬½¼¡«»\
-    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
-    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
-    \╨╤╥╙╘╓╓╫╪┘┌█▄▌▐▀\
-    \αßΓπΣσµτΦΘΩδ∞φε∩\
-    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160\";
-
-const string: cp_437g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \ÇüéâäàåçêëèïîìÄÅ\
-    \ÉæÆôöòûùÿÖÜ¢£¥₧ƒ\
-    \áíóúñÑªº¿⌐¬½¼¡«»\
-    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
-    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
-    \╨╤╥╙╘╓╓╫╪┘┌█▄▌▐▀\
-    \αßΓπΣσµτΦΘΩδ∞φε∩\
-    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160\";
-
-const string: cp_737 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠ\
-    \ΡΣΤΥΦΧΨΩαβγδεζηθ\
-    \ικλμνξοπρσςτυφχψ\
-    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
-    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
-    \╨╤╥╙╘╓╓╫╪┘┌█▄▌▐▀\
-    \ωάέήϊίόύϋώΆΈΉΊΌΎ\
-    \Ώ±≥≤ΪΫ÷≈°∙·√ⁿ²■\160\";
-
-const string: cp_737g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠ\
-    \ΡΣΤΥΦΧΨΩαβγδεζηθ\
-    \ικλμνξοπρσςτυφχψ\
-    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
-    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
-    \╨╤╥╙╘╓╓╫╪┘┌█▄▌▐▀\
-    \ωάέήϊίόύϋώΆΈΉΊΌΎ\
-    \Ώ±≥≤ΪΫ÷≈°∙·√ⁿ²■\160\";
-
-const string: cp_850 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäàåçêëèïîìÄÅ\
-    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
-    \áíóúñÑªº¿®¬½¼¡«»\
-    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
-    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
-    \ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀\
-    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
-    \­±‗¾¶§÷¸°¨·¹³²■\160\";
-
-const string: cp_850g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \ÇüéâäàåçêëèïîìÄÅ\
-    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
-    \áíóúñÑªº¿®¬½¼¡«»\
-    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
-    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
-    \ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀\
-    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
-    \­±‗¾¶§÷¸°¨·¹³²■\160\";
-
-const string: cp_852 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäůćçłëŐőîŹÄĆ\
-    \ÉĹĺôöĽľŚśÖÜŤťŁ×č\
-    \áíóúĄąŽžĘę¬źČş«»\
-    \░▒▓│┤ÁÂĚŞ╣║╗╝Żż┐\
-    \└┴┬├─┼Ăă╚╔╩╦╠═╬¤\
-    \đĐĎËďŇÍÎě┘┌█▄ŢŮ▀\
-    \ÓßÔŃńňŠšŔÚŕŰýÝţ´\
-    \­˝˛ˇ˘§÷¸°¨˙űŘř■\160\";
-
-const string: cp_852g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \ÇüéâäůćçłëŐőîŹÄĆ\
-    \ÉĹĺôöĽľŚśÖÜŤťŁ×č\
-    \áíóúĄąŽžĘę¬źČş«»\
-    \░▒▓│┤ÁÂĚŞ╣║╗╝Żż┐\
-    \└┴┬├─┼Ăă╚╔╩╦╠═╬¤\
-    \đĐĎËďŇÍÎě┘┌█▄ŢŮ▀\
-    \ÓßÔŃńňŠšŔÚŕŰýÝţ´\
-    \­˝˛ˇ˘§÷¸°¨˙űŘř■\160\";
-
-const string: cp_855 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ђЂѓЃёЁєЄѕЅіІїЇјЈ\
-    \љЉњЊћЋќЌўЎџЏюЮъЪ\
-    \аАбБцЦдДеЕфФгГ«»\
-    \░▒▓│┤хХиИ╣║╗╝йЙ┐\
-    \└┴┬├─┼кК╚╔╩╦╠═╬¤\
-    \лЛмМнНоОп┘┌█▄Пя▀\
-    \ЯрРсСтТуУжЖвВьЬ№\
-    \­ыЫзЗшШэЭщЩчЧ§■\160\";
-
-const string: cp_855g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \ђЂѓЃёЁєЄѕЅіІїЇјЈ\
-    \љЉњЊћЋќЌўЎџЏюЮъЪ\
-    \аАбБцЦдДеЕфФгГ«»\
-    \░▒▓│┤хХиИ╣║╗╝йЙ┐\
-    \└┴┬├─┼кК╚╔╩╦╠═╬¤\
-    \лЛмМнНоОп┘┌█▄Пя▀\
-    \ЯрРсСтТуУжЖвВьЬ№\
-    \­ыЫзЗшШэЭщЩчЧ§■\160\";
-
-const string: cp_857 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäàåçêëèïîıÄÅ\
-    \ÉæÆôöòûùİÖÜø£ØŞş\
-    \áíóúñÑĞğ¿®¬½¼¡«»\
-    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
-    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
-    \ºªÊËÈ?ÍÎÏ┘┌█▄¦Ì▀\
-    \ÓßÔÒõÕµ?×ÚÛÙìÿ¯´\
-    \­±?¾¶§÷¸°¨·¹³²■\160\";
-
-const string: cp_857g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäàåçêëèïîıÄÅ\
-    \ÉæÆôöòûùİÖÜø£ØŞş\
-    \áíóúñÑĞğ¿®¬½¼¡«»\
-    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
-    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
-    \ºªÊËÈ?ÍÎÏ┘┌█▄¦Ì▀\
-    \ÓßÔÒõÕµ?×ÚÛÙìÿ¯´\
-    \­±?¾¶§÷¸°¨·¹³²■\160\";
-
-const string: cp_858 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäàåçêëèïîìÄÅ\
-    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
-    \áíóúñÑªº¿®¬½¼¡«»\
-    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
-    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
-    \ðÐÊËÈ€ÍÎÏ┘┌█▄¦Ì▀\
-    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
-    \­±‗¾¶§÷¸°¨·¹³²■\160\";
-
-const string: cp_858g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \ÇüéâäàåçêëèïîìÄÅ\
-    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
-    \áíóúñÑªº¿®¬½¼¡«»\
-    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
-    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
-    \ðÐÊËÈ€ÍÎÏ┘┌█▄¦Ì▀\
-    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
-    \­±‗¾¶§÷¸°¨·¹³²■\160\";
-
-const string: cp_861 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäàåçêëèÐðÞÄÅ\
-    \ÉæÆôöþûÝýÖÜø£Ø₧ƒ\
-    \áíóúÁÍÓÚ¿⌐¬½¼¡«»\
-    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
-    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
-    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
-    \αßΓπΣσµτΦΘΩδ∞φε∩\
-    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160\";
-
-const string: cp_861g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \ÇüéâäàåçêëèÐðÞÄÅ\
-    \ÉæÆôöþûÝýÖÜø£Ø₧ƒ\
-    \áíóúÁÍÓÚ¿⌐¬½¼¡«»\
-    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
-    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
-    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
-    \αßΓπΣσµτΦΘΩδ∞φε∩\
-    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160\";
-
-const string: cp_869 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \??????Ά?·¬¦‘’Έ―Ή\
-    \ΊΪΌ??ΎΫ©Ώ²³ά£έήί\
-    \ϊΐόύΑΒΓΔΕΖΗ½ΘΙ«»\
-    \░▒▓│┤ΚΛΜΝ╣║╗╝ΞΟ┐\
-    \└┴┬├─┼ΠΡ╚╔╩╦╠═╬Σ\
-    \ΤΥΦΧΨΩαβγ┘┌█▄δε▀\
-    \ζηθικλμνξοπρσςτ΄\
-    \­±υφχ§ψ΅°¨ωϋΰώ■\160\";
-
-const string: cp_869g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \??????Ά?·¬¦‘’Έ―Ή\
-    \ΊΪΌ??ΎΫ©Ώ²³ά£έήί\
-    \ϊΐόύΑΒΓΔΕΖΗ½ΘΙ«»\
-    \░▒▓│┤ΚΛΜΝ╣║╗╝ΞΟ┐\
-    \└┴┬├─┼ΠΡ╚╔╩╦╠═╬Σ\
-    \ΤΥΦΧΨΩαβγ┘┌█▄δε▀\
-    \ζηθικλμνξοπρσςτ΄\
-    \­±υφχ§ψ΅°¨ωϋΰώ■\160\";
-
-const string: cp_1250 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \€?‚?„…†‡?‰Š‹ŚŤŽŹ\
-    \?‘’“”•–—?™š›śťžź\
-    \\160\ˇ˘Ł¤Ą¦§¨©Ş«¬­®Ż\
-    \°±˛ł´µ¶·¸ąş»Ľ˝ľż\
-    \ŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎ\
-    \ĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢß\
-    \ŕáâăäĺćçčéęëěíîď\
-    \đńňóôőö÷řůúűüýţ˙";
-
-const string: cp_1250g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \€?‚?„…†‡?‰Š‹ŚŤŽŹ\
-    \?‘’“”•–—?™š›śťžź\
-    \\160\ˇ˘Ł¤Ą¦§¨©Ş«¬­®Ż\
-    \°±˛ł´µ¶·¸ąş»Ľ˝ľż\
-    \ŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎ\
-    \ĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢß\
-    \ŕáâăäĺćçčéęëěíîď\
-    \đńňóôőö÷řůúűüýţ˙";
-
-const string: cp_1252 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \€\129\‚ƒ„…†‡ˆ‰Š‹Œ\141\Ž\143\\
-    \\144\‘’“”•–—˜™š›œ\157\žŸ\
-    \\160\¡¢£¤¥¦§¨©ª«¬­®¯\
-    \°±²³´µ¶·¸¹º»¼½¾¿\
-    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
-    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
-    \àáâãäåæçèéêëìíîï\
-    \ðñòóôõö÷øùúûüýþÿ";
-
-const string: cp_1252g is "\
-    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
-    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~⌂\
-    \€\129\‚ƒ„…†‡ˆ‰Š‹Œ\141\Ž\143\\
-    \\144\‘’“”•–—˜™š›œ\157\žŸ\
-    \\160\¡¢£¤¥¦§¨©ª«¬­®¯\
-    \°±²³´µ¶·¸¹º»¼½¾¿\
-    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
-    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
-    \àáâãäåæçèéêëìíîï\
-    \ðñòóôõö÷øùúûüýþÿ";
-
-const string: latin_1 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\\
-    \\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\\
-    \\160\¡¢£¤¥¦§¨©ª«¬­®¯\
-    \°±²³´µ¶·¸¹º»¼½¾¿\
-    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
-    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
-    \àáâãäåæçèéêëìíîï\
-    \ðñòóôõö÷øùúûüýþÿ";
-
-const string: latin_9 is "\
-    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
-    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
-    \ !\"#$%&'()*+,-./\
-    \0123456789:;<=>?\
-    \@ABCDEFGHIJKLMNO\
-    \PQRSTUVWXYZ[\\]^_\
-    \`abcdefghijklmno\
-    \pqrstuvwxyz{|}~\127\\
-    \\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\\
-    \\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\\
-    \\160\¡¢£€¥Š§š©ª«¬­®¯\
-    \°±²³Žµ¶·ž¹º»ŒœŸ¿\
-    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
-    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
-    \àáâãäåæçèéêëìíîï\
-    \ðñòóôõö÷øùúûüýþÿ";
-
-const string: ebcdic is "\
-    \\0\\A\B\C?\t?\127\\     # NUL, SOH, STX, ETX, PF, HT, LC, DEL
-    \???\K\L\M\N\O\          # GE, RLF, SMM, VT, FF, CR, SO, SI
-    \\P\Q\R\S?\n\b?\         # DLE, DC1, DC2, DC3, RES, NL, BS, IL
-    \\X\Y??\28\\29\\30\\31\\ # CAN, EM, CC, CUI, IFS, IGS, IRS, IUS
-    \?????\n\W\e\            # DS, SOS, FS, ?, BYP, LF, ETB, ESC
-    \?????\E\F\a\            # ?, ?, SM, CU2, ?, ENQ, ACK, BEL
-    \??\V????\D\             # ?, ?, SYN, ?, PN, RS, UC, EOT
-    \????\T\U?\Z\            # ?, ?, ?, CU3, DC4, NAK, ?, SUB
-    \  âäàáãåçñ[.<(+!\
-    \&éêëèíîïìß]$*);^\
-    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
-    \øÉÊËÈÍÎÏÌ`:#@'=\"\
-    \Øabcdefghi«»ðýþ±\
-    \°jklmnopqrªºæ¸Æ¤\
-    \µ~stuvwxyz¡¿ÐÝÞ®\
-    \¢£¥·©§¶¼½¾¬|¯¨´×\
-    \{ABCDEFGHI­ôöòóõ\
-    \}JKLMNOPQR¹ûüùúÿ\
-    \\\÷STUVWXYZ²ÔÖÒÓÕ\
-    \0123456789³ÛÜÙÚ ";
-
-const string: cp_037 is "\
-    \\0\\A\B\C?\t?\127\\     # NUL, SOH, STX, ETX, PF, HT, LC, DEL
-    \???\K\L\M\N\O\          # GE, RLF, SMM, VT, FF, CR, SO, SI
-    \\P\Q\R\S?\n\b?\         # DLE, DC1, DC2, DC3, RES, NL, BS, IL
-    \\X\Y??\28\\29\\30\\31\\ # CAN, EM, CC, CUI, IFS, IGS, IRS, IUS
-    \?????\n\W\e\            # DS, SOS, FS, ?, BYP, LF, ETB, ESC
-    \?????\E\F\a\            # ?, ?, SM, CU2, ?, ENQ, ACK, BEL
-    \??\V????\D\             # ?, ?, SYN, ?, PN, RS, UC, EOT
-    \????\T\U?\Z\            # ?, ?, ?, CU3, DC4, NAK, ?, SUB
-    \ \160\âäàáãåçñ¢.<(+|\
-    \&éêëèíîïìß!$*);¬\
-    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
-    \øÉÊËÈÍÎÏÌ`:#@'=\"\
-    \Øabcdefghi«»ðýþ±\
-    \°jklmnopqrªºæ¸Æ¤\
-    \µ~stuvwxyz¡¿ÐÝÞ®\
-    \^£¥·©§¶¼½¾[]¯¨´×\
-    \{ABCDEFGHI­ôöòóõ\
-    \}JKLMNOPQR¹ûüùúÿ\
-    \\\÷STUVWXYZ²ÔÖÒÓÕ\
-    \0123456789³ÛÜÙÚ ";
-
-const string: cp_273 is "\
-    \\0\\A\B\C?\t?\127\\     # NUL, SOH, STX, ETX, PF, HT, LC, DEL
-    \???\K\L\M\N\O\          # GE, RLF, SMM, VT, FF, CR, SO, SI
-    \\P\Q\R\S?\n\b?\         # DLE, DC1, DC2, DC3, RES, NL, BS, IL
-    \\X\Y??\28\\29\\30\\31\\ # CAN, EM, CC, CUI, IFS, IGS, IRS, IUS
-    \?????\n\W\e\            # DS, SOS, FS, ?, BYP, LF, ETB, ESC
-    \?????\E\F\a\            # ?, ?, SM, CU2, ?, ENQ, ACK, BEL
-    \??\V????\D\             # ?, ?, SYN, ?, PN, RS, UC, EOT
-    \????\T\U?\Z\            # ?, ?, ?, CU3, DC4, NAK, ?, SUB
-    \ \160\â{àáãåçñÄ.<(+!\
-    \&éêëèíîïì~Ü$*);^\
-    \-/Â[ÀÁÃÅÇÑö,%_>?\
-    \øÉÊËÈÍÎÏÌ`:#§'=\"\
-    \Øabcdefghi«»ðýþ±\
-    \°jklmnopqrªºæ¸Æ¤\
-    \µßstuvwxyz¡¿ÐÝÞ®\
-    \¢£¥·©@¶¼½¾¬|¯¨´×\
-    \äABCDEFGHI­ô¦òóõ\
-    \üJKLMNOPQR¹û}ùúÿ\
-    \Ö÷STUVWXYZ²Ô\\ÒÓÕ\
-    \0123456789³Û]ÙÚ ";
-
-const string: cp_285 is "\
-    \\0\\A\B\C?\t?\127\\     # NUL, SOH, STX, ETX, PF, HT, LC, DEL
-    \???\K\L\M\N\O\          # GE, RLF, SMM, VT, FF, CR, SO, SI
-    \\P\Q\R\S?\n\b?\         # DLE, DC1, DC2, DC3, RES, NL, BS, IL
-    \\X\Y??\28\\29\\30\\31\\ # CAN, EM, CC, CUI, IFS, IGS, IRS, IUS
-    \?????\n\W\e\            # DS, SOS, FS, ?, BYP, LF, ETB, ESC
-    \?????\E\F\a\            # ?, ?, SM, CU2, ?, ENQ, ACK, BEL
-    \??\V????\D\             # ?, ?, SYN, ?, PN, RS, UC, EOT
-    \????\T\U?\Z\            # ?, ?, ?, CU3, DC4, NAK, ?, SUB
-    \ \160\âäàáãåçñ$.<(+|\
-    \&éêëèíîïìß!£*);¬\
-    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
-    \øÉÊËÈÍÎÏÌ`:#@'=\"\
-    \Øabcdefghi«»ðýþ±\
-    \°jklmnopqrªºæ¸Æ¤\
-    \µ¯stuvwxyz¡¿ÐÝÞ®\
-    \¢[¥·©§¶¼½¾^]~¨´×\
-    \{ABCDEFGHI­ôöòóõ\
-    \}JKLMNOPQR¹ûüùúÿ\
-    \\\÷STUVWXYZ²ÔÖÒÓÕ\
-    \0123456789³ÛÜÙÚ ";
-
-const string: cp_500 is "\
-    \\0\\A\B\C?\t?\127\\     # NUL, SOH, STX, ETX, PF, HT, LC, DEL
-    \???\K\L\M\N\O\          # GE, RLF, SMM, VT, FF, CR, SO, SI
-    \\P\Q\R\S?\n\b?\         # DLE, DC1, DC2, DC3, RES, NL, BS, IL
-    \\X\Y??\28\\29\\30\\31\\ # CAN, EM, CC, CUI, IFS, IGS, IRS, IUS
-    \?????\n\W\e\            # DS, SOS, FS, ?, BYP, LF, ETB, ESC
-    \?????\E\F\a\            # ?, ?, SM, CU2, ?, ENQ, ACK, BEL
-    \??\V????\D\             # ?, ?, SYN, ?, PN, RS, UC, EOT
-    \????\T\U?\Z\            # ?, ?, ?, CU3, DC4, NAK, ?, SUB
-    \ \160\âäàáãåçñ[.<(+!\
-    \&éêëèíîïìß]$*);^\
-    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
-    \øÉÊËÈÍÎÏÌ`:#@'=\"\
-    \Øabcdefghi«»ðýþ±\
-    \°jklmnopqrªºæ¸Æ¤\
-    \µ~stuvwxyz¡¿ÐÝÞ®\
-    \¢£¥·©§¶¼½¾¬|¯¨´×\
-    \{ABCDEFGHI­ôöòóõ\
-    \}JKLMNOPQR¹ûüùúÿ\
-    \\\÷STUVWXYZ²ÔÖÒÓÕ\
-    \0123456789³ÛÜÙÚ ";
-
-const string: cp_1047 is "\
-    \\0\\A\B\C?\t?\127\\     # NUL, SOH, STX, ETX, PF, HT, LC, DEL
-    \???\K\L\M\N\O\          # GE, RLF, SMM, VT, FF, CR, SO, SI
-    \\P\Q\R\S?\n\b?\         # DLE, DC1, DC2, DC3, RES, NL, BS, IL
-    \\X\Y??\28\\29\\30\\31\\ # CAN, EM, CC, CUI, IFS, IGS, IRS, IUS
-    \?????\n\W\e\            # DS, SOS, FS, ?, BYP, LF, ETB, ESC
-    \?????\E\F\a\            # ?, ?, SM, CU2, ?, ENQ, ACK, BEL
-    \??\V????\D\             # ?, ?, SYN, ?, PN, RS, UC, EOT
-    \????\T\U?\Z\            # ?, ?, ?, CU3, DC4, NAK, ?, SUB
-    \ \160\âäàáãåçñ¢.<(+|\
-    \&éêëèíîïìß!$*);^\
-    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
-    \øÉÊËÈÍÎÏÌ`:#@'=\"\
-    \Øabcdefghi«»ðýþ±\
-    \°jklmnopqrªºæ¸Æ¤\
-    \µ~stuvwxyz¡¿Ð[Þ®\
-    \¬£¥·©§¶¼½¾Ý¨¯]´×\
-    \{ABCDEFGHI­ôöòóõ\
-    \}JKLMNOPQR¹ûüùúÿ\
-    \\\÷STUVWXYZ²ÔÖÒÓÕ\
-    \0123456789³ÛÜÙÚ ";
-
-
-const proc: convert (inout string: stri, in string: codepage) is func
-  local
-    var integer: index is 0;
-  begin
-    for index range 1 to length(stri) do
-      stri @:= [index] codepage[succ(ord(stri[index]))];
-    end for;
-  end func;
 
 
 const proc: main is func
@@ -649,60 +75,60 @@ const proc: main is func
         out_file := open_utf8(out_name, "w");
         if out_file <> STD_NULL then
           if conv_name = "-437" then
-            convert(stri, cp_437);
+            conv2unicode(stri, cp_437);
             write(out_file, stri);
           elsif conv_name = "-737" then
-            convert(stri, cp_737);
+            conv2unicode(stri, cp_737);
             write(out_file, stri);
           elsif conv_name = "-850" then
-            convert(stri, cp_850);
+            conv2unicode(stri, cp_850);
             write(out_file, stri);
           elsif conv_name = "-852" then
-            convert(stri, cp_852);
+            conv2unicode(stri, cp_852);
             write(out_file, stri);
           elsif conv_name = "-855" then
-            convert(stri, cp_855);
+            conv2unicode(stri, cp_855);
             write(out_file, stri);
           elsif conv_name = "-857" then
-            convert(stri, cp_857);
+            conv2unicode(stri, cp_857);
             write(out_file, stri);
           elsif conv_name = "-858" then
-            convert(stri, cp_858);
+            conv2unicode(stri, cp_858);
             write(out_file, stri);
           elsif conv_name = "-861" then
-            convert(stri, cp_861);
+            conv2unicode(stri, cp_861);
             write(out_file, stri);
           elsif conv_name = "-869" then
-            convert(stri, cp_869);
+            conv2unicode(stri, cp_869);
             write(out_file, stri);
           elsif conv_name = "-1250" then
-            convert(stri, cp_1250);
+            conv2unicode(stri, cp_1250);
             write(out_file, stri);
           elsif conv_name = "-1252" then
-            convert(stri, cp_1252);
+            conv2unicode(stri, cp_1252);
             write(out_file, stri);
           elsif conv_name = "-latin-1" then
             write(out_file, stri);
           elsif conv_name = "-latin-9" then
-            convert(stri, latin_9);
+            conv2unicode(stri, latin_9);
             write(out_file, stri);
           elsif conv_name = "-ebcdic" then
-            convert(stri, ebcdic);
+            conv2unicode(stri, ebcdic);
             write(out_file, stri);
           elsif conv_name = "-037" then
-            convert(stri, cp_037);
+            conv2unicode(stri, cp_037);
             write(out_file, stri);
           elsif conv_name = "-273" then
-            convert(stri, cp_273);
+            conv2unicode(stri, cp_273);
             write(out_file, stri);
           elsif conv_name = "-285" then
-            convert(stri, cp_285);
+            conv2unicode(stri, cp_285);
             write(out_file, stri);
           elsif conv_name = "-500" then
-            convert(stri, cp_500);
+            conv2unicode(stri, cp_500);
             write(out_file, stri);
           elsif conv_name = "-1047" then
-            convert(stri, cp_1047);
+            conv2unicode(stri, cp_1047);
             write(out_file, stri);
           else
             writeln("unknown conversion: " <& conv_name);

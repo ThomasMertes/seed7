@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-include "charsets.s7i";
+include "chartype.s7i";
 
 
 (**
@@ -558,9 +558,9 @@ const func string: getSymbolOrComment (inout file: inFile) is func
         inFile.bufferChar := getc(inFile);
       when digit_char:
         symbol := getNumber(inFile);
-      when apostrophe_char:
+      when single_quotation_char:
         symbol := getCharLiteral(inFile);
-      when quotation_char:
+      when double_quotation_char:
         symbol := getStringLiteral(inFile);
       when sharp_char:
         symbol := getLineComment(inFile);
@@ -620,9 +620,9 @@ const func string: getSymbol (inout file: inFile) is func
         inFile.bufferChar := getc(inFile);
       when digit_char:
         symbol := getNumber(inFile);
-      when apostrophe_char:
+      when single_quotation_char:
         symbol := getCharLiteral(inFile);
-      when quotation_char:
+      when double_quotation_char:
         symbol := getStringLiteral(inFile);
       when sharp_char:
         skipLineComment(inFile);
@@ -694,7 +694,7 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
       when other_paren_char:
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
-      when angle_bracket:
+      when left_angle_bracket:
         repeat
           symbol &:= str(inFile.bufferChar);
           inFile.bufferChar := getc(inFile);
@@ -705,9 +705,9 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
         end if;
       when digit_char:
         symbol := getNumber(inFile);
-      when apostrophe_char:
+      when single_quotation_char:
         symbol := getCharLiteral(inFile);
-      when quotation_char:
+      when double_quotation_char:
         symbol := getStringLiteral(inFile);
       when sharp_char:
         symbol := getLineComment(inFile);
@@ -721,17 +721,18 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
 
 
 (**
- *  Reads a HTML tag or the HTML content text from a 'file'.
- *  A HTML tag starts with < and ends with > . The content text starts
- *  with everything else and ends just before a < or with EOF. When
- *  the function is called it is assumed that inFile.bufferChar
- *  contains the introducing < of a HTML tag or the first charater of
- *  the content text. When the function is left the character after
- *  the HTML tag or the content text is in inFile.bufferChar.
- *  @return the HTML tag, HTML content text or "" when EOF was
- *          reached.
+ *  Reads a XML/HTML tag or the XML/HTML content text from a 'file'.
+ *  A XML/HTML tag starts with < and ends with > . The content text
+ *  starts with everything else and ends just before a < or with EOF.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the introducing < of a XML/HTML tag or the first
+ *  charater of the content text. When the function is left the
+ *  character after the XML/HTML tag or the content text is in
+ *  inFile.bufferChar.
+ *  @return the XML/HTML tag, XML/HTML content text or "" when EOF
+ *          was reached.
  *)
-const func string: getHtmlTagOrContent (inout file: inFile) is func
+const func string: getXmlTagOrContent (inout file: inFile) is func
   result
     var string: symbol is "";
   begin
@@ -744,13 +745,11 @@ const func string: getHtmlTagOrContent (inout file: inFile) is func
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
       end if;
-    else
-      if inFile.bufferChar <> EOF then
-        repeat
-          symbol &:= str(inFile.bufferChar);
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
-      end if;
+    elsif inFile.bufferChar <> EOF then
+      repeat
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
     end if;
   end func;
 

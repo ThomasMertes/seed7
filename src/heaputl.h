@@ -29,6 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+
 #ifdef DO_HEAP_STATISTIC
 typedef struct {
     unsigned long stri;
@@ -306,13 +307,16 @@ EXTERN memsizetype hs;
 #define UNALLOC_CSTRI(var,len)     FREE_HEAP(var, SIZ_CSTRI(len))
 
 
+#define ALLOC_STRIx(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = len, printf("ALLOC_STRI(%lX)\n", var), CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
+#define REALLOC_STRIx(v1,v2,l1,l2)  ((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))?printf("REALLOC_STRI(%lX)\n", v1), (v1)->capacity=l2:0)
+
 #ifndef WITH_STRI_FLIST
 #ifdef WITH_STRI_CAPACITY
 #define ALLOC_STRI(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = len, CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
 #define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
 #define REALLOC_STRI(v1,v2,l1,l2)  ((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))?(v1)->capacity=l2:0)
-#define GROW_STRI(v1,v2,l1,l2)     (l2<=(v2)->capacity?0:v1=growStri(v2,l2))
-#define SHRINK_STRI(v1,v2,l1,l2)   (l2>=(v2)->capacity>>2?0:v1=shrinkStri(v2,l2))
+#define GROW_STRI(v1,v2,l1,l2)     ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
+#define SHRINK_STRI(v1,v2,l1,l2)   ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
 #else
 #define ALLOC_STRI(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?(CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
 #define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
@@ -393,12 +397,20 @@ EXTERN memsizetype hs;
 
 #ifdef ANSI_C
 
+#ifdef WITH_STRI_CAPACITY
+stritype growStri (stritype stri, memsizetype len);
+stritype shrinkStri (stritype stri, memsizetype len);
+#endif
 #ifdef DO_HEAP_CHECK
 void check_heap (long, char *, unsigned int);
 #endif
 
 #else
 
+#ifdef WITH_STRI_CAPACITY
+stritype growStri ();
+stritype shrinkStri ();
+#endif
 #ifdef DO_HEAP_CHECK
 void check_heap ();
 #endif

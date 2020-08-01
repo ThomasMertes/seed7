@@ -49,6 +49,16 @@
 #include "striutl.h"
 #include "rtl_err.h"
 
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
+
+#undef EXTERN
+#define EXTERN
+#include "soc_rtl.h"
+
 
 #ifdef USE_WINSOCK
 #ifndef SHUT_RDWR
@@ -144,6 +154,11 @@ sockettype sock;
 
   { /* socClose */
     shutdown(sock, SHUT_RDWR);
+#ifdef USE_WINSOCK
+    closesocket(sock);
+#else
+    close(sock);
+#endif
   } /* socClose */
 
 
@@ -178,7 +193,7 @@ sockettype sock;
 #endif
 
   {
-    char ch;
+    unsigned char ch;
     memsizetype bytes_received;
 
   /* socGetc */
@@ -276,8 +291,20 @@ inttype port;
         raise_error(MEMORY_ERROR);
       } else {
         host_ent = gethostbyname(name);
+        if (host_ent == NULL && h_errno == TRY_AGAIN) {
+          /*
+          printf("***** h_errno=%d\n", h_errno);
+          printf("***** name=\"%s\"\n", name);
+          printf("***** port=%d\n", port);
+          printf("***** host_name=");
+          prot_stri(host_name);
+          printf("\n");
+          */
+          host_ent = gethostbyname(name);
+        } /* if */
         if (host_ent == NULL) {
           result = NULL;
+          /* printf("***** h_errno=%d\n", h_errno); */
           raise_error(RANGE_ERROR);
         } else {
           /*
@@ -396,7 +423,7 @@ chartype *termination_char;
 #endif
 
   {
-    char ch;
+    unsigned char ch;
     register memsizetype position;
     register memsizetype bytes_received;
     strelemtype *memory;
@@ -763,7 +790,7 @@ chartype *termination_char;
 #endif
 
   {
-    char ch;
+    unsigned char ch;
     register memsizetype position;
     register memsizetype bytes_received;
     strelemtype *memory;

@@ -31,7 +31,7 @@
 
 #ifdef ANSI_C
 
-void strAppend (stritype *const, const const_stritype);
+void strAppend (stritype *const stri_to, const const_stritype stri_from);
 inttype strChIpos (const const_stritype, const chartype, const inttype);
 inttype strChPos (const const_stritype, const chartype);
 /* rtlArraytype strChSplit (const const_stritype, const chartype); */
@@ -54,6 +54,8 @@ stritype strLit (const const_stritype);
 stritype strLow (const const_stritype);
 stritype strLowTemp (const stritype);
 stritype strLpad (const const_stritype, const inttype);
+stritype strLpad0 (const const_stritype stri, const inttype pad_size);
+stritype strLpad0Temp (const stritype stri, const inttype pad_size);
 booltype strLt (const const_stritype, const const_stritype);
 stritype strMult (const const_stritype, const inttype);
 inttype strPos (const const_stritype, const const_stritype);
@@ -65,9 +67,11 @@ inttype strRpos (const const_stritype, const const_stritype);
 /* rtlArraytype strSplit (const const_stritype, const const_stritype); */
 stritype strSubstr (const const_stritype, inttype, inttype);
 stritype strTail (const const_stritype, inttype);
-stritype strTrim (const const_stritype);
+stritype strToUtf8 (const const_stritype stri);
+stritype strTrim (const const_stritype stri);
 stritype strUp (const const_stritype);
 stritype strUpTemp (const stritype);
+stritype strUtf8ToStri (const_stritype stri8);
 
 #else
 
@@ -94,6 +98,8 @@ stritype strLit ();
 stritype strLow ();
 stritype strLowTemp ();
 stritype strLpad ();
+stritype strLpad0 ();
+stritype strLpad0Temp ();
 booltype strLt ();
 stritype strMult ();
 inttype strPos ();
@@ -105,8 +111,10 @@ inttype strRpos ();
 /* rtlArraytype strSplit (); */
 stritype strSubstr ();
 stritype strTail ();
+stritype strToUtf8 ();
 stritype strTrim ();
 stritype strUp ();
 stritype strUpTemp ();
+stritype strUtf8ToStri ();
 
 #endif

@@ -266,16 +266,16 @@ hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c
 
 depend: a_depend b_depend c_depend version.h
-	$(CC) -M $(SRC) > depend
+	$(CC) $(CFLAGS) -M $(SRC) > depend
 
 a_depend: version.h
-	$(CC) -M $(SEED7_LIB_SRC) > a_depend
+	$(CC) $(CFLAGS) -M $(SEED7_LIB_SRC) > a_depend
 
 b_depend: version.h
-	$(CC) -M $(COMP_DATA_LIB_SRC) > b_depend
+	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) > b_depend
 
 c_depend: version.h
-	$(CC) -M $(COMPILER_LIB_SRC) > c_depend
+	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) > c_depend
 
 level.h:
 	hi level

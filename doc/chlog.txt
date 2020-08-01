@@ -1,3 +1,34 @@
+20080803:
+- The charsets.s7i library was renamed to chartype.s7i .
+- A new charsets.s7i library, which contains 44 codepages and the functions conv2unicode
+  and conv2unicodeByName, was added.
+- The encoding.s7i library, which contains encoding and decoding functions for Base64
+  and Quoted-printable, was added.
+- The functions 'ord' and 'conv' and the 'for' loop was added to the type 'category'
+  defined in the progs.s7i library.
+- The functions getWord, getQuotedText and getHttpSymbol were added to the scanstri.s7i
+  library.
+- The functions getSymbolOrComment, getSymbol and getSymbolInHtmlTag of the scanstri.s7i
+  library were improved to return symbols without leading whitespace.
+- The function getHtmlTagOrContent was renamed to getXmlTagOrContent in the scanfile.s7i
+  library.
+- A 'for key' loop for arrays, a 'for' loop for HASHSETs, a 'str' function to convert
+  integers to strings with base, a 'lpad0' operator for strings and the functions
+  striToUtf8, utf8ToStri and toInt were added to the seed7_05.s7i library.
+- The files cgi.s7i and bas7.sd7 were improved to use the new toInt function.
+- The interpreter and the compiler (comp.sd7) were improved to support the new
+  primitive actions INT_STR_BASED, STR_LPAD0, STR_TOUTF8 and STR_UTF8TOSTRI.
+- The compiler (comp.sd7) was improved to generate better code for the primitive actions
+  ARR_IDX, STR_ELEMCPY and STR_IDX.
+- The toutf8.sd7 example program was modified to use the new charsets.s7i library.
+- The files heaputl.c, heaputl.h, str_rtl.c and strlib.c were improved to use strings
+  with capacity for the primitive actions STR_APPEND, STR_CAT and STR_HEAD.
+- The makefiles were changed to use the $(CFLAGS) always when $(CC) is invoked.
+- The socClose function in the file soc_rtl.c was improved to call close() or
+  closesocket() depending on the operation system.
+- The functions socGetc, socLineRead and socWordRead of the file soc_rtl.c were improved
+  to interpret characters >= '\128\' as unsigned.
+
 20080720:
 - The FAQs about reserved words and templates were improved.
 - The chapters about boolean, integer, bigInteger, rational, float, complex, char

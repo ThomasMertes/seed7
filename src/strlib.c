@@ -363,7 +363,7 @@ listtype arguments;
 */
     if (str_from->size != 0) {
       new_size = str_to->size + str_from->size;
-      REALLOC_STRI(str_to, str_to, str_to->size, new_size);
+      GROW_STRI(str_to, str_to, str_to->size, new_size);
       if (str_to == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -410,7 +410,7 @@ listtype arguments;
     str1_size = str1->size;
     result_size = str1_size + str2->size;
     if (TEMP_OBJECT(arg_1(arguments))) {
-      REALLOC_STRI(result, str1, str1_size, result_size);
+      GROW_STRI(result, str1, str1_size, result_size);
       if (result == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -873,7 +873,7 @@ listtype arguments;
         result_size = (memsizetype) stop;
       } /* if */
       if (TEMP_OBJECT(arg_1(arguments))) {
-        REALLOC_STRI(result, stri, length, result_size);
+        SHRINK_STRI(result, stri, length, result_size);
         if (result == NULL) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
@@ -1114,6 +1114,66 @@ listtype arguments;
     } /* if */
     return(bld_stri_temp(result));
   } /* str_lpad */
+
+
+
+#ifdef ANSI_C
+
+objecttype str_lpad0 (listtype arguments)
+#else
+
+objecttype str_lpad0 (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype stri;
+    inttype pad_size;
+    memsizetype f_size;
+    memsizetype length;
+    stritype result;
+
+  /* str_lpad0 */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    stri = take_stri(arg_1(arguments));
+    pad_size = take_int(arg_3(arguments));
+    length = stri->size;
+    if (pad_size > (inttype) length) {
+      f_size = (memsizetype) pad_size;
+      if (!ALLOC_STRI(result, f_size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+      result->size = f_size;
+#ifdef WIDE_CHAR_STRINGS
+      {
+        strelemtype *elem = result->mem;
+        memsizetype len = f_size - length;
+
+        while (len--) {
+          *elem++ = (strelemtype) '0';
+        } /* while */
+      }
+#else
+      memset(result->mem, '0', (SIZE_TYPE) (f_size - length));
+#endif
+      memcpy(&result->mem[f_size - length], stri->mem,
+          (SIZE_TYPE) length * sizeof(strelemtype));
+    } else {
+      if (TEMP_OBJECT(arg_1(arguments))) {
+        result = stri;
+        arg_1(arguments)->value.strivalue = NULL;
+      } else {
+        if (!ALLOC_STRI(result, length)) {
+          return(raise_exception(SYS_MEM_EXCEPTION));
+        } /* if */
+        result->size = length;
+        memcpy(result->mem, stri->mem,
+            (SIZE_TYPE) length * sizeof(strelemtype));
+      } /* if */
+    } /* if */
+    return(bld_stri_temp(result));
+  } /* str_lpad0 */
 
 
 
@@ -1663,6 +1723,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype str_toutf8 (listtype arguments)
+#else
+
+objecttype str_toutf8 (arguments)
+listtype arguments;
+#endif
+
+  { /* str_toutf8 */
+    isit_stri(arg_1(arguments));
+    return(bld_stri_temp(
+        strToUtf8(take_stri(arg_1(arguments)))));
+  } /* str_toutf8 */
+
+
+
+#ifdef ANSI_C
+
 objecttype str_trim (listtype arguments)
 #else
 
@@ -1739,6 +1816,23 @@ listtype arguments;
       return(bld_stri_temp(result));
     } /* if */
   } /* str_up */
+
+
+
+#ifdef ANSI_C
+
+objecttype str_utf8tostri (listtype arguments)
+#else
+
+objecttype str_utf8tostri (arguments)
+listtype arguments;
+#endif
+
+  { /* str_utf8tostri */
+    isit_stri(arg_1(arguments));
+    return(bld_stri_temp(
+        strUtf8ToStri(take_stri(arg_1(arguments)))));
+  } /* str_utf8tostri */
 
 
 

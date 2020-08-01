@@ -71,6 +71,7 @@ objecttype int_sbtr (listtype);
 objecttype int_shrink (listtype);
 objecttype int_sqrt (listtype);
 objecttype int_str (listtype);
+objecttype int_str_based (listtype);
 objecttype int_succ (listtype);
 objecttype int_value (listtype);
 
@@ -120,6 +121,7 @@ objecttype int_sbtr ();
 objecttype int_shrink ();
 objecttype int_sqrt ();
 objecttype int_str ();
+objecttype int_str_based ();
 objecttype int_succ ();
 objecttype int_value ();
 

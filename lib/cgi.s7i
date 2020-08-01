@@ -26,29 +26,7 @@
 (********************************************************************)
 
 
-include "charsets.s7i";
-
-
-const func integer: hex_value (in string: stri) is func
-  result
-    var integer: result is 0;
-  local
-    var integer: pos is 0;
-    var integer: digit is 0;
-  begin
-    pos := 1;
-    while pos <= length(stri) do
-      if stri[pos] >= '0' and stri[pos] <= '9' then
-        digit := ord(stri[pos]) - ord('0');
-      elsif stri[pos] >= 'A' and stri[pos] <= 'F' then
-        digit := 10 + ord(stri[pos]) - ord('A');
-      elsif stri[pos] >= 'a' and stri[pos] <= 'f' then
-        digit := 10 + ord(stri[pos]) - ord('a');
-      end if;
-      result := result * 16 + digit;
-      incr(pos);
-    end while;
-  end func;
+include "chartype.s7i";
 
 
 const func string: replaceHexChars (in string: stri) is func
@@ -64,7 +42,7 @@ const func string: replaceHexChars (in string: stri) is func
           result[succ(pos)] in hexdigit_char and
           result[pos + 2] in hexdigit_char then
         result := result[.. pred(pos)] &
-            str(chr(hex_value(result[succ(pos) len 2]))) &
+            str(chr(toInt(result[succ(pos) len 2], 16))) &
             result[pos + 3 ..];
       end if;
       pos := pos(result, '%', succ(pos));

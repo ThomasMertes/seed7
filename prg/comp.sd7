@@ -35,6 +35,7 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 const boolean: WITH_STRI_CAPACITY      is boolean parse configValue("WITH_STRI_CAPACITY");
 const boolean: RSHIFT_DOES_SIGN_EXTEND is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
 const boolean: USE_SIGSETJMP           is boolean parse configValue("USE_SIGSETJMP");
+const boolean: TWOS_COMPLEMENT_INTTYPE is TRUE;
 
 const type: option_hash is hash [string] string;
 
@@ -114,6 +115,7 @@ const type: enum_literal_hash is hash [type] element_number_hash;
 const type: string_type_hash is hash [type] string;
 const type: variable_to_param_hash is hash [reference] reference;
 const type: additional_params_hash is hash [reference] variable_to_param_hash;
+const type: setOfCategory is set of category;
 
 var type_hash: array_element is type_hash.EMPTY_HASH;
 var type_hash: array_type is type_hash.EMPTY_HASH;
@@ -1278,6 +1280,62 @@ const proc: ref_list_value (in ref_list: current_value,
   end func;
 
 
+const func boolean: isConstant (in reference: current_expression) is forward;
+
+
+const func boolean: isConstantCall (in reference: current_expression) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: procedure is NIL;
+    var category: procedureCategory is category.value;
+    var reference: obj is NIL;
+  begin
+    params := getValue(current_expression, ref_list);
+    procedure := params[1];
+    params := params[2 ..];
+    procedureCategory := category(procedure);
+    if procedureCategory = ACTOBJECT or
+        procedureCategory = BLOCKOBJECT then
+      result := TRUE;
+      for obj range params do
+        if not isConstant(obj) then
+          result := FALSE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func boolean: isConstant (in reference: current_expression) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var category: exprCategory is category.value;
+  begin
+    if not is_var(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory in {INTOBJECT, BIGINTOBJECT, CHAROBJECT,
+          STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
+          SETOBJECT, FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT,
+          WINOBJECT, ENUMLITERALOBJECT} then
+        result := TRUE;
+      elsif exprCategory = MATCHOBJECT then
+        result := isConstantCall(current_expression);
+      elsif exprCategory = CALLOBJECT then
+        result := isConstantCall(current_expression);
+      elsif exprCategory = BLOCKOBJECT then
+        result := TRUE;
+      elsif exprCategory = ACTOBJECT then
+        result := TRUE;
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_statements (in expr_type: statements, inout expr_type: c_expr) is func
 
   begin
@@ -2049,25 +2107,29 @@ const proc: process_const_arr_idx (in reference: procedure, in reference: anArra
       if array_range_check then
         incr(c_expr.temp_num);
         index_temp_num := c_expr.temp_num;
-        c_expr.temp_decls &:= "inttype tmp_";
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.temp_decls &:= "memsizetype tmp_";
+        else
+          c_expr.temp_decls &:= "inttype tmp_";
+        end if;
         c_expr.temp_decls &:= str(index_temp_num);
         c_expr.temp_decls &:= ";\n";
         c_expr.expr &:= "(tmp_";
         c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "=";
+        c_expr.expr &:= "=(";
         process_expr(param3, c_expr);
-        c_expr.expr &:= ", tmp_";
-        c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "<";
+        c_expr.expr &:= ")-";
         c_expr.expr &:= str(array_min_index(anArray));
-        c_expr.expr &:= " || tmp_";
+        c_expr.expr &:= ", tmp_";
+        if not TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= str(index_temp_num);
+          c_expr.expr &:= "<0 || tmp_";
+        end if;
         c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= ">";
-        c_expr.expr &:= str(array_max_index(anArray));
+        c_expr.expr &:= ">=";
+        c_expr.expr &:= str(succ(array_max_index(anArray) - array_min_index(anArray)));
         c_expr.expr &:= " ? raise_error(RANGE_ERROR) : 0, tmp_";
         c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "-";
-        c_expr.expr &:= str(array_min_index(anArray));
         c_expr.expr &:= ")";
       else
         c_expr.expr &:= "(";
@@ -7038,6 +7100,49 @@ const proc: process_int_str (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_const_int_str_based (in reference: param1, in integer: base,
+    inout expr_type: c_expr) is func
+
+  begin
+    if base < 2 or base > 36 then
+      c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
+    elsif base = 10 then
+      prepare_stri_result(c_expr);
+      c_expr.result_expr &:= "intStr(";
+      getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ")";
+    elsif base = 16 then
+      prepare_stri_result(c_expr);
+      c_expr.result_expr &:= "intStrHex(";
+      getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr &:= "intStrBased(";
+      getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= str(base);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_int_str_based (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    if category(params[2]) = INTOBJECT and not is_var(params[2]) then
+      process_const_int_str_based(params[1], getValue(params[2], integer), c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr &:= "intStrBased(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[2], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process_int_succ (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -9194,6 +9299,60 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_const_str_elemcpy (in reference: param1, in integer: index, in reference: param6,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param6 is expr_type.value;
+  begin
+    incr(countOptimizations);
+    if index < 1 then
+      c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */ raise_error(RANGE_ERROR);\n";
+    else
+      process_expr(param1, c_param1);
+      c_param6.temp_num := c_param1.temp_num;
+      process_expr(param6, c_param6);
+      c_expr.expr &:= "{\n";
+      if c_param6.temp_num <> 0 then
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param6.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+        c_expr.expr &:= c_param6.temp_assigns;
+      end if;
+      if array_range_check then
+        c_expr.expr &:= "stritype str1=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "if (";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= " >= str1->size) {\n";
+        c_expr.expr &:= "  raise_error(RANGE_ERROR);\n";
+        c_expr.expr &:= "} else {\n";
+        c_expr.expr &:= "  str1->mem[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "] = (strelemtype) (";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ");\n";
+        c_expr.expr &:= "}\n";
+      else
+        c_expr.expr &:= "((stritype)(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "))->mem[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "] = (strelemtype) (";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ");\n";
+      end if;
+      if c_param6.temp_num <> 0 then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= c_param6.temp_frees;
+      end if;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -9201,49 +9360,61 @@ const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) i
     var expr_type: c_param4 is expr_type.value;
     var expr_type: c_param6 is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param4.temp_num := c_param1.temp_num;
-    process_expr(params[4], c_param4);
-    c_param6.temp_num := c_param4.temp_num;
-    process_expr(params[6], c_param6);
-    c_expr.expr &:= "{\n";
-    if c_param6.temp_num <> 0 then
-      c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param4.temp_decls;
-      c_expr.expr &:= c_param6.temp_decls;
-      c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param4.temp_assigns;
-      c_expr.expr &:= c_param6.temp_assigns;
-    end if;
-    if array_range_check then
-      c_expr.expr &:= "stritype str1=";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= ";\n";
-      c_expr.expr &:= "unsigned long int pos=";
-      c_expr.expr &:= c_param4.expr;
-      c_expr.expr &:= ";\n";
-      c_expr.expr &:= "if (pos >= 1 && pos <= str1->size) {\n";
-      c_expr.expr &:= "  str1->mem[pos - 1] = (strelemtype) (";
-      c_expr.expr &:= c_param6.expr;
-      c_expr.expr &:= ");\n";
-      c_expr.expr &:= "} else {\n";
-      c_expr.expr &:= "  raise_error(RANGE_ERROR);\n";
-      c_expr.expr &:= "}\n";
+    if category(params[4]) = INTOBJECT and not is_var(params[4]) then
+      process_const_str_elemcpy(params[1], getValue(params[4], integer), params[6], c_expr);
     else
-      c_expr.expr &:= "((stritype)(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "))->mem[(";
-      c_expr.expr &:= c_param4.expr;
-      c_expr.expr &:= ")-1] = (strelemtype) (";
-      c_expr.expr &:= c_param6.expr;
-      c_expr.expr &:= ");\n";
+      process_expr(params[1], c_param1);
+      c_param4.temp_num := c_param1.temp_num;
+      process_expr(params[4], c_param4);
+      c_param6.temp_num := c_param4.temp_num;
+      process_expr(params[6], c_param6);
+      c_expr.expr &:= "{\n";
+      if c_param6.temp_num <> 0 then
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param4.temp_decls;
+        c_expr.expr &:= c_param6.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+        c_expr.expr &:= c_param4.temp_assigns;
+        c_expr.expr &:= c_param6.temp_assigns;
+      end if;
+      if array_range_check then
+        c_expr.expr &:= "stritype str1=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "memsizetype pos=(";
+        else
+          c_expr.expr &:= "inttype pos=(";
+        end if;
+        c_expr.expr &:= c_param4.expr;
+        c_expr.expr &:= ")-1;\n";
+        c_expr.expr &:= "if (";
+        if not TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "pos < 0 && ";
+        end if;
+        c_expr.expr &:= "pos >= str1->size) {\n";
+        c_expr.expr &:= "  raise_error(RANGE_ERROR);\n";
+        c_expr.expr &:= "} else {\n";
+        c_expr.expr &:= "  str1->mem[pos] = (strelemtype) (";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ");\n";
+        c_expr.expr &:= "}\n";
+      else
+        c_expr.expr &:= "((stritype)(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "))->mem[(";
+        c_expr.expr &:= c_param4.expr;
+        c_expr.expr &:= ")-1] = (strelemtype) (";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ");\n";
+      end if;
+      if c_param6.temp_num <> 0 then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= c_param4.temp_frees;
+        c_expr.expr &:= c_param6.temp_frees;
+      end if;
+      c_expr.expr &:= "}\n";
     end if;
-    if c_param6.temp_num <> 0 then
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param4.temp_frees;
-      c_expr.expr &:= c_param6.temp_frees;
-    end if;
-    c_expr.expr &:= "}\n";
   end func;
 
 
@@ -9443,22 +9614,28 @@ const proc: process_const_str_idx (in string: stri, in reference: param3, inout 
       if array_range_check then
         incr(c_expr.temp_num);
         index_temp_num := c_expr.temp_num;
-        c_expr.temp_decls &:= "inttype tmp_";
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.temp_decls &:= "memsizetype tmp_";
+        else
+          c_expr.temp_decls &:= "inttype tmp_";
+        end if;
         c_expr.temp_decls &:= str(index_temp_num);
         c_expr.temp_decls &:= ";\n";
         c_expr.expr &:= "(tmp_";
         c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "=";
+        c_expr.expr &:= "=(";
         process_expr(param3, c_expr);
-        c_expr.expr &:= ", tmp_";
+        c_expr.expr &:= ")-1, tmp_";
+        if not TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= str(index_temp_num);
+          c_expr.expr &:= "<0 || tmp_";
+        end if;
         c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "<1 || tmp_";
-        c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= ">";
+        c_expr.expr &:= ">=";
         c_expr.expr &:= str(length(stri));
         c_expr.expr &:= " ? raise_error(RANGE_ERROR) : 0, tmp_";
         c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "-1)";
+        c_expr.expr &:= ")";
       else
         c_expr.expr &:= "(";
         process_expr(param3, c_expr);
@@ -9532,22 +9709,28 @@ const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= "->mem[";
       incr(c_expr.temp_num);
       index_temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "inttype tmp_";
+      if TWOS_COMPLEMENT_INTTYPE then
+        c_expr.temp_decls &:= "memsizetype tmp_";
+      else
+        c_expr.temp_decls &:= "inttype tmp_";
+      end if;
       c_expr.temp_decls &:= str(index_temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(tmp_";
       c_expr.expr &:= str(index_temp_num);
-      c_expr.expr &:= "=";
+      c_expr.expr &:= "=(";
       process_expr(params[3], c_expr);
-      c_expr.expr &:= ", tmp_";
+      c_expr.expr &:= ")-1, tmp_";
+      if not TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= str(index_temp_num);
+        c_expr.expr &:= "<0 || tmp_";
+      end if;
       c_expr.expr &:= str(index_temp_num);
-      c_expr.expr &:= "<1 || tmp_";
-      c_expr.expr &:= str(index_temp_num);
-      c_expr.expr &:= ">tmp_";
+      c_expr.expr &:= ">=tmp_";
       c_expr.expr &:= str(string_temp_num);
       c_expr.expr &:= "->size ? raise_error(RANGE_ERROR) : 0, tmp_";
       c_expr.expr &:= str(index_temp_num);
-      c_expr.expr &:= "-1)";
+      c_expr.expr &:= ")";
       c_expr.expr &:= "]))";
     else
       c_expr.expr &:= "((stritype)(";
@@ -9658,6 +9841,33 @@ const proc: process_str_lpad (in ref_list: params, inout expr_type: c_expr) is f
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+(**
+ *  Produces code for the lpad0 operator.
+ *  When the first parameter is a temporary value the operation
+ *  is done with strLpad0Temp. The strLpad0Temp function returns
+ *  the first parameter as result of the operation. That way the
+ *  temporary of the first parameter must not be freed.
+ *)
+const proc: process_str_lpad0 (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    prepare_stri_result(c_expr);
+    prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+    if c_param1.result_expr <> "" then
+      c_expr.result_expr := "strLpad0Temp(";
+      c_expr.result_expr &:= c_param1.result_expr;
+    else
+      c_expr.result_expr := "strLpad0(";
+      c_expr.result_expr &:= c_param1.expr;
+    end if;
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -9950,6 +10160,16 @@ const proc: process_str_tail (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_str_toutf8 (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr &:= "strToUtf8(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_str_trim (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -9981,6 +10201,16 @@ const proc: process_str_up (in ref_list: params, inout expr_type: c_expr) is fun
       c_expr.result_expr := "strUp(";
       c_expr.result_expr &:= c_param1.expr;
     end if;
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_str_utf8tostri (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr &:= "strUtf8ToStri(";
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -10953,6 +11183,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_int_sqrt(params, c_expr);
       elsif action_name = "INT_STR" then
         process_int_str(params, c_expr);
+      elsif action_name = "INT_STR_BASED" then
+        process_int_str_based(params, c_expr);
       elsif action_name = "INT_SUCC" then
         process_int_succ(params, c_expr);
       elsif action_name = "INT_VALUE" then
@@ -11345,6 +11577,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_str_low(params, c_expr);
       elsif action_name = "STR_LPAD" then
         process_str_lpad(params, c_expr);
+      elsif action_name = "STR_LPAD0" then
+        process_str_lpad0(params, c_expr);
       elsif action_name = "STR_LT" then
         process_str_lt(params, c_expr);
       elsif action_name = "STR_MULT" then
@@ -11371,10 +11605,14 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_str_substr(params, c_expr);
       elsif action_name = "STR_TAIL" then
         process_str_tail(params, c_expr);
+      elsif action_name = "STR_TOUTF8" then
+        process_str_toutf8(params, c_expr);
       elsif action_name = "STR_TRIM" then
         process_str_trim(params, c_expr);
       elsif action_name = "STR_UP" then
         process_str_up(params, c_expr);
+      elsif action_name = "STR_UTF8TOSTRI" then
+        process_str_utf8tostri(params, c_expr);
       elsif action_name = "STR_VALUE" then
         process_str_value(params, c_expr);
       else
@@ -14331,7 +14569,7 @@ const proc: addAdditionalParams (in reference: local_function,
     var integer: index is 0;
   begin
     if local_function not in additional_params then
-	  additional_params @:= [local_function] variable_to_param_hash.value;
+      additional_params @:= [local_function] variable_to_param_hash.value;
     end if;
     for index range 1 to length(additional_act_params) do
       if additional_act_params[index] not in additional_params[local_function] then
@@ -14340,7 +14578,7 @@ const proc: addAdditionalParams (in reference: local_function,
         write(str(local_function) <& "_" <& str(obj_number(local_function)));
         writeln;
         write(str(additional_act_params[index]) <& "_" <& str(obj_number(additional_act_params[index])));
-	    TRACE_OBJ(additional_act_params[index]);
+        TRACE_OBJ(additional_act_params[index]);
         writeln;
         write(str(additional_form_params[index]) <& "_" <& str(obj_number(additional_form_params[index])));
         TRACE_OBJ(additional_form_params[index]);
@@ -14350,7 +14588,7 @@ const proc: addAdditionalParams (in reference: local_function,
       elsif additional_params[local_function][additional_act_params[index]] <> additional_form_params[index] then
 (*
         write("###### ");
-	    TRACE_OBJ(additional_params[local_function][additional_act_params[index]]);
+        TRACE_OBJ(additional_params[local_function][additional_act_params[index]]);
         writeln;
         TRACE_OBJ(additional_form_params[index]);
         writeln;
@@ -15016,6 +15254,8 @@ const proc: write_file_head is func
     writeln(c_prog, "stritype    strLow (stritype);");
     writeln(c_prog, "stritype    strLowTemp (stritype);");
     writeln(c_prog, "stritype    strLpad (stritype, inttype);");
+    writeln(c_prog, "stritype    strLpad0 (stritype, inttype);");
+    writeln(c_prog, "stritype    strLpad0Temp (stritype, inttype);");
     writeln(c_prog, "booltype    strLt (stritype, stritype);");
     writeln(c_prog, "stritype    strMult (stritype, inttype);");
     writeln(c_prog, "inttype     strPos (stritype, stritype);");

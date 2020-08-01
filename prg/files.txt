@@ -82,12 +82,14 @@ bigint.s7i   bigInteger point support library
 bigrat.s7i   Big rational number support library               
 cards.s7i    Playing card pictures of a french deck            
 cgi.s7i      Support for the Common Gateway Interface          
-charsets.s7i Character type definitions                        
+charsets.s7i Codepages for various character sets              
+chartype.s7i Character type definitions                        
 complex.s7i  Complex support library                           
 dialog.s7i   Dialog support library                            
 dir.s7i      Read directorys as files                          
 draw.s7i     Graphic library                                   
 echo.s7i     Filter file which generates an echo of the input  
+encoding.s7i Encoding and decoding functions                   
 field.s7i    Filter file which reads the input fieldwise       
 float.s7i    Floating point support library                    
 getf.s7i     Read and write whole files into and from strings  

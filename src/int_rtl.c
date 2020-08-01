@@ -52,7 +52,7 @@
 #define BIT_32_SET(A) (((A) & (uinttype) 020000000000L) != 0)
 
 
-static int most_significant[] = {
+static const int most_significant[] = {
    -1, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
@@ -71,7 +71,7 @@ static int most_significant[] = {
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
   };
 
-static int least_significant[] = {
+static const int least_significant[] = {
    -1, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
     5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -89,6 +89,8 @@ static int least_significant[] = {
     5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
   };
+
+static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
 
@@ -744,3 +746,94 @@ inttype number;
       return(result);
     } /* if */
   } /* intStr */
+
+
+
+#ifdef ANSI_C
+
+stritype intStrBased (inttype number, inttype base)
+#else
+
+stritype intStrBased (number, base)
+inttype number;
+inttype base;
+#endif
+
+  {
+    uinttype unsigned_number;
+    booltype sign;
+    strelemtype buffer_1[75];
+    strelemtype *buffer;
+    memsizetype len;
+    stritype result;
+
+  /* intStrBased */
+    if (base < 2 || base > 36) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      if ((sign = (number < 0))) {
+        unsigned_number = -number;
+      } else {
+        unsigned_number = number;
+      } /* if */
+      buffer = &buffer_1[75];
+      do {
+        *(--buffer) = (strelemtype) (digits[unsigned_number % base]);
+      } while ((unsigned_number /= base) != 0);
+      if (sign) {
+        *(--buffer) = (strelemtype) '-';
+      } /* if */
+      len = &buffer_1[75] - buffer;
+      if (!ALLOC_STRI(result, len)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = len;
+        memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
+      } /* if */
+    } /* if */
+    return(result);
+  } /* intStrBased */
+
+
+
+#ifdef ANSI_C
+
+stritype intStrHex (inttype number)
+#else
+
+stritype intStrHex (number)
+inttype number;
+#endif
+
+  {
+    uinttype unsigned_number;
+    booltype sign;
+    strelemtype buffer_1[50];
+    strelemtype *buffer;
+    memsizetype len;
+    stritype result;
+
+  /* intStrHex */
+    if ((sign = (number < 0))) {
+      unsigned_number = -number;
+    } else {
+      unsigned_number = number;
+    } /* if */
+    buffer = &buffer_1[50];
+    do {
+      *(--buffer) = (strelemtype) (digits[unsigned_number & 0xF]);
+    } while ((unsigned_number >>= 4) != 0);
+    if (sign) {
+      *(--buffer) = (strelemtype) '-';
+    } /* if */
+    len = &buffer_1[50] - buffer;
+    if (!ALLOC_STRI(result, len)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = len;
+      memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
+      return(result);
+    } /* if */
+  } /* intStrHex */
